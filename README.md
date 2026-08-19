@@ -12,7 +12,8 @@ governance, candidate contracts, synthetic fixtures, architecture sources and an
 assurance harness. The first functional release will add the accessible public
 discovery product described in the [roadmap](docs/implementation/ROADMAP.md).
 
-There is not yet a deployed Explorer or MCP service. Live status is in
+The Explorer is implemented as a local static build but is not yet deployed; there
+is no MCP service. Live status is in
 [`PROGRESS.md`](PROGRESS.md); current authority and boundaries are in
 [`CONTEXT.md`](CONTEXT.md); notable changes are in [`CHANGELOG.md`](CHANGELOG.md).
 
@@ -59,15 +60,17 @@ pnpm run check
 ```
 
 The check builds and type-checks the TypeScript boundary, runs TypeScript and Python
-unit tests, reproducibly builds and validates the public OKF candidate, validates
-other schemas and fixtures, checks local links, performs a baseline secret scan,
-renders diagrams and creates a CycloneDX SBOM in `artifacts/`.
+unit tests, reproducibly builds and validates the public OKF candidate and Explorer,
+runs its real-browser accessibility and security journeys, validates other schemas
+and fixtures, checks local links, performs a baseline secret scan, renders diagrams
+and creates a CycloneDX SBOM in `artifacts/`.
 The foundation baseline and its explicit limits are preserved in the
 [`Stage 0 verification record`](docs/operations/STAGE_0_VERIFICATION.md); each OKF
 build emits its own ignored manifest, checksums and deterministic receipt.
 
 ## Repository map
 
+- `apps/public-explorer/` — static accessible catalogue Explorer
 - `apps/mcp-gateway/` — TypeScript gateway, currently a fail-closed scaffold
 - `services/geo-execution/` — deterministic Python execution boundary
 - `schemas/` — candidate contracts promoted from the research pack

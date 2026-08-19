@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import tomllib
 import unittest
 from pathlib import Path
@@ -30,6 +31,7 @@ class RepositoryBoundaryTests(unittest.TestCase):
         for relative in (
             "package.json",
             "apps/mcp-gateway/package.json",
+            "apps/public-explorer/package.json",
             "packages/contracts/package.json",
         ):
             package = json.loads((ROOT / relative).read_text(encoding="utf-8"))
@@ -52,6 +54,33 @@ class RepositoryBoundaryTests(unittest.TestCase):
             )
         )
         self.assertEqual(receipt["software"][0]["name"], "gis-ai-go-execution")
+
+    def test_package_uv_run_commands_are_lock_strict(self) -> None:
+        excluded_parts = {".git", "artifacts", "dist", "node_modules"}
+        uv_run = re.compile(r"(?<![\w-])uv\s+run(?=\s)")
+        locked_option = re.compile(r"^\s+--locked(?:\s|$)")
+
+        for path in sorted(ROOT.rglob("package.json")):
+            relative = path.relative_to(ROOT)
+            if excluded_parts.intersection(relative.parts):
+                continue
+            package = json.loads(path.read_text(encoding="utf-8"))
+            scripts = package.get("scripts", {})
+            self.assertIsInstance(scripts, dict)
+            for script_name, command in scripts.items():
+                if not isinstance(command, str):
+                    continue
+                for invocation, match in enumerate(uv_run.finditer(command), start=1):
+                    with self.subTest(
+                        package=relative.as_posix(),
+                        script=script_name,
+                        invocation=invocation,
+                    ):
+                        self.assertRegex(
+                            command[match.end() :],
+                            locked_option,
+                            "repository package scripts must start every uv run with --locked",
+                        )
 
 
 if __name__ == "__main__":

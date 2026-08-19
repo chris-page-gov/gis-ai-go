@@ -6,6 +6,8 @@ GIS AI GO is a public open-source project and has no supported production releas
 yet.
 The current gateway and execution service remain fail-closed scaffolds. Do not
 connect unreviewed code to provider credentials, protected data or public listeners.
+The public Explorer is a static metadata-only build; it is not a provider client or
+property-information service.
 
 ## Reporting
 
@@ -22,6 +24,13 @@ defects may use the public bug template.
 - application dependencies, the WebAssembly diagram renderer and GitHub Actions are
   lockfile or commit pinned;
 - schema, link, secret and boundary checks run in the assurance command;
+- the Explorer verifies its source inventory and checksums before build, ships no
+  production JavaScript dependency, renders catalogue values as text, allowlists
+  navigation, rejects symlinked or unallowlisted build inputs and outputs, requires
+  its exact restrictive Content Security Policy and makes no cross-origin runtime
+  request;
+- browser assurance covers hostile URL state, exact-origin requests, console errors,
+  keyboard operation and machine-readable download integrity;
 - GitHub secret scanning, push protection, Dependabot security updates and CodeQL
   default setup are enabled for the public repository;
 - no security claim is made for later identity, policy or hosting designs.

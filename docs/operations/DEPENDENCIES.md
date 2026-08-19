@@ -10,13 +10,18 @@ All installed dependencies are exact in `pnpm-lock.yaml` or `uv.lock`.
 | `@types/node` | `24.13.3` | Node.js 24 types |
 | `@modelcontextprotocol/server` | `2.0.0` | Pinned Stage 2 gateway SDK target; no server is started |
 | `@viz-js/viz` | `3.29.0` | Lockfile-pinned WebAssembly Graphviz renderer |
+| Vite | `8.2.1` | Static Explorer build and local preview only |
+| Vitest | `4.1.11` | Explorer unit and component assurance |
+| jsdom | `30.0.1` | Explorer component DOM used only in tests |
+| Playwright | `1.62.1` | Real-browser Explorer acceptance using runner Chrome |
+| axe-core Playwright integration | `4.13.0` | Automated WCAG 2.2 A and AA checks |
 | Python | `>=3.12` | Portable deterministic service and assurance scripts |
 | uv | `0.12.2` | Python workspace and lock |
 | jsonschema | `4.26.0` | Draft 2020-12 OKF, schema and fixture validation |
 
-No provider SDK, web framework, geospatial runtime, OPA binary, database driver or
-cloud dependency is present yet. Additions follow the live roadmap and dependency
-assurance rules.
+The Explorer has no production runtime dependency. No provider SDK, server-side web
+framework, geospatial runtime, OPA binary, database driver or cloud dependency is
+present yet. Additions follow the live roadmap and dependency assurance rules.
 
 GitHub Actions are pinned to immutable commits in `.github/workflows/ci.yml`; the
 comments record the corresponding release tags checked on 19 August 2026.

@@ -1,0 +1,66 @@
+<!doctype html>
+<html class="no-js" lang="en-GB">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="referrer" content="no-referrer">
+    <meta name="color-scheme" content="light">
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; base-uri 'none'; form-action 'none'"
+    >
+    <title>GIS AI GO public Explorer</title>
+    <meta
+      name="description"
+      content="Accessible discovery of governed public geospatial catalogue metadata."
+    >
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <header class="site-header">
+      <div class="page-width">
+        <p class="product-name">GIS AI GO</p>
+        <p class="product-description">
+          Governed geospatial knowledge and action for people, systems and AI agents
+        </p>
+        <p class="boundary-label">Public metadata candidate — no property records or geometry</p>
+      </div>
+    </header>
+    <main id="main-content" class="page-width" tabindex="-1">
+      <div id="explorer-root" aria-busy="true">
+        <p role="status">Loading the public catalogue…</p>
+      </div>
+      <noscript>
+        <section aria-labelledby="javascript-free-heading">
+          <h1 id="javascript-free-heading">INSPIRE polygon: indicative or legal boundary?</h1>
+          <p>
+            <strong>Indicative.</strong> The dataset describes polygons showing the
+            indicative position and extent of registered freehold property.
+            <span>Polygons are indicative and do not establish the exact legal extent of a title.</span>
+          </p>
+          <p>
+            This Explorer contains metadata only. It contains no property record,
+            address or geometry, is not legal advice and must not be used to decide
+            ownership, title extent or a boundary dispute.
+          </p>
+          <p>
+            Interactive search and views need JavaScript. The governed catalogue remains
+            available as <a href="./catalogue/okf-bundle.json">Download JSON</a> and
+            <a href="./catalogue/okf-bundle.jsonld">Download JSON-LD</a>, with its
+            <a href="./catalogue/CHECKSUMS.sha256">Download checksums</a> ledger.
+          </p>
+        </section>
+      </noscript>
+    </main>
+    <footer class="site-footer">
+      <div class="page-width">
+        <p>
+          GIS AI GO is authoritative only for this normalised publication. External
+          publishers remain authoritative for their sources.
+        </p>
+      </div>
+    </footer>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

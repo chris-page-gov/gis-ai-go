@@ -33,6 +33,7 @@ def main() -> None:
     for relative in (
         "package.json",
         "apps/mcp-gateway/package.json",
+        "apps/public-explorer/package.json",
         "packages/contracts/package.json",
     ):
         value = load_json(ROOT / relative).get("version")

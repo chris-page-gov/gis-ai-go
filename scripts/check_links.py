@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 RESEARCH = ROOT / "docs" / "research" / "2026-08-19"
 PACK = RESEARCH / "research-pack"
 VENDORED_OKF = ROOT / "okf" / "vendor"
+GENERATED_EXPLORER_CATALOGUE = ROOT / "apps" / "public-explorer" / "public" / "catalogue"
 MARKDOWN_LINK = re.compile(r"!?\[[^\]]*]\(([^)]+)\)")
 SOURCE_ID = re.compile(r"^S-[A-Z0-9-]+$")
 SKIP_PARTS = {".git", ".venv", "node_modules", "artifacts", "dist"}
@@ -42,7 +43,11 @@ def check_markdown_links() -> tuple[int, list[str]]:
         # Exact vendored Markdown may contain upstream-relative links to files outside
         # the selected input set. Its bytes and complete local inventory are enforced
         # by the OKF source lock instead of rewriting those links.
-        if SKIP_PARTS.intersection(path.parts) or path.is_relative_to(VENDORED_OKF):
+        if (
+            SKIP_PARTS.intersection(path.parts)
+            or path.is_relative_to(VENDORED_OKF)
+            or path.is_relative_to(GENERATED_EXPLORER_CATALOGUE)
+        ):
             continue
         text = path.read_text(encoding="utf-8")
         for match in MARKDOWN_LINK.finditer(text):
