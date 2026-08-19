@@ -1,0 +1,9 @@
+flowchart LR
+  Discovery[OKF discovery index] --> Filter[Policy-filtered capability registry]
+  Filter --> MCP[MCP tools/resources]
+  MCP --> Permit[Authority context and transaction permit]
+  Permit --> Adapter[Provider adapter contract]
+  Adapter --> Compute[Deterministic compute]
+  Compute --> Result[Canonical result envelope]
+  Result --> Receipt[Evidence receipt]
+  Receipt --> Inspect[evidence.inspect]

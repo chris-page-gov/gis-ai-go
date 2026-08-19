@@ -1,0 +1,4 @@
+* text=auto eol=lf
+*.zip binary
+*.svg text eol=lf
+docs/research/2026-08-19/research-pack/** -text -diff

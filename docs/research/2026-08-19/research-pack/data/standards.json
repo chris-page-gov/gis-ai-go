@@ -1,0 +1,242 @@
+{
+  "generated_at": "2026-08-19T13:30:00+01:00",
+  "standards": [
+    {
+      "id": "STD-OKF",
+      "name": "Open Knowledge Format",
+      "version": "0.2",
+      "maturity": "current normative specification in project context",
+      "role": "Human- and agent-readable knowledge, provenance, trust, lifecycle and attestation description",
+      "canonical_authority": "Markdown with YAML frontmatter; source repository",
+      "mapping": [
+        "MCP resources/capability metadata",
+        "DCAT/GeoDCAT",
+        "OGC Records",
+        "STAC",
+        "PROV",
+        "ODRL"
+      ],
+      "source_ids": [
+        "S-OKF-SPEC"
+      ]
+    },
+    {
+      "id": "STD-MCP",
+      "name": "Model Context Protocol",
+      "version": "2026-07-28",
+      "maturity": "final general availability",
+      "role": "Agent-facing discovery and invocation",
+      "canonical_authority": "Official MCP specification",
+      "mapping": [
+        "tools",
+        "resources",
+        "Tasks",
+        "Apps",
+        "EMA"
+      ],
+      "source_ids": [
+        "S-MCP-SPEC",
+        "S-MCP-RELEASE"
+      ]
+    },
+    {
+      "id": "STD-WEBMCP",
+      "name": "WebMCP",
+      "version": "draft as at 2026-08-19",
+      "maturity": "W3C Community Group draft; not standards-track",
+      "role": "Page-provided browser-resident tools",
+      "canonical_authority": "Draft browser specification",
+      "mapping": [
+        "open read-only catalogue search",
+        "facets",
+        "record inspection",
+        "current-view evidence"
+      ],
+      "source_ids": [
+        "S-WEBMCP"
+      ]
+    },
+    {
+      "id": "STD-ARAZZO",
+      "name": "Arazzo",
+      "version": "1.1.0",
+      "maturity": "published specification",
+      "role": "Explicit multi-step API workflow description",
+      "canonical_authority": "OpenAPI Initiative",
+      "mapping": [
+        "workflow definitions",
+        "approval steps",
+        "provider sequences"
+      ],
+      "source_ids": [
+        "S-ARAZZO"
+      ]
+    },
+    {
+      "id": "STD-OGC-RECORDS",
+      "name": "OGC API – Records",
+      "version": "1.0",
+      "maturity": "approved OGC standard",
+      "role": "Geospatial catalogue search and records",
+      "canonical_authority": "Provider record service",
+      "mapping": [
+        "OKF provider/dataset concepts",
+        "DCAT/GeoDCAT records"
+      ],
+      "source_ids": [
+        "S-OGC-RECORDS"
+      ]
+    },
+    {
+      "id": "STD-OGC-FEATURES",
+      "name": "OGC API – Features",
+      "version": "1.x",
+      "maturity": "approved OGC standard",
+      "role": "Feature retrieval and filtering",
+      "canonical_authority": "Provider service",
+      "mapping": [
+        "data.query",
+        "spatial.locate"
+      ],
+      "source_ids": [
+        "S-OGC-FEATURES"
+      ]
+    },
+    {
+      "id": "STD-STAC",
+      "name": "STAC",
+      "version": "1.x",
+      "maturity": "stable community standard",
+      "role": "Spatiotemporal asset and collection discovery",
+      "canonical_authority": "Provider STAC catalogue",
+      "mapping": [
+        "OKF datasets/assets",
+        "object storage artefacts"
+      ],
+      "source_ids": [
+        "S-STAC"
+      ]
+    },
+    {
+      "id": "STD-DCAT",
+      "name": "DCAT",
+      "version": "3",
+      "maturity": "W3C Recommendation",
+      "role": "Dataset and data-service catalogue vocabulary",
+      "canonical_authority": "W3C",
+      "mapping": [
+        "OKF datasets/providers/distributions/services"
+      ],
+      "source_ids": [
+        "S-DCAT"
+      ]
+    },
+    {
+      "id": "STD-GEODCAT",
+      "name": "GeoDCAT-AP",
+      "version": "3.1",
+      "maturity": "published application profile",
+      "role": "Geospatial extension/profile for public-sector catalogues",
+      "canonical_authority": "European Commission profile",
+      "mapping": [
+        "OKF geospatial dataset metadata"
+      ],
+      "source_ids": [
+        "S-GEODCAT"
+      ]
+    },
+    {
+      "id": "STD-PROV",
+      "name": "W3C PROV-O",
+      "version": "Recommendation",
+      "maturity": "W3C Recommendation",
+      "role": "Interchange model for entities, activities, agents and derivation",
+      "canonical_authority": "Evidence receipt/audit model remains platform schema; PROV is exchange mapping",
+      "mapping": [
+        "source",
+        "transformation",
+        "actor",
+        "receipt"
+      ],
+      "source_ids": [
+        "S-PROV"
+      ]
+    },
+    {
+      "id": "STD-ODRL",
+      "name": "ODRL",
+      "version": "2.2",
+      "maturity": "W3C Recommendation",
+      "role": "Machine-readable permissions, prohibitions and duties",
+      "canonical_authority": "Provider licence and contract remain legal authority",
+      "mapping": [
+        "licence policy references and obligations"
+      ],
+      "source_ids": [
+        "S-ODRL"
+      ]
+    },
+    {
+      "id": "STD-TRACE",
+      "name": "W3C Trace Context",
+      "version": "Recommendation",
+      "maturity": "W3C Recommendation",
+      "role": "Cross-component trace correlation",
+      "canonical_authority": "Trace headers and telemetry store",
+      "mapping": [
+        "authority context trace_id",
+        "policy decision",
+        "result receipt"
+      ],
+      "source_ids": [
+        "S-TRACE"
+      ]
+    },
+    {
+      "id": "STD-GEOPARQUET",
+      "name": "GeoParquet",
+      "version": "1.1",
+      "maturity": "stable",
+      "role": "Cloud-friendly vector storage and analytics exchange",
+      "canonical_authority": "Object artefact manifest",
+      "mapping": [
+        "bulk extracts",
+        "derived results",
+        "DuckDB"
+      ],
+      "source_ids": [
+        "S-GEOPARQUET"
+      ]
+    },
+    {
+      "id": "STD-PMTILES",
+      "name": "PMTiles",
+      "version": "3",
+      "maturity": "stable",
+      "role": "Single-file tiled map delivery from object storage",
+      "canonical_authority": "Published artefact manifest",
+      "mapping": [
+        "public maps",
+        "bounded protected artefacts"
+      ],
+      "source_ids": [
+        "S-PMTILES"
+      ]
+    },
+    {
+      "id": "STD-COG",
+      "name": "Cloud Optimized GeoTIFF",
+      "version": "OGC standard",
+      "maturity": "approved",
+      "role": "Range-readable raster delivery",
+      "canonical_authority": "Provider/object artefact",
+      "mapping": [
+        "soil/raster assets",
+        "TiTiler-style delivery"
+      ],
+      "source_ids": [
+        "S-COG"
+      ]
+    }
+  ]
+}

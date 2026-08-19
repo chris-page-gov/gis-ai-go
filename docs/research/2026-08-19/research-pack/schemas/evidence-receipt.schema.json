@@ -1,0 +1,268 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/locus-accord/schemas/evidence-receipt.schema.json",
+  "title": "Result Evidence Receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "receipt_id",
+    "created_at",
+    "request_id",
+    "trace_id",
+    "authority_context_id",
+    "policy_decision_id",
+    "operation",
+    "sources",
+    "transformations",
+    "software",
+    "outputs",
+    "licence_obligations",
+    "verification",
+    "attestation",
+    "retention_classification"
+  ],
+  "properties": {
+    "receipt_id": {
+      "type": "string",
+      "pattern": "^receipt_[A-Za-z0-9_-]+$"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "request_id": {
+      "type": "string"
+    },
+    "trace_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{32}$"
+    },
+    "authority_context_id": {
+      "type": "string"
+    },
+    "policy_decision_id": {
+      "type": "string"
+    },
+    "operation": {
+      "type": "object",
+      "required": [
+        "tool",
+        "version",
+        "parameters_digest"
+      ],
+      "properties": {
+        "tool": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "parameters_digest": {
+          "type": "string"
+        },
+        "workflow_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "provider",
+          "dataset",
+          "version",
+          "uri",
+          "retrieved_at",
+          "checksum"
+        ],
+        "properties": {
+          "provider": {
+            "type": "string"
+          },
+          "dataset": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "uri": {
+            "type": "string"
+          },
+          "retrieved_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "checksum": {
+            "type": "string"
+          },
+          "licence": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "transformations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "parameters",
+          "input_crs",
+          "output_crs"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "parameters": {
+            "type": "object"
+          },
+          "input_crs": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "output_crs": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "software": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "software": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "version"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "digest": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "media_type",
+          "sha256"
+        ],
+        "properties": {
+          "artefact_id": {
+            "type": "string"
+          },
+          "uri": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "media_type": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string"
+          },
+          "size_bytes": {
+            "type": "integer"
+          },
+          "redactions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "licence_obligations": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "verification": {
+      "type": "object",
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "not-run",
+            "passed",
+            "failed",
+            "partial"
+          ]
+        },
+        "checks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "attestation": {
+      "type": "object",
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "not-attested",
+            "attested",
+            "failed"
+          ]
+        },
+        "attester": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "receipt_digest": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "retention_classification": {
+      "type": "string"
+    }
+  }
+}

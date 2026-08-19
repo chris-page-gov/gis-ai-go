@@ -1,0 +1,53 @@
+{
+  "decision_id": "pdp_demo_001",
+  "decided_at": "2026-08-19T12:00:01Z",
+  "policy_version": "policy-2026-08-19.1",
+  "authority_context_id": "authctx_demo_psga_001",
+  "effect": "allow-with-obligations",
+  "reasons": [
+    {
+      "code": "ENTITLED_COMPLIANT_DEVICE",
+      "message": "The synthetic user has the required organisation entitlement and a current compliant-device claim.",
+      "policy_rule": "data_query.psga.allow"
+    }
+  ],
+  "obligations": [
+    {
+      "type": "attribution",
+      "parameters": {
+        "provider": "OS"
+      }
+    },
+    {
+      "type": "no_persistent_export",
+      "parameters": {}
+    },
+    {
+      "type": "max_feature_count",
+      "parameters": {
+        "value": 500
+      }
+    }
+  ],
+  "pip_evidence": [
+    {
+      "source": "entra-intune:example",
+      "observed_at": "2026-08-19T11:59:30Z",
+      "digest": "sha256:synthetic-device-claim",
+      "attributes": {
+        "posture": "compliant-managed"
+      }
+    },
+    {
+      "source": "entitlement-registry:example",
+      "observed_at": "2026-08-19T11:59:45Z",
+      "digest": "sha256:synthetic-entitlement",
+      "attributes": {
+        "entitled": true
+      }
+    }
+  ],
+  "permit_id": "permit_demo_001",
+  "expires_at": "2026-08-19T12:05:00Z",
+  "trace_id": "0123456789abcdef0123456789abcdef"
+}

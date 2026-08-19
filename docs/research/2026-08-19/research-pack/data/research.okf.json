@@ -1,0 +1,106 @@
+{
+  "id": "locus-accord-research-pack-2026-08-19",
+  "title": "Locus Accord — governed geospatial knowledge and action platform research pack",
+  "description": "A public, static, machine-readable decision and implementation hand-off pack. This JSON is an Explorer/publication descriptor; normative OKF 0.2 concepts are under ../okf/.",
+  "okf_version": "0.2",
+  "profile": "locus-accord-research-pack.v1",
+  "generated": {
+    "by": "process:openai-deep-research-and-artifact-build",
+    "at": "2026-08-19T13:30:00+01:00"
+  },
+  "sources": [
+    {
+      "resource": "sources.json",
+      "title": "Source ledger"
+    }
+  ],
+  "entrypoints": {
+    "human": "../index.html",
+    "okf_core": "../okf/index.md",
+    "executive_decision": "../report/00-executive-decision.md",
+    "codex_handoff": "../codex/CODEX_HANDOFF.md"
+  },
+  "collections": [
+    {
+      "id": "sources",
+      "href": "sources.json"
+    },
+    {
+      "id": "repositories",
+      "href": "repositories.json"
+    },
+    {
+      "id": "findings",
+      "href": "findings.json"
+    },
+    {
+      "id": "requirements",
+      "href": "requirements.json"
+    },
+    {
+      "id": "decisions",
+      "href": "decisions.json"
+    },
+    {
+      "id": "risks",
+      "href": "risks.json"
+    },
+    {
+      "id": "controls",
+      "href": "controls.json"
+    },
+    {
+      "id": "providers",
+      "href": "providers.json"
+    },
+    {
+      "id": "standards",
+      "href": "standards.json"
+    },
+    {
+      "id": "hosting-options",
+      "href": "hosting-options.json"
+    },
+    {
+      "id": "tool-catalogue",
+      "href": "tool-catalogue.json"
+    },
+    {
+      "id": "workflows",
+      "href": "workflows.json"
+    },
+    {
+      "id": "evaluation-cases",
+      "href": "evaluation-cases.json"
+    },
+    {
+      "id": "name-candidates",
+      "href": "name-candidates.json"
+    },
+    {
+      "id": "migration-harvest",
+      "href": "migration-harvest.json"
+    }
+  ],
+  "views": [
+    "search",
+    "facets",
+    "decisions",
+    "providers",
+    "standards",
+    "risks",
+    "timeline",
+    "graph",
+    "map",
+    "data-card"
+  ],
+  "access_tier": "open",
+  "contains_protected_data": false,
+  "contains_secrets": false,
+  "limitations": [
+    "This research pack is not an implemented service.",
+    "Cost ranges are assumptions, not quotes.",
+    "Name clearance is incomplete.",
+    "Provider licences and roadmaps must be revalidated during implementation."
+  ]
+}

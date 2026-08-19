@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:decision:0",
+  "$comment": "Candidate promoted from the immutable 19 August 2026 research pack.",
+  "title": "Architecture Decision",
+  "type": "object",
+  "required": [
+    "id",
+    "title",
+    "topic",
+    "status",
+    "recommendation",
+    "options_considered",
+    "evidence",
+    "benefits",
+    "disadvantages",
+    "risks",
+    "cost_complexity",
+    "reversibility",
+    "confidence",
+    "conditions_that_change_decision"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "topic": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "recommendation": {
+      "type": "string"
+    },
+    "options_considered": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "benefits": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "disadvantages": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "risks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "cost_complexity": {
+      "type": "string"
+    },
+    "reversibility": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "string"
+    },
+    "conditions_that_change_decision": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "decided_on": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

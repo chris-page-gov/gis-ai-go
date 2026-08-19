@@ -1,0 +1,585 @@
+{
+  "generated_at": "2026-08-19T13:30:00+01:00",
+  "requirements": [
+    {
+      "id": "R001",
+      "topic": "architecture",
+      "requirement": "The product shall implement the six-control governance spine and four deployable planes.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02"
+      ]
+    },
+    {
+      "id": "R002",
+      "topic": "product",
+      "requirement": "The product shall not rely on MCP as its only interface or product identity.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D01",
+        "D02"
+      ]
+    },
+    {
+      "id": "R003",
+      "topic": "okf",
+      "requirement": "The public discovery pack shall conform to OKF 0.2 core and label Explorer extensions separately.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02",
+        "D03"
+      ]
+    },
+    {
+      "id": "R004",
+      "topic": "mcp",
+      "requirement": "The MCP service shall target the final 2026-07-28 protocol.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02",
+        "D04"
+      ]
+    },
+    {
+      "id": "R005",
+      "topic": "mcp",
+      "requirement": "Tool and resource discovery shall be deterministic, cacheable and policy-filtered.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02",
+        "D04"
+      ]
+    },
+    {
+      "id": "R006",
+      "topic": "tools",
+      "requirement": "The initial action surface shall not exceed 12 core tools without an evidence-backed decision.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02",
+        "D05"
+      ]
+    },
+    {
+      "id": "R007",
+      "topic": "tools",
+      "requirement": "Every tool shall declare read/mutate status, schemas, dependencies, access tier, policy attributes, risks, errors, provenance and tests.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02",
+        "D05"
+      ]
+    },
+    {
+      "id": "R008",
+      "topic": "identity",
+      "requirement": "The actor chain from human to upstream provider shall be preserved in the authority context.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02",
+        "D09"
+      ]
+    },
+    {
+      "id": "R009",
+      "topic": "identity",
+      "requirement": "Human authentication shall use OIDC/OAuth authorisation code with PKCE.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02",
+        "D09"
+      ]
+    },
+    {
+      "id": "R010",
+      "topic": "identity",
+      "requirement": "Service workloads shall use managed/workload identity rather than shared user secrets.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02",
+        "D09"
+      ]
+    },
+    {
+      "id": "R011",
+      "topic": "identity",
+      "requirement": "Sensitive actions shall use short-lived transaction-bound permits.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02",
+        "D09"
+      ]
+    },
+    {
+      "id": "R012",
+      "topic": "identity",
+      "requirement": "Device posture shall come from a trusted enterprise control, not a client assertion.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02",
+        "D09"
+      ]
+    },
+    {
+      "id": "R013",
+      "topic": "policy",
+      "requirement": "OPA policy decisions shall be versioned, testable, explainable and evidence-linked.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02",
+        "D10"
+      ]
+    },
+    {
+      "id": "R014",
+      "topic": "policy",
+      "requirement": "Policy enforcement shall cover discovery, invocation, provider credential selection, cache, projection, maps, exports and audit.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02",
+        "D10"
+      ]
+    },
+    {
+      "id": "R015",
+      "topic": "policy",
+      "requirement": "Allow decisions shall be able to return enforceable obligations.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02",
+        "D10"
+      ]
+    },
+    {
+      "id": "R016",
+      "topic": "data",
+      "requirement": "Open, PSGA and commercial stores, caches, keys and service identities shall be physically isolated.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02",
+        "D12"
+      ]
+    },
+    {
+      "id": "R017",
+      "topic": "data",
+      "requirement": "Cache keys shall include entitlement-sensitive attributes and dataset/version identity.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02",
+        "D12"
+      ]
+    },
+    {
+      "id": "R018",
+      "topic": "data",
+      "requirement": "Every cache entry shall include licence, provenance, policy, transformation, expiry and audience metadata.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02",
+        "D12"
+      ]
+    },
+    {
+      "id": "R019",
+      "topic": "licensing",
+      "requirement": "No protected credentials or licensed feature payloads shall enter public browser assets or static bundles.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02"
+      ]
+    },
+    {
+      "id": "R020",
+      "topic": "licensing",
+      "requirement": "Provider-native licence and redistribution conditions shall remain traceable per dataset/product.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02"
+      ]
+    },
+    {
+      "id": "R021",
+      "topic": "geospatial",
+      "requirement": "Deterministic operations shall be executed by tested geospatial software, not generated by the LLM.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02",
+        "D13"
+      ]
+    },
+    {
+      "id": "R022",
+      "topic": "geospatial",
+      "requirement": "The service shall preserve source CRS, transformations, axis order and output CRS in receipts.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02",
+        "D13"
+      ]
+    },
+    {
+      "id": "R023",
+      "topic": "geospatial",
+      "requirement": "Identifiers shall carry namespace, source, validity interval and temporal relationships.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02",
+        "D13"
+      ]
+    },
+    {
+      "id": "R024",
+      "topic": "geospatial",
+      "requirement": "Bounded JSON results shall use GeoJSON; large results shall stream, tile or become downloadable artefacts.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02",
+        "D13"
+      ]
+    },
+    {
+      "id": "R025",
+      "topic": "geospatial",
+      "requirement": "PostGIS shall be the default indexed vector store and object storage the default bulk/tile/raster artefact store.",
+      "priority": "should",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02",
+        "D13"
+      ]
+    },
+    {
+      "id": "R026",
+      "topic": "workflow",
+      "requirement": "Multi-step governed processes shall use explicit workflow definitions.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02"
+      ]
+    },
+    {
+      "id": "R027",
+      "topic": "workflow",
+      "requirement": "Long-running operations shall support Tasks, cancellation, expiry, resumption and rollback where meaningful.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02"
+      ]
+    },
+    {
+      "id": "R028",
+      "topic": "apps",
+      "requirement": "Every MCP App capability shall have a complete non-UI result.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02"
+      ]
+    },
+    {
+      "id": "R029",
+      "topic": "apps",
+      "requirement": "Widgets shall use the same policy and evidence services as ordinary tool calls.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02"
+      ]
+    },
+    {
+      "id": "R030",
+      "topic": "webmcp",
+      "requirement": "WebMCP shall be limited to safe read-only public operations until a later decision.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02",
+        "D07"
+      ]
+    },
+    {
+      "id": "R031",
+      "topic": "webmcp",
+      "requirement": "The public site shall remain useful without WebMCP support.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02",
+        "D07"
+      ]
+    },
+    {
+      "id": "R032",
+      "topic": "evidence",
+      "requirement": "Every material result shall produce an evidence receipt with immutable identifiers and hashes.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02"
+      ]
+    },
+    {
+      "id": "R033",
+      "topic": "evidence",
+      "requirement": "Audit events shall exclude tokens, secrets and unnecessary sensitive query content.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02"
+      ]
+    },
+    {
+      "id": "R034",
+      "topic": "evidence",
+      "requirement": "Trace Context shall correlate gateway, policy, execution, provider and evidence events.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02"
+      ]
+    },
+    {
+      "id": "R035",
+      "topic": "assurance",
+      "requirement": "The service shall support emergency deny, tool suspension, credential revocation, agent quarantine and evidence freeze.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02"
+      ]
+    },
+    {
+      "id": "R036",
+      "topic": "assurance",
+      "requirement": "Threat controls shall have preventive, detective, response and test evidence.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02"
+      ]
+    },
+    {
+      "id": "R037",
+      "topic": "hosting",
+      "requirement": "The public pack shall use relative assets and run from ordinary static hosting.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02",
+        "D15"
+      ]
+    },
+    {
+      "id": "R038",
+      "topic": "hosting",
+      "requirement": "The protected pilot shall use a UK-region managed platform and enterprise identity.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02",
+        "D15"
+      ]
+    },
+    {
+      "id": "R039",
+      "topic": "hosting",
+      "requirement": "Kubernetes shall not be introduced without measured workload or organisational justification.",
+      "priority": "must-not",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02",
+        "D15"
+      ]
+    },
+    {
+      "id": "R040",
+      "topic": "accessibility",
+      "requirement": "The public experience shall meet WCAG 2.2 AA and support keyboard-only use.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02"
+      ]
+    },
+    {
+      "id": "R041",
+      "topic": "accessibility",
+      "requirement": "Maps shall have text alternatives and non-visual result contracts.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02"
+      ]
+    },
+    {
+      "id": "R042",
+      "topic": "repository",
+      "requirement": "The successor shall start in a new repository; MCP-Geo shall not be rewritten in place.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02",
+        "D18"
+      ]
+    },
+    {
+      "id": "R043",
+      "topic": "repository",
+      "requirement": "Migration shall use an explicit forensic harvest and acceptance tests.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02",
+        "D18"
+      ]
+    },
+    {
+      "id": "R044",
+      "topic": "evaluation",
+      "requirement": "The evaluation suite shall cover at least the 20 commissioned scenarios and malicious-input tests.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02"
+      ]
+    },
+    {
+      "id": "R045",
+      "topic": "evaluation",
+      "requirement": "Evaluation shall measure correctness, policy, licence, provenance, reproducibility, latency, cache, cost, accessibility and interoperability.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02"
+      ]
+    },
+    {
+      "id": "R046",
+      "topic": "governance",
+      "requirement": "DPIA, equality/accessibility, ATRS and service-assurance gates shall be assessed before protected production.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02"
+      ]
+    },
+    {
+      "id": "R047",
+      "topic": "governance",
+      "requirement": "Every tool, workflow, provider and dataset shall have an owner, steward, status and decommission route.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02"
+      ]
+    },
+    {
+      "id": "R048",
+      "topic": "naming",
+      "requirement": "Locus Accord is a working codename only until formal clearance.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02",
+        "D20"
+      ]
+    },
+    {
+      "id": "R049",
+      "topic": "scope",
+      "requirement": "Stage 1 shall use public or synthetic data only.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02"
+      ]
+    },
+    {
+      "id": "R050",
+      "topic": "scope",
+      "requirement": "Commercial and PSGA operations shall not be enabled until contracts, entitlements, policy tests and isolated stores are evidenced.",
+      "priority": "must",
+      "status": "accepted",
+      "verification": "See acceptance tests and linked decision",
+      "decision_ids": [
+        "D02"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+locus-accord/
+├── README.md
+├── LICENSE
+├── SECURITY.md
+├── GOVERNANCE.md
+├── CONTRIBUTING.md
+├── CODE_OF_CONDUCT.md
+├── AGENTS.md
+├── package.json
+├── pnpm-workspace.yaml
+├── pyproject.toml
+├── uv.lock
+├── apps/
+│   ├── public-explorer/
+│   └── mcp-gateway/
+├── services/
+│   └── geo-execution/
+├── packages/
+│   ├── contracts/
+│   ├── authority-context/
+│   ├── policy-client/
+│   ├── evidence/
+│   └── provider-adapter-sdk/
+├── providers/
+│   ├── fixtures/
+│   ├── ons/
+│   ├── nomis/
+│   ├── landis/
+│   └── hmlr-open/
+├── okf/
+├── policies/
+├── workflows/
+├── schemas/
+├── architecture/
+├── evaluation/
+├── tests/
+│   ├── contract/
+│   ├── policy/
+│   ├── security/
+│   ├── interoperability/
+│   └── accessibility/
+├── infra/
+│   ├── modules/
+│   └── environments/
+├── docs/
+│   ├── decisions/
+│   ├── providers/
+│   ├── threat-model/
+│   └── operations/
+└── .github/workflows/

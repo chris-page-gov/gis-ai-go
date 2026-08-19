@@ -1,0 +1,19 @@
+sequenceDiagram
+  participant H as Known human
+  participant A as Agent/host
+  participant G as MCP gateway
+  participant I as Entra/Intune
+  participant P as OPA
+  participant B as Credential broker
+  participant OS as OS provider
+  participant E as Evidence
+  H->>A: Request protected enrichment
+  A->>G: Call with delegated token
+  G->>I: Validate actor and posture
+  G->>P: Evaluate authority context
+  P-->>G: Allow with obligations/permit
+  G->>B: Select organisation credential
+  B->>OS: Client-credentials provider call
+  OS-->>G: Protected result
+  G->>E: Decision, provider call and receipt
+  G-->>A: Protected result; no public cache

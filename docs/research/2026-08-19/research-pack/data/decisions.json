@@ -1,0 +1,712 @@
+{
+  "generated_at": "2026-08-19T13:30:00+01:00",
+  "decisions": [
+    {
+      "id": "D01",
+      "title": "Product identity and boundary",
+      "topic": "product",
+      "status": "accepted",
+      "recommendation": "Build a governed geospatial knowledge and action platform with four separable planes. MCP is one interface, not the product identity.",
+      "options_considered": [
+        "Incrementally patch MCP-Geo",
+        "New single MCP server",
+        "Federation of provider servers",
+        "Governed platform with multiple interfaces"
+      ],
+      "evidence": [
+        "S-MCP-GEO",
+        "S-MCP-SPEC",
+        "S-OKF-SPEC"
+      ],
+      "benefits": [
+        "Avoids coupling product identity to a protocol",
+        "Supports humans, agents and direct APIs",
+        "Keeps providers and systems of record authoritative"
+      ],
+      "disadvantages": [
+        "More architecture and governance work than a server refresh"
+      ],
+      "risks": [
+        "Scope expansion without a firm minimum viable product"
+      ],
+      "cost_complexity": "High initial design; lower long-term coupling",
+      "reversibility": "High if interfaces remain contract-led",
+      "confidence": "high",
+      "conditions_that_change_decision": [
+        "A narrowly scoped internal-only server could justify a smaller product boundary"
+      ],
+      "decided_on": "2026-08-19"
+    },
+    {
+      "id": "D02",
+      "title": "Six-control governance spine",
+      "topic": "architecture",
+      "status": "accepted",
+      "recommendation": "Use the six-control spine as the primary governance view and map it to presentation, control, execution/data and evidence planes.",
+      "options_considered": [
+        "Security perimeter model",
+        "Conventional application layers only",
+        "Six controls plus deployable planes"
+      ],
+      "evidence": [
+        "S-NCSC-CLOUD",
+        "S-NCSC-CAF",
+        "S-ATRS"
+      ],
+      "benefits": [
+        "Keeps identity, licence, workflow and evidence end-to-end",
+        "Supports human-led and agentic processes with the same controls"
+      ],
+      "disadvantages": [
+        "Requires cross-cutting ownership and traceability"
+      ],
+      "risks": [
+        "Teams could mistake planes for governance controls or vice versa"
+      ],
+      "cost_complexity": "Medium governance overhead",
+      "reversibility": "High; it is a view and allocation model",
+      "confidence": "high",
+      "conditions_that_change_decision": [
+        "A mandated enterprise reference architecture may require renamed planes"
+      ],
+      "decided_on": "2026-08-19"
+    },
+    {
+      "id": "D03",
+      "title": "Role of OKF",
+      "topic": "okf",
+      "status": "accepted",
+      "recommendation": "Use OKF 0.2 as the canonical knowledge, discovery, provenance and policy-description layer. Do not make it the runtime authority, policy decision point or evidence store.",
+      "options_considered": [
+        "No OKF",
+        "OKF as universal runtime model",
+        "OKF as discovery and semantic layer"
+      ],
+      "evidence": [
+        "S-OKF-SPEC",
+        "S-OKF-EXPLORER",
+        "S-OKF-ONS"
+      ],
+      "benefits": [
+        "Portable human/agent-readable corpus",
+        "Version-controlled provenance and lifecycle",
+        "Preserves source-native schemas through references"
+      ],
+      "disadvantages": [
+        "Requires mappings and profiles",
+        "Does not itself execute or enforce"
+      ],
+      "risks": [
+        "Explorer extensions could be misrepresented as normative OKF"
+      ],
+      "cost_complexity": "Medium",
+      "reversibility": "Medium; content remains Markdown/YAML and exportable",
+      "confidence": "high",
+      "conditions_that_change_decision": [
+        "A future normative OKF revision could change core fields or packaging"
+      ],
+      "decided_on": "2026-08-19"
+    },
+    {
+      "id": "D04",
+      "title": "MCP primitive mapping",
+      "topic": "mcp",
+      "status": "accepted",
+      "recommendation": "Use resources for catalogue/schema/licence/style/evidence descriptions; tools for deterministic actions; Tasks for long jobs; Apps for optional UI; Arazzo for durable workflows.",
+      "options_considered": [
+        "Everything as tools",
+        "Everything as resources",
+        "Primitive-by-responsibility mapping"
+      ],
+      "evidence": [
+        "S-MCP-SPEC",
+        "S-MCP-TASKS",
+        "S-MCP-APPS",
+        "S-ARAZZO"
+      ],
+      "benefits": [
+        "Small stable action surface",
+        "Better caching and discovery",
+        "UI-independent results"
+      ],
+      "disadvantages": [
+        "More explicit contracts and cross-references"
+      ],
+      "risks": [
+        "Host support differs for extensions"
+      ],
+      "cost_complexity": "Medium",
+      "reversibility": "High at adapter layer",
+      "confidence": "high",
+      "conditions_that_change_decision": [
+        "Host interoperability tests may require compatibility shims"
+      ],
+      "decided_on": "2026-08-19"
+    },
+    {
+      "id": "D05",
+      "title": "Tool surface",
+      "topic": "tools",
+      "status": "accepted",
+      "recommendation": "Expose 12 composable, schema-rich tools instead of the 103-tool MCP-Geo catalogue. Keep provider selection behind policy-aware adapters.",
+      "options_considered": [
+        "Retain 103 tools",
+        "Provider-specific servers",
+        "Compact generic capability model"
+      ],
+      "evidence": [
+        "S-MCP-GEO",
+        "S-MCP-SPEC"
+      ],
+      "benefits": [
+        "Reduces model confusion and tool poisoning surface",
+        "Supports progressive disclosure",
+        "Makes policy and evidence fields consistent"
+      ],
+      "disadvantages": [
+        "Generic schemas need strong selection semantics",
+        "Some provider-native capabilities need explicit extensions"
+      ],
+      "risks": [
+        "Over-generalisation could obscure provider constraints"
+      ],
+      "cost_complexity": "Medium redesign",
+      "reversibility": "Medium; add provider profiles without changing core tools",
+      "confidence": "high",
+      "conditions_that_change_decision": [
+        "Evaluation may show a small number of provider-specific tools are safer"
+      ],
+      "decided_on": "2026-08-19"
+    },
+    {
+      "id": "D06",
+      "title": "MCP protocol and SDK target",
+      "topic": "mcp",
+      "status": "accepted",
+      "recommendation": "Target MCP 2026-07-28 and the official TypeScript SDK at a pinned release/commit. Keep protocol conformance tests against official fixtures and major hosts.",
+      "options_considered": [
+        "2025-11-25 compatibility baseline",
+        "2026-07-28 final",
+        "Custom JSON-RPC subset"
+      ],
+      "evidence": [
+        "S-MCP-SPEC",
+        "S-MCP-RELEASE",
+        "S-MCP-TS",
+        "S-MCP-REPO"
+      ],
+      "benefits": [
+        "Uses final stateless model and current routing/discovery",
+        "Best control-plane SDK fit"
+      ],
+      "disadvantages": [
+        "Some hosts may lag and need compatibility behaviour"
+      ],
+      "risks": [
+        "Extension support may remain uneven"
+      ],
+      "cost_complexity": "Medium migration",
+      "reversibility": "Medium; protocol adapters can support older clients temporarily",
+      "confidence": "high",
+      "conditions_that_change_decision": [
+        "A critical host lacks final-protocol support and cannot be upgraded"
+      ],
+      "decided_on": "2026-08-19"
+    },
+    {
+      "id": "D07",
+      "title": "WebMCP adoption level",
+      "topic": "webmcp",
+      "status": "accepted",
+      "recommendation": "Run a bounded, open-data, read-only WebMCP experiment in the static HMLR/Explorer site. Do not expose privileged operations, credentials or policy decisions through it.",
+      "options_considered": [
+        "Ignore WebMCP",
+        "Production privileged WebMCP",
+        "Read-only experimental adoption"
+      ],
+      "evidence": [
+        "S-WEBMCP",
+        "S-WCAG"
+      ],
+      "benefits": [
+        "Tests agent-ready website discovery without scraping",
+        "Progressive enhancement for ordinary browsers"
+      ],
+      "disadvantages": [
+        "Draft API and browser support",
+        "Additional accessibility/security testing"
+      ],
+      "risks": [
+        "API churn and origin/lifecycle attacks"
+      ],
+      "cost_complexity": "Low-to-medium experiment",
+      "reversibility": "Very high",
+      "confidence": "high",
+      "conditions_that_change_decision": [
+        "W3C standards-track status, stable browser support and resolved security model could justify wider adoption"
+      ],
+      "decided_on": "2026-08-19"
+    },
+    {
+      "id": "D08",
+      "title": "MCP Apps approach",
+      "topic": "mcp-apps",
+      "status": "accepted",
+      "recommendation": "Use MCP Apps for optional map, inspector, provenance and approval views. Every capability must return a complete deterministic non-UI result and use the same policy/evidence path.",
+      "options_considered": [
+        "No Apps",
+        "Apps-first operation",
+        "Optional presentation extension"
+      ],
+      "evidence": [
+        "S-MCP-APPS",
+        "S-MCP-GEO"
+      ],
+      "benefits": [
+        "Rich interaction in supporting hosts",
+        "Preserves non-visual interoperability"
+      ],
+      "disadvantages": [
+        "Host support varies",
+        "Widget security boundary must be maintained"
+      ],
+      "risks": [
+        "Widget becoming an alternate ungoverned API"
+      ],
+      "cost_complexity": "Medium after core service",
+      "reversibility": "High",
+      "confidence": "high",
+      "conditions_that_change_decision": [
+        "Host support remains too limited to justify maintenance"
+      ],
+      "decided_on": "2026-08-19"
+    },
+    {
+      "id": "D09",
+      "title": "Authentication and delegated authority",
+      "topic": "identity",
+      "status": "accepted",
+      "recommendation": "Use OIDC/OAuth 2.1, authorisation code with PKCE for humans, workload identity for services, token exchange/on-behalf-of where supported, and short-lived transaction-bound permits for sensitive actions.",
+      "options_considered": [
+        "Bring-your-own provider keys",
+        "Gateway bearer token only",
+        "Federated actor chain and transaction permits"
+      ],
+      "evidence": [
+        "S-OAUTH-BCP",
+        "S-TOKEN-EXCHANGE",
+        "S-RAR",
+        "S-DPOP",
+        "S-MCP-EMA"
+      ],
+      "benefits": [
+        "Preserves human/agent/workload chain",
+        "Limits confused-deputy risk",
+        "Supports revocation and evidence"
+      ],
+      "disadvantages": [
+        "Identity integration is significant",
+        "Token exchange support differs"
+      ],
+      "risks": [
+        "Bearer leakage or overbroad scopes if implementation shortcuts are taken"
+      ],
+      "cost_complexity": "High",
+      "reversibility": "Medium; identity provider can change behind standards",
+      "confidence": "high",
+      "conditions_that_change_decision": [
+        "Enterprise identity constraints mandate a different federation pattern"
+      ],
+      "decided_on": "2026-08-19"
+    },
+    {
+      "id": "D10",
+      "title": "ABAC and policy engine",
+      "topic": "policy",
+      "status": "accepted",
+      "recommendation": "Use Open Policy Agent/Rego as the principal portable PDP, with policy information from trusted identity, entitlement, licence, provider and risk services. Keep relationship data available as input rather than adopting a separate ReBAC engine initially.",
+      "options_considered": [
+        "OPA/Rego",
+        "Cedar/Verified Permissions",
+        "OpenFGA/SpiceDB",
+        "Keycloak authorisation services"
+      ],
+      "evidence": [
+        "S-OPA",
+        "S-CEDAR"
+      ],
+      "benefits": [
+        "Portable, mature, testable policy-as-code",
+        "Strong obligation and structured-input model",
+        "Avoids cloud lock-in"
+      ],
+      "disadvantages": [
+        "Rego skills and policy lifecycle needed",
+        "Relationship graph queries need an external PIP"
+      ],
+      "risks": [
+        "Policy complexity and stale attribute inputs"
+      ],
+      "cost_complexity": "Medium-to-high",
+      "reversibility": "Medium; authority context and decisions remain engine-neutral",
+      "confidence": "medium-high",
+      "conditions_that_change_decision": [
+        "AWS becomes the mandated platform with Verified Permissions already operated",
+        "Relationship-heavy entitlements dominate"
+      ],
+      "decided_on": "2026-08-19"
+    },
+    {
+      "id": "D11",
+      "title": "Trusted device posture",
+      "topic": "identity",
+      "status": "accepted",
+      "recommendation": "Use Entra Conditional Access and Intune-compliance claims as trusted posture evidence for the first protected pilot. Never accept posture asserted directly by the MCP client.",
+      "options_considered": [
+        "Client-supplied posture",
+        "No posture control",
+        "Enterprise-attested posture"
+      ],
+      "evidence": [
+        "S-ENTRA-CA",
+        "S-INTUNE"
+      ],
+      "benefits": [
+        "Matches public-sector managed-device controls",
+        "Policy can downgrade or deny on posture change"
+      ],
+      "disadvantages": [
+        "Entra/Intune dependency for initial pilot"
+      ],
+      "risks": [
+        "Stale posture or claims forwarded without validation"
+      ],
+      "cost_complexity": "Medium enterprise integration",
+      "reversibility": "Medium; posture PIP interface is provider-neutral",
+      "confidence": "high",
+      "conditions_that_change_decision": [
+        "Pilot identity estate is not Entra/Intune"
+      ],
+      "decided_on": "2026-08-19"
+    },
+    {
+      "id": "D12",
+      "title": "Access and cache isolation",
+      "topic": "data",
+      "status": "accepted",
+      "recommendation": "Operate open, PSGA and commercial data planes as physically separate deployments/stores/caches/keys/identities. Share source code, schemas and reviewed policy definitions only.",
+      "options_considered": [
+        "Single multi-tier store",
+        "Logical namespaces",
+        "Physical tier isolation"
+      ],
+      "evidence": [
+        "S-OS-LICENSING",
+        "S-NCSC-CLOUD"
+      ],
+      "benefits": [
+        "Strongest control against cross-tier leakage",
+        "Simpler incident and licence withdrawal boundaries"
+      ],
+      "disadvantages": [
+        "Higher operational cost and duplication"
+      ],
+      "risks": [
+        "Configuration drift across tiers"
+      ],
+      "cost_complexity": "High but proportionate",
+      "reversibility": "Low-to-medium once protected data is loaded",
+      "confidence": "high",
+      "conditions_that_change_decision": [
+        "A formal risk assessment proves logical separation sufficient for a narrowly bounded dataset"
+      ],
+      "decided_on": "2026-08-19"
+    },
+    {
+      "id": "D13",
+      "title": "Canonical geospatial storage and formats",
+      "topic": "geospatial",
+      "status": "accepted",
+      "recommendation": "Use PostGIS for authoritative/queryable vector state and indexes; object storage for GeoParquet, PMTiles, COG and downloadable artefacts; DuckDB Spatial for isolated embedded analytics; GeoJSON only for bounded results.",
+      "options_considered": [
+        "Object storage only",
+        "PostGIS only",
+        "Hybrid PostGIS/object storage"
+      ],
+      "evidence": [
+        "S-GEOPARQUET",
+        "S-PMTILES",
+        "S-COG",
+        "S-OGC-FEATURES"
+      ],
+      "benefits": [
+        "Right storage for transactional queries and bulk delivery",
+        "Portable open formats",
+        "Efficient map and analytics paths"
+      ],
+      "disadvantages": [
+        "Multiple storage lifecycles and manifests"
+      ],
+      "risks": [
+        "Stale projections between database and artefacts"
+      ],
+      "cost_complexity": "Medium",
+      "reversibility": "High through open formats",
+      "confidence": "high",
+      "conditions_that_change_decision": [
+        "The MVP remains metadata-only and needs no spatial database"
+      ],
+      "decided_on": "2026-08-19"
+    },
+    {
+      "id": "D14",
+      "title": "Live API versus cache strategy",
+      "topic": "data",
+      "status": "accepted",
+      "recommendation": "Prefer live provider APIs for volatile, transactional or legally authoritative results; use governed versioned caches for reference geographies, approved open bulk data, performance-critical tiles and outage resilience.",
+      "options_considered": [
+        "Always live",
+        "Always cache",
+        "Classified hybrid strategy"
+      ],
+      "evidence": [
+        "S-OS-LICENSING",
+        "S-ONS-GEOGRAPHY",
+        "S-LANDIS",
+        "S-HMLR-BG"
+      ],
+      "benefits": [
+        "Balances freshness, cost, resilience and rights"
+      ],
+      "disadvantages": [
+        "Requires per-dataset classification and invalidation"
+      ],
+      "risks": [
+        "Stale or licence-invalid cache use"
+      ],
+      "cost_complexity": "Medium-to-high governance",
+      "reversibility": "Medium",
+      "confidence": "high",
+      "conditions_that_change_decision": [
+        "Provider terms prohibit caching or provide guaranteed low-latency services"
+      ],
+      "decided_on": "2026-08-19"
+    },
+    {
+      "id": "D15",
+      "title": "Open demonstrator hosting",
+      "topic": "hosting",
+      "status": "accepted",
+      "recommendation": "Publish the research pack and Stage 1 open demonstrator as a static, portable site, initially compatible with GitHub Pages or Cloudflare Pages. Treat ChatGPT Sites as an optional open/synthetic mirror only after UK account availability is verified.",
+      "options_considered": [
+        "ChatGPT Sites only",
+        "GitHub Pages",
+        "Cloudflare Pages",
+        "Static-portable multi-host"
+      ],
+      "evidence": [
+        "S-OPENAI-SITES",
+        "S-OPENAI-SITES-RESIDENCY",
+        "S-OKF-EXPLORER"
+      ],
+      "benefits": [
+        "No mandatory server",
+        "Low cost and easy sharing",
+        "Exit path through relative assets"
+      ],
+      "disadvantages": [
+        "No protected operations or server-side policy"
+      ],
+      "risks": [
+        "Mutable hosted routes must not be mistaken for immutable evidence"
+      ],
+      "cost_complexity": "Low",
+      "reversibility": "Very high",
+      "confidence": "high",
+      "conditions_that_change_decision": [
+        "A mandated publishing platform provides equivalent portability and accessibility"
+      ],
+      "decided_on": "2026-08-19"
+    },
+    {
+      "id": "D16",
+      "title": "Protected production hosting",
+      "topic": "hosting",
+      "status": "accepted",
+      "recommendation": "Use Azure UK for the first protected pilot: Container Apps/App Service, Azure Database for PostgreSQL/PostGIS, Blob Storage, Entra ID/Conditional Access, managed identities, Key Vault, API Management and Monitor. Keep contracts portable to GCP and AWS.",
+      "options_considered": [
+        "Azure",
+        "Google Cloud",
+        "AWS",
+        "Cloudflare edge",
+        "Kubernetes"
+      ],
+      "evidence": [
+        "S-AZURE-REGIONS",
+        "S-AZURE-POSTGIS",
+        "S-ENTRA-CA",
+        "S-GCP-REGIONS",
+        "S-AWS-REGIONS"
+      ],
+      "benefits": [
+        "Best fit with Entra-managed public-sector users and devices",
+        "UK region and managed data services",
+        "Low initial identity integration friction"
+      ],
+      "disadvantages": [
+        "Azure operational dependency and cost"
+      ],
+      "risks": [
+        "Cloud lock-in if IaC and contracts are not portable"
+      ],
+      "cost_complexity": "Medium-to-high",
+      "reversibility": "Medium with container/open-format/IaC discipline",
+      "confidence": "medium-high",
+      "conditions_that_change_decision": [
+        "Departmental landing zone mandates GCP or AWS",
+        "Protected pilot lacks Entra integration"
+      ],
+      "decided_on": "2026-08-19"
+    },
+    {
+      "id": "D17",
+      "title": "Language and runtime",
+      "topic": "runtime",
+      "status": "accepted",
+      "recommendation": "Use a TypeScript MCP/control gateway and a Python deterministic geospatial execution service. Keep it to these two deployable services initially.",
+      "options_considered": [
+        "Python monolith",
+        "TypeScript monolith",
+        "TypeScript gateway plus Python execution",
+        "Multi-service polyglot"
+      ],
+      "evidence": [
+        "S-MCP-TS",
+        "S-MCP-PY",
+        "S-MCP-GEO"
+      ],
+      "benefits": [
+        "Current MCP/OAuth fit in TypeScript",
+        "Strong Python geospatial ecosystem",
+        "Clear trust boundary"
+      ],
+      "disadvantages": [
+        "Two runtimes and contracts"
+      ],
+      "risks": [
+        "Distributed failure and version drift"
+      ],
+      "cost_complexity": "Medium",
+      "reversibility": "Medium",
+      "confidence": "medium-high",
+      "conditions_that_change_decision": [
+        "Official Python SDK closes all control-plane gaps and a single-service implementation passes the same assurance"
+      ],
+      "decided_on": "2026-08-19"
+    },
+    {
+      "id": "D18",
+      "title": "Repository reset and migration",
+      "topic": "repository",
+      "status": "accepted",
+      "recommendation": "Create a new repository for Locus Accord only after this decision phase. Archive MCP-Geo as a learning journal. Migrate selected assets through a tested harvest, never by copying the repository wholesale.",
+      "options_considered": [
+        "Rewrite MCP-Geo in place",
+        "Fork and delete old code",
+        "New repository with evidence-led harvest"
+      ],
+      "evidence": [
+        "S-MCP-GEO"
+      ],
+      "benefits": [
+        "Clean architecture and history",
+        "Preserves learning evidence",
+        "Avoids hidden coupling and secrets"
+      ],
+      "disadvantages": [
+        "Migration planning and duplication during transition"
+      ],
+      "risks": [
+        "Valuable edge cases could be missed"
+      ],
+      "cost_complexity": "Medium",
+      "reversibility": "High before implementation begins",
+      "confidence": "high",
+      "conditions_that_change_decision": [
+        "Organisational policy requires continuity in the existing repository"
+      ],
+      "decided_on": "2026-08-19"
+    },
+    {
+      "id": "D19",
+      "title": "Minimum viable scope",
+      "topic": "roadmap",
+      "status": "accepted",
+      "recommendation": "Stage 0 creates evidence, schemas and test harness; Stage 1 publishes an HMLR/ONS/LandIS open discovery pack; Stage 2 adds a small open read-only MCP service. Identity, PSGA and commercial work follow only after evidence gates.",
+      "options_considered": [
+        "Protected pilot first",
+        "All providers and tiers at once",
+        "Open discovery and read-only MCP first"
+      ],
+      "evidence": [
+        "S-OKF-HMLR",
+        "S-OKF-ONS",
+        "S-MCP-SPEC"
+      ],
+      "benefits": [
+        "Demonstrates value without licensed-data risk",
+        "Tests core contracts early",
+        "Creates reusable evidence"
+      ],
+      "disadvantages": [
+        "Protected-use value arrives later"
+      ],
+      "risks": [
+        "Open demonstrator could be mistaken for production readiness"
+      ],
+      "cost_complexity": "Controlled",
+      "reversibility": "High",
+      "confidence": "high",
+      "conditions_that_change_decision": [
+        "A funded protected pilot supplies its identity, licence and governance prerequisites from day one"
+      ],
+      "decided_on": "2026-08-19"
+    },
+    {
+      "id": "D20",
+      "title": "Working project name",
+      "topic": "naming",
+      "status": "accepted-working-codename",
+      "recommendation": "Use Locus Accord (`locus-accord`) as the working codename. It expresses place plus an explicit agreement between authority, policy, data and action. Do not claim legal clearance.",
+      "options_considered": [
+        "MCP-Geo 2",
+        "Geo Accord",
+        "Locus Accord",
+        "Spatial Trust",
+        "PlaceProof"
+      ],
+      "evidence": [
+        "S-COMMISSION"
+      ],
+      "benefits": [
+        "Not tied to MCP or a provider",
+        "Memorable and pronounceable",
+        "Fits repository, package and service naming"
+      ],
+      "disadvantages": [
+        "Two-word Latin/English blend may need explanation"
+      ],
+      "risks": [
+        "Trademark, package, domain or product conflict not found in preliminary checks"
+      ],
+      "cost_complexity": "Low now; formal clearance later",
+      "reversibility": "High before public launch",
+      "confidence": "medium",
+      "conditions_that_change_decision": [
+        "UKIPO/package/domain checks identify a conflict",
+        "Stakeholder research rejects the name"
+      ],
+      "decided_on": "2026-08-19"
+    }
+  ]
+}

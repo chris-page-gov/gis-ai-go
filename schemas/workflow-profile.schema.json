@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:workflow-profile:0",
+  "$comment": "Candidate promoted from the immutable 19 August 2026 research pack.",
+  "title": "Workflow Profile",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "purpose",
+    "definition_authority",
+    "steps",
+    "human_approval",
+    "task_usage",
+    "mrtr_usage",
+    "tiers",
+    "entry_criteria",
+    "exit_criteria",
+    "rollback",
+    "source_ids"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "purpose": {
+      "type": "string"
+    },
+    "definition_authority": {
+      "type": "string"
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "human_approval": {
+      "type": "string"
+    },
+    "task_usage": {
+      "type": "string"
+    },
+    "mrtr_usage": {
+      "type": "string"
+    },
+    "tiers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "entry_criteria": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "exit_criteria": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "rollback": {
+      "type": "string"
+    },
+    "source_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,167 @@
+{
+  "generated_at": "2026-08-19T13:30:00+01:00",
+  "recommended": "Locus Accord",
+  "legal_clearance": "not performed",
+  "candidates": [
+    {
+      "name": "Locus Accord",
+      "slug": "locus-accord",
+      "meaning": "Place plus an explicit agreement between authority, policy, data and action.",
+      "status": "recommended-working-codename",
+      "conflict_check": "No exact GitHub repository result in preliminary check; package, domain and UKIPO checks outstanding.",
+      "risk": "medium-low"
+    },
+    {
+      "name": "Geo Accord",
+      "slug": "geo-accord",
+      "meaning": "Governed agreement around geospatial use.",
+      "status": "shortlist",
+      "conflict_check": "Likely generic usage; full checks required.",
+      "risk": "medium"
+    },
+    {
+      "name": "Spatial Accord",
+      "slug": "spatial-accord",
+      "meaning": "Trustworthy spatial decisions under agreed controls.",
+      "status": "shortlist",
+      "conflict_check": "Full checks required.",
+      "risk": "medium"
+    },
+    {
+      "name": "Locus Guard",
+      "slug": "locus-guard",
+      "meaning": "Protection and control around place-based action.",
+      "status": "shortlist",
+      "conflict_check": "Full checks required.",
+      "risk": "medium"
+    },
+    {
+      "name": "Atlas Accord",
+      "slug": "atlas-accord",
+      "meaning": "A map of knowledge governed by agreement.",
+      "status": "shortlist",
+      "conflict_check": "Atlas is crowded in software and geospatial markets.",
+      "risk": "high"
+    },
+    {
+      "name": "Place Ledger",
+      "slug": "place-ledger",
+      "meaning": "Place knowledge with evidence and audit.",
+      "status": "candidate",
+      "conflict_check": "Potential property/blockchain associations.",
+      "risk": "medium-high"
+    },
+    {
+      "name": "Spatial Ledger",
+      "slug": "spatial-ledger",
+      "meaning": "Evidence-led spatial records and actions.",
+      "status": "candidate",
+      "conflict_check": "Potential blockchain connotation.",
+      "risk": "medium-high"
+    },
+    {
+      "name": "Geo Covenant",
+      "slug": "geo-covenant",
+      "meaning": "Rules and obligations around geographic knowledge.",
+      "status": "candidate",
+      "conflict_check": "Legal/religious connotations may be unhelpful.",
+      "risk": "medium"
+    },
+    {
+      "name": "Locus Trust",
+      "slug": "locus-trust",
+      "meaning": "Trusted place knowledge.",
+      "status": "candidate",
+      "conflict_check": "“Trust” may imply assurance beyond evidence.",
+      "risk": "medium"
+    },
+    {
+      "name": "Place Accord",
+      "slug": "place-accord",
+      "meaning": "Agreement around place data and action.",
+      "status": "candidate",
+      "conflict_check": "Generic phrase; full checks required.",
+      "risk": "medium"
+    },
+    {
+      "name": "Spatial Commons",
+      "slug": "spatial-commons",
+      "meaning": "Shared discoverable spatial knowledge.",
+      "status": "candidate",
+      "conflict_check": "Could imply all data is open.",
+      "risk": "high"
+    },
+    {
+      "name": "Locus Nexus",
+      "slug": "locus-nexus",
+      "meaning": "Connection point for spatial knowledge and services.",
+      "status": "candidate",
+      "conflict_check": "Nexus is crowded.",
+      "risk": "high"
+    },
+    {
+      "name": "Geo Verity",
+      "slug": "geo-verity",
+      "meaning": "Evidence-led truth claims about place.",
+      "status": "candidate",
+      "conflict_check": "May overclaim truth; full checks required.",
+      "risk": "high"
+    },
+    {
+      "name": "Place Proof",
+      "slug": "place-proof",
+      "meaning": "Evidence for place-based outputs.",
+      "status": "rejected",
+      "conflict_check": "Crowded/generic and potentially misleading as proof.",
+      "risk": "high"
+    },
+    {
+      "name": "Spatial Authority",
+      "slug": "spatial-authority",
+      "meaning": "Authoritative spatial access and action.",
+      "status": "rejected",
+      "conflict_check": "Could imply statutory authority or government endorsement.",
+      "risk": "high"
+    },
+    {
+      "name": "Geo Steward",
+      "slug": "geo-steward",
+      "meaning": "Stewardship of spatial knowledge.",
+      "status": "candidate",
+      "conflict_check": "May sound like an operator role rather than platform.",
+      "risk": "medium"
+    },
+    {
+      "name": "Locus Bridge",
+      "slug": "locus-bridge",
+      "meaning": "Bridge from discovery to governed action.",
+      "status": "candidate",
+      "conflict_check": "Generic bridge naming.",
+      "risk": "medium"
+    },
+    {
+      "name": "Map Accord",
+      "slug": "map-accord",
+      "meaning": "Agreed controls for map knowledge and action.",
+      "status": "candidate",
+      "conflict_check": "Too mapping-specific.",
+      "risk": "medium"
+    },
+    {
+      "name": "Terra Accord",
+      "slug": "terra-accord",
+      "meaning": "Agreement around land and spatial knowledge.",
+      "status": "candidate",
+      "conflict_check": "Terra is crowded and sounds earth/environment specific.",
+      "risk": "high"
+    },
+    {
+      "name": "Locus Evidence",
+      "slug": "locus-evidence",
+      "meaning": "Evidence-backed knowledge of place.",
+      "status": "candidate",
+      "conflict_check": "Clear but less memorable.",
+      "risk": "low-medium"
+    }
+  ]
+}

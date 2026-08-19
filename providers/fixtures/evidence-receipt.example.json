@@ -1,0 +1,79 @@
+{
+  "receipt_id": "receipt_demo_001",
+  "created_at": "2026-08-19T12:00:03Z",
+  "request_id": "request_demo_001",
+  "trace_id": "0123456789abcdef0123456789abcdef",
+  "authority_context_id": "authctx_demo_psga_001",
+  "policy_decision_id": "pdp_demo_001",
+  "operation": {
+    "tool": "data.query",
+    "version": "0.1.0-proposed",
+    "parameters_digest": "sha256:synthetic-parameters",
+    "workflow_id": "WF03"
+  },
+  "sources": [
+    {
+      "provider": "Ordnance Survey",
+      "dataset": "OS NGD Buildings",
+      "version": "synthetic-fixture-2026-08-19",
+      "uri": "urn:synthetic:os-ngd-buildings",
+      "retrieved_at": "2026-08-19T12:00:02Z",
+      "checksum": "sha256:synthetic-source",
+      "licence": "Synthetic stand-in; no licensed data included"
+    }
+  ],
+  "transformations": [
+    {
+      "name": "aggregate-count",
+      "parameters": {
+        "group_by": "accessibility-status"
+      },
+      "input_crs": "EPSG:27700",
+      "output_crs": null,
+      "software": "PostGIS synthetic fixture"
+    }
+  ],
+  "software": [
+    {
+      "name": "gis-ai-go-execution",
+      "version": "0.1.0-proposed",
+      "digest": "sha256:synthetic-image"
+    }
+  ],
+  "outputs": [
+    {
+      "artefact_id": "result_demo_001",
+      "uri": null,
+      "media_type": "application/json",
+      "sha256": "sha256:synthetic-output",
+      "size_bytes": 420,
+      "redactions": [
+        "feature geometries withheld"
+      ]
+    }
+  ],
+  "licence_obligations": [
+    {
+      "type": "attribution",
+      "status": "applied"
+    },
+    {
+      "type": "no_persistent_export",
+      "status": "enforced"
+    }
+  ],
+  "verification": {
+    "status": "passed",
+    "checks": [
+      "schema",
+      "policy-obligation",
+      "source-digest"
+    ]
+  },
+  "attestation": {
+    "status": "not-attested",
+    "attester": null,
+    "receipt_digest": null
+  },
+  "retention_classification": "synthetic-demo-30-days"
+}

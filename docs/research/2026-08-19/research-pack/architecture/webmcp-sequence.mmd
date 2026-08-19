@@ -1,0 +1,13 @@
+sequenceDiagram
+  participant U as Browser user
+  participant B as Browser agent
+  participant P as Public page
+  participant J as Static JSON/OKF
+  U->>P: Open accessible site
+  P->>B: Register safe read-only tools
+  B->>P: Search/apply facet/inspect
+  P->>J: Read packaged public data
+  J-->>P: Records and provenance
+  P-->>B: Structured result
+  P-->>U: Visible equivalent state
+  Note over P,J: No protected credentials or operations

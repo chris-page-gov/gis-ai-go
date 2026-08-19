@@ -1,0 +1,122 @@
+{
+  "context_id": "authctx_demo_psga_001",
+  "issued_at": "2026-08-19T12:00:00Z",
+  "expiry": "2026-08-19T12:05:00Z",
+  "actor": {
+    "type": "human",
+    "id": "user:synthetic-alex",
+    "display_name": "Synthetic Alex"
+  },
+  "subject": {
+    "id": "entra:synthetic-alex",
+    "tenant": "tenant:example-council",
+    "authentication_strength": "phishing-resistant-mfa"
+  },
+  "organisation": {
+    "id": "org:example-council",
+    "name": "Example Council",
+    "sector": "local-government",
+    "entitlements": [
+      "psga:os-ngd:features"
+    ]
+  },
+  "role": [
+    "geospatial-analyst"
+  ],
+  "agent": {
+    "id": "agent:research-assistant",
+    "version": "1.0.0",
+    "delegation_id": "delegation_demo_001"
+  },
+  "ai_host": {
+    "id": "host:managed-ai",
+    "enterprise_managed": true,
+    "metadata_uri": "https://example.org/clients/managed-ai.json"
+  },
+  "client": {
+    "id": "client:mcp-host",
+    "protocol_version": "2026-07-28",
+    "instance_id": "client-instance-demo"
+  },
+  "workload": {
+    "id": "workload:gis-ai-go-gateway",
+    "identity_type": "managed-identity",
+    "service_principal": "spn:synthetic"
+  },
+  "device": {
+    "identity": "device:synthetic-001",
+    "posture": "compliant-managed",
+    "issuer": "entra-intune:example",
+    "observed_at": "2026-08-19T11:59:30Z",
+    "valid_until": "2026-08-19T12:04:30Z",
+    "risk": "low"
+  },
+  "action": {
+    "name": "query",
+    "method": "tools/call",
+    "tool": "data.query"
+  },
+  "resource": {
+    "id": "dataset:os-ngd-buildings",
+    "type": "dataset",
+    "provider": "Ordnance Survey"
+  },
+  "dataset_attributes": {
+    "licence_tier": "PSGA",
+    "classification": "OFFICIAL",
+    "personal_data": "none",
+    "resolution": "feature-level"
+  },
+  "purpose": {
+    "declared": "Assess public-building accessibility coverage",
+    "project": "project:synthetic-accessibility",
+    "intended_audience": "Example Council analysts"
+  },
+  "legal_authority": [
+    "public-task:synthetic-example"
+  ],
+  "licence_entitlement": [
+    "psga:os-ngd:features"
+  ],
+  "geography_constraints": {
+    "area": "E08000026",
+    "max_resolution": "feature-level"
+  },
+  "risk_tier": "moderate",
+  "requested_output": {
+    "format": "aggregate-json",
+    "destination": "protected-session",
+    "max_features": 500
+  },
+  "budget_quota": {
+    "max_provider_calls": 2,
+    "max_cost_gbp": 1.0
+  },
+  "evidence_references": [
+    "entitlement:synthetic-001",
+    "device-claim:synthetic-001"
+  ],
+  "policy_version": "policy-2026-08-19.1",
+  "approval": {
+    "required": false,
+    "id": null,
+    "status": "not-required"
+  },
+  "decision": {
+    "status": "allow-with-obligations",
+    "decision_id": "pdp_demo_001"
+  },
+  "obligations": [
+    {
+      "type": "attribution",
+      "parameters": {
+        "text": "Contains OS data © Crown copyright and database right"
+      }
+    },
+    {
+      "type": "no_persistent_export",
+      "parameters": {}
+    }
+  ],
+  "trace_id": "0123456789abcdef0123456789abcdef"
+}

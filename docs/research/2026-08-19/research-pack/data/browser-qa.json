@@ -1,0 +1,50 @@
+{
+  "generated_at": "2026-08-19T13:30:00+01:00",
+  "status": "passed",
+  "method": "Headless Chromium using the exact index HTML, CSS, embedded data payload and application JavaScript. The environment blocked direct file/localhost navigation, so the same assets were injected into a blank page for interaction QA; ordinary HTTP serving was checked separately with HTTP 200 responses.",
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "checks": [
+    {
+      "check": "Application initialises",
+      "status": "passed",
+      "observed": "Executive overview visible; title correct; first KPI 20 decisions."
+    },
+    {
+      "check": "Decision tab",
+      "status": "passed",
+      "observed": "20 decision records rendered."
+    },
+    {
+      "check": "Data card",
+      "status": "passed",
+      "observed": "Inspect action opened Product identity and boundary with source links and complete JSON."
+    },
+    {
+      "check": "Architecture view",
+      "status": "passed",
+      "observed": "9 diagram images rendered."
+    },
+    {
+      "check": "Full-text search",
+      "status": "passed",
+      "observed": "WebMCP query returned 2 findings."
+    },
+    {
+      "check": "Browser errors",
+      "status": "passed",
+      "observed": "No console or page errors."
+    },
+    {
+      "check": "Static HTTP serving",
+      "status": "passed",
+      "observed": "index.html, app.js, research descriptor and executive report returned HTTP 200."
+    }
+  ],
+  "limitations": [
+    "This is a Chromium smoke test, not cross-browser or assistive-technology certification.",
+    "Direct file:// and localhost navigation were blocked by the managed browser policy in this execution environment; static serving was verified with curl and runtime assets were tested by exact-content injection."
+  ]
+}

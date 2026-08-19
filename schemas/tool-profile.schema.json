@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:tool-profile:0",
+  "$comment": "Candidate promoted from the immutable 19 August 2026 research pack.",
+  "title": "Tool Profile",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "namespace",
+    "purpose",
+    "read_only",
+    "mutating",
+    "input_schema",
+    "output_schema",
+    "provider_dependencies",
+    "access_tiers",
+    "policy_relevant_attributes",
+    "risks",
+    "error_codes",
+    "provenance_fields",
+    "fallback_behaviour",
+    "example_calls",
+    "test_cases",
+    "status"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "namespace": {
+      "type": "string"
+    },
+    "purpose": {
+      "type": "string"
+    },
+    "read_only": {
+      "type": "boolean"
+    },
+    "mutating": {
+      "type": "boolean"
+    },
+    "input_schema": {
+      "type": "object"
+    },
+    "output_schema": {
+      "type": "object"
+    },
+    "pagination_or_artefact": {
+      "type": "string"
+    },
+    "provider_dependencies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "access_tiers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "policy_relevant_attributes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "cost_performance": {
+      "type": "string"
+    },
+    "risks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "error_codes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "provenance_fields": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "fallback_behaviour": {
+      "type": "string"
+    },
+    "example_calls": {
+      "type": "array"
+    },
+    "test_cases": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "status": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

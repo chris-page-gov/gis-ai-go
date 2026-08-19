@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/locus-accord/schemas/provider.schema.json",
+  "title": "Provider Profile",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "authority",
+    "geographic_scope",
+    "datasets_services",
+    "mechanisms",
+    "authentication",
+    "access_tier",
+    "licence",
+    "recommended_integration",
+    "source_ids"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "authority": {
+      "type": "string"
+    },
+    "geographic_scope": {
+      "type": "string"
+    },
+    "datasets_services": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "identifiers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "update_frequency": {
+      "type": "string"
+    },
+    "mechanisms": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "formats": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "authentication": {
+      "type": "string"
+    },
+    "access_tier": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "licence": {
+      "type": "string"
+    },
+    "caching_redistribution": {
+      "type": "string"
+    },
+    "attribution": {
+      "type": "string"
+    },
+    "longevity": {
+      "type": "string"
+    },
+    "known_changes": {
+      "type": "string"
+    },
+    "quality_limitations": {
+      "type": "string"
+    },
+    "cost": {
+      "type": "string"
+    },
+    "recommended_integration": {
+      "type": "string"
+    },
+    "source_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": false
+}

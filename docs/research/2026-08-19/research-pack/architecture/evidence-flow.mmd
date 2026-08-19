@@ -1,0 +1,9 @@
+flowchart LR
+  Request[Request + trace context] --> Auth[Authority context]
+  Auth --> Decision[Policy decision + PIP evidence]
+  Decision --> Call[Tool/provider calls]
+  Call --> Transform[Deterministic transformations]
+  Transform --> Output[Output artefact/hash]
+  Output --> Receipt[Result evidence receipt]
+  Receipt --> Audit[(Append-only evidence store)]
+  Audit --> Challenge[Reconstruction and challenge]

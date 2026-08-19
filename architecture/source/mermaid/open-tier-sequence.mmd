@@ -1,0 +1,15 @@
+sequenceDiagram
+  participant U as Anonymous user/agent
+  participant S as Static Explorer
+  participant G as Open MCP gateway
+  participant P as Policy
+  participant D as Open data service
+  participant E as Evidence
+  U->>S: Search and apply facets
+  S->>G: Optional catalogue/data request
+  G->>P: Public authority context
+  P-->>G: Allow with attribution/limits
+  G->>D: Deterministic query
+  D-->>G: Result + source versions
+  G->>E: Audit and receipt
+  G-->>U: Result + evidence receipt

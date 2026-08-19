@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Locus Accord — governed geospatial research pack</title>
+  <link rel="stylesheet" href="assets/css/app.css">
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<div class="banner" role="status">Research and decision pack — not an implemented service and not endorsed by any named provider or public body.</div>
+<header>
+  <h1>Locus Accord</h1>
+  <p>A source-backed research, architecture and Codex hand-off pack for a governed geospatial knowledge and action platform. Retrieved 19 August 2026.</p>
+  <div class="header-actions">
+    <a href="report/00-executive-decision.md">Read the executive decision</a>
+    <a href="codex/CODEX_HANDOFF.md">Open the Codex hand-off</a>
+    <a href="okf/index.md">Browse the OKF 0.2 corpus</a>
+    <a href="data/research.okf.json">Machine-readable descriptor</a>
+  </div>
+</header>
+<nav class="tabs" aria-label="Research pack views" role="tablist">
+  <button role="tab" aria-selected="true" data-view="overview">Overview</button>
+  <button role="tab" aria-selected="false" data-view="findings">Findings</button>
+  <button role="tab" aria-selected="false" data-view="decisions">Decisions</button>
+  <button role="tab" aria-selected="false" data-view="providers">Providers</button>
+  <button role="tab" aria-selected="false" data-view="tools">Tools</button>
+  <button role="tab" aria-selected="false" data-view="risks">Risks</button>
+  <button role="tab" aria-selected="false" data-view="timeline">Timeline</button>
+  <button role="tab" aria-selected="false" data-view="graph">Graph</button>
+  <button role="tab" aria-selected="false" data-view="map">Map</button>
+  <button role="tab" aria-selected="false" data-view="architecture">Architecture</button>
+  <button role="tab" aria-selected="false" data-view="sources">Sources</button>
+</nav>
+<div class="layout">
+  <aside class="filters" aria-label="Search and filters">
+    <h2>Search and filter</h2>
+    <div class="field"><label for="search">Full-text search</label><input id="search" type="search" autocomplete="off" placeholder="Search evidence, decisions, tools…"></div>
+    <div class="field"><label for="topic">Topic</label><select id="topic"><option value="">All topics</option></select></div>
+    <div class="field"><label for="record-type">Record type</label><select id="record-type"><option value="">All types</option></select></div>
+    <div class="field"><label for="access">Access tier</label><select id="access"><option value="">All tiers</option><option>open</option><option>PSGA</option><option>commercial</option></select></div>
+    <div class="field"><label for="maturity">Maturity/status</label><select id="maturity"><option value="">All</option></select></div>
+    <button id="clear-filters">Clear filters</button>
+    <p class="meta" id="filter-summary" aria-live="polite"></p>
+    <hr>
+    <h2>Evidence labels</h2>
+    <p><span class="badge fact">Verified fact</span> source-backed current evidence</p>
+    <p><span class="badge rec">Recommendation</span> selected design judgement</p>
+    <p><span class="badge assumption">Assumption</span> planning input to validate</p>
+    <p><span class="badge unresolved">Unresolved</span> condition or gap</p>
+  </aside>
+  <main id="main-content" tabindex="-1">
+    <div id="view-content" role="tabpanel" aria-live="polite"></div>
+  </main>
+  <aside class="detail" aria-label="Selected item details">
+    <h2>Selected item</h2>
+    <div id="detail-content"><p>Select an item to inspect its complete record and evidence links.</p></div>
+    <button id="export-selected" disabled>Export selected JSON</button>
+  </aside>
+</div>
+<noscript><main><h2>JavaScript-free access</h2><p>The interactive filters require JavaScript. The complete content remains available in the <a href="report/00-executive-decision.md">reports</a>, <a href="okf/index.md">OKF corpus</a> and <a href="data/research.okf.json">machine-readable descriptor</a>.</p></main></noscript>
+<footer>Portable static pack. No network requests, credentials or licensed data are required. Validate against <a href="VALIDATION.md">the validation report</a>.</footer>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>

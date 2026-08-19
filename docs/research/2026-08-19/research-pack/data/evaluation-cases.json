@@ -1,0 +1,1030 @@
+{
+  "generated_at": "2026-08-19T13:30:00+01:00",
+  "cases": [
+    {
+      "id": "E01",
+      "title": "Anonymous discovery of open boundaries and statistics",
+      "personas": [
+        "human user",
+        "AI agent",
+        "auditor or workload as applicable"
+      ],
+      "preconditions": [
+        "synthetic or explicitly public fixtures unless protected test identity is named",
+        "deterministic clocks and source versions"
+      ],
+      "steps": [
+        "discover appropriate capability",
+        "invoke or follow workflow",
+        "inspect policy/evidence result",
+        "verify no unauthorised side effect"
+      ],
+      "expected": [
+        "correct provider/tool selection",
+        "policy and licence outcome matches fixture",
+        "complete evidence receipt",
+        "graceful and accessible result"
+      ],
+      "metrics": [
+        "factual correctness",
+        "tool selection",
+        "policy compliance",
+        "licence compliance",
+        "provenance completeness",
+        "reproducibility",
+        "latency",
+        "cache behaviour",
+        "cost",
+        "accessibility",
+        "client interoperability",
+        "graceful degradation"
+      ],
+      "automation": "contract tests plus browser/client integration where applicable",
+      "status": "specified"
+    },
+    {
+      "id": "E02",
+      "title": "Anonymous AI uses the public site without scraping",
+      "personas": [
+        "human user",
+        "AI agent",
+        "auditor or workload as applicable"
+      ],
+      "preconditions": [
+        "synthetic or explicitly public fixtures unless protected test identity is named",
+        "deterministic clocks and source versions"
+      ],
+      "steps": [
+        "discover appropriate capability",
+        "invoke or follow workflow",
+        "inspect policy/evidence result",
+        "verify no unauthorised side effect"
+      ],
+      "expected": [
+        "correct provider/tool selection",
+        "policy and licence outcome matches fixture",
+        "complete evidence receipt",
+        "graceful and accessible result"
+      ],
+      "metrics": [
+        "factual correctness",
+        "tool selection",
+        "policy compliance",
+        "licence compliance",
+        "provenance completeness",
+        "reproducibility",
+        "latency",
+        "cache behaviour",
+        "cost",
+        "accessibility",
+        "client interoperability",
+        "graceful degradation"
+      ],
+      "automation": "contract tests plus browser/client integration where applicable",
+      "status": "specified"
+    },
+    {
+      "id": "E03",
+      "title": "Current and historic geographies containing a coordinate",
+      "personas": [
+        "human user",
+        "AI agent",
+        "auditor or workload as applicable"
+      ],
+      "preconditions": [
+        "synthetic or explicitly public fixtures unless protected test identity is named",
+        "deterministic clocks and source versions"
+      ],
+      "steps": [
+        "discover appropriate capability",
+        "invoke or follow workflow",
+        "inspect policy/evidence result",
+        "verify no unauthorised side effect"
+      ],
+      "expected": [
+        "correct provider/tool selection",
+        "policy and licence outcome matches fixture",
+        "complete evidence receipt",
+        "graceful and accessible result"
+      ],
+      "metrics": [
+        "factual correctness",
+        "tool selection",
+        "policy compliance",
+        "licence compliance",
+        "provenance completeness",
+        "reproducibility",
+        "latency",
+        "cache behaviour",
+        "cost",
+        "accessibility",
+        "client interoperability",
+        "graceful degradation"
+      ],
+      "automation": "contract tests plus browser/client integration where applicable",
+      "status": "specified"
+    },
+    {
+      "id": "E04",
+      "title": "PSGA user on compliant managed device requests protected OS detail",
+      "personas": [
+        "human user",
+        "AI agent",
+        "auditor or workload as applicable"
+      ],
+      "preconditions": [
+        "synthetic or explicitly public fixtures unless protected test identity is named",
+        "deterministic clocks and source versions"
+      ],
+      "steps": [
+        "discover appropriate capability",
+        "invoke or follow workflow",
+        "inspect policy/evidence result",
+        "verify no unauthorised side effect"
+      ],
+      "expected": [
+        "correct provider/tool selection",
+        "policy and licence outcome matches fixture",
+        "complete evidence receipt",
+        "graceful and accessible result"
+      ],
+      "metrics": [
+        "factual correctness",
+        "tool selection",
+        "policy compliance",
+        "licence compliance",
+        "provenance completeness",
+        "reproducibility",
+        "latency",
+        "cache behaviour",
+        "cost",
+        "accessibility",
+        "client interoperability",
+        "graceful degradation"
+      ],
+      "automation": "contract tests plus browser/client integration where applicable",
+      "status": "specified"
+    },
+    {
+      "id": "E05",
+      "title": "Same user on unmanaged device is denied or downgraded",
+      "personas": [
+        "human user",
+        "AI agent",
+        "auditor or workload as applicable"
+      ],
+      "preconditions": [
+        "synthetic or explicitly public fixtures unless protected test identity is named",
+        "deterministic clocks and source versions"
+      ],
+      "steps": [
+        "discover appropriate capability",
+        "invoke or follow workflow",
+        "inspect policy/evidence result",
+        "verify no unauthorised side effect"
+      ],
+      "expected": [
+        "correct provider/tool selection",
+        "policy and licence outcome matches fixture",
+        "complete evidence receipt",
+        "graceful and accessible result"
+      ],
+      "metrics": [
+        "factual correctness",
+        "tool selection",
+        "policy compliance",
+        "licence compliance",
+        "provenance completeness",
+        "reproducibility",
+        "latency",
+        "cache behaviour",
+        "cost",
+        "accessibility",
+        "client interoperability",
+        "graceful degradation"
+      ],
+      "automation": "contract tests plus browser/client integration where applicable",
+      "status": "specified"
+    },
+    {
+      "id": "E06",
+      "title": "Named-user delegated agent uses a short-lived transaction permit",
+      "personas": [
+        "human user",
+        "AI agent",
+        "auditor or workload as applicable"
+      ],
+      "preconditions": [
+        "synthetic or explicitly public fixtures unless protected test identity is named",
+        "deterministic clocks and source versions"
+      ],
+      "steps": [
+        "discover appropriate capability",
+        "invoke or follow workflow",
+        "inspect policy/evidence result",
+        "verify no unauthorised side effect"
+      ],
+      "expected": [
+        "correct provider/tool selection",
+        "policy and licence outcome matches fixture",
+        "complete evidence receipt",
+        "graceful and accessible result"
+      ],
+      "metrics": [
+        "factual correctness",
+        "tool selection",
+        "policy compliance",
+        "licence compliance",
+        "provenance completeness",
+        "reproducibility",
+        "latency",
+        "cache behaviour",
+        "cost",
+        "accessibility",
+        "client interoperability",
+        "graceful degradation"
+      ],
+      "automation": "contract tests plus browser/client integration where applicable",
+      "status": "specified"
+    },
+    {
+      "id": "E07",
+      "title": "Approved service workload refreshes a cache",
+      "personas": [
+        "human user",
+        "AI agent",
+        "auditor or workload as applicable"
+      ],
+      "preconditions": [
+        "synthetic or explicitly public fixtures unless protected test identity is named",
+        "deterministic clocks and source versions"
+      ],
+      "steps": [
+        "discover appropriate capability",
+        "invoke or follow workflow",
+        "inspect policy/evidence result",
+        "verify no unauthorised side effect"
+      ],
+      "expected": [
+        "correct provider/tool selection",
+        "policy and licence outcome matches fixture",
+        "complete evidence receipt",
+        "graceful and accessible result"
+      ],
+      "metrics": [
+        "factual correctness",
+        "tool selection",
+        "policy compliance",
+        "licence compliance",
+        "provenance completeness",
+        "reproducibility",
+        "latency",
+        "cache behaviour",
+        "cost",
+        "accessibility",
+        "client interoperability",
+        "graceful degradation"
+      ],
+      "automation": "contract tests plus browser/client integration where applicable",
+      "status": "specified"
+    },
+    {
+      "id": "E08",
+      "title": "Commercial user receives only contract entitlement",
+      "personas": [
+        "human user",
+        "AI agent",
+        "auditor or workload as applicable"
+      ],
+      "preconditions": [
+        "synthetic or explicitly public fixtures unless protected test identity is named",
+        "deterministic clocks and source versions"
+      ],
+      "steps": [
+        "discover appropriate capability",
+        "invoke or follow workflow",
+        "inspect policy/evidence result",
+        "verify no unauthorised side effect"
+      ],
+      "expected": [
+        "correct provider/tool selection",
+        "policy and licence outcome matches fixture",
+        "complete evidence receipt",
+        "graceful and accessible result"
+      ],
+      "metrics": [
+        "factual correctness",
+        "tool selection",
+        "policy compliance",
+        "licence compliance",
+        "provenance completeness",
+        "reproducibility",
+        "latency",
+        "cache behaviour",
+        "cost",
+        "accessibility",
+        "client interoperability",
+        "graceful degradation"
+      ],
+      "automation": "contract tests plus browser/client integration where applicable",
+      "status": "specified"
+    },
+    {
+      "id": "E09",
+      "title": "HMLR, ONS and LandIS open query with full provenance",
+      "personas": [
+        "human user",
+        "AI agent",
+        "auditor or workload as applicable"
+      ],
+      "preconditions": [
+        "synthetic or explicitly public fixtures unless protected test identity is named",
+        "deterministic clocks and source versions"
+      ],
+      "steps": [
+        "discover appropriate capability",
+        "invoke or follow workflow",
+        "inspect policy/evidence result",
+        "verify no unauthorised side effect"
+      ],
+      "expected": [
+        "correct provider/tool selection",
+        "policy and licence outcome matches fixture",
+        "complete evidence receipt",
+        "graceful and accessible result"
+      ],
+      "metrics": [
+        "factual correctness",
+        "tool selection",
+        "policy compliance",
+        "licence compliance",
+        "provenance completeness",
+        "reproducibility",
+        "latency",
+        "cache behaviour",
+        "cost",
+        "accessibility",
+        "client interoperability",
+        "graceful degradation"
+      ],
+      "automation": "contract tests plus browser/client integration where applicable",
+      "status": "specified"
+    },
+    {
+      "id": "E10",
+      "title": "Protected OS enrichment does not leak to public cache",
+      "personas": [
+        "human user",
+        "AI agent",
+        "auditor or workload as applicable"
+      ],
+      "preconditions": [
+        "synthetic or explicitly public fixtures unless protected test identity is named",
+        "deterministic clocks and source versions"
+      ],
+      "steps": [
+        "discover appropriate capability",
+        "invoke or follow workflow",
+        "inspect policy/evidence result",
+        "verify no unauthorised side effect"
+      ],
+      "expected": [
+        "correct provider/tool selection",
+        "policy and licence outcome matches fixture",
+        "complete evidence receipt",
+        "graceful and accessible result"
+      ],
+      "metrics": [
+        "factual correctness",
+        "tool selection",
+        "policy compliance",
+        "licence compliance",
+        "provenance completeness",
+        "reproducibility",
+        "latency",
+        "cache behaviour",
+        "cost",
+        "accessibility",
+        "client interoperability",
+        "graceful degradation"
+      ],
+      "automation": "contract tests plus browser/client integration where applicable",
+      "status": "specified"
+    },
+    {
+      "id": "E11",
+      "title": "Provider outage uses approved cache with freshness warning",
+      "personas": [
+        "human user",
+        "AI agent",
+        "auditor or workload as applicable"
+      ],
+      "preconditions": [
+        "synthetic or explicitly public fixtures unless protected test identity is named",
+        "deterministic clocks and source versions"
+      ],
+      "steps": [
+        "discover appropriate capability",
+        "invoke or follow workflow",
+        "inspect policy/evidence result",
+        "verify no unauthorised side effect"
+      ],
+      "expected": [
+        "correct provider/tool selection",
+        "policy and licence outcome matches fixture",
+        "complete evidence receipt",
+        "graceful and accessible result"
+      ],
+      "metrics": [
+        "factual correctness",
+        "tool selection",
+        "policy compliance",
+        "licence compliance",
+        "provenance completeness",
+        "reproducibility",
+        "latency",
+        "cache behaviour",
+        "cost",
+        "accessibility",
+        "client interoperability",
+        "graceful degradation"
+      ],
+      "automation": "contract tests plus browser/client integration where applicable",
+      "status": "specified"
+    },
+    {
+      "id": "E12",
+      "title": "Licence/policy change invalidates cache and capability",
+      "personas": [
+        "human user",
+        "AI agent",
+        "auditor or workload as applicable"
+      ],
+      "preconditions": [
+        "synthetic or explicitly public fixtures unless protected test identity is named",
+        "deterministic clocks and source versions"
+      ],
+      "steps": [
+        "discover appropriate capability",
+        "invoke or follow workflow",
+        "inspect policy/evidence result",
+        "verify no unauthorised side effect"
+      ],
+      "expected": [
+        "correct provider/tool selection",
+        "policy and licence outcome matches fixture",
+        "complete evidence receipt",
+        "graceful and accessible result"
+      ],
+      "metrics": [
+        "factual correctness",
+        "tool selection",
+        "policy compliance",
+        "licence compliance",
+        "provenance completeness",
+        "reproducibility",
+        "latency",
+        "cache behaviour",
+        "cost",
+        "accessibility",
+        "client interoperability",
+        "graceful degradation"
+      ],
+      "automation": "contract tests plus browser/client integration where applicable",
+      "status": "specified"
+    },
+    {
+      "id": "E13",
+      "title": "Host without Apps receives complete non-visual result",
+      "personas": [
+        "human user",
+        "AI agent",
+        "auditor or workload as applicable"
+      ],
+      "preconditions": [
+        "synthetic or explicitly public fixtures unless protected test identity is named",
+        "deterministic clocks and source versions"
+      ],
+      "steps": [
+        "discover appropriate capability",
+        "invoke or follow workflow",
+        "inspect policy/evidence result",
+        "verify no unauthorised side effect"
+      ],
+      "expected": [
+        "correct provider/tool selection",
+        "policy and licence outcome matches fixture",
+        "complete evidence receipt",
+        "graceful and accessible result"
+      ],
+      "metrics": [
+        "factual correctness",
+        "tool selection",
+        "policy compliance",
+        "licence compliance",
+        "provenance completeness",
+        "reproducibility",
+        "latency",
+        "cache behaviour",
+        "cost",
+        "accessibility",
+        "client interoperability",
+        "graceful degradation"
+      ],
+      "automation": "contract tests plus browser/client integration where applicable",
+      "status": "specified"
+    },
+    {
+      "id": "E14",
+      "title": "WebMCP-capable browser agent uses safe page tools",
+      "personas": [
+        "human user",
+        "AI agent",
+        "auditor or workload as applicable"
+      ],
+      "preconditions": [
+        "synthetic or explicitly public fixtures unless protected test identity is named",
+        "deterministic clocks and source versions"
+      ],
+      "steps": [
+        "discover appropriate capability",
+        "invoke or follow workflow",
+        "inspect policy/evidence result",
+        "verify no unauthorised side effect"
+      ],
+      "expected": [
+        "correct provider/tool selection",
+        "policy and licence outcome matches fixture",
+        "complete evidence receipt",
+        "graceful and accessible result"
+      ],
+      "metrics": [
+        "factual correctness",
+        "tool selection",
+        "policy compliance",
+        "licence compliance",
+        "provenance completeness",
+        "reproducibility",
+        "latency",
+        "cache behaviour",
+        "cost",
+        "accessibility",
+        "client interoperability",
+        "graceful degradation"
+      ],
+      "automation": "contract tests plus browser/client integration where applicable",
+      "status": "specified"
+    },
+    {
+      "id": "E15",
+      "title": "WebMCP-incapable agent follows linked OKF/API",
+      "personas": [
+        "human user",
+        "AI agent",
+        "auditor or workload as applicable"
+      ],
+      "preconditions": [
+        "synthetic or explicitly public fixtures unless protected test identity is named",
+        "deterministic clocks and source versions"
+      ],
+      "steps": [
+        "discover appropriate capability",
+        "invoke or follow workflow",
+        "inspect policy/evidence result",
+        "verify no unauthorised side effect"
+      ],
+      "expected": [
+        "correct provider/tool selection",
+        "policy and licence outcome matches fixture",
+        "complete evidence receipt",
+        "graceful and accessible result"
+      ],
+      "metrics": [
+        "factual correctness",
+        "tool selection",
+        "policy compliance",
+        "licence compliance",
+        "provenance completeness",
+        "reproducibility",
+        "latency",
+        "cache behaviour",
+        "cost",
+        "accessibility",
+        "client interoperability",
+        "graceful degradation"
+      ],
+      "automation": "contract tests plus browser/client integration where applicable",
+      "status": "specified"
+    },
+    {
+      "id": "E16",
+      "title": "High-volume export triggers approval or denial",
+      "personas": [
+        "human user",
+        "AI agent",
+        "auditor or workload as applicable"
+      ],
+      "preconditions": [
+        "synthetic or explicitly public fixtures unless protected test identity is named",
+        "deterministic clocks and source versions"
+      ],
+      "steps": [
+        "discover appropriate capability",
+        "invoke or follow workflow",
+        "inspect policy/evidence result",
+        "verify no unauthorised side effect"
+      ],
+      "expected": [
+        "correct provider/tool selection",
+        "policy and licence outcome matches fixture",
+        "complete evidence receipt",
+        "graceful and accessible result"
+      ],
+      "metrics": [
+        "factual correctness",
+        "tool selection",
+        "policy compliance",
+        "licence compliance",
+        "provenance completeness",
+        "reproducibility",
+        "latency",
+        "cache behaviour",
+        "cost",
+        "accessibility",
+        "client interoperability",
+        "graceful degradation"
+      ],
+      "automation": "contract tests plus browser/client integration where applicable",
+      "status": "specified"
+    },
+    {
+      "id": "E17",
+      "title": "Malicious record attempts prompt injection",
+      "personas": [
+        "human user",
+        "AI agent",
+        "auditor or workload as applicable"
+      ],
+      "preconditions": [
+        "synthetic or explicitly public fixtures unless protected test identity is named",
+        "deterministic clocks and source versions"
+      ],
+      "steps": [
+        "discover appropriate capability",
+        "invoke or follow workflow",
+        "inspect policy/evidence result",
+        "verify no unauthorised side effect"
+      ],
+      "expected": [
+        "correct provider/tool selection",
+        "policy and licence outcome matches fixture",
+        "complete evidence receipt",
+        "graceful and accessible result"
+      ],
+      "metrics": [
+        "factual correctness",
+        "tool selection",
+        "policy compliance",
+        "licence compliance",
+        "provenance completeness",
+        "reproducibility",
+        "latency",
+        "cache behaviour",
+        "cost",
+        "accessibility",
+        "client interoperability",
+        "graceful degradation"
+      ],
+      "automation": "contract tests plus browser/client integration where applicable",
+      "status": "specified"
+    },
+    {
+      "id": "E18",
+      "title": "Client claims false role or posture",
+      "personas": [
+        "human user",
+        "AI agent",
+        "auditor or workload as applicable"
+      ],
+      "preconditions": [
+        "synthetic or explicitly public fixtures unless protected test identity is named",
+        "deterministic clocks and source versions"
+      ],
+      "steps": [
+        "discover appropriate capability",
+        "invoke or follow workflow",
+        "inspect policy/evidence result",
+        "verify no unauthorised side effect"
+      ],
+      "expected": [
+        "correct provider/tool selection",
+        "policy and licence outcome matches fixture",
+        "complete evidence receipt",
+        "graceful and accessible result"
+      ],
+      "metrics": [
+        "factual correctness",
+        "tool selection",
+        "policy compliance",
+        "licence compliance",
+        "provenance completeness",
+        "reproducibility",
+        "latency",
+        "cache behaviour",
+        "cost",
+        "accessibility",
+        "client interoperability",
+        "graceful degradation"
+      ],
+      "automation": "contract tests plus browser/client integration where applicable",
+      "status": "specified"
+    },
+    {
+      "id": "E19",
+      "title": "Policy decision is challenged and reconstructed",
+      "personas": [
+        "human user",
+        "AI agent",
+        "auditor or workload as applicable"
+      ],
+      "preconditions": [
+        "synthetic or explicitly public fixtures unless protected test identity is named",
+        "deterministic clocks and source versions"
+      ],
+      "steps": [
+        "discover appropriate capability",
+        "invoke or follow workflow",
+        "inspect policy/evidence result",
+        "verify no unauthorised side effect"
+      ],
+      "expected": [
+        "correct provider/tool selection",
+        "policy and licence outcome matches fixture",
+        "complete evidence receipt",
+        "graceful and accessible result"
+      ],
+      "metrics": [
+        "factual correctness",
+        "tool selection",
+        "policy compliance",
+        "licence compliance",
+        "provenance completeness",
+        "reproducibility",
+        "latency",
+        "cache behaviour",
+        "cost",
+        "accessibility",
+        "client interoperability",
+        "graceful degradation"
+      ],
+      "automation": "contract tests plus browser/client integration where applicable",
+      "status": "specified"
+    },
+    {
+      "id": "E20",
+      "title": "Emergency tool/provider suspension",
+      "personas": [
+        "human user",
+        "AI agent",
+        "auditor or workload as applicable"
+      ],
+      "preconditions": [
+        "synthetic or explicitly public fixtures unless protected test identity is named",
+        "deterministic clocks and source versions"
+      ],
+      "steps": [
+        "discover appropriate capability",
+        "invoke or follow workflow",
+        "inspect policy/evidence result",
+        "verify no unauthorised side effect"
+      ],
+      "expected": [
+        "correct provider/tool selection",
+        "policy and licence outcome matches fixture",
+        "complete evidence receipt",
+        "graceful and accessible result"
+      ],
+      "metrics": [
+        "factual correctness",
+        "tool selection",
+        "policy compliance",
+        "licence compliance",
+        "provenance completeness",
+        "reproducibility",
+        "latency",
+        "cache behaviour",
+        "cost",
+        "accessibility",
+        "client interoperability",
+        "graceful degradation"
+      ],
+      "automation": "contract tests plus browser/client integration where applicable",
+      "status": "specified"
+    },
+    {
+      "id": "E21",
+      "title": "Malformed geometry and decompression bomb are rejected",
+      "personas": [
+        "human user",
+        "AI agent",
+        "auditor or workload as applicable"
+      ],
+      "preconditions": [
+        "synthetic or explicitly public fixtures unless protected test identity is named",
+        "deterministic clocks and source versions"
+      ],
+      "steps": [
+        "discover appropriate capability",
+        "invoke or follow workflow",
+        "inspect policy/evidence result",
+        "verify no unauthorised side effect"
+      ],
+      "expected": [
+        "correct provider/tool selection",
+        "policy and licence outcome matches fixture",
+        "complete evidence receipt",
+        "graceful and accessible result"
+      ],
+      "metrics": [
+        "factual correctness",
+        "tool selection",
+        "policy compliance",
+        "licence compliance",
+        "provenance completeness",
+        "reproducibility",
+        "latency",
+        "cache behaviour",
+        "cost",
+        "accessibility",
+        "client interoperability",
+        "graceful degradation"
+      ],
+      "automation": "contract tests plus browser/client integration where applicable",
+      "status": "specified"
+    },
+    {
+      "id": "E22",
+      "title": "CRS and axis-order round-trip",
+      "personas": [
+        "human user",
+        "AI agent",
+        "auditor or workload as applicable"
+      ],
+      "preconditions": [
+        "synthetic or explicitly public fixtures unless protected test identity is named",
+        "deterministic clocks and source versions"
+      ],
+      "steps": [
+        "discover appropriate capability",
+        "invoke or follow workflow",
+        "inspect policy/evidence result",
+        "verify no unauthorised side effect"
+      ],
+      "expected": [
+        "correct provider/tool selection",
+        "policy and licence outcome matches fixture",
+        "complete evidence receipt",
+        "graceful and accessible result"
+      ],
+      "metrics": [
+        "factual correctness",
+        "tool selection",
+        "policy compliance",
+        "licence compliance",
+        "provenance completeness",
+        "reproducibility",
+        "latency",
+        "cache behaviour",
+        "cost",
+        "accessibility",
+        "client interoperability",
+        "graceful degradation"
+      ],
+      "automation": "contract tests plus browser/client integration where applicable",
+      "status": "specified"
+    },
+    {
+      "id": "E23",
+      "title": "Temporal geography mismatch is detected",
+      "personas": [
+        "human user",
+        "AI agent",
+        "auditor or workload as applicable"
+      ],
+      "preconditions": [
+        "synthetic or explicitly public fixtures unless protected test identity is named",
+        "deterministic clocks and source versions"
+      ],
+      "steps": [
+        "discover appropriate capability",
+        "invoke or follow workflow",
+        "inspect policy/evidence result",
+        "verify no unauthorised side effect"
+      ],
+      "expected": [
+        "correct provider/tool selection",
+        "policy and licence outcome matches fixture",
+        "complete evidence receipt",
+        "graceful and accessible result"
+      ],
+      "metrics": [
+        "factual correctness",
+        "tool selection",
+        "policy compliance",
+        "licence compliance",
+        "provenance completeness",
+        "reproducibility",
+        "latency",
+        "cache behaviour",
+        "cost",
+        "accessibility",
+        "client interoperability",
+        "graceful degradation"
+      ],
+      "automation": "contract tests plus browser/client integration where applicable",
+      "status": "specified"
+    },
+    {
+      "id": "E24",
+      "title": "Cross-tier cache key contamination test",
+      "personas": [
+        "human user",
+        "AI agent",
+        "auditor or workload as applicable"
+      ],
+      "preconditions": [
+        "synthetic or explicitly public fixtures unless protected test identity is named",
+        "deterministic clocks and source versions"
+      ],
+      "steps": [
+        "discover appropriate capability",
+        "invoke or follow workflow",
+        "inspect policy/evidence result",
+        "verify no unauthorised side effect"
+      ],
+      "expected": [
+        "correct provider/tool selection",
+        "policy and licence outcome matches fixture",
+        "complete evidence receipt",
+        "graceful and accessible result"
+      ],
+      "metrics": [
+        "factual correctness",
+        "tool selection",
+        "policy compliance",
+        "licence compliance",
+        "provenance completeness",
+        "reproducibility",
+        "latency",
+        "cache behaviour",
+        "cost",
+        "accessibility",
+        "client interoperability",
+        "graceful degradation"
+      ],
+      "automation": "contract tests plus browser/client integration where applicable",
+      "status": "specified"
+    },
+    {
+      "id": "E25",
+      "title": "Accessibility and keyboard-only public journey",
+      "personas": [
+        "human user",
+        "AI agent",
+        "auditor or workload as applicable"
+      ],
+      "preconditions": [
+        "synthetic or explicitly public fixtures unless protected test identity is named",
+        "deterministic clocks and source versions"
+      ],
+      "steps": [
+        "discover appropriate capability",
+        "invoke or follow workflow",
+        "inspect policy/evidence result",
+        "verify no unauthorised side effect"
+      ],
+      "expected": [
+        "correct provider/tool selection",
+        "policy and licence outcome matches fixture",
+        "complete evidence receipt",
+        "graceful and accessible result"
+      ],
+      "metrics": [
+        "factual correctness",
+        "tool selection",
+        "policy compliance",
+        "licence compliance",
+        "provenance completeness",
+        "reproducibility",
+        "latency",
+        "cache behaviour",
+        "cost",
+        "accessibility",
+        "client interoperability",
+        "graceful degradation"
+      ],
+      "automation": "contract tests plus browser/client integration where applicable",
+      "status": "specified"
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "generated_at": "2026-08-19T13:30:00+01:00",
+  "repositories": [
+    {
+      "id": "repo-mcp-geo",
+      "repository": "chris-page-gov/mcp-geo",
+      "branch": "main",
+      "commit_sha": "56683b33c0cd02842b7f3ee465414c68a1f3f2a6",
+      "retrieved": "2026-08-19",
+      "apparent_version": "0.8.2",
+      "role": "historical research prototype and learning journal",
+      "source_id": "S-MCP-GEO"
+    },
+    {
+      "id": "repo-okf-explorer",
+      "repository": "chris-page-gov/okf-explorer",
+      "branch": "main",
+      "commit_sha": "c8af0b05cab49a5341e0b787e17d49a674868d3a",
+      "retrieved": "2026-08-19",
+      "apparent_version": "0.7.0",
+      "role": "canonical experimental Explorer application and profiles",
+      "source_id": "S-OKF-EXPLORER"
+    },
+    {
+      "id": "repo-okf-ons",
+      "repository": "chris-page-gov/okf-ons",
+      "branch": "main",
+      "commit_sha": "b0283b0d0dd2bbd06a8311dd5d1342eea0c36fdf",
+      "retrieved": "2026-08-19",
+      "apparent_version": "post-0.2.0 main",
+      "role": "metadata-only ONS domain discovery pack",
+      "source_id": "S-OKF-ONS"
+    },
+    {
+      "id": "repo-okf-hmlr",
+      "repository": "chris-page-gov/okf-LandRegistry",
+      "branch": "main",
+      "commit_sha": "4580c9e4afef10a102b852b01083ee5cb7d34018",
+      "retrieved": "2026-08-19",
+      "apparent_version": "0.3.0 proof of concept",
+      "role": "metadata-only HMLR worked example",
+      "source_id": "S-OKF-HMLR"
+    },
+    {
+      "id": "repo-okf-spec",
+      "repository": "GoogleCloudPlatform/knowledge-catalog",
+      "branch": "main",
+      "commit_sha": "e7e4660d14586e6bf39a94ec47de6fb1c43b8dfd",
+      "retrieved": "2026-08-19",
+      "apparent_version": "OKF 0.2",
+      "role": "current normative OKF specification",
+      "source_id": "S-OKF-SPEC"
+    },
+    {
+      "id": "repo-mcp-spec",
+      "repository": "modelcontextprotocol/modelcontextprotocol",
+      "branch": "main",
+      "commit_sha": "4df2d6b6e3588efb46e7542d98498e5c630a0a86",
+      "retrieved": "2026-08-19",
+      "apparent_version": "2026-07-28",
+      "role": "current final MCP specification and documentation",
+      "source_id": "S-MCP-REPO"
+    },
+    {
+      "id": "repo-mcp-ts",
+      "repository": "modelcontextprotocol/typescript-sdk",
+      "branch": "main",
+      "commit_sha": "3924de99df834302d89f5997a1b64ca268282284",
+      "retrieved": "2026-08-19",
+      "apparent_version": "v2 line",
+      "role": "official TypeScript SDK",
+      "source_id": "S-MCP-TS"
+    },
+    {
+      "id": "repo-mcp-py",
+      "repository": "modelcontextprotocol/python-sdk",
+      "branch": "main",
+      "commit_sha": "0d92192765fa7d6a20fbfe7e62e242e44933574f",
+      "retrieved": "2026-08-19",
+      "apparent_version": "active main",
+      "role": "official Python SDK",
+      "source_id": "S-MCP-PY"
+    },
+    {
+      "id": "repo-webmcp",
+      "repository": "webmachinelearning/webmcp",
+      "branch": "main",
+      "commit_sha": "9c7ce3e35e9124e46c4f21fc12dce38b9a5753b9",
+      "retrieved": "2026-08-19",
+      "apparent_version": "community group draft",
+      "role": "draft browser-resident tool API",
+      "source_id": "S-WEBMCP"
+    },
+    {
+      "id": "repo-arazzo",
+      "repository": "OAI/Arazzo-Specification",
+      "branch": "main",
+      "commit_sha": "fc140d26c440291b0061c62a53e45a8fb07cc369",
+      "retrieved": "2026-08-19",
+      "apparent_version": "1.1.0",
+      "role": "workflow description specification",
+      "source_id": "S-ARAZZO"
+    }
+  ]
+}

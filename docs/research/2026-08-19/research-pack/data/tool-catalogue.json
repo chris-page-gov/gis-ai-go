@@ -1,0 +1,1426 @@
+{
+  "generated_at": "2026-08-19T13:30:00+01:00",
+  "status": "proposed-design",
+  "tools": [
+    {
+      "id": "T01",
+      "name": "catalogue.search",
+      "namespace": "catalogue",
+      "purpose": "Search policy-visible OKF and provider catalogue records.",
+      "read_only": true,
+      "mutating": false,
+      "input_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "query": {
+            "type": "string"
+          },
+          "facets": {
+            "type": "object"
+          },
+          "cursor": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "output_schema": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "request_id": {
+            "type": "string"
+          },
+          "trace_id": {
+            "type": "string"
+          },
+          "data": {},
+          "evidence_receipt": {
+            "$ref": "../schemas/evidence-receipt.schema.json"
+          }
+        },
+        "required": [
+          "request_id",
+          "evidence_receipt"
+        ]
+      },
+      "pagination_or_artefact": "Bounded inline response; cursor pagination or immutable artefact when limits are exceeded.",
+      "provider_dependencies": [
+        "OKF index",
+        "OGC API – Records adapters"
+      ],
+      "access_tiers": [
+        "open",
+        "PSGA",
+        "commercial"
+      ],
+      "policy_relevant_attributes": [
+        "actor",
+        "organisation",
+        "discover",
+        "provider",
+        "dataset",
+        "licence_tier",
+        "purpose"
+      ],
+      "cost_performance": "Low; static index first, provider catalogue fallback",
+      "risks": [
+        "Unauthorised capability disclosure",
+        "prompt injection in metadata"
+      ],
+      "error_codes": [
+        "INVALID_QUERY",
+        "POLICY_DENY",
+        "CATALOGUE_UNAVAILABLE",
+        "CURSOR_INVALID"
+      ],
+      "provenance_fields": [
+        "request_id",
+        "trace_id",
+        "provider",
+        "dataset",
+        "dataset_version",
+        "source_uris",
+        "retrieved_at",
+        "policy_decision_id",
+        "transformation",
+        "software",
+        "output_hash",
+        "licence_obligations"
+      ],
+      "fallback_behaviour": "Return static governed snapshot with freshness warning.",
+      "example_calls": [
+        {
+          "query": "price paid data",
+          "facets": {
+            "provider": [
+              "HMLR"
+            ]
+          },
+          "limit": 10
+        }
+      ],
+      "test_cases": [
+        "Anonymous user sees open records only",
+        "Malicious metadata is returned as data, never instruction"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "T02",
+      "name": "catalogue.describe",
+      "namespace": "catalogue",
+      "purpose": "Return a richly linked record, relationships, rights, freshness and source evidence.",
+      "read_only": true,
+      "mutating": false,
+      "input_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "record_id": {
+            "type": "string"
+          },
+          "include": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "record_id"
+        ]
+      },
+      "output_schema": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "request_id": {
+            "type": "string"
+          },
+          "trace_id": {
+            "type": "string"
+          },
+          "data": {},
+          "evidence_receipt": {
+            "$ref": "../schemas/evidence-receipt.schema.json"
+          }
+        },
+        "required": [
+          "request_id",
+          "evidence_receipt"
+        ]
+      },
+      "pagination_or_artefact": "Bounded inline response; cursor pagination or immutable artefact when limits are exceeded.",
+      "provider_dependencies": [
+        "OKF bundle",
+        "provider datapacks"
+      ],
+      "access_tiers": [
+        "open",
+        "PSGA",
+        "commercial"
+      ],
+      "policy_relevant_attributes": [
+        "actor",
+        "discover",
+        "resource",
+        "field_projection"
+      ],
+      "cost_performance": "Low",
+      "risks": [
+        "Protected metadata disclosure",
+        "stale record"
+      ],
+      "error_codes": [
+        "NOT_FOUND",
+        "POLICY_DENY",
+        "STALE_RECORD"
+      ],
+      "provenance_fields": [
+        "request_id",
+        "trace_id",
+        "provider",
+        "dataset",
+        "dataset_version",
+        "source_uris",
+        "retrieved_at",
+        "policy_decision_id",
+        "transformation",
+        "software",
+        "output_hash",
+        "licence_obligations"
+      ],
+      "fallback_behaviour": "Return the last approved record and mark unavailable live checks.",
+      "example_calls": [
+        {
+          "record_id": "dataset:hmlr-price-paid",
+          "include": [
+            "relationships",
+            "rights",
+            "sources"
+          ]
+        }
+      ],
+      "test_cases": [
+        "Unknown record fails safely",
+        "Rights and authority are always present"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "T03",
+      "name": "selection.resolve",
+      "namespace": "selection",
+      "purpose": "Resolve human or agent intent into a non-executing, provider-native selection plan.",
+      "read_only": true,
+      "mutating": false,
+      "input_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "question": {
+            "type": "string"
+          },
+          "candidate_record_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "constraints": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "question"
+        ]
+      },
+      "output_schema": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "request_id": {
+            "type": "string"
+          },
+          "trace_id": {
+            "type": "string"
+          },
+          "data": {},
+          "evidence_receipt": {
+            "$ref": "../schemas/evidence-receipt.schema.json"
+          }
+        },
+        "required": [
+          "request_id",
+          "evidence_receipt"
+        ]
+      },
+      "pagination_or_artefact": "Bounded inline response; cursor pagination or immutable artefact when limits are exceeded.",
+      "provider_dependencies": [
+        "OKF selection metadata",
+        "provider schema registry"
+      ],
+      "access_tiers": [
+        "open",
+        "PSGA",
+        "commercial"
+      ],
+      "policy_relevant_attributes": [
+        "actor",
+        "purpose",
+        "resource_visibility",
+        "resolution_limit"
+      ],
+      "cost_performance": "Low-to-medium; deterministic constraints plus bounded language assistance",
+      "risks": [
+        "Intent injection",
+        "selection of unavailable dataset"
+      ],
+      "error_codes": [
+        "AMBIGUOUS_SELECTION",
+        "MISSING_DIMENSION",
+        "POLICY_DENY",
+        "NO_COMPATIBLE_PROVIDER"
+      ],
+      "provenance_fields": [
+        "request_id",
+        "trace_id",
+        "provider",
+        "dataset",
+        "dataset_version",
+        "source_uris",
+        "retrieved_at",
+        "policy_decision_id",
+        "transformation",
+        "software",
+        "output_hash",
+        "licence_obligations"
+      ],
+      "fallback_behaviour": "Return required choices and no executable plan.",
+      "example_calls": [
+        {
+          "question": "Ward population in Coventry in 2021",
+          "constraints": {
+            "year": 2021
+          }
+        }
+      ],
+      "test_cases": [
+        "Ambiguous geography yields MRTR choice request",
+        "No network execution occurs"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "T04",
+      "name": "data.query",
+      "namespace": "data",
+      "purpose": "Execute a bounded provider-native or cached data query and return a canonical result envelope.",
+      "read_only": true,
+      "mutating": false,
+      "input_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "selection": {
+            "type": "object"
+          },
+          "filters": {
+            "type": "object"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000
+          },
+          "output_format": {
+            "enum": [
+              "json",
+              "csv",
+              "geoparquet",
+              "geojson"
+            ]
+          }
+        },
+        "required": [
+          "selection"
+        ]
+      },
+      "output_schema": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "request_id": {
+            "type": "string"
+          },
+          "trace_id": {
+            "type": "string"
+          },
+          "data": {},
+          "evidence_receipt": {
+            "$ref": "../schemas/evidence-receipt.schema.json"
+          }
+        },
+        "required": [
+          "request_id",
+          "evidence_receipt"
+        ]
+      },
+      "pagination_or_artefact": "Bounded inline response; cursor pagination or immutable artefact when limits are exceeded.",
+      "provider_dependencies": [
+        "provider adapters",
+        "PostGIS",
+        "object storage"
+      ],
+      "access_tiers": [
+        "open",
+        "PSGA",
+        "commercial"
+      ],
+      "policy_relevant_attributes": [
+        "query",
+        "dataset",
+        "fields",
+        "purpose",
+        "legal_authority",
+        "licence_entitlement",
+        "output_destination",
+        "feature_count"
+      ],
+      "cost_performance": "Variable; preflight estimate and quotas required",
+      "risks": [
+        "Data exfiltration",
+        "expensive query",
+        "provider limit breach"
+      ],
+      "error_codes": [
+        "POLICY_DENY",
+        "PROVIDER_UNAVAILABLE",
+        "QUERY_TOO_EXPENSIVE",
+        "OUTPUT_REQUIRES_APPROVAL",
+        "LICENCE_CONSTRAINT"
+      ],
+      "provenance_fields": [
+        "request_id",
+        "trace_id",
+        "provider",
+        "dataset",
+        "dataset_version",
+        "source_uris",
+        "retrieved_at",
+        "policy_decision_id",
+        "transformation",
+        "software",
+        "output_hash",
+        "licence_obligations"
+      ],
+      "fallback_behaviour": "Use approved cache only when policy permits and show freshness.",
+      "example_calls": [
+        {
+          "selection": {
+            "provider": "ONS",
+            "dataset": "population"
+          },
+          "filters": {
+            "geography": "E08000026"
+          },
+          "limit": 1000,
+          "output_format": "json"
+        }
+      ],
+      "test_cases": [
+        "Protected data cannot enter open cache",
+        "High-volume export triggers approval"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "T05",
+      "name": "spatial.locate",
+      "namespace": "spatial",
+      "purpose": "Resolve coordinates, identifiers or place text and return containing/current/historic geographies.",
+      "read_only": true,
+      "mutating": false,
+      "input_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "location": {
+            "oneOf": [
+              {
+                "type": "object",
+                "required": [
+                  "latitude",
+                  "longitude"
+                ]
+              },
+              {
+                "type": "object",
+                "required": [
+                  "identifier"
+                ]
+              },
+              {
+                "type": "object",
+                "required": [
+                  "text"
+                ]
+              }
+            ]
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date"
+          },
+          "levels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "location"
+        ]
+      },
+      "output_schema": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "request_id": {
+            "type": "string"
+          },
+          "trace_id": {
+            "type": "string"
+          },
+          "data": {},
+          "evidence_receipt": {
+            "$ref": "../schemas/evidence-receipt.schema.json"
+          }
+        },
+        "required": [
+          "request_id",
+          "evidence_receipt"
+        ]
+      },
+      "pagination_or_artefact": "Bounded inline response; cursor pagination or immutable artefact when limits are exceeded.",
+      "provider_dependencies": [
+        "ONS geography cache",
+        "OS Names/Places where entitled"
+      ],
+      "access_tiers": [
+        "open",
+        "PSGA",
+        "commercial"
+      ],
+      "policy_relevant_attributes": [
+        "location_precision",
+        "dataset",
+        "as_of",
+        "licence_tier"
+      ],
+      "cost_performance": "Low indexed lookup; provider call when needed",
+      "risks": [
+        "Sensitive location inference",
+        "false precision"
+      ],
+      "error_codes": [
+        "LOCATION_INVALID",
+        "NO_MATCH",
+        "POLICY_DOWNGRADE",
+        "TEMPORAL_VERSION_UNKNOWN"
+      ],
+      "provenance_fields": [
+        "request_id",
+        "trace_id",
+        "provider",
+        "dataset",
+        "dataset_version",
+        "source_uris",
+        "retrieved_at",
+        "policy_decision_id",
+        "transformation",
+        "software",
+        "output_hash",
+        "licence_obligations"
+      ],
+      "fallback_behaviour": "Return coarser open geography or no result with explanation.",
+      "example_calls": [
+        {
+          "location": {
+            "latitude": 52.4068,
+            "longitude": -1.5197
+          },
+          "as_of": "2026-08-19",
+          "levels": [
+            "ward",
+            "LAD"
+          ]
+        }
+      ],
+      "test_cases": [
+        "Historic geography lineage returned",
+        "Unmanaged user receives safe downgrade"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "T06",
+      "name": "spatial.analyse",
+      "namespace": "spatial",
+      "purpose": "Run deterministic spatial operations such as intersect, buffer, nearest, join or aggregate.",
+      "read_only": true,
+      "mutating": false,
+      "input_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "operation": {
+            "enum": [
+              "intersect",
+              "contains",
+              "buffer",
+              "nearest",
+              "spatial_join",
+              "aggregate"
+            ]
+          },
+          "left": {
+            "type": "object"
+          },
+          "right": {
+            "type": "object"
+          },
+          "parameters": {
+            "type": "object"
+          },
+          "output": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "operation",
+          "left"
+        ]
+      },
+      "output_schema": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "request_id": {
+            "type": "string"
+          },
+          "trace_id": {
+            "type": "string"
+          },
+          "data": {},
+          "evidence_receipt": {
+            "$ref": "../schemas/evidence-receipt.schema.json"
+          }
+        },
+        "required": [
+          "request_id",
+          "evidence_receipt"
+        ]
+      },
+      "pagination_or_artefact": "Bounded inline response; cursor pagination or immutable artefact when limits are exceeded.",
+      "provider_dependencies": [
+        "Python geospatial service",
+        "PostGIS",
+        "PROJ"
+      ],
+      "access_tiers": [
+        "open",
+        "PSGA",
+        "commercial"
+      ],
+      "policy_relevant_attributes": [
+        "operation",
+        "datasets",
+        "resolution",
+        "area",
+        "record_count",
+        "derived_output",
+        "purpose"
+      ],
+      "cost_performance": "Variable; geometry complexity and record count bounded",
+      "risks": [
+        "Pathological geometry",
+        "inference",
+        "DoS",
+        "licence contamination"
+      ],
+      "error_codes": [
+        "INVALID_GEOMETRY",
+        "CRS_ERROR",
+        "COMPLEXITY_LIMIT",
+        "POLICY_DENY",
+        "TOPOLOGY_ERROR"
+      ],
+      "provenance_fields": [
+        "request_id",
+        "trace_id",
+        "provider",
+        "dataset",
+        "dataset_version",
+        "source_uris",
+        "retrieved_at",
+        "policy_decision_id",
+        "transformation",
+        "software",
+        "output_hash",
+        "licence_obligations"
+      ],
+      "fallback_behaviour": "Offer simplified/aggregated operation or artefact job.",
+      "example_calls": [
+        {
+          "operation": "intersect",
+          "left": {
+            "record_id": "hmlr-selection"
+          },
+          "right": {
+            "dataset": "landis-soilscapes"
+          },
+          "parameters": {
+            "repair_invalid": false
+          }
+        }
+      ],
+      "test_cases": [
+        "Malformed geometry rejected",
+        "CRS transformation recorded"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "T07",
+      "name": "statistics.compare",
+      "namespace": "statistics",
+      "purpose": "Compare statistical observations across compatible geographies, periods or groups.",
+      "read_only": true,
+      "mutating": false,
+      "input_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "selections": {
+            "type": "array",
+            "minItems": 2,
+            "items": {
+              "type": "object"
+            }
+          },
+          "measure": {
+            "type": "string"
+          },
+          "normalisation": {
+            "type": "object"
+          },
+          "output": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "selections",
+          "measure"
+        ]
+      },
+      "output_schema": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "request_id": {
+            "type": "string"
+          },
+          "trace_id": {
+            "type": "string"
+          },
+          "data": {},
+          "evidence_receipt": {
+            "$ref": "../schemas/evidence-receipt.schema.json"
+          }
+        },
+        "required": [
+          "request_id",
+          "evidence_receipt"
+        ]
+      },
+      "pagination_or_artefact": "Bounded inline response; cursor pagination or immutable artefact when limits are exceeded.",
+      "provider_dependencies": [
+        "ONS Data API",
+        "Nomis",
+        "statistical metadata"
+      ],
+      "access_tiers": [
+        "open"
+      ],
+      "policy_relevant_attributes": [
+        "dataset",
+        "measure",
+        "geography",
+        "time",
+        "disclosure",
+        "output"
+      ],
+      "cost_performance": "Medium; dataset queries and compatibility checks",
+      "risks": [
+        "Invalid denominator",
+        "suppression disclosure",
+        "incomparable vintages"
+      ],
+      "error_codes": [
+        "INCOMPATIBLE_MEASURES",
+        "SUPPRESSED",
+        "GEOGRAPHY_VERSION_MISMATCH",
+        "MISSING_DENOMINATOR"
+      ],
+      "provenance_fields": [
+        "request_id",
+        "trace_id",
+        "provider",
+        "dataset",
+        "dataset_version",
+        "source_uris",
+        "retrieved_at",
+        "policy_decision_id",
+        "transformation",
+        "software",
+        "output_hash",
+        "licence_obligations"
+      ],
+      "fallback_behaviour": "Return comparability explanation without a numeric comparison.",
+      "example_calls": [
+        {
+          "selections": [
+            {
+              "geography": "E08000026",
+              "time": "2021"
+            },
+            {
+              "geography": "E08000025",
+              "time": "2021"
+            }
+          ],
+          "measure": "usual-resident-population",
+          "normalisation": {
+            "type": "per_1000"
+          }
+        }
+      ],
+      "test_cases": [
+        "Suppression preserved",
+        "Temporal geography mismatch explained"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "T08",
+      "name": "route.plan",
+      "namespace": "route",
+      "purpose": "Plan a deterministic route using an approved network and routing profile.",
+      "read_only": true,
+      "mutating": false,
+      "input_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "origin": {
+            "type": "object"
+          },
+          "destination": {
+            "type": "object"
+          },
+          "via": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "profile": {
+            "type": "string"
+          },
+          "constraints": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "origin",
+          "destination",
+          "profile"
+        ]
+      },
+      "output_schema": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "request_id": {
+            "type": "string"
+          },
+          "trace_id": {
+            "type": "string"
+          },
+          "data": {},
+          "evidence_receipt": {
+            "$ref": "../schemas/evidence-receipt.schema.json"
+          }
+        },
+        "required": [
+          "request_id",
+          "evidence_receipt"
+        ]
+      },
+      "pagination_or_artefact": "Bounded inline response; cursor pagination or immutable artefact when limits are exceeded.",
+      "provider_dependencies": [
+        "approved network data",
+        "pgRouting or provider routing service"
+      ],
+      "access_tiers": [
+        "open",
+        "PSGA",
+        "commercial"
+      ],
+      "policy_relevant_attributes": [
+        "network_dataset",
+        "profile",
+        "purpose",
+        "location_sensitivity",
+        "cost"
+      ],
+      "cost_performance": "Medium; bounded graph search",
+      "risks": [
+        "Unsafe route interpretation",
+        "network licence leakage",
+        "location sensitivity"
+      ],
+      "error_codes": [
+        "NO_ROUTE",
+        "PROFILE_UNAVAILABLE",
+        "POLICY_DENY",
+        "NETWORK_STALE"
+      ],
+      "provenance_fields": [
+        "request_id",
+        "trace_id",
+        "provider",
+        "dataset",
+        "dataset_version",
+        "source_uris",
+        "retrieved_at",
+        "policy_decision_id",
+        "transformation",
+        "software",
+        "output_hash",
+        "licence_obligations"
+      ],
+      "fallback_behaviour": "Return route-not-available and provider/source options; never invent a route.",
+      "example_calls": [
+        {
+          "origin": {
+            "postcode": "CV1 1AH"
+          },
+          "destination": {
+            "postcode": "CV34 4SA"
+          },
+          "profile": "driving"
+        }
+      ],
+      "test_cases": [
+        "No network data gives explicit failure",
+        "Protected network geometry not exported"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "T09",
+      "name": "map.render",
+      "namespace": "map",
+      "purpose": "Render a deterministic map specification or static image from policy-approved layers.",
+      "read_only": true,
+      "mutating": false,
+      "input_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "layers": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "view": {
+            "type": "object"
+          },
+          "format": {
+            "enum": [
+              "map_spec",
+              "png",
+              "svg",
+              "pmtiles_handoff"
+            ]
+          },
+          "accessibility": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "layers",
+          "format"
+        ]
+      },
+      "output_schema": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "request_id": {
+            "type": "string"
+          },
+          "trace_id": {
+            "type": "string"
+          },
+          "data": {},
+          "evidence_receipt": {
+            "$ref": "../schemas/evidence-receipt.schema.json"
+          }
+        },
+        "required": [
+          "request_id",
+          "evidence_receipt"
+        ]
+      },
+      "pagination_or_artefact": "Bounded inline response; cursor pagination or immutable artefact when limits are exceeded.",
+      "provider_dependencies": [
+        "MapLibre style registry",
+        "tile services",
+        "static renderer"
+      ],
+      "access_tiers": [
+        "open",
+        "PSGA",
+        "commercial"
+      ],
+      "policy_relevant_attributes": [
+        "layers",
+        "fields",
+        "resolution",
+        "audience",
+        "watermark",
+        "attribution"
+      ],
+      "cost_performance": "Low-to-medium; tile/render bounded",
+      "risks": [
+        "Protected feature leakage",
+        "missing attribution",
+        "visual misrepresentation"
+      ],
+      "error_codes": [
+        "LAYER_DENIED",
+        "STYLE_INVALID",
+        "ATTRIBUTION_MISSING",
+        "RENDER_LIMIT"
+      ],
+      "provenance_fields": [
+        "request_id",
+        "trace_id",
+        "provider",
+        "dataset",
+        "dataset_version",
+        "source_uris",
+        "retrieved_at",
+        "policy_decision_id",
+        "transformation",
+        "software",
+        "output_hash",
+        "licence_obligations"
+      ],
+      "fallback_behaviour": "Return accessible map specification and text summary.",
+      "example_calls": [
+        {
+          "layers": [
+            {
+              "dataset": "ons-wards",
+              "style": "boundary"
+            }
+          ],
+          "view": {
+            "bbox": [
+              -1.7,
+              52.3,
+              -1.3,
+              52.6
+            ]
+          },
+          "format": "svg",
+          "accessibility": {
+            "include_text_summary": true
+          }
+        }
+      ],
+      "test_cases": [
+        "Non-App host gets complete static result",
+        "Attribution obligation enforced"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "T10",
+      "name": "artefact.export",
+      "namespace": "artefact",
+      "purpose": "Create a governed downloadable result with manifest, expiry and audience constraints.",
+      "read_only": true,
+      "mutating": false,
+      "input_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "source_result_id": {
+            "type": "string"
+          },
+          "format": {
+            "enum": [
+              "csv",
+              "json",
+              "geojson",
+              "geoparquet",
+              "gpkg",
+              "pmtiles",
+              "cog"
+            ]
+          },
+          "destination": {
+            "type": "object"
+          },
+          "retention": {
+            "type": "string"
+          },
+          "audience": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_result_id",
+          "format"
+        ]
+      },
+      "output_schema": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "request_id": {
+            "type": "string"
+          },
+          "trace_id": {
+            "type": "string"
+          },
+          "data": {},
+          "evidence_receipt": {
+            "$ref": "../schemas/evidence-receipt.schema.json"
+          }
+        },
+        "required": [
+          "request_id",
+          "evidence_receipt"
+        ]
+      },
+      "pagination_or_artefact": "Bounded inline response; cursor pagination or immutable artefact when limits are exceeded.",
+      "provider_dependencies": [
+        "object storage",
+        "malware/content scanner",
+        "approval workflow"
+      ],
+      "access_tiers": [
+        "open",
+        "PSGA",
+        "commercial"
+      ],
+      "policy_relevant_attributes": [
+        "export",
+        "format",
+        "destination",
+        "audience",
+        "retention",
+        "feature_count",
+        "licence",
+        "approval"
+      ],
+      "cost_performance": "Variable storage/egress",
+      "risks": [
+        "Bulk exfiltration",
+        "licence breach",
+        "long-lived signed URL"
+      ],
+      "error_codes": [
+        "APPROVAL_REQUIRED",
+        "EXPORT_DENIED",
+        "FORMAT_UNAVAILABLE",
+        "RETENTION_INVALID",
+        "SCAN_FAILED"
+      ],
+      "provenance_fields": [
+        "request_id",
+        "trace_id",
+        "provider",
+        "dataset",
+        "dataset_version",
+        "source_uris",
+        "retrieved_at",
+        "policy_decision_id",
+        "transformation",
+        "software",
+        "output_hash",
+        "licence_obligations"
+      ],
+      "fallback_behaviour": "Offer smaller inline result or approved aggregate.",
+      "example_calls": [
+        {
+          "source_result_id": "res_123",
+          "format": "geoparquet",
+          "destination": {
+            "type": "managed_download"
+          },
+          "retention": "P7D",
+          "audience": "requesting-organisation"
+        }
+      ],
+      "test_cases": [
+        "Signed URL expires",
+        "Commercial entitlement does not become resale right"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "T11",
+      "name": "evidence.inspect",
+      "namespace": "evidence",
+      "purpose": "Retrieve the policy decision, source lineage, transformations and receipt for an operation.",
+      "read_only": true,
+      "mutating": false,
+      "input_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "receipt_id": {
+            "type": "string"
+          },
+          "include": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "receipt_id"
+        ]
+      },
+      "output_schema": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "request_id": {
+            "type": "string"
+          },
+          "trace_id": {
+            "type": "string"
+          },
+          "data": {},
+          "evidence_receipt": {
+            "$ref": "../schemas/evidence-receipt.schema.json"
+          }
+        },
+        "required": [
+          "request_id",
+          "evidence_receipt"
+        ]
+      },
+      "pagination_or_artefact": "Bounded inline response; cursor pagination or immutable artefact when limits are exceeded.",
+      "provider_dependencies": [
+        "evidence store",
+        "policy decision store",
+        "source ledger"
+      ],
+      "access_tiers": [
+        "open",
+        "PSGA",
+        "commercial",
+        "auditor"
+      ],
+      "policy_relevant_attributes": [
+        "audit_access",
+        "subject_relationship",
+        "case_reference",
+        "redaction"
+      ],
+      "cost_performance": "Low",
+      "risks": [
+        "Audit data privacy",
+        "evidence tampering"
+      ],
+      "error_codes": [
+        "NOT_FOUND",
+        "AUDIT_DENY",
+        "REDACTED",
+        "EVIDENCE_INTEGRITY_FAILURE"
+      ],
+      "provenance_fields": [
+        "request_id",
+        "trace_id",
+        "provider",
+        "dataset",
+        "dataset_version",
+        "source_uris",
+        "retrieved_at",
+        "policy_decision_id",
+        "transformation",
+        "software",
+        "output_hash",
+        "licence_obligations"
+      ],
+      "fallback_behaviour": "Return a redacted public receipt or challenge route.",
+      "example_calls": [
+        {
+          "receipt_id": "receipt_123",
+          "include": [
+            "sources",
+            "policy",
+            "transformations"
+          ]
+        }
+      ],
+      "test_cases": [
+        "Unauthorised user cannot inspect another user’s sensitive query",
+        "Hash mismatch fails closed"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "T12",
+      "name": "workflow.execute",
+      "namespace": "workflow",
+      "purpose": "Start or resume a registered, policy-approved workflow and return explicit state.",
+      "read_only": false,
+      "mutating": true,
+      "input_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "workflow_id": {
+            "type": "string"
+          },
+          "inputs": {
+            "type": "object"
+          },
+          "permit_id": {
+            "type": "string"
+          },
+          "resume_token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "workflow_id",
+          "inputs"
+        ]
+      },
+      "output_schema": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "request_id": {
+            "type": "string"
+          },
+          "trace_id": {
+            "type": "string"
+          },
+          "data": {},
+          "evidence_receipt": {
+            "$ref": "../schemas/evidence-receipt.schema.json"
+          }
+        },
+        "required": [
+          "request_id",
+          "evidence_receipt"
+        ]
+      },
+      "pagination_or_artefact": "Bounded inline response; cursor pagination or immutable artefact when limits are exceeded.",
+      "provider_dependencies": [
+        "workflow registry",
+        "Arazzo definitions",
+        "Tasks store",
+        "approval service"
+      ],
+      "access_tiers": [
+        "open",
+        "PSGA",
+        "commercial"
+      ],
+      "policy_relevant_attributes": [
+        "workflow",
+        "actor",
+        "permit",
+        "purpose",
+        "risk_tier",
+        "approval",
+        "budget"
+      ],
+      "cost_performance": "Workflow-specific; preflight estimate",
+      "risks": [
+        "Workflow confusion",
+        "replay",
+        "approval bypass",
+        "partial side effects"
+      ],
+      "error_codes": [
+        "WORKFLOW_NOT_FOUND",
+        "PERMIT_REQUIRED",
+        "PERMIT_EXPIRED",
+        "APPROVAL_REQUIRED",
+        "STATE_CONFLICT",
+        "CANCELLED"
+      ],
+      "provenance_fields": [
+        "request_id",
+        "trace_id",
+        "provider",
+        "dataset",
+        "dataset_version",
+        "source_uris",
+        "retrieved_at",
+        "policy_decision_id",
+        "transformation",
+        "software",
+        "output_hash",
+        "licence_obligations"
+      ],
+      "fallback_behaviour": "Return current state and required human action; no implicit continuation.",
+      "example_calls": [
+        {
+          "workflow_id": "wf-protected-os-enrichment",
+          "inputs": {
+            "open_result_id": "res_123"
+          },
+          "permit_id": "permit_456"
+        }
+      ],
+      "test_cases": [
+        "Expired permit cannot resume",
+        "Cancellation leaves evidence and rollback status"
+      ],
+      "status": "proposed"
+    }
+  ]
+}

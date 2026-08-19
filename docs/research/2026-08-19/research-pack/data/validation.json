@@ -1,0 +1,79 @@
+{
+  "generated_at": "2026-08-19T13:30:00+01:00",
+  "status": "passed",
+  "checks": [
+    {
+      "check": "JSON parse",
+      "status": "passed",
+      "detail": "26 JSON files parsed"
+    },
+    {
+      "check": "JSON Schema and examples",
+      "status": "passed",
+      "detail": "6 schemas checked; 52 instances validated"
+    },
+    {
+      "check": "Source-reference integrity",
+      "status": "passed",
+      "detail": "186 references resolved to 71 source records"
+    },
+    {
+      "check": "OKF 0.2 frontmatter",
+      "status": "passed",
+      "detail": "95 OKF concepts/indexes parsed with type"
+    },
+    {
+      "check": "Required pack structure",
+      "status": "passed",
+      "detail": "11 required roots and 13 reports present"
+    },
+    {
+      "check": "Relative Markdown links",
+      "status": "passed",
+      "detail": "235 relative Markdown links resolved"
+    },
+    {
+      "check": "JavaScript syntax",
+      "status": "passed",
+      "detail": "app.js and data.js pass node --check"
+    },
+    {
+      "check": "Static HTML contract",
+      "status": "passed",
+      "detail": "Static HTML contract and no remote assets confirmed"
+    },
+    {
+      "check": "Diagram render",
+      "status": "passed",
+      "detail": "9 Mermaid sources and 9 portable SVGs present"
+    },
+    {
+      "check": "Secret-pattern scan",
+      "status": "passed",
+      "detail": "No high-confidence credential/private-key patterns found"
+    },
+    {
+      "check": "Commissioned record counts",
+      "status": "passed",
+      "detail": {
+        "decisions": 20,
+        "requirements": 50,
+        "tools": 12,
+        "workflows": 10,
+        "risks": 30,
+        "evaluations": 25,
+        "names": 20
+      }
+    },
+    {
+      "check": "Headless browser interaction",
+      "status": "passed",
+      "detail": "Initialisation, 20 decisions, inspect/data card, 9 diagrams, WebMCP search and zero browser errors passed; static HTTP endpoints returned 200."
+    }
+  ],
+  "limitations": [
+    "No live provider or protected-host integration was executed.",
+    "Browser QA is structural and script-level; cross-browser/assistive-technology certification belongs to implementation.",
+    "External URLs were researched but are not re-fetched during offline validation."
+  ]
+}

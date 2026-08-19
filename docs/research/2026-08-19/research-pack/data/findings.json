@@ -1,0 +1,356 @@
+{
+  "generated_at": "2026-08-19T13:30:00+01:00",
+  "findings": [
+    {
+      "id": "F01",
+      "type": "verified-fact",
+      "topic": "mcp",
+      "title": "MCP 2026-07-28 is the final baseline",
+      "statement": "The successor should not inherit MCP-Geo’s default 2025-11-25 runtime. The 2026-07-28 final specification provides the current stateless, routable and self-describing baseline.",
+      "confidence": "high",
+      "source_ids": [
+        "S-MCP-SPEC",
+        "S-MCP-RELEASE",
+        "S-MCP-GEO"
+      ]
+    },
+    {
+      "id": "F02",
+      "type": "verified-fact",
+      "topic": "repository",
+      "title": "MCP-Geo is explicitly a learning journal",
+      "statement": "The repository presents itself as personal research and not production code or a formal proposal. Its 103-tool manifest and broad coupling make it evidence to harvest rather than the successor skeleton.",
+      "confidence": "high",
+      "source_ids": [
+        "S-MCP-GEO"
+      ]
+    },
+    {
+      "id": "F03",
+      "type": "verified-fact",
+      "topic": "okf",
+      "title": "OKF 0.2 is Markdown/YAML, not a JSON runtime schema",
+      "statement": "The normative core is a directory of Markdown concepts with YAML frontmatter. Explorer descriptors, JSON-LD, YAML-LD and sharded indexes are additive application/publication conventions.",
+      "confidence": "high",
+      "source_ids": [
+        "S-OKF-SPEC",
+        "S-OKF-EXPLORER"
+      ]
+    },
+    {
+      "id": "F04",
+      "type": "recommendation",
+      "topic": "okf",
+      "title": "Keep OKF descriptive",
+      "statement": "OKF should describe providers, datasets, capabilities, licences, policies, workflows, lineage, trust, freshness and attested-computation interfaces while referring to runtime authorities.",
+      "confidence": "high",
+      "source_ids": [
+        "S-OKF-SPEC"
+      ]
+    },
+    {
+      "id": "F05",
+      "type": "verified-fact",
+      "topic": "webmcp",
+      "title": "WebMCP remains a draft",
+      "statement": "WebMCP is a Community Group draft with active API changes and unresolved browser security and lifecycle questions.",
+      "confidence": "high",
+      "source_ids": [
+        "S-WEBMCP"
+      ]
+    },
+    {
+      "id": "F06",
+      "type": "recommendation",
+      "topic": "webmcp",
+      "title": "Constrain WebMCP to open read-only operations",
+      "statement": "Use it only for catalogue search, facets, record inspection, relationships, map selection and current-view evidence in the demonstrator.",
+      "confidence": "high",
+      "source_ids": [
+        "S-WEBMCP"
+      ]
+    },
+    {
+      "id": "F07",
+      "type": "verified-fact",
+      "topic": "hosting",
+      "title": "ChatGPT Sites is not the protected path",
+      "statement": "Sites is a beta surface; UK availability and data/inference residency must be checked per current official documentation. It does not evidence the controls needed for PSGA or commercial data.",
+      "confidence": "high",
+      "source_ids": [
+        "S-OPENAI-SITES",
+        "S-OPENAI-SITES-RESIDENCY"
+      ]
+    },
+    {
+      "id": "F08",
+      "type": "verified-fact",
+      "topic": "identity",
+      "title": "OS OAuth is provider project authentication",
+      "statement": "For relevant OS APIs, OAuth uses client credentials. It authenticates a project/workload; it does not create delegated user authority.",
+      "confidence": "high",
+      "source_ids": [
+        "S-OS-AUTH",
+        "S-OS-OAUTH-GUIDE"
+      ]
+    },
+    {
+      "id": "F09",
+      "type": "recommendation",
+      "topic": "identity",
+      "title": "Broker upstream credentials server-side",
+      "statement": "The platform should authorise the human/agent action itself, then select an organisation-owned provider credential. Provider tokens must not reach browsers or unauthorised clients.",
+      "confidence": "high",
+      "source_ids": [
+        "S-OS-AUTH",
+        "S-OAUTH-BCP"
+      ]
+    },
+    {
+      "id": "F10",
+      "type": "verified-fact",
+      "topic": "licensing",
+      "title": "HMLR is not one open tier",
+      "statement": "Price Paid Data is open with additional address-field rights, while title, official-copy, Business Gateway and licensed bulk services have separate access and fee conditions.",
+      "confidence": "high",
+      "source_ids": [
+        "S-HMLR-PPD",
+        "S-HMLR-USE",
+        "S-HMLR-BG"
+      ]
+    },
+    {
+      "id": "F11",
+      "type": "verified-fact",
+      "topic": "landis",
+      "title": "LandIS provides open discovery but record rights remain specific",
+      "statement": "The 2026 open-access portal and OGC Records interface support machine discovery. Each product record must still carry its own licence, scale and fitness-for-purpose evidence.",
+      "confidence": "medium-high",
+      "source_ids": [
+        "S-LANDIS",
+        "S-LANDIS-RECORDS"
+      ]
+    },
+    {
+      "id": "F12",
+      "type": "verified-fact",
+      "topic": "ons",
+      "title": "ONS data, geography and Nomis are distinct provider lanes",
+      "statement": "They have different identifiers, interfaces, update cycles, licensing details and statistical/geographic semantics. A single “ONS adapter” would hide important differences.",
+      "confidence": "high",
+      "source_ids": [
+        "S-ONS-API",
+        "S-ONS-GEOGRAPHY",
+        "S-ONS-OPG",
+        "S-NOMIS"
+      ]
+    },
+    {
+      "id": "F13",
+      "type": "recommendation",
+      "topic": "geospatial",
+      "title": "Use deterministic geospatial software",
+      "statement": "Containment, intersection, transformation, routing, simplification, aggregation and rendering should be performed by tested libraries/services, not inferred by the language model.",
+      "confidence": "high",
+      "source_ids": [
+        "S-OGC-FEATURES",
+        "S-GEOPARQUET"
+      ]
+    },
+    {
+      "id": "F14",
+      "type": "recommendation",
+      "topic": "data",
+      "title": "Treat cache as a governed subsystem",
+      "statement": "Every cache entry needs provider, dataset/version, source checksum, retrieval time, licence, entitlement, policy version, transformation, expiry, audience and permitted operations.",
+      "confidence": "high",
+      "source_ids": [
+        "S-OS-LICENSING",
+        "S-NCSC-CLOUD"
+      ]
+    },
+    {
+      "id": "F15",
+      "type": "recommendation",
+      "topic": "policy",
+      "title": "Filter discovery as well as invocation",
+      "statement": "The policy enforcement path must cover catalogue search, MCP capability listing, workflow initiation, provider credential selection, attribute projection, map generation, export and audit access.",
+      "confidence": "high",
+      "source_ids": [
+        "S-OPA",
+        "S-MCP-SPEC"
+      ]
+    },
+    {
+      "id": "F16",
+      "type": "recommendation",
+      "topic": "policy",
+      "title": "Allow decisions should carry obligations",
+      "statement": "Examples include attribution, feature limits, aggregation, masking, reduced resolution, no persistent export, approval, cost controls, retention and destination constraints.",
+      "confidence": "high",
+      "source_ids": [
+        "S-ODRL",
+        "S-OPA"
+      ]
+    },
+    {
+      "id": "F17",
+      "type": "recommendation",
+      "topic": "evidence",
+      "title": "Return a result-level evidence receipt",
+      "statement": "Every material result should bind actor chain, policy decision, sources, versions, CRS/transformation parameters, software, output hashes, licence obligations and trace context.",
+      "confidence": "high",
+      "source_ids": [
+        "S-PROV",
+        "S-TRACE"
+      ]
+    },
+    {
+      "id": "F18",
+      "type": "recommendation",
+      "topic": "workflow",
+      "title": "Do not treat an LLM plan as workflow authority",
+      "statement": "Use Arazzo or a deterministic workflow model for governed multi-step processes; use Tasks and MRTR for protocol interaction and approval/resumption.",
+      "confidence": "high",
+      "source_ids": [
+        "S-ARAZZO",
+        "S-MCP-TASKS",
+        "S-MCP-SPEC"
+      ]
+    },
+    {
+      "id": "F19",
+      "type": "recommendation",
+      "topic": "hosting",
+      "title": "Separate the public plane from protected services",
+      "statement": "A portable static public discovery plane and separate authenticated control/data plane give a safer initial topology than one shared multi-tier deployment.",
+      "confidence": "high",
+      "source_ids": [
+        "S-NCSC-CLOUD",
+        "S-OPENAI-SITES"
+      ]
+    },
+    {
+      "id": "F20",
+      "type": "assumption",
+      "topic": "hosting",
+      "title": "Initial protected users are Entra-managed",
+      "statement": "The Azure recommendation assumes the first public-sector pilot can use Entra federation and Intune/Conditional Access posture.",
+      "confidence": "medium",
+      "source_ids": [
+        "S-ENTRA-CA",
+        "S-INTUNE"
+      ]
+    },
+    {
+      "id": "F21",
+      "type": "assumption",
+      "topic": "scale",
+      "title": "The first pilot is departmental, not national-scale",
+      "statement": "Sizing assumes tens to low hundreds of concurrent users, bounded exports and reference datasets in the tens to hundreds of gigabytes before tile artefacts.",
+      "confidence": "medium",
+      "source_ids": []
+    },
+    {
+      "id": "F22",
+      "type": "unresolved-question",
+      "topic": "licensing",
+      "title": "Exact PSGA cache and derived-output conditions",
+      "statement": "These must be confirmed against the organisation’s current OS agreements and selected products before any protected cache is loaded.",
+      "confidence": "n/a",
+      "source_ids": [
+        "S-OS-LICENSING"
+      ]
+    },
+    {
+      "id": "F23",
+      "type": "unresolved-question",
+      "topic": "hosting",
+      "title": "Actual departmental landing zone",
+      "statement": "Azure is the default recommendation, but the sponsoring organisation’s approved cloud, network and monitoring services may change deployment details.",
+      "confidence": "n/a",
+      "source_ids": [
+        "S-AZURE-REGIONS",
+        "S-GCP-REGIONS",
+        "S-AWS-REGIONS"
+      ]
+    },
+    {
+      "id": "F24",
+      "type": "unresolved-question",
+      "topic": "identity",
+      "title": "Enterprise-managed authorisation host support",
+      "statement": "MCP EMA is stable as an extension, but end-to-end support must be tested for each target host and enterprise identity environment.",
+      "confidence": "n/a",
+      "source_ids": [
+        "S-MCP-EMA"
+      ]
+    },
+    {
+      "id": "F25",
+      "type": "unresolved-question",
+      "topic": "name",
+      "title": "Formal clearance for Locus Accord",
+      "statement": "Preliminary search found no exact GitHub repository conflict, but package registries, domains, UKIPO and common-law product usage require formal checks.",
+      "confidence": "n/a",
+      "source_ids": []
+    },
+    {
+      "id": "F26",
+      "type": "recommendation",
+      "topic": "geospatial",
+      "title": "Preserve temporal identifiers",
+      "statement": "UPRN, BLPU, USRN, TOID, OSID and ONS geography codes need source, namespace, validity interval, successor/predecessor relations and provider-native attributes.",
+      "confidence": "high",
+      "source_ids": [
+        "S-OS-NGD",
+        "S-ONS-GEOGRAPHY"
+      ]
+    },
+    {
+      "id": "F27",
+      "type": "recommendation",
+      "topic": "geospatial",
+      "title": "Use WGS84 for interchange and EPSG:27700 for GB metric work",
+      "statement": "Record source CRS, axis order, transformation operation/software and output CRS. Do not silently convert coordinates.",
+      "confidence": "high",
+      "source_ids": [
+        "S-OGC-FEATURES"
+      ]
+    },
+    {
+      "id": "F28",
+      "type": "recommendation",
+      "topic": "assurance",
+      "title": "Govern emergency controls across registry, credentials, agents and evidence",
+      "statement": "Suspension must include service/tool registry, credential revocation, workflow cancellation, cache quarantine, agent quarantine, evidence freeze and rollback.",
+      "confidence": "high",
+      "source_ids": [
+        "S-NCSC-CAF"
+      ]
+    },
+    {
+      "id": "F29",
+      "type": "recommendation",
+      "topic": "accessibility",
+      "title": "Keep the public pack usable without JavaScript",
+      "statement": "The static site should progressively enhance a readable HTML/Markdown evidence pack, with keyboard operation and WCAG 2.2 AA acceptance tests.",
+      "confidence": "high",
+      "source_ids": [
+        "S-WCAG",
+        "S-SERVICE-STANDARD"
+      ]
+    },
+    {
+      "id": "F30",
+      "type": "recommendation",
+      "topic": "work-mode",
+      "title": "Use an integrated OpenAI/development workflow",
+      "statement": "Use Deep Research for current evidence, GitHub-connected analysis for repositories, this static pack for decisions, Codex for staged implementation, and Codex Security after code exists. No newer single capability replaces the evidence-synthesis role.",
+      "confidence": "medium-high",
+      "source_ids": [
+        "S-OPENAI-MCP"
+      ]
+    }
+  ]
+}

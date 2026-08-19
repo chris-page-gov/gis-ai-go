@@ -1,0 +1,33 @@
+flowchart TB
+  subgraph PublicPlane[Open presentation plane]
+    Static[Static OKF Explorer]
+    WebMCP[Optional read-only WebMCP]
+    Apps[MCP Apps UI resources]
+  end
+  subgraph ControlPlane[Control plane]
+    MCP[TypeScript MCP 2026-07-28 gateway]
+    ID[OIDC/OAuth and credential broker]
+    PDP[OPA policy decision point]
+    WF[Arazzo and Tasks workflow controller]
+  end
+  subgraph DataPlane[Execution and data plane]
+    Py[Python geospatial service]
+    PG[(PostGIS)]
+    OBJ[(Object storage)]
+    Adapters[Provider adapters]
+  end
+  subgraph EvidencePlane[Evidence plane]
+    Trace[OpenTelemetry and Trace Context]
+    Audit[(Append-only audit)]
+    Receipts[Evidence receipts]
+  end
+  Static --> MCP
+  Apps --> MCP
+  WebMCP -. public only .-> Static
+  MCP --> ID --> PDP --> WF --> Py
+  Py --> PG
+  Py --> OBJ
+  Py --> Adapters
+  MCP --> Trace
+  PDP --> Audit
+  Py --> Receipts

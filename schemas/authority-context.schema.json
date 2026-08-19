@@ -1,0 +1,422 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:authority-context:0",
+  "$comment": "Candidate promoted from the immutable 19 August 2026 research pack.",
+  "title": "GIS AI GO Authority Context",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "context_id",
+    "issued_at",
+    "expiry",
+    "actor",
+    "subject",
+    "organisation",
+    "role",
+    "agent",
+    "ai_host",
+    "client",
+    "workload",
+    "device",
+    "action",
+    "resource",
+    "dataset_attributes",
+    "purpose",
+    "legal_authority",
+    "licence_entitlement",
+    "geography_constraints",
+    "risk_tier",
+    "requested_output",
+    "budget_quota",
+    "evidence_references",
+    "policy_version",
+    "approval",
+    "decision",
+    "obligations",
+    "trace_id"
+  ],
+  "properties": {
+    "context_id": {
+      "type": "string",
+      "pattern": "^authctx_[A-Za-z0-9_-]+$"
+    },
+    "issued_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expiry": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "actor": {
+      "type": "object",
+      "required": [
+        "type",
+        "id"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "human",
+            "agent",
+            "service",
+            "administrator"
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "display_name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "subject": {
+      "type": "object",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "tenant": {
+          "type": "string"
+        },
+        "authentication_strength": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "organisation": {
+      "type": "object",
+      "required": [
+        "id",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "sector": {
+          "type": "string"
+        },
+        "entitlements": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "role": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "agent": {
+      "type": "object",
+      "required": [
+        "id",
+        "version"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "delegation_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "ai_host": {
+      "type": "object",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "enterprise_managed": {
+          "type": "boolean"
+        },
+        "metadata_uri": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri"
+        }
+      },
+      "additionalProperties": true
+    },
+    "client": {
+      "type": "object",
+      "required": [
+        "id",
+        "protocol_version"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "protocol_version": {
+          "type": "string"
+        },
+        "instance_id": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "workload": {
+      "type": "object",
+      "required": [
+        "id",
+        "identity_type"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "identity_type": {
+          "enum": [
+            "user-session",
+            "managed-identity",
+            "workload-identity",
+            "client-credentials"
+          ]
+        },
+        "service_principal": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "device": {
+      "type": "object",
+      "required": [
+        "identity",
+        "posture",
+        "issuer",
+        "observed_at",
+        "valid_until"
+      ],
+      "properties": {
+        "identity": {
+          "type": "string"
+        },
+        "posture": {
+          "enum": [
+            "compliant-managed",
+            "managed-noncompliant",
+            "unmanaged",
+            "unknown"
+          ]
+        },
+        "issuer": {
+          "type": "string"
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "valid_until": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "risk": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "action": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "method": {
+          "type": "string"
+        },
+        "tool": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "resource": {
+      "type": "object",
+      "required": [
+        "id",
+        "type"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "provider": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "dataset_attributes": {
+      "type": "object"
+    },
+    "purpose": {
+      "type": "object",
+      "required": [
+        "declared"
+      ],
+      "properties": {
+        "declared": {
+          "type": "string"
+        },
+        "project": {
+          "type": "string"
+        },
+        "intended_audience": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "legal_authority": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "licence_entitlement": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "geography_constraints": {
+      "type": "object"
+    },
+    "risk_tier": {
+      "enum": [
+        "low",
+        "moderate",
+        "high",
+        "critical"
+      ]
+    },
+    "requested_output": {
+      "type": "object"
+    },
+    "budget_quota": {
+      "type": "object"
+    },
+    "evidence_references": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "policy_version": {
+      "type": "string"
+    },
+    "approval": {
+      "type": "object",
+      "properties": {
+        "required": {
+          "type": "boolean"
+        },
+        "id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "status": {
+          "enum": [
+            "not-required",
+            "pending",
+            "approved",
+            "denied",
+            "expired"
+          ]
+        }
+      },
+      "required": [
+        "required",
+        "status"
+      ],
+      "additionalProperties": true
+    },
+    "decision": {
+      "type": "object",
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "pending",
+            "allow",
+            "deny",
+            "allow-with-obligations"
+          ]
+        },
+        "decision_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "obligations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "parameters": {
+            "type": "object"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "trace_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{32}$"
+    }
+  }
+}

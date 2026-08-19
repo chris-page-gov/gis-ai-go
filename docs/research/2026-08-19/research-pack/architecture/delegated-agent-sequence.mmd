@@ -1,0 +1,19 @@
+sequenceDiagram
+  participant H as Human
+  participant Host as AI host
+  participant Agent as Agent
+  participant G as Gateway
+  participant P as Policy/approval
+  participant X as Execution
+  H->>Host: Declare purpose and request
+  Host->>Agent: Delegation context
+  Agent->>G: Proposed action
+  G->>P: Preflight policy
+  P-->>G: Approval required
+  G-->>Host: MRTR approval request
+  H->>Host: Approve bounded action
+  Host->>G: Approval evidence
+  G->>P: Issue transaction permit
+  G->>X: Execute permitted action
+  X-->>G: Result and evidence
+  G-->>Host: Result and receipt

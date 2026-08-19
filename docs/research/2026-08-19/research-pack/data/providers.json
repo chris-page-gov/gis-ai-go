@@ -1,0 +1,338 @@
+{
+  "generated_at": "2026-08-19T13:30:00+01:00",
+  "providers": [
+    {
+      "id": "PV-OS",
+      "name": "Ordnance Survey",
+      "authority": "National mapping agency for Great Britain",
+      "geographic_scope": "Great Britain; product-specific",
+      "datasets_services": [
+        "OS OpenData",
+        "OS NGD",
+        "Features API",
+        "Tiles API",
+        "Downloads API",
+        "Places API",
+        "Names API",
+        "Linked Identifiers",
+        "AddressBase and commercial products"
+      ],
+      "identifiers": [
+        "TOID",
+        "OSID",
+        "UPRN",
+        "USRN"
+      ],
+      "update_frequency": "Product-specific; NGD and APIs vary",
+      "mechanisms": [
+        "REST APIs",
+        "vector/raster tiles",
+        "bulk downloads",
+        "Select+Build"
+      ],
+      "formats": [
+        "GeoJSON",
+        "GML",
+        "CSV",
+        "GeoPackage",
+        "vector tiles",
+        "COG/product-specific"
+      ],
+      "authentication": "Project API key or OAuth 2 client credentials for supported APIs; not user-delegated OAuth",
+      "access_tier": [
+        "open",
+        "PSGA",
+        "commercial"
+      ],
+      "licence": "Product and customer agreement specific",
+      "caching_redistribution": "Must be evaluated per product and entitlement; derived-data constraints may apply",
+      "attribution": "Product-specific OS attribution",
+      "longevity": "Strategic provider; active end-of-life and migration programme",
+      "known_changes": "NGD and product rationalisation require explicit version/EOL tracking",
+      "quality_limitations": "Scale, generalisation, update cadence and product semantics vary",
+      "cost": "Free/open, PSGA entitlement, or commercial",
+      "recommended_integration": "Server-side adapter and credential broker; separate protected caches; preserve native identifiers and version metadata",
+      "source_ids": [
+        "S-OS-AUTH",
+        "S-OS-OAUTH-GUIDE",
+        "S-OS-EOL",
+        "S-OS-NGD",
+        "S-OS-LICENSING"
+      ]
+    },
+    {
+      "id": "PV-ONS-DATA",
+      "name": "ONS Data API",
+      "authority": "Official statistics publisher",
+      "geographic_scope": "UK statistics; dataset-specific",
+      "datasets_services": [
+        "datasets",
+        "versions",
+        "editions",
+        "dimensions",
+        "observations"
+      ],
+      "identifiers": [
+        "dataset ID",
+        "edition",
+        "version",
+        "dimension options",
+        "ONS geography codes"
+      ],
+      "update_frequency": "Dataset-specific",
+      "mechanisms": [
+        "REST API",
+        "bulk downloads"
+      ],
+      "formats": [
+        "JSON",
+        "CSV"
+      ],
+      "authentication": "Public access for open endpoints",
+      "access_tier": [
+        "open"
+      ],
+      "licence": "Open Government Licence where stated",
+      "caching_redistribution": "Respect dataset terms and API fair use; prefer frozen metadata and bulk data where appropriate",
+      "attribution": "ONS attribution and source metadata",
+      "longevity": "Active but service evolution/retirement notices must be monitored",
+      "known_changes": "New ONS data platform and API evolution",
+      "quality_limitations": "Suppression, revisions, uncertainty and dimension semantics require preservation",
+      "cost": "No charge for public access",
+      "recommended_integration": "OKF for discovery; live validation at execution; version-bound observation retrieval",
+      "source_ids": [
+        "S-ONS-API",
+        "S-ONS-LICENCE"
+      ]
+    },
+    {
+      "id": "PV-ONS-GEO",
+      "name": "ONS Geography and Open Geography Portal",
+      "authority": "Official statistical geography authority for England and Wales, with UK products where published",
+      "geographic_scope": "England and Wales plus UK-wide products depending on dataset",
+      "datasets_services": [
+        "boundaries",
+        "lookups",
+        "names and codes",
+        "change history",
+        "UPRN directory products"
+      ],
+      "identifiers": [
+        "OA",
+        "LSOA",
+        "MSOA",
+        "ward",
+        "LAD",
+        "county",
+        "BUA and other ONS codes"
+      ],
+      "update_frequency": "Release and geography-cycle specific",
+      "mechanisms": [
+        "ArcGIS services",
+        "downloads",
+        "metadata pages"
+      ],
+      "formats": [
+        "Shapefile",
+        "GeoPackage",
+        "GeoJSON",
+        "CSV",
+        "Esri REST"
+      ],
+      "authentication": "Public",
+      "access_tier": [
+        "open"
+      ],
+      "licence": "Product-specific ONS/OS/Royal Mail rights; not all geography products have identical rights",
+      "caching_redistribution": "Record rights per product and vintage",
+      "attribution": "ONS and third-party source attribution where required",
+      "longevity": "Strategic but service and portal interfaces can change",
+      "known_changes": "Boundary vintages and code successors are continual",
+      "quality_limitations": "Generalisations, exact/ultra-generalised variants, UK nation differences and temporal code changes",
+      "cost": "No charge for public products",
+      "recommended_integration": "Versioned boundary/code cache with temporal identifier graph and source-native fields",
+      "source_ids": [
+        "S-ONS-GEOGRAPHY",
+        "S-ONS-OPG",
+        "S-ONS-LICENCE"
+      ]
+    },
+    {
+      "id": "PV-NOMIS",
+      "name": "Nomis",
+      "authority": "ONS labour market and census dissemination service",
+      "geographic_scope": "UK; dataset-specific",
+      "datasets_services": [
+        "labour market",
+        "census",
+        "population and related tables"
+      ],
+      "identifiers": [
+        "Nomis dataset code",
+        "geography code/type",
+        "dimension codes"
+      ],
+      "update_frequency": "Dataset-specific",
+      "mechanisms": [
+        "API",
+        "bulk downloads"
+      ],
+      "formats": [
+        "JSON",
+        "CSV",
+        "XML",
+        "SDMX-related representations"
+      ],
+      "authentication": "Public; optional API credentials for higher limits",
+      "access_tier": [
+        "open"
+      ],
+      "licence": "Dataset/source specific, usually OGL with attribution",
+      "caching_redistribution": "Respect API limits and dataset terms",
+      "attribution": "Nomis/ONS and contributing source",
+      "longevity": "Established service; monitor API notices",
+      "known_changes": "Dataset and geography revisions",
+      "quality_limitations": "Suppression, differing census vintages, code-list semantics and selection limits",
+      "cost": "No charge",
+      "recommended_integration": "Discovery through OKF; deterministic query builder; preserve exact dimension order and code lists",
+      "source_ids": [
+        "S-NOMIS"
+      ]
+    },
+    {
+      "id": "PV-LANDIS",
+      "name": "LandIS",
+      "authority": "Cranfield University soil information service",
+      "geographic_scope": "England and Wales; product-specific",
+      "datasets_services": [
+        "NATMAP",
+        "Soilscapes",
+        "National Soil Inventory",
+        "SOILSERIES",
+        "HORIZON",
+        "interpreted products"
+      ],
+      "identifiers": [
+        "catalogue record identifiers",
+        "soil series and map-unit identifiers"
+      ],
+      "update_frequency": "Product and portal release specific",
+      "mechanisms": [
+        "public portal",
+        "downloads",
+        "OGC API – Records catalogue"
+      ],
+      "formats": [
+        "record metadata",
+        "geospatial downloads; product-specific"
+      ],
+      "authentication": "Public for open-access portal; product-specific conditions may remain",
+      "access_tier": [
+        "open",
+        "commercial-or-restricted where record terms require"
+      ],
+      "licence": "Read and enforce each record licence; do not infer one blanket licence from “open access”",
+      "caching_redistribution": "A local open cache is justified only for explicitly licensed downloadable products and with provenance/scale caveats",
+      "attribution": "Cranfield/LandIS and source-specific attribution",
+      "longevity": "New open-access service launched in 2026; operational horizon should be monitored",
+      "known_changes": "Open-access transition and catalogue/API maturation",
+      "quality_limitations": "Scale, survey date, uncertainty, interpretation and fitness-for-purpose warnings are essential",
+      "cost": "Open or product-specific",
+      "recommended_integration": "Harvest records into OKF and OGC Records crosswalk; cache only licence-confirmed products; expose uncertainty",
+      "source_ids": [
+        "S-LANDIS",
+        "S-LANDIS-RECORDS",
+        "S-OGC-RECORDS"
+      ]
+    },
+    {
+      "id": "PV-HMLR-OPEN",
+      "name": "HM Land Registry open publications",
+      "authority": "Official land registration authority for England and Wales",
+      "geographic_scope": "England and Wales",
+      "datasets_services": [
+        "Price Paid Data",
+        "UK House Price Index data",
+        "public metadata and linked data"
+      ],
+      "identifiers": [
+        "transaction ID",
+        "title number in products where lawfully published",
+        "postcode/address fields with source rights"
+      ],
+      "update_frequency": "Dataset-specific, often monthly",
+      "mechanisms": [
+        "bulk downloads",
+        "public pages",
+        "APIs where offered"
+      ],
+      "formats": [
+        "CSV",
+        "linked data",
+        "JSON/API-specific"
+      ],
+      "authentication": "Public for open products",
+      "access_tier": [
+        "open"
+      ],
+      "licence": "OGL plus additional Royal Mail/OS conditions for some address fields",
+      "caching_redistribution": "Retain record-level rights and attribution; do not generalise all HMLR data as open",
+      "attribution": "HMLR plus required third-party attribution",
+      "longevity": "Strategic provider",
+      "known_changes": "Service and file revisions",
+      "quality_limitations": "Price Paid Data is transactional, not proof of ownership or exact boundary; corrections/revisions occur",
+      "cost": "No charge for open products",
+      "recommended_integration": "Use as public worked example with explicit legal/fitness warnings and rights metadata",
+      "source_ids": [
+        "S-HMLR-PPD",
+        "S-HMLR-USE"
+      ]
+    },
+    {
+      "id": "PV-HMLR-PROTECTED",
+      "name": "HM Land Registry protected and paid services",
+      "authority": "Official land registration authority for England and Wales",
+      "geographic_scope": "England and Wales",
+      "datasets_services": [
+        "Business Gateway",
+        "official copies",
+        "title register/title plan services",
+        "licensed bulk products"
+      ],
+      "identifiers": [
+        "title number",
+        "application reference",
+        "property/title identifiers"
+      ],
+      "update_frequency": "Transactional/service-specific",
+      "mechanisms": [
+        "authenticated portals",
+        "Business Gateway APIs",
+        "licensed downloads"
+      ],
+      "formats": [
+        "XML/API contracts",
+        "PDF/official documents",
+        "licensed datasets"
+      ],
+      "authentication": "Account, contract and service credentials",
+      "access_tier": [
+        "commercial",
+        "protected-service"
+      ],
+      "licence": "Contract, statutory fee and permitted-use specific",
+      "caching_redistribution": "No caching or redistribution beyond explicit contract and legal authority",
+      "attribution": "Contract/service-specific",
+      "longevity": "Strategic transactional service",
+      "known_changes": "API and service contract evolution",
+      "quality_limitations": "Legal effect and official-copy rules require direct service use and human/legal controls",
+      "cost": "Fees and contract charges",
+      "recommended_integration": "Metadata discovery only in first phases; no protected transaction implementation until legal, security and service agreements are complete",
+      "source_ids": [
+        "S-HMLR-USE",
+        "S-HMLR-BG",
+        "S-HMLR-API"
+      ]
+    }
+  ]
+}

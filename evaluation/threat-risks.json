@@ -1,0 +1,737 @@
+{
+  "generated_at": "2026-08-19T13:30:00+01:00",
+  "method": "Ordinal design-stage risk prioritisation; not a measured probability model.",
+  "risks": [
+    {
+      "id": "RK01",
+      "title": "Prompt injection through metadata",
+      "asset": "authority, data, licence, evidence or availability",
+      "actor": "external attacker, malicious/compromised provider, client, agent, insider or faulty component",
+      "attack_path": "malicious provider record or dataset description",
+      "likelihood": "high",
+      "impact": "high",
+      "preventive_controls": [
+        "treat content as data",
+        "schema-bound tools",
+        "content isolation"
+      ],
+      "detective_controls": [
+        "injection test corpus",
+        "unexpected instruction telemetry"
+      ],
+      "response": "suspend record/provider and re-index",
+      "residual_risk": "medium",
+      "tests": [
+        "Adversarial test for prompt injection through metadata",
+        "Evidence receipt and alert correlation test"
+      ],
+      "status": "open-control-design"
+    },
+    {
+      "id": "RK02",
+      "title": "Tool poisoning",
+      "asset": "authority, data, licence, evidence or availability",
+      "actor": "external attacker, malicious/compromised provider, client, agent, insider or faulty component",
+      "attack_path": "misleading capability metadata or schema drift",
+      "likelihood": "medium",
+      "impact": "high",
+      "preventive_controls": [
+        "signed/pinned manifests",
+        "reviewed registry",
+        "schema hashes"
+      ],
+      "detective_controls": [
+        "manifest diff alerts",
+        "conformance tests"
+      ],
+      "response": "suspend capability and restore prior manifest",
+      "residual_risk": "low-medium",
+      "tests": [
+        "Adversarial test for tool poisoning",
+        "Evidence receipt and alert correlation test"
+      ],
+      "status": "open-control-design"
+    },
+    {
+      "id": "RK03",
+      "title": "Confused deputy",
+      "asset": "authority, data, licence, evidence or availability",
+      "actor": "external attacker, malicious/compromised provider, client, agent, insider or faulty component",
+      "attack_path": "agent uses organisation credential beyond user authority",
+      "likelihood": "high",
+      "impact": "critical",
+      "preventive_controls": [
+        "authority context",
+        "OPA",
+        "transaction permits",
+        "audience restriction"
+      ],
+      "detective_controls": [
+        "decision/credential correlation",
+        "anomaly detection"
+      ],
+      "response": "revoke permit and provider credential; investigate",
+      "residual_risk": "medium",
+      "tests": [
+        "Adversarial test for confused deputy",
+        "Evidence receipt and alert correlation test"
+      ],
+      "status": "open-control-design"
+    },
+    {
+      "id": "RK04",
+      "title": "Agent identity substitution",
+      "asset": "authority, data, licence, evidence or availability",
+      "actor": "external attacker, malicious/compromised provider, client, agent, insider or faulty component",
+      "attack_path": "client claims another agent or host",
+      "likelihood": "medium",
+      "impact": "high",
+      "preventive_controls": [
+        "signed tokens",
+        "client metadata verification",
+        "mTLS/DPoP where justified"
+      ],
+      "detective_controls": [
+        "token/host mismatch alerts"
+      ],
+      "response": "deny, revoke session and quarantine client",
+      "residual_risk": "low-medium",
+      "tests": [
+        "Adversarial test for agent identity substitution",
+        "Evidence receipt and alert correlation test"
+      ],
+      "status": "open-control-design"
+    },
+    {
+      "id": "RK05",
+      "title": "Token theft or replay",
+      "asset": "authority, data, licence, evidence or availability",
+      "actor": "external attacker, malicious/compromised provider, client, agent, insider or faulty component",
+      "attack_path": "bearer token leakage",
+      "likelihood": "medium",
+      "impact": "critical",
+      "preventive_controls": [
+        "short lifetimes",
+        "DPoP/mTLS for sensitive calls",
+        "secret isolation"
+      ],
+      "detective_controls": [
+        "replay detection",
+        "token use anomaly"
+      ],
+      "response": "revoke tokens/credentials and rotate secrets",
+      "residual_risk": "medium",
+      "tests": [
+        "Adversarial test for token theft or replay",
+        "Evidence receipt and alert correlation test"
+      ],
+      "status": "open-control-design"
+    },
+    {
+      "id": "RK06",
+      "title": "Overbroad scopes",
+      "asset": "authority, data, licence, evidence or availability",
+      "actor": "external attacker, malicious/compromised provider, client, agent, insider or faulty component",
+      "attack_path": "one token can call unrelated protected operations",
+      "likelihood": "medium",
+      "impact": "high",
+      "preventive_controls": [
+        "least privilege",
+        "resource indicators",
+        "transaction permits"
+      ],
+      "detective_controls": [
+        "scope-use review"
+      ],
+      "response": "reissue narrowed grants and invalidate old tokens",
+      "residual_risk": "medium",
+      "tests": [
+        "Adversarial test for overbroad scopes",
+        "Evidence receipt and alert correlation test"
+      ],
+      "status": "open-control-design"
+    },
+    {
+      "id": "RK07",
+      "title": "False device posture",
+      "asset": "authority, data, licence, evidence or availability",
+      "actor": "external attacker, malicious/compromised provider, client, agent, insider or faulty component",
+      "attack_path": "client asserts managed/compliant status",
+      "likelihood": "high",
+      "impact": "high",
+      "preventive_controls": [
+        "trusted Entra/Intune attestation",
+        "freshness limits"
+      ],
+      "detective_controls": [
+        "posture issuer/freshness validation"
+      ],
+      "response": "deny or downgrade; revoke permit",
+      "residual_risk": "low",
+      "tests": [
+        "Adversarial test for false device posture",
+        "Evidence receipt and alert correlation test"
+      ],
+      "status": "open-control-design"
+    },
+    {
+      "id": "RK08",
+      "title": "Policy bypass",
+      "asset": "authority, data, licence, evidence or availability",
+      "actor": "external attacker, malicious/compromised provider, client, agent, insider or faulty component",
+      "attack_path": "alternate endpoint/cache/widget skips PEP",
+      "likelihood": "medium",
+      "impact": "critical",
+      "preventive_controls": [
+        "central PEP library",
+        "deny-by-default",
+        "architecture tests"
+      ],
+      "detective_controls": [
+        "cross-surface decision reconciliation"
+      ],
+      "response": "emergency deny and suspend affected surface",
+      "residual_risk": "medium",
+      "tests": [
+        "Adversarial test for policy bypass",
+        "Evidence receipt and alert correlation test"
+      ],
+      "status": "open-control-design"
+    },
+    {
+      "id": "RK09",
+      "title": "Provider credential misuse",
+      "asset": "authority, data, licence, evidence or availability",
+      "actor": "external attacker, malicious/compromised provider, client, agent, insider or faulty component",
+      "attack_path": "service credential used outside authorised context",
+      "likelihood": "medium",
+      "impact": "critical",
+      "preventive_controls": [
+        "brokered credentials",
+        "managed identity",
+        "egress controls"
+      ],
+      "detective_controls": [
+        "provider usage correlation"
+      ],
+      "response": "rotate credential, isolate workload and freeze evidence",
+      "residual_risk": "medium",
+      "tests": [
+        "Adversarial test for provider credential misuse",
+        "Evidence receipt and alert correlation test"
+      ],
+      "status": "open-control-design"
+    },
+    {
+      "id": "RK10",
+      "title": "SSRF/arbitrary URL fetch",
+      "asset": "authority, data, licence, evidence or availability",
+      "actor": "external attacker, malicious/compromised provider, client, agent, insider or faulty component",
+      "attack_path": "tool accepts attacker-controlled URL",
+      "likelihood": "high",
+      "impact": "high",
+      "preventive_controls": [
+        "no arbitrary fetch tool",
+        "allowlisted providers",
+        "egress proxy"
+      ],
+      "detective_controls": [
+        "blocked-egress logs"
+      ],
+      "response": "suspend tool and investigate target access",
+      "residual_risk": "low-medium",
+      "tests": [
+        "Adversarial test for ssrf/arbitrary url fetch",
+        "Evidence receipt and alert correlation test"
+      ],
+      "status": "open-control-design"
+    },
+    {
+      "id": "RK11",
+      "title": "Licence/data exfiltration",
+      "asset": "authority, data, licence, evidence or availability",
+      "actor": "external attacker, malicious/compromised provider, client, agent, insider or faulty component",
+      "attack_path": "protected data exported to public destination",
+      "likelihood": "medium",
+      "impact": "critical",
+      "preventive_controls": [
+        "tier isolation",
+        "export PEP",
+        "destination/rights obligations"
+      ],
+      "detective_controls": [
+        "cross-tier DLP",
+        "artefact audits"
+      ],
+      "response": "revoke artefact, notify owner/licence steward",
+      "residual_risk": "medium",
+      "tests": [
+        "Adversarial test for licence/data exfiltration",
+        "Evidence receipt and alert correlation test"
+      ],
+      "status": "open-control-design"
+    },
+    {
+      "id": "RK12",
+      "title": "Cross-tenant/tier leakage",
+      "asset": "authority, data, licence, evidence or availability",
+      "actor": "external attacker, malicious/compromised provider, client, agent, insider or faulty component",
+      "attack_path": "cache or query result reused across entitlement contexts",
+      "likelihood": "medium",
+      "impact": "critical",
+      "preventive_controls": [
+        "physical isolation",
+        "entitlement-sensitive keys",
+        "separate identities"
+      ],
+      "detective_controls": [
+        "canary tests",
+        "tenant correlation"
+      ],
+      "response": "quarantine cache and notify affected parties",
+      "residual_risk": "low-medium",
+      "tests": [
+        "Adversarial test for cross-tenant/tier leakage",
+        "Evidence receipt and alert correlation test"
+      ],
+      "status": "open-control-design"
+    },
+    {
+      "id": "RK13",
+      "title": "Cache poisoning",
+      "asset": "authority, data, licence, evidence or availability",
+      "actor": "external attacker, malicious/compromised provider, client, agent, insider or faulty component",
+      "attack_path": "malicious or corrupt provider/cache content promoted",
+      "likelihood": "medium",
+      "impact": "high",
+      "preventive_controls": [
+        "quarantine",
+        "checksums",
+        "schema/geometry validation",
+        "atomic promotion"
+      ],
+      "detective_controls": [
+        "integrity scans"
+      ],
+      "response": "rollback to immutable previous version",
+      "residual_risk": "low",
+      "tests": [
+        "Adversarial test for cache poisoning",
+        "Evidence receipt and alert correlation test"
+      ],
+      "status": "open-control-design"
+    },
+    {
+      "id": "RK14",
+      "title": "Stale or revoked entitlement",
+      "asset": "authority, data, licence, evidence or availability",
+      "actor": "external attacker, malicious/compromised provider, client, agent, insider or faulty component",
+      "attack_path": "long job continues after access changes",
+      "likelihood": "medium",
+      "impact": "high",
+      "preventive_controls": [
+        "short permits",
+        "re-evaluation at material steps",
+        "CAE signals"
+      ],
+      "detective_controls": [
+        "entitlement-change/task correlation"
+      ],
+      "response": "cancel task and revoke artefacts",
+      "residual_risk": "medium",
+      "tests": [
+        "Adversarial test for stale or revoked entitlement",
+        "Evidence receipt and alert correlation test"
+      ],
+      "status": "open-control-design"
+    },
+    {
+      "id": "RK15",
+      "title": "Malicious geometry",
+      "asset": "authority, data, licence, evidence or availability",
+      "actor": "external attacker, malicious/compromised provider, client, agent, insider or faulty component",
+      "attack_path": "pathological coordinate/geometry causes crash or excessive compute",
+      "likelihood": "high",
+      "impact": "high",
+      "preventive_controls": [
+        "size/vertex limits",
+        "parser sandbox",
+        "timeouts",
+        "validation"
+      ],
+      "detective_controls": [
+        "resource/geometry metrics"
+      ],
+      "response": "terminate job and quarantine input",
+      "residual_risk": "low-medium",
+      "tests": [
+        "Adversarial test for malicious geometry",
+        "Evidence receipt and alert correlation test"
+      ],
+      "status": "open-control-design"
+    },
+    {
+      "id": "RK16",
+      "title": "Archive/decompression bomb",
+      "asset": "authority, data, licence, evidence or availability",
+      "actor": "external attacker, malicious/compromised provider, client, agent, insider or faulty component",
+      "attack_path": "provider download exhausts storage or memory",
+      "likelihood": "medium",
+      "impact": "high",
+      "preventive_controls": [
+        "content-length limits",
+        "streaming",
+        "sandbox",
+        "ratio limits"
+      ],
+      "detective_controls": [
+        "quarantine resource metrics"
+      ],
+      "response": "abort and delete quarantine artefact",
+      "residual_risk": "low",
+      "tests": [
+        "Adversarial test for archive/decompression bomb",
+        "Evidence receipt and alert correlation test"
+      ],
+      "status": "open-control-design"
+    },
+    {
+      "id": "RK17",
+      "title": "Expensive-query denial of service",
+      "asset": "authority, data, licence, evidence or availability",
+      "actor": "external attacker, malicious/compromised provider, client, agent, insider or faulty component",
+      "attack_path": "spatial join/export consumes shared resources",
+      "likelihood": "high",
+      "impact": "high",
+      "preventive_controls": [
+        "cost estimator",
+        "quotas",
+        "timeouts",
+        "work queues"
+      ],
+      "detective_controls": [
+        "cost/latency alerts"
+      ],
+      "response": "cancel job and throttle actor",
+      "residual_risk": "medium",
+      "tests": [
+        "Adversarial test for expensive-query denial of service",
+        "Evidence receipt and alert correlation test"
+      ],
+      "status": "open-control-design"
+    },
+    {
+      "id": "RK18",
+      "title": "Map/tile abuse",
+      "asset": "authority, data, licence, evidence or availability",
+      "actor": "external attacker, malicious/compromised provider, client, agent, insider or faulty component",
+      "attack_path": "high-volume requests create cost or expose coverage",
+      "likelihood": "medium",
+      "impact": "medium",
+      "preventive_controls": [
+        "CDN limits",
+        "token-bound protected tiles",
+        "generalisation"
+      ],
+      "detective_controls": [
+        "tile anomaly metrics"
+      ],
+      "response": "revoke tile token and rate-limit",
+      "residual_risk": "low-medium",
+      "tests": [
+        "Adversarial test for map/tile abuse",
+        "Evidence receipt and alert correlation test"
+      ],
+      "status": "open-control-design"
+    },
+    {
+      "id": "RK19",
+      "title": "Widget/WebMCP origin attack",
+      "asset": "authority, data, licence, evidence or availability",
+      "actor": "external attacker, malicious/compromised provider, client, agent, insider or faulty component",
+      "attack_path": "embedded/origin-confused UI invokes tools",
+      "likelihood": "medium",
+      "impact": "high",
+      "preventive_controls": [
+        "CSP",
+        "origin binding",
+        "same PEP",
+        "public-only WebMCP"
+      ],
+      "detective_controls": [
+        "origin mismatch telemetry"
+      ],
+      "response": "disable widget/tools and investigate",
+      "residual_risk": "medium",
+      "tests": [
+        "Adversarial test for widget/webmcp origin attack",
+        "Evidence receipt and alert correlation test"
+      ],
+      "status": "open-control-design"
+    },
+    {
+      "id": "RK20",
+      "title": "Provenance spoofing",
+      "asset": "authority, data, licence, evidence or availability",
+      "actor": "external attacker, malicious/compromised provider, client, agent, insider or faulty component",
+      "attack_path": "result claims false source/version or receipt",
+      "likelihood": "medium",
+      "impact": "critical",
+      "preventive_controls": [
+        "server-generated receipts",
+        "hashes",
+        "signed attestations where needed"
+      ],
+      "detective_controls": [
+        "receipt verification"
+      ],
+      "response": "withdraw result and issue correction",
+      "residual_risk": "low-medium",
+      "tests": [
+        "Adversarial test for provenance spoofing",
+        "Evidence receipt and alert correlation test"
+      ],
+      "status": "open-control-design"
+    },
+    {
+      "id": "RK21",
+      "title": "Audit tampering",
+      "asset": "authority, data, licence, evidence or availability",
+      "actor": "external attacker, malicious/compromised provider, client, agent, insider or faulty component",
+      "attack_path": "operator alters or deletes evidence",
+      "likelihood": "low-medium",
+      "impact": "critical",
+      "preventive_controls": [
+        "append-only/WORM controls",
+        "separate evidence identities",
+        "hash chains"
+      ],
+      "detective_controls": [
+        "integrity verification"
+      ],
+      "response": "evidence freeze and incident investigation",
+      "residual_risk": "low",
+      "tests": [
+        "Adversarial test for audit tampering",
+        "Evidence receipt and alert correlation test"
+      ],
+      "status": "open-control-design"
+    },
+    {
+      "id": "RK22",
+      "title": "Derived-data inference",
+      "asset": "authority, data, licence, evidence or availability",
+      "actor": "external attacker, malicious/compromised provider, client, agent, insider or faulty component",
+      "attack_path": "open aggregate reveals sensitive protected detail",
+      "likelihood": "medium",
+      "impact": "high",
+      "preventive_controls": [
+        "aggregation thresholds",
+        "resolution limits",
+        "inference review"
+      ],
+      "detective_controls": [
+        "query-pattern analytics"
+      ],
+      "response": "withhold output and review policy",
+      "residual_risk": "medium",
+      "tests": [
+        "Adversarial test for derived-data inference",
+        "Evidence receipt and alert correlation test"
+      ],
+      "status": "open-control-design"
+    },
+    {
+      "id": "RK23",
+      "title": "Supply-chain compromise",
+      "asset": "authority, data, licence, evidence or availability",
+      "actor": "external attacker, malicious/compromised provider, client, agent, insider or faulty component",
+      "attack_path": "dependency/container is malicious",
+      "likelihood": "medium",
+      "impact": "critical",
+      "preventive_controls": [
+        "locked dependencies",
+        "SBOM",
+        "signed images",
+        "minimal base"
+      ],
+      "detective_controls": [
+        "SCA/container scanning"
+      ],
+      "response": "quarantine release and rotate affected credentials",
+      "residual_risk": "medium",
+      "tests": [
+        "Adversarial test for supply-chain compromise",
+        "Evidence receipt and alert correlation test"
+      ],
+      "status": "open-control-design"
+    },
+    {
+      "id": "RK24",
+      "title": "Model/tool hallucination",
+      "asset": "authority, data, licence, evidence or availability",
+      "actor": "external attacker, malicious/compromised provider, client, agent, insider or faulty component",
+      "attack_path": "agent invents provider result or geometry",
+      "likelihood": "high",
+      "impact": "high",
+      "preventive_controls": [
+        "deterministic tools",
+        "schema validation",
+        "source citations"
+      ],
+      "detective_controls": [
+        "evaluation mismatch"
+      ],
+      "response": "reject unsupported result and retrain prompts/tests",
+      "residual_risk": "low-medium",
+      "tests": [
+        "Adversarial test for model/tool hallucination",
+        "Evidence receipt and alert correlation test"
+      ],
+      "status": "open-control-design"
+    },
+    {
+      "id": "RK25",
+      "title": "Sensitive query-history exposure",
+      "asset": "authority, data, licence, evidence or availability",
+      "actor": "external attacker, malicious/compromised provider, client, agent, insider or faulty component",
+      "attack_path": "logs reveal locations or investigations",
+      "likelihood": "medium",
+      "impact": "high",
+      "preventive_controls": [
+        "data minimisation",
+        "pseudonymisation",
+        "restricted audit"
+      ],
+      "detective_controls": [
+        "log-content scans"
+      ],
+      "response": "restrict access and remediate retention",
+      "residual_risk": "medium",
+      "tests": [
+        "Adversarial test for sensitive query-history exposure",
+        "Evidence receipt and alert correlation test"
+      ],
+      "status": "open-control-design"
+    },
+    {
+      "id": "RK26",
+      "title": "CRS/axis-order error",
+      "asset": "authority, data, licence, evidence or availability",
+      "actor": "external attacker, malicious/compromised provider, client, agent, insider or faulty component",
+      "attack_path": "valid-looking but wrong location/area result",
+      "likelihood": "medium",
+      "impact": "high",
+      "preventive_controls": [
+        "explicit CRS",
+        "tested transformations",
+        "gold fixtures"
+      ],
+      "detective_controls": [
+        "outlier and round-trip tests"
+      ],
+      "response": "withdraw/correct results and trace affected artefacts",
+      "residual_risk": "low-medium",
+      "tests": [
+        "Adversarial test for crs/axis-order error",
+        "Evidence receipt and alert correlation test"
+      ],
+      "status": "open-control-design"
+    },
+    {
+      "id": "RK27",
+      "title": "Temporal geography mismatch",
+      "asset": "authority, data, licence, evidence or availability",
+      "actor": "external attacker, malicious/compromised provider, client, agent, insider or faulty component",
+      "attack_path": "statistics joined to wrong boundary vintage",
+      "likelihood": "high",
+      "impact": "high",
+      "preventive_controls": [
+        "validity intervals",
+        "version compatibility checks"
+      ],
+      "detective_controls": [
+        "mismatch metrics"
+      ],
+      "response": "block result or mark non-comparable",
+      "residual_risk": "low",
+      "tests": [
+        "Adversarial test for temporal geography mismatch",
+        "Evidence receipt and alert correlation test"
+      ],
+      "status": "open-control-design"
+    },
+    {
+      "id": "RK28",
+      "title": "Provider outage",
+      "asset": "authority, data, licence, evidence or availability",
+      "actor": "external attacker, malicious/compromised provider, client, agent, insider or faulty component",
+      "attack_path": "authoritative source unavailable",
+      "likelihood": "high",
+      "impact": "medium",
+      "preventive_controls": [
+        "approved caches",
+        "timeouts",
+        "circuit breakers"
+      ],
+      "detective_controls": [
+        "availability monitoring"
+      ],
+      "response": "use permitted cache or fail clearly",
+      "residual_risk": "low-medium",
+      "tests": [
+        "Adversarial test for provider outage",
+        "Evidence receipt and alert correlation test"
+      ],
+      "status": "open-control-design"
+    },
+    {
+      "id": "RK29",
+      "title": "Licence withdrawal/change",
+      "asset": "authority, data, licence, evidence or availability",
+      "actor": "external attacker, malicious/compromised provider, client, agent, insider or faulty component",
+      "attack_path": "previously allowed cache/export becomes invalid",
+      "likelihood": "medium",
+      "impact": "critical",
+      "preventive_controls": [
+        "source ledger",
+        "change workflow",
+        "policy-driven invalidation"
+      ],
+      "detective_controls": [
+        "licence review cadence"
+      ],
+      "response": "emergency deny, quarantine, revoke artefacts",
+      "residual_risk": "medium",
+      "tests": [
+        "Adversarial test for licence withdrawal/change",
+        "Evidence receipt and alert correlation test"
+      ],
+      "status": "open-control-design"
+    },
+    {
+      "id": "RK30",
+      "title": "Operational drift across tiers",
+      "asset": "authority, data, licence, evidence or availability",
+      "actor": "external attacker, malicious/compromised provider, client, agent, insider or faulty component",
+      "attack_path": "open/PSGA/commercial deployments diverge",
+      "likelihood": "medium",
+      "impact": "high",
+      "preventive_controls": [
+        "shared IaC/source",
+        "tier-specific conformance tests",
+        "release manifests"
+      ],
+      "detective_controls": [
+        "configuration drift scans"
+      ],
+      "response": "roll back affected tier and reconcile",
+      "residual_risk": "medium",
+      "tests": [
+        "Adversarial test for operational drift across tiers",
+        "Evidence receipt and alert correlation test"
+      ],
+      "status": "open-control-design"
+    }
+  ]
+}

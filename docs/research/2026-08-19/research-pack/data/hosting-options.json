@@ -1,0 +1,245 @@
+{
+  "generated_at": "2026-08-19T13:30:00+01:00",
+  "cost_basis": "Illustrative architecture-order ranges in GBP; exclude staff, procurement, tax, enterprise discounts and provider data charges. Validate before funding decisions.",
+  "options": [
+    {
+      "id": "H1",
+      "name": "Portable static hosting (GitHub Pages/Cloudflare Pages)",
+      "architecture": "Static HTML/JS/JSON/OKF, PMTiles and public artefacts",
+      "tier_suitability": {
+        "open": "strong",
+        "PSGA": "not suitable",
+        "commercial": "not suitable"
+      },
+      "identity": "Optional public sign-in only; no protected backend",
+      "postgis": "none",
+      "object_storage": "static/object host",
+      "secrets": "none in public bundle",
+      "network_isolation": "none",
+      "uk_residency": "provider-specific; do not rely on for protected data",
+      "audit": "publication/build evidence only",
+      "scalability": "high for static content",
+      "operational_burden": "low",
+      "portability": "very high",
+      "indicative_cost": {
+        "prototype": "£0–£50/month",
+        "pilot": "£20–£250/month",
+        "production": "£100–£1,000/month depending on egress"
+      },
+      "risks": [
+        "mutable URLs",
+        "no server-side policy"
+      ],
+      "recommendation": "Initial public research pack and Stage 1 demonstrator"
+    },
+    {
+      "id": "H2",
+      "name": "ChatGPT Sites",
+      "architecture": "Open/synthetic interactive site in OpenAI beta surface",
+      "tier_suitability": {
+        "open": "conditional experiment",
+        "PSGA": "not suitable on current evidence",
+        "commercial": "not suitable on current evidence"
+      },
+      "identity": "Sign in with ChatGPT where available",
+      "postgis": "not established for this design",
+      "object_storage": "platform features subject to current beta",
+      "secrets": "platform environment variables, not sufficient evidence for protected tier",
+      "network_isolation": "not evidenced for private networks",
+      "uk_residency": "official material must be rechecked; no Sites residency evidence at research date",
+      "audit": "platform-specific",
+      "scalability": "beta limits apply",
+      "operational_burden": "low",
+      "portability": "source export/exit must be tested",
+      "indicative_cost": {
+        "prototype": "subscription/beta dependent",
+        "pilot": "unknown",
+        "production": "not recommended"
+      },
+      "risks": [
+        "availability by region/account",
+        "beta API/limits",
+        "residency"
+      ],
+      "recommendation": "Optional open mirror only after account-specific verification"
+    },
+    {
+      "id": "H3",
+      "name": "Microsoft Azure managed platform",
+      "architecture": "Container Apps or App Service; Azure PostgreSQL/PostGIS; Blob/CDN; Entra; APIM; Key Vault; Monitor",
+      "tier_suitability": {
+        "open": "strong",
+        "PSGA": "strong with landing-zone controls",
+        "commercial": "strong with isolation"
+      },
+      "identity": "Entra ID, Conditional Access, managed identities",
+      "postgis": "managed PostgreSQL extensions",
+      "object_storage": "Blob Storage",
+      "secrets": "Key Vault/managed identity",
+      "network_isolation": "VNet/private endpoints",
+      "uk_residency": "UK regions available; service-by-service confirmation required",
+      "audit": "Azure Monitor/OpenTelemetry and identity logs",
+      "scalability": "strong",
+      "operational_burden": "medium",
+      "portability": "medium-high with containers/OpenAPI/open formats/IaC",
+      "indicative_cost": {
+        "prototype": "£200–£1,000/month",
+        "pilot": "£1,500–£8,000/month",
+        "production": "£8,000–£60,000+/month workload dependent"
+      },
+      "risks": [
+        "cost and service coupling"
+      ],
+      "recommendation": "Preferred protected pilot and credible production path"
+    },
+    {
+      "id": "H4",
+      "name": "Google Cloud managed platform",
+      "architecture": "Cloud Run; Cloud SQL/PostGIS; Cloud Storage/CDN; IAM/Workload Identity; Secret Manager; Apigee optional",
+      "tier_suitability": {
+        "open": "strong",
+        "PSGA": "strong with approved landing zone",
+        "commercial": "strong"
+      },
+      "identity": "Cloud IAM, workforce/workload identity, external OIDC",
+      "postgis": "Cloud SQL PostgreSQL",
+      "object_storage": "Cloud Storage",
+      "secrets": "Secret Manager",
+      "network_isolation": "VPC/private services",
+      "uk_residency": "UK regions available; service-by-service confirmation required",
+      "audit": "Cloud Logging/Trace/OpenTelemetry",
+      "scalability": "strong",
+      "operational_burden": "medium",
+      "portability": "medium-high",
+      "indicative_cost": {
+        "prototype": "£150–£900/month",
+        "pilot": "£1,200–£7,000/month",
+        "production": "£7,000–£55,000+/month"
+      },
+      "risks": [
+        "extra integration for Entra device posture"
+      ],
+      "recommendation": "Strong alternative where DSIT/GCP landing zones dominate"
+    },
+    {
+      "id": "H5",
+      "name": "AWS managed platform",
+      "architecture": "ECS/Fargate or App Runner; RDS/Aurora PostGIS; S3/CloudFront; IAM; Cognito/external OIDC; Verified Permissions optional",
+      "tier_suitability": {
+        "open": "strong",
+        "PSGA": "strong with approved landing zone",
+        "commercial": "strong"
+      },
+      "identity": "IAM, workforce federation, external OIDC",
+      "postgis": "RDS/Aurora PostgreSQL",
+      "object_storage": "S3",
+      "secrets": "Secrets Manager",
+      "network_isolation": "VPC/private endpoints",
+      "uk_residency": "London region; service-by-service confirmation required",
+      "audit": "CloudTrail/CloudWatch/OpenTelemetry",
+      "scalability": "strong",
+      "operational_burden": "medium",
+      "portability": "medium-high",
+      "indicative_cost": {
+        "prototype": "£150–£900/month",
+        "pilot": "£1,200–£7,000/month",
+        "production": "£7,000–£55,000+/month"
+      },
+      "risks": [
+        "identity/device integration work",
+        "Cedar/OPA duplication risk"
+      ],
+      "recommendation": "Strong alternative for AWS-established organisations"
+    },
+    {
+      "id": "H6",
+      "name": "Cloudflare edge platform",
+      "architecture": "Pages/Workers/R2/D1/Access; external managed PostgreSQL or Hyperdrive",
+      "tier_suitability": {
+        "open": "excellent",
+        "PSGA": "limited for core geospatial authority",
+        "commercial": "limited without separate backend"
+      },
+      "identity": "Access/Zero Trust or external OIDC",
+      "postgis": "external",
+      "object_storage": "R2",
+      "secrets": "Worker secrets",
+      "network_isolation": "edge and tunnel patterns",
+      "uk_residency": "service-specific and insufficient alone for protected design",
+      "audit": "platform logs; integrate external evidence plane",
+      "scalability": "excellent edge delivery",
+      "operational_burden": "low-to-medium",
+      "portability": "high for static assets; Worker coupling possible",
+      "indicative_cost": {
+        "prototype": "£0–£100/month",
+        "pilot": "£100–£1,500/month",
+        "production": "£1,000–£15,000+/month egress/compute dependent"
+      },
+      "risks": [
+        "not a full PostGIS/control-plane platform"
+      ],
+      "recommendation": "Public edge/static delivery, not protected geospatial authority"
+    },
+    {
+      "id": "H7",
+      "name": "Shared multi-tier deployment",
+      "architecture": "One runtime and data estate with logical policy separation",
+      "tier_suitability": {
+        "open": "possible",
+        "PSGA": "high-risk",
+        "commercial": "high-risk"
+      },
+      "identity": "shared",
+      "postgis": "shared namespaces",
+      "object_storage": "shared buckets/prefixes",
+      "secrets": "shared platform",
+      "network_isolation": "logical",
+      "uk_residency": "platform-specific",
+      "audit": "shared",
+      "scalability": "efficient",
+      "operational_burden": "lower initially",
+      "portability": "medium",
+      "indicative_cost": {
+        "prototype": "low",
+        "pilot": "medium",
+        "production": "medium"
+      },
+      "risks": [
+        "cross-tier leakage",
+        "entitlement-sensitive cache errors",
+        "incident blast radius"
+      ],
+      "recommendation": "Reject as the default"
+    },
+    {
+      "id": "H8",
+      "name": "Federated organisational deployments",
+      "architecture": "Shared contracts and OKF federation; each organisation operates its protected plane",
+      "tier_suitability": {
+        "open": "strong federation",
+        "PSGA": "strong long-term",
+        "commercial": "contract-specific"
+      },
+      "identity": "local enterprise identity plus federation",
+      "postgis": "per operator",
+      "object_storage": "per operator",
+      "secrets": "per operator",
+      "network_isolation": "strong organisational boundary",
+      "uk_residency": "operator-controlled",
+      "audit": "local plus shared transparency/evidence references",
+      "scalability": "organisational",
+      "operational_burden": "high governance and conformance",
+      "portability": "very high if contracts are open",
+      "indicative_cost": {
+        "prototype": "not initial",
+        "pilot": "high",
+        "production": "distributed"
+      },
+      "risks": [
+        "version drift",
+        "uneven assurance"
+      ],
+      "recommendation": "Credible long-term route after central reference implementation"
+    }
+  ]
+}

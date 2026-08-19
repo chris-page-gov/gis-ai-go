@@ -1,0 +1,1 @@
+digraph G {rankdir=LR; node [shape=box, fontname="Arial"]; U[label="Browser user"]; B[label="Browser agent"]; P[label="Public page"]; J[label="Static JSON/OKF"]; U->P; P->B[label="register read-only tools"]; B->P[label="search/inspect"]; P->J[label="read public data"]; J->P[label="records/provenance"]; P->B[label="structured result"]; P->U[label="visible equivalent state"];}

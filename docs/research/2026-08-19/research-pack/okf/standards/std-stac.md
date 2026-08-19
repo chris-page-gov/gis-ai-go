@@ -1,0 +1,21 @@
+---
+type: Standard
+title: STAC
+description: Spatiotemporal asset and collection discovery
+tags:
+- standards
+- research
+generated:
+  by: process:research-pack-builder
+  at: '2026-08-19T13:30:00+01:00'
+sources:
+- resource: ../../data/standards.json
+---
+
+# Summary
+
+Spatiotemporal asset and collection discovery
+
+# Structured record
+
+The complete machine-readable record is in [`data/standards.json`](../../data/standards.json).

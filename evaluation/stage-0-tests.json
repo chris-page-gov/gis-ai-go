@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0",
+  "stage": 0,
+  "status": "implemented",
+  "cases": [
+    {
+      "id": "S0-01",
+      "purpose": "Validate promoted schemas and synthetic fixtures",
+      "command": "pnpm run validate:contracts"
+    },
+    {
+      "id": "S0-02",
+      "purpose": "Verify internal links and research source identifiers",
+      "command": "pnpm run validate:links"
+    },
+    {
+      "id": "S0-03",
+      "purpose": "Reject representative live gateway and execution requests",
+      "command": "pnpm run test"
+    },
+    {
+      "id": "S0-04",
+      "purpose": "Run the baseline repository secret scan",
+      "command": "pnpm run validate:secrets"
+    },
+    {
+      "id": "S0-05",
+      "purpose": "Render architecture sources",
+      "command": "pnpm run render:diagrams"
+    },
+    {
+      "id": "S0-06",
+      "purpose": "Generate a CycloneDX dependency inventory",
+      "command": "pnpm run sbom"
+    }
+  ]
+}

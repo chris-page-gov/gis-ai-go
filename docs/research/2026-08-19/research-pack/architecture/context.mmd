@@ -1,0 +1,9 @@
+flowchart LR
+  Public[Public users and browser agents] --> Presentation[Public OKF Explorer and map]
+  Analysts[Authenticated analysts and agents] --> Gateway[Governed MCP/control gateway]
+  Presentation --> Gateway
+  Gateway --> Policy[Identity, OPA and workflow control]
+  Policy --> Execution[Deterministic geospatial execution]
+  Execution --> Providers[OS, ONS, Nomis, LandIS, HMLR]
+  Gateway --> Evidence[Evidence and audit plane]
+  Execution --> Evidence

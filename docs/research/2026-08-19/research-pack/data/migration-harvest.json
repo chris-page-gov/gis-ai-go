@@ -1,0 +1,155 @@
+{
+  "generated_at": "2026-08-19T13:30:00+01:00",
+  "source_repository": "chris-page-gov/mcp-geo@56683b33c0cd02842b7f3ee465414c68a1f3f2a6",
+  "items": [
+    {
+      "asset": "Repository purpose and learning history",
+      "classification": "preserve only as historical evidence",
+      "rationale": "The repository explicitly describes itself as a learning journal; retain history and release records without making them product authority.",
+      "source_ids": [
+        "S-MCP-GEO"
+      ]
+    },
+    {
+      "asset": "Geography-level model and parity contract",
+      "classification": "retain concept but redesign",
+      "rationale": "Cross-surface geography semantics are valuable; implement as a versioned domain profile and temporal identifier service.",
+      "source_ids": [
+        "S-MCP-GEO"
+      ]
+    },
+    {
+      "asset": "OS, ONS, Nomis and LandIS adapters",
+      "classification": "migrate after testing",
+      "rationale": "Harvest provider-specific error cases and parsers; rewrite behind a common adapter contract with live licence/version checks.",
+      "source_ids": [
+        "S-MCP-GEO"
+      ]
+    },
+    {
+      "asset": "Boundary and statistics caches",
+      "classification": "retain concept but redesign",
+      "rationale": "Useful reference data, but cache entries need entitlement, licence, source checksum, policy and audience metadata.",
+      "source_ids": [
+        "S-MCP-GEO"
+      ]
+    },
+    {
+      "asset": "pgRouting route computation",
+      "classification": "migrate after testing",
+      "rationale": "Deterministic routing is reusable if its network rights, profile contract and tests are re-established.",
+      "source_ids": [
+        "S-MCP-GEO"
+      ]
+    },
+    {
+      "asset": "Static map and overlay fallback contracts",
+      "classification": "retain concept but redesign",
+      "rationale": "Non-App clients need complete results; rebuild against the new map specification and policy model.",
+      "source_ids": [
+        "S-MCP-GEO"
+      ]
+    },
+    {
+      "asset": "MCP Apps widgets",
+      "classification": "preserve only as historical evidence",
+      "rationale": "Use interaction lessons and host fallbacks; rebuild widgets against the stable Apps extension and shared PEP.",
+      "source_ids": [
+        "S-MCP-GEO",
+        "S-MCP-APPS"
+      ]
+    },
+    {
+      "asset": "2026-07-28 RC protocol work",
+      "classification": "retain concept but redesign",
+      "rationale": "The experiments anticipated final features; implement afresh against the final specification and official SDK.",
+      "source_ids": [
+        "S-MCP-GEO",
+        "S-MCP-SPEC"
+      ]
+    },
+    {
+      "asset": "Tool and resource schemas",
+      "classification": "migrate after testing",
+      "rationale": "Retain useful field names, examples and errors, but map them into the 12-tool capability model.",
+      "source_ids": [
+        "S-MCP-GEO"
+      ]
+    },
+    {
+      "asset": "103-tool manifest",
+      "classification": "discard",
+      "rationale": "It documents the old surface and tool proliferation; keep only as evidence in the archive.",
+      "source_ids": [
+        "S-MCP-GEO"
+      ]
+    },
+    {
+      "asset": "OWASP control catalogue and locked risk manifest",
+      "classification": "retain unchanged as evidence; update mappings",
+      "rationale": "High-value assurance evidence and regression inputs. Do not claim current control effectiveness without revalidation.",
+      "source_ids": [
+        "S-MCP-GEO"
+      ]
+    },
+    {
+      "asset": "Evaluation questions, fixtures and failure cases",
+      "classification": "migrate after testing",
+      "rationale": "Use as seed material for the new 25-scenario suite and host interoperability tests.",
+      "source_ids": [
+        "S-MCP-GEO"
+      ]
+    },
+    {
+      "asset": "Correlation IDs and provenance fields",
+      "classification": "retain concept but redesign",
+      "rationale": "Map to Trace Context, canonical audit events and result receipts.",
+      "source_ids": [
+        "S-MCP-GEO",
+        "S-TRACE",
+        "S-PROV"
+      ]
+    },
+    {
+      "asset": "FastAPI monolith and dynamic tool registration",
+      "classification": "discard",
+      "rationale": "It couples protocol, provider, execution and presentation responsibilities and obscures enforcement boundaries.",
+      "source_ids": [
+        "S-MCP-GEO"
+      ]
+    },
+    {
+      "asset": "Browser-visible or user-supplied provider keys",
+      "classification": "discard",
+      "rationale": "Production access must use server-side credential brokerage and enterprise identity.",
+      "source_ids": [
+        "S-MCP-GEO",
+        "S-OS-AUTH"
+      ]
+    },
+    {
+      "asset": "Absolute-path and local-volume assumptions",
+      "classification": "discard",
+      "rationale": "Replace with portable configuration, managed object storage and explicit local fixtures.",
+      "source_ids": [
+        "S-MCP-GEO"
+      ]
+    },
+    {
+      "asset": "Svelte playground and transcripts",
+      "classification": "retain concept but redesign",
+      "rationale": "A useful developer surface; rebuild as a separate test client and avoid storing sensitive prompts by default.",
+      "source_ids": [
+        "S-MCP-GEO"
+      ]
+    },
+    {
+      "asset": "Provider research notes and licences",
+      "classification": "unresolved pending investigation",
+      "rationale": "Harvest only after each claim is rechecked against current primary sources and dated in the new source ledger.",
+      "source_ids": [
+        "S-MCP-GEO"
+      ]
+    }
+  ]
+}

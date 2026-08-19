@@ -1,0 +1,192 @@
+{
+  "generated_at": "2026-08-19T13:30:00+01:00",
+  "controls": [
+    {
+      "id": "C1",
+      "name": "Domain knowledge and semantics",
+      "plane": [
+        "presentation",
+        "control"
+      ],
+      "purpose": "Make concepts, identifiers, relationships, metadata, temporal meaning, provenance, uncertainty and fitness for purpose explicit.",
+      "components": [
+        "OKF 0.2 bundle",
+        "domain profiles",
+        "identifier registry",
+        "source-native metadata",
+        "catalogue crosswalks"
+      ],
+      "evidence": [
+        "S-OKF-SPEC",
+        "S-OGC-RECORDS",
+        "S-DCAT",
+        "S-GEODCAT"
+      ]
+    },
+    {
+      "id": "C2",
+      "name": "Authority, identity and policy",
+      "plane": [
+        "control"
+      ],
+      "purpose": "Authenticate actors and workloads, preserve delegated authority, evaluate licence and purpose, and attach obligations.",
+      "components": [
+        "OIDC/OAuth 2.1",
+        "Entra Conditional Access",
+        "OPA",
+        "authority context",
+        "transaction permits"
+      ],
+      "evidence": [
+        "S-OAUTH-BCP",
+        "S-TOKEN-EXCHANGE",
+        "S-RAR",
+        "S-DPOP",
+        "S-OPA",
+        "S-ENTRA-CA"
+      ]
+    },
+    {
+      "id": "C3",
+      "name": "Durable workflow and human control",
+      "plane": [
+        "control",
+        "evidence"
+      ],
+      "purpose": "Make multi-step processes deterministic, resumable, reviewable and reversible rather than relying on an LLM plan.",
+      "components": [
+        "Arazzo 1.1",
+        "MCP Tasks",
+        "MRTR",
+        "approval service",
+        "state store"
+      ],
+      "evidence": [
+        "S-ARAZZO",
+        "S-MCP-SPEC",
+        "S-MCP-TASKS"
+      ]
+    },
+    {
+      "id": "C4",
+      "name": "MCP, APIs and events",
+      "plane": [
+        "presentation",
+        "control"
+      ],
+      "purpose": "Provide policy-filtered discovery, invocation, routing, service contracts and event integration.",
+      "components": [
+        "MCP 2026-07-28",
+        "OpenAPI",
+        "OGC APIs",
+        "AsyncAPI",
+        "MCP Apps",
+        "WebMCP experiment"
+      ],
+      "evidence": [
+        "S-MCP-SPEC",
+        "S-OPENAPI",
+        "S-OGC-FEATURES",
+        "S-ASYNCAPI",
+        "S-MCP-APPS",
+        "S-WEBMCP"
+      ]
+    },
+    {
+      "id": "C5",
+      "name": "Authoritative systems, data and computation",
+      "plane": [
+        "execution-data"
+      ],
+      "purpose": "Keep source systems authoritative and perform deterministic geospatial and statistical operations in tested software.",
+      "components": [
+        "provider adapters",
+        "PostGIS",
+        "object storage",
+        "Python geospatial execution",
+        "isolated caches"
+      ],
+      "evidence": [
+        "S-OS-NGD",
+        "S-ONS-API",
+        "S-NOMIS",
+        "S-LANDIS",
+        "S-HMLR-USE",
+        "S-GEOPARQUET"
+      ]
+    },
+    {
+      "id": "C6",
+      "name": "Evidence, audit and assurance",
+      "plane": [
+        "evidence"
+      ],
+      "purpose": "Record requests, policy decisions, approvals, data versions, transformations, outputs, receipts and operational assurance.",
+      "components": [
+        "OpenTelemetry",
+        "Trace Context",
+        "W3C PROV mapping",
+        "append-only audit",
+        "result receipt",
+        "transparency record"
+      ],
+      "evidence": [
+        "S-PROV",
+        "S-TRACE",
+        "S-NCSC-CAF",
+        "S-ATRS"
+      ]
+    }
+  ],
+  "planes": [
+    {
+      "id": "P1",
+      "name": "Presentation plane",
+      "contains": [
+        "static OKF Explorer",
+        "MapLibre map",
+        "evidence cards",
+        "MCP Apps",
+        "optional WebMCP read-only tools"
+      ],
+      "trust_boundary": "No protected credentials or licensed feature payloads in public browser assets."
+    },
+    {
+      "id": "P2",
+      "name": "Control plane",
+      "contains": [
+        "TypeScript MCP gateway",
+        "identity broker",
+        "OPA PDP",
+        "workflow controller",
+        "rate/cost controls",
+        "credential selection"
+      ],
+      "trust_boundary": "Every discover and invoke decision requires trusted identity and policy context."
+    },
+    {
+      "id": "P3",
+      "name": "Execution and data plane",
+      "contains": [
+        "Python deterministic geospatial service",
+        "PostGIS",
+        "object stores",
+        "provider adapters",
+        "tier-isolated caches"
+      ],
+      "trust_boundary": "Provider credentials and licensed data stay server-side and tier-isolated."
+    },
+    {
+      "id": "P4",
+      "name": "Evidence plane",
+      "contains": [
+        "trace store",
+        "append-only audit events",
+        "policy decision records",
+        "evidence receipts",
+        "evaluation and incident records"
+      ],
+      "trust_boundary": "Evidence is immutable enough for challenge and reconstructability; logs exclude secrets and unnecessary personal query content."
+    }
+  ]
+}

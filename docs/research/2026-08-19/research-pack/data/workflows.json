@@ -1,0 +1,330 @@
+{
+  "generated_at": "2026-08-19T13:30:00+01:00",
+  "status": "proposed-design",
+  "workflows": [
+    {
+      "id": "WF01",
+      "name": "Open catalogue discovery",
+      "purpose": "Search, narrow, inspect and cite open catalogue records.",
+      "definition_authority": "Arazzo 1.1 plus OKF workflow profile",
+      "steps": [
+        "catalogue.search",
+        "catalogue.describe",
+        "optional map.render",
+        "evidence.inspect"
+      ],
+      "human_approval": "none",
+      "task_usage": "none",
+      "mrtr_usage": "request missing facet/record choice",
+      "tiers": [
+        "open"
+      ],
+      "entry_criteria": [
+        "public metadata only"
+      ],
+      "exit_criteria": [
+        "record and evidence links returned"
+      ],
+      "rollback": "not applicable",
+      "source_ids": [
+        "S-ARAZZO",
+        "S-OKF-SPEC"
+      ]
+    },
+    {
+      "id": "WF02",
+      "name": "Open cross-provider query",
+      "purpose": "Resolve a question, query HMLR/ONS/LandIS open data and return joined evidence.",
+      "definition_authority": "Arazzo 1.1",
+      "steps": [
+        "selection.resolve",
+        "data.query per provider",
+        "spatial.analyse",
+        "map.render",
+        "evidence.inspect"
+      ],
+      "human_approval": "only when export thresholds exceeded",
+      "task_usage": "for long join/export",
+      "mrtr_usage": "dataset/geography/time choices",
+      "tiers": [
+        "open"
+      ],
+      "entry_criteria": [
+        "all inputs public and licence-confirmed"
+      ],
+      "exit_criteria": [
+        "joined result and receipt"
+      ],
+      "rollback": "delete temporary artefacts on failure",
+      "source_ids": [
+        "S-HMLR-PPD",
+        "S-ONS-API",
+        "S-LANDIS"
+      ]
+    },
+    {
+      "id": "WF03",
+      "name": "PSGA OS enrichment",
+      "purpose": "Enrich an open result with protected OS detail without contaminating public stores.",
+      "definition_authority": "Arazzo 1.1 and transaction permit",
+      "steps": [
+        "policy preflight",
+        "human approval if required",
+        "credential broker",
+        "protected data.query",
+        "spatial.analyse in protected plane",
+        "map.render/export under obligations",
+        "evidence receipt"
+      ],
+      "human_approval": "risk/output dependent",
+      "task_usage": "yes for large analysis",
+      "mrtr_usage": "purpose/output confirmation",
+      "tiers": [
+        "PSGA"
+      ],
+      "entry_criteria": [
+        "known user, organisation entitlement, compliant device, permit"
+      ],
+      "exit_criteria": [
+        "protected result remains in protected plane"
+      ],
+      "rollback": "revoke artefact and purge temporary cache",
+      "source_ids": [
+        "S-OS-AUTH",
+        "S-ENTRA-CA"
+      ]
+    },
+    {
+      "id": "WF04",
+      "name": "Service cache refresh",
+      "purpose": "Refresh an approved provider cache under workload identity.",
+      "definition_authority": "Scheduled workflow",
+      "steps": [
+        "load dataset policy",
+        "check licence and entitlement",
+        "acquire to quarantine",
+        "validate checksum/schema/geometry",
+        "promote atomically",
+        "invalidate old indexes",
+        "write receipt"
+      ],
+      "human_approval": "for new dataset/licence change only",
+      "task_usage": "yes",
+      "mrtr_usage": "none",
+      "tiers": [
+        "open",
+        "PSGA",
+        "commercial"
+      ],
+      "entry_criteria": [
+        "approved workload and dataset policy"
+      ],
+      "exit_criteria": [
+        "new cache version promoted and old version retained/expired per policy"
+      ],
+      "rollback": "restore previous immutable cache version",
+      "source_ids": [
+        "S-NCSC-CLOUD"
+      ]
+    },
+    {
+      "id": "WF05",
+      "name": "High-volume export approval",
+      "purpose": "Review and approve/deny an export that exceeds policy thresholds.",
+      "definition_authority": "Arazzo plus approval policy",
+      "steps": [
+        "estimate rows/area/cost/licence",
+        "policy decision",
+        "human review",
+        "issue transaction permit",
+        "artefact.export",
+        "scan",
+        "deliver expiring link",
+        "receipt"
+      ],
+      "human_approval": "mandatory at threshold",
+      "task_usage": "yes",
+      "mrtr_usage": "destination/retention confirmation",
+      "tiers": [
+        "open",
+        "PSGA",
+        "commercial"
+      ],
+      "entry_criteria": [
+        "source result exists and actor authorised"
+      ],
+      "exit_criteria": [
+        "approved artefact delivered or denial recorded"
+      ],
+      "rollback": "revoke link and delete artefact",
+      "source_ids": [
+        "S-RAR",
+        "S-OPA"
+      ]
+    },
+    {
+      "id": "WF06",
+      "name": "Policy or licence change invalidation",
+      "purpose": "Find and invalidate affected capabilities, caches, artefacts and workflows.",
+      "definition_authority": "Governance workflow",
+      "steps": [
+        "register change",
+        "resolve impacted records",
+        "emergency deny if needed",
+        "invalidate discovery/tool listings",
+        "quarantine caches",
+        "revoke artefacts",
+        "notify owners",
+        "revalidate and republish"
+      ],
+      "human_approval": "owner and legal/licence steward",
+      "task_usage": "yes",
+      "mrtr_usage": "none",
+      "tiers": [
+        "open",
+        "PSGA",
+        "commercial"
+      ],
+      "entry_criteria": [
+        "authoritative change evidence"
+      ],
+      "exit_criteria": [
+        "impact ledger closed"
+      ],
+      "rollback": "restore only through new approved policy version",
+      "source_ids": [
+        "S-OS-LICENSING",
+        "S-NCSC-CAF"
+      ]
+    },
+    {
+      "id": "WF07",
+      "name": "Policy challenge and reconstruction",
+      "purpose": "Allow an auditor or subject to reconstruct and challenge a decision.",
+      "definition_authority": "Evidence workflow",
+      "steps": [
+        "authorise audit access",
+        "load receipt and immutable policy version",
+        "load PIP evidence snapshots",
+        "replay deterministic decision",
+        "compare outcome",
+        "record challenge and response"
+      ],
+      "human_approval": "case owner where sensitive",
+      "task_usage": "optional",
+      "mrtr_usage": "case scope",
+      "tiers": [
+        "open",
+        "PSGA",
+        "commercial",
+        "auditor"
+      ],
+      "entry_criteria": [
+        "receipt ID and legitimate access"
+      ],
+      "exit_criteria": [
+        "reconstruction outcome and correction route"
+      ],
+      "rollback": "not applicable; append corrections",
+      "source_ids": [
+        "S-PROV",
+        "S-TRACE"
+      ]
+    },
+    {
+      "id": "WF08",
+      "name": "Emergency tool suspension",
+      "purpose": "Suspend a tool/provider rapidly and preserve evidence.",
+      "definition_authority": "Emergency operations runbook",
+      "steps": [
+        "authenticate incident commander",
+        "set emergency deny",
+        "remove capability from discovery",
+        "revoke provider credentials",
+        "cancel Tasks",
+        "quarantine caches",
+        "freeze evidence",
+        "notify owners",
+        "review recovery"
+      ],
+      "human_approval": "incident authority",
+      "task_usage": "cancelled",
+      "mrtr_usage": "none",
+      "tiers": [
+        "all"
+      ],
+      "entry_criteria": [
+        "validated incident or credible threat"
+      ],
+      "exit_criteria": [
+        "control confirmed across planes"
+      ],
+      "rollback": "controlled re-enable with new policy/version evidence",
+      "source_ids": [
+        "S-NCSC-CAF"
+      ]
+    },
+    {
+      "id": "WF09",
+      "name": "WebMCP public inspection",
+      "purpose": "Let a supporting browser agent operate the public page without scraping.",
+      "definition_authority": "Page tool definitions; non-authoritative convenience surface",
+      "steps": [
+        "search visible catalogue",
+        "apply facets",
+        "inspect record",
+        "get relationships/current-view evidence",
+        "export selected public metadata"
+      ],
+      "human_approval": "browser user visibility/consent as platform provides",
+      "task_usage": "none",
+      "mrtr_usage": "none",
+      "tiers": [
+        "open"
+      ],
+      "entry_criteria": [
+        "public page and browser support"
+      ],
+      "exit_criteria": [
+        "same result obtainable through linked JSON/OKF"
+      ],
+      "rollback": "unregister tools with document lifecycle",
+      "source_ids": [
+        "S-WEBMCP"
+      ]
+    },
+    {
+      "id": "WF10",
+      "name": "Provider outage with approved cache",
+      "purpose": "Use an approved cache during provider outage with explicit freshness and policy checks.",
+      "definition_authority": "Resilience policy",
+      "steps": [
+        "detect outage",
+        "check cache licence/audience/expiry",
+        "evaluate stale-use policy",
+        "query cache",
+        "mark freshness and outage",
+        "write receipt",
+        "revalidate after recovery"
+      ],
+      "human_approval": "for stale use beyond threshold",
+      "task_usage": "optional",
+      "mrtr_usage": "accept stale result where policy permits",
+      "tiers": [
+        "open",
+        "PSGA",
+        "commercial"
+      ],
+      "entry_criteria": [
+        "provider unavailable and approved cache exists"
+      ],
+      "exit_criteria": [
+        "result clearly marked or operation denied"
+      ],
+      "rollback": "replace with live result only through new receipt",
+      "source_ids": [
+        "S-NCSC-CLOUD"
+      ]
+    }
+  ]
+}
