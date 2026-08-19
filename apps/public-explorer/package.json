@@ -1,0 +1,26 @@
+{
+  "name": "@gis-ai-go/public-explorer",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Accessible static public catalogue Explorer for GIS AI GO",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "prepare:data": "node scripts/prepare-data.mjs",
+    "check:build-boundary": "node scripts/check-build-boundary.mjs",
+    "build": "pnpm run prepare:data && pnpm run check:build-boundary && vite build && pnpm run check:dist",
+    "check:dist": "node scripts/check-dist.mjs",
+    "preview": "vite preview",
+    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "test:build": "node --test test/build/*.test.mjs",
+    "test:unit": "pnpm run test:build && vitest run",
+    "test:browser": "playwright test"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
+    "@playwright/test": "1.62.1",
+    "jsdom": "30.0.1",
+    "vite": "8.2.1",
+    "vitest": "4.1.11"
+  }
+}

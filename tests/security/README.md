@@ -1,4 +1,6 @@
 # Security-test boundary
 
-Stage 0 runs the repository secret scan and live-execution regression tests. This is
-not a penetration test or production security assessment.
+Repository assurance runs the baseline secret scan, fail-closed execution tests and
+static Explorer malicious-input, Content Security Policy, navigation, network and
+built-artefact checks. These are not a penetration test or production security
+assessment.
