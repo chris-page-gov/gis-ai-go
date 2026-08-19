@@ -2,6 +2,8 @@ name: CI
 
 on:
   push:
+    branches:
+      - main
   pull_request:
 
 permissions:
@@ -35,12 +37,6 @@ jobs:
           version: 0.12.2
           enable-cache: true
 
-      - name: Install pinned diagram renderer
-        run: |
-          sudo apt-get update
-          sudo apt-get install --yes --no-install-recommends graphviz=2.42.2-9build1
-          dot -V
-
       - name: Install locked dependencies
         run: |
           pnpm install --frozen-lockfile
@@ -53,6 +49,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: stage-0-evidence
+          name: assurance-evidence
           path: artifacts/
           if-no-files-found: warn

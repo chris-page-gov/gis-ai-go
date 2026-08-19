@@ -1,7 +1,7 @@
 changelog:
   exclude:
     labels:
-      - release: skip
+      - "release: skip"
   categories:
     - title: Breaking changes
       labels:

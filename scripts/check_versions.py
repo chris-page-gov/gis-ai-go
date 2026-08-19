@@ -7,11 +7,12 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SEMVER = re.compile(
-    r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)"
-    r"(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?"
-    r"(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$"
-)
+STABLE_SEMVER = re.compile(r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$")
+
+
+def is_valid_product_version(value: str) -> bool:
+    """Return whether a version is stable SemVer and valid unchanged in Python metadata."""
+    return STABLE_SEMVER.fullmatch(value) is not None
 
 
 def load_json(path: Path) -> dict[str, object]:
@@ -25,8 +26,8 @@ def load_toml(path: Path) -> dict[str, object]:
 
 def main() -> None:
     version = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
-    if not SEMVER.fullmatch(version):
-        raise SystemExit(f"VERSION is not valid Semantic Versioning: {version!r}")
+    if not is_valid_product_version(version):
+        raise SystemExit(f"VERSION must be stable Semantic Versioning X.Y.Z: {version!r}")
 
     observed: dict[str, str] = {}
     for relative in (

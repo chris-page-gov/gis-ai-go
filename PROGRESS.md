@@ -15,8 +15,8 @@ reproducible GitHub Pages deployment.
 - create the live context, roadmap, backlog and changelog;
 - establish branch, pull request, release and deployment rules;
 - configure GitHub tracking and assurance;
-- correct the remote-only Graphviz failure and establish the stable `assurance`
-  check, then return the repository to public visibility.
+- complete review, merge the green bootstrap pull request and establish the stable
+  `assurance` check, then return the repository to public visibility.
 
 ## Completed
 
@@ -45,6 +45,6 @@ reproducible GitHub Pages deployment.
 ## Latest evidence
 
 - local assurance: passing, 19 August 2026;
-- remote assurance: pending first delivery-control pull request;
+- remote assurance: passing on pull request 1;
 - deployed product: none;
 - latest supported release: none.

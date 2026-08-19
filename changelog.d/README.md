@@ -13,3 +13,7 @@ need no fragment when they do not change behaviour or an asserted fact.
 The release pull request moves fragments into `CHANGELOG.md`, deletes the consumed
 files, synchronises every package version and verifies the release artefacts before
 tagging.
+
+`VERSION` uses stable `X.Y.Z` Semantic Versioning so the same value remains valid in
+both npm and Python project metadata. Use branches and commit identifiers for preview
+builds rather than placing prerelease syntax in the product version.

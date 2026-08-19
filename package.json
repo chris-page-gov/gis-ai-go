@@ -19,12 +19,13 @@
     "validate:versions": "uv run --cache-dir .uv-cache python scripts/check_versions.py",
     "validate:links": "uv run --cache-dir .uv-cache python scripts/check_links.py",
     "validate:secrets": "uv run --cache-dir .uv-cache python scripts/scan_secrets.py",
-    "render:diagrams": "uv run --cache-dir .uv-cache python scripts/render_diagrams.py --output artifacts/diagrams",
+    "render:diagrams": "node scripts/render_diagrams.mjs --output artifacts/diagrams",
     "sbom": "uv run --cache-dir .uv-cache python scripts/generate_sbom.py --output artifacts/sbom.cdx.json",
     "check": "pnpm run typecheck && pnpm run test && pnpm run validate:versions && pnpm run validate:contracts && pnpm run validate:links && pnpm run validate:secrets && pnpm run render:diagrams && pnpm run sbom"
   },
   "devDependencies": {
     "@types/node": "24.13.3",
+    "@viz-js/viz": "3.29.0",
     "typescript": "7.0.2"
   }
 }

@@ -20,7 +20,5 @@ version fields and removes the consumed fragments.
 ### Changed
 
 - Superseded the research codename with **GIS AI GO**.
-- Progression is now controlled by evidence gates and pull requests rather than a
-  local Stage 0 pause.
 
 [Unreleased]: https://github.com/chris-page-gov/gis-ai-go/commits/main

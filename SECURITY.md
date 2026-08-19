@@ -2,13 +2,17 @@
 
 ## Current status
 
-GIS AI GO is a public open-source project with no supported production release yet.
+GIS AI GO is intended for public open-source development and has no supported
+production release yet. During bootstrap it may be private while publication
+controls are verified.
 The current gateway and execution service remain fail-closed scaffolds. Do not
 connect unreviewed code to provider credentials, protected data or public listeners.
 
 ## Reporting
 
-Use GitHub's private vulnerability reporting for this repository. Do not include
+Use GitHub's private vulnerability reporting once the verified public repository
+has that feature enabled. Until then, report privately to the repository owner. Do
+not include
 tokens, credentials, personal data, licensed feature payloads or exploit data in a
 public issue. Ordinary non-sensitive defects may use the public bug template.
 
@@ -17,8 +21,8 @@ public issue. Ordinary non-sensitive defects may use the public bug template.
 - live provider execution is denied by code and tests;
 - `.env` files and generated artefacts are ignored;
 - synthetic fixtures are the only permitted fixture class;
-- application dependencies and GitHub Actions are pinned; the system Graphviz
-  renderer is version-recorded but not yet reproducibly installed by CI;
+- application dependencies, the WebAssembly diagram renderer and GitHub Actions are
+  lockfile or commit pinned;
 - schema, link, secret and boundary checks run in the assurance command;
 - no security claim is made for later identity, policy or hosting designs.
 

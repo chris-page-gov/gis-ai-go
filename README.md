@@ -46,8 +46,9 @@ and third-party dependencies retain their own rights and licence terms.
 
 ## Local verification
 
-Prerequisites are Node.js 24.19.0 LTS, pnpm 10.33.2, Python 3.12 or later,
-uv 0.12.2 and Graphviz. The Node.js baseline is recorded in `.nvmrc`.
+Prerequisites are Node.js 24.19.0 LTS, pnpm 10.33.2, Python 3.12 or later and
+uv 0.12.2. The Node.js baseline is recorded in `.nvmrc`; diagram rendering uses
+the lockfile-pinned WebAssembly renderer.
 
 ```bash
 pnpm install --frozen-lockfile
