@@ -2,7 +2,7 @@
   "name": "@gis-ai-go/contracts",
   "version": "0.0.0",
   "private": true,
-  "description": "Stage 0 contract metadata",
+  "description": "Shared GIS AI GO contracts and schema metadata",
   "license": "MIT",
   "type": "module",
   "scripts": {

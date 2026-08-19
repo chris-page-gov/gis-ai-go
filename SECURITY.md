@@ -2,26 +2,29 @@
 
 ## Current status
 
-GIS AI GO is a local Stage 0 foundation, not a deployed service. It has no supported
-production release and must not be connected to provider credentials, protected data
-or public network listeners.
+GIS AI GO is a public open-source project and has no supported production release
+yet.
+The current gateway and execution service remain fail-closed scaffolds. Do not
+connect unreviewed code to provider credentials, protected data or public listeners.
 
 ## Reporting
 
-Report a suspected vulnerability privately to the repository owner. Do not include
-tokens, credentials, personal data, licensed feature payloads or exploit data in a
-public issue. A private reporting channel must be configured before any remote
-repository is published.
+Use [GitHub private vulnerability reporting](https://github.com/chris-page-gov/gis-ai-go/security/advisories/new)
+for suspected vulnerabilities. Do not include tokens, credentials, personal data,
+licensed feature payloads or exploit data in a public issue. Ordinary non-sensitive
+defects may use the public bug template.
 
-## Stage 0 controls
+## Current controls
 
 - live provider execution is denied by code and tests;
 - `.env` files and generated artefacts are ignored;
 - synthetic fixtures are the only permitted fixture class;
-- application dependencies and GitHub Actions are pinned; the system Graphviz
-  renderer is version-recorded but not yet reproducibly installed by CI;
+- application dependencies, the WebAssembly diagram renderer and GitHub Actions are
+  lockfile or commit pinned;
 - schema, link, secret and boundary checks run in the assurance command;
+- GitHub secret scanning, push protection, Dependabot security updates and CodeQL
+  default setup are enabled for the public repository;
 - no security claim is made for later identity, policy or hosting designs.
 
-The custom secret scan is a Stage 0 baseline, not a substitute for platform secret
-scanning, dependency review or a dedicated security assessment before publication.
+The custom and platform scans are baselines, not substitutes for dependency review
+or a dedicated security assessment before a supported release.

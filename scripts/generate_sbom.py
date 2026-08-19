@@ -73,6 +73,7 @@ def main() -> None:
     if not components:
         raise AssertionError("SBOM contains no resolved dependencies")
 
+    product_version = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
     document = {
         "bomFormat": "CycloneDX",
         "specVersion": "1.6",
@@ -81,14 +82,14 @@ def main() -> None:
             "component": {
                 "type": "application",
                 "name": "gis-ai-go",
-                "version": "0.0.0-stage.0",
+                "version": product_version,
                 "copyright": "Copyright (c) 2026 Chris Page",
                 "licenses": [{"license": {"id": "MIT"}}],
             },
             "properties": [
                 {
                     "name": "gis-ai-go:scope",
-                    "value": "resolved Stage 0 package dependencies; no container or runtime image",
+                    "value": "resolved package dependencies; no container or runtime image",
                 }
             ],
         },

@@ -1,0 +1,51 @@
+name: Bug report
+description: Report a reproducible problem in a supported GIS AI GO surface.
+title: "bug: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: Do not include secrets, credentials, protected/licensed data or personal data. Report security vulnerabilities privately.
+  - type: input
+    id: version
+    attributes:
+      label: Version, commit or deployment
+      placeholder: v0.1.0, commit SHA or URL
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact
+      description: Who or what is affected?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction steps
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour and evidence
+    validations:
+      required: true
+  - type: dropdown
+    id: regression
+    attributes:
+      label: Regression
+      options:
+        - Unknown
+        - Yes
+        - No
+    validations:
+      required: true
