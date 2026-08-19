@@ -22,7 +22,8 @@ There is not yet a deployed Explorer or MCP service. Live status is in
 - repository: `gis-ai-go`
 - provisional MCP Registry identifier: `io.github.chris-page-gov/gis-ai-go`
 - current release target: `v0.1.0`
-- licence: [MIT](LICENSE), copyright © 2026 Chris Page
+- licence: [MIT](LICENSE), copyright © 2026 Chris Page; identified
+  [third-party material](THIRD_PARTY.md) retains its own terms
 
 The existing `chris-page-gov/mcp-geo` repository remains read-only historical
 evidence at commit `56683b33c0cd02842b7f3ee465414c68a1f3f2a6`. Nothing is copied
@@ -42,7 +43,8 @@ GIS AI GO code, documentation, schemas and research are licensed under the
 [MIT licence](LICENSE), copyright © 2026 Chris Page. This includes the immutable
 research ZIP and its extracted copy; the licensing decision is recorded in
 [`ADR-0003`](docs/decisions/ADR-0003-mit-licence.md). Linked external resources
-and third-party dependencies retain their own rights and licence terms.
+and imported material identified in [`THIRD_PARTY.md`](THIRD_PARTY.md) retain their
+own rights and licence terms.
 
 ## Local verification
 
@@ -57,10 +59,12 @@ pnpm run check
 ```
 
 The check builds and type-checks the TypeScript boundary, runs TypeScript and Python
-unit tests, validates schemas and fixtures, checks local links, performs a baseline
-secret scan, renders diagrams and creates a CycloneDX SBOM in `artifacts/`.
-The dated results and explicit limits are recorded in the
-[`Stage 0 verification record`](docs/operations/STAGE_0_VERIFICATION.md).
+unit tests, reproducibly builds and validates the public OKF candidate, validates
+other schemas and fixtures, checks local links, performs a baseline secret scan,
+renders diagrams and creates a CycloneDX SBOM in `artifacts/`.
+The foundation baseline and its explicit limits are preserved in the
+[`Stage 0 verification record`](docs/operations/STAGE_0_VERIFICATION.md); each OKF
+build emits its own ignored manifest, checksums and deterministic receipt.
 
 ## Repository map
 
@@ -70,6 +74,7 @@ The dated results and explicit limits are recorded in the
 - `providers/fixtures/` — synthetic examples only
 - `architecture/source/` — live diagram sources rendered by CI
 - `evaluation/` — acceptance and threat-test manifests
+- `okf/` — reviewed public publication inputs, profile, source lock and provenance
 - `docs/research/` — immutable research evidence
 - `scripts/` — repository and release assurance tooling
 - `docs/implementation/` — live roadmap, backlog and delivery model

@@ -15,13 +15,14 @@
     "test:typescript": "pnpm --filter @gis-ai-go/mcp-gateway run test",
     "test:python": "uv run --cache-dir .uv-cache python -m unittest discover -s tests -p 'test_*.py' && uv run --cache-dir .uv-cache python -m unittest discover -s services/geo-execution/tests -p 'test_*.py'",
     "test": "pnpm run test:typescript && pnpm run test:python",
+    "build:okf": "uv run --cache-dir .uv-cache python scripts/build_okf.py --output artifacts/okf",
     "validate:contracts": "uv run --cache-dir .uv-cache python scripts/validate_contracts.py",
     "validate:versions": "uv run --cache-dir .uv-cache python scripts/check_versions.py",
     "validate:links": "uv run --cache-dir .uv-cache python scripts/check_links.py",
     "validate:secrets": "uv run --cache-dir .uv-cache python scripts/scan_secrets.py",
     "render:diagrams": "node scripts/render_diagrams.mjs --output artifacts/diagrams",
     "sbom": "uv run --cache-dir .uv-cache python scripts/generate_sbom.py --output artifacts/sbom.cdx.json",
-    "check": "pnpm run typecheck && pnpm run test && pnpm run validate:versions && pnpm run validate:contracts && pnpm run validate:links && pnpm run validate:secrets && pnpm run render:diagrams && pnpm run sbom"
+    "check": "pnpm run typecheck && pnpm run test && pnpm run build:okf && pnpm run validate:versions && pnpm run validate:contracts && pnpm run validate:links && pnpm run validate:secrets && pnpm run render:diagrams && pnpm run sbom"
   },
   "devDependencies": {
     "@types/node": "24.13.3",

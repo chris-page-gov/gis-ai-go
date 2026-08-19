@@ -12,7 +12,7 @@ All installed dependencies are exact in `pnpm-lock.yaml` or `uv.lock`.
 | `@viz-js/viz` | `3.29.0` | Lockfile-pinned WebAssembly Graphviz renderer |
 | Python | `>=3.12` | Portable deterministic service and assurance scripts |
 | uv | `0.12.2` | Python workspace and lock |
-| jsonschema | `4.26.0` | Draft 2020-12 schema and fixture validation |
+| jsonschema | `4.26.0` | Draft 2020-12 OKF, schema and fixture validation |
 
 No provider SDK, web framework, geospatial runtime, OPA binary, database driver or
 cloud dependency is present yet. Additions follow the live roadmap and dependency
