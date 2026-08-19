@@ -21,7 +21,8 @@ export default defineConfig({
     colorScheme: "light",
     screenshot: "only-on-failure",
     trace: "retain-on-failure",
-    video: "retain-on-failure",
+    // Runner Chrome does not need Playwright's separately downloaded FFmpeg binary.
+    video: "off",
   },
   webServer: {
     // Exercise Vite's relative-base output at the origin root.

@@ -12,7 +12,7 @@ All installed dependencies are exact in `pnpm-lock.yaml` or `uv.lock`.
 | `@viz-js/viz` | `3.29.0` | Lockfile-pinned WebAssembly Graphviz renderer |
 | Vite | `8.2.1` | Static Explorer build and local preview only |
 | Vitest | `4.1.11` | Explorer unit and component assurance |
-| jsdom | `30.0.1` | Explorer component DOM used only in tests |
+| jsdom | `30.0.1` | Standards-based HTML parsing in build-policy and component tests |
 | Playwright | `1.62.1` | Real-browser Explorer acceptance using runner Chrome |
 | axe-core Playwright integration | `4.13.0` | Automated WCAG 2.2 A and AA checks |
 | Python | `>=3.12` | Portable deterministic service and assurance scripts |

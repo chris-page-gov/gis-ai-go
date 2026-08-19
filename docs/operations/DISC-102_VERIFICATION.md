@@ -57,6 +57,11 @@ snapshots and 71 source identifiers.
 The baseline secret scan checked 405 text files, 9 diagrams rendered, and the
 CycloneDX generator recorded 145 components.
 
+The first pull-request run exposed an undeclared CI-only FFmpeg dependency from
+Playwright video retention before any browser assertion ran. Browser video is now
+disabled; failure screenshots and traces remain enabled and are uploaded with CI
+evidence. This keeps runner Chrome as the sole browser dependency.
+
 ## Security and privacy boundary
 
 Runtime parsing limits input size, depth, record count and string length; rejects
