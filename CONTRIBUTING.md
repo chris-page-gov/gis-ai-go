@@ -14,3 +14,6 @@ Before proposing a change:
 Use British English and plain language. Keep facts, assumptions, recommendations and
 unresolved questions distinct. Do not add a dependency without pinning it, updating
 both lock files where relevant, regenerating the SBOM and recording why it is needed.
+
+By submitting a contribution, you confirm that you have the right to provide it and
+agree that it is licensed under the repository's MIT licence.

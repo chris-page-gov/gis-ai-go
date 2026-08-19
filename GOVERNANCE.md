@@ -2,10 +2,10 @@
 
 ## Decision authority
 
-The repository owner approves stage entry, release, publication, licence selection
-and any use of protected or commercially licensed data. Contributors may prepare
-evidence and recommendations but must not cross a stage gate without explicit human
-approval.
+The repository owner and copyright holder, Chris Page, approves stage entry, release,
+publication, licensing changes and any use of protected or commercially licensed
+data. Contributors may prepare evidence and recommendations but must not cross a
+stage gate without explicit human approval.
 
 ## Stage gates
 

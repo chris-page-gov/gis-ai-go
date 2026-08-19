@@ -2,6 +2,7 @@
 name = "gis-ai-go-execution"
 version = "0.0.0"
 description = "Non-networked Stage 0 geospatial execution boundary"
+license = "MIT"
 requires-python = ">=3.12"
 dependencies = []
 

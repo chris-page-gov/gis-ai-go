@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import tomllib
 import unittest
 from pathlib import Path
 
@@ -25,10 +26,24 @@ class RepositoryBoundaryTests(unittest.TestCase):
             self.assertTrue(schema["$id"].startswith("urn:gis-ai-go:schema:"))
             self.assertNotIn("locus-accord", schema["$id"])
 
-    def test_root_package_is_private_and_unlicensed(self) -> None:
-        package = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))
-        self.assertTrue(package["private"])
-        self.assertEqual(package["license"], "UNLICENSED")
+    def test_repository_uses_mit_licence_metadata(self) -> None:
+        for relative in (
+            "package.json",
+            "apps/mcp-gateway/package.json",
+            "packages/contracts/package.json",
+        ):
+            package = json.loads((ROOT / relative).read_text(encoding="utf-8"))
+            self.assertTrue(package["private"])
+            self.assertEqual(package["license"], "MIT")
+
+        for relative in ("pyproject.toml", "services/geo-execution/pyproject.toml"):
+            with (ROOT / relative).open("rb") as handle:
+                project = tomllib.load(handle)["project"]
+            self.assertEqual(project["license"], "MIT")
+
+        licence = (ROOT / "LICENSE").read_text(encoding="utf-8")
+        self.assertIn("MIT License", licence)
+        self.assertIn("Copyright (c) 2026 Chris Page", licence)
 
     def test_fixture_identity_uses_current_service_name(self) -> None:
         receipt = json.loads(

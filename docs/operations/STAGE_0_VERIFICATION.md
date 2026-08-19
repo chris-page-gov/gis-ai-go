@@ -25,9 +25,9 @@ The complete `pnpm run check` command passed:
 - Python: 4 repository tests and 2 execution-boundary tests passed;
 - contracts: 7 schemas and 52 records validated; expected counts and unique
   identifiers checked in 3 evaluation manifests;
-- integrity: 250 local Markdown links, 183 research hashes, the complete research
+- integrity: 256 local Markdown links, 183 research hashes, the complete research
   inventory, 2 unchanged ledger snapshots and 71 source identifiers checked;
-- baseline secret scan: 294 text files checked with no configured secret or
+- baseline secret scan: 295 text files checked with no configured secret or
   machine-path match;
 - diagrams: 9 Graphviz sources rendered successfully;
 - SBOM: a CycloneDX manifest with 32 components generated successfully.
@@ -63,8 +63,10 @@ confirmed that pnpm scripts used that LTS runtime.
   [ADR-0002](../decisions/ADR-0002-project-name.md) following the repository
   owner's explicit name decision.
 
-Open-source licensing, third-party attribution and formal name clearance remain
-unresolved. They block public publication, but not this local verification gate.
+MIT licensing is resolved by
+[ADR-0003](../decisions/ADR-0003-mit-licence.md). Third-party attribution review,
+formal name clearance and explicit publication approval remain unresolved. They
+block public publication, but not this local verification gate.
 
 ## Rollback
 

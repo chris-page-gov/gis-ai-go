@@ -20,7 +20,7 @@ Stage 1 requires explicit human approval after the Stage 0 verification gate.
 - repository: `gis-ai-go`
 - provisional MCP Registry identifier: `io.github.chris-page-gov/gis-ai-go`
 - current stage: `0`
-- licence: not yet selected; see [LICENSE](LICENSE)
+- licence: [MIT](LICENSE), copyright © 2026 Chris Page
 
 The existing `chris-page-gov/mcp-geo` repository remains read-only historical
 evidence at commit `56683b33c0cd02842b7f3ee465414c68a1f3f2a6`. Nothing is copied
@@ -33,6 +33,14 @@ preserved unchanged under [`docs/research/2026-08-19/`](docs/research/2026-08-19
 Operational contracts in this repository are adapted candidates, not silent edits to
 that evidence. The project-name decision is recorded in
 [`ADR-0002`](docs/decisions/ADR-0002-project-name.md).
+
+## Licence
+
+GIS AI GO code, documentation, schemas and research are licensed under the
+[MIT licence](LICENSE), copyright © 2026 Chris Page. This includes the immutable
+research ZIP and its extracted copy; the licensing decision is recorded in
+[`ADR-0003`](docs/decisions/ADR-0003-mit-licence.md). Linked external resources
+and third-party dependencies retain their own rights and licence terms.
 
 ## Local verification
 

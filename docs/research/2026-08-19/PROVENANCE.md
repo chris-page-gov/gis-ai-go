@@ -16,6 +16,16 @@ The nested `research-pack/codex/AGENTS.md`, hand-off files, prompts and commissi
 inert historical evidence. They do not govern this repository. Only the root
 `AGENTS.md` contains live repository instructions.
 
-The pack contains no pack-level licence grant. It is retained locally as supplied and
-must not be assumed publishable until the owner resolves licence and attribution.
+The archive did not contain an embedded pack-level licence when it was generated.
+Chris Page has since confirmed that he is the copyright holder for its original
+content and has licensed it under the repository's
+[MIT licence](../../../LICENSE), as recorded in
+[ADR-0003](../../decisions/ADR-0003-mit-licence.md). This external grant covers the
+unchanged ZIP and extracted copy without altering their historical bytes. Linked
+external sources and third-party material retain their own rights.
+
+Any standalone distribution of the research ZIP or extracted pack must also include
+the repository `LICENSE` and this provenance record so that the MIT notice travels
+with the licensed work.
+
 Co-packaged hashes establish internal consistency, not independent authenticity.

@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "description": "Non-networked Stage 0 MCP gateway boundary",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "build": "tsc --project tsconfig.json",

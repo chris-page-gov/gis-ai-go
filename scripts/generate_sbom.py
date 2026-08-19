@@ -82,6 +82,8 @@ def main() -> None:
                 "type": "application",
                 "name": "gis-ai-go",
                 "version": "0.0.0-stage.0",
+                "copyright": "Copyright (c) 2026 Chris Page",
+                "licenses": [{"license": {"id": "MIT"}}],
             },
             "properties": [
                 {
