@@ -1,0 +1,54 @@
+{
+  "schema": "gis-ai-go-okf-profile.v1",
+  "id": "https://chris-page-gov.github.io/gis-ai-go/profile/public-discovery/v1/",
+  "version": "1.0.0",
+  "okf_version": "0.2",
+  "status": "candidate-pending-consumer-acceptance",
+  "record_types": [
+    "bundle",
+    "dataset",
+    "provider",
+    "source",
+    "workflow"
+  ],
+  "required_record_fields": [
+    "id",
+    "type",
+    "title",
+    "description",
+    "authority",
+    "publication",
+    "access",
+    "rights",
+    "freshness",
+    "status",
+    "sourceRefs",
+    "limitations"
+  ],
+  "forbidden_payload_keys": [
+    "address",
+    "apiKey",
+    "coordinates",
+    "credential",
+    "features",
+    "geometry",
+    "ownerName",
+    "password",
+    "personalData",
+    "propertyAddress",
+    "token",
+    "transactionRow"
+  ],
+  "url_policy": {
+    "allowed": [
+      "https",
+      "relative"
+    ],
+    "forbidden": [
+      "data",
+      "file",
+      "javascript",
+      "vbscript"
+    ]
+  }
+}

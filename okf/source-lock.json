@@ -1,0 +1,96 @@
+{
+  "schema": "gis-ai-go-okf-source-lock.v1",
+  "algorithm": "sha256",
+  "inputs": [
+    {
+      "path": "THIRD_PARTY.md",
+      "sha256": "b6663752dffd08483b5ef2c371cca332f2f408fbc94f1a5db01f56e9852b4465",
+      "role": "live-third-party-notice"
+    },
+    {
+      "path": "docs/research/2026-08-19/research-pack/data/providers.json",
+      "sha256": "b1c0d8497150049c30ccda60e78e9b28c59d2f4aa154f916d85b42ff144f3e76",
+      "role": "research-provider-profiles"
+    },
+    {
+      "path": "docs/research/2026-08-19/research-pack/data/sources.json",
+      "sha256": "feeb9db45fe5b7e9dc55be962aa4e8c7e9c0d7158ad9fc397ef8abf71624cc5a",
+      "role": "research-source-ledger"
+    },
+    {
+      "path": "docs/research/2026-08-19/research-pack/data/workflows.json",
+      "sha256": "339e49201efca5664727d266e5c98f289a847b353561e2dae3f38bf6b9f9ffbe",
+      "role": "research-workflow-profiles"
+    },
+    {
+      "path": "okf/profile/public-discovery-v1.json",
+      "sha256": "b7a691d076436f41fee5ea1b4ec04e1edd71ba9d450259f0c728b67ddc33466d",
+      "role": "live-publication-profile"
+    },
+    {
+      "path": "okf/source/publication.json",
+      "sha256": "317a63811029f25314fcfd17dd27807b1fc855b9b182fa76e1b6d4f2368a081f",
+      "role": "live-publication-selection"
+    },
+    {
+      "path": "okf/vendor/okf-landregistry/v0.3.0/LICENSE.md",
+      "sha256": "cddac196d90d8b0d418c9af6d88ba9a3e169f720fb17e438886b74603fdcdf8c",
+      "role": "upstream-licence"
+    },
+    {
+      "path": "okf/vendor/okf-landregistry/v0.3.0/PROVENANCE.md",
+      "sha256": "f801360d07d261e36d5178335374b92d93a703a0e258f5e46f35b9c5f6a77951",
+      "role": "project-provenance-note"
+    },
+    {
+      "path": "okf/vendor/okf-landregistry/v0.3.0/governance/rights-review.json",
+      "sha256": "b47da036da6b1376975b8542749f06df86a61d34237ab244e8dc61819be907f6",
+      "role": "upstream-rights-review"
+    },
+    {
+      "path": "okf/vendor/okf-landregistry/v0.3.0/research/source-family-inventory.json",
+      "sha256": "33c04a7baa84d35614126074f5f7064b187ee55b62d009fcf1699e6a30b71aee",
+      "role": "upstream-source-family-inventory"
+    },
+    {
+      "path": "okf/vendor/okf-landregistry/v0.3.0/source/curated-records.json",
+      "sha256": "4e585751d2747281068f8f389ebdb791e3364c09c4dbb57347db810c39e83b4a",
+      "role": "upstream-curated-records"
+    },
+    {
+      "path": "okf/vendor/okf-landregistry/v0.3.0/source/curated-rights-access.json",
+      "sha256": "a5c6dbfd97c3f5bbf462bb10cb1e3425b144a68f4c5fb462b55782936ad17136",
+      "role": "upstream-record-rights"
+    },
+    {
+      "path": "okf/vendor/okf-landregistry/v0.3.0/source/jsonld-context.json",
+      "sha256": "b50175104c49ecde1993bf05db5dfbf26a77e9cb52602e49eee3d02bb9e0db8c",
+      "role": "upstream-semantic-context-evidence"
+    },
+    {
+      "path": "okf/vendor/okf-landregistry/v0.3.0/source/publisher-registry.json",
+      "sha256": "06eeb534e356b3001df05d970663315b1b741712b78d5e0e9b6e77080e3b78e9",
+      "role": "upstream-publisher-registry"
+    },
+    {
+      "path": "okf/vendor/okf-landregistry/v0.3.0/source/source-register.json",
+      "sha256": "44420b97eb3f4cb85e5749f88b48cf99257798b0ac2f99488c678979ea6b6774",
+      "role": "upstream-source-register"
+    }
+  ],
+  "external_release": {
+    "repository": "https://github.com/chris-page-gov/okf-LandRegistry",
+    "retrieved_on": "2026-08-19",
+    "tag": "v0.3.0",
+    "annotated_tag_object": "d4159f1076c090dd69260a08308f4162859e4165",
+    "commit": "1d708e39f2cde19610d43c5a7f5e36e4a2f947bc",
+    "tree": "aa60922cc25f73980d6480c1a7ffc85fb1fc59dd",
+    "approved_candidate": "751b6c1e80fbbad3c07f19798c74aebd603eb62c",
+    "release_root_sha256": "6a29e38e7bb805aafb7f36ba8d1fa4ce976875f45997049cd4808d6ede7f75e1"
+  },
+  "supersedes_unresolved_research_reference": {
+    "recorded_commit_prefix": "4580c9e",
+    "status": "not-resolvable-in-local-clone-or-refs",
+    "decision": "Use the approved immutable v0.3.0 release identity above."
+  }
+}

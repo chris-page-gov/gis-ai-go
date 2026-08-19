@@ -1,0 +1,37 @@
+{
+  "schema": "gis-ai-go-okf-publication-source.v1",
+  "id": "gis-ai-go:bundle:public-discovery",
+  "title": "GIS AI GO public discovery bundle",
+  "description": "A governed, metadata-only discovery publication for open UK geospatial knowledge. It does not execute provider services or establish property or legal boundaries.",
+  "okf_version": "0.2",
+  "profile": "https://chris-page-gov.github.io/gis-ai-go/profile/public-discovery/v1/",
+  "compatibility_profile": "https://chris-page-gov.github.io/okf-explorer/profile/bundle-wiki/v1/",
+  "status": "candidate",
+  "observed_at": "2026-07-29T07:53:38Z",
+  "reviewed_at": "2026-08-19T00:00:00Z",
+  "stale_after": "2026-11-19T00:00:00Z",
+  "selected": {
+    "research_provider_ids": [
+      "PV-HMLR-OPEN"
+    ],
+    "research_workflow_ids": [
+      "WF01"
+    ],
+    "hmlr_record_ids": [
+      "hmlr:dataset:inspire-index-polygons",
+      "hmlr:dataset:local-land-charges-inspire",
+      "hmlr:dataset:price-paid-data"
+    ]
+  },
+  "attribution_by_record": {
+    "hmlr:dataset:inspire-index-polygons": "HM Land Registry and Ordnance Survey attribution is required by the source terms. This bundle contains metadata only.",
+    "hmlr:dataset:local-land-charges-inspire": "HM Land Registry and Ordnance Survey attribution is required by the source terms. This bundle contains metadata only.",
+    "hmlr:dataset:price-paid-data": "HM Land Registry attribution is required. Address fields in the source data have additional Ordnance Survey and Royal Mail conditions; this bundle contains no address or transaction rows."
+  },
+  "limitations": [
+    "This candidate contains metadata only and does not include provider distributions, property records, addresses, transactions or geometry.",
+    "It does not implement an Explorer, MCP listener, provider call, policy decision or legal determination.",
+    "Source URLs, release dates, fees and terms must be revalidated before the first supported release.",
+    "The HMLR source release records no independent human legal, licence, privacy, security or accessibility audit."
+  ]
+}

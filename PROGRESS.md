@@ -10,13 +10,12 @@ reproducible GitHub Pages deployment.
 
 ## Active workstream
 
-`CTRL-002 — Establish autonomous delivery and release controls`
+`DISC-101 — Generate the canonical OKF bundle`
 
-- create the live context, roadmap, backlog and changelog;
-- establish branch, pull request, release and deployment rules;
-- configure GitHub tracking and assurance;
-- complete review, protect `main` with the stable `assurance` check and merge the
-  green bootstrap pull request.
+- lock the approved research and HMLR metadata inputs by SHA-256;
+- generate deterministic OKF Markdown, JSON and JSON-LD projections;
+- fail closed on unknown rights, unsafe content and unresolved references;
+- prove source, schema, checksum and byte-for-byte build integrity.
 
 ## Completed
 
@@ -30,13 +29,16 @@ reproducible GitHub Pages deployment.
 - private vulnerability reporting, secret scanning, push protection, Dependabot and
   CodeQL enabled;
 - roadmap milestones and delivery labels provisioned;
+- `CTRL-002` merged through protected `main` with passing assurance;
+- `main` protected by a no-bypass, squash-only pull request ruleset;
+- `v0.1.0` delivery issues 3 to 7 created and assigned;
 - full local `pnpm run check` passed on 19 August 2026.
 
 ## Next
 
-1. Protect `main` and merge `CTRL-002` after the remote `assurance` check passes.
-2. Create the `v0.1.0` delivery issues from the live backlog.
-3. Start `DISC-101`, the reproducible canonical OKF bundle.
+1. Merge `DISC-101` after local and remote assurance pass.
+2. Start `DISC-102`, the hardened accessible static Explorer.
+3. Add the reviewed public source families through `DISC-103` and `DISC-104`.
 
 ## Current blockers
 
@@ -47,8 +49,10 @@ reproducible GitHub Pages deployment.
 
 ## Latest evidence
 
-- local assurance: passing, 19 August 2026;
-- remote assurance: passing on recreated pull request 1;
+- local assurance: passing for the `DISC-101` candidate, including 18 generated OKF
+  records, 22 repository tests and 2 execution-boundary tests, 19 August 2026;
+- remote assurance: passing on protected `main`; the active branch is awaiting its
+  pull request;
 - public repository: verified with personal `noreply` commit identity;
 - deployed product: none;
 - latest supported release: none.

@@ -116,6 +116,15 @@ def main() -> None:
                 for record in load_json(RESEARCH_DATA / "workflows.json")["workflows"]
             ],
         ),
+        (
+            "okf-publication-bundle.schema.json",
+            [
+                (
+                    "artifacts/okf/okf-bundle.json",
+                    load_json(ROOT / "artifacts" / "okf" / "okf-bundle.json"),
+                )
+            ],
+        ),
     ]
 
     record_count = sum(validate_records(schema, records) for schema, records in mappings)
@@ -124,7 +133,7 @@ def main() -> None:
     assert_unique_ids(ROOT / "evaluation" / "stage-0-tests.json", "cases", 6)
 
     print(
-        f"Validated 7 schemas and {record_count} records; checked expected counts and "
+        f"Validated 8 schemas and {record_count} records; checked expected counts and "
         "unique identifiers in 3 evaluation manifests."
     )
 

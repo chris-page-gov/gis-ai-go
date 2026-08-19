@@ -1,0 +1,379 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:okf-publication-bundle:v1",
+  "title": "GIS AI GO OKF public discovery bundle",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "id",
+    "title",
+    "description",
+    "okfVersion",
+    "profile",
+    "profileStatus",
+    "version",
+    "revision",
+    "status",
+    "authority",
+    "scope",
+    "rights",
+    "observedAt",
+    "reviewedAt",
+    "staleAfter",
+    "recordCount",
+    "records"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gis-ai-go-okf-bundle.v1"
+    },
+    "id": {
+      "type": "string",
+      "format": "uri"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1
+    },
+    "okfVersion": {
+      "const": "0.2"
+    },
+    "profile": {
+      "type": "string",
+      "format": "uri"
+    },
+    "profileStatus": {
+      "const": "candidate-pending-consumer-acceptance"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+    },
+    "revision": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "status": {
+      "const": "candidate"
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bundleAuthority",
+        "officialSourceAuthority",
+        "legalAdvice",
+        "notEndorsedBySource"
+      ],
+      "properties": {
+        "bundleAuthority": {
+          "type": "string",
+          "minLength": 1
+        },
+        "officialSourceAuthority": {
+          "type": "string",
+          "minLength": 1
+        },
+        "legalAdvice": {
+          "const": false
+        },
+        "notEndorsedBySource": {
+          "const": true
+        }
+      }
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "metadataOnly",
+        "containsProtectedData",
+        "excludes"
+      ],
+      "properties": {
+        "kind": {
+          "const": "bounded-public-metadata-discovery"
+        },
+        "metadataOnly": {
+          "const": true
+        },
+        "containsProtectedData": {
+          "const": false
+        },
+        "excludes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "rights": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "statement",
+        "thirdPartyNotices"
+      ],
+      "properties": {
+        "statement": {
+          "type": "string",
+          "minLength": 1
+        },
+        "thirdPartyNotices": {
+          "const": "THIRD_PARTY.md"
+        }
+      }
+    },
+    "observedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reviewedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "staleAfter": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "recordCount": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "records": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/concept"
+      }
+    }
+  },
+  "$defs": {
+    "concept": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "id",
+        "type",
+        "title",
+        "description",
+        "authority",
+        "publication",
+        "access",
+        "rights",
+        "freshness",
+        "status",
+        "sourceRefs",
+        "limitations",
+        "tags",
+        "details"
+      ],
+      "properties": {
+        "schema": {
+          "const": "gis-ai-go-okf-concept.v1"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "enum": [
+            "bundle",
+            "dataset",
+            "provider",
+            "source",
+            "workflow"
+          ]
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "authority": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "class",
+            "statement",
+            "source"
+          ],
+          "properties": {
+            "class": {
+              "enum": [
+                "derived",
+                "project-authoritative",
+                "source-authoritative"
+              ]
+            },
+            "statement": {
+              "type": "string",
+              "minLength": 1
+            },
+            "source": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "publication": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "classification",
+            "containsPersonalData",
+            "containsProtectedData"
+          ],
+          "properties": {
+            "classification": {
+              "const": "public"
+            },
+            "containsPersonalData": {
+              "const": false
+            },
+            "containsProtectedData": {
+              "const": false
+            }
+          }
+        },
+        "access": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "tier",
+            "state",
+            "authentication"
+          ],
+          "properties": {
+            "tier": {
+              "const": "open"
+            },
+            "state": {
+              "enum": [
+                "planned-non-executing",
+                "public",
+                "public-metadata"
+              ]
+            },
+            "authentication": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "rights": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "state",
+            "recordLicence",
+            "describedResourceLicence",
+            "attribution"
+          ],
+          "properties": {
+            "state": {
+              "enum": [
+                "metadata-citation",
+                "open-with-conditions",
+                "project-mit"
+              ]
+            },
+            "recordLicence": {
+              "type": "string",
+              "minLength": 1
+            },
+            "describedResourceLicence": {
+              "type": "string",
+              "minLength": 1
+            },
+            "attribution": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "freshness": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "observedAt",
+            "reviewedAt",
+            "staleAfter",
+            "status"
+          ],
+          "properties": {
+            "observedAt": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "reviewedAt": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "staleAfter": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "status": {
+              "enum": [
+                "current",
+                "review-required"
+              ]
+            }
+          }
+        },
+        "status": {
+          "enum": [
+            "candidate",
+            "candidate-metadata",
+            "candidate-non-executing",
+            "external-source"
+          ]
+        },
+        "sourceRefs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "limitations": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "tags": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "details": {
+          "type": "object"
+        }
+      }
+    }
+  }
+}
