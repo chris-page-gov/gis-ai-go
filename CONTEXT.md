@@ -41,9 +41,9 @@ identity integration or evidence store.
 
 The owner has authorised autonomous implementation in the open under
 [`ADR-0004`](docs/decisions/ADR-0004-public-autonomous-delivery.md). The active
-outcome is the `v0.1.0` public discovery product. The repository is temporarily
-private until the bootstrap delivery-control pull request has a green remote
-assurance run; public development remains the approved destination.
+outcome is the `v0.1.0` public discovery product. The repository is public under the
+owner's personal `chris-page-gov` account. Pull-request assurance, security controls
+and branch protection govern development on `main`.
 
 ## Non-negotiable boundaries
 

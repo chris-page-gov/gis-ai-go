@@ -15,8 +15,8 @@ reproducible GitHub Pages deployment.
 - create the live context, roadmap, backlog and changelog;
 - establish branch, pull request, release and deployment rules;
 - configure GitHub tracking and assurance;
-- complete review, merge the green bootstrap pull request and establish the stable
-  `assurance` check, then return the repository to public visibility.
+- complete review, protect `main` with the stable `assurance` check and merge the
+  green bootstrap pull request.
 
 ## Completed
 
@@ -24,19 +24,22 @@ reproducible GitHub Pages deployment.
 - project identity changed from the historical codename to GIS AI GO;
 - MIT licensing applied to code, documentation, schemas and research;
 - `chris-page-gov/gis-ai-go` created on GitHub;
+- clean public repository recreated under the owner's personal account with only the
+  corrected history;
 - original commit metadata corrected to the owner's GitHub `noreply` identity;
+- private vulnerability reporting, secret scanning, push protection, Dependabot and
+  CodeQL enabled;
+- roadmap milestones and delivery labels provisioned;
 - full local `pnpm run check` passed on 19 August 2026.
 
 ## Next
 
-1. Merge `CTRL-002` after the remote `assurance` check passes.
-2. Create the `v0.1.0` milestone and delivery issues from the live backlog.
+1. Protect `main` and merge `CTRL-002` after the remote `assurance` check passes.
+2. Create the `v0.1.0` delivery issues from the live backlog.
 3. Start `DISC-101`, the reproducible canonical OKF bundle.
 
 ## Current blockers
 
-- Public visibility is paused until the bootstrap pull request produces the first
-  green remote `assurance` result.
 - GitHub Pages stays disabled until the hardened Explorer, attribution review and
   browser/accessibility gates pass.
 - Protected PSGA and commercial deployments require separate rights, credentials
@@ -45,6 +48,7 @@ reproducible GitHub Pages deployment.
 ## Latest evidence
 
 - local assurance: passing, 19 August 2026;
-- remote assurance: passing on pull request 1;
+- remote assurance: passing on recreated pull request 1;
+- public repository: verified with personal `noreply` commit identity;
 - deployed product: none;
 - latest supported release: none.

@@ -11,6 +11,17 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const sourceDirectory = join(root, "architecture", "source", "dot");
 const packageMetadata = JSON.parse(await readFile(join(root, "package.json"), "utf8"));
 const rendererPackageVersion = packageMetadata.devDependencies["@viz-js/viz"];
+const expectedSources = [
+  "components.dot",
+  "containers.dot",
+  "context.dot",
+  "delegated-agent-sequence.dot",
+  "evidence-flow.dot",
+  "open-tier-sequence.dot",
+  "protected-tier-sequence.dot",
+  "six-control-spine.dot",
+  "webmcp-sequence.dot",
+];
 
 function outputArgument(argv) {
   const index = argv.indexOf("--output");
@@ -26,8 +37,11 @@ const sources = (await readdir(sourceDirectory))
   .filter((name) => name.endsWith(".dot"))
   .sort();
 
-if (sources.length === 0) {
-  throw new Error(`No DOT sources found in ${sourceDirectory}`);
+if (JSON.stringify(sources) !== JSON.stringify(expectedSources)) {
+  throw new Error(
+    `DOT source inventory mismatch: expected ${expectedSources.join(", ")}; ` +
+      `found ${sources.join(", ") || "none"}`,
+  );
 }
 
 await mkdir(outputDirectory, { recursive: true });
