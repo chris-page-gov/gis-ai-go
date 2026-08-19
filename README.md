@@ -7,19 +7,21 @@ boundary is deliberately broader than AI or MCP.
 
 ## Status
 
-This repository is at **Stage 0: repository and evidence foundation**. It contains
+**Stage 0 is verified and `v0.1.0` is in active delivery.** The foundation contains
 governance, candidate contracts, synthetic fixtures, architecture sources and an
-assurance harness. It does not contain a deployed MCP server, live provider calls,
-credentials, protected data, cloud infrastructure or production policy integration.
+assurance harness. The first functional release will add the accessible public
+discovery product described in the [roadmap](docs/implementation/ROADMAP.md).
 
-Stage 1 requires explicit human approval after the Stage 0 verification gate.
+There is not yet a deployed Explorer or MCP service. Live status is in
+[`PROGRESS.md`](PROGRESS.md); current authority and boundaries are in
+[`CONTEXT.md`](CONTEXT.md); notable changes are in [`CHANGELOG.md`](CHANGELOG.md).
 
 ## Identity
 
 - product: **GIS AI GO**
 - repository: `gis-ai-go`
 - provisional MCP Registry identifier: `io.github.chris-page-gov/gis-ai-go`
-- current stage: `0`
+- current release target: `v0.1.0`
 - licence: [MIT](LICENSE), copyright © 2026 Chris Page
 
 The existing `chris-page-gov/mcp-geo` repository remains read-only historical
@@ -61,11 +63,12 @@ The dated results and explicit limits are recorded in the
 
 ## Repository map
 
-- `apps/mcp-gateway/` — non-networked Stage 0 TypeScript gateway boundary
+- `apps/mcp-gateway/` — TypeScript gateway, currently a fail-closed scaffold
 - `services/geo-execution/` — deterministic Python execution boundary
 - `schemas/` — candidate contracts promoted from the research pack
 - `providers/fixtures/` — synthetic examples only
 - `architecture/source/` — live diagram sources rendered by CI
 - `evaluation/` — acceptance and threat-test manifests
 - `docs/research/` — immutable research evidence
-- `scripts/` — Stage 0 assurance tooling
+- `scripts/` — repository and release assurance tooling
+- `docs/implementation/` — live roadmap, backlog and delivery model

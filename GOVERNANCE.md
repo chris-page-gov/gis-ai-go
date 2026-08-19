@@ -2,20 +2,21 @@
 
 ## Decision authority
 
-The repository owner and copyright holder, Chris Page, approves stage entry, release,
-publication, licensing changes and any use of protected or commercially licensed
-data. Contributors may prepare evidence and recommendations but must not cross a
-stage gate without explicit human approval.
+The repository owner and copyright holder, Chris Page, retains final authority for
+licensing changes, protected or commercially licensed data, paid services,
+enterprise credentials and legal commitments. ADR-0004 authorises Codex to deliver,
+release and deploy the open roadmap without repeated stage-entry approval.
 
-## Stage gates
+## Evidence gates
 
-1. Stage 0 establishes the repository, evidence, contracts and assurance harness.
-2. Stage 1 may build an open static discovery pack only after Stage 0 approval.
-3. Later MCP, identity, protected-data and hosting stages each require a separate
-   recorded decision.
+1. Stage 0 established the repository, evidence, contracts and assurance harness.
+2. Open discovery, MCP and governed-platform releases advance when their documented
+   tests, provenance, security, accessibility and rollback evidence pass.
+3. Protected-data pilots and material paid infrastructure require separate rights,
+   security and owner decisions.
 
-A stage decision must state scope, evidence, known deviations, rollback and who
-approved it. Material architectural changes require an ADR under `docs/decisions/`.
+A release decision must state scope, evidence, known deviations and rollback.
+Material architectural changes require an ADR under `docs/decisions/`.
 
 ## Stewardship
 
@@ -25,6 +26,9 @@ remain authoritative; GIS AI GO does not invent licence or legal authority.
 
 ## Publication boundary
 
-This local repository is not a publication. Creating a GitHub repository, pushing a
-branch, deploying a site, registering an MCP server or reserving package names needs
-separate approval.
+The public GitHub repository, open-source releases, hardened GitHub Pages Explorer
+and tested open service are authorised by ADR-0004. A source push is not proof that a
+site or service is deployed: every published surface needs exact-commit verification
+and an evidence-backed rollback. Protected integrations, paid hosting, provider
+terms and formal registry/package publication remain subject to their recorded
+release and rights gates.

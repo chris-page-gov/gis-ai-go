@@ -2,7 +2,7 @@
   "name": "gis-ai-go",
   "version": "0.0.0",
   "private": true,
-  "description": "Stage 0 foundation for governed geospatial knowledge and action",
+  "description": "Governed geospatial knowledge and action for people, systems and AI agents",
   "license": "MIT",
   "type": "module",
   "packageManager": "pnpm@10.33.2",
@@ -16,11 +16,12 @@
     "test:python": "uv run --cache-dir .uv-cache python -m unittest discover -s tests -p 'test_*.py' && uv run --cache-dir .uv-cache python -m unittest discover -s services/geo-execution/tests -p 'test_*.py'",
     "test": "pnpm run test:typescript && pnpm run test:python",
     "validate:contracts": "uv run --cache-dir .uv-cache python scripts/validate_contracts.py",
+    "validate:versions": "uv run --cache-dir .uv-cache python scripts/check_versions.py",
     "validate:links": "uv run --cache-dir .uv-cache python scripts/check_links.py",
     "validate:secrets": "uv run --cache-dir .uv-cache python scripts/scan_secrets.py",
     "render:diagrams": "uv run --cache-dir .uv-cache python scripts/render_diagrams.py --output artifacts/diagrams",
     "sbom": "uv run --cache-dir .uv-cache python scripts/generate_sbom.py --output artifacts/sbom.cdx.json",
-    "check": "pnpm run typecheck && pnpm run test && pnpm run validate:contracts && pnpm run validate:links && pnpm run validate:secrets && pnpm run render:diagrams && pnpm run sbom"
+    "check": "pnpm run typecheck && pnpm run test && pnpm run validate:versions && pnpm run validate:contracts && pnpm run validate:links && pnpm run validate:secrets && pnpm run render:diagrams && pnpm run sbom"
   },
   "devDependencies": {
     "@types/node": "24.13.3",

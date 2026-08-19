@@ -1,0 +1,55 @@
+name: Delivery item
+description: Define a bounded implementation outcome from the live roadmap.
+title: "delivery: "
+labels:
+  - delivery
+body:
+  - type: input
+    id: outcome
+    attributes:
+      label: Outcome
+      description: Describe the user or operational result, not merely the activity.
+    validations:
+      required: true
+  - type: input
+    id: sources
+    attributes:
+      label: Source and decision references
+      placeholder: ADR, roadmap item, schema or research evidence path
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and non-goals
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Use observable, testable statements.
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation and evidence
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies and blockers
+  - type: textarea
+    id: risks
+    attributes:
+      label: Risks, security and data boundaries
+    validations:
+      required: true
+  - type: textarea
+    id: rollback
+    attributes:
+      label: Rollback
+    validations:
+      required: true

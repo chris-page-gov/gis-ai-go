@@ -1,4 +1,4 @@
-name: Stage 0 assurance
+name: CI
 
 on:
   push:
@@ -8,7 +8,7 @@ permissions:
   contents: read
 
 jobs:
-  stage-0:
+  assurance:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
@@ -35,12 +35,18 @@ jobs:
           version: 0.12.2
           enable-cache: true
 
+      - name: Install pinned diagram renderer
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends graphviz=2.42.2-9build1
+          dot -V
+
       - name: Install locked dependencies
         run: |
           pnpm install --frozen-lockfile
           uv sync --locked --group dev --cache-dir .uv-cache
 
-      - name: Run Stage 0 assurance
+      - name: Run assurance
         run: pnpm run check
 
       - name: Upload generated evidence

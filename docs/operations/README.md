@@ -1,7 +1,9 @@
 # Operations
 
-There is no deployed operation in Stage 0. This directory records the local boundary,
-dependency baseline and verification evidence only.
+This directory preserves the Stage 0 boundary, dependency baseline and verification
+as historical evidence. Current authority and status are in [`CONTEXT.md`](../../CONTEXT.md)
+and [`PROGRESS.md`](../../PROGRESS.md); ADR-0004 records progression beyond the local
+pause. There is no deployed product yet.
 
 - [Stage 0 boundary](STAGE_0_BOUNDARY.md)
 - [Dependency baseline](DEPENDENCIES.md)
