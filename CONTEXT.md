@@ -42,7 +42,7 @@ whose accepted implementation commit is
 `a0e826384cf50d9d81b87489dbf3580e8e3602f7`. The Explorer is deployed and verified
 at <https://chris-page-gov.github.io/gis-ai-go/> from the later release commit
 recorded below. There is no public MCP listener or catalogue API, live provider
-adapter, policy engine, identity integration or evidence store.
+adapter, external policy service, identity integration or evidence store.
 
 The owner has authorised autonomous implementation in the open under
 [`ADR-0004`](docs/decisions/ADR-0004-public-autonomous-delivery.md). The repository
@@ -84,12 +84,18 @@ checksum-verified catalogue loader and deterministic transport-neutral
 `catalogue.search`/`catalogue.describe` application. Its loopback listener exposes
 only health, deliberately blocked readiness and its OpenAPI contract. It exposes
 no catalogue route, starts no MCP listener, registers no tool and is not publicly
-deployed. The local EVID-204A candidate adds server-constructed anonymous-open
-policy decisions and canonical inline receipts that state they are not persisted
-and not attested, without changing that activation boundary. Its complete locked
-local gate passes; protected pull-request and main evidence remain pending. There
-is still no live provider adapter, external policy service, identity integration or
-evidence store.
+deployed. EVID-204A merged through
+[pull request 29](https://github.com/chris-page-gov/gis-ai-go/pull/29) as
+`af9043955470568c146397d1a25dd8813eb7aa55`. It adds server-constructed
+anonymous-open policy decisions and canonical inline receipts that state they are
+not persisted and not attested, without changing that activation boundary.
+Protected-main assurance and provenance passed in
+[run 32357424957](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32357424957),
+CodeQL passed in
+[run 32357427549](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32357427549),
+and [attestation 41836254](https://github.com/chris-page-gov/gis-ai-go/attestations/41836254)
+binds the exact source archive to that commit. There is still no live provider
+adapter, external policy service, identity integration or evidence store.
 
 ## Non-negotiable boundaries
 
