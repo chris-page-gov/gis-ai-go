@@ -1,1 +1,1 @@
-- Add the reviewed provider-adapter contract, a default-suspended deterministic synthetic adapter and version-bound ONS Data API source, rights and fixed-egress preflight evidence.
+- Add the reviewed provider-adapter contract, a default-suspended deterministic synthetic adapter and a default-suspended, version-bound ONS Data API adapter with hardened fixed egress, parsing, bounds, provenance and privacy-safe live evidence.

@@ -39,7 +39,8 @@ set from drifting from the direct API and MCP advertisements.
 
 The Explorer has no production runtime dependency. The private
 `@gis-ai-go/provider-adapter-sdk` workspace package reuses the existing evidence
-package for RFC 8785 bytes and adds no third-party dependency. No external provider
+package for RFC 8785 bytes and Node's built-in DNS, HTTPS, TLS and zlib modules for
+the inactive ONS adapter; it adds no third-party dependency. No external provider
 SDK, geospatial runtime, OPA binary, database driver or cloud dependency is present.
 The private `@gis-ai-go/tool-registry` package also has no dependency. Its root
 development-only workspace link ensures that the first-party package identity is

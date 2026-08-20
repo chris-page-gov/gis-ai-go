@@ -115,11 +115,12 @@ test("preserves native identifiers and emits byte-identical canonical results", 
     ["time", "geography", "measure"],
   );
   assert.equal(first.rights.state, "project-synthetic");
+  assert.deepEqual(first.rights.exceptions, []);
   assert.equal(first.provenance.synthetic, true);
   assert.deepEqual(firstBytes, secondBytes);
   assert.equal(
     createHash("sha256").update(firstBytes).digest("hex"),
-    "c4f8b8abe4eb986306e9de043f30f023ce0f24e2b08815be9d511ba70e657304",
+    "666f825e622deb3bc410f155f76783ee27bd856238032cccd42e04b928b6a053",
   );
 
   firstBytes[0] = 0;

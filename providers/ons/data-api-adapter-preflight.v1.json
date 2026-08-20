@@ -8,7 +8,7 @@
     "baseOrigin": "https://api.beta.ons.gov.uk",
     "authentication": "none"
   },
-  "integrationState": "preflight-complete",
+  "integrationState": "implemented-inactive",
   "operations": [
     "describe",
     "health",
@@ -21,7 +21,7 @@
   "lifecycle": {
     "discovery": "suspended",
     "invocation": "suspended",
-    "reason": "EXEC-202 is accepted, but the live ONS transport and parser are not implemented or activated."
+    "reason": "The bounded live ONS transport and parser are implemented for explicit tests but are not registered or activated."
   },
   "providerVersion": {
     "providerId": "ons-data-api",
@@ -97,7 +97,7 @@
       503,
       504
     ],
-    "maxRetryAfterSeconds": 60
+    "maxRetryAfterSeconds": 5
   },
   "estimate": {
     "confidence": "upper-bound",
@@ -116,7 +116,7 @@
       "15 requests per 10 seconds for high-demand site assets.",
       "A 429 response includes Retry-After and repeated disregard may cause a block."
     ],
-    "localCeiling": "At most 30 requests per minute, one in flight, with no more than two attempts."
+    "localCeiling": "At most 30 attempt starts per minute, one call in flight, two attempts, five seconds of Retry-After and 20 seconds for the complete call."
   },
   "rights": {
     "state": "open-with-conditions",
@@ -165,7 +165,7 @@
     },
     {
       "purpose": "observation-contract",
-      "uri": "https://developer.ons.gov.uk/observations/",
+      "uri": "https://developer.ons.gov.uk/observations/cmd/",
       "observedAt": "2026-08-20T17:40:35Z",
       "facts": [
         "CMD observations use one option per dimension.",

@@ -1,0 +1,214 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:provider-live-probe:1",
+  "title": "Privacy-safe provider live-probe evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "observedAt",
+    "status",
+    "bounded",
+    "credentialsUsed",
+    "payloadStored",
+    "adapter",
+    "providerVersion",
+    "rights",
+    "result",
+    "durationMs",
+    "attempts"
+  ],
+  "properties": {
+    "schema": { "const": "gis-ai-go.provider-live-probe.v1" },
+    "observedAt": { "type": "string", "format": "date-time" },
+    "status": { "const": "passed" },
+    "bounded": { "const": true },
+    "credentialsUsed": { "const": false },
+    "payloadStored": { "const": false },
+    "adapter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version"],
+      "properties": {
+        "id": { "const": "gis-ai-go.ons-data-api" },
+        "version": { "const": "1" }
+      }
+    },
+    "providerVersion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["providerId", "datasetId", "edition", "version", "versionUri", "sourceDate"],
+      "properties": {
+        "providerId": { "const": "ons-data-api" },
+        "datasetId": { "const": "weekly-deaths-region" },
+        "edition": { "const": "time-series" },
+        "version": { "const": "121" },
+        "versionUri": {
+          "const": "https://api.beta.ons.gov.uk/v1/datasets/weekly-deaths-region/editions/time-series/versions/121"
+        },
+        "sourceDate": { "const": "2026-07-01" }
+      }
+    },
+    "rights": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "licence", "licenceUri", "reviewedAt"],
+      "properties": {
+        "state": { "const": "open-with-conditions" },
+        "licence": { "const": "Open Government Licence v3.0" },
+        "licenceUri": {
+          "const": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
+        },
+        "reviewedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["digest", "canonicalBytes"],
+      "properties": {
+        "digest": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["domain", "sha256"],
+          "properties": {
+            "domain": { "const": "gis-ai-go.provider-adapter-result.v1" },
+            "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+          }
+        },
+        "canonicalBytes": { "type": "integer", "minimum": 1, "maximum": 262144 }
+      }
+    },
+    "durationMs": { "type": "number", "minimum": 0, "maximum": 20000 },
+    "attempts": {
+      "oneOf": [
+        {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1,
+          "prefixItems": [{ "$ref": "#/$defs/successfulFirstAttempt" }],
+          "items": false
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "prefixItems": [
+            { "$ref": "#/$defs/retryableFirstAttempt" },
+            { "$ref": "#/$defs/successfulSecondAttempt" }
+          ],
+          "items": false
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "responseAttempt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "attempt",
+        "compressedBytes",
+        "connectMs",
+        "decompressedBytes",
+        "dnsMs",
+        "outcome",
+        "resolvedAddressCount",
+        "responseMs",
+        "selectedAddressFamily",
+        "status",
+        "tlsCipher",
+        "tlsProtocol",
+        "totalMs"
+      ],
+      "properties": {
+        "attempt": { "type": "integer", "minimum": 1, "maximum": 2 },
+        "compressedBytes": { "type": "integer", "minimum": 0, "maximum": 262144 },
+        "connectMs": { "type": "number", "minimum": 0, "maximum": 2000 },
+        "decompressedBytes": {},
+        "dnsMs": { "type": "number", "minimum": 0, "maximum": 2000 },
+        "outcome": { "const": "response" },
+        "resolvedAddressCount": { "type": "integer", "minimum": 1, "maximum": 64 },
+        "responseMs": { "type": "number", "minimum": 0, "maximum": 5000 },
+        "selectedAddressFamily": { "enum": [4, 6] },
+        "status": { "type": "integer", "minimum": 100, "maximum": 599 },
+        "tlsCipher": {
+          "oneOf": [
+            { "type": "string", "minLength": 1, "maxLength": 128 },
+            { "type": "null" }
+          ]
+        },
+        "tlsProtocol": {
+          "oneOf": [
+            { "type": "string", "minLength": 1, "maxLength": 32 },
+            { "type": "null" }
+          ]
+        },
+        "totalMs": { "type": "number", "minimum": 0, "maximum": 7000 }
+      },
+      "if": {
+        "properties": { "status": { "const": 200 } },
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "decompressedBytes": { "type": "integer", "minimum": 0, "maximum": 1048576 }
+        }
+      },
+      "else": {
+        "properties": { "decompressedBytes": { "type": "null" } }
+      }
+    },
+    "transportFailureAttempt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["attempt", "outcome", "status", "code"],
+      "properties": {
+        "attempt": { "type": "integer", "minimum": 1, "maximum": 2 },
+        "outcome": { "const": "transport-failure" },
+        "status": { "type": "null" },
+        "code": {
+          "enum": ["PROVIDER_OUTAGE", "PROVIDER_TIMEOUT", "MALFORMED_PROVIDER_RESPONSE"]
+        }
+      }
+    },
+    "successfulFirstAttempt": {
+      "allOf": [
+        { "$ref": "#/$defs/responseAttempt" },
+        { "properties": { "attempt": { "const": 1 }, "status": { "const": 200 } } }
+      ]
+    },
+    "successfulSecondAttempt": {
+      "allOf": [
+        { "$ref": "#/$defs/responseAttempt" },
+        { "properties": { "attempt": { "const": 2 }, "status": { "const": 200 } } }
+      ]
+    },
+    "retryableFirstAttempt": {
+      "oneOf": [
+        {
+          "allOf": [
+            { "$ref": "#/$defs/responseAttempt" },
+            {
+              "properties": {
+                "attempt": { "const": 1 },
+                "status": { "enum": [429, 502, 503, 504] }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            { "$ref": "#/$defs/transportFailureAttempt" },
+            {
+              "properties": {
+                "attempt": { "const": 1 },
+                "code": { "enum": ["PROVIDER_OUTAGE", "PROVIDER_TIMEOUT"] }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "schema": "gis-ai-go.provider-live-probe.v1",
+  "observedAt": "2026-08-20T20:21:08.947Z",
+  "status": "passed",
+  "bounded": true,
+  "credentialsUsed": false,
+  "payloadStored": false,
+  "adapter": {
+    "id": "gis-ai-go.ons-data-api",
+    "version": "1"
+  },
+  "providerVersion": {
+    "providerId": "ons-data-api",
+    "datasetId": "weekly-deaths-region",
+    "edition": "time-series",
+    "version": "121",
+    "versionUri": "https://api.beta.ons.gov.uk/v1/datasets/weekly-deaths-region/editions/time-series/versions/121",
+    "sourceDate": "2026-07-01"
+  },
+  "rights": {
+    "state": "open-with-conditions",
+    "licence": "Open Government Licence v3.0",
+    "licenceUri": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
+    "reviewedAt": "2026-08-20T17:40:35Z"
+  },
+  "result": {
+    "digest": {
+      "domain": "gis-ai-go.provider-adapter-result.v1",
+      "sha256": "309a7c0a374f93f20d4b4cc8aaa4530c4a828ea27e4e26e266b367e59b7da3bd"
+    },
+    "canonicalBytes": 2399
+  },
+  "durationMs": 142.149,
+  "attempts": [
+    {
+      "attempt": 1,
+      "compressedBytes": 376,
+      "connectMs": 36.379,
+      "decompressedBytes": 1078,
+      "dnsMs": 62.456,
+      "outcome": "response",
+      "resolvedAddressCount": 4,
+      "responseMs": 39.51,
+      "selectedAddressFamily": 4,
+      "status": 200,
+      "tlsCipher": "TLS_AES_256_GCM_SHA384",
+      "tlsProtocol": "TLSv1.3",
+      "totalMs": 138.346
+    }
+  ]
+}

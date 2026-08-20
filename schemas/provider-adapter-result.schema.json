@@ -1,0 +1,192 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:provider-adapter-result:1",
+  "title": "Provider adapter result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "provider",
+    "dataset",
+    "dimensions",
+    "observations",
+    "rights",
+    "provenance"
+  ],
+  "properties": {
+    "schema": { "const": "gis-ai-go.provider-adapter-result.v1" },
+    "provider": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "adapterId"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "adapterId": { "$ref": "#/$defs/id" }
+      }
+    },
+    "dataset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "edition", "version", "versionUri"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "edition": { "$ref": "#/$defs/id" },
+        "version": { "$ref": "#/$defs/id" },
+        "versionUri": { "$ref": "#/$defs/uri" }
+      }
+    },
+    "dimensions": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 20,
+      "items": { "$ref": "#/$defs/selection" }
+    },
+    "observations": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 10000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["value", "unit"],
+        "properties": {
+          "value": { "type": "string", "maxLength": 2048 },
+          "unit": {
+            "oneOf": [
+              { "type": "string", "minLength": 1, "maxLength": 256 },
+              { "type": "null" }
+            ]
+          },
+          "metadata": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["name", "value"],
+              "properties": {
+                "name": { "type": "string", "minLength": 1, "maxLength": 128 },
+                "value": { "type": "string", "maxLength": 2048 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "rights": { "$ref": "#/$defs/rights" },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["providerVersion", "adapter", "transformations", "synthetic"],
+      "properties": {
+        "providerVersion": { "$ref": "#/$defs/providerVersion" },
+        "adapter": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "version"],
+          "properties": {
+            "id": { "$ref": "#/$defs/id" },
+            "version": { "$ref": "#/$defs/id" }
+          }
+        },
+        "transformations": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "synthetic": { "type": "boolean" },
+        "sourceUri": { "$ref": "#/$defs/uri" }
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[A-Za-z0-9](?:[A-Za-z0-9._~-]*[A-Za-z0-9])?$"
+    },
+    "text": { "type": "string", "minLength": 1, "maxLength": 2048 },
+    "uri": { "type": "string", "format": "uri", "maxLength": 2048 },
+    "selection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dimension", "option"],
+      "properties": {
+        "dimension": { "$ref": "#/$defs/id" },
+        "option": { "$ref": "#/$defs/id" }
+      }
+    },
+    "providerVersion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "providerId",
+        "datasetId",
+        "edition",
+        "version",
+        "versionUri",
+        "sourceDate",
+        "dimensionOrder"
+      ],
+      "properties": {
+        "providerId": { "$ref": "#/$defs/id" },
+        "datasetId": { "$ref": "#/$defs/id" },
+        "edition": { "$ref": "#/$defs/id" },
+        "version": { "$ref": "#/$defs/id" },
+        "versionUri": { "$ref": "#/$defs/uri" },
+        "sourceDate": { "type": "string", "format": "date" },
+        "dimensionOrder": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        }
+      }
+    },
+    "rights": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "state",
+        "licence",
+        "licenceUri",
+        "attribution",
+        "obligations",
+        "exceptions",
+        "evidenceUris",
+        "reviewedAt"
+      ],
+      "properties": {
+        "state": {
+          "enum": ["open-with-conditions", "project-synthetic", "unknown"]
+        },
+        "licence": { "$ref": "#/$defs/text" },
+        "licenceUri": { "$ref": "#/$defs/uri" },
+        "attribution": { "$ref": "#/$defs/text" },
+        "obligations": {
+          "type": "array",
+          "maxItems": 20,
+          "items": { "$ref": "#/$defs/text" }
+        },
+        "exceptions": {
+          "type": "array",
+          "maxItems": 20,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/text" }
+        },
+        "evidenceUris": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/uri" }
+        },
+        "reviewedAt": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}
