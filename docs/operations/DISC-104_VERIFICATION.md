@@ -32,18 +32,18 @@ Before merge, record:
 - independent review of the archive, workflow and public-browser boundaries.
 
 The complete local candidate gate most recently passed on 20 August 2026 against
-the Pages compatibility candidate based on protected `main` at
-`8e48e68ed6f072be22d46cc866dac947a7a71a4d`:
+the supported-transport candidate based on protected `main` at
+`eced0ae697818b4989ebe95c5bf1572cc6ec90c2`:
 
-- 20 deterministic archive and hostile-input contract tests;
-- 10 workflow event, identity, provenance, permission and no-build deployment
-  contract tests;
+- 27 deterministic archive, safe-staging and hostile-input contract tests;
+- 11 workflow event, identity, provenance, staging, permission and no-build
+  deployment contract tests;
 - 4 gateway tests, 16 Explorer build-policy tests, 42 Explorer unit and component
-  tests, 61 repository Python tests and 2 execution-boundary tests;
+  tests, 69 repository Python tests and 2 execution-boundary tests;
 - 25 existing local real-browser journeys;
-- 8 schemas and 53 evaluation records, 289 local links, 183 immutable research
+- 8 schemas and 53 evaluation records, 290 local links, 183 immutable research
   hashes, 2 source-ledger snapshots and 71 source identifiers;
-- 443 text files scanned without a baseline secret or machine-path match;
+- 446 text files scanned without a baseline secret or machine-path match;
 - 9 rendered diagrams and a 145-component repository CycloneDX SBOM.
 
 Before the Pages header compatibility correction, packager and verifier contract
@@ -59,12 +59,12 @@ the separate public suite passed all 4 identity, accepted-manifest payload,
 trusted-ledger checksum, reviewed-journey, history, network, CSP, accessibility and
 320 CSS-pixel tests.
 
-All nine external Action pins were independently resolved against their official
+All ten external Action pins were independently resolved against their official
 GitHub tag refs; the annotated pnpm tag was dereferenced to its exact commit.
 
 ## Pages ingestion compatibility evidence
 
-The first three deployment attempts stopped after validation, provenance,
+The first four deployment attempts stopped after validation, provenance,
 configuration and artefact staging had passed:
 
 - runs
@@ -76,7 +76,10 @@ configuration and artefact staging had passed:
   [`32320645861`](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32320645861)
   selected the artefact from source commit `8e48e68` after restoring the standard
   compressed Actions transport;
-- all three reached `actions/deploy-pages`, created a Pages deployment and then
+- run
+  [`32322255222`](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32322255222)
+  selected the corrected, attested source artefact from commit `eced0ae`;
+- all four reached `actions/deploy-pages`, created a Pages deployment and then
   returned GitHub's generic `deployment_failed` state; public verification was
   correctly skipped.
 
@@ -92,30 +95,48 @@ in
 
 Packager and verifier contract `1.0.1` therefore requires `./` member paths and
 fixed non-root numeric ownership. Regressions reject an unprefixed path and a
-root-owned member. The deployment job still cannot rebuild or repackage an accepted
-archive; a fresh protected-main build and attestation are required before another
-dispatch.
+root-owned member. Protected-main run `32322035483` then produced and attested
+corrected source archive SHA-256
+`b20ba6cab1811b976417aef6ca4c61bc33270063d7646ab8469e3273399edd11`.
+All 57 members used the corrected metadata and the fourth workflow uploaded those
+exact bytes, but Pages still rejected its custom tar encoding.
+
+ADR-0008 therefore retains that deterministic tar as attested source evidence but
+supersedes the unchanged-tar deployment claim. The current workflow candidate
+safely materialises and rechecks its exact logical files, then uses the exact pinned
+official `actions/upload-pages-artifact` implementation to create only the platform
+transport envelope. If that supported path also fails, the run evidence must be
+escalated to GitHub Support rather than prompting another speculative archive
+change.
 
 ## Protected-main source evidence
 
-Complete after the implementation pull request merges:
-
-- source commit: pending;
-- successful CI push run and `assurance` job: pending;
-- source artefact name and ID: pending;
-- `artifact.tar` SHA-256 and outer receipt: pending;
-- GitHub build-provenance attestation: pending;
-- product version and OKF content root: pending.
+- source commit: `eced0ae697818b4989ebe95c5bf1572cc6ec90c2`;
+- successful CI push run: [`32322035483`](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32322035483),
+  including successful `assurance` and `provenance` jobs;
+- source artefact: `pages-source-eced0ae697818b4989ebe95c5bf1572cc6ec90c2`,
+  ID `9390109262`;
+- `artifact.tar` SHA-256:
+  `b20ba6cab1811b976417aef6ca4c61bc33270063d7646ab8469e3273399edd11`;
+- outer receipt SHA-256:
+  `c5ad1ee357b7a098c09aab355a3e174ac31c8a24c90ec30f74f6c47b1bd44596`;
+- strict GitHub attestation verification: protected `main`, source commit
+  `eced0ae`, `.github/workflows/ci.yml`, GitHub-hosted runner and CI invocation
+  `32322035483` all matched;
+- product version `0.0.0`, payload root
+  `7d0adda69e77b815e75e860426cb3ac107b89a70abdd91d771070024c459444b`
+  and OKF content root
+  `c8415e83643b43b6fbde43cf30cf80ce8e5440f69770cfd9433337a5087f37fd`.
 
 ## Repository configuration evidence
 
-Complete before first deployment:
-
-- Pages build type `workflow`, HTTPS enforced and no custom domain: pending;
-- `github-pages` environment restricted to exact branch `main`: pending;
-- complete-SHA Action pin enforcement: pending;
-- existing protected-main ruleset and read-only default workflow token reverified:
-  pending.
+- Pages build type is `workflow`, the site is public, HTTPS is enforced and no
+  custom domain is set;
+- the `github-pages` environment is restricted to exact branch `main`;
+- repository Actions require complete-SHA pins;
+- the no-bypass protected-main ruleset still requires strict `assurance`, linear
+  squash-only pull requests and resolved review threads; and
+- the default workflow token remains read-only and cannot approve pull requests.
 
 ## Deployment and public evidence
 

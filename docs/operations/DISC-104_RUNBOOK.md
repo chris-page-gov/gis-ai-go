@@ -26,12 +26,19 @@ artifact.tar.sha256
 archive-receipt.json
 ```
 
-The tar contains only the generated site plus `.nojekyll` and the
+The source tar contains only the generated site plus `.nojekyll` and the
 `publication/` manifest, checksums, provenance, site receipt and SBOM. Every member
 is stored below the explicit `./` root with deterministic non-root ownership, mode
-`0644` and epoch modification time, as checked by the independent verifier. The
-Actions service applies its standard compressed outer transport; this does not
-change the inner `artifact.tar` or its accepted SHA-256.
+`0644` and epoch modification time, as checked by the independent verifier. This
+attested tar is immutable source evidence; it is not the GitHub-generated Pages
+transport tar.
+
+After all source checks pass, the workflow safely materialises the exact logical
+files into a new empty directory and byte-compares the result. The exact pinned
+official `actions/upload-pages-artifact` action then creates GitHub's supported
+transport envelope. This changes no publication file, payload root, source archive
+digest or receipt, but the platform transport tar may have a different digest on
+each deployment.
 
 ## First-time repository configuration
 
@@ -82,10 +89,12 @@ gh workflow run pages.yml \
   -f reason='Initial v0.1.0 public discovery deployment'
 ```
 
-The workflow validates the source run, archive and attestation before the
-`github-pages` environment is entered. It then deploys the unchanged tar and runs
-the public Playwright suite against the URL returned by GitHub Pages. A failed
-public check is a failed deployment gate even if Pages accepted the bytes.
+The workflow validates the source run, archive and attestation, materialises and
+rechecks its exact logical bytes, then creates the current-run `github-pages`
+transport with GitHub's pinned official action. The separate protected environment
+deploys that transport and the public Playwright suite checks the URL returned by
+GitHub Pages. A failed public check is a failed deployment gate even if Pages
+accepted the bytes.
 
 Record the workflow run, deployment ID, public URL, source run and commit, archive
 digest, attestation URL, version, OKF root and public-test result.
@@ -99,7 +108,7 @@ site; A is its accepted predecessor.
 2. Dispatch the same workflow with A's identities, `mode=rollback` and a clear
    reason.
 3. Confirm the public receipt now identifies A and the complete public suite passes.
-4. Reverify B without rebuilding it.
+4. Reverify B without rebuilding the product.
 5. Dispatch B with `mode=restore` and a clear reason.
 6. Confirm the public receipt identifies B and the complete public suite passes.
 
@@ -110,7 +119,9 @@ Example mode-specific fields are:
 -f mode=restore  -f reason='DISC-104 restore rehearsal to accepted artefact B'
 ```
 
-Never substitute a local rebuild, a workflow artefact from a pull request, a failed
+The supported Pages transport envelope is regenerated for each dispatch, but the
+selected source archive and every logical publication byte remain exact. Never
+substitute a local rebuild, a workflow artefact from a pull request, a failed
 run or a mutable branch archive. The current workflow accepts only an unexpired
 Actions source artefact. A release asset preserves evidence but is not an accepted
 deployment input; if the Actions artefact has expired, stop until a separately

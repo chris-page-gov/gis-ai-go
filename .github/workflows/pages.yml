@@ -290,8 +290,33 @@ jobs:
           if-no-files-found: error
           retention-days: 90
 
+      - name: Materialise verified Pages payload
+        env:
+          ARCHIVE_SHA256: ${{ inputs.archive_sha256 }}
+          SOURCE_COMMIT: ${{ inputs.source_commit }}
+        run: |
+          mkdir -p deployment-staging
+          uv run --locked --cache-dir .uv-cache python scripts/stage_pages_payload.py \
+            --archive artifacts/pages/artifact.tar \
+            --checksum artifacts/pages/artifact.tar.sha256 \
+            --receipt artifacts/pages/archive-receipt.json \
+            --output-dir deployment-staging/site \
+            --expected-source-commit "$SOURCE_COMMIT" \
+            --expected-repository "$GITHUB_REPOSITORY" \
+            --expected-version "$(tr -d '\r\n' < VERSION)" \
+            --expected-base-path /gis-ai-go/ \
+            --expected-archive-sha256 "$ARCHIVE_SHA256"
+
+      - name: Stage verified payload for GitHub Pages
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          name: github-pages
+          path: deployment-staging/site
+          retention-days: 1
+          include-hidden-files: true
+
   deploy:
-    name: Deploy preserved archive
+    name: Deploy verified Pages payload
     needs: prepare
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -305,41 +330,10 @@ jobs:
     outputs:
       page_url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Download exact CI artefact again
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
-        with:
-          repository: ${{ github.repository }}
-          run-id: ${{ inputs.source_run_id }}
-          name: pages-source-${{ inputs.source_commit }}
-          path: artifacts/pages
-          github-token: ${{ github.token }}
-
-      - name: Recheck preserved archive digest
-        env:
-          ARCHIVE_SHA256: ${{ inputs.archive_sha256 }}
-        run: |
-          actual_sha256="$(sha256sum artifacts/pages/artifact.tar | cut -d ' ' -f 1)"
-          if [[ "$actual_sha256" != "$ARCHIVE_SHA256" ]]; then
-            echo 'The redeployed archive digest differs from the accepted digest' >&2
-            exit 1
-          fi
-          (
-            cd artifacts/pages
-            sha256sum --check --strict artifact.tar.sha256
-          )
-
       - name: Confirm Pages configuration
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
 
-      - name: Stage unchanged Pages archive
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: github-pages
-          path: artifacts/pages/artifact.tar
-          if-no-files-found: error
-          retention-days: 1
-
-      - name: Deploy unchanged Pages archive
+      - name: Deploy verified Pages payload
         id: deployment
         uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
         with:
