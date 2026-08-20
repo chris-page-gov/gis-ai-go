@@ -1,0 +1,229 @@
+{
+  "schema": "gis-ai-go.provider-adapter-preflight.v1",
+  "adapterId": "gis-ai-go.ons-data-api",
+  "provider": {
+    "id": "ons-data-api",
+    "name": "Office for National Statistics Data API",
+    "authority": "Office for National Statistics",
+    "baseOrigin": "https://api.beta.ons.gov.uk",
+    "authentication": "none"
+  },
+  "integrationState": "preflight-complete",
+  "operations": [
+    "describe",
+    "health",
+    "estimate",
+    "execute",
+    "normalise_error",
+    "licence_evidence",
+    "provenance"
+  ],
+  "lifecycle": {
+    "discovery": "suspended",
+    "invocation": "suspended",
+    "reason": "EXEC-202 is accepted, but the live ONS transport and parser are not implemented or activated."
+  },
+  "providerVersion": {
+    "providerId": "ons-data-api",
+    "datasetId": "weekly-deaths-region",
+    "edition": "time-series",
+    "versionId": "121",
+    "versionNumber": 121,
+    "versionUri": "https://api.beta.ons.gov.uk/v1/datasets/weekly-deaths-region/editions/time-series/versions/121",
+    "sourceDate": "2026-07-01",
+    "lastUpdated": "2026-07-01T10:46:34.602Z",
+    "dimensionOrder": [
+      "time",
+      "geography",
+      "week",
+      "causeofdeath"
+    ],
+    "codeListIds": {
+      "time": "calendar-years",
+      "geography": "administrative-geography",
+      "week": "week-number",
+      "causeofdeath": "cause-of-death"
+    }
+  },
+  "egressPolicy": {
+    "mode": "fixed",
+    "origin": "https://api.beta.ons.gov.uk",
+    "method": "GET",
+    "routes": [
+      {
+        "path": "/v1/datasets/weekly-deaths-region/editions/time-series",
+        "queryParameters": [],
+        "canonicalRawQuery": ""
+      },
+      {
+        "path": "/v1/datasets/weekly-deaths-region/editions/time-series/versions/121",
+        "queryParameters": [],
+        "canonicalRawQuery": ""
+      },
+      {
+        "path": "/v1/datasets/weekly-deaths-region/editions/time-series/versions/121/observations",
+        "queryParameters": [
+          {
+            "name": "time",
+            "value": "2026"
+          },
+          {
+            "name": "geography",
+            "value": "E92000001"
+          },
+          {
+            "name": "week",
+            "value": "week-24"
+          },
+          {
+            "name": "causeofdeath",
+            "value": "all-causes"
+          }
+        ],
+        "canonicalRawQuery": "time=2026&geography=E92000001&week=week-24&causeofdeath=all-causes"
+      }
+    ],
+    "allowCallerUrl": false,
+    "allowCredentials": false,
+    "maxRedirects": 0,
+    "connectTimeoutMs": 2000,
+    "responseTimeoutMs": 5000,
+    "maxCompressedBytes": 262144,
+    "maxDecompressedBytes": 1048576,
+    "maxAttempts": 2,
+    "retryableStatuses": [
+      429,
+      502,
+      503,
+      504
+    ],
+    "maxRetryAfterSeconds": 60
+  },
+  "estimate": {
+    "confidence": "upper-bound",
+    "maxObservations": 1,
+    "maxAttempts": 2,
+    "maxCompressedResponseBytes": 262144,
+    "maxDecompressedResponseBytes": 1048576,
+    "maxCanonicalResponseBytes": 262144
+  },
+  "rateEvidence": {
+    "sourceUri": "https://developer.ons.gov.uk/bots/",
+    "observedAt": "2026-08-20T17:40:35Z",
+    "publishedLimits": [
+      "120 requests per 10 seconds for all site and API assets.",
+      "200 requests per minute for all site and API assets.",
+      "15 requests per 10 seconds for high-demand site assets.",
+      "A 429 response includes Retry-After and repeated disregard may cause a block."
+    ],
+    "localCeiling": "At most 30 requests per minute, one in flight, with no more than two attempts."
+  },
+  "rights": {
+    "state": "open-with-conditions",
+    "licence": "Open Government Licence v3.0",
+    "licenceUri": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
+    "attribution": "Source: Office for National Statistics licensed under the Open Government Licence v.3.0",
+    "obligations": [
+      "Acknowledge the source and licence when reproducing the selected ONS content.",
+      "Preserve the selected dataset, edition, version and release date.",
+      "Do not imply that ONS endorses GIS AI GO or its interpretation."
+    ],
+    "exceptions": [
+      "The ONS logo is excluded and is not retrieved or redistributed.",
+      "Any record-level third-party exception overrides this general evidence and must fail closed.",
+      "The selected aggregate dataset page stated no additional exception when reviewed."
+    ],
+    "evidenceUris": [
+      "https://www.ons.gov.uk/datasets/weekly-deaths-region/editions/time-series/versions/121",
+      "https://www.ons.gov.uk/help/terms-conditions",
+      "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
+    ],
+    "reviewedAt": "2026-08-20T17:40:35Z"
+  },
+  "sourceEvidence": [
+    {
+      "purpose": "api-identity",
+      "uri": "https://developer.ons.gov.uk/",
+      "observedAt": "2026-08-20T17:40:35Z",
+      "facts": [
+        "The beta API base is https://api.beta.ons.gov.uk/v1.",
+        "The API is open and requires no API key.",
+        "The beta service may introduce breaking changes."
+      ]
+    },
+    {
+      "purpose": "version-contract",
+      "uri": "https://api.beta.ons.gov.uk/v1/datasets/weekly-deaths-region/editions/time-series/versions/121",
+      "observedAt": "2026-08-20T17:40:35Z",
+      "facts": [
+        "The state was published and the native version was 121.",
+        "The release date was 1 July 2026.",
+        "The provider-native dimension order was time, geography, week, causeofdeath.",
+        "The edition endpoint named 121 as its latest API version on review.",
+        "Version 121 is not asserted to be the latest wider ONS website publication."
+      ]
+    },
+    {
+      "purpose": "observation-contract",
+      "uri": "https://developer.ons.gov.uk/observations/",
+      "observedAt": "2026-08-20T17:40:35Z",
+      "facts": [
+        "CMD observations use one option per dimension.",
+        "Only one dimension may be a wildcard and the provider ceiling is 10000 observations.",
+        "This preflight rejects wildcards and permits one aggregate observation only."
+      ]
+    },
+    {
+      "purpose": "rights",
+      "uri": "https://www.ons.gov.uk/help/terms-conditions",
+      "observedAt": "2026-08-20T17:40:35Z",
+      "facts": [
+        "Most ONS website content is Crown copyright and published under the OGL.",
+        "Exceptions must be checked at record level.",
+        "The current selected dataset page carries the OGL v3.0 footer without an extra exception."
+      ]
+    }
+  ],
+  "probe": {
+    "observedAt": "2026-08-20T17:40:35Z",
+    "bounded": true,
+    "credentialsUsed": false,
+    "payloadStored": false,
+    "versionStatus": 200,
+    "observationStatus": 200,
+    "selection": [
+      {
+        "dimension": "time",
+        "option": "2026"
+      },
+      {
+        "dimension": "geography",
+        "option": "E92000001"
+      },
+      {
+        "dimension": "week",
+        "option": "week-24"
+      },
+      {
+        "dimension": "causeofdeath",
+        "option": "all-causes"
+      }
+    ]
+  },
+  "dependency": {
+    "workItem": "EXEC-202",
+    "status": "accepted",
+    "acceptedCommit": "6837af6eaa01ffb45e7da08d6a9131cedd1b1a0b",
+    "reason": "Live integration must reuse the accepted private typed execution envelope and cancellation boundary.",
+    "providedByExecutionBoundary": [
+      "authorised-operation",
+      "complexity-budget",
+      "deadline",
+      "cancellation",
+      "trace-context",
+      "request-schema",
+      "result-schema",
+      "error-schema"
+    ]
+  }
+}

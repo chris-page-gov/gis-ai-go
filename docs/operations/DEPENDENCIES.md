@@ -37,15 +37,17 @@ from a complete checkout or equivalent package layout that retains those canonic
 schemas; it is not a standalone distribution. This prevents a second copied schema
 set from drifting from the direct API and MCP advertisements.
 
-The Explorer has no production runtime dependency. No provider SDK, geospatial
-runtime, OPA binary, database driver or cloud dependency is present. EXEC-202 adds
-no Python package dependency: its geometry, HTTP and cancellation acceptance use
-the standard library over checked-in synthetic records. Its official Python base
-is tag-and-digest pinned, runs non-root and is bound into the repository SBOM; full
-operating-system package inventory and image attestation remain release-image
-gates. The local
-gateway transports read only the checksum-verified catalogue and make no provider
-network call. Additions follow the live roadmap and dependency assurance rules.
+The Explorer has no production runtime dependency. The private
+`@gis-ai-go/provider-adapter-sdk` workspace package reuses the existing evidence
+package for RFC 8785 bytes and adds no third-party dependency. No external provider
+SDK, geospatial runtime, OPA binary, database driver or cloud dependency is present.
+EXEC-202 adds no Python package dependency: its geometry, HTTP and cancellation
+acceptance use the standard library over checked-in synthetic records. Its official
+Python base is tag-and-digest pinned, runs non-root and is bound into the repository
+SBOM; full operating-system package inventory and image attestation remain
+release-image gates. The local gateway transports read only the checksum-verified
+catalogue and make no provider network call. Additions follow the live roadmap and
+dependency assurance rules.
 
 GitHub Actions are pinned to immutable commits in `.github/workflows/ci.yml`; the
 comments record the corresponding release tags checked on 19 August 2026.

@@ -13,3 +13,8 @@ real access. They contain no licensed provider feature data.
 
 The older authority, policy and receipt examples were adapted from the 19 August
 2026 research pack and remain candidate fixtures for deferred protected workflows.
+
+The `@gis-ai-go/provider-adapter-sdk` package supplies a frozen statistics fixture
+with fixture-native dataset, version, dimension and option identifiers. Both its
+discovery and invocation planes are suspended unless a test activates them
+explicitly. It performs no egress and labels every result as synthetic.

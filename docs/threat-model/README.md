@@ -45,3 +45,13 @@ policy and evidence remain open.
 [`EXEC-202.md`](EXEC-202.md) records the private synthetic execution trust boundary,
 controls and residual risks. It does not approve a public listener, live provider or
 production deployment.
+
+## ADAPT-203 provider preflight scope
+
+| Risk | Control in this slice | Residual boundary |
+| --- | --- | --- |
+| Caller-controlled egress or redirect SSRF | Exact HTTPS origin, method, path and query allowlist; credentials, ports, fragments, wildcards, duplicate parameters and redirects fail closed. | A live adapter must reuse accepted EXEC-202 typed identifiers and add DNS, connection and cancellation controls. |
+| Provider overload and response amplification | Recorded provider limits, a lower local ceiling, bounded attempts, deadlines and compressed/decompressed byte ceilings. | No live HTTP client or shared durable rate service exists yet. |
+| Version, dimension or rights drift | Exact dataset, edition, version, native dimension order, source date, official URIs and OGL evidence are schema-locked. Unknown or changed rights must fail closed. | Source and rights need revalidation before activation and after provider change. |
+| Error and payload leakage | Closed safe error vocabulary; fixture tests reject hostile structures and prove raw exception details are not reflected. No live payload is committed. Accepted EXEC-202 supplies the generic safe-error and log boundary. | Provider-specific live response parsing and redaction must be implemented and tested in the later live-adapter slice. |
+| Partial provider suspension | Discovery and invocation lifecycle planes are independent and suspended by default. | Gateway registry and execution dispatch must enforce the same state after integration. |
