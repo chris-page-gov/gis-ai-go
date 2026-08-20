@@ -2,8 +2,8 @@
   "openapi": "3.1.1",
   "info": {
     "title": "GIS AI GO gateway candidate",
-    "summary": "Local conformance candidate over the governed public catalogue",
-    "description": "This contract describes only the routes selected for one local candidate. Catalogue routes are mounted only through an explicit conformance option. This document does not describe a public deployment or supported release.",
+    "summary": "Local conformance candidate over the governed public catalogue and evidence ledger",
+    "description": "This contract describes only the routes selected for one local candidate. Catalogue and public evidence routes are mounted only through explicit constructor options. This document does not describe a public deployment or supported release.",
     "version": "0.1.0"
   },
   "servers": [
@@ -18,6 +18,11 @@
   "x-gis-ai-go-mounted-candidate-catalogue-operations": [
     "catalogue.describe",
     "catalogue.search"
+  ],
+  "x-gis-ai-go-mounted-candidate-operations": [
+    "catalogue.describe",
+    "catalogue.search",
+    "evidence.inspect"
   ],
   "x-gis-ai-go-blocked-by": "transport-and-interoperability-unverified",
   "x-gis-ai-go-public-deployment": false,
@@ -197,6 +202,55 @@
           }
         }
       }
+    },
+    "/evidence/inspect": {
+      "post": {
+        "operationId": "evidenceInspect",
+        "summary": "Inspect one verified public evidence receipt",
+        "description": "A local conformance route over the restart-verified anonymous-open evidence ledger. It returns stored evidence as untrusted data and does not replay the original result material. It is not a public deployment.",
+        "x-gis-ai-go-operation": "evidence.inspect",
+        "x-gis-ai-go-lifecycle": "candidate-conformance-only",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EvidenceInspectRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The complete verified public record, storage event and persistence reference",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvidenceInspectResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/EvidenceNotFound"
+          },
+          "406": {
+            "$ref": "#/components/responses/NotAcceptable"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/EvidenceUnavailable"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -213,6 +267,26 @@
       },
       "RecordNotFound": {
         "description": "The requested catalogue record does not exist",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/CatalogueProblem"
+            }
+          }
+        }
+      },
+      "EvidenceNotFound": {
+        "description": "The requested public receipt is not present in the verified ledger",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/CatalogueProblem"
+            }
+          }
+        }
+      },
+      "EvidenceUnavailable": {
+        "description": "The public evidence ledger did not pass verification",
         "content": {
           "application/problem+json": {
             "schema": {
@@ -313,6 +387,12 @@
             }
           }
         ]
+      },
+      "EvidenceInspectRequest": {
+        "$ref": "urn:gis-ai-go:schema:evidence-inspect-request:v1"
+      },
+      "EvidenceInspectResult": {
+        "$ref": "urn:gis-ai-go:schema:evidence-inspect-result:v1"
       },
       "CatalogueProblem": {
         "$ref": "urn:gis-ai-go:schema:catalogue-problem:v1"

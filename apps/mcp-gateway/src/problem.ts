@@ -2,6 +2,8 @@ export const CATALOGUE_PROBLEM_CODES = [
   "invalid_request",
   "invalid_cursor",
   "record_not_found",
+  "evidence_not_found",
+  "evidence_unavailable",
   "not_acceptable",
   "rate_limited",
   "complexity_limit_exceeded",
@@ -75,6 +77,16 @@ const DEFINITIONS: Readonly<Record<CatalogueProblemCode, ProblemDefinition>> = O
     type: "urn:gis-ai-go:problem:record-not-found",
     title: "Catalogue record not found",
     status: 404,
+  },
+  evidence_not_found: {
+    type: "urn:gis-ai-go:problem:evidence-not-found",
+    title: "Public evidence not found",
+    status: 404,
+  },
+  evidence_unavailable: {
+    type: "urn:gis-ai-go:problem:evidence-unavailable",
+    title: "Public evidence unavailable",
+    status: 503,
   },
   not_acceptable: {
     type: "urn:gis-ai-go:problem:not-acceptable",

@@ -6,8 +6,17 @@ export const CATALOGUE_API_OPERATIONS = Object.freeze([
   "catalogue.describe",
   "catalogue.search",
 ] as const);
+export const EVIDENCE_API_OPERATIONS = Object.freeze([
+  "evidence.inspect",
+] as const);
+export const GATEWAY_API_OPERATIONS = Object.freeze([
+  ...CATALOGUE_API_OPERATIONS,
+  ...EVIDENCE_API_OPERATIONS,
+] as const);
 
 export type CatalogueApiOperation = (typeof CATALOGUE_API_OPERATIONS)[number];
+export type EvidenceApiOperation = (typeof EVIDENCE_API_OPERATIONS)[number];
+export type GatewayApiOperation = (typeof GATEWAY_API_OPERATIONS)[number];
 
 export interface OpenApiDocument extends Readonly<Record<string, unknown>> {
   readonly paths: Readonly<Record<string, unknown>>;
@@ -15,9 +24,10 @@ export interface OpenApiDocument extends Readonly<Record<string, unknown>> {
 
 export type CatalogueJsonSchema = Readonly<Record<string, unknown>>;
 
-const OPERATION_PATHS: Readonly<Record<CatalogueApiOperation, string>> = Object.freeze({
+const OPERATION_PATHS: Readonly<Record<GatewayApiOperation, string>> = Object.freeze({
   "catalogue.describe": "/catalogue/describe",
   "catalogue.search": "/catalogue/search",
+  "evidence.inspect": "/evidence/inspect",
 });
 
 const OPERATION_RESULT_SCHEMA_IDS: Readonly<Record<CatalogueApiOperation, string>> =
@@ -59,7 +69,19 @@ const catalogueResultSchema = sharedSchema("catalogue-result.schema.json");
 const catalogueSearchRequestSchema = sharedSchema(
   "catalogue-search-request.schema.json",
 );
+const evidenceInspectRequestSchema = sharedSchema(
+  "evidence-inspect-request.schema.json",
+);
+const evidenceInspectResultSchema = sharedSchema(
+  "evidence-inspect-result.schema.json",
+);
+const evidenceLedgerEventSchema = sharedSchema(
+  "evidence-ledger-event.schema.json",
+);
 const evidenceReceiptSchema = sharedSchema("evidence-receipt.schema.json");
+const publicEvidenceRecordSchema = sharedSchema(
+  "public-evidence-record.schema.json",
+);
 const publicAuthorityContextSchema = sharedSchema(
   "public-authority-context.schema.json",
 );
@@ -136,7 +158,9 @@ function embedSchemaResource(
   }
 }
 
-function operationResultSchema(operation: CatalogueApiOperation): CatalogueJsonSchema {
+function catalogueOperationResultSchema(
+  operation: CatalogueApiOperation,
+): CatalogueJsonSchema {
   const canonical = cloneJson(catalogueResultSchema);
   const variants = canonical.oneOf;
   if (!Array.isArray(variants)) throw new TypeError("Catalogue result schema must use oneOf");
@@ -196,14 +220,85 @@ function operationResultSchema(operation: CatalogueApiOperation): CatalogueJsonS
   });
 }
 
+function evidenceOperationResultSchema(): CatalogueJsonSchema {
+  const canonical = cloneJson(evidenceInspectResultSchema);
+  const rootDefinitions = canonical.$defs === undefined
+    ? {}
+    : cloneJson(objectValue(canonical.$defs, "Evidence inspection definitions"));
+  delete canonical.$defs;
+  rewriteReferences(canonical, "inspect", {
+    "urn:gis-ai-go:schema:public-evidence-record:v1":
+      "#/$defs/public_evidence_record",
+    "urn:gis-ai-go:schema:evidence-ledger-event:v1":
+      "#/$defs/evidence_ledger_event",
+  });
+  for (const [name, definition] of Object.entries(rootDefinitions)) {
+    rewriteReferences(definition, "inspect", {});
+    rootDefinitions[`inspect_${name}`] = definition;
+    delete rootDefinitions[name];
+  }
+
+  embedSchemaResource(
+    publicEvidenceRecordSchema,
+    "public_evidence_record",
+    "record",
+    {
+      "urn:gis-ai-go:schema:evidence-receipt:v1": "#/$defs/evidence_receipt",
+    },
+    rootDefinitions,
+  );
+  embedSchemaResource(
+    evidenceLedgerEventSchema,
+    "evidence_ledger_event",
+    "event",
+    {},
+    rootDefinitions,
+  );
+  embedSchemaResource(
+    evidenceReceiptSchema,
+    "evidence_receipt",
+    "evidence",
+    {
+      "urn:gis-ai-go:schema:public-authority-context:v1":
+        "#/$defs/public_authority_context",
+      "urn:gis-ai-go:schema:public-policy-decision:v1":
+        "#/$defs/public_policy_decision",
+    },
+    rootDefinitions,
+  );
+  embedSchemaResource(
+    publicAuthorityContextSchema,
+    "public_authority_context",
+    "authority",
+    {},
+    rootDefinitions,
+  );
+  embedSchemaResource(
+    publicPolicyDecisionSchema,
+    "public_policy_decision",
+    "policy",
+    {},
+    rootDefinitions,
+  );
+  return deepFreeze({ ...canonical, $defs: rootDefinitions });
+}
+
 export const catalogueSearchRequestJsonSchema = deepFreeze(
   cloneJson(catalogueSearchRequestSchema),
 );
 export const catalogueDescribeRequestJsonSchema = deepFreeze(
   cloneJson(catalogueDescribeRequestSchema),
 );
-export const catalogueSearchResultJsonSchema = operationResultSchema("catalogue.search");
-export const catalogueDescribeResultJsonSchema = operationResultSchema("catalogue.describe");
+export const catalogueSearchResultJsonSchema = catalogueOperationResultSchema(
+  "catalogue.search",
+);
+export const catalogueDescribeResultJsonSchema = catalogueOperationResultSchema(
+  "catalogue.describe",
+);
+export const evidenceInspectRequestJsonSchema = deepFreeze(
+  cloneJson(evidenceInspectRequestSchema),
+);
+export const evidenceInspectResultJsonSchema = evidenceOperationResultSchema();
 export const catalogueProblemJsonSchema = deepFreeze(cloneJson(catalogueProblemSchema));
 
 /** Exact canonical schemas shared by direct API and MCP advertisements. */
@@ -218,15 +313,27 @@ export const CATALOGUE_OPERATION_JSON_SCHEMAS = deepFreeze({
   },
 } as const);
 
+export const EVIDENCE_OPERATION_JSON_SCHEMAS = deepFreeze({
+  "evidence.inspect": {
+    inputSchema: evidenceInspectRequestJsonSchema,
+    outputSchema: evidenceInspectResultJsonSchema,
+  },
+} as const);
+
+export const GATEWAY_OPERATION_JSON_SCHEMAS = deepFreeze({
+  ...CATALOGUE_OPERATION_JSON_SCHEMAS,
+  ...EVIDENCE_OPERATION_JSON_SCHEMAS,
+} as const);
+
 function normaliseOperations(
-  operations: readonly CatalogueApiOperation[],
-): readonly CatalogueApiOperation[] {
+  operations: readonly GatewayApiOperation[],
+): readonly GatewayApiOperation[] {
   if (!Array.isArray(operations)) {
     throw new TypeError("enabled API operations must be an array");
   }
-  const selected = new Set<CatalogueApiOperation>();
+  const selected = new Set<GatewayApiOperation>();
   for (const operation of operations) {
-    if (!(CATALOGUE_API_OPERATIONS as readonly unknown[]).includes(operation)) {
+    if (!(GATEWAY_API_OPERATIONS as readonly unknown[]).includes(operation)) {
       throw new TypeError("enabled API operations contain an unknown operation");
     }
     if (selected.has(operation)) {
@@ -234,12 +341,12 @@ function normaliseOperations(
     }
     selected.add(operation);
   }
-  return CATALOGUE_API_OPERATIONS.filter((operation) => selected.has(operation));
+  return GATEWAY_API_OPERATIONS.filter((operation) => selected.has(operation));
 }
 
 /** Build the exact local-candidate contract for the explicitly mounted API set. */
 export function createCatalogueOpenApiDocument(
-  enabledApiOperations: readonly CatalogueApiOperation[],
+  enabledApiOperations: readonly GatewayApiOperation[],
 ): OpenApiDocument {
   const selected = normaliseOperations(enabledApiOperations);
   const document = cloneTemplate();
@@ -248,7 +355,7 @@ export function createCatalogueOpenApiDocument(
     throw new TypeError("OpenAPI template paths must be an object");
   }
   const mutablePaths = paths as Record<string, unknown>;
-  for (const operation of CATALOGUE_API_OPERATIONS) {
+  for (const operation of GATEWAY_API_OPERATIONS) {
     if (!selected.includes(operation)) delete mutablePaths[OPERATION_PATHS[operation]];
   }
   const components = objectValue(document.components, "OpenAPI components");
@@ -257,8 +364,12 @@ export function createCatalogueOpenApiDocument(
   schemas.CatalogueDescribeRequest = cloneJson(catalogueDescribeRequestJsonSchema);
   schemas.CatalogueSearchResult = cloneJson(catalogueSearchResultJsonSchema);
   schemas.CatalogueDescribeResult = cloneJson(catalogueDescribeResultJsonSchema);
+  schemas.EvidenceInspectRequest = cloneJson(evidenceInspectRequestJsonSchema);
+  schemas.EvidenceInspectResult = cloneJson(evidenceInspectResultJsonSchema);
   schemas.CatalogueProblem = cloneJson(catalogueProblemJsonSchema);
-  document["x-gis-ai-go-mounted-candidate-catalogue-operations"] = [...selected];
+  document["x-gis-ai-go-mounted-candidate-catalogue-operations"] =
+    CATALOGUE_API_OPERATIONS.filter((operation) => selected.includes(operation));
+  document["x-gis-ai-go-mounted-candidate-operations"] = [...selected];
   return deepFreeze(document as OpenApiDocument);
 }
 

@@ -27,8 +27,9 @@ It is an implementation workbench, not a supported or deployed service.
   re-verified write adds `evidence_storage` to the result. Storage failure fails the
   operation. The default remains inline-only.
 - `createEvidenceInspectApplication` reads only verified anonymous-open records by
-  receipt identity. It is transport-neutral and is not registered as a route or MCP
-  tool.
+  receipt identity. Explicit local-conformance options can mount the same instance
+  as a direct route, MCP HTTP or STDIO tool and receipt resource. It remains absent
+  from every default registration.
 - the HTTP candidate listens only on `127.0.0.1:8787` and exposes `GET /healthz`,
   `GET /readyz` and `GET /openapi.json`. Readiness always returns `503` with zero
   active tools and zero active API operations.
@@ -38,18 +39,20 @@ authority.
 
 ## Deliberate activation block
 
-The application functions are not mounted on HTTP routes. There is no
-`catalogue.search` or `catalogue.describe` endpoint, MCP listener, MCP tool
-registration, public deployment, provider call or external policy service. The
-portable evidence store and inspector are inactive embedding components; no shipped
-entry point supplies their configuration.
+The shipped application functions are not mounted on HTTP routes. Explicit
+constructor options exist for local conformance tests, including
+`evidence.inspect`, but there is no default catalogue or evidence endpoint, active
+MCP tool or resource, public deployment, provider call or external policy service.
+The portable evidence store and inspector are inactive embedding components; no
+shipped entry point supplies their configuration or a ledger path.
 There is no environment-variable or command-line activation override.
 
-Activation remains hard-blocked as
-`transport-and-interoperability-unverified`. A later reviewed change must add and
-verify the protocol-conformant transports and client interoperability before it may
-mount or advertise either operation. The compiled public document is not OPA,
-authentication, identity or an enterprise entitlement service.
+Protocol-conformant MCP and direct transport candidates already exist. Activation
+remains hard-blocked until the inspection transport, independent-host
+interoperability, fallback and full lifecycle evidence receive their own review. A
+later reviewed change must satisfy that activation policy before it may mount or
+advertise any operation. The compiled public document is not OPA, authentication,
+identity or an enterprise entitlement service.
 
 ## Local verification
 
@@ -69,4 +72,4 @@ pnpm --filter @gis-ai-go/mcp-gateway run start:http
 ```
 
 See the [candidate boundary](../../docs/operations/MCP-201_GATEWAY_CANDIDATE.md)
-and [EVID-204 inline-evidence boundary](../../docs/operations/EVID-204_INLINE_EVIDENCE.md).
+and [EVID-204 inspection transport boundary](../../docs/operations/EVID-204_INSPECT_TRANSPORT.md).

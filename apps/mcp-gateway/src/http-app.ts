@@ -7,10 +7,14 @@ import {
   type CatalogueApplicationOptions,
 } from "./catalogue-application.js";
 import type { CatalogueSnapshot } from "./catalogue-snapshot.js";
+import {
+  EvidenceInspectError,
+  type EvidenceInspectApplication,
+} from "./evidence-application.js";
 import { gatewayMetadata } from "./metadata.js";
 import {
   createCatalogueOpenApiDocument,
-  type CatalogueApiOperation,
+  type GatewayApiOperation,
 } from "./openapi.js";
 import {
   createCatalogueProblem,
@@ -46,8 +50,9 @@ export interface GatewayHttpOptions {
   readonly allowedHosts?: readonly string[];
   readonly allowedOrigins?: readonly string[];
   readonly createTraceId?: () => string;
-  readonly enabledApiOperations?: readonly CatalogueApiOperation[];
+  readonly enabledApiOperations?: readonly GatewayApiOperation[];
   readonly application?: CatalogueApplication;
+  readonly evidenceApplication?: EvidenceInspectApplication;
   readonly catalogueApplicationOptions?: CatalogueApplicationOptions;
   /** Reporting only. Error details are never returned to the caller. */
   readonly onerror?: (error: Error) => void;
@@ -148,6 +153,14 @@ function problemResponse(
   detail: string,
 ): Response {
   const problem = createCatalogueProblem(code, context, { detail });
+  return jsonResponse(problem, problem.status, "application/problem+json");
+}
+
+function evidenceProblemResponse(
+  error: EvidenceInspectError,
+  context: CatalogueProblemContext,
+): Response {
+  const problem = createCatalogueProblem(error.code, context);
   return jsonResponse(problem, problem.status, "application/problem+json");
 }
 
@@ -467,27 +480,48 @@ function bodyFailureResponse(error: BoundedJsonError, context: CatalogueProblemC
   return problemResponse("invalid_request", context, detail);
 }
 
-function operationApplication(
+interface OperationApplications {
+  readonly catalogue?: CatalogueApplication;
+  readonly evidence?: EvidenceInspectApplication;
+}
+
+function operationApplications(
   options: GatewayHttpOptions,
-  enabledApiOperations: readonly CatalogueApiOperation[],
-): CatalogueApplication | undefined {
-  if (enabledApiOperations.length === 0) return undefined;
+  enabledApiOperations: readonly GatewayApiOperation[],
+): OperationApplications {
   if (options.application !== undefined && options.catalogueApplicationOptions !== undefined) {
     throw new TypeError(
       "Supply either a shared catalogue application or catalogue application options, not both",
     );
   }
-  if (options.application !== undefined) return options.application;
-  return createCatalogueApplication(
-    options.snapshot,
-    options.catalogueApplicationOptions ?? {
-      software: {
-        name: "gis-ai-go-mcp-gateway",
-        version: gatewayMetadata.version,
-        revision: options.snapshot.revision,
-      },
-    },
+  const needsCatalogue = enabledApiOperations.some((operation) =>
+    operation === "catalogue.search" || operation === "catalogue.describe"
   );
+  const needsEvidence = enabledApiOperations.includes("evidence.inspect");
+  if (needsEvidence && options.evidenceApplication === undefined) {
+    throw new TypeError(
+      "evidenceApplication is required when evidence.inspect is explicitly mounted",
+    );
+  }
+  return Object.freeze({
+    ...(needsCatalogue
+      ? {
+          catalogue: options.application ?? createCatalogueApplication(
+            options.snapshot,
+            options.catalogueApplicationOptions ?? {
+              software: {
+                name: "gis-ai-go-mcp-gateway",
+                version: gatewayMetadata.version,
+                revision: options.snapshot.revision,
+              },
+            },
+          ),
+        }
+      : {}),
+    ...(needsEvidence
+      ? { evidence: options.evidenceApplication as EvidenceInspectApplication }
+      : {}),
+  });
 }
 
 export function createGatewayHttpHandler(
@@ -500,7 +534,7 @@ export function createGatewayHttpHandler(
   const enabledApiOperations = options.enabledApiOperations ??
     catalogueActivation.activeApiOperations;
   const openApiDocument = createCatalogueOpenApiDocument(enabledApiOperations);
-  const application = operationApplication(options, enabledApiOperations);
+  const applications = operationApplications(options, enabledApiOperations);
   const enabled = new Set(enabledApiOperations);
   const createTraceId = options.createTraceId ?? (() => randomBytes(16).toString("hex"));
 
@@ -614,8 +648,10 @@ export function createGatewayHttpHandler(
       ? "catalogue.search"
       : parsedUrl.pathname === "/catalogue/describe"
         ? "catalogue.describe"
+        : parsedUrl.pathname === "/evidence/inspect"
+          ? "evidence.inspect"
         : undefined;
-    if (operation === undefined || !enabled.has(operation) || application === undefined) {
+    if (operation === undefined || !enabled.has(operation)) {
       return problemResponse(
         "invalid_request",
         context,
@@ -644,12 +680,17 @@ export function createGatewayHttpHandler(
 
     try {
       const result = operation === "catalogue.search"
-        ? application.search(body, context)
-        : application.describe(body, context);
+        ? (applications.catalogue as CatalogueApplication).search(body, context)
+        : operation === "catalogue.describe"
+          ? (applications.catalogue as CatalogueApplication).describe(body, context)
+          : (applications.evidence as EvidenceInspectApplication).inspect(body, context);
       return catalogueSuccessResponse(result, context, options);
     } catch (error) {
       if (isCatalogueProblemError(error)) {
         return jsonResponse(error.problem, error.problem.status, "application/problem+json");
+      }
+      if (error instanceof EvidenceInspectError) {
+        return evidenceProblemResponse(error, context);
       }
       report(options, error);
       return problemResponse("internal_error", context, "The request could not be processed.");

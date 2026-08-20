@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "urn:gis-ai-go:schema:catalogue-problem:v1",
-  "title": "GIS AI GO catalogue problem",
-  "description": "A bounded RFC 9457-compatible problem envelope for catalogue requests.",
+  "title": "GIS AI GO public-read problem",
+  "description": "A bounded RFC 9457-compatible problem envelope shared by catalogue and public evidence requests.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -38,6 +38,8 @@
         "invalid_request",
         "invalid_cursor",
         "record_not_found",
+        "evidence_not_found",
+        "evidence_unavailable",
         "not_acceptable",
         "rate_limited",
         "complexity_limit_exceeded",

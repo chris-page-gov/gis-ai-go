@@ -14,7 +14,11 @@ import {
 } from "./problem.js";
 
 const RECEIPT_ID = /^gis-ai-go:evidence-receipt:sha256:[0-9a-f]{64}$/u;
-const MAX_INSPECT_RESULT_BYTES = 4_718_592;
+/**
+ * The complete result must fit the narrowest MCP compatibility representation:
+ * structured content plus the identical plain JSON text fallback.
+ */
+export const MAX_EVIDENCE_INSPECT_RESULT_BYTES = 262_144;
 
 export interface EvidenceInspectRequest {
   readonly receipt_id: string;
@@ -145,7 +149,10 @@ function inspectResult(
       "Inspection verifies storage and receipt content binding, not the original result material.",
     ],
   } as const);
-  if (new TextEncoder().encode(canonicalJson(result)).byteLength > MAX_INSPECT_RESULT_BYTES) {
+  if (
+    new TextEncoder().encode(canonicalJson(result)).byteLength >
+    MAX_EVIDENCE_INSPECT_RESULT_BYTES
+  ) {
     throw new EvidenceInspectError("evidence_unavailable");
   }
   return result;
