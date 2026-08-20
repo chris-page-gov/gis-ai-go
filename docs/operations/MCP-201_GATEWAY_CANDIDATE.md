@@ -1,15 +1,29 @@
-# MCP-201 blocked transport candidate
+# MCP-201 inactive transport boundary
 
-- status: local candidate; acceptance, activation and publication blocked
+- status: accepted on protected `main`; activation and publication blocked
 - work item: [MCP-201](https://github.com/chris-page-gov/gis-ai-go/issues/19)
 - protected-main base: `997d5fdd478797b20b05d1980be8f986645d410e`
+- implementation commit: `fb0234b9a6a968fe68c2fbe98388f2415393c9c1`
+- pull-request head: `3a92c005e67ca1d239c1f4a3c0a955b19c59bd7a`
+- pull request: [31](https://github.com/chris-page-gov/gis-ai-go/pull/31)
+- pull-request assurance:
+  [passing](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32389353007)
+- pull-request CodeQL:
+  [passing](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32389350801)
+- protected-main merge: `edc26c0396ecd230570de1ab0fd402338567f67d`
+- protected-main assurance and provenance:
+  [passing](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32389721338)
+- protected-main CodeQL:
+  [passing](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32389721461)
+- protected-main provenance:
+  [attestation 41912276](https://github.com/chris-page-gov/gis-ai-go/attestations/41912276)
 - supported public product: immutable
   [`v0.1.0`](https://github.com/chris-page-gov/gis-ai-go/releases/tag/v0.1.0)
 - current activation block: `transport-and-interoperability-unverified`
 
 ## Purpose
 
-This local slice adds MCP 2026-07-28 HTTP and STDIO transports and direct HTTP
+This accepted slice adds MCP 2026-07-28 HTTP and STDIO transports and direct HTTP
 `catalogue.search` and `catalogue.describe` routes over the already accepted shared
 application. The MCP and direct faces use the same canonical request and result
 schemas, policy decisions and inline evidence receipts.
@@ -135,11 +149,11 @@ repository-level canonical schema files. The compiled gateway therefore depends 
 the full checkout layout retaining `schemas/`; `apps/mcp-gateway/dist/` is not a
 standalone package.
 
-This candidate has no public deployment, service URL or registry entry; provider
-adapter or provider call; external policy decision point, OPA or identity
-integration; durable rate service; or evidence store, ledger, lookup or
-attestation. The static Explorer remains the only supported public product and has
-no dependency on this process.
+This accepted inactive foundation has no public deployment, service URL or registry
+entry. It has no provider adapter or provider call; external policy decision point,
+OPA or identity integration; durable rate service; or evidence store, ledger,
+lookup or runtime receipt attestation. The static Explorer remains the only
+supported public product and has no dependency on this process.
 
 ## Activation gate
 
@@ -149,11 +163,11 @@ does not change the frozen activation document and is not used by either executa
 
 Raw transcript and pinned SDK-client conformance can establish the protocol shape,
 but they do not prove interoperability with independent major MCP hosts. Complete
-non-App result representations exist in the candidate, but host-specific fallback,
-lifecycle and usability evidence is still pending. The complete locked local gate
-and independent reviews now pass, but protected pull-request checks, an explicit
-reviewed activation decision and deployment rollback evidence must also pass before
-activation or publication. Until then, the supported capability list remains empty.
+non-App result representations exist in the accepted slice, but host-specific fallback,
+lifecycle and usability evidence is still pending. The complete locked local and
+protected pull-request/main gates pass, but an explicit reviewed activation decision
+and deployment rollback evidence must also pass before activation or publication.
+Until then, the supported capability list remains empty.
 
 See the [MCP-201 verification record](MCP-201_VERIFICATION.md) and
 [EVID-204A evidence boundary](EVID-204_INLINE_EVIDENCE.md) for the distinction
