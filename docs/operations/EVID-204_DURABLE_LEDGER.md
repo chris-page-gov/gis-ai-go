@@ -87,6 +87,23 @@ activation, deployment or public registry entry. The later
 constructor seams. `evidence.inspect` remains absent from all production activation
 arrays.
 
+## Inactive public-read v2 compatibility candidate
+
+The later TOOLS-205 prerequisite extends `persistReceipt` and `inspect` with a
+verified v1-or-v2 receipt and durable-record union. V1 receipt, record, descriptor,
+event and replay identities retain their original domains and bytes. A public-read
+v2 receipt is stored only in `gis-ai-go.public-evidence-record.v2`, whose separate
+content domain prevents an identity collision with v1. Mixed ledgers pass restart,
+tamper, replay and privacy tests. The accepted
+`evidence-inspect-result.schema.json` v1 contract remains byte-identical at
+SHA-256 `ab6973053b58bdb59c94cd8c5db9c354e1954cb84a188d5d7db579442e6f7b61`
+and accepts only v1 records. A v2 record returns the separate
+`gis-ai-go.evidence-inspect-result.v2` discriminator and v2 result schema. The
+inactive operation contract advertises a separately identified closed dispatcher
+over those two unchanged per-version meanings. This compatibility change does not
+activate `selection.resolve`, `data.query` or `evidence.inspect`; see
+[TOOLS-205 public-read v2 contracts](TOOLS-205_PUBLIC_READ_V2_CONTRACTS.md).
+
 ## Verification
 
 Focused verification commands are:

@@ -61,6 +61,10 @@ test("loads exactly 12 deterministic frozen profiles from the canonical data", (
   );
   assert.equal(getToolProfile("workflow.execute").mutating, true);
   assert.equal(getToolProfile("workflow.execute").releaseTarget, "v0.3.0");
+  assert.deepEqual(getToolProfile("evidence.inspect").runtimeSchemas.output, {
+    state: "accepted",
+    ref: "schemas/evidence-inspect-operation-result.schema.json",
+  });
 });
 
 test("keeps target lifecycle metadata separate from an empty current callable set", () => {

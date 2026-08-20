@@ -93,6 +93,7 @@ def main() -> None:
     schema_count = validate_schema_catalogue()
     fixture_dir = ROOT / "providers" / "fixtures"
     receipt_fixture = load_json(fixture_dir / "evidence-receipt.example.json")
+    receipt_v2_fixture = load_json(fixture_dir / "evidence-receipt-v2.example.json")
     ledger_id = f"gis-ai-go:public-evidence-ledger:sha256:{'a' * 64}"
     record_id = f"gis-ai-go:public-evidence-record:sha256:{'b' * 64}"
     event_id = f"gis-ai-go:evidence-ledger-event:sha256:{'c' * 64}"
@@ -184,6 +185,33 @@ def main() -> None:
             ),
         ],
     }
+    record_v2_fixture = {
+        **record_fixture,
+        "schema": "gis-ai-go.public-evidence-record.v2",
+        "record_id": f"gis-ai-go:public-evidence-record:sha256:{'e' * 64}",
+        "receipt": receipt_v2_fixture,
+    }
+    event_v2_fixture = {
+        **event_fixture,
+        "event_id": f"gis-ai-go:evidence-ledger-event:sha256:{'f' * 64}",
+        "record_id": record_v2_fixture["record_id"],
+        "receipt_id": receipt_v2_fixture["receipt_id"],
+    }
+    storage_v2_fixture = {
+        **storage_fixture,
+        "record_id": record_v2_fixture["record_id"],
+        "event_id": event_v2_fixture["event_id"],
+    }
+    inspect_v2_fixture = {
+        **inspect_fixture,
+        "schema": "gis-ai-go.evidence-inspect-result.v2",
+        "request_id": "request-evidence-inspect-v2-example",
+        "data": {
+            "record": record_v2_fixture,
+            "event": event_v2_fixture,
+            "storage": storage_v2_fixture,
+        },
+    }
     mappings: list[tuple[str, list[tuple[str, Any]]]] = [
         (
             "authority-context.schema.json",
@@ -213,11 +241,47 @@ def main() -> None:
             ],
         ),
         (
+            "public-authority-context-v2.schema.json",
+            [
+                (
+                    "public-authority-context-v2.example.json",
+                    load_json(fixture_dir / "public-authority-context-v2.example.json"),
+                )
+            ],
+        ),
+        (
+            "public-read-resource.schema.json",
+            [
+                (
+                    "public-read-resource.example.json",
+                    load_json(fixture_dir / "public-read-resource.example.json"),
+                )
+            ],
+        ),
+        (
+            "public-policy-v2.schema.json",
+            [
+                (
+                    "packages/policy-client/src/public-read-v2.json",
+                    load_json(ROOT / "packages" / "policy-client" / "src" / "public-read-v2.json"),
+                )
+            ],
+        ),
+        (
             "public-policy-decision.schema.json",
             [
                 (
                     "public-policy-decision.example.json",
                     load_json(fixture_dir / "public-policy-decision.example.json"),
+                )
+            ],
+        ),
+        (
+            "public-policy-decision-v2.schema.json",
+            [
+                (
+                    "public-policy-decision-v2.example.json",
+                    load_json(fixture_dir / "public-policy-decision-v2.example.json"),
                 )
             ],
         ),
@@ -231,12 +295,25 @@ def main() -> None:
             ],
         ),
         (
+            "evidence-receipt-v2.schema.json",
+            [
+                (
+                    "evidence-receipt-v2.example.json",
+                    receipt_v2_fixture,
+                )
+            ],
+        ),
+        (
             "public-evidence-ledger.schema.json",
             [("synthetic public evidence ledger", ledger_fixture)],
         ),
         (
             "public-evidence-record.schema.json",
             [("synthetic public evidence record", record_fixture)],
+        ),
+        (
+            "public-evidence-record-v2.schema.json",
+            [("synthetic public-read evidence record", record_v2_fixture)],
         ),
         (
             "evidence-ledger-event.schema.json",
@@ -253,7 +330,18 @@ def main() -> None:
         ),
         (
             "evidence-inspect-result.schema.json",
-            [("synthetic evidence inspection result", inspect_fixture)],
+            [("synthetic v1 evidence inspection result", inspect_fixture)],
+        ),
+        (
+            "evidence-inspect-result-v2.schema.json",
+            [("synthetic v2 evidence inspection result", inspect_v2_fixture)],
+        ),
+        (
+            "evidence-inspect-operation-result.schema.json",
+            [
+                ("synthetic v1 evidence inspection result", inspect_fixture),
+                ("synthetic v2 evidence inspection result", inspect_v2_fixture),
+            ],
         ),
         (
             "execution-request.schema.json",

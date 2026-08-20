@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:public-evidence-record:v2",
+  "title": "GIS AI GO durable public-read evidence record",
+  "description": "A content-addressed ledger record containing one verified public-read v2 receipt and no original parameter or result material.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "record_id",
+    "ledger_id",
+    "persisted_at",
+    "retain_until",
+    "receipt",
+    "verification",
+    "privacy"
+  ],
+  "properties": {
+    "schema": { "const": "gis-ai-go.public-evidence-record.v2" },
+    "record_id": {
+      "type": "string",
+      "pattern": "^gis-ai-go:public-evidence-record:sha256:[0-9a-f]{64}$"
+    },
+    "ledger_id": {
+      "type": "string",
+      "pattern": "^gis-ai-go:public-evidence-ledger:sha256:[0-9a-f]{64}$"
+    },
+    "persisted_at": { "type": "string", "format": "date-time", "maxLength": 24 },
+    "retain_until": { "type": "string", "format": "date-time", "maxLength": 24 },
+    "receipt": { "$ref": "urn:gis-ai-go:schema:evidence-receipt:v2" },
+    "verification": {
+      "const": {
+        "attestation": "not-attested",
+        "receipt": "full-material-verified-at-ingest",
+        "restart": "structure-and-content-verified"
+      }
+    },
+    "privacy": {
+      "const": {
+        "credentials": false,
+        "geometry": false,
+        "machine_path": false,
+        "personal_data": false,
+        "prompt": false,
+        "raw_query": false
+      }
+    }
+  }
+}

@@ -1,0 +1,183 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:public-policy-decision:v2",
+  "title": "GIS AI GO public-read policy decision",
+  "description": "A content-addressed allow-with-obligations or default-deny decision for the inactive public-read v2 plane.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "canonicalisation",
+    "decision_id",
+    "request_id",
+    "trace_id",
+    "authority_context_id",
+    "policy_id",
+    "policy_version",
+    "policy_default_effect",
+    "operation",
+    "resource_id",
+    "effect",
+    "reason_code",
+    "obligations"
+  ],
+  "properties": {
+    "schema": { "const": "gis-ai-go.public-policy-decision.v2" },
+    "canonicalisation": { "const": "rfc8785-jcs" },
+    "decision_id": {
+      "type": "string",
+      "pattern": "^gis-ai-go:public-policy-decision:sha256:[0-9a-f]{64}$"
+    },
+    "request_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "trace_id": { "type": "string", "pattern": "^[0-9a-f]{32}$" },
+    "authority_context_id": {
+      "const": "gis-ai-go:public-authority-context:sha256:5d97a93aaa9c8fcbf9f02d2812275cf59b4c0e0e923de89ac975035c741bc1f1"
+    },
+    "policy_id": {
+      "const": "gis-ai-go:public-policy:sha256:b1a37b2ebf6900e2b5d62dfa20bcdaa1232e1c4c9f9630f90ac9d3dde738624a"
+    },
+    "policy_version": { "const": "2.0.0" },
+    "policy_default_effect": { "const": "deny" },
+    "operation": { "$ref": "#/$defs/governed_operation" },
+    "resource_id": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "const": "gis-ai-go:public-read-resource:sha256:c7130712a40d75e71bcf0259792404389bea2e549adf6733f34d491f83e99f68"
+        }
+      ]
+    },
+    "effect": { "enum": ["allow-with-obligations", "deny"] },
+    "reason_code": {
+      "enum": [
+        "authority-context-not-applicable",
+        "operation-not-allowed",
+        "public-read-operation-allowed",
+        "resource-not-approved"
+      ]
+    },
+    "obligations": {
+      "type": "array",
+      "uniqueItems": true,
+      "maxItems": 8,
+      "items": { "$ref": "#/$defs/obligation" }
+    }
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "operation": { "const": "data.query" },
+        "resource_id": {
+          "const": "gis-ai-go:public-read-resource:sha256:c7130712a40d75e71bcf0259792404389bea2e549adf6733f34d491f83e99f68"
+        },
+        "effect": { "const": "allow-with-obligations" },
+        "reason_code": { "const": "public-read-operation-allowed" },
+        "obligations": { "const": [
+          "bounded-single-observation",
+          "inline-evidence-receipt",
+          "not-attested",
+          "not-persisted",
+          "preserve-attribution",
+          "preserve-provider-identifiers",
+          "preserve-provider-rights",
+          "preserve-provider-version"
+        ] }
+      }
+    },
+    {
+      "properties": {
+        "operation": { "const": "selection.resolve" },
+        "resource_id": {
+          "const": "gis-ai-go:public-read-resource:sha256:c7130712a40d75e71bcf0259792404389bea2e549adf6733f34d491f83e99f68"
+        },
+        "effect": { "const": "allow-with-obligations" },
+        "reason_code": { "const": "public-read-operation-allowed" },
+        "obligations": { "const": [
+          "inline-evidence-receipt",
+          "no-provider-execution",
+          "not-attested",
+          "not-persisted",
+          "preserve-attribution",
+          "preserve-provider-identifiers",
+          "preserve-provider-rights",
+          "preserve-provider-version"
+        ] }
+      }
+    },
+    {
+      "properties": {
+        "resource_id": { "type": "null" },
+        "effect": { "const": "deny" },
+        "reason_code": { "const": "authority-context-not-applicable" },
+        "obligations": { "const": [] }
+      }
+    },
+    {
+      "properties": {
+        "operation": {
+          "enum": [
+            "catalogue.search",
+            "catalogue.describe",
+            "spatial.locate",
+            "spatial.analyse",
+            "statistics.compare",
+            "route.plan",
+            "map.render",
+            "artefact.export",
+            "evidence.inspect",
+            "workflow.execute"
+          ]
+        },
+        "resource_id": { "type": "null" },
+        "effect": { "const": "deny" },
+        "reason_code": { "const": "operation-not-allowed" },
+        "obligations": { "const": [] }
+      }
+    },
+    {
+      "properties": {
+        "operation": { "enum": ["data.query", "selection.resolve"] },
+        "resource_id": { "type": "null" },
+        "effect": { "const": "deny" },
+        "reason_code": { "const": "resource-not-approved" },
+        "obligations": { "const": [] }
+      }
+    }
+  ],
+  "$defs": {
+    "governed_operation": {
+      "enum": [
+        "catalogue.search",
+        "catalogue.describe",
+        "selection.resolve",
+        "data.query",
+        "spatial.locate",
+        "spatial.analyse",
+        "statistics.compare",
+        "route.plan",
+        "map.render",
+        "artefact.export",
+        "evidence.inspect",
+        "workflow.execute"
+      ]
+    },
+    "obligation": {
+      "enum": [
+        "bounded-single-observation",
+        "inline-evidence-receipt",
+        "no-provider-execution",
+        "not-attested",
+        "not-persisted",
+        "preserve-attribution",
+        "preserve-provider-identifiers",
+        "preserve-provider-rights",
+        "preserve-provider-version"
+      ]
+    }
+  }
+}

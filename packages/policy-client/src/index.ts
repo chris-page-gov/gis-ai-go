@@ -238,3 +238,5 @@ export function evaluatePublicCataloguePolicy(
     decision,
   });
 }
+
+export * from "./public-read-v2.js";

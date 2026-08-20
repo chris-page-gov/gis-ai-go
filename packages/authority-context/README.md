@@ -13,3 +13,8 @@ integration are outside this slice.
 The context permits only `catalogue.search` and `catalogue.describe`. Both
 operations require an inline receipt that is explicitly not persisted and not
 attested.
+
+`getPublicReadAuthorityContext()` exposes a separate inactive v2 context. It names
+only `data.query` and `selection.resolve` and preserves the same server-owned,
+anonymous-open, read-only, non-personal and non-protected boundary. Neither context
+accepts caller input or activates an operation.

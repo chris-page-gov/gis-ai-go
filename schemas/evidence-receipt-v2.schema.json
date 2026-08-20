@@ -1,0 +1,204 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:evidence-receipt:v2",
+  "title": "GIS AI GO public-read evidence receipt",
+  "description": "A closed success-only receipt binding one deterministic selection.resolve or exact public ONS data.query result. Denied and ambiguous calls have no success receipt.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "receipt_id",
+    "created_at",
+    "request_id",
+    "trace_id",
+    "operation",
+    "authority_context",
+    "policy_decision",
+    "resource",
+    "transformations",
+    "software",
+    "result",
+    "verification",
+    "evidence_handling"
+  ],
+  "properties": {
+    "schema": { "const": "gis-ai-go.evidence-receipt.v2" },
+    "receipt_id": {
+      "type": "string",
+      "pattern": "^gis-ai-go:evidence-receipt:sha256:[0-9a-f]{64}$"
+    },
+    "created_at": { "type": "string", "format": "date-time", "maxLength": 35 },
+    "request_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "trace_id": { "type": "string", "pattern": "^[0-9a-f]{32}$" },
+    "operation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "contract_version", "normalised_parameters"],
+      "properties": {
+        "name": { "enum": ["data.query", "selection.resolve"] },
+        "contract_version": { "const": "v1" },
+        "normalised_parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["domain", "sha256"],
+          "properties": {
+            "domain": {
+              "enum": [
+                "gis-ai-go.data-query-parameters.v1",
+                "gis-ai-go.selection-resolve-parameters.v1"
+              ]
+            },
+            "sha256": { "$ref": "#/$defs/sha256" }
+          }
+        }
+      }
+    },
+    "authority_context": {
+      "$ref": "urn:gis-ai-go:schema:public-authority-context:v2"
+    },
+    "policy_decision": {
+      "allOf": [
+        { "$ref": "urn:gis-ai-go:schema:public-policy-decision:v2" },
+        {
+          "properties": {
+            "effect": { "const": "allow-with-obligations" },
+            "reason_code": { "const": "public-read-operation-allowed" }
+          }
+        }
+      ]
+    },
+    "resource": { "$ref": "urn:gis-ai-go:schema:public-read-resource:v1" },
+    "transformations": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "version"],
+        "properties": {
+          "name": {
+            "enum": [
+              "execute-fixed-provider-query",
+              "normalise-public-read-parameters",
+              "project-public-read-result-core",
+              "resolve-fixed-selection-profile"
+            ]
+          },
+          "version": { "const": "v1" }
+        }
+      }
+    },
+    "software": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version", "revision"],
+      "properties": {
+        "name": { "const": "gis-ai-go-mcp-gateway" },
+        "version": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+        },
+        "revision": { "type": "string", "pattern": "^[0-9a-f]{40}$" }
+      }
+    },
+    "result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["domain", "sha256", "media_type", "returned_item_count"],
+      "properties": {
+        "domain": {
+          "enum": [
+            "gis-ai-go.data-query-result-core.v1",
+            "gis-ai-go.selection-resolve-result-core.v1"
+          ]
+        },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "media_type": { "const": "application/json" },
+        "returned_item_count": { "const": 1 }
+      }
+    },
+    "verification": {
+      "const": {
+        "canonicalisation": "rfc8785-jcs",
+        "checks": [
+          "authority-context",
+          "normalised-parameters-digest",
+          "profile-binding",
+          "provider-binding",
+          "provider-rights",
+          "public-policy-decision",
+          "result-core-digest",
+          "schema"
+        ],
+        "digest_algorithm": "sha256",
+        "status": "passed"
+      }
+    },
+    "evidence_handling": {
+      "const": {
+        "attestation": "not-attested",
+        "delivery": "inline-only",
+        "persistence": "not-persisted"
+      }
+    }
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "operation": {
+          "properties": {
+            "name": { "const": "data.query" },
+            "normalised_parameters": {
+              "properties": { "domain": { "const": "gis-ai-go.data-query-parameters.v1" } }
+            }
+          }
+        },
+        "policy_decision": { "properties": { "operation": { "const": "data.query" } } },
+        "transformations": { "const": [
+          { "name": "normalise-public-read-parameters", "version": "v1" },
+          { "name": "execute-fixed-provider-query", "version": "v1" },
+          { "name": "project-public-read-result-core", "version": "v1" }
+        ] },
+        "result": {
+          "properties": { "domain": { "const": "gis-ai-go.data-query-result-core.v1" } }
+        }
+      }
+    },
+    {
+      "properties": {
+        "operation": {
+          "properties": {
+            "name": { "const": "selection.resolve" },
+            "normalised_parameters": {
+              "properties": {
+                "domain": { "const": "gis-ai-go.selection-resolve-parameters.v1" }
+              }
+            }
+          }
+        },
+        "policy_decision": {
+          "properties": { "operation": { "const": "selection.resolve" } }
+        },
+        "transformations": { "const": [
+          { "name": "normalise-public-read-parameters", "version": "v1" },
+          { "name": "resolve-fixed-selection-profile", "version": "v1" },
+          { "name": "project-public-read-result-core", "version": "v1" }
+        ] },
+        "result": {
+          "properties": {
+            "domain": { "const": "gis-ai-go.selection-resolve-result-core.v1" }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+  }
+}

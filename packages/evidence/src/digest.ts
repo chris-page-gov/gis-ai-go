@@ -10,18 +10,29 @@ const SHA256_PATTERN = /^[0-9a-f]{64}$/u;
 
 export const CANONICAL_DOMAINS = Object.freeze({
   authorityContext: "gis-ai-go.public-authority-context.v1",
+  authorityContextV2: "gis-ai-go.public-authority-context.v2",
   catalogueParameters: "gis-ai-go.catalogue-parameters.v1",
   catalogueResultCore: "gis-ai-go.catalogue-result-core.v1",
+  dataQueryParameters: "gis-ai-go.data-query-parameters.v1",
+  dataQueryResultCore: "gis-ai-go.data-query-result-core.v1",
   evidenceLedgerDescriptor: "gis-ai-go.public-evidence-ledger.v1",
   evidenceLedgerEvent: "gis-ai-go.evidence-ledger-event.v1",
   evidenceReplayKey: "gis-ai-go.evidence-replay-key.v1",
   evidenceReceipt: "gis-ai-go.evidence-receipt.v1",
+  evidenceReceiptV2: "gis-ai-go.evidence-receipt.v2",
   publicEvidenceRecord: "gis-ai-go.public-evidence-record.v1",
+  publicEvidenceRecordV2: "gis-ai-go.public-evidence-record.v2",
   executionParameters: "gis-ai-go.execution-parameters.v1",
   executionResultData: "gis-ai-go.execution-result-data.v1",
   providerAdapterResult: "gis-ai-go.provider-adapter-result.v1",
+  providerRights: "gis-ai-go.provider-rights.v1",
   publicPolicy: "gis-ai-go.public-policy.v1",
+  publicPolicyV2: "gis-ai-go.public-policy.v2",
   publicPolicyDecision: "gis-ai-go.public-policy-decision.v1",
+  publicPolicyDecisionV2: "gis-ai-go.public-policy-decision.v2",
+  publicReadResource: "gis-ai-go.public-read-resource.v1",
+  selectionResolveParameters: "gis-ai-go.selection-resolve-parameters.v1",
+  selectionResolveResultCore: "gis-ai-go.selection-resolve-result-core.v1",
 } as const);
 
 export interface CanonicalDigest<D extends string = string> {

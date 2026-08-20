@@ -1247,7 +1247,7 @@
         },
         "output": {
           "state": "accepted",
-          "ref": "schemas/evidence-inspect-result.schema.json"
+          "ref": "schemas/evidence-inspect-operation-result.schema.json"
         },
         "problem": {
           "state": "missing",

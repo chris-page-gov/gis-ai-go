@@ -11,7 +11,17 @@ import { join } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { openPublicEvidenceLedger } from "@gis-ai-go/evidence";
+import { getPublicReadAuthorityContext } from "@gis-ai-go/authority-context";
+import {
+  PUBLIC_READ_ONS_RESOURCE,
+  buildPublicReadReceipt,
+  openPublicEvidenceLedger,
+  publicReadResultEvidenceBinding,
+} from "@gis-ai-go/evidence";
+import {
+  PUBLIC_READ_POLICY,
+  evaluatePublicReadPolicy,
+} from "@gis-ai-go/policy-client";
 
 import { createCatalogueApplication } from "../src/catalogue-application.js";
 import { loadCatalogueSnapshot } from "../src/catalogue-snapshot.js";
@@ -70,7 +80,9 @@ test("inspects one authorised open receipt without activating a transport", () =
       { receipt_id: catalogueResult.evidence_receipt.receipt_id },
       CONTEXT,
     );
+    assert.equal(result.schema, "gis-ai-go.evidence-inspect-result.v1");
     assert.equal(result.operation, "evidence.inspect");
+    assert.equal(result.data.record.schema, "gis-ai-go.public-evidence-record.v1");
     assert.equal(
       result.data.record.receipt.receipt_id,
       catalogueResult.evidence_receipt.receipt_id,
@@ -110,6 +122,91 @@ test("inspects one authorised open receipt without activating a transport", () =
         ),
       "evidence_unavailable",
     );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("inspects a durable public-read v2 receipt with its distinct result version", () => {
+  const root = mkdtempSync(join(tmpdir(), "gis-ai-go-public-read-inspect-"));
+  try {
+    const ledger = openPublicEvidenceLedger({
+      rootDirectory: root,
+      retentionDays: 365,
+      now: () => new Date("2026-08-20T19:00:01Z"),
+    });
+    const requestId = "request-public-read-inspect-001";
+    const traceId = "5123456789abcdef0123456789abcdef";
+    const evaluation = evaluatePublicReadPolicy({
+      requestId,
+      traceId,
+      operation: "data.query",
+      resource: PUBLIC_READ_ONS_RESOURCE,
+    });
+    assert.ok(evaluation.decision);
+    assert.equal(evaluation.allowed, true);
+    const normalisedParameters = {
+      schema: "gis-ai-go.data-query-parameters.v1",
+      resource_id: PUBLIC_READ_ONS_RESOURCE.resource_id,
+      dataset: {
+        id: PUBLIC_READ_ONS_RESOURCE.dataset.id,
+        edition: PUBLIC_READ_ONS_RESOURCE.dataset.edition,
+        version: PUBLIC_READ_ONS_RESOURCE.dataset.version,
+      },
+      selections: PUBLIC_READ_ONS_RESOURCE.selections,
+      limit: 1,
+    };
+    const resultCore = {
+      schema: "gis-ai-go.data-query-result.v1",
+      operation: "data.query",
+      request_id: requestId,
+      trace_id: traceId,
+      evidence_binding: publicReadResultEvidenceBinding(),
+      data: { status: "succeeded", observations: [{ value: "fixture" }] },
+      warnings: [],
+    };
+    const authorityContext = getPublicReadAuthorityContext();
+    const software = {
+      name: "gis-ai-go-mcp-gateway" as const,
+      version: "0.1.0",
+      revision: "c".repeat(40),
+    };
+    const receipt = buildPublicReadReceipt({
+      createdAt: "2026-08-20T19:00:00Z",
+      requestId,
+      traceId,
+      operation: "data.query",
+      normalisedParameters,
+      authorityContext,
+      publicPolicy: PUBLIC_READ_POLICY,
+      policyDecision: evaluation.decision,
+      resource: PUBLIC_READ_ONS_RESOURCE,
+      transformations: [
+        { name: "normalise-public-read-parameters", version: "v1" },
+        { name: "execute-fixed-provider-query", version: "v1" },
+        { name: "project-public-read-result-core", version: "v1" },
+      ],
+      software,
+      resultCore,
+    });
+    ledger.persistReceipt(receipt, {
+      normalisedParameters,
+      resultCore,
+      publicPolicy: PUBLIC_READ_POLICY,
+      expectedAuthorityContext: authorityContext,
+      expectedPolicyDecision: evaluation.decision,
+      expectedResource: PUBLIC_READ_ONS_RESOURCE,
+      expectedSoftware: software,
+    });
+
+    const inspected = createEvidenceInspectApplication(ledger).inspect(
+      { receipt_id: receipt.receipt_id },
+      CONTEXT,
+    );
+    assert.equal(inspected.schema, "gis-ai-go.evidence-inspect-result.v2");
+    assert.equal(inspected.data.record.schema, "gis-ai-go.public-evidence-record.v2");
+    assert.equal(inspected.data.record.receipt.receipt_id, receipt.receipt_id);
+    assert.equal(inspected.verification.status, "passed");
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

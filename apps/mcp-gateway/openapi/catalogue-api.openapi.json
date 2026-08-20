@@ -392,7 +392,7 @@
         "$ref": "urn:gis-ai-go:schema:evidence-inspect-request:v1"
       },
       "EvidenceInspectResult": {
-        "$ref": "urn:gis-ai-go:schema:evidence-inspect-result:v1"
+        "$ref": "urn:gis-ai-go:schema:evidence-inspect-operation-result:v1"
       },
       "CatalogueProblem": {
         "$ref": "urn:gis-ai-go:schema:catalogue-problem:v1"

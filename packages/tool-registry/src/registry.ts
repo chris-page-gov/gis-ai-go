@@ -89,7 +89,7 @@ const RUNTIME_SCHEMA_REFS_BY_ID: Readonly<
   T10: { input: null, output: null, problem: null },
   T11: {
     input: "schemas/evidence-inspect-request.schema.json",
-    output: "schemas/evidence-inspect-result.schema.json",
+    output: "schemas/evidence-inspect-operation-result.schema.json",
     problem: null,
   },
   T12: { input: null, output: null, problem: null },

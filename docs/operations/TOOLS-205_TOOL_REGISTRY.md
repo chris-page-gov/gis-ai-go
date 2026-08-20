@@ -53,7 +53,10 @@ The current callable result is an empty frozen array. The helper considers only
 `current` state and accepted runtime input, output and problem schema references;
 it never reads `v02Target`. `evidence.inspect` intentionally has no accepted
 runtime problem schema reference yet, although its transport-neutral application,
-request and result contracts exist.
+request and result contracts exist. Its accepted output reference is the closed
+`evidence-inspect-operation-result.schema.json` dispatcher. That dispatcher makes
+the supported v1 and v2 result discriminators explicit without widening the
+immutable v1 schema or making the suspended profile callable.
 
 `controlledErrors` preserves the governance vocabulary from the research profile;
 it is not by itself a runtime error contract. Runtime error availability is
