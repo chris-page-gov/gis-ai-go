@@ -36,7 +36,7 @@ Start every implementation task by reading, in order:
 Stage 0 is complete at commit `983b1a102aa8038c9f50ae1b1894315c3ae0b89f`.
 The canonical OKF build, accessible static Explorer and reviewed public examples
 are merged through `DISC-101`, `DISC-102` and `DISC-103`; protected `main` is at
-`e5a522ee17f3a0a6f5857245c5ae3acd767efc25`. The Explorer is a functional static
+`eced0ae697818b4989ebe95c5bf1572cc6ec90c2`. The Explorer is a functional static
 candidate in repository and CI, but it is not deployed. There is no MCP listener,
 live provider adapter, policy engine, identity integration or evidence store.
 
@@ -45,8 +45,12 @@ The owner has authorised autonomous implementation in the open under
 outcome is the `v0.1.0` public discovery product. The repository is public under the
 owner's personal `chris-page-gov` account. Pull-request assurance, security controls
 and branch protection govern development on `main`. The active outcome is
-`DISC-104`: package the validated static product as an immutable artefact, deploy it
-through GitHub Pages, verify it publicly and prove rollback without rebuilding.
+`DISC-104`: retain the validated static product as an immutable, attested source
+artefact; safely recheck and stage its exact logical files through GitHub's pinned
+official Pages transport; verify the public result; and prove rollback without
+rebuilding the product. Four custom-tar deployments have failed closed at Pages
+ingestion. If the supported official transport also fails, stop changes and
+escalate the recorded evidence to GitHub Support.
 
 ## Non-negotiable boundaries
 

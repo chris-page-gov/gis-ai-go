@@ -1,6 +1,6 @@
 # ADR-0007: Immutable GitHub Pages publication
 
-- status: accepted
+- status: partially superseded by ADR-0008
 - decided on: 20 August 2026
 - work item: DISC-104
 
@@ -70,3 +70,8 @@ decision does not claim `frame-ancestors` or other header-only controls.
   path and is not authorised by this workflow;
 - a change to archive format or publication identity requires a new ADR version or
   superseding decision and new rollback evidence.
+
+ADR-0008 supersedes only the unchanged-tar transport decision in step 4. The
+protected Pages environment in step 5 and the deterministic source archive,
+attestation, manual selection, public verification and rollback requirements remain
+in force.

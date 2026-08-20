@@ -61,18 +61,20 @@ reproducible GitHub Pages deployment.
 
 ## Current blockers
 
-- GitHub Pages is configured but has no successful deployment. Three accepted
-  artefacts reached Pages ingestion before its tar-header checks rejected
-  unprefixed, root-owned members; the canonical producer and verifier now carry the
-  compatibility correction, which needs protected-main evidence.
+- GitHub Pages is configured but has no successful deployment. Four verified
+  deployment attempts reached Pages ingestion and failed closed, including the
+  corrected deterministic tar from protected `main` at `eced0ae`. The active
+  candidate retains that tar as attested source evidence, safely materialises and
+  rechecks its exact files, then uses GitHub's pinned official Pages transport. If
+  that supported path fails, deployment stops for escalation to GitHub Support.
 - Protected PSGA and commercial deployments require separate rights, credentials
   and isolated infrastructure; they do not block the open product.
 
 ## Latest evidence
 
-- canonical OKF content, Explorer and reviewed public examples: merged on protected
-  `main` at `e5a522e`;
-- main assurance and CodeQL: passing at `e5a522e` on 20 August 2026;
+- canonical OKF content, Explorer, reviewed public examples and the corrected
+  source-archive contract: merged on protected `main` at `eced0ae`;
+- main assurance, provenance and CodeQL: passing at `eced0ae` on 20 August 2026;
 - Explorer assurance includes
   16 build-policy tests, 42 unit and component tests, 25 browser journeys and
   production integrity checks;
@@ -86,9 +88,15 @@ reproducible GitHub Pages deployment.
 - DISC-103 security review: the selected HMLR inputs and copied licence are
   independently bound to approved v0.3.0 digests, and coordinated source, rights,
   licence and lock mutations now fail closed;
-- DISC-104 local candidate: 20 archive and 10 workflow contract tests, the complete
-  repository gate and 4 public-artefact browser tests pass; protected-main build,
-  attestation, deployment and rollback evidence remain to be produced;
+- DISC-104 supported-transport candidate: the complete local gate passes with 27
+  archive and staging contracts, 11 workflow contracts, 69 repository Python
+  tests, 25 browser journeys and the full integrity, link, secret, diagram and SBOM
+  checks;
+- DISC-104 protected-main source evidence: run `32322035483` built and attested
+  archive SHA-256 `b20ba6cab1811b976417aef6ca4c61bc33270063d7646ab8469e3273399edd11`;
+- DISC-104 transport candidate: the independently verified source files are staged
+  without rebuilding and passed to the pinned official GitHub Pages uploader;
+  candidate assurance, deployment and rollback evidence remain to be produced;
 - public repository: verified with personal `noreply` commit identity;
 - deployed product: none;
 - latest supported release: none.
