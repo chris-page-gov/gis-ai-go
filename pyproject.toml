@@ -1,6 +1,6 @@
 [project]
 name = "gis-ai-go"
-version = "0.0.0"
+version = "0.1.0"
 description = "Governed geospatial knowledge and action for people, systems and AI agents"
 license = "MIT"
 requires-python = ">=3.12"

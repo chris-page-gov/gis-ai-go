@@ -1,6 +1,6 @@
 # QUAL-105 release-assurance verification record
 
-- status: implementation candidate
+- status: verified on protected main; release evidence pending
 - reviewed on: 20 August 2026
 - work item: [QUAL-105](https://github.com/chris-page-gov/gis-ai-go/issues/7)
 - release target: `v0.1.0`
@@ -8,8 +8,8 @@
 
 ## Outcome
 
-QUAL-105 is the final assurance gate before assembling the first supported public
-discovery release. It does not add runtime capability. It closes evidence gaps for
+QUAL-105 is the final assurance gate for the first supported public discovery
+release. It does not add runtime capability. It closes evidence gaps for
 whole-product reproducibility, optional browser-API non-use, visible keyboard focus
 and durable post-deployment verification.
 
@@ -112,13 +112,17 @@ found no P0-P2 or material evidence error. A final exact-snapshot Codex Security
 diff scan covered all 17 changed or added files and directly supporting controls;
 no P0-P2 finding survived validation and reportability review.
 
-Protected pull-request assurance and CodeQL must still pass on the committed
-candidate. Required merge evidence is:
-
-- the exact committed candidate and pull request;
-- required `assurance` on that head;
-- CodeQL for Actions, JavaScript/TypeScript and Python; and
-- the resulting protected-main assurance and provenance after merge.
+The exact candidate commit `8c0e6ada8e691cb36b03f989fe9fd1446f25a486`
+merged through [pull request 16](https://github.com/chris-page-gov/gis-ai-go/pull/16)
+as protected-main commit `24925fc7f77b416d557c719942c86eaa3578b4b1`.
+Pull-request assurance passed in
+[run 32328952442](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32328952442)
+and CodeQL passed for Actions, JavaScript/TypeScript and Python in
+[run 32328951632](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32328951632).
+Resulting main assurance and provenance passed in
+[run 32329062233](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32329062233),
+and main CodeQL passed in
+[run 32329061657](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32329061657).
 
 ## Limitations and residual risks
 
@@ -138,9 +142,10 @@ candidate. Required merge evidence is:
 - GitHub Pages supplies the hosting boundary. The application enforces its exact
   meta Content Security Policy, but the repository does not control response-header
   policies such as `frame-ancestors`.
-- Actions artefacts expire. The supported release must attach the canonical archive,
-  checksum, receipt, SBOM, attestation verification and public-verification evidence
-  to its immutable GitHub Release.
+- Actions artefacts expire. Before support is declared, no-bypass `v*` tag protection
+  and GitHub release immutability must be enabled and verified. The release must
+  attach the canonical archive, checksum, receipt, SBOM, attestation verification
+  and public-verification evidence to that immutable GitHub Release.
 
 QUAL-105 remains open until the tagged `v0.1.0` artefact is deployed, its public
 receipt passes, the GitHub Release and durable assets exist, and final evidence is

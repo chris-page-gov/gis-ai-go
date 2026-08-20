@@ -5,18 +5,17 @@ Last updated: 20 August 2026
 ## Current outcome
 
 Deliver `v0.1.0`: an accessible public GIS AI GO discovery product with a canonical
-OKF bundle, reviewed open geospatial examples, linked machine-readable data and a
-reproducible GitHub Pages deployment.
+OKF bundle, reviewed public geospatial metadata examples with record-specific
+rights, linked machine-readable data and a reproducible GitHub Pages deployment.
 
 ## Active workstream
 
-`QUAL-105 — Complete release assurance`
+`v0.1.0 — Publish the first supported static discovery release`
 
-- complete the integrity, security, real-browser and WCAG acceptance gate against
-  protected `main` and the live public product;
-- keep deterministic artefact, deployment and rollback evidence bound to the
-  accepted source commits; and
-- resolve any release-blocking findings before assembling `v0.1.0`.
+- synchronise version and release metadata;
+- verify and tag the exact protected-main release commit;
+- deploy its attested artefact and retain the passing public receipt; and
+- publish durable release assets and final evidence.
 
 ## Completed
 
@@ -43,7 +42,7 @@ reproducible GitHub Pages deployment.
 - the accessible static Explorer now provides search, facets, governed cards,
   graph, timeline, non-legal schematic map, durable URLs and machine-readable
   downloads;
-- full local `pnpm run check` passed on 20 August 2026.
+- full local `pnpm run check` passed on 20 August 2026;
 - `DISC-103` merged through [pull request 10](https://github.com/chris-page-gov/gis-ai-go/pull/10)
   at `e5a522ee17f3a0a6f5857245c5ae3acd767efc25` with passing assurance and
   CodeQL;
@@ -58,13 +57,18 @@ reproducible GitHub Pages deployment.
 - artefact-only rollback to source commit `eced0ae` and restoration of source
   commit `a0e8263` both completed without rebuilding the product; and
 - the public product is verified at
-  <https://chris-page-gov.github.io/gis-ai-go/>.
+  <https://chris-page-gov.github.io/gis-ai-go/>;
+- QUAL-105 merged through [pull request 16](https://github.com/chris-page-gov/gis-ai-go/pull/16)
+  at `24925fc7f77b416d557c719942c86eaa3578b4b1` with passing pull-request and
+  protected-main assurance, provenance and CodeQL; and
+- two clean release builds are byte-identical, while browser, accessibility,
+  security and release-metadata gates have no unresolved P0-P2 findings.
 
 ## Next
 
-1. Complete `QUAL-105` integrity, security, browser and WCAG release assurance.
-2. Resolve any release-blocking findings and rerun the affected gates.
-3. Assemble, tag and verify the first supported `v0.1.0` release.
+1. Merge the synchronised `v0.1.0` release commit through protected `main`.
+2. Tag and verify that exact commit and its attested immutable artefact.
+3. Deploy the tagged artefact, retain public evidence and publish the GitHub Release.
 
 ## Current blockers
 
@@ -84,12 +88,12 @@ reproducible GitHub Pages deployment.
 - QUAL-105 independent security and accessibility reviews: no P0-P2 finding or
   material evidence error remains;
 - canonical OKF content, Explorer, reviewed public examples and supported Pages
-  publication: merged on protected `main` at
+  transport: merged on protected `main` at
   `a0e826384cf50d9d81b87489dbf3580e8e3602f7`;
 - main assurance and provenance: passing in
-  [run 32324008595](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32324008595);
+  [run 32329062233](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32329062233);
 - CodeQL for Actions, JavaScript/TypeScript and Python: passing in
-  [run 32324008614](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32324008614);
+  [run 32329061657](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32329061657);
 - Explorer assurance includes
   16 build-policy tests, 42 unit and component tests, 25 browser journeys and
   production integrity checks;

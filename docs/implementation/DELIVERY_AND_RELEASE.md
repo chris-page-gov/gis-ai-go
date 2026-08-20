@@ -66,8 +66,9 @@ release deploys only the artefact built and attested from the exact verified rel
 commit, after that commit carries its immutable tag. Verify the exact deployed
 commit in a real browser/client, including identity, primary
 journeys, accessibility, console, security controls and rollback. The live Pages
-Explorer remains a release candidate until the `v0.1.0` gate passes; the historical
-research viewer is never the product deployment.
+Explorer remains a release candidate until the exact `v0.1.0` tagged artefact passes
+deployment and public verification; the historical research viewer is never the
+product deployment.
 
 Prefer an ordinary revert or previous immutable artefact over history rewriting.
 Suspend a provider, tool, registry entry or protected tier independently when its

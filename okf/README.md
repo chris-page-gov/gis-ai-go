@@ -22,5 +22,7 @@ The source lock records why the unresolved abbreviated HMLR research reference i
 superseded by the approved immutable `okf-LandRegistry` `v0.3.0` release. Imported
 terms and attribution are documented in [`THIRD_PARTY.md`](../THIRD_PARTY.md).
 
-The publication profile is a candidate until the external Explorer consumer and the
-full `v0.1.0` accessibility/security gate pass.
+The `v0.1.0` product supports this exact 36-record publication in the GIS AI GO
+Explorer. The project-local publication and profile statuses remain candidates:
+product support does not assert that the OKF profile is a final external standard or
+that every described source is open or operationally supported.

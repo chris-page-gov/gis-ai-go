@@ -19,7 +19,7 @@ wheels = [
 
 [[package]]
 name = "gis-ai-go"
-version = "0.0.0"
+version = "0.1.0"
 source = { virtual = "." }
 
 [package.dev-dependencies]
@@ -34,7 +34,7 @@ dev = [{ name = "jsonschema", specifier = "==4.26.0" }]
 
 [[package]]
 name = "gis-ai-go-execution"
-version = "0.0.0"
+version = "0.1.0"
 source = { virtual = "services/geo-execution" }
 
 [[package]]

@@ -3,8 +3,9 @@
 This directory preserves the Stage 0 boundary, dependency baseline and verification
 as historical evidence. Current authority and status are in [`CONTEXT.md`](../../CONTEXT.md)
 and [`PROGRESS.md`](../../PROGRESS.md); ADR-0004 records progression beyond the local
-pause. The static Explorer is deployed as a public release candidate; no supported
-release or MCP service exists yet.
+pause. The static Explorer remains the verified `0.0.0` public candidate while the
+tagged `v0.1.0` artefact and supported-release evidence are assembled. No MCP service
+exists.
 
 - [Stage 0 boundary](STAGE_0_BOUNDARY.md)
 - [Dependency baseline](DEPENDENCIES.md)

@@ -1,6 +1,6 @@
 [project]
 name = "gis-ai-go-execution"
-version = "0.0.0"
+version = "0.1.0"
 description = "Deterministic geospatial execution service for GIS AI GO"
 license = "MIT"
 requires-python = ">=3.12"
