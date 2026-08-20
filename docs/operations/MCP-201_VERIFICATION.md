@@ -1,12 +1,12 @@
 # MCP-201 shared catalogue contract verification record
 
-- status: complete local candidate gate passed; commit, pull request and
-  protected-main verification pending
+- status: complete local candidate gate passed; pull-request and protected-main
+  verification pending
 - reviewed on: 20 August 2026
 - work item: [MCP-201](https://github.com/chris-page-gov/gis-ai-go/issues/19)
 - protected-main base: `80ac89d89e04751045693cecff4a3a714d121ebe`
-- candidate commit: pending
-- pull request: pending
+- candidate implementation commit: `5150cc25a56fb4263f4f6ec832f8995ad2a9d4c9`
+- pull request: [26](https://github.com/chris-page-gov/gis-ai-go/pull/26)
 - pull-request assurance and CodeQL: pending
 - protected-main merge and post-merge assurance: pending
 
