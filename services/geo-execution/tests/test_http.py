@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import http.client
 import json
+import socket
 import sys
 import threading
 import unittest
@@ -224,14 +225,21 @@ class PrivateHttpTests(unittest.TestCase):
             execution.start()
         self.assertTrue(all_started.wait(timeout=3))
 
-        overflow = valid_request()
-        overflow["request_id"] = "exec-202-concurrent-overflow"
-        status, problem, response = self.request(
-            "POST",
-            "/internal/v1/execute",
-            canonical_json_bytes(overflow),
+        # Capacity is enforced immediately after accept, before a request handler
+        # or request body exists. Reading that pre-handler response directly avoids
+        # racing a client body write against the deliberate connection close.
+        overflow_connection = socket.create_connection(
+            ("127.0.0.1", self.port), timeout=3
         )
-        self.assertEqual((429, "CAPACITY_EXCEEDED"), (status, problem["code"]))
+        try:
+            response = http.client.HTTPResponse(overflow_connection)
+            response.begin()
+            problem = json.loads(response.read())
+        finally:
+            overflow_connection.close()
+        self.assertEqual(
+            (429, "CAPACITY_EXCEEDED"), (response.status, problem["code"])
+        )
         self.assertEqual("1", response.getheader("Retry-After"))
 
         resume.set()
