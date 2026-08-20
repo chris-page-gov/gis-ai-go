@@ -1,7 +1,7 @@
 # MCP-201 verification record
 
-- status: shared catalogue contract and inactive gateway candidate accepted on
-  protected `main`; EVID-204A remains an inactive local candidate
+- status: shared catalogue, inactive gateway and EVID-204A slices accepted on
+  protected `main`; MCP and direct-API transport slice remains a local candidate
 - reviewed on: 20 August 2026
 - work item: [MCP-201](https://github.com/chris-page-gov/gis-ai-go/issues/19)
 
@@ -181,18 +181,145 @@ The pull-request head and protected-main merge both resolve to tree
 code-scanning alerts at the end of that window. No job failed: GitHub created no
 check suite or workflow run for the merge.
 
+## Local MCP and direct-API transport candidate
+
+- protected-main base: `997d5fdd478797b20b05d1980be8f986645d410e`
+- candidate implementation commit:
+  `fb0234b9a6a968fe68c2fbe98388f2415393c9c1`
+- pull request, remote CI, CodeQL and attestation: not yet created
+- deployment, public service URL and registry entry: none
+- activation state: blocked; default MCP tool and direct-API arrays empty;
+  resources default to none
+
+### Candidate outcome
+
+The exact local candidate commit adds direct POST search and description handlers,
+an MCP 2026-07-28 HTTP route and a protocol-clean STDIO entry point. All use one
+checksum-verified catalogue snapshot, the same application, exact canonical
+request and result schemas, and the existing canonical inline evidence path.
+
+Explicit constructor options can register the two direct operations, MCP tools and
+read-only catalogue resources for local conformance and embedding tests. Omission
+uses the frozen activation document, which advertises no direct operation or MCP
+tool; MCP resources also default to none. Neither shipped entry point supplies an
+override. The default OpenAPI document has no catalogue path and readiness remains
+`503`.
+
+The pinned split SDK roles are:
+
+- `@modelcontextprotocol/server@2.0.0` for the modern server factory, HTTP handler
+  and STDIO transport;
+- `@modelcontextprotocol/node@2.0.0` for the streaming Node adapter, with its Node
+  adapter dependencies locked transitively; and
+- development-only `@modelcontextprotocol/client@2.0.0` for conformance tests.
+
+The published server 2.0.0 HTTP handler can dispatch a modern request whose body
+declares protocol revision 2026-07-28 even when the required
+`MCP-Protocol-Version` header is absent. The candidate applies a narrow guard for
+that exact case and returns HTTP `400` with JSON-RPC code `-32020`; legacy requests,
+notifications and other revision disagreement continue through the pinned SDK.
+See [upstream issue 2589][sdk-header-defect].
+
+The local conformance registration can return the serialised verified public bundle
+and individual verified records as MCP resources. Repository and catalogue text is
+untrusted metadata, not instruction or authority. No resource read or tool call
+causes a provider network request.
+
+Protocol revision `2026-07-28` is stateless and has no modern `initialize` or
+`initialized` exchange. Conformance therefore uses pinned version negotiation and
+`server/discover`; explicit legacy `initialize` probes are rejected with `-32022`
+over HTTP and STDIO.
+
+The compiled gateway loads its direct and MCP schemas from the repository-level
+canonical `schemas/` directory. It is verified in the full checkout layout;
+`apps/mcp-gateway/dist/` is not claimed as a standalone distribution.
+
+### Bounds and hostile-input boundary
+
+- direct JSON request: 32,768 bytes; serialised direct result value: 4,194,304
+  bytes;
+- MCP HTTP JSON request: 65,536 bytes;
+- MCP tool result, complete encoded resource response and STDIO frame buffer:
+  1,048,576 bytes; individual resource text: 262,144 bytes;
+- strict JSON nesting: at most 16 levels, with malformed UTF-8 or JSON, invalid
+  Unicode, non-finite numbers and decoded duplicate keys rejected;
+- request target: 4,096 characters; header block: 16,384 bytes; header count: 64;
+- default concurrent requests: 32, with a validated constructor range of 1 to 128;
+- requests per socket: 100; and
+- header and request-body expiry thresholds: 5 seconds, checked every 1 second;
+  keep-alive and socket inactivity: 5 seconds.
+
+The time controls bound ingress and idle sockets. They are not evidence of a
+wall-clock application execution deadline, service-level objective or durable rate
+limit. MCP exact Origin rejection happens before body receipt; direct exact Origin
+rejection happens after its bounded ingress read and before dispatch. Malformed or
+oversized framing closes the connection after a bounded response. Admission beyond the
+concurrency limit returns a face-appropriate `429` response with `Retry-After: 1`;
+capacity is released after a completed or abandoned request. Shutdown is
+idempotent and closes MCP state before the HTTP listener.
+
+### Current verification state
+
+Focused development checks exercise:
+
+- zero default discovery and explicit registration ordering;
+- exact direct/MCP schemas, successful result parity and canonical invalid-input
+  problem parity;
+- fresh server-generated identities independent of reused JSON-RPC IDs;
+- modern raw HTTP and STDIO transcripts, legacy rejection, required headers,
+  dual `Accept` media types and pinned SDK-client conformance;
+- bounded complete structured results with JSON text fallback;
+- public bundle and record-template resources without provider calls;
+- malformed, duplicate-key and oversized JSON, ambiguous headers, Host and Origin
+  rejection, concurrent admission and clean shutdown; and
+- built-runtime entry points and the full-checkout canonical-schema dependency.
+
+The exact frozen local candidate passes:
+
+- 19 of 19 shared-contract, 20 of 20 canonical-evidence, 2 of 2
+  authority-context, 6 of 6 policy-client and 86 of 86 gateway tests;
+- 16 of 16 Explorer build-policy, 42 of 42 Explorer unit and component, 95 of
+  95 repository Python, 2 of 2 execution-boundary and 27 of 27 real-browser tests;
+- two clean byte-identical release builds at archive SHA-256
+  `ff7d3e19bfbf12d610526e3e62a3fc14e6c7960a34ddbf3190eb044a74767035`,
+  checksum-file SHA-256
+  `ef853c93e2344ade0acbc1d86bb9fd4fa63edebb4e6b1cf0bba529f166fad595`
+  and receipt SHA-256
+  `878126c9d05652889e35a45e653ca084b0aacd6c12d89180e018ad21324218d6`;
+- validation of 11 version manifests and locks, 15 schemas, 55 records and 3
+  evaluation manifests;
+- 308 local links, 183 immutable research hashes, 2 ledger snapshots and 71 source
+  identifiers; a clean 516-file secret and machine-path scan; 9 diagrams; and a
+  163-component CycloneDX SBOM; and
+- two independent final reviews with no P0–P2 finding in the frozen
+  post-remediation working tree. A separate completed security diff review also
+  found no P0–P2 issue but retained its original snapshot warning. Post-snapshot
+  corrections were manually reviewed and dynamically tested; the candidate commit,
+  tree and attestation remain the durable identity.
+
+Pull-request assurance, CodeQL and protected-main evidence remain pending. None of
+the historical accepted evidence above accepts these candidate bytes.
+
+Pinned SDK-client conformance is not independent major-host interoperability.
+Complete non-App result values exist, but host-specific fallback, lifecycle and
+usability journeys remain unverified. These are activation blockers, not deferred
+documentation.
+
 ## Activation and publication boundary
 
-No service or new public endpoint is published by either slice. The supported
-public product remains the static `v0.1.0` Explorer.
+No service or new public endpoint is published by any accepted or local slice. The
+supported public product remains the static `v0.1.0` Explorer.
 
-The EVID-204A local candidate changes the activation reason to
-`transport-and-interoperability-unverified` only after adding reviewed public policy
-decisions and required canonical inline result receipts to the shared application
-path. It does not activate an operation. A later reviewed MCP-201 change must add
-and test the protocol-conformant MCP listener, direct catalogue routes, lifecycle
-agreement and interoperability before either operation can be advertised or
+EVID-204A changed the activation reason to
+`transport-and-interoperability-unverified` after adding reviewed public policy
+decisions and required canonical inline result receipts. The current local slice
+implements the transport and direct route code without changing that activation
+document. Independent major-host interoperability, fallback and lifecycle evidence,
+protected pull-request and protected-main assurance, and a separate reviewed
+activation decision are still required before either operation can be advertised or
 published.
 
 The durable candidate boundary is documented in
-[MCP-201 inactive gateway candidate](MCP-201_GATEWAY_CANDIDATE.md).
+[MCP-201 blocked transport candidate](MCP-201_GATEWAY_CANDIDATE.md).
+
+[sdk-header-defect]: https://github.com/modelcontextprotocol/typescript-sdk/issues/2589

@@ -2,20 +2,25 @@
   "openapi": "3.1.1",
   "info": {
     "title": "GIS AI GO gateway candidate",
-    "summary": "Inactive local gateway candidate over the governed public catalogue",
-    "description": "This contract exposes health, blocked readiness and itself. It mounts no catalogue operation.",
+    "summary": "Local conformance candidate over the governed public catalogue",
+    "description": "This contract describes only the routes selected for one local candidate. Catalogue routes are mounted only through an explicit conformance option. This document does not describe a public deployment or supported release.",
     "version": "0.1.0"
   },
   "servers": [
     {
       "url": "http://127.0.0.1:8787",
-      "description": "Local candidate only"
+      "description": "Loopback candidate only"
     }
   ],
   "security": [],
   "x-gis-ai-go-lifecycle": "candidate-blocked",
   "x-gis-ai-go-active-catalogue-operations": [],
+  "x-gis-ai-go-mounted-candidate-catalogue-operations": [
+    "catalogue.describe",
+    "catalogue.search"
+  ],
   "x-gis-ai-go-blocked-by": "transport-and-interoperability-unverified",
+  "x-gis-ai-go-public-deployment": false,
   "paths": {
     "/healthz": {
       "get": {
@@ -31,6 +36,15 @@
                 }
               }
             }
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidRequest"
+          },
+          "406": {
+            "$ref": "#/components/responses/NotAcceptable"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
           }
         }
       }
@@ -41,7 +55,7 @@
         "summary": "Report the deliberate activation block",
         "responses": {
           "503": {
-            "description": "No catalogue operation is active",
+            "description": "The candidate remains blocked from activation",
             "content": {
               "application/json": {
                 "schema": {
@@ -49,6 +63,15 @@
                 }
               }
             }
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidRequest"
+          },
+          "406": {
+            "$ref": "#/components/responses/NotAcceptable"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
           }
         }
       }
@@ -56,10 +79,10 @@
     "/openapi.json": {
       "get": {
         "operationId": "openApiContract",
-        "summary": "Read this candidate contract",
+        "summary": "Read this exact local-candidate contract",
         "responses": {
           "200": {
-            "description": "The exact local candidate OpenAPI document",
+            "description": "The exact contract for routes mounted by this local candidate",
             "content": {
               "application/json": {
                 "schema": {
@@ -67,13 +90,233 @@
                 }
               }
             }
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidRequest"
+          },
+          "406": {
+            "$ref": "#/components/responses/NotAcceptable"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/catalogue/search": {
+      "post": {
+        "operationId": "catalogueSearch",
+        "summary": "Search the verified public catalogue",
+        "description": "A local conformance route using the same policy and evidence-producing application path as the MCP candidate. It is not a public deployment.",
+        "x-gis-ai-go-operation": "catalogue.search",
+        "x-gis-ai-go-lifecycle": "candidate-conformance-only",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CatalogueSearchRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "A bounded search result with its required inline evidence receipt",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogueSearchResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidRequest"
+          },
+          "406": {
+            "$ref": "#/components/responses/NotAcceptable"
+          },
+          "422": {
+            "$ref": "#/components/responses/ComplexityLimitExceeded"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/catalogue/describe": {
+      "post": {
+        "operationId": "catalogueDescribe",
+        "summary": "Describe one verified public catalogue record",
+        "description": "A local conformance route using the same policy and evidence-producing application path as the MCP candidate. It is not a public deployment.",
+        "x-gis-ai-go-operation": "catalogue.describe",
+        "x-gis-ai-go-lifecycle": "candidate-conformance-only",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CatalogueDescribeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "A bounded record description with its required inline evidence receipt",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogueDescribeResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecordNotFound"
+          },
+          "406": {
+            "$ref": "#/components/responses/NotAcceptable"
+          },
+          "422": {
+            "$ref": "#/components/responses/ComplexityLimitExceeded"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
           }
         }
       }
     }
   },
   "components": {
+    "responses": {
+      "InvalidRequest": {
+        "description": "The request does not meet the closed transport or operation contract",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/CatalogueProblem"
+            }
+          }
+        }
+      },
+      "RecordNotFound": {
+        "description": "The requested catalogue record does not exist",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/CatalogueProblem"
+            }
+          }
+        }
+      },
+      "NotAcceptable": {
+        "description": "The client does not accept a JSON result",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/CatalogueProblem"
+            }
+          }
+        }
+      },
+      "ComplexityLimitExceeded": {
+        "description": "The bounded search complexity limit was exceeded",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/CatalogueProblem"
+            }
+          }
+        }
+      },
+      "RateLimited": {
+        "description": "The bounded listener has no free request-admission slot",
+        "headers": {
+          "Retry-After": {
+            "description": "Seconds to wait before trying the request again",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/CatalogueProblem"
+            }
+          }
+        }
+      },
+      "InternalError": {
+        "description": "The candidate failed without exposing internal information",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/CatalogueProblem"
+            }
+          }
+        }
+      }
+    },
     "schemas": {
+      "CatalogueSearchRequest": {
+        "$ref": "urn:gis-ai-go:schema:catalogue-search-request:v1"
+      },
+      "CatalogueDescribeRequest": {
+        "$ref": "urn:gis-ai-go:schema:catalogue-describe-request:v1"
+      },
+      "CatalogueSearchResult": {
+        "allOf": [
+          {
+            "$ref": "urn:gis-ai-go:schema:catalogue-result:v1"
+          },
+          {
+            "type": "object",
+            "required": [
+              "operation"
+            ],
+            "properties": {
+              "operation": {
+                "const": "catalogue.search"
+              }
+            }
+          }
+        ]
+      },
+      "CatalogueDescribeResult": {
+        "allOf": [
+          {
+            "$ref": "urn:gis-ai-go:schema:catalogue-result:v1"
+          },
+          {
+            "type": "object",
+            "required": [
+              "operation"
+            ],
+            "properties": {
+              "operation": {
+                "const": "catalogue.describe"
+              }
+            }
+          }
+        ]
+      },
+      "CatalogueProblem": {
+        "$ref": "urn:gis-ai-go:schema:catalogue-problem:v1"
+      },
       "CatalogueIdentity": {
         "type": "object",
         "additionalProperties": false,

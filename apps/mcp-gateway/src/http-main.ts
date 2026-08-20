@@ -15,6 +15,17 @@ async function main(): Promise<void> {
       `GIS AI GO blocked gateway candidate listening on http://${HOST}:${PORT}\n`,
     );
   });
+
+  let stopping = false;
+  const stop = (): void => {
+    if (stopping) return;
+    stopping = true;
+    void server.closeGateway().catch(() => {
+      process.exitCode = 1;
+    });
+  };
+  process.once("SIGINT", stop);
+  process.once("SIGTERM", stop);
 }
 
 await main();

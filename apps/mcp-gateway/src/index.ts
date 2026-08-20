@@ -5,5 +5,8 @@ export * from "./cursor.js";
 export * from "./http-app.js";
 export * from "./http-server.js";
 export * from "./metadata.js";
+export * from "./mcp-http.js";
+export * from "./mcp-server.js";
+export * from "./mcp-stdio.js";
 export * from "./openapi.js";
 export * from "./problem.js";
