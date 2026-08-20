@@ -11,10 +11,11 @@ copied into the static application:
 pnpm run build:explorer
 ```
 
-Generated catalogue files and browser reports are ignored. The eventual GitHub Pages
-workflow publishes only `dist/`, never the repository root or immutable research
-viewer. Deployment remains outside DISC-103 and is controlled by the separate
-DISC-104 publication gate.
+Generated catalogue files and browser reports are ignored. The GitHub Pages
+publication gate packages only the checked `dist/` tree with deterministic
+provenance, receipt, checksums and SBOM. It never publishes the repository root or
+immutable research viewer, and deployment verifies and reuses that exact artefact
+without rebuilding it.
 
 Before Vite runs, the build rejects symlinked or special-file public and distribution
 trees and requires the exact checksum-derived public inventory. The finished
@@ -42,4 +43,18 @@ Run the focused checks with:
 pnpm --filter @gis-ai-go/public-explorer run typecheck
 pnpm --filter @gis-ai-go/public-explorer run test:unit
 pnpm run test:browser
+```
+
+After an accepted Pages deployment, the separate live suite uses explicit expected
+publication identities:
+
+```bash
+PUBLIC_BASE_URL=https://chris-page-gov.github.io/gis-ai-go/ \
+EXPECTED_SOURCE_COMMIT=SOURCE_COMMIT \
+EXPECTED_ARCHIVE_SHA256=ARCHIVE_SHA256 \
+EXPECTED_OKF_CONTENT_ROOT=OKF_CONTENT_ROOT \
+EXPECTED_PAYLOAD_ROOT=PAYLOAD_ROOT \
+EXPECTED_PUBLIC_CHECKSUMS_SHA256=PUBLIC_CHECKSUMS_SHA256 \
+EXPECTED_VERSION=VERSION \
+pnpm --filter @gis-ai-go/public-explorer run test:public
 ```

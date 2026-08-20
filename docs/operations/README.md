@@ -10,3 +10,5 @@ pause. There is no deployed product yet.
 - [Stage 0 verification record](STAGE_0_VERIFICATION.md)
 - [DISC-102 Explorer verification record](DISC-102_VERIFICATION.md)
 - [DISC-103 reviewed examples verification record](DISC-103_VERIFICATION.md)
+- [DISC-104 GitHub Pages runbook](DISC-104_RUNBOOK.md)
+- [DISC-104 GitHub Pages verification record](DISC-104_VERIFICATION.md)
