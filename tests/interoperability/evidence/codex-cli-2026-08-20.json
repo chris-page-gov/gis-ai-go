@@ -1,0 +1,133 @@
+{
+  "schema": "gis-ai-go.qual-206-codex-host-evidence.v1",
+  "status": "not_ready",
+  "observed_at": "2026-08-20T19:26:41.336Z",
+  "source": {
+    "repository": "chris-page-gov/gis-ai-go",
+    "commit": "66507f9a6e6c0da23a8af4682268f9362d93bc06",
+    "version": "0.1.0",
+    "production_activation": false
+  },
+  "host": {
+    "name": "Codex CLI",
+    "version": "0.146.1",
+    "reported_commit": null,
+    "target": "aarch64-apple-darwin",
+    "binary_sha256": "35d248101b211d6248ad4e6b8c1d441fe81236da87afb9f3e9ea51a049e9f179",
+    "model_requested": "gpt-5.6-luna",
+    "model_response_observed": false
+  },
+  "official_guidance": {
+    "mcp": "https://developers.openai.com/codex/mcp/",
+    "non_interactive": "https://developers.openai.com/codex/noninteractive/"
+  },
+  "isolation": {
+    "temporary_codex_home": true,
+    "temporary_profile": true,
+    "temporary_workspace": true,
+    "directory_mode": "0700",
+    "raw_file_mode": "0600",
+    "normal_profile_mutation_observed": false,
+    "remaining_isolated_processes_after_probe": 0,
+    "required_mcp_server": true,
+    "enabled_tools": ["catalogue.search"],
+    "sandbox": "read-only",
+    "ephemeral_session": true,
+    "mcp_child_received_api_credentials": false,
+    "production_activation": false
+  },
+  "case": {
+    "id": "QUAL-206-HOST-002",
+    "operation": "catalogue.search",
+    "corpus_sha256": "23ac9bc1a76d524bd0e250b11b9ba321b09e66bd5921f1463f50c150001cd389",
+    "prompt_bytes": 101,
+    "prompt_sha256": "952f973778e650444650b101598605df45d1529196acb531b4436bbc603274da",
+    "stdin_bytes": 102,
+    "stdin_sha256": "e0f33896a8980656f503bd32f5b99caea1783df8f5c0e82f258676eaa82a46f2",
+    "raw_prompt_published": false
+  },
+  "result": {
+    "readiness": "not_ready",
+    "capability": "unscored",
+    "classification": "protocol-negotiation-failure",
+    "reason": "host-requested-unsupported-mcp-protocol-version",
+    "exit_code": 1,
+    "wall_time_ms": 298.53,
+    "host_requested_protocol_version": "2025-06-18",
+    "server_supported_protocol_versions": ["2026-07-28"],
+    "mcp_error_code": -32022,
+    "task_level_tool_calls": 0,
+    "task_result_observed": false
+  },
+  "telemetry": {
+    "schema": "gis-ai-go.qual-206-host-telemetry.v1",
+    "current_wrapper_exercised": true,
+    "started_at": "2026-08-20T19:26:41.182Z",
+    "response_observed_at": "2026-08-20T19:26:41.336Z",
+    "session_id_sha256": "58d2110120099faeac7b656129a838d03010af5656bc20c1e437af0f3e3dbdb6",
+    "command_sha256": "2035ed51df3f003cd1775435ab921e16013eb94fc9e297dc469dd3a429744408",
+    "bytes": 1313,
+    "sha256": "4eaa710d88ff2a3f74262affa5940c2fc44f32a46ba7ec085e6b712936064511",
+    "mode": "0600",
+    "event_count": 3,
+    "request_count": 1,
+    "response_count": 1,
+    "invalid_frame_count": 0,
+    "non_json_frame_count": 0,
+    "truncated_frame_count": 0,
+    "server_stderr_event_count": 0,
+    "session_end_observed": false,
+    "request": {
+      "method_label": "other",
+      "request_id_sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+      "frame_bytes": 217,
+      "frame_sha256": "dd18641e6b1d8336947e8551ad4c8d903d66c7ff0c9a80c2d37ccda2488e4506",
+      "parameters_bytes": 161,
+      "parameters_sha256": "163cca1e96bb687735e2864ade50de00be830665a0fc3eae05573c1c2d92fb49"
+    },
+    "response": {
+      "outcome": "error",
+      "error_code": -32022,
+      "duration_ms": 151.129542,
+      "frame_bytes": 162,
+      "frame_sha256": "54ae25ac4361cb792dfbbbf0f76c928e007919fcf92949eea11a66fc8ec6fd44"
+    },
+    "raw_content_retained_in_summary": false,
+    "raw_content_published": false
+  },
+  "output": {
+    "stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0600"
+    },
+    "stderr": {
+      "bytes": 1381,
+      "sha256": "187875ec351c0f8929c383c5a7f8a0f4733f317acd6dd0365ad98f75e7d33a49",
+      "mode": "0600",
+      "published": false
+    },
+    "exact_api_key_matches": 0,
+    "token_pattern_matches": 0
+  },
+  "harness": {
+    "node_version": "v26.7.0",
+    "files": [
+      {
+        "path": "scripts/qual_206_conformance_server.mjs",
+        "sha256": "aba0f4415bc9f94443be8b79eee06b03bdd275ca9854218dee30102c20a6778f"
+      },
+      {
+        "path": "scripts/qual_206_telemetry_proxy.mjs",
+        "sha256": "3800e4458932ee1324ad03d64007f23f76f49682a6eabdc191ecf6eaccb501d5"
+      }
+    ]
+  },
+  "limitations": {
+    "cli_commit_not_reported": true,
+    "model_execution_not_observed": true,
+    "session_end_event_not_observed_after_host_abort": true,
+    "capability_result_claimed": false
+  },
+  "boundary": "This records one isolated Codex CLI readiness attempt against the local conformance seam. It does not score catalogue capability, activate or publish the MCP service, or change the supported public product."
+}
