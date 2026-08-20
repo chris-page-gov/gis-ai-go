@@ -6,4 +6,5 @@ and contains no official statistic. Named provider folders contain discovery or
 preflight evidence, not active provider connections.
 
 The ONS folder includes a current, version-bound source and rights preflight. It does
-not activate an adapter or define the still-pending EXEC-202 service envelope.
+not activate an adapter; a later live slice must reuse the accepted EXEC-202 service
+envelope.
