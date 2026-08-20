@@ -31,35 +31,70 @@ Before merge, record:
 - complete repository assurance and CodeQL at the pull-request head; and
 - independent review of the archive, workflow and public-browser boundaries.
 
-The complete local candidate gate passed on 20 August 2026 against the uncommitted
-DISC-104 candidate based on protected `main` at
-`e5a522ee17f3a0a6f5857245c5ae3acd767efc25`:
+The complete local candidate gate most recently passed on 20 August 2026 against
+the Pages compatibility candidate based on protected `main` at
+`8e48e68ed6f072be22d46cc866dac947a7a71a4d`:
 
-- 17 deterministic archive and hostile-input contract tests;
+- 20 deterministic archive and hostile-input contract tests;
 - 10 workflow event, identity, provenance, permission and no-build deployment
   contract tests;
 - 4 gateway tests, 16 Explorer build-policy tests, 42 Explorer unit and component
-  tests, 58 repository Python tests and 2 execution-boundary tests;
+  tests, 61 repository Python tests and 2 execution-boundary tests;
 - 25 existing local real-browser journeys;
 - 8 schemas and 53 evaluation records, 289 local links, 183 immutable research
   hashes, 2 source-ledger snapshots and 71 source identifiers;
-- 442 text files scanned without a baseline secret or machine-path match;
+- 443 text files scanned without a baseline secret or machine-path match;
 - 9 rendered diagrams and a 145-component repository CycloneDX SBOM.
 
-The candidate packager and verifier reproduced uncompressed canonical POSIX ustar
-archive SHA-256
+Before the Pages header compatibility correction, packager and verifier contract
+`1.0.0` reproduced uncompressed canonical POSIX ustar archive SHA-256
 `aca0decf3637e836e0818619456deec75601b0a99475ca6d71b17a23c8fc0f31`
 and payload root
 `9b0f95f52bc77f45924a767cf774f70e9806b5b10b0ccbe0e460701e3e05ee55`
 from merged source commit `e5a522e` and OKF content root
 `c3fdadf975194580d1f659e7f3f3b609099b720129b9d8149801115f659c4040`.
-This is a local rehearsal identity, not the future protected-main publication
-artefact. The archive was extracted under the `/gis-ai-go/` mount and the separate
-public suite passed all 4 identity, accepted-manifest payload, trusted-ledger checksum,
-reviewed-journey, history, network, CSP, accessibility and 320 CSS-pixel tests.
+This is a historical local rehearsal identity, not a compatible protected-main
+publication artefact. The archive was extracted under the `/gis-ai-go/` mount and
+the separate public suite passed all 4 identity, accepted-manifest payload,
+trusted-ledger checksum, reviewed-journey, history, network, CSP, accessibility and
+320 CSS-pixel tests.
 
 All nine external Action pins were independently resolved against their official
 GitHub tag refs; the annotated pnpm tag was dereferenced to its exact commit.
+
+## Pages ingestion compatibility evidence
+
+The first three deployment attempts stopped after validation, provenance,
+configuration and artefact staging had passed:
+
+- runs
+  [`32319998787`](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32319998787)
+  and
+  [`32320096985`](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32320096985)
+  selected the artefact from source commit `9ff1281`;
+- run
+  [`32320645861`](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32320645861)
+  selected the artefact from source commit `8e48e68` after restoring the standard
+  compressed Actions transport;
+- all three reached `actions/deploy-pages`, created a Pages deployment and then
+  returned GitHub's generic `deployment_failed` state; public verification was
+  correctly skipped.
+
+The exact staged archive from the third run retained SHA-256
+`d151284c48467c7420f37c1bca7a99619c3230711a0c5d6a9162f7f12c8ac573`.
+It contained 57 regular members, but all member paths omitted the required `./`
+root and all used numeric owner and group `0`. GitHub's Pages maintainer documents
+the `./` prefix as an intentional ingestion requirement in
+[`actions/deploy-pages` issue 203](https://github.com/actions/deploy-pages/issues/203#issuecomment-1652804586),
+and the same tracker documents root-owned members as a cause of the opaque failure
+in
+[`actions/deploy-pages` issue 58](https://github.com/actions/deploy-pages/issues/58#issuecomment-1367490639).
+
+Packager and verifier contract `1.0.1` therefore requires `./` member paths and
+fixed non-root numeric ownership. Regressions reject an unprefixed path and a
+root-owned member. The deployment job still cannot rebuild or repackage an accepted
+archive; a fresh protected-main build and attestation are required before another
+dispatch.
 
 ## Protected-main source evidence
 

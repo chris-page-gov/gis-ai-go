@@ -134,11 +134,14 @@ class PagesPublicationContractTests(unittest.TestCase):
 
     def _archive_files(self, output: Path | None = None) -> dict[str, bytes]:
         target = output or self.output
+        files: dict[str, bytes] = {}
         with tarfile.open(target / "artifact.tar", mode="r:") as archive:
-            return {
-                member.name: archive.extractfile(member).read()  # type: ignore[union-attr]
-                for member in archive.getmembers()
-            }
+            for member in archive.getmembers():
+                handle = archive.extractfile(member)
+                if handle is None:
+                    self.fail(f"archive member cannot be read: {member.name}")
+                files[VERIFY.logical_tar_member_path(member.name)] = handle.read()
+        return files
 
     def test_builds_and_verifies_exact_deterministic_outputs(self) -> None:
         first = self._build()
@@ -162,12 +165,23 @@ class PagesPublicationContractTests(unittest.TestCase):
         with tarfile.open(self.output / "artifact.tar", mode="r:") as archive:
             members = archive.getmembers()
         self.assertEqual(
-            [member.name for member in members], sorted(member.name for member in members)
+            [member.name for member in members],
+            [f"./{path}" for path in sorted(archive_files)],
         )
         for member in members:
             self.assertTrue(member.isfile())
             self.assertEqual(member.type, tarfile.REGTYPE)
-            self.assertEqual((member.uid, member.gid, member.uname, member.gname), (0, 0, "", ""))
+            self.assertEqual(
+                (member.uid, member.gid, member.uname, member.gname),
+                (
+                    PACKAGE.ARCHIVE_UID,
+                    PACKAGE.ARCHIVE_GID,
+                    PACKAGE.ARCHIVE_USER_NAME,
+                    PACKAGE.ARCHIVE_GROUP_NAME,
+                ),
+            )
+            self.assertNotEqual(member.uid, 0)
+            self.assertNotEqual(member.gid, 0)
             self.assertEqual((member.mode, member.mtime, member.pax_headers), (0o644, 0, {}))
 
     def test_public_checksum_ledger_is_complete_fetchable_and_acyclic(self) -> None:
@@ -206,6 +220,10 @@ class PagesPublicationContractTests(unittest.TestCase):
         self.assertEqual(receipt["schema"], "gis-ai-go.pages-archive-receipt.v1")
         self.assertEqual(manifest["schema"], "gis-ai-go.pages-manifest.v1")
         self.assertEqual(provenance["schema"], "gis-ai-go.pages-provenance.v1")
+        self.assertEqual(
+            provenance["builder"],
+            {"name": "scripts/package_pages.py", "version": "1.0.1"},
+        )
         self.assertEqual(site_receipt["schema"], "gis-ai-go.pages-site-receipt.v1")
         self.assertEqual((sbom["bomFormat"], sbom["specVersion"]), ("CycloneDX", "1.6"))
         for document in (receipt, manifest, provenance, site_receipt):
@@ -323,19 +341,62 @@ class PagesPublicationContractTests(unittest.TestCase):
     def test_rejects_hard_link_tar_member(self) -> None:
         buffer = io.BytesIO()
         with tarfile.open(fileobj=buffer, mode="w", format=tarfile.USTAR_FORMAT) as archive:
-            regular = tarfile.TarInfo("index.html")
+            regular = tarfile.TarInfo("./index.html")
             regular.size = 1
             regular.mode = 0o644
+            regular.uid = VERIFY.ARCHIVE_UID
+            regular.gid = VERIFY.ARCHIVE_GID
             regular.mtime = 0
             archive.addfile(regular, io.BytesIO(b"x"))
-            linked = tarfile.TarInfo("linked.html")
+            linked = tarfile.TarInfo("./linked.html")
             linked.type = tarfile.LNKTYPE
-            linked.linkname = "index.html"
+            linked.linkname = "./index.html"
             linked.mode = 0o644
+            linked.uid = VERIFY.ARCHIVE_UID
+            linked.gid = VERIFY.ARCHIVE_GID
             linked.mtime = 0
             archive.addfile(linked)
         with self.assertRaisesRegex(ValueError, "regular files only"):
             VERIFY.read_archive(buffer.getvalue())
+
+    def test_rejects_root_owned_tar_member(self) -> None:
+        buffer = io.BytesIO()
+        with tarfile.open(fileobj=buffer, mode="w", format=tarfile.USTAR_FORMAT) as archive:
+            member = tarfile.TarInfo("./index.html")
+            member.size = 1
+            member.mode = 0o644
+            member.uid = 0
+            member.gid = 0
+            member.mtime = 0
+            archive.addfile(member, io.BytesIO(b"x"))
+        with self.assertRaisesRegex(ValueError, "non-root ownership"):
+            VERIFY.read_archive(buffer.getvalue())
+
+    def test_rejects_tar_member_without_pages_root_prefix(self) -> None:
+        buffer = io.BytesIO()
+        with tarfile.open(fileobj=buffer, mode="w", format=tarfile.USTAR_FORMAT) as archive:
+            member = tarfile.TarInfo("index.html")
+            member.size = 1
+            member.mode = 0o644
+            member.uid = VERIFY.ARCHIVE_UID
+            member.gid = VERIFY.ARCHIVE_GID
+            member.mtime = 0
+            archive.addfile(member, io.BytesIO(b"x"))
+        with self.assertRaisesRegex(ValueError, "must start with './'"):
+            VERIFY.read_archive(buffer.getvalue())
+
+    def test_rejects_noncanonical_or_traversing_pages_member_paths(self) -> None:
+        for value in (
+            "./../index.html",
+            "././index.html",
+            ".//index.html",
+            "./assets//app.js",
+            "./assets/./app.js",
+            "./assets/",
+            "./.",
+        ):
+            with self.subTest(value=value), self.assertRaisesRegex(ValueError, "unsafe"):
+                VERIFY.logical_tar_member_path(value)
 
     def test_cli_contract_builds_then_verifies(self) -> None:
         package = subprocess.run(

@@ -27,8 +27,10 @@ archive-receipt.json
 ```
 
 The tar contains only the generated site plus `.nojekyll` and the
-`publication/` manifest, checksums, provenance, site receipt and SBOM.
-The Actions service applies its standard compressed outer transport; this does not
+`publication/` manifest, checksums, provenance, site receipt and SBOM. Every member
+is stored below the explicit `./` root with deterministic non-root ownership, mode
+`0644` and epoch modification time, as checked by the independent verifier. The
+Actions service applies its standard compressed outer transport; this does not
 change the inner `artifact.tar` or its accepted SHA-256.
 
 ## First-time repository configuration
