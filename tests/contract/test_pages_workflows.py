@@ -148,6 +148,7 @@ class PagesWorkflowTests(unittest.TestCase):
         self.assertIn("name: github-pages", deploy)
         self.assertIn("artifact_name: github-pages", deploy)
         self.assertIn("sha256sum --check --strict artifact.tar.sha256", deploy)
+        self.assertNotIn("compression-level: 0", deploy)
 
     def test_deployment_workflow_never_rebuilds_the_site(self) -> None:
         for forbidden in (

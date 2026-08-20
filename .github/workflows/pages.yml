@@ -338,7 +338,6 @@ jobs:
           path: artifacts/pages/artifact.tar
           if-no-files-found: error
           retention-days: 1
-          compression-level: 0
 
       - name: Deploy unchanged Pages archive
         id: deployment

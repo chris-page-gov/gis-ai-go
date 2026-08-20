@@ -34,7 +34,8 @@ a manually dispatched workflow on `main` that must:
 2. download the named retained artefact rather than check out and rebuild the site;
 3. verify its declared SHA-256 digest, deterministic receipt and GitHub build
    provenance;
-4. upload that unchanged tar as the current `github-pages` artefact;
+4. upload that unchanged tar as the current `github-pages` artefact, using the
+   Actions service's standard compressed transport wrapper;
 5. deploy through the branch-restricted `github-pages` environment; and
 6. run the public-browser suite against the returned Pages URL.
 
