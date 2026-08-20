@@ -1,6 +1,6 @@
 # MCP-201 inactive gateway candidate
 
-- status: local candidate; activation and publication blocked
+- status: merged inactive candidate; activation and publication blocked
 - work item: [MCP-201](https://github.com/chris-page-gov/gis-ai-go/issues/19)
 - protected-main base: `e5e6d4db5ac7036198cde64279e815f214f3defd`
 - supported public product: immutable
@@ -95,5 +95,4 @@ interoperability. Only that reviewed change may replace the block and advertise 
 catalogue capability.
 
 See the [verification record](MCP-201_VERIFICATION.md) for the distinction between
-protected-main shared-contract evidence, accepted local candidate evidence and
-pending remote candidate evidence.
+the two protected-main slices and their accepted evidence.

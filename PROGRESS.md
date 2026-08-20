@@ -11,21 +11,19 @@ The supported target active set is exactly `catalogue.search`,
 
 ## Active workstream
 
-`MCP-201 — Implement the first catalogue transport slice`
+`EVID-204 — Add canonical public inline evidence`
 
-- use the accepted lifecycle boundary from
-  [`ADR-0009`](docs/decisions/ADR-0009-read-only-mcp-tool-lifecycle.md);
-- pass the inactive loopback gateway candidate through the protected pull-request
-  gate without changing the supported public product;
-- retain the checksum-verified immutable catalogue loader and deterministic,
-  transport-neutral `catalogue.search`/`catalogue.describe` application;
-- expose only health, blocked readiness and OpenAPI while policy and inline
-  evidence are unavailable;
-- advertise no tool and mount no catalogue API operation in this candidate;
-- retain policy, evidence, rate and complexity boundaries in every public contract;
-  and
-- require EVID-204 and later non-App MCP, direct API and static-product
-  interoperability evidence before any public service or registry entry.
+- add one server-constructed anonymous-open authority context and compiled public
+  policy with default deny;
+- add deterministic canonical JSON, domain-separated content identities and a
+  closed inline receipt for catalogue search and description results;
+- bind each receipt to the normalised parameters, exact catalogue publication,
+  result core, public rights obligations, software and trace identifiers;
+- state explicitly that the inline receipt is not persisted and not attested;
+- expose no receipt URI, evidence lookup, event ledger, MCP tool or direct API route;
+- keep readiness blocked and the supported static `v0.1.0` product unchanged; and
+- defer persistence, `evidence.inspect`, provider/execution receipts and full trace
+  propagation to their separately reviewed slices.
 
 ## Completed
 
@@ -99,24 +97,28 @@ The supported target active set is exactly `catalogue.search`,
   query-analysis bounds and the shared catalogue core without activating a tool;
   and
 - the existing Explorer adopts a reusable shared catalogue foundation without
-  gaining any dependency on a running service.
+  gaining any dependency on a running service;
+- the inactive gateway candidate merged through
+  [pull request 27](https://github.com/chris-page-gov/gis-ai-go/pull/27) as
+  `4948890c10adb4f0ac6f427cda21cb0c0c4607dd`, after passing pull-request assurance,
+  all CodeQL language analyses and an independent no-P0-P2 review; and
+- the candidate verifies the immutable catalogue, supplies deterministic bounded
+  in-process search and description, and exposes only loopback health, blocked
+  readiness and OpenAPI with zero active tools or API operations.
 
 ## Next
 
-1. Pass the locally verified inactive gateway candidate through the protected
-   pull-request gate while keeping readiness blocked and the public product unchanged.
-2. EVID-204 must add reviewed public policy decisions and canonical inline evidence
-   receipts to the shared application path.
-3. Add and verify the protocol-conformant MCP listener and direct catalogue routes,
+1. Add the bounded EVID-204 anonymous-open public policy and canonical inline receipt
+   slice while keeping readiness blocked and persistence absent.
+2. Add and verify the protocol-conformant MCP listener and direct catalogue routes,
    then activate `catalogue.search` and `catalogue.describe` only when their full
    policy, evidence, lifecycle and interoperability gates pass.
-4. Activate `evidence.inspect`, `selection.resolve` and `data.query` only after
+3. Activate `evidence.inspect`, `selection.resolve` and `data.query` only after
    their separate evidence gates pass; keep the other seven profiles planned.
 
 ## Current blockers
 
-- No blocker is known for merging the deliberately inactive local gateway
-  candidate.
+- No blocker is known for the bounded EVID-204 inline-evidence slice.
 - Activating or publishing a catalogue service is hard-blocked until EVID-204 adds
   reviewed public policy and canonical inline evidence receipts. The current
   candidate has no activation override.
@@ -135,11 +137,15 @@ The supported target active set is exactly `catalogue.search`,
   [run 32338916269](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32338916269)
   and [attestation 41792357](https://github.com/chris-page-gov/gis-ai-go/attestations/41792357);
 - MCP-201 gateway candidate: exact implementation commit
-  `442f788108106744e1e2ed7283e38c2a22aac5f1` passes the complete local gate and an
-  independent no-P0-P2 review; draft
-  [pull request 27](https://github.com/chris-page-gov/gis-ai-go/pull/27) is open with
-  protected checks pending, and the candidate exposes no catalogue operation, MCP
-  tool or public deployment;
+  `442f788108106744e1e2ed7283e38c2a22aac5f1` passed the complete local gate and an
+  independent no-P0-P2 review; protected
+  [pull request 27](https://github.com/chris-page-gov/gis-ai-go/pull/27) passed
+  assurance in
+  [run 32344360889](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32344360889)
+  and CodeQL in
+  [run 32344358198](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32344358198),
+  then merged as `4948890c10adb4f0ac6f427cda21cb0c0c4607dd`; the candidate exposes no
+  catalogue operation, MCP tool or public deployment;
 - current complete local gate: type checking, 38 gateway tests, 16 Explorer
   build-policy tests, 42 Explorer unit and component tests, 88 repository Python
   tests, 2 execution-boundary tests and 27 real-browser tests pass;
