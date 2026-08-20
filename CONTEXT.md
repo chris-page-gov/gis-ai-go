@@ -120,6 +120,18 @@ deployment, public service URL or registry entry. Pinned SDK conformance does no
 replace the still-pending independent host and non-App fallback evidence required
 before activation.
 
+An EXEC-202 local merge candidate now replaces the Stage 0 Python rejection stub
+with one private deterministic `fixture.features.query` operation. Versioned closed
+schemas and a TypeScript gateway builder/response validator preserve W3C trace and
+the exact synthetic provider, dataset, version, rights and source URI across the
+gateway-Python round trip. Python independently bounds CRS, axis order, Polygon
+validity, features, coordinates, input/output bytes, complexity, a 30-second
+deadline and cooperative cancellation. It has no end-user authentication, policy
+authority, live provider, arbitrary URL/path/SQL/code route or public ingress. The
+digest-pinned container runs non-root and passes read-only, network-none acceptance.
+The complete local repository gate passes, but this candidate has no accepted
+commit, pull request, protected-main assurance, deployment or registry entry yet.
+
 ## Non-negotiable boundaries
 
 - Keep `docs/research/2026-08-19/` byte-for-byte unchanged.

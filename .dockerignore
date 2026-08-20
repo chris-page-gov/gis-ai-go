@@ -1,0 +1,15 @@
+.git
+.venv
+.uv-cache
+artifacts
+apps
+docs
+evaluation
+node_modules
+packages
+providers
+tests
+*.md
+*.zip
+__pycache__
+*.pyc

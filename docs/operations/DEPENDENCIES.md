@@ -18,6 +18,7 @@ All installed dependencies are exact in `pnpm-lock.yaml` or `uv.lock`.
 | Playwright | `1.62.1` | Real-browser Explorer acceptance using runner Chrome |
 | axe-core Playwright integration | `4.13.0` | Automated WCAG 2.2 A and AA checks |
 | Python | `>=3.12` | Portable deterministic service and assurance scripts |
+| Official Python container | `3.12.14-slim-bookworm` at multi-architecture digest `sha256:a116514e19457bcb7af7efe9c3dd0b9b71e85b317694e7882a1c52aa15a78134` | Private synthetic execution acceptance |
 | uv | `0.12.2` | Python workspace and lock |
 | jsonschema | `4.26.0` | Draft 2020-12 OKF, schema and fixture validation |
 
@@ -37,7 +38,12 @@ schemas; it is not a standalone distribution. This prevents a second copied sche
 set from drifting from the direct API and MCP advertisements.
 
 The Explorer has no production runtime dependency. No provider SDK, geospatial
-runtime, OPA binary, database driver or cloud dependency is present. The local
+runtime, OPA binary, database driver or cloud dependency is present. EXEC-202 adds
+no Python package dependency: its geometry, HTTP and cancellation acceptance use
+the standard library over checked-in synthetic records. Its official Python base
+is tag-and-digest pinned, runs non-root and is bound into the repository SBOM; full
+operating-system package inventory and image attestation remain release-image
+gates. The local
 gateway transports read only the checksum-verified catalogue and make no provider
 network call. Additions follow the live roadmap and dependency assurance rules.
 

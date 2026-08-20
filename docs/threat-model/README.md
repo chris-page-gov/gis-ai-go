@@ -39,3 +39,9 @@ copy; there is no silent or in-place repair.
 The immutable descriptor also fixes a bounded minimum retention period and each
 record exposes `retain_until`. No deletion is implemented; production disposal
 policy and evidence remain open.
+
+## EXEC-202 private execution scope
+
+[`EXEC-202.md`](EXEC-202.md) records the private synthetic execution trust boundary,
+controls and residual risks. It does not approve a public listener, live provider or
+production deployment.

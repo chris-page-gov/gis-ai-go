@@ -1,25 +1,33 @@
-"""Reject live execution until a later stage is explicitly approved."""
+"""Public metadata for the closed private execution boundary."""
 
-from dataclasses import dataclass
-from typing import NoReturn
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from typing import Any
+
+from .service import ExecutionService
 
 
-class StageZeroBoundaryError(RuntimeError):
-    """Raised when execution is attempted during Stage 0."""
-
-
-@dataclass(frozen=True, slots=True)
+@dataclass(slots=True)
 class ExecutionBoundary:
-    """Metadata and fail-closed execution boundary for the Stage 0 scaffold."""
+    """A private synthetic-only boundary with no identity or policy authority."""
 
     product: str = "GIS AI GO"
     service: str = "gis-ai-go-execution"
-    stage: int = 0
+    stage: int = 2
     live_provider_calls: bool = False
+    end_user_authentication: bool = False
+    policy_authority: bool = False
+    public_ingress: bool = False
+    operations: tuple[str, ...] = ("fixture.features.query",)
+    _executor: ExecutionService = field(default_factory=ExecutionService, repr=False)
 
-    def execute(self, operation: str) -> NoReturn:
-        """Reject every operation until deterministic execution is implemented."""
+    def execute(self, request: Any, *, raw_size: int | None = None) -> dict[str, Any]:
+        """Execute one validated gateway envelope through the allowlisted service."""
 
-        raise StageZeroBoundaryError(
-            f"Stage 0 cannot execute {operation!r}; live execution is not authorised"
-        )
+        return self._executor.execute(request, raw_size=raw_size)
+
+    def cancel(self, request_id: str) -> bool:
+        """Cancel one active private execution."""
+
+        return self._executor.cancel(request_id)

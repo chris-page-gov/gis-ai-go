@@ -1,0 +1,13 @@
+{
+  "schema": "gis-ai-go.execution-problem.v1",
+  "request_id": "exec-202-example",
+  "trace": {
+    "traceparent": "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01",
+    "tracestate": "gis-ai-go=synthetic"
+  },
+  "status": 422,
+  "code": "INVALID_CRS",
+  "title": "Invalid coordinate reference system",
+  "detail": "The fixture operation accepts EPSG 4326 only.",
+  "retryable": false
+}

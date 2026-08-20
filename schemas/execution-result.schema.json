@@ -1,0 +1,211 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:execution-result:1",
+  "title": "GIS AI GO private execution result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "request_id",
+    "operation",
+    "status",
+    "trace",
+    "data",
+    "evidence"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gis-ai-go.execution-result.v1"
+    },
+    "request_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._:-]{0,127}$"
+    },
+    "operation": {
+      "const": "fixture.features.query"
+    },
+    "status": {
+      "const": "succeeded"
+    },
+    "trace": {
+      "$ref": "urn:gis-ai-go:schema:execution-request:1#/$defs/trace"
+    },
+    "data": {
+      "$ref": "#/$defs/featureCollection"
+    },
+    "evidence": {
+      "$ref": "#/$defs/evidence"
+    }
+  },
+  "$defs": {
+    "source": {
+      "$ref": "urn:gis-ai-go:schema:execution-request:1#/$defs/source"
+    },
+    "point": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "coordinates"],
+      "properties": {
+        "type": {
+          "const": "Point"
+        },
+        "coordinates": {
+          "$ref": "urn:gis-ai-go:schema:execution-request:1#/$defs/position"
+        }
+      }
+    },
+    "feature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id", "geometry", "properties"],
+      "properties": {
+        "type": {
+          "const": "Feature"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^SYN-[0-9]{3}$"
+        },
+        "geometry": {
+          "$ref": "#/$defs/point"
+        },
+        "properties": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["native_id", "name", "category"],
+          "properties": {
+            "native_id": {
+              "type": "string",
+              "pattern": "^SYN-[0-9]{3}$"
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80
+            },
+            "category": {
+              "const": "synthetic-place"
+            }
+          }
+        }
+      }
+    },
+    "featureCollection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "crs", "axis_order", "features"],
+      "properties": {
+        "type": {
+          "const": "FeatureCollection"
+        },
+        "crs": {
+          "const": "EPSG:4326"
+        },
+        "axis_order": {
+          "const": "longitude-latitude"
+        },
+        "features": {
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/$defs/feature"
+          }
+        }
+      }
+    },
+    "transformation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "operation",
+        "source_crs",
+        "source_axis_order",
+        "output_crs",
+        "output_axis_order",
+        "geometry_repair",
+        "geometry_simplification"
+      ],
+      "properties": {
+        "operation": {
+          "const": "synthetic-point-in-polygon-v1"
+        },
+        "source_crs": {
+          "const": "EPSG:4326"
+        },
+        "source_axis_order": {
+          "const": "longitude-latitude"
+        },
+        "output_crs": {
+          "const": "EPSG:4326"
+        },
+        "output_axis_order": {
+          "const": "longitude-latitude"
+        },
+        "geometry_repair": {
+          "const": "none"
+        },
+        "geometry_simplification": {
+          "const": "none"
+        }
+      }
+    },
+    "software": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version", "algorithm"],
+      "properties": {
+        "name": {
+          "const": "gis-ai-go-execution"
+        },
+        "version": {
+          "const": "0.1.0"
+        },
+        "algorithm": {
+          "const": "synthetic-point-in-polygon-v1"
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "input_sha256",
+        "output_sha256",
+        "feature_count",
+        "source",
+        "transformation",
+        "software"
+      ],
+      "properties": {
+        "schema": {
+          "const": "gis-ai-go.execution-evidence.v1"
+        },
+        "input_sha256": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "description": "Labelled SHA-256 of UTF-8 GIS-AI-GO, canonical-json, sha256, v1 and gis-ai-go.execution-parameters.v1, each NUL-delimited, followed by RFC 8785 canonical request parameters."
+        },
+        "output_sha256": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "description": "Labelled SHA-256 of UTF-8 GIS-AI-GO, canonical-json, sha256, v1 and gis-ai-go.execution-result-data.v1, each NUL-delimited, followed by RFC 8785 canonical result data."
+        },
+        "feature_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        },
+        "transformation": {
+          "$ref": "#/$defs/transformation"
+        },
+        "software": {
+          "$ref": "#/$defs/software"
+        }
+      }
+    }
+  }
+}
