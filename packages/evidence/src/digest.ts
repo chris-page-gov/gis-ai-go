@@ -12,7 +12,11 @@ export const CANONICAL_DOMAINS = Object.freeze({
   authorityContext: "gis-ai-go.public-authority-context.v1",
   catalogueParameters: "gis-ai-go.catalogue-parameters.v1",
   catalogueResultCore: "gis-ai-go.catalogue-result-core.v1",
+  evidenceLedgerDescriptor: "gis-ai-go.public-evidence-ledger.v1",
+  evidenceLedgerEvent: "gis-ai-go.evidence-ledger-event.v1",
+  evidenceReplayKey: "gis-ai-go.evidence-replay-key.v1",
   evidenceReceipt: "gis-ai-go.evidence-receipt.v1",
+  publicEvidenceRecord: "gis-ai-go.public-evidence-record.v1",
   publicPolicy: "gis-ai-go.public-policy.v1",
   publicPolicyDecision: "gis-ai-go.public-policy-decision.v1",
 } as const);

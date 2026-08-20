@@ -22,3 +22,4 @@ remain blocked, and no public MCP service or catalogue API is deployed.
 - [MCP-201 inactive transport boundary](MCP-201_GATEWAY_CANDIDATE.md)
 - [MCP-201 verification record](MCP-201_VERIFICATION.md)
 - [EVID-204 canonical public inline evidence](EVID-204_INLINE_EVIDENCE.md)
+- [EVID-204 durable public evidence candidate](EVID-204_DURABLE_LEDGER.md)

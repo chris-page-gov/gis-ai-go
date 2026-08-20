@@ -122,7 +122,7 @@
         },
         "responses": {
           "200": {
-            "description": "A bounded search result with its required inline evidence receipt",
+            "description": "A bounded search result with its required inline evidence receipt and an optional post-write durable storage reference",
             "content": {
               "application/json": {
                 "schema": {
@@ -168,7 +168,7 @@
         },
         "responses": {
           "200": {
-            "description": "A bounded record description with its required inline evidence receipt",
+            "description": "A bounded record description with its required inline evidence receipt and an optional post-write durable storage reference",
             "content": {
               "application/json": {
                 "schema": {

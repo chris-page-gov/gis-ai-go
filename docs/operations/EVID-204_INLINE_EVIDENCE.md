@@ -39,6 +39,11 @@ Readiness remains blocked until transport conformance and interoperability are
 implemented and reviewed. Persistence, corruption recovery and `evidence.inspect`
 remain open acceptance work under EVID-204.
 
+The later inactive durable-ledger candidate is documented separately in
+[`EVID-204_DURABLE_LEDGER.md`](EVID-204_DURABLE_LEDGER.md). It preserves this
+accepted inline receipt as the issue-time record and adds a separate storage event
+and reference only after persistence succeeds.
+
 ## Verification contract
 
 The candidate must pass all of the following before a pull request is opened:

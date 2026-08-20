@@ -21,9 +21,11 @@ import {
 import {
   buildInlineReceipt,
   canonicalJsonClone,
+  PublicEvidenceLedger,
   verifyInlineReceipt,
   type EvidenceSoftwareIdentity,
   type InlineEvidenceReceipt,
+  type PublicEvidenceStorageReference,
   type PublicCatalogueOperation,
   type RecordLicenceObligation,
 } from "@gis-ai-go/evidence";
@@ -167,6 +169,7 @@ export interface CatalogueSearchResultCore {
 
 export interface CatalogueSearchResult extends CatalogueSearchResultCore {
   readonly evidence_receipt: InlineEvidenceReceipt;
+  readonly evidence_storage?: PublicEvidenceStorageReference;
 }
 
 export interface CatalogueDescribeResultCore {
@@ -197,11 +200,17 @@ export interface CatalogueDescribeResultCore {
 
 export interface CatalogueDescribeResult extends CatalogueDescribeResultCore {
   readonly evidence_receipt: InlineEvidenceReceipt;
+  readonly evidence_storage?: PublicEvidenceStorageReference;
 }
 
 export interface CatalogueApplicationOptions {
   readonly software: EvidenceSoftwareIdentity;
   readonly now?: () => Date;
+  /**
+   * Explicit embedding seam for the verified public ledger. Omission preserves
+   * the accepted inline-only, non-persisted result.
+   */
+  readonly evidenceLedger?: PublicEvidenceLedger;
 }
 
 export interface CatalogueApplication {
@@ -218,6 +227,7 @@ export interface CatalogueApplication {
 interface CatalogueEvidenceRuntime {
   readonly software: EvidenceSoftwareIdentity;
   readonly now: () => Date;
+  readonly evidenceLedger?: PublicEvidenceLedger;
 }
 
 interface NormalisedSearchRequest {
@@ -523,8 +533,8 @@ function applicationRuntime(options: CatalogueApplicationOptions): CatalogueEvid
   }
   const optionKeys = Object.keys(options).sort();
   if (
-    (optionKeys.length !== 1 || optionKeys[0] !== "software") &&
-    (optionKeys.length !== 2 || optionKeys[0] !== "now" || optionKeys[1] !== "software")
+    !optionKeys.includes("software") ||
+    optionKeys.some((key) => !["evidenceLedger", "now", "software"].includes(key))
   ) {
     throw new TypeError("Catalogue application options have an unexpected shape");
   }
@@ -546,9 +556,18 @@ function applicationRuntime(options: CatalogueApplicationOptions): CatalogueEvid
   if (options.now !== undefined && typeof options.now !== "function") {
     throw new TypeError("Catalogue application now option must be a function");
   }
+  if (
+    options.evidenceLedger !== undefined &&
+    !(options.evidenceLedger instanceof PublicEvidenceLedger)
+  ) {
+    throw new TypeError("Catalogue application evidence ledger is invalid");
+  }
   return Object.freeze({
     software: canonicalJsonClone(options.software),
     now: options.now ?? (() => new Date()),
+    ...(options.evidenceLedger === undefined
+      ? {}
+      : { evidenceLedger: options.evidenceLedger }),
   });
 }
 
@@ -884,7 +903,7 @@ function resultWithEvidence(
     resultCore: immutableCore,
     licenceObligations: recordLicences,
   });
-  const verification = verifyInlineReceipt(receipt, {
+  const verificationMaterial = {
     normalisedParameters,
     resultCore: immutableCore,
     publicPolicy: policyEvaluation.policy,
@@ -893,11 +912,20 @@ function resultWithEvidence(
     expectedCatalogue: immutableCore.catalogue,
     expectedSoftware: runtime.software,
     licenceObligations: recordLicences,
-  });
+  } as const;
+  const verification = verifyInlineReceipt(receipt, verificationMaterial);
   if (!verification.valid) {
     throw new Error("The catalogue application produced unverifiable inline evidence");
   }
-  return canonicalJsonClone({ ...immutableCore, evidence_receipt: receipt }) as
+  const evidenceStorage = runtime.evidenceLedger?.persistReceipt(
+    receipt,
+    verificationMaterial,
+  ).reference;
+  return canonicalJsonClone({
+    ...immutableCore,
+    evidence_receipt: receipt,
+    ...(evidenceStorage === undefined ? {} : { evidence_storage: evidenceStorage }),
+  }) as
     | CatalogueSearchResult
     | CatalogueDescribeResult;
 }

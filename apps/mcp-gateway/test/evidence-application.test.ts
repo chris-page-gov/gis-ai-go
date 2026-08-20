@@ -1,0 +1,116 @@
+import assert from "node:assert/strict";
+import {
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import test from "node:test";
+import { fileURLToPath } from "node:url";
+
+import { openPublicEvidenceLedger } from "@gis-ai-go/evidence";
+
+import { createCatalogueApplication } from "../src/catalogue-application.js";
+import { loadCatalogueSnapshot } from "../src/catalogue-snapshot.js";
+import {
+  EvidenceInspectError,
+  createEvidenceInspectApplication,
+} from "../src/evidence-application.js";
+
+const SOURCE_CATALOGUE = fileURLToPath(
+  new URL("../../../../artifacts/okf/", import.meta.url),
+);
+const SNAPSHOT = await loadCatalogueSnapshot(SOURCE_CATALOGUE, {
+  now: new Date("2026-08-20T12:00:00Z"),
+});
+const CONTEXT = Object.freeze({
+  requestId: "request-evidence-inspect-001",
+  traceId: "2123456789abcdef0123456789abcdef",
+});
+
+function expectInspectError(
+  run: () => unknown,
+  code: EvidenceInspectError["code"],
+): void {
+  assert.throws(run, (error: unknown) => {
+    assert.ok(error instanceof EvidenceInspectError);
+    assert.equal(error.code, code);
+    return true;
+  });
+}
+
+test("inspects one authorised open receipt without activating a transport", () => {
+  const root = mkdtempSync(join(tmpdir(), "gis-ai-go-evidence-inspect-"));
+  try {
+    const ledger = openPublicEvidenceLedger({
+      rootDirectory: root,
+      retentionDays: 365,
+      now: () => new Date("2026-08-20T12:34:57Z"),
+    });
+    const catalogue = createCatalogueApplication(SNAPSHOT, {
+      software: {
+        name: "gis-ai-go-mcp-gateway",
+        version: "0.1.0",
+        revision: "b".repeat(40),
+      },
+      now: () => new Date("2026-08-20T12:34:56Z"),
+      evidenceLedger: ledger,
+    });
+    const catalogueResult = catalogue.search({ query: "INSPIRE", limit: 1 }, {
+      requestId: "request-persist-before-inspect-001",
+      traceId: "3123456789abcdef0123456789abcdef",
+    });
+    assert.ok(catalogueResult.evidence_storage);
+
+    const application = createEvidenceInspectApplication(ledger);
+    const result = application.inspect(
+      { receipt_id: catalogueResult.evidence_receipt.receipt_id },
+      CONTEXT,
+    );
+    assert.equal(result.operation, "evidence.inspect");
+    assert.equal(
+      result.data.record.receipt.receipt_id,
+      catalogueResult.evidence_receipt.receipt_id,
+    );
+    assert.deepEqual(result.data.storage, catalogueResult.evidence_storage);
+    assert.equal(result.verification.status, "passed");
+    assert.equal(result.verification.ingest_material, "verified-at-ingest-not-retained");
+    assert.equal(result.verification.attestation, "not-attested");
+    assert.equal(Object.isFrozen(result), true);
+
+    for (const request of [
+      {},
+      { receipt_id: catalogueResult.evidence_receipt.receipt_id, extra: true },
+      { receipt_id: catalogueResult.evidence_storage.record_id },
+      { receipt_id: "../../private" },
+    ]) {
+      expectInspectError(() => application.inspect(request, CONTEXT), "invalid_request");
+    }
+    expectInspectError(
+      () =>
+        application.inspect(
+          { receipt_id: `gis-ai-go:evidence-receipt:sha256:${"0".repeat(64)}` },
+          CONTEXT,
+        ),
+      "evidence_not_found",
+    );
+
+    const eventName = readdirSync(join(root, "events"))[0]!;
+    const eventPath = join(root, "events", eventName);
+    const eventText = readFileSync(eventPath, "utf8");
+    writeFileSync(eventPath, eventText.slice(0, -1));
+    expectInspectError(
+      () =>
+        application.inspect(
+          { receipt_id: catalogueResult.evidence_receipt.receipt_id },
+          CONTEXT,
+        ),
+      "evidence_unavailable",
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});

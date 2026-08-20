@@ -22,6 +22,13 @@ It is an implementation workbench, not a supported or deployed service.
   public policy. Its canonical inline receipt binds the exact catalogue, normalised
   parameter digest, result core, gateway revision and record-specific licence
   evidence while stating `not-persisted` and `not-attested`.
+- an optional explicit ledger embedding seam persists a fully verified inline
+  receipt into content-addressed record and event files. Only a completed,
+  re-verified write adds `evidence_storage` to the result. Storage failure fails the
+  operation. The default remains inline-only.
+- `createEvidenceInspectApplication` reads only verified anonymous-open records by
+  receipt identity. It is transport-neutral and is not registered as a route or MCP
+  tool.
 - the HTTP candidate listens only on `127.0.0.1:8787` and exposes `GET /healthz`,
   `GET /readyz` and `GET /openapi.json`. Readiness always returns `503` with zero
   active tools and zero active API operations.
@@ -33,8 +40,9 @@ authority.
 
 The application functions are not mounted on HTTP routes. There is no
 `catalogue.search` or `catalogue.describe` endpoint, MCP listener, MCP tool
-registration, public deployment, provider call, external policy service or evidence
-store.
+registration, public deployment, provider call or external policy service. The
+portable evidence store and inspector are inactive embedding components; no shipped
+entry point supplies their configuration.
 There is no environment-variable or command-line activation override.
 
 Activation remains hard-blocked as

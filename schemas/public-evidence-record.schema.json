@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:public-evidence-record:v1",
+  "title": "GIS AI GO durable public evidence record",
+  "description": "A content-addressed stored record containing one verified anonymous-open inline receipt and no original result material.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "record_id",
+    "ledger_id",
+    "persisted_at",
+    "retain_until",
+    "receipt",
+    "verification",
+    "privacy"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gis-ai-go.public-evidence-record.v1"
+    },
+    "record_id": {
+      "type": "string",
+      "pattern": "^gis-ai-go:public-evidence-record:sha256:[0-9a-f]{64}$"
+    },
+    "ledger_id": {
+      "type": "string",
+      "pattern": "^gis-ai-go:public-evidence-ledger:sha256:[0-9a-f]{64}$"
+    },
+    "persisted_at": {
+      "type": "string",
+      "format": "date-time",
+      "maxLength": 24
+    },
+    "retain_until": {
+      "type": "string",
+      "format": "date-time",
+      "maxLength": 24
+    },
+    "receipt": {
+      "$ref": "urn:gis-ai-go:schema:evidence-receipt:v1"
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "receipt",
+        "restart",
+        "attestation"
+      ],
+      "properties": {
+        "receipt": {
+          "const": "full-material-verified-at-ingest"
+        },
+        "restart": {
+          "const": "structure-and-content-verified"
+        },
+        "attestation": {
+          "const": "not-attested"
+        }
+      }
+    },
+    "privacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "raw_query",
+        "prompt",
+        "geometry",
+        "credentials",
+        "personal_data",
+        "machine_path"
+      ],
+      "properties": {
+        "raw_query": {
+          "const": false
+        },
+        "prompt": {
+          "const": false
+        },
+        "geometry": {
+          "const": false
+        },
+        "credentials": {
+          "const": false
+        },
+        "personal_data": {
+          "const": false
+        },
+        "machine_path": {
+          "const": false
+        }
+      }
+    }
+  }
+}
