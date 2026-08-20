@@ -1,9 +1,9 @@
 # DISC-104 GitHub Pages verification record
 
-- status: implementation candidate
+- status: complete
 - reviewed on: 20 August 2026
 - work item: DISC-104
-- public URL: not deployed
+- public URL: <https://chris-page-gov.github.io/gis-ai-go/>
 
 ## Outcome
 
@@ -19,9 +19,9 @@ Deployment-time verifier and browser-test code always comes from the current
 protected-main workflow commit. A dispatch-selected source commit remains
 non-executable archive identity data.
 
-## Candidate gates
+## Implementation gates
 
-Before merge, record:
+The merge gate recorded:
 
 - deterministic archive tests, including repeated byte-for-byte output;
 - malicious path, symlink, hard-link, special-file, inventory and checksum
@@ -45,6 +45,13 @@ the supported-transport candidate based on protected `main` at
   hashes, 2 source-ledger snapshots and 71 source identifiers;
 - 446 text files scanned without a baseline secret or machine-path match;
 - 9 rendered diagrams and a 145-component repository CycloneDX SBOM.
+
+[Pull request 14](https://github.com/chris-page-gov/gis-ai-go/pull/14) merged the
+supported transport at `a0e826384cf50d9d81b87489dbf3580e8e3602f7`.
+[Main run 32324008595](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32324008595)
+passed both `assurance` and `provenance`.
+[CodeQL run 32324008614](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32324008614)
+passed Actions, JavaScript/TypeScript and Python analysis.
 
 Before the Pages header compatibility correction, packager and verifier contract
 `1.0.0` reproduced uncompressed canonical POSIX ustar archive SHA-256
@@ -102,14 +109,15 @@ All 57 members used the corrected metadata and the fourth workflow uploaded thos
 exact bytes, but Pages still rejected its custom tar encoding.
 
 ADR-0008 therefore retains that deterministic tar as attested source evidence but
-supersedes the unchanged-tar deployment claim. The current workflow candidate
-safely materialises and rechecks its exact logical files, then uses the exact pinned
+supersedes the unchanged-tar deployment claim. The merged workflow safely
+materialises and rechecks its exact logical files, then uses the exact pinned
 official `actions/upload-pages-artifact` implementation to create only the platform
-transport envelope. If that supported path also fails, the run evidence must be
-escalated to GitHub Support rather than prompting another speculative archive
-change.
+transport envelope. This supported path succeeded for both accepted source
+artefacts, the rollback and the restore. No Pages ingestion blocker remains.
 
-## Protected-main source evidence
+## Accepted protected-main source evidence
+
+### Artefact A
 
 - source commit: `eced0ae697818b4989ebe95c5bf1572cc6ec90c2`;
 - successful CI push run: [`32322035483`](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32322035483),
@@ -128,6 +136,23 @@ change.
   and OKF content root
   `c8415e83643b43b6fbde43cf30cf80ce8e5440f69770cfd9433337a5087f37fd`.
 
+### Artefact B
+
+- source commit: `a0e826384cf50d9d81b87489dbf3580e8e3602f7`;
+- successful CI push run: [`32324008595`](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32324008595),
+  including successful `assurance` and `provenance` jobs;
+- `artifact.tar` SHA-256:
+  `262231b123bd9fbd9ae01c5d3c138bd63a53d189a55436f6c1b37eff3b2f9194`;
+- outer receipt SHA-256:
+  `75b7e3d8d6eaaf54a12a22176ba1eda1e8c3ceee2892058e1d04437b7b8bdb6b`;
+- strict GitHub attestation verification: protected `main`, source commit
+  `a0e8263`, `.github/workflows/ci.yml`, GitHub-hosted runner and CI invocation
+  `32324008595` all matched; and
+- product version `0.0.0`, payload root
+  `cbc0893a46a4674ef7d13aa4aebcbeb0355f9c8a08286a6500bfc954cb5d6ef6`
+  and OKF content root
+  `a620158911cc60259f0ceab2af0dfdd886783a50bfe98000d692fd534bd08ec0`.
+
 ## Repository configuration evidence
 
 - Pages build type is `workflow`, the site is public, HTTPS is enforced and no
@@ -140,22 +165,28 @@ change.
 
 ## Deployment and public evidence
 
-Complete after first deployment:
-
-- deployment workflow run, Pages deployment ID and public URL: pending;
-- live receipt identity equals selected source artefact: pending;
-- checksum and JSON/JSON-LD parity: pending;
-- default, Price Paid, ONS, LandIS, direct-route and history journeys: pending;
-- exact CSP, clean console and publication-path-only requests: pending;
-- keyboard, axe A/AA and 320 CSS-pixel acceptance: pending.
+- artefact A original deployment: [run 32324162767](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32324162767),
+  Pages deployment `5994521091`;
+- artefact B original deployment: [run 32324285041](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32324285041),
+  Pages deployment `5994542308`;
+- artefact A rollback: [run 32324385218](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32324385218),
+  Pages deployment `5994560798`; the live receipt was bound to
+  `eced0ae697818b4989ebe95c5bf1572cc6ec90c2`;
+- artefact B restore: [run 32324490516](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32324490516),
+  Pages deployment `5994580314`; the final live receipt is bound to
+  `a0e826384cf50d9d81b87489dbf3580e8e3602f7`; and
+- the public acceptance suite passed after each of the four deployments. The four
+  successful suites covered live receipt identity, checksum and JSON/JSON-LD
+  parity, the default, Price Paid, ONS, LandIS, direct-route and history journeys,
+  exact CSP, a clean console, the publication-path-only network boundary,
+  keyboard use, axe A/AA checks and 320 CSS-pixel acceptance.
 
 ## Rollback rehearsal
 
-Complete with two accepted protected-main artefacts:
+The two accepted protected-main artefacts were retained independently. Run
+`32324385218` redeployed artefact A without a product build and its public suite
+confirmed the older source receipt. Run `32324490516` then redeployed artefact B
+without a product build and its public suite confirmed the restored current source
+receipt.
 
-- artefact A identities and original deployment: pending;
-- artefact B identities and original deployment: pending;
-- rollback run redeploying A without a build and its public evidence: pending;
-- restore run redeploying B without a build and its public evidence: pending.
-
-DISC-104 remains incomplete while any item in this record is pending.
+DISC-104 is complete. `QUAL-105` now owns the release-assurance gate for `v0.1.0`.
