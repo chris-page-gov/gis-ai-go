@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:evidence-inspect-operation-result:v1",
+  "title": "GIS AI GO evidence inspection operation result",
+  "description": "The closed versioned results supported by evidence.inspect before activation.",
+  "oneOf": [
+    { "$ref": "urn:gis-ai-go:schema:evidence-inspect-result:v1" },
+    { "$ref": "urn:gis-ai-go:schema:evidence-inspect-result:v2" }
+  ]
+}

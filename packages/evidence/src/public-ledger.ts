@@ -29,6 +29,12 @@ import {
   type InlineEvidenceReceipt,
   type InlineReceiptVerificationMaterial,
 } from "./receipt.js";
+import {
+  verifyPublicReadReceipt,
+  verifyPublicReadReceiptStructure,
+  type PublicReadEvidenceReceipt,
+  type PublicReadReceiptVerificationMaterial,
+} from "./public-read-receipt.js";
 
 const LEDGER_PREFIX = "gis-ai-go:public-evidence-ledger";
 const RECORD_PREFIX = "gis-ai-go:public-evidence-record";
@@ -115,7 +121,12 @@ export interface PublicEvidenceLedgerDescriptor extends PublicEvidenceLedgerDesc
   readonly ledger_id: string;
 }
 
-export interface PublicEvidenceRecordCore {
+export type PublicEvidenceReceipt = InlineEvidenceReceipt | PublicReadEvidenceReceipt;
+export type PublicEvidenceReceiptVerificationMaterial =
+  | InlineReceiptVerificationMaterial
+  | PublicReadReceiptVerificationMaterial;
+
+export interface PublicEvidenceRecordV1Core {
   readonly schema: "gis-ai-go.public-evidence-record.v1";
   readonly ledger_id: string;
   readonly persisted_at: string;
@@ -136,9 +147,32 @@ export interface PublicEvidenceRecordCore {
   };
 }
 
-export interface PublicEvidenceRecord extends PublicEvidenceRecordCore {
+export interface PublicEvidenceRecordV1 extends PublicEvidenceRecordV1Core {
   readonly record_id: string;
 }
+
+/**
+ * A parallel record identity for public-read v2 receipts. The v1 record schema
+ * and content-address domain remain byte-for-byte unchanged.
+ */
+export interface PublicEvidenceRecordV2Core {
+  readonly schema: "gis-ai-go.public-evidence-record.v2";
+  readonly ledger_id: string;
+  readonly persisted_at: string;
+  readonly retain_until: string;
+  readonly receipt: PublicReadEvidenceReceipt;
+  readonly verification: PublicEvidenceRecordV1Core["verification"];
+  readonly privacy: PublicEvidenceRecordV1Core["privacy"];
+}
+
+export interface PublicEvidenceRecordV2 extends PublicEvidenceRecordV2Core {
+  readonly record_id: string;
+}
+
+export type PublicEvidenceRecordCore =
+  | PublicEvidenceRecordV1Core
+  | PublicEvidenceRecordV2Core;
+export type PublicEvidenceRecord = PublicEvidenceRecordV1 | PublicEvidenceRecordV2;
 
 export interface PublicEvidenceLedgerEventCore {
   readonly schema: "gis-ai-go.evidence-ledger-event.v1";
@@ -603,7 +637,7 @@ function assertDescriptor(value: unknown): asserts value is PublicEvidenceLedger
   }
 }
 
-function replayKey(receipt: InlineEvidenceReceipt): string {
+function replayKey(receipt: PublicEvidenceReceipt): string {
   return domainSeparatedSha256(CANONICAL_DOMAINS.evidenceReplayKey, {
     request_id: receipt.request_id,
     trace_id: receipt.trace_id,
@@ -615,15 +649,13 @@ function replayKey(receipt: InlineEvidenceReceipt): string {
 
 function recordCore(
   descriptor: PublicEvidenceLedgerDescriptor,
-  receipt: InlineEvidenceReceipt,
+  receipt: PublicEvidenceReceipt,
   persistedAt: string,
 ): PublicEvidenceRecordCore {
-  return {
-    schema: "gis-ai-go.public-evidence-record.v1",
+  const shared = {
     ledger_id: descriptor.ledger_id,
     persisted_at: persistedAt,
     retain_until: retainUntil(persistedAt, descriptor.retention_days),
-    receipt,
     verification: {
       receipt: "full-material-verified-at-ingest",
       restart: "structure-and-content-verified",
@@ -637,19 +669,34 @@ function recordCore(
       personal_data: false,
       machine_path: false,
     },
-  };
+  } as const;
+  return receipt.schema === "gis-ai-go.evidence-receipt.v1"
+    ? {
+        ...shared,
+        schema: "gis-ai-go.public-evidence-record.v1",
+        receipt,
+      }
+    : {
+        ...shared,
+        schema: "gis-ai-go.public-evidence-record.v2",
+        receipt,
+      };
 }
 
 function buildRecord(
   descriptor: PublicEvidenceLedgerDescriptor,
-  receipt: InlineEvidenceReceipt,
+  receipt: PublicEvidenceReceipt,
   persistedAt: string,
 ): PublicEvidenceRecord {
   const core = recordCore(descriptor, receipt, persistedAt);
+  const domain =
+    core.schema === "gis-ai-go.public-evidence-record.v1"
+      ? CANONICAL_DOMAINS.publicEvidenceRecord
+      : CANONICAL_DOMAINS.publicEvidenceRecordV2;
   return canonicalJsonClone({
     ...core,
-    record_id: contentAddress(RECORD_PREFIX, CANONICAL_DOMAINS.publicEvidenceRecord, core),
-  });
+    record_id: contentAddress(RECORD_PREFIX, domain, core),
+  }) as PublicEvidenceRecord;
 }
 
 function assertRecord(
@@ -673,13 +720,18 @@ function assertRecord(
   );
   assertTimestamp(record.persisted_at, "Evidence persistence time");
   assertTimestamp(record.retain_until, "Evidence retention time");
+  const v1Record = record.schema === "gis-ai-go.public-evidence-record.v1";
+  const v2Record = record.schema === "gis-ai-go.public-evidence-record.v2";
+  const receiptBoundaryValid =
+    (v1Record && verifyInlineReceiptStructure(record.receipt)) ||
+    (v2Record && verifyPublicReadReceiptStructure(record.receipt));
   if (
-    record.schema !== "gis-ai-go.public-evidence-record.v1" ||
+    (!v1Record && !v2Record) ||
     record.ledger_id !== descriptor.ledger_id ||
     typeof record.record_id !== "string" ||
     !RECORD_ID.test(record.record_id) ||
     record.retain_until !== retainUntil(record.persisted_at, descriptor.retention_days) ||
-    !verifyInlineReceiptStructure(record.receipt)
+    !receiptBoundaryValid
   ) {
     fail("corruption", "Public evidence record constants or receipt boundary are invalid");
   }
@@ -707,11 +759,14 @@ function assertRecord(
   }
   assertPrivacy(record.receipt);
   const { record_id: identity, ...core } = record;
+  const domain = v1Record
+    ? CANONICAL_DOMAINS.publicEvidenceRecord
+    : CANONICAL_DOMAINS.publicEvidenceRecordV2;
   if (
     !verifyContentAddress(
       identity as string,
       RECORD_PREFIX,
-      CANONICAL_DOMAINS.publicEvidenceRecord,
+      domain,
       core,
     )
   ) {
@@ -997,22 +1052,45 @@ export class PublicEvidenceLedger {
   }
 
   public persistReceipt(
-    receipt: InlineEvidenceReceipt,
-    material: InlineReceiptVerificationMaterial,
+    receipt: PublicEvidenceReceipt,
+    material: PublicEvidenceReceiptVerificationMaterial,
   ): StoredPublicEvidence {
     const health = this.verify();
-    const verification = verifyInlineReceipt(receipt, material);
-    if (!verification.valid || !verifyInlineReceiptStructure(receipt)) {
+    let receiptSnapshot: PublicEvidenceReceipt;
+    let materialSnapshot: PublicEvidenceReceiptVerificationMaterial;
+    try {
+      receiptSnapshot = canonicalJsonClone(receipt) as PublicEvidenceReceipt;
+      materialSnapshot = canonicalJsonClone(material) as PublicEvidenceReceiptVerificationMaterial;
+    } catch {
+      return fail("invalid-receipt", "Evidence storage rejected unsafe receipt material");
+    }
+    const v2Receipt = receiptSnapshot.schema === "gis-ai-go.evidence-receipt.v2";
+    const verification = v2Receipt
+      ? verifyPublicReadReceipt(
+          receiptSnapshot,
+          materialSnapshot as PublicReadReceiptVerificationMaterial,
+        )
+      : verifyInlineReceipt(
+          receiptSnapshot,
+          materialSnapshot as InlineReceiptVerificationMaterial,
+        );
+    const structureValid = v2Receipt
+      ? verifyPublicReadReceiptStructure(receiptSnapshot)
+      : verifyInlineReceiptStructure(receiptSnapshot);
+    if (!verification.valid || !structureValid) {
       fail("invalid-receipt", "Evidence storage rejected an unverifiable public receipt");
     }
-    assertPrivacy(receipt);
+    assertPrivacy(receiptSnapshot);
     const state = this.#loadState();
-    const key = replayKey(receipt);
-    if (state.replayKeys.has(key) || state.eventsByReceiptId.has(receipt.receipt_id)) {
+    const key = replayKey(receiptSnapshot);
+    if (
+      state.replayKeys.has(key) ||
+      state.eventsByReceiptId.has(receiptSnapshot.receipt_id)
+    ) {
       fail("replay", "Evidence storage rejected a repeated evidence binding");
     }
     const persistedAt = currentTimestamp(this.#now);
-    const record = buildRecord(this.descriptor, canonicalJsonClone(receipt), persistedAt);
+    const record = buildRecord(this.descriptor, receiptSnapshot, persistedAt);
     const event = buildEvent(
       this.descriptor,
       record,

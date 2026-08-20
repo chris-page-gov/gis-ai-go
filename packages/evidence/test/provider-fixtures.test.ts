@@ -3,12 +3,20 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import {
+  PUBLIC_READ_ONS_RESOURCE,
   buildInlineReceipt,
+  buildPublicReadReceipt,
   verifyInlineReceipt,
   verifyPublicAuthorityContext,
   verifyPublicPolicy,
   verifyPublicPolicyDecision,
+  verifyPublicReadAuthorityContext,
+  verifyPublicReadPolicy,
+  verifyPublicReadPolicyDecision,
+  verifyPublicReadReceipt,
+  verifyPublicReadResource,
 } from "../src/index.js";
+import { makePublicReadReceiptBuildInput } from "./public-read-fixtures.js";
 
 function readJson(relativeUrl: string): unknown {
   return JSON.parse(readFileSync(new URL(relativeUrl, import.meta.url), "utf8")) as unknown;
@@ -149,5 +157,41 @@ test("published synthetic fixtures have reproducible content identities", () => 
       ],
       errors: [],
     },
+  );
+});
+
+test("published public-read fixtures reproduce their v2 identities", () => {
+  const resource = readJson("../../../../providers/fixtures/public-read-resource.example.json");
+  const authority = readJson(
+    "../../../../providers/fixtures/public-authority-context-v2.example.json",
+  );
+  const decision = readJson(
+    "../../../../providers/fixtures/public-policy-decision-v2.example.json",
+  );
+  const receipt = readJson("../../../../providers/fixtures/evidence-receipt-v2.example.json");
+  const policy = readJson("../../../policy-client/src/public-read-v2.json");
+
+  assert.deepEqual(resource, PUBLIC_READ_ONS_RESOURCE);
+  assert.equal(verifyPublicReadResource(resource), true);
+  assert.equal(verifyPublicReadAuthorityContext(authority), true);
+  assert.equal(verifyPublicReadPolicy(policy), true);
+  assert.equal(verifyPublicReadPolicyDecision(decision), true);
+
+  const input = makePublicReadReceiptBuildInput("data.query");
+  assert.deepEqual(resource, input.resource);
+  assert.deepEqual(authority, input.authorityContext);
+  assert.deepEqual(decision, input.policyDecision);
+  assert.deepEqual(receipt, buildPublicReadReceipt(input));
+  assert.equal(
+    verifyPublicReadReceipt(receipt, {
+      normalisedParameters: input.normalisedParameters,
+      resultCore: input.resultCore,
+      publicPolicy: input.publicPolicy,
+      expectedAuthorityContext: input.authorityContext,
+      expectedPolicyDecision: input.policyDecision,
+      expectedResource: input.resource,
+      expectedSoftware: input.software,
+    }).valid,
+    true,
   );
 });

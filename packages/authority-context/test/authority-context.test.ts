@@ -1,9 +1,18 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { canonicalJson, verifyPublicAuthorityContext } from "@gis-ai-go/evidence";
+import {
+  canonicalJson,
+  verifyPublicAuthorityContext,
+  verifyPublicReadAuthorityContext,
+} from "@gis-ai-go/evidence";
 
-import { PUBLIC_AUTHORITY_CONTEXT, getPublicAuthorityContext } from "../src/index.js";
+import {
+  PUBLIC_AUTHORITY_CONTEXT,
+  PUBLIC_READ_AUTHORITY_CONTEXT,
+  getPublicAuthorityContext,
+  getPublicReadAuthorityContext,
+} from "../src/index.js";
 
 function assertRecursivelyFrozen(value: unknown): void {
   if (value === null || typeof value !== "object") {
@@ -70,4 +79,41 @@ test("detects any mutation of a detached context", () => {
   (tampered.access as unknown as { contains_protected_data: boolean }).contains_protected_data =
     true;
   assert.equal(verifyPublicAuthorityContext(tampered), false);
+});
+
+test("constructs a separate frozen public-read v2 authority with no caller claims", () => {
+  const first = getPublicReadAuthorityContext();
+  const second = getPublicReadAuthorityContext();
+
+  assert.notEqual(first, second);
+  assert.equal(canonicalJson(first), canonicalJson(second));
+  assert.equal(canonicalJson(first), canonicalJson(PUBLIC_READ_AUTHORITY_CONTEXT));
+  assert.equal(verifyPublicReadAuthorityContext(first), true);
+  assertRecursivelyFrozen(first);
+  assert.equal(
+    first.context_id,
+    "gis-ai-go:public-authority-context:sha256:5d97a93aaa9c8fcbf9f02d2812275cf59b4c0e0e923de89ac975035c741bc1f1",
+  );
+  assert.deepEqual(first.permitted_operations, ["data.query", "selection.resolve"]);
+  assert.equal(first.access.authentication, "none");
+
+  const forbidden = new Set([
+    "actor",
+    "client",
+    "credential",
+    "device",
+    "entitlement",
+    "organisation",
+    "request_time",
+    "role",
+    "subject",
+    "token",
+    "user_id",
+    "workload",
+  ]);
+  assert.equal([...keysIn(first)].some((key) => forbidden.has(key)), false);
+
+  const tampered = structuredClone(first);
+  (tampered.permitted_operations as unknown as string[]).push("map.render");
+  assert.equal(verifyPublicReadAuthorityContext(tampered), false);
 });

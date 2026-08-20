@@ -48,3 +48,5 @@ if (!verifyPublicAuthorityContext(PUBLIC_AUTHORITY_CONTEXT)) {
 export function getPublicAuthorityContext(): PublicAuthorityContext {
   return canonicalJsonClone(PUBLIC_AUTHORITY_CONTEXT);
 }
+
+export * from "./public-read-v2.js";

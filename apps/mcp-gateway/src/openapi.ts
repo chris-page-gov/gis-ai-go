@@ -72,22 +72,39 @@ const catalogueSearchRequestSchema = sharedSchema(
 const evidenceInspectRequestSchema = sharedSchema(
   "evidence-inspect-request.schema.json",
 );
+const evidenceInspectOperationResultSchema = sharedSchema(
+  "evidence-inspect-operation-result.schema.json",
+);
 const evidenceInspectResultSchema = sharedSchema(
   "evidence-inspect-result.schema.json",
+);
+const evidenceInspectResultV2Schema = sharedSchema(
+  "evidence-inspect-result-v2.schema.json",
 );
 const evidenceLedgerEventSchema = sharedSchema(
   "evidence-ledger-event.schema.json",
 );
 const evidenceReceiptSchema = sharedSchema("evidence-receipt.schema.json");
+const evidenceReceiptV2Schema = sharedSchema("evidence-receipt-v2.schema.json");
 const publicEvidenceRecordSchema = sharedSchema(
   "public-evidence-record.schema.json",
+);
+const publicEvidenceRecordV2Schema = sharedSchema(
+  "public-evidence-record-v2.schema.json",
 );
 const publicAuthorityContextSchema = sharedSchema(
   "public-authority-context.schema.json",
 );
+const publicAuthorityContextV2Schema = sharedSchema(
+  "public-authority-context-v2.schema.json",
+);
 const publicPolicyDecisionSchema = sharedSchema(
   "public-policy-decision.schema.json",
 );
+const publicPolicyDecisionV2Schema = sharedSchema(
+  "public-policy-decision-v2.schema.json",
+);
+const publicReadResourceSchema = sharedSchema("public-read-resource.schema.json");
 
 function deepFreeze<T>(value: T, seen = new WeakSet<object>()): T {
   if (value === null || typeof value !== "object" || seen.has(value)) return value;
@@ -221,22 +238,38 @@ function catalogueOperationResultSchema(
 }
 
 function evidenceOperationResultSchema(): CatalogueJsonSchema {
-  const canonical = cloneJson(evidenceInspectResultSchema);
-  const rootDefinitions = canonical.$defs === undefined
-    ? {}
-    : cloneJson(objectValue(canonical.$defs, "Evidence inspection definitions"));
-  delete canonical.$defs;
-  rewriteReferences(canonical, "inspect", {
-    "urn:gis-ai-go:schema:public-evidence-record:v1":
-      "#/$defs/public_evidence_record",
-    "urn:gis-ai-go:schema:evidence-ledger-event:v1":
-      "#/$defs/evidence_ledger_event",
+  const dispatcher = cloneJson(evidenceInspectOperationResultSchema);
+  const rootDefinitions: Record<string, unknown> = {};
+  rewriteReferences(dispatcher, "", {
+    "urn:gis-ai-go:schema:evidence-inspect-result:v1":
+      "#/$defs/evidence_inspect_result_v1",
+    "urn:gis-ai-go:schema:evidence-inspect-result:v2":
+      "#/$defs/evidence_inspect_result_v2",
   });
-  for (const [name, definition] of Object.entries(rootDefinitions)) {
-    rewriteReferences(definition, "inspect", {});
-    rootDefinitions[`inspect_${name}`] = definition;
-    delete rootDefinitions[name];
-  }
+  embedSchemaResource(
+    evidenceInspectResultSchema,
+    "evidence_inspect_result_v1",
+    "inspect_v1",
+    {
+      "urn:gis-ai-go:schema:public-evidence-record:v1":
+        "#/$defs/public_evidence_record",
+      "urn:gis-ai-go:schema:evidence-ledger-event:v1":
+        "#/$defs/evidence_ledger_event",
+    },
+    rootDefinitions,
+  );
+  embedSchemaResource(
+    evidenceInspectResultV2Schema,
+    "evidence_inspect_result_v2",
+    "inspect_v2",
+    {
+      "urn:gis-ai-go:schema:public-evidence-record:v2":
+        "#/$defs/public_evidence_record_v2",
+      "urn:gis-ai-go:schema:evidence-ledger-event:v1":
+        "#/$defs/evidence_ledger_event",
+    },
+    rootDefinitions,
+  );
 
   embedSchemaResource(
     publicEvidenceRecordSchema,
@@ -244,6 +277,15 @@ function evidenceOperationResultSchema(): CatalogueJsonSchema {
     "record",
     {
       "urn:gis-ai-go:schema:evidence-receipt:v1": "#/$defs/evidence_receipt",
+    },
+    rootDefinitions,
+  );
+  embedSchemaResource(
+    publicEvidenceRecordV2Schema,
+    "public_evidence_record_v2",
+    "record_v2",
+    {
+      "urn:gis-ai-go:schema:evidence-receipt:v2": "#/$defs/evidence_receipt_v2",
     },
     rootDefinitions,
   );
@@ -267,6 +309,20 @@ function evidenceOperationResultSchema(): CatalogueJsonSchema {
     rootDefinitions,
   );
   embedSchemaResource(
+    evidenceReceiptV2Schema,
+    "evidence_receipt_v2",
+    "evidence_v2",
+    {
+      "urn:gis-ai-go:schema:public-authority-context:v2":
+        "#/$defs/public_authority_context_v2",
+      "urn:gis-ai-go:schema:public-policy-decision:v2":
+        "#/$defs/public_policy_decision_v2",
+      "urn:gis-ai-go:schema:public-read-resource:v1":
+        "#/$defs/public_read_resource",
+    },
+    rootDefinitions,
+  );
+  embedSchemaResource(
     publicAuthorityContextSchema,
     "public_authority_context",
     "authority",
@@ -280,8 +336,41 @@ function evidenceOperationResultSchema(): CatalogueJsonSchema {
     {},
     rootDefinitions,
   );
-  return deepFreeze({ ...canonical, $defs: rootDefinitions });
+  embedSchemaResource(
+    publicAuthorityContextV2Schema,
+    "public_authority_context_v2",
+    "authority_v2",
+    {},
+    rootDefinitions,
+  );
+  embedSchemaResource(
+    publicPolicyDecisionV2Schema,
+    "public_policy_decision_v2",
+    "policy_v2",
+    {},
+    rootDefinitions,
+  );
+  embedSchemaResource(
+    publicReadResourceSchema,
+    "public_read_resource",
+    "resource",
+    {},
+    rootDefinitions,
+  );
+  return deepFreeze({ ...dispatcher, $defs: rootDefinitions });
 }
+
+/*
+ * These canonical per-version exports remain externally referenced schemas.
+ * The operation export below is the separately identified, self-contained
+ * dispatcher used by the inactive direct API and MCP advertisements.
+ */
+export const evidenceInspectResultV1JsonSchema = deepFreeze(
+  cloneJson(evidenceInspectResultSchema),
+);
+export const evidenceInspectResultV2JsonSchema = deepFreeze(
+  cloneJson(evidenceInspectResultV2Schema),
+);
 
 export const catalogueSearchRequestJsonSchema = deepFreeze(
   cloneJson(catalogueSearchRequestSchema),

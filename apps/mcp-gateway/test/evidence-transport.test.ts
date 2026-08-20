@@ -19,7 +19,17 @@ import {
   type McpHttpHandler,
 } from "@modelcontextprotocol/server";
 
-import { openPublicEvidenceLedger } from "@gis-ai-go/evidence";
+import { getPublicReadAuthorityContext } from "@gis-ai-go/authority-context";
+import {
+  PUBLIC_READ_ONS_RESOURCE,
+  buildPublicReadReceipt,
+  openPublicEvidenceLedger,
+  publicReadResultEvidenceBinding,
+} from "@gis-ai-go/evidence";
+import {
+  PUBLIC_READ_POLICY,
+  evaluatePublicReadPolicy,
+} from "@gis-ai-go/policy-client";
 
 import { createCatalogueApplication } from "../src/catalogue-application.js";
 import { loadCatalogueSnapshot } from "../src/catalogue-snapshot.js";
@@ -65,6 +75,11 @@ interface EvidenceFixture {
   readonly catalogueApplication: ReturnType<typeof createCatalogueApplication>;
 }
 
+interface PublicReadEvidenceFixture {
+  readonly receiptId: string;
+  readonly application: ReturnType<typeof createEvidenceInspectApplication>;
+}
+
 function evidenceFixture(t: TestContext): EvidenceFixture {
   const root = mkdtempSync(join(tmpdir(), "gis-ai-go-evidence-transport-"));
   t.after(() => rmSync(root, { recursive: true, force: true }));
@@ -101,6 +116,89 @@ function evidenceFixture(t: TestContext): EvidenceFixture {
     receiptId: persisted.evidence_receipt.receipt_id,
     application: createEvidenceInspectApplication(restarted),
     catalogueApplication,
+  };
+}
+
+function publicReadEvidenceFixture(t: TestContext): PublicReadEvidenceFixture {
+  const root = mkdtempSync(join(tmpdir(), "gis-ai-go-public-read-transport-"));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const ledger = openPublicEvidenceLedger({
+    rootDirectory: root,
+    retentionDays: 365,
+    now: () => new Date("2026-08-20T19:00:01Z"),
+  });
+  const requestId = "request-public-read-transport-001";
+  const traceId = "6123456789abcdef0123456789abcdef";
+  const evaluation = evaluatePublicReadPolicy({
+    requestId,
+    traceId,
+    operation: "data.query",
+    resource: PUBLIC_READ_ONS_RESOURCE,
+  });
+  assert.ok(evaluation.decision);
+  assert.equal(evaluation.allowed, true);
+  const normalisedParameters = {
+    schema: "gis-ai-go.data-query-parameters.v1",
+    resource_id: PUBLIC_READ_ONS_RESOURCE.resource_id,
+    dataset: {
+      id: PUBLIC_READ_ONS_RESOURCE.dataset.id,
+      edition: PUBLIC_READ_ONS_RESOURCE.dataset.edition,
+      version: PUBLIC_READ_ONS_RESOURCE.dataset.version,
+    },
+    selections: PUBLIC_READ_ONS_RESOURCE.selections,
+    limit: 1,
+  };
+  const resultCore = {
+    schema: "gis-ai-go.data-query-result.v1",
+    operation: "data.query",
+    request_id: requestId,
+    trace_id: traceId,
+    evidence_binding: publicReadResultEvidenceBinding(),
+    data: { status: "succeeded", observations: [{ value: "fixture" }] },
+    warnings: [],
+  };
+  const authorityContext = getPublicReadAuthorityContext();
+  const software = {
+    name: "gis-ai-go-mcp-gateway" as const,
+    version: "0.1.0",
+    revision: "d".repeat(40),
+  };
+  const receipt = buildPublicReadReceipt({
+    createdAt: "2026-08-20T19:00:00Z",
+    requestId,
+    traceId,
+    operation: "data.query",
+    normalisedParameters,
+    authorityContext,
+    publicPolicy: PUBLIC_READ_POLICY,
+    policyDecision: evaluation.decision,
+    resource: PUBLIC_READ_ONS_RESOURCE,
+    transformations: [
+      { name: "normalise-public-read-parameters", version: "v1" },
+      { name: "execute-fixed-provider-query", version: "v1" },
+      { name: "project-public-read-result-core", version: "v1" },
+    ],
+    software,
+    resultCore,
+  });
+  ledger.persistReceipt(receipt, {
+    normalisedParameters,
+    resultCore,
+    publicPolicy: PUBLIC_READ_POLICY,
+    expectedAuthorityContext: authorityContext,
+    expectedPolicyDecision: evaluation.decision,
+    expectedResource: PUBLIC_READ_ONS_RESOURCE,
+    expectedSoftware: software,
+  });
+  const restarted = openPublicEvidenceLedger({
+    rootDirectory: root,
+    retentionDays: 365,
+    now: () => new Date("2026-08-21T19:00:00Z"),
+  });
+  assert.equal(restarted.verify().event_count, 1);
+  return {
+    receiptId: receipt.receipt_id,
+    application: createEvidenceInspectApplication(restarted),
   };
 }
 
@@ -232,7 +330,8 @@ test("keeps evidence inspection absent without explicit applications and activat
 });
 
 test("publishes self-contained exact evidence schemas only on the explicit route", async (t) => {
-  const fixture = evidenceFixture(t);
+  const fixtureV1 = evidenceFixture(t);
+  const fixtureV2 = publicReadEvidenceFixture(t);
   const document = createCatalogueOpenApiDocument(["evidence.inspect"]);
   assert.deepEqual(Object.keys(document.paths).sort(), [
     "/evidence/inspect",
@@ -265,16 +364,31 @@ test("publishes self-contained exact evidence schemas only on the explicit route
   const references = serialised.match(/"\$ref":"([^"]+)"/gu) ?? [];
   assert.ok(references.length > 0);
   assert.ok(references.every((reference) => reference.includes('"#/$defs/')));
-  const validation = await fromJsonSchema(
-    EVIDENCE_OPERATION_JSON_SCHEMAS["evidence.inspect"].outputSchema as JsonSchemaType,
-  )["~standard"].validate(
-    fixture.application.inspect({ receipt_id: fixture.receiptId }, CONTEXT),
+  const outputSchema = EVIDENCE_OPERATION_JSON_SCHEMAS["evidence.inspect"].outputSchema;
+  assert.equal(
+    outputSchema.$id,
+    "urn:gis-ai-go:schema:evidence-inspect-operation-result:v1",
   );
-  assert.equal("issues" in validation, false, JSON.stringify(validation));
+  assert.equal(Array.isArray(outputSchema.oneOf), true);
+  const outputValidator = fromJsonSchema(
+    EVIDENCE_OPERATION_JSON_SCHEMAS["evidence.inspect"].outputSchema as JsonSchemaType,
+  );
+  for (const [fixture, expectedSchema] of [
+    [fixtureV1, "gis-ai-go.evidence-inspect-result.v1"],
+    [fixtureV2, "gis-ai-go.evidence-inspect-result.v2"],
+  ] as const) {
+    const result = fixture.application.inspect(
+      { receipt_id: fixture.receiptId },
+      CONTEXT,
+    );
+    assert.equal(result.schema, expectedSchema);
+    const validation = await outputValidator["~standard"].validate(result);
+    assert.equal("issues" in validation, false, JSON.stringify(validation));
+  }
 
   const handler = createGatewayHttpHandler({
     snapshot: SNAPSHOT,
-    evidenceApplication: fixture.application,
+    evidenceApplication: fixtureV1.application,
     enabledApiOperations: ["evidence.inspect"],
     createTraceId: () => CONTEXT.traceId,
   });

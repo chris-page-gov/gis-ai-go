@@ -19,6 +19,10 @@ but suspended. `selection.resolve` and `data.query` are required for the
 `v0.2.0` target but are not implemented. The other profiles remain planned;
 mutating `workflow.execute` is a `v0.3.0` target only.
 
+The suspended `evidence.inspect` profile references a closed operation-result
+dispatcher over distinct v1 and v2 result schemas. The original v1 result schema
+is not widened, and this governance reference does not make the profile callable.
+
 The package does not import the gateway, register a tool, inspect environment
 variables or provide an activation override. Production activation remains
 owned solely by `apps/mcp-gateway/src/activation.ts`, which this slice does not

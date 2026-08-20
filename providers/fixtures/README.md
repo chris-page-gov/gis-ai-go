@@ -14,6 +14,14 @@ real access. They contain no licensed provider feature data.
 The older authority, policy and receipt examples were adapted from the 19 August
 2026 research pack and remain candidate fixtures for deferred protected workflows.
 
+The `public-read-resource`, `public-authority-context-v2`,
+`public-policy-decision-v2` and `evidence-receipt-v2` examples reproduce the exact
+inactive public ONS prerequisite identities. They contain profile, provider,
+dataset-version and licence evidence but no provider observation, raw query,
+credential, personal data or protected data. They do not show a live call or an
+activated tool. Denied and ambiguous operations deliberately have no success
+receipt fixture.
+
 The `@gis-ai-go/provider-adapter-sdk` package supplies a frozen statistics fixture
 with fixture-native dataset, version, dimension and option identifiers. Both its
 discovery and invocation planes are suspended unless a test activates them

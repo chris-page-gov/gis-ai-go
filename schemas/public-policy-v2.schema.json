@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:public-policy:v2",
+  "title": "GIS AI GO compiled public-read policy",
+  "description": "The checked default-deny policy that permits only deterministic selection resolution and the exact bounded public ONS query.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "policy_id",
+    "version",
+    "canonicalisation",
+    "compilation",
+    "default_effect",
+    "applies_to",
+    "resources",
+    "rules"
+  ],
+  "properties": {
+    "schema": { "const": "gis-ai-go.public-policy.v2" },
+    "policy_id": {
+      "const": "gis-ai-go:public-policy:sha256:b1a37b2ebf6900e2b5d62dfa20bcdaa1232e1c4c9f9630f90ac9d3dde738624a"
+    },
+    "version": { "const": "2.0.0" },
+    "canonicalisation": { "const": "rfc8785-jcs" },
+    "compilation": {
+      "const": { "kind": "compiled-json", "runtime": "gis-ai-go-gateway" }
+    },
+    "default_effect": { "const": "deny" },
+    "applies_to": {
+      "const": {
+        "access_tier": "open",
+        "authority_profile": "anonymous-open",
+        "contains_personal_data": false,
+        "contains_protected_data": false,
+        "publication_classification": "public",
+        "read_only": true
+      }
+    },
+    "resources": {
+      "type": "array",
+      "prefixItems": [
+        { "$ref": "urn:gis-ai-go:schema:public-read-resource:v1" }
+      ],
+      "items": false,
+      "minItems": 1,
+      "maxItems": 1
+    },
+    "rules": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "const": {
+            "effect": "allow-with-obligations",
+            "obligations": [
+              "bounded-single-observation",
+              "inline-evidence-receipt",
+              "not-attested",
+              "not-persisted",
+              "preserve-attribution",
+              "preserve-provider-identifiers",
+              "preserve-provider-rights",
+              "preserve-provider-version"
+            ],
+            "operation": "data.query",
+            "resource_id": "gis-ai-go:public-read-resource:sha256:c7130712a40d75e71bcf0259792404389bea2e549adf6733f34d491f83e99f68",
+            "rule_id": "public-data-query-ons-v121"
+          }
+        },
+        {
+          "const": {
+            "effect": "allow-with-obligations",
+            "obligations": [
+              "inline-evidence-receipt",
+              "no-provider-execution",
+              "not-attested",
+              "not-persisted",
+              "preserve-attribution",
+              "preserve-provider-identifiers",
+              "preserve-provider-rights",
+              "preserve-provider-version"
+            ],
+            "operation": "selection.resolve",
+            "resource_id": "gis-ai-go:public-read-resource:sha256:c7130712a40d75e71bcf0259792404389bea2e549adf6733f34d491f83e99f68",
+            "rule_id": "public-selection-resolve-ons-v121"
+          }
+        }
+      ],
+      "items": false,
+      "minItems": 2,
+      "maxItems": 2
+    }
+  }
+}

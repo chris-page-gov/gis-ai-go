@@ -16,3 +16,10 @@ supply identity, role, device or entitlement claims. This package has no OPA
 client, remote policy decision point, authentication, identity integration or
 entitlement logic. Policy changes require a new checked-in document and content
 identity.
+
+The package also checks and evaluates `public-read-v2.json` for an inactive future
+plane. It permits only `selection.resolve` and `data.query` against one exact,
+content-addressed ONS resource. Any other resource or operation is denied. Selection
+resolution carries a no-provider-execution obligation; the query is bounded to one
+fixed public observation. The evaluator neither calls the adapter nor registers or
+activates either operation.
