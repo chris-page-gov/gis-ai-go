@@ -63,7 +63,10 @@ probe used options `2026`, `E92000001`, `week-24` and `all-causes`; it returned 
 20:21:08 UTC on 20 August 2026. Its closed evidence record retains only status,
 provider and adapter versions, rights, a domain-separated result hash and size,
 safe timing/TLS/byte counters and the statement that no payload was stored. No
-observation value, response body, IP address or credential is retained.
+observation value, response body, IP address or credential is retained in that
+record or in probe output. A deterministic test fixture separately retains the
+public aggregate scalar `10471` to reproduce the canonical result digest; it is not
+the stored provider response.
 
 The edition endpoint identified `121` as its latest API version during the review.
 The wider ONS dataset page had a newer publication date, 19 August 2026. The

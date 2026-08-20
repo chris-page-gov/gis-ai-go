@@ -25,6 +25,9 @@ payload.
 one successful opt-in request through the implemented hardened path. It contains
 only status, versions, rights, result hash and size, and safe timing/TLS/byte
 metadata. It contains no response payload, observation, IP address or credential.
+The deterministic adapter test separately retains the public aggregate scalar
+`10471` needed to reproduce the result digest; the value is not present in the
+live-probe record or its standard output.
 
 Both lifecycle planes remain suspended. Runtime integration must reuse the accepted
 EXEC-202 typed request, result, error, deadline, cancellation and trace boundary;

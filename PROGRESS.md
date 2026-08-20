@@ -151,27 +151,22 @@ The supported target active set is exactly `catalogue.search`,
 
 ## Latest evidence
 
-- ADAPT-203B local candidate: based on the reviewed ADAPT-203A head
-  `bb4f7b390f8dd64c31f8fabe31d616e0165604ea`, the pre-remediation complete locked
-  gate passed 19 shared-contract, 25 canonical-evidence, 2 authority-context, 6
-  policy, 28 inactive-provider-adapter plus 1 deliberately skipped opt-in live
-  test, 95 gateway, 16 Explorer build-policy, 42 Explorer unit and component, 99
-  repository Python, 20 execution-service and 27 real-browser tests. After the
-  process-shared admission fix, repository type checking and all 30 inactive
-  provider-adapter tests pass, with the opt-in live test still deliberately skipped;
-  the complete locked gate must be rerun before acceptance;
-- ADAPT-203B repository assurance: 26 schemas and 66 records validate; 318 local
+- ADAPT-203B local candidate: the complete locked gate passes 409 tests, with one
+  deliberately skipped opt-in live-provider test, including 31 provider-adapter,
+  99 gateway and 27 real-browser tests;
+- ADAPT-203B repository assurance: 27 schemas and 67 records validate; 338 local
   links, 183 immutable research hashes, 2 ledgers and 71 source identifiers
-  resolve; the 579-file secret scan, 9 diagrams and 164-component SBOM pass; two
-  clean Explorer release builds remain byte-identical at archive SHA-256
-  `768576ede39c28935b15725e1ad8bfdcbecbf38e30bf38d39a594ed6c3e6706d`;
+  resolve; the 607-file secret scan, 9 diagrams and 165-component SBOM pass; two
+  clean Explorer release builds are byte-identical;
 - ADAPT-203B live evidence: the final opt-in no-credential probe at
   `2026-08-20T20:21:08.947Z` reached the exact fixed version `121` selection in
-  one attempt over TLS 1.3 with HTTP 200. The 2,139-byte canonical result has
+  one attempt over TLS 1.3 with HTTP 200. The 2,399-byte canonical result has
   domain-separated SHA-256
-  `f55ed3856dba05580035d2c0ad8988f124e0551136c95e2f2d6d556c23dbb05e`;
-  only version, rights, status, hash/size and safe timing/TLS/byte metadata are
-  retained, with no payload, observation value, address, credential or path;
+  `309a7c0a374f93f20d4b4cc8aaa4530c4a828ea27e4e26e266b367e59b7da3bd`.
+  The evidence record and live-probe output retain only version, rights, status,
+  hash/size and safe timing/TLS/byte metadata, with no raw response body,
+  observation value, address, credential or path. A deterministic test fixture
+  separately retains the public aggregate scalar `10471` to reproduce that digest;
 - EXEC-202 local candidate: the complete locked gate passes with 19 shared-contract,
   25 canonical-evidence, 2 authority-context, 6 policy, 95 gateway, 16 Explorer
   build-policy, 42 Explorer unit/component, 99 repository Python, 20 execution
