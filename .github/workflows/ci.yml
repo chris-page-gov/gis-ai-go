@@ -18,6 +18,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          fetch-depth: 2
           persist-credentials: false
 
       - name: Install pnpm
@@ -45,6 +46,33 @@ jobs:
 
       - name: Run assurance
         run: pnpm run check
+
+      - name: Enforce release readiness on a version transition
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PUSH_BASE_SHA: ${{ github.event.before }}
+        run: |
+          case "$GITHUB_EVENT_NAME" in
+            pull_request) base_sha="$PR_BASE_SHA" ;;
+            push) base_sha="$PUSH_BASE_SHA" ;;
+            *) echo 'Unsupported release-transition event' >&2; exit 1 ;;
+          esac
+          if [[ ! "$base_sha" =~ ^[0-9a-f]{40}$ ]] || \
+             [[ "$base_sha" == '0000000000000000000000000000000000000000' ]]; then
+            echo 'A valid event base commit is required for release-transition assurance' >&2
+            exit 1
+          fi
+          git cat-file -e "$base_sha^{commit}"
+          git cat-file -e "$GITHUB_SHA^{commit}"
+          set +e
+          git diff --quiet "$base_sha" "$GITHUB_SHA" -- VERSION
+          version_diff_status=$?
+          set -e
+          case "$version_diff_status" in
+            0) ;;
+            1) pnpm run validate:release-readiness ;;
+            *) echo 'Unable to compare VERSION with the event base' >&2; exit 1 ;;
+          esac
 
       - name: Package immutable Pages source
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && success() }}

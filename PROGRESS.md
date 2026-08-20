@@ -75,6 +75,14 @@ reproducible GitHub Pages deployment.
 
 ## Latest evidence
 
+- QUAL-105 complete local gate: type checking, 4 gateway tests, 16 Explorer
+  build-policy tests, 42 Explorer unit and component tests, 82 repository Python
+  tests, 2 execution-boundary tests and 27 real-browser tests pass;
+- QUAL-105 reproducibility: two complete clean locked builds produce byte-identical
+  Pages archives, checksums and receipts; the public workflow now emits a mandatory
+  canonical verification receipt after a successful deployed-browser gate;
+- QUAL-105 independent security and accessibility reviews: no P0-P2 finding or
+  material evidence error remains;
 - canonical OKF content, Explorer, reviewed public examples and supported Pages
   publication: merged on protected `main` at
   `a0e826384cf50d9d81b87489dbf3580e8e3602f7`;

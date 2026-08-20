@@ -1,4 +1,5 @@
 import AxeBuilder from "@axe-core/playwright";
+import type { Locator, Page } from "@playwright/test";
 
 import { expect, test } from "../fixtures/assurance";
 
@@ -9,13 +10,28 @@ const views = [
   ["map", "Coverage schematic — not a property map"],
 ] as const;
 
+async function expectKeyboardVisibleFocusOutline(
+  page: Page,
+  control: Locator,
+): Promise<void> {
+  for (let attempt = 0; attempt < 100; attempt += 1) {
+    await page.keyboard.press("Tab");
+    if (await control.evaluate((element) => element === document.activeElement)) break;
+  }
+  await expect(control).toBeFocused();
+  await expect(control).toHaveCSS("outline-style", "solid");
+  await expect(control).toHaveCSS("outline-width", "3px");
+  await expect(control).toHaveCSS("outline-offset", "2px");
+  await expect(control).not.toHaveCSS("outline-color", "rgba(0, 0, 0, 0)");
+}
+
 for (const [view, heading] of views) {
   test(`${view} view has no detectable WCAG A or AA violations`, async ({ page }) => {
     await page.goto(`/?view=${view}`);
     await expect(page.getByRole("heading", { level: 2, name: heading })).toBeVisible();
 
     const results = await new AxeBuilder({ page })
-      .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
+      .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22a", "wcag22aa"])
       .analyze();
     expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);
   });
@@ -54,11 +70,45 @@ test("visual catalogue views provide complete text alternatives", async ({ page 
   ).toBeVisible();
 });
 
-test.describe("small touch viewport", () => {
+test("shows visible keyboard focus on links, form controls and view controls", async ({ page }) => {
+  await page.goto("/?view=cards&q=Price%20Paid");
+  await expect(page.getByRole("heading", { level: 2, name: "Catalogue" })).toBeVisible();
+
+  await expectKeyboardVisibleFocusOutline(
+    page,
+    page.locator('a[href$="#record=hmlr%3Adataset%3Aprice-paid-data"]'),
+  );
+
+  await page.goto("/?view=cards&q=Price%20Paid");
+  await expectKeyboardVisibleFocusOutline(
+    page,
+    page.getByRole("searchbox", { name: /Search(?: the public)? catalogue/i }),
+  );
+
+  await page.goto("/?view=cards&q=Price%20Paid");
+  await expectKeyboardVisibleFocusOutline(
+    page,
+    page.getByRole("link", { name: /^Graph$/i }),
+  );
+});
+
+test.describe("320 CSS-pixel, 400% zoom-equivalent reflow", () => {
   test.use({ hasTouch: true, viewport: { height: 800, width: 320 } });
 
   test("remains operable without document-level horizontal scrolling", async ({ page }) => {
+    // Playwright cannot set optical browser zoom reliably. A 320 CSS-pixel viewport
+    // exercises the WCAG reflow equivalent of a 1,280 CSS-pixel viewport at 400%.
     await page.goto("/?view=cards");
+
+    const search = page.getByRole("searchbox", {
+      name: /Search(?: the public)? catalogue/i,
+    });
+    await search.fill("Price Paid");
+    await page.getByRole("button", { name: /^Search$/i }).tap();
+    await expect(
+      page.locator('a[href$="#record=hmlr%3Adataset%3Aprice-paid-data"]'),
+    ).toBeVisible();
+
     await page.getByRole("link", { name: /^Map$/i }).tap();
     await expect(
       page.getByRole("heading", { level: 2, name: "Coverage schematic — not a property map" }),

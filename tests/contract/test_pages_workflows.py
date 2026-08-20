@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import re
 import unittest
 from pathlib import Path
@@ -23,6 +24,41 @@ class PagesWorkflowTests(unittest.TestCase):
             for action, revision in uses:
                 with self.subTest(workflow=workflow_name, action=action):
                     self.assertRegex(revision, r"^[0-9a-f]{40}$")
+
+    def test_ci_enforces_release_readiness_only_on_a_version_transition(self) -> None:
+        checkout = CI_WORKFLOW.split("- name: Check out repository", 1)[1].split(
+            "\n\n      - name:", 1
+        )[0]
+        self.assertIn("fetch-depth: 2", checkout)
+
+        assurance_name = "- name: Run assurance"
+        transition_name = "- name: Enforce release readiness on a version transition"
+        package_name = "- name: Package immutable Pages source"
+        self.assertLess(CI_WORKFLOW.index(assurance_name), CI_WORKFLOW.index(transition_name))
+        self.assertLess(CI_WORKFLOW.index(transition_name), CI_WORKFLOW.index(package_name))
+
+        transition = CI_WORKFLOW.split(transition_name, 1)[1].split(
+            f"\n\n      {package_name}", 1
+        )[0]
+        self.assertIn("PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}", transition)
+        self.assertIn("PUSH_BASE_SHA: ${{ github.event.before }}", transition)
+        self.assertIn('case "$GITHUB_EVENT_NAME" in', transition)
+        self.assertIn('pull_request) base_sha="$PR_BASE_SHA" ;;', transition)
+        self.assertIn('push) base_sha="$PUSH_BASE_SHA" ;;', transition)
+        self.assertIn('[[ ! "$base_sha" =~ ^[0-9a-f]{40}$ ]]', transition)
+        self.assertIn("0000000000000000000000000000000000000000", transition)
+        self.assertIn('git cat-file -e "$base_sha^{commit}"', transition)
+        self.assertIn('git cat-file -e "$GITHUB_SHA^{commit}"', transition)
+        self.assertIn(
+            'git diff --quiet "$base_sha" "$GITHUB_SHA" -- VERSION',
+            transition,
+        )
+        self.assertIn("version_diff_status=$?", transition)
+        self.assertIn("1) pnpm run validate:release-readiness ;;", transition)
+        self.assertIn("*) echo 'Unable to compare VERSION with the event base'", transition)
+
+        scripts = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))["scripts"]
+        self.assertNotIn("validate:release-readiness", scripts["check"])
 
     def test_workflows_default_to_no_token_permissions(self) -> None:
         self.assertIn("\npermissions: {}\n", CI_WORKFLOW)
@@ -121,6 +157,73 @@ class PagesWorkflowTests(unittest.TestCase):
             '--expected-archive-sha256 "$ARCHIVE_SHA256"', PAGES_WORKFLOW
         )
 
+    def test_prepare_binds_the_selected_archive_version_across_rollbacks(self) -> None:
+        prepare = PAGES_WORKFLOW.split("\n  prepare:\n", 1)[1].split(
+            "\n  deploy:\n", 1
+        )[0]
+        download_name = "- name: Download exact CI artefact"
+        selected_name = "- name: Read selected archive version"
+        verify_name = "- name: Verify archive structure and receipt"
+        product_name = "- name: Record accepted product identity"
+        stage_name = "- name: Materialise verified Pages payload"
+        self.assertLess(prepare.index(download_name), prepare.index(selected_name))
+        self.assertLess(prepare.index(selected_name), prepare.index(verify_name))
+        self.assertLess(prepare.index(verify_name), prepare.index(product_name))
+        self.assertLess(prepare.index(product_name), prepare.index(stage_name))
+
+        selected = prepare.split(selected_name, 1)[1].split(
+            f"\n\n      {verify_name}", 1
+        )[0]
+        self.assertIn("id: selected_version", selected)
+        self.assertIn("jq -er", selected)
+        self.assertIn('if (.version | type) == "string" then', selected)
+        self.assertIn(".version", selected)
+        self.assertIn(
+            'if [[ ! "$selected_version" =~ '
+            "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\."
+            "(0|[1-9][0-9]*)$ ]]; then",
+            selected,
+        )
+        self.assertIn(
+            "printf 'version=%s\\n' \"$selected_version\" >> \"$GITHUB_OUTPUT\"",
+            selected,
+        )
+        self.assertNotIn("eval", selected)
+
+        stable_semver = re.compile(
+            r"^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$"
+        )
+        older_selected_version = "0.0.1"
+        self.assertRegex(older_selected_version, stable_semver)
+        self.assertNotRegex("0.0.1-rc.1", stable_semver)
+
+        selected_binding = (
+            "SELECTED_VERSION: ${{ steps.selected_version.outputs.version }}"
+        )
+        self.assertEqual(prepare.count(selected_binding), 3)
+        self.assertEqual(prepare.count('--expected-version "$SELECTED_VERSION"'), 2)
+        self.assertIn("printf 'version=%s\\n' \"$SELECTED_VERSION\"", prepare)
+        self.assertIn(
+            "product_version: ${{ steps.product.outputs.version }}", prepare
+        )
+        self.assertIn(
+            "PRODUCT_VERSION: ${{ steps.product.outputs.version }}", prepare
+        )
+        self.assertIn('--arg productVersion "$PRODUCT_VERSION"', prepare)
+        public_verification = PAGES_WORKFLOW.split(
+            "\n  public-verification:\n", 1
+        )[1]
+        self.assertIn(
+            "EXPECTED_VERSION: ${{ needs.prepare.outputs.product_version }}",
+            public_verification,
+        )
+        self.assertIn(
+            "PRODUCT_VERSION: ${{ needs.prepare.outputs.product_version }}",
+            public_verification,
+        )
+        self.assertNotRegex(prepare, r"<\s*VERSION\b")
+        self.assertNotIn("tr -d", prepare)
+
     def test_prepare_enforces_github_provenance_identity(self) -> None:
         for flag in (
             '--repo "$GITHUB_REPOSITORY"',
@@ -149,7 +252,7 @@ class PagesWorkflowTests(unittest.TestCase):
             "--output-dir deployment-staging/site",
             '--expected-source-commit "$SOURCE_COMMIT"',
             '--expected-repository "$GITHUB_REPOSITORY"',
-            '--expected-version "$(tr -d \'\\r\\n\' < VERSION)"',
+            '--expected-version "$SELECTED_VERSION"',
             "--expected-base-path /gis-ai-go/",
             '--expected-archive-sha256 "$ARCHIVE_SHA256"',
         ):
@@ -265,6 +368,142 @@ class PagesWorkflowTests(unittest.TestCase):
         self.assertIn(
             "pnpm --filter @gis-ai-go/public-explorer run test:public", verification
         )
+
+    def test_successful_public_acceptance_writes_and_uploads_canonical_receipt(
+        self,
+    ) -> None:
+        verification = PAGES_WORKFLOW.split("\n  public-verification:\n", 1)[1]
+        acceptance_command = (
+            "pnpm --filter @gis-ai-go/public-explorer run test:public"
+        )
+        receipt_name = "- name: Write public verification receipt"
+        upload_name = "- name: Upload public verification evidence"
+        failure_upload_name = "- name: Upload failed public verification diagnostics"
+        summary_name = "- name: Record accepted deployment"
+        self.assertLess(
+            verification.index(acceptance_command), verification.index(receipt_name)
+        )
+        self.assertLess(
+            verification.index(receipt_name), verification.index(upload_name)
+        )
+        self.assertLess(
+            verification.index(upload_name), verification.index(failure_upload_name)
+        )
+        self.assertLess(
+            verification.index(failure_upload_name), verification.index(summary_name)
+        )
+
+        receipt = verification.split(receipt_name, 1)[1].split(
+            f"\n\n      {upload_name}", 1
+        )[0]
+        for binding in (
+            "ARCHIVE_SHA256: ${{ inputs.archive_sha256 }}",
+            "DEPLOYMENT_MODE: ${{ inputs.mode }}",
+            "OKF_CONTENT_ROOT: ${{ needs.prepare.outputs.okf_content_root }}",
+            "PAGE_URL: ${{ needs.deploy.outputs.page_url }}",
+            "PAYLOAD_ROOT: ${{ needs.prepare.outputs.payload_root }}",
+            "PRODUCT_VERSION: ${{ needs.prepare.outputs.product_version }}",
+            "PUBLIC_CHECKSUMS_SHA256: "
+            "${{ needs.prepare.outputs.public_checksums_sha256 }}",
+            "REPOSITORY: ${{ github.repository }}",
+            "SOURCE_COMMIT: ${{ inputs.source_commit }}",
+            "SOURCE_RUN_ID: ${{ inputs.source_run_id }}",
+            "WORKFLOW_COMMIT: ${{ github.sha }}",
+            "WORKFLOW_RUN_ATTEMPT: ${{ github.run_attempt }}",
+            "WORKFLOW_RUN_ID: ${{ github.run_id }}",
+            "WORKFLOW_RUN_URL: ${{ github.server_url }}/"
+            "${{ github.repository }}/actions/runs/${{ github.run_id }}",
+        ):
+            with self.subTest(binding=binding):
+                self.assertIn(binding, receipt)
+
+        self.assertIn("jq -S -n", receipt)
+        self.assertIn(
+            "--arg schemaVersion "
+            "'gis-ai-go.pages-public-verification-receipt.v1'",
+            receipt,
+        )
+        for argument_binding in (
+            '--arg repository "$REPOSITORY"',
+            '--arg workflowRun "$WORKFLOW_RUN_URL"',
+            '--arg workflowRunAttempt "$WORKFLOW_RUN_ATTEMPT"',
+            '--arg workflowRunId "$WORKFLOW_RUN_ID"',
+            '--arg workflowCommit "$WORKFLOW_COMMIT"',
+            '--arg mode "$DEPLOYMENT_MODE"',
+            '--arg publicUrl "$PAGE_URL"',
+            '--arg productVersion "$PRODUCT_VERSION"',
+            '--arg sourceRunId "$SOURCE_RUN_ID"',
+            '--arg sourceCommit "$SOURCE_COMMIT"',
+            '--arg archiveSha256 "$ARCHIVE_SHA256"',
+            '--arg payloadRoot "$PAYLOAD_ROOT"',
+            '--arg okfContentRoot "$OKF_CONTENT_ROOT"',
+            '--arg publicChecksumsSha256 "$PUBLIC_CHECKSUMS_SHA256"',
+        ):
+            with self.subTest(argument_binding=argument_binding):
+                self.assertIn(argument_binding, receipt)
+        for field_binding in (
+            "schemaVersion: $schemaVersion",
+            "repository: $repository",
+            "workflowRun: $workflowRun",
+            "workflowRunAttempt: $workflowRunAttempt",
+            "workflowRunId: $workflowRunId",
+            "workflowCommit: $workflowCommit",
+            "mode: $mode",
+            "publicUrl: $publicUrl",
+            "productVersion: $productVersion",
+            "sourceRunId: $sourceRunId",
+            "sourceCommit: $sourceCommit",
+            "archiveSha256: $archiveSha256",
+            "payloadRootSha256: $payloadRoot",
+            "okfContentRootSha256: $okfContentRoot",
+            "publicChecksumsSha256: $publicChecksumsSha256",
+        ):
+            with self.subTest(field_binding=field_binding):
+                self.assertIn(field_binding, receipt)
+        self.assertIn(
+            "> public-verification-evidence/public-verification-receipt.json",
+            receipt,
+        )
+        self.assertNotIn("validatedAt", receipt)
+        self.assertNotIn("date -u", receipt)
+
+        upload = verification.split(upload_name, 1)[1].split(
+            f"\n\n      {failure_upload_name}", 1
+        )[0]
+        self.assertNotIn("if: always()", upload)
+        self.assertIn(
+            "public-verification-evidence/public-verification-receipt.json",
+            upload,
+        )
+        self.assertIn("apps/public-explorer/test-results/", upload)
+        self.assertIn("if-no-files-found: error", upload)
+        self.assertIn("retention-days: 90", upload)
+
+    def test_failed_public_acceptance_uploads_diagnostics_only(self) -> None:
+        verification = PAGES_WORKFLOW.split("\n  public-verification:\n", 1)[1]
+        success_upload_name = "- name: Upload public verification evidence"
+        failure_upload_name = "- name: Upload failed public verification diagnostics"
+        summary_name = "- name: Record accepted deployment"
+        self.assertLess(
+            verification.index(success_upload_name),
+            verification.index(failure_upload_name),
+        )
+
+        failure_upload = verification.split(failure_upload_name, 1)[1].split(
+            f"\n\n      {summary_name}", 1
+        )[0]
+        self.assertIn("if: failure()", failure_upload)
+        self.assertIn(
+            "uses: actions/upload-artifact@"
+            "043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+            failure_upload,
+        )
+        self.assertIn("name: public-verification-failure-", failure_upload)
+        self.assertIn("path: apps/public-explorer/test-results/", failure_upload)
+        self.assertIn("if-no-files-found: warn", failure_upload)
+        self.assertIn("retention-days: 90", failure_upload)
+        self.assertNotIn("public-verification-receipt.json", failure_upload)
+        self.assertNotIn("if: always()", failure_upload)
 
 
 if __name__ == "__main__":

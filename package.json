@@ -19,13 +19,15 @@
     "test": "pnpm run test:typescript && pnpm run test:explorer && pnpm run test:python",
     "build:okf": "uv run --locked --cache-dir .uv-cache python scripts/build_okf.py --output artifacts/okf",
     "build:explorer": "pnpm run build:okf && pnpm --filter @gis-ai-go/public-explorer run build",
+    "validate:release-reproducibility": "uv run --locked --cache-dir .uv-cache python scripts/check_release_reproducibility.py",
     "validate:contracts": "uv run --locked --cache-dir .uv-cache python scripts/validate_contracts.py",
     "validate:versions": "uv run --locked --cache-dir .uv-cache python scripts/check_versions.py",
+    "validate:release-readiness": "uv run --locked --cache-dir .uv-cache python scripts/check_versions.py --release-ready",
     "validate:links": "uv run --locked --cache-dir .uv-cache python scripts/check_links.py",
     "validate:secrets": "uv run --locked --cache-dir .uv-cache python scripts/scan_secrets.py",
     "render:diagrams": "node scripts/render_diagrams.mjs --output artifacts/diagrams",
     "sbom": "uv run --locked --cache-dir .uv-cache python scripts/generate_sbom.py --output artifacts/sbom.cdx.json",
-    "check": "pnpm run typecheck && pnpm run test && pnpm run test:browser && pnpm run validate:versions && pnpm run validate:contracts && pnpm run validate:links && pnpm run validate:secrets && pnpm run render:diagrams && pnpm run sbom"
+    "check": "pnpm run typecheck && pnpm run test && pnpm run test:browser && pnpm run validate:release-reproducibility && pnpm run validate:versions && pnpm run validate:contracts && pnpm run validate:links && pnpm run validate:secrets && pnpm run render:diagrams && pnpm run sbom"
   },
   "devDependencies": {
     "@types/node": "24.13.3",

@@ -2,6 +2,99 @@ import { expect, test } from "../fixtures/assurance";
 
 const PRICE_PAID_ID = "hmlr:dataset:price-paid-data";
 
+const INERT_WEBMCP_SENTINEL = String.raw`
+(() => {
+  const activity = [];
+  const record = (message) => {
+    activity.push(message);
+  };
+  const method = (name) => new Proxy(Object.freeze(function () {}), {
+    apply() {
+      record(name + " called");
+      return undefined;
+    },
+    construct() {
+      record(name + " constructed");
+      return {};
+    },
+    set() {
+      record(name + " property set");
+      return false;
+    },
+    defineProperty() {
+      record(name + " property defined");
+      return false;
+    },
+    deleteProperty() {
+      record(name + " property deleted");
+      return false;
+    },
+    setPrototypeOf() {
+      record(name + " prototype changed");
+      return false;
+    },
+  });
+  const target = Object.freeze(Object.assign(function () {}, {
+    registerTool: method("registerTool"),
+    unregisterTool: method("unregisterTool"),
+    provideContext: method("provideContext"),
+    clearContext: method("clearContext"),
+  }));
+  const sentinel = new Proxy(target, {
+    apply() {
+      record("sentinel called");
+      return undefined;
+    },
+    construct() {
+      record("sentinel constructed");
+      return {};
+    },
+    set() {
+      record("sentinel property set");
+      return false;
+    },
+    defineProperty() {
+      record("sentinel property defined");
+      return false;
+    },
+    deleteProperty() {
+      record("sentinel property deleted");
+      return false;
+    },
+    setPrototypeOf() {
+      record("sentinel prototype changed");
+      return false;
+    },
+  });
+
+  const expose = (owner, name, label) => {
+    Object.defineProperty(owner, name, {
+      configurable: false,
+      enumerable: false,
+      get: () => sentinel,
+      set: () => record(label + " replaced"),
+    });
+  };
+  expose(globalThis, "webMCP", "globalThis.webMCP");
+  expose(globalThis, "modelContext", "globalThis.modelContext");
+  expose(navigator, "modelContext", "navigator.modelContext");
+
+  Object.defineProperty(globalThis, "__gisAiGoWebMcpAudit", {
+    configurable: false,
+    enumerable: false,
+    writable: false,
+    value: Object.freeze({
+      snapshot: () => ({
+        activity: [...activity],
+        globalModelContextIntact: Reflect.get(globalThis, "modelContext") === sentinel,
+        navigatorModelContextIntact: Reflect.get(navigator, "modelContext") === sentinel,
+        webMCPIntact: Reflect.get(globalThis, "webMCP") === sentinel,
+      }),
+    }),
+  });
+})();
+`;
+
 test("answers the focused question by default without WebMCP", async ({ page }) => {
   await page.goto("/");
 
@@ -37,6 +130,75 @@ test("answers the focused question by default without WebMCP", async ({ page }) 
     globalModelContext: undefined,
     navigatorModelContext: undefined,
     webMCP: undefined,
+  });
+});
+
+test("gracefully ignores inert WebMCP sentinels during the focused journey", async ({ page }) => {
+  // This is graceful non-use assurance, not a claim of WebMCP capability or interoperability.
+  await page.route("**/webmcp-sentinel.js", async (route) => {
+    await route.fulfill({
+      body: INERT_WEBMCP_SENTINEL,
+      contentType: "application/javascript; charset=utf-8",
+      status: 200,
+    });
+  });
+
+  let sentinelInjected = false;
+  await page.route(
+    "**/",
+    async (route) => {
+      const response = await route.fetch();
+      const html = await response.text();
+      const moduleMarker = '<script type="module"';
+      if (!html.includes(moduleMarker)) {
+        throw new Error("Explorer entry page has no module script marker");
+      }
+      sentinelInjected = true;
+      await route.fulfill({
+        response,
+        body: html.replace(
+          moduleMarker,
+          '<script src="./webmcp-sentinel.js"></script>\n    <script type="module"',
+        ),
+      });
+    },
+    { times: 1 },
+  );
+
+  await page.goto("/");
+
+  await expect(
+    page.getByRole("heading", {
+      level: 1,
+      name: "INSPIRE polygon: indicative or legal boundary?",
+    }),
+  ).toBeVisible();
+  await expect(
+    page
+      .getByText(
+        "Polygons are indicative and do not establish the exact legal extent of a title.",
+        { exact: true },
+      )
+      .first(),
+  ).toBeVisible();
+  expect(sentinelInjected).toBe(true);
+
+  const audit = await page.evaluate(() => {
+    const value = Reflect.get(globalThis, "__gisAiGoWebMcpAudit") as {
+      snapshot: () => {
+        activity: string[];
+        globalModelContextIntact: boolean;
+        navigatorModelContextIntact: boolean;
+        webMCPIntact: boolean;
+      };
+    };
+    return value.snapshot();
+  });
+  expect(audit).toEqual({
+    activity: [],
+    globalModelContextIntact: true,
+    navigatorModelContextIntact: true,
+    webMCPIntact: true,
   });
 });
 
