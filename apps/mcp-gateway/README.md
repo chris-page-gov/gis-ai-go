@@ -8,12 +8,16 @@ It is an implementation workbench, not a supported or deployed service.
 - `loadCatalogueSnapshot` loads the generated public catalogue only after its exact
   inventory, checksum ledger, manifest, build receipt, content root and public-bundle
   identity agree. It rejects links, unsafe paths, unexpected files, changed files and
-  over-limit inputs, then returns one immutable snapshot with an explicit freshness
-  warning when its review date has passed.
+  over-limit inputs. Directory enumeration is streamed and file reads are bounded to
+  the recorded length plus one byte with identity checks before and after reading.
+  It then returns one immutable snapshot with an explicit freshness warning when its
+  review date has passed.
 - `createCatalogueApplication` binds deterministic `catalogue.search` and
   `catalogue.describe` functions to that snapshot. The transport-neutral functions
-  use closed request, result and problem envelopes, bounded inputs and cursors bound
-  to both the catalogue content root and normalised search criteria.
+  use closed request, result and problem envelopes, bounded inputs and outputs, and
+  cursors bound to both the catalogue content root and normalised search criteria.
+  A snapshot that cannot fit the public result schema is rejected rather than
+  truncated.
 - the HTTP candidate listens only on `127.0.0.1:8787` and exposes `GET /healthz`,
   `GET /readyz` and `GET /openapi.json`. Readiness always returns `503` with zero
   active tools and zero active API operations.

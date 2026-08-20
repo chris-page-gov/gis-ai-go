@@ -1,7 +1,7 @@
 # MCP-201 verification record
 
-- status: shared catalogue contract verified on protected `main`; inactive local
-  gateway candidate verification pending
+- status: shared catalogue contract verified on protected `main`; inactive gateway
+  candidate verified locally with pull-request evidence pending
 - reviewed on: 20 August 2026
 - work item: [MCP-201](https://github.com/chris-page-gov/gis-ai-go/issues/19)
 
@@ -84,9 +84,10 @@ listed above completed this slice's remote gate.
 ## Inactive gateway candidate
 
 - protected-main base: `e5e6d4db5ac7036198cde64279e815f214f3defd`
-- candidate implementation commit: `local-candidate/pending`
-- complete local gate: `local-candidate/pending`
-- independent current-byte review: `local-candidate/pending`
+- candidate implementation commit: `442f788108106744e1e2ed7283e38c2a22aac5f1`
+- complete local gate: passing at the candidate implementation commit on
+  20 August 2026
+- independent current-byte review: `SHIP`; no P0, P1 or P2 finding
 - pull request: `local-candidate/pending`
 - pull-request assurance and provenance: `local-candidate/pending`
 - pull-request CodeQL: `local-candidate/pending`
@@ -97,8 +98,11 @@ listed above completed this slice's remote gate.
 The current local bytes add a fail-closed, checksum-verified immutable catalogue
 loader and a deterministic, transport-neutral application for
 `catalogue.search` and `catalogue.describe`. The functions use closed envelopes,
-bounded inputs and deterministic cursors bound to the exact catalogue content root
-and normalised search criteria.
+bounded inputs and outputs, and deterministic cursors bound to the exact catalogue
+content root and normalised search criteria. The loader streams its bounded
+inventory, reads only the recorded file length plus one byte and rechecks file
+identity and metadata after each read. The application rejects any verified
+snapshot that cannot fit the closed result schema.
 
 The HTTP candidate binds to loopback and exposes only:
 
@@ -112,10 +116,43 @@ deployment, provider call, policy engine or evidence store. The application code
 can be tested directly, but it cannot be activated through an environment variable,
 command-line option or test mode.
 
-These implementation facts are not verification evidence. The candidate commit,
-complete local gate, independent review, pull request, CodeQL and protected-main
-evidence remain deliberately recorded as `local-candidate/pending` until they
-exist. No test count or remote result is asserted for this candidate yet.
+Malformed request identities, hostile unknown keys and non-canonical URL paths fail
+through bounded problem envelopes rather than escaping as raw server errors. The
+exact regression suite covers schema-boundary overflow, same-inode file growth,
+over-limit directory inventories and malformed path encodings.
+
+### Accepted local evidence
+
+The exact candidate implementation commit passed the complete locked
+`pnpm run check` gate on 20 August 2026. The gate included:
+
+- 19 of 19 shared catalogue contract tests and 38 of 38 gateway tests;
+- 16 of 16 Explorer build-policy tests, 42 of 42 Explorer unit and component
+  tests and 27 of 27 real-browser tests;
+- 88 of 88 repository Python tests and 2 of 2 execution-boundary tests;
+- two clean locked builds with byte-identical Pages archives
+  (`99586ce3156255c0c5942d6eca8d1f004581123d86f4e19153e6cbaac774c6c4`),
+  checksum files and archive receipts;
+- validation of version `0.1.0` across 8 manifests and locks, 12 schemas and
+  53 evaluation records;
+- 305 local Markdown links, 183 immutable research hashes, 2 ledger snapshots and
+  71 source identifiers;
+- a 479-file baseline secret and machine-path scan, 9 rendered diagrams and a
+  146-component CycloneDX SBOM; and
+- deterministic OKF content root
+  `57bfb5a190424289ea09b7eb0729ecdad08292ec7cb8abed148ddf29c9f975d1`,
+  with the immutable research tree unchanged from protected `main`.
+
+The formal pre-remediation security diff scan covered all 14 changed runtime
+surfaces and found no security-reportable issue under the inactive, loopback-only
+and operator-write-only boundary. It also validated five merge-blocking contract
+and resource-bound defects. Those defects were fixed before the implementation
+commit; the repaired current bytes then received an independent `SHIP` review and
+passed all 38 gateway tests. This does not claim that the absent public service has
+been security-tested as a deployed service.
+
+The pull request, remote CodeQL, protected-main merge and post-merge evidence remain
+deliberately `local-candidate/pending` until they exist.
 
 ## Activation and publication boundary
 

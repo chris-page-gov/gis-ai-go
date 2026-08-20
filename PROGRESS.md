@@ -103,9 +103,8 @@ The supported target active set is exactly `catalogue.search`,
 
 ## Next
 
-1. Pass the inactive gateway candidate through the complete local and protected
-   pull-request gates while keeping readiness blocked and the public product
-   unchanged.
+1. Pass the locally verified inactive gateway candidate through the protected
+   pull-request gate while keeping readiness blocked and the public product unchanged.
 2. EVID-204 must add reviewed public policy decisions and canonical inline evidence
    receipts to the shared application path.
 3. Add and verify the protocol-conformant MCP listener and direct catalogue routes,
@@ -135,11 +134,12 @@ The supported target active set is exactly `catalogue.search`,
   passing CodeQL in
   [run 32338916269](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32338916269)
   and [attestation 41792357](https://github.com/chris-page-gov/gis-ai-go/attestations/41792357);
-- MCP-201 gateway candidate: local implementation and verification remain pending
-  protected pull-request evidence; the candidate exposes no catalogue operation,
-  MCP tool or public deployment;
-- QUAL-105 complete local gate: type checking, 4 gateway tests, 16 Explorer
-  build-policy tests, 42 Explorer unit and component tests, 82 repository Python
+- MCP-201 gateway candidate: exact implementation commit
+  `442f788108106744e1e2ed7283e38c2a22aac5f1` passes the complete local gate and an
+  independent no-P0-P2 review; protected pull-request evidence remains pending and
+  the candidate exposes no catalogue operation, MCP tool or public deployment;
+- current complete local gate: type checking, 38 gateway tests, 16 Explorer
+  build-policy tests, 42 Explorer unit and component tests, 88 repository Python
   tests, 2 execution-boundary tests and 27 real-browser tests pass;
 - QUAL-105 reproducibility: two complete clean locked builds produce byte-identical
   Pages archives, checksums and receipts; the public workflow now emits a mandatory

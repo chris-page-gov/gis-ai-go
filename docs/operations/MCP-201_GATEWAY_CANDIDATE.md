@@ -22,8 +22,11 @@ application code is not evidence of an active tool or API operation.
 The checksum-verified catalogue loader:
 
 - accepts an absolute, canonical directory only and follows no symbolic link;
-- bounds the number of files and directories, total bytes, individual control
-  files and relative path lengths;
+- streams directory entries so file and directory limits apply before a complete
+  listing is materialised;
+- bounds total bytes, individual control files and relative path lengths, reads no
+  more than the recorded file length plus one byte, and rechecks the same file's
+  identity and metadata after reading;
 - requires the generated marker and an exact checksum-ledger match for the complete
   inventory;
 - verifies every payload digest and cross-checks the manifest, build receipt,
@@ -39,6 +42,8 @@ The transport-neutral application implements deterministic in-process
 
 - closed request, result and problem envelopes;
 - bounded Unicode query analysis, facet arrays, page sizes, cursors and record IDs;
+- fail-closed validation that every snapshot can fit the narrower public result
+  schema without truncation or semantic reinterpretation;
 - stable sorting and catalogue-native source relationships; and
 - opaque deterministic cursors bound to the exact catalogue content root and
   normalised search criteria.
@@ -59,7 +64,8 @@ The local candidate binds to `127.0.0.1:8787` only. Its complete surface is:
 The listener accepts only explicit loopback Host and same-origin Origin values,
 does not emit wildcard cross-origin permissions, rejects request bodies and applies
 bounded URL, header, request and keep-alive settings. The OpenAPI document contains
-no catalogue operation path.
+no catalogue operation path. Malformed or non-canonical paths remain bounded
+problem responses and are never reflected as invalid problem identities.
 
 ## Capabilities that do not exist
 
@@ -89,4 +95,5 @@ interoperability. Only that reviewed change may replace the block and advertise 
 catalogue capability.
 
 See the [verification record](MCP-201_VERIFICATION.md) for the distinction between
-protected-main evidence and pending local-candidate evidence.
+protected-main shared-contract evidence, accepted local candidate evidence and
+pending remote candidate evidence.
