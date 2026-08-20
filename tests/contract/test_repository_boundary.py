@@ -55,6 +55,28 @@ class RepositoryBoundaryTests(unittest.TestCase):
         self.assertEqual(receipt["evidence_handling"]["persistence"], "not-persisted")
         self.assertEqual(receipt["evidence_handling"]["attestation"], "not-attested")
 
+    def test_mcp_transport_uses_the_exact_split_v2_sdk(self) -> None:
+        package = json.loads(
+            (ROOT / "apps" / "mcp-gateway" / "package.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        self.assertEqual(
+            package["dependencies"]["@modelcontextprotocol/server"], "2.0.0"
+        )
+        self.assertEqual(
+            package["dependencies"]["@modelcontextprotocol/node"], "2.0.0"
+        )
+        self.assertEqual(
+            package["devDependencies"]["@modelcontextprotocol/client"], "2.0.0"
+        )
+        for forbidden in (
+            "@modelcontextprotocol/sdk",
+            "@modelcontextprotocol/server-legacy",
+        ):
+            self.assertNotIn(forbidden, package["dependencies"])
+            self.assertNotIn(forbidden, package.get("devDependencies", {}))
+
     def test_package_uv_run_commands_are_lock_strict(self) -> None:
         excluded_parts = {".git", "artifacts", "dist", "node_modules"}
         uv_run = re.compile(r"(?<![\w-])uv\s+run(?=\s)")

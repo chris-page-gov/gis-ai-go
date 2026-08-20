@@ -1,22 +1,15 @@
 import assert from "node:assert/strict";
 import { request as nodeRequest } from "node:http";
+import { fileURLToPath } from "node:url";
 import test from "node:test";
 
-import type { CatalogueSnapshot } from "../src/catalogue-snapshot.js";
+import { loadCatalogueSnapshot } from "../src/catalogue-snapshot.js";
 import { createGatewayNodeServer } from "../src/http-server.js";
 
-const snapshot = {
-  bundle: { records: [] },
-  recordsById: new Map(),
-  version: "0.1.0",
-  revision: "a".repeat(40),
-  contentRootSha256: "b".repeat(64),
-  manifestSha256: "c".repeat(64),
-  recordCount: 36,
-  stale: false,
-  warnings: Object.freeze([]),
-  root: "/verified/catalogue",
-} as unknown as CatalogueSnapshot;
+const snapshot = await loadCatalogueSnapshot(
+  fileURLToPath(new URL("../../../../artifacts/okf/", import.meta.url)),
+  { now: new Date("2026-08-20T12:00:00Z") },
+);
 
 interface ReceivedResponse {
   readonly status: number;
@@ -24,7 +17,7 @@ interface ReceivedResponse {
   readonly body: string;
 }
 
-test("the bounded Node adapter serves health and rejects request bodies", async () => {
+test("the bounded Node adapter serves health and rejects invalid routes", async () => {
   const server = createGatewayNodeServer(snapshot);
   await new Promise<void>((resolve, reject) => {
     server.once("error", reject);
@@ -75,7 +68,11 @@ test("the bounded Node adapter serves health and rejects request bodies", async 
 
     const bodyRejected = await send("POST", "{}");
     assert.equal(bodyRejected.status, 400);
-    assert.equal(bodyRejected.body, "");
+    assert.equal(
+      bodyRejected.headers["content-type"],
+      "application/problem+json; charset=utf-8",
+    );
+    assert.equal(JSON.parse(bodyRejected.body).code, "invalid_request");
 
     const absoluteTargetRejected = await send(
       "GET",
