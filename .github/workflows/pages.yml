@@ -146,10 +146,10 @@ jobs:
             printf 'artifact_digest=%s\n' "$artifact_digest"
           } >> "$GITHUB_OUTPUT"
 
-      - name: Check out the exact source commit
+      - name: Check out the protected-main deployment verifier
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ inputs.source_commit }}
+          ref: ${{ github.sha }}
           fetch-depth: 1
           persist-credentials: false
 
@@ -356,10 +356,10 @@ jobs:
     permissions:
       contents: read
     steps:
-      - name: Check out deployed source
+      - name: Check out the protected-main public verifier
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ inputs.source_commit }}
+          ref: ${{ github.sha }}
           fetch-depth: 1
           persist-credentials: false
 

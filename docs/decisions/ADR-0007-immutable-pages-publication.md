@@ -43,6 +43,12 @@ previously accepted source CI run and digest. A restore selects the later accept
 artefact. Neither action rebuilds source. Deployment reasons and selected identities
 remain in the workflow record.
 
+All executable deployment and public-verification code is checked out from the
+current protected `main` workflow commit. The selected source commit is handled only
+as an attested archive identity and never as executable workflow input. A retained
+archive that is no longer compatible with the protected-main verifier must stop for
+a reviewed compatibility change; the workflow must not execute its older source.
+
 The deployed application continues to use its exact meta Content Security Policy.
 GitHub Pages does not provide repository-controlled response headers, so this
 decision does not claim `frame-ancestors` or other header-only controls.

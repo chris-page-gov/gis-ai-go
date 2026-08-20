@@ -3,6 +3,9 @@
 This runbook publishes or restores an already built GIS AI GO Pages artefact. It
 must never build the Explorer during deployment.
 
+The workflow runs verifier and browser-test code only from its current
+protected-`main` commit. It treats the selected source commit and archive as data.
+
 ## Publication identities
 
 Record all of these before dispatch:
@@ -108,6 +111,9 @@ run or a mutable branch archive. The current workflow accepts only an unexpired
 Actions source artefact. A release asset preserves evidence but is not an accepted
 deployment input; if the Actions artefact has expired, stop until a separately
 reviewed release-asset ingestion path exists.
+
+Also stop if an older retained archive is incompatible with the current
+protected-main verifier. Do not execute verifier code from the selected old commit.
 
 ## Public acceptance
 

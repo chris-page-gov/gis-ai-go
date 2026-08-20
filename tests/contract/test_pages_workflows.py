@@ -177,7 +177,8 @@ class PagesWorkflowTests(unittest.TestCase):
         self.assertIn("'.payloadRootSha256'", PAGES_WORKFLOW)
         self.assertIn("'.publication.checksumsSha256'", PAGES_WORKFLOW)
         verification = PAGES_WORKFLOW.split("\n  public-verification:\n", 1)[1]
-        self.assertIn("ref: ${{ inputs.source_commit }}", verification)
+        self.assertEqual(PAGES_WORKFLOW.count("ref: ${{ github.sha }}"), 2)
+        self.assertNotIn("ref: ${{ inputs.source_commit }}", PAGES_WORKFLOW)
         self.assertIn("PUBLIC_BASE_URL: ${{ needs.deploy.outputs.page_url }}", verification)
         self.assertIn("EXPECTED_SOURCE_COMMIT: ${{ inputs.source_commit }}", verification)
         self.assertIn(

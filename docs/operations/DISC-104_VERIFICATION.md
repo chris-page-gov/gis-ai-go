@@ -15,6 +15,10 @@ SHA-256 digest, deterministic receipt and GitHub provenance all agree.
 No workflow publishes the repository root, immutable research viewer, source tree,
 provider payload, credential or protected data. Deployment performs no build.
 
+Deployment-time verifier and browser-test code always comes from the current
+protected-main workflow commit. A dispatch-selected source commit remains
+non-executable archive identity data.
+
 ## Candidate gates
 
 Before merge, record:
