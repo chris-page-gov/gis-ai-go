@@ -105,23 +105,26 @@ The supported target active set is exactly `catalogue.search`,
 - the candidate verifies the immutable catalogue, supplies deterministic bounded
   in-process search and description, and exposes only loopback health, blocked
   readiness and OpenAPI with zero active tools or API operations; and
-- the local EVID-204A candidate adds RFC 8785 canonicalisation, content-addressed
-  anonymous-open authority and policy decisions, and independently verified inline
-  receipts to every in-process catalogue success while keeping activation blocked.
+- EVID-204A merged through
+  [pull request 29](https://github.com/chris-page-gov/gis-ai-go/pull/29) as
+  `af9043955470568c146397d1a25dd8813eb7aa55`; it adds RFC 8785
+  canonicalisation, content-addressed anonymous-open authority and policy decisions,
+  and independently verified inline receipts to every in-process catalogue success
+  while keeping activation blocked.
 
 ## Next
 
-1. Complete independent review and the protected pull-request gate for the bounded
-   EVID-204A inline-evidence candidate.
-2. Add and verify the protocol-conformant MCP listener and direct catalogue routes,
-   then activate `catalogue.search` and `catalogue.describe` only when their full
+1. Add and verify the protocol-conformant MCP listener and direct catalogue routes,
+   while keeping operations inactive during transport conformance work.
+2. Activate `catalogue.search` and `catalogue.describe` only when their full
    policy, evidence, lifecycle and interoperability gates pass.
-3. Activate `evidence.inspect`, `selection.resolve` and `data.query` only after
-   their separate evidence gates pass; keep the other seven profiles planned.
+3. Add `evidence.inspect`, durable evidence handling, `selection.resolve` and
+   `data.query` only after their separate evidence gates pass; keep the other seven
+   profiles planned.
 
 ## Current blockers
 
-- No blocker is known for the bounded EVID-204A pull-request gate.
+- No blocker is known for the next inactive transport slice.
 - Activating or publishing a catalogue service remains hard-blocked until transport
   conformance and interoperability are implemented and reviewed. The current
   candidate has no activation override.
@@ -149,7 +152,17 @@ The supported target active set is exactly `catalogue.search`,
   [run 32344358198](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32344358198),
   then merged as `4948890c10adb4f0ac6f427cda21cb0c0c4607dd`; the candidate exposes no
   catalogue operation, MCP tool or public deployment;
-- EVID-204A local candidate: 19 shared-contract tests, 20 canonical-evidence tests,
+- EVID-204A accepted slice: protected
+  [pull request 29](https://github.com/chris-page-gov/gis-ai-go/pull/29) merged as
+  `af9043955470568c146397d1a25dd8813eb7aa55`; assurance and provenance passed in
+  [run 32357424957](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32357424957),
+  CodeQL passed in
+  [run 32357427549](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32357427549),
+  and [attestation 41836254](https://github.com/chris-page-gov/gis-ai-go/attestations/41836254)
+  binds archive SHA-256
+  `5253b24944e2579791bcb22f42fa6792fa5a27e34e6b36f29ffde0162b509362`
+  to that exact protected-main commit and workflow;
+- EVID-204A complete gate: 19 shared-contract tests, 20 canonical-evidence tests,
   2 authority-context tests, 6 public-policy tests and 41 gateway tests pass; all
   94 repository Python tests, 2 execution-boundary tests, 16 Explorer build-policy
   tests, 42 Explorer unit and component tests and 27 real-browser tests also pass;
