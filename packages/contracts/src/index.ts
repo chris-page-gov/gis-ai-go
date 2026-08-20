@@ -6,3 +6,4 @@ export const contractMetadata = Object.freeze({
 } as const);
 
 export * from "./catalogue/index.js";
+export * from "./execution/index.js";

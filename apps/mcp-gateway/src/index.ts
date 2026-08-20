@@ -3,6 +3,7 @@ export * from "./catalogue-application.js";
 export * from "./catalogue-snapshot.js";
 export * from "./cursor.js";
 export * from "./evidence-application.js";
+export * from "./execution-envelope.js";
 export * from "./http-app.js";
 export * from "./http-server.js";
 export * from "./metadata.js";

@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:execution-problem:1",
+  "title": "GIS AI GO private execution problem",
+  "description": "Controlled non-reflective failure envelope. Stack traces, paths and provider messages are forbidden.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "request_id",
+    "trace",
+    "status",
+    "code",
+    "title",
+    "detail",
+    "retryable"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gis-ai-go.execution-problem.v1"
+    },
+    "request_id": {
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._:-]{0,127}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "trace": {
+      "oneOf": [
+        {
+          "$ref": "urn:gis-ai-go:schema:execution-request:1#/$defs/trace"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "status": {
+      "enum": [400, 404, 405, 408, 409, 413, 422, 429, 500]
+    },
+    "code": {
+      "enum": [
+        "INVALID_REQUEST",
+        "NOT_FOUND",
+        "METHOD_NOT_ALLOWED",
+        "UNKNOWN_OPERATION",
+        "SOURCE_MISMATCH",
+        "INVALID_CRS",
+        "INVALID_AXIS_ORDER",
+        "INVALID_GEOMETRY",
+        "LIMIT_EXCEEDED",
+        "DEADLINE_EXCEEDED",
+        "EXECUTION_CANCELLED",
+        "OUTPUT_LIMIT_EXCEEDED",
+        "CAPACITY_EXCEEDED",
+        "INTERNAL_ERROR"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80,
+      "pattern": "^[A-Za-z0-9 ,.-]+$"
+    },
+    "detail": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "^[A-Za-z0-9 ,.'-]+$"
+    },
+    "retryable": {
+      "type": "boolean"
+    }
+  }
+}

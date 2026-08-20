@@ -1,0 +1,48 @@
+{
+  "schema": "gis-ai-go.execution-request.v1",
+  "request_id": "exec-202-example",
+  "operation": "fixture.features.query",
+  "trace": {
+    "traceparent": "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01",
+    "tracestate": "gis-ai-go=synthetic"
+  },
+  "gateway_authorisation": {
+    "schema": "gis-ai-go.gateway-authorisation.v1",
+    "decision_id": "decision-exec-202",
+    "decision_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "permitted_operation": "fixture.features.query"
+  },
+  "deadline": "2026-08-20T12:00:10Z",
+  "limits": {
+    "max_features": 10,
+    "max_coordinates": 32,
+    "max_input_bytes": 65536,
+    "max_output_bytes": 262144,
+    "max_complexity": 1024
+  },
+  "parameters": {
+    "fixture_id": "synthetic-gb-places-v1",
+    "source": {
+      "provider_id": "gis-ai-go.synthetic-fixture",
+      "dataset_id": "synthetic-gb-places",
+      "version": "1.0.0",
+      "rights": "CC0-1.0",
+      "source_uri": "urn:gis-ai-go:fixture:synthetic-gb-places:1"
+    },
+    "crs": "EPSG:4326",
+    "axis_order": "longitude-latitude",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [-4, 50],
+          [0, 50],
+          [0, 54],
+          [-4, 54],
+          [-4, 50]
+        ]
+      ]
+    },
+    "limit": 3
+  }
+}

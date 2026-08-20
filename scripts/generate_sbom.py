@@ -12,6 +12,11 @@ from typing import Any, Iterator
 from urllib.parse import quote
 
 ROOT = Path(__file__).resolve().parents[1]
+EXECUTION_BASE_NAME = "python"
+EXECUTION_BASE_VERSION = "3.12.14-slim-bookworm"
+EXECUTION_BASE_DIGEST = (
+    "sha256:a116514e19457bcb7af7efe9c3dd0b9b71e85b317694e7882a1c52aa15a78134"
+)
 
 
 def npm_workspace_versions(root: Path) -> dict[str, str]:
@@ -85,13 +90,41 @@ def python_components() -> Iterator[dict[str, str]]:
         }
 
 
+def execution_container_components() -> Iterator[dict[str, str]]:
+    """Bind the private execution image to its reviewed multi-architecture base."""
+
+    containerfile = (
+        ROOT / "services" / "geo-execution" / "Containerfile"
+    ).read_text(encoding="utf-8")
+    expected = (
+        f"FROM {EXECUTION_BASE_NAME}:{EXECUTION_BASE_VERSION}@{EXECUTION_BASE_DIGEST}"
+    )
+    if expected not in containerfile.splitlines():
+        raise AssertionError("execution Containerfile differs from the SBOM base identity")
+    purl = (
+        f"pkg:oci/{EXECUTION_BASE_NAME}@{quote(EXECUTION_BASE_VERSION, safe='')}"
+        f"?repository_url=docker.io%2Flibrary%2Fpython"
+        f"&digest={quote(EXECUTION_BASE_DIGEST, safe='')}"
+    )
+    yield {
+        "type": "container",
+        "name": EXECUTION_BASE_NAME,
+        "version": EXECUTION_BASE_VERSION,
+        "purl": purl,
+    }
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
 
     unique: dict[tuple[str, str, str], dict[str, str]] = {}
-    for component in [*npm_components(), *python_components()]:
+    for component in [
+        *npm_components(),
+        *python_components(),
+        *execution_container_components(),
+    ]:
         key = (component["purl"], component["name"], component["version"])
         unique[key] = component
 
@@ -115,7 +148,11 @@ def main() -> None:
             "properties": [
                 {
                     "name": "gis-ai-go:scope",
-                    "value": "resolved package dependencies; no container or runtime image",
+                    "value": (
+                        "resolved package dependencies and the pinned private execution "
+                        "container base; full operating-system package inventory is deferred "
+                        "to release-image assurance"
+                    ),
                 }
             ],
         },

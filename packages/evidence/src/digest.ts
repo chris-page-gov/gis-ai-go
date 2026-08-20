@@ -17,6 +17,8 @@ export const CANONICAL_DOMAINS = Object.freeze({
   evidenceReplayKey: "gis-ai-go.evidence-replay-key.v1",
   evidenceReceipt: "gis-ai-go.evidence-receipt.v1",
   publicEvidenceRecord: "gis-ai-go.public-evidence-record.v1",
+  executionParameters: "gis-ai-go.execution-parameters.v1",
+  executionResultData: "gis-ai-go.execution-result-data.v1",
   publicPolicy: "gis-ai-go.public-policy.v1",
   publicPolicyDecision: "gis-ai-go.public-policy-decision.v1",
 } as const);

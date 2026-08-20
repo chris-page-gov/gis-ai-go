@@ -256,6 +256,33 @@ def main() -> None:
             [("synthetic evidence inspection result", inspect_fixture)],
         ),
         (
+            "execution-request.schema.json",
+            [
+                (
+                    "execution-request.example.json",
+                    load_json(fixture_dir / "execution-request.example.json"),
+                )
+            ],
+        ),
+        (
+            "execution-result.schema.json",
+            [
+                (
+                    "execution-result.example.json",
+                    load_json(fixture_dir / "execution-result.example.json"),
+                )
+            ],
+        ),
+        (
+            "execution-problem.schema.json",
+            [
+                (
+                    "execution-problem.example.json",
+                    load_json(fixture_dir / "execution-problem.example.json"),
+                )
+            ],
+        ),
+        (
             "decision.schema.json",
             [
                 (record["id"], record)

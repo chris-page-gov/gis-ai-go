@@ -11,21 +11,18 @@ The supported target active set is exactly `catalogue.search`,
 
 ## Active workstream
 
-`MCP-201 — Verify blocked MCP and direct-API transports`
+`EXEC-202 — Implement the typed deterministic execution service`
 
-- expose the already accepted `catalogue.search` and `catalogue.describe`
-  application through bounded direct POST handlers and MCP 2026-07-28 HTTP and
-  STDIO transports;
-- keep direct API, MCP tool and MCP resource registration behind explicit
-  constructor options used only for local conformance and embedding tests;
-- keep the frozen production/default tool and API arrays empty, resources absent,
-  readiness at `503` and both shipped entry points free of an activation override;
-- advertise the exact canonical request and result schemas on both protocol faces
-  and preserve complete structured results plus the JSON text fallback;
-- verify protocol errors, direct/MCP parity, strict hostile-input handling,
-  bounded resources and process entry points against the pinned split v2 SDK; and
-- record independent major-host interoperability, non-App fallback, complete-gate,
-  review and publication evidence separately before any activation decision.
+- share closed versioned gateway/Python request, result and problem envelopes;
+- allow only deterministic `fixture.features.query` over fictional public records;
+- enforce exact source, CRS and axis order plus geometry, feature, coordinate,
+  byte, output, complexity, deadline and cancellation bounds;
+- preserve trace, provider-native source/version/rights and explicit
+  transformation/software evidence without raw errors;
+- expose loopback-only private health, readiness, OpenAPI, execution and
+  cancellation surfaces with no identity or policy authority; and
+- verify non-root, read-only, network-none container operation before protected
+  pull-request acceptance.
 
 ## Completed
 
@@ -116,17 +113,21 @@ The supported target active set is exactly `catalogue.search`,
 
 ## Next
 
-1. Verify independent major-host interoperability and the complete non-App fallback
-   and lifecycle journeys before considering activation or deployment of
-   `catalogue.search` and `catalogue.describe`.
-2. Make any activation a separate reviewed change with explicit rollback and
-   publication evidence; do not reuse the constructor-only conformance seam.
-3. Add `evidence.inspect`, durable evidence handling, `selection.resolve` and
-   `data.query` only after their separate evidence gates pass; keep the other seven
-   profiles planned.
+1. Freeze the EXEC-202 candidate in a reviewed commit, protected pull request and
+   exact-head assurance record; no deployment is part of this change.
+2. Implement ADAPT-203 through a separately reviewed fixed-endpoint open provider
+   contract; do not expand the synthetic allowlist implicitly.
+3. Complete durable EVID-204 storage and `evidence.inspect`, then add the bounded
+   TOOLS-205 registry without activating an unassured tool.
 
 ## Current blockers
 
+- There is no local implementation or test blocker for the synthetic-only EXEC-202
+  candidate. Commit, pull-request review, protected checks, CodeQL and attestation
+  are pending.
+- The gateway assertion is a typed private hand-off, not workload authentication or
+  a signed policy decision. Any non-loopback deployment remains blocked on explicit
+  service identity and network-policy evidence.
 - The inactive transport foundation is accepted on protected `main`; there is no
   remaining implementation, pull-request, assurance, CodeQL or attestation blocker
   for that zero-activation slice.
@@ -145,6 +146,21 @@ The supported target active set is exactly `catalogue.search`,
 
 ## Latest evidence
 
+- EXEC-202 local candidate: the complete locked gate passes with 19 shared-contract,
+  25 canonical-evidence, 2 authority-context, 6 policy, 95 gateway, 16 Explorer
+  build-policy, 42 Explorer unit/component, 99 repository Python, 20 execution
+  service and 27 real-browser tests;
+- EXEC-202 execution assurance: deterministic gateway/Python fixtures validate
+  against 3 new closed schemas; malformed geometry, CRS/axis, feature, coordinate,
+  byte, output, complexity, deadline, cancellation, compression, hostile Host and
+  non-reflective error regressions pass; the actual container passes non-root,
+  read-only, network-none, no-capability and no-exposed-port acceptance;
+- EXEC-202 repository assurance: 23 schemas and 63 records validate; 314 links, 183
+  immutable research hashes, 2 ledgers and 71 source identifiers resolve; the
+  555-file secret scan, 9 diagrams, 164-component SBOM and npm high-severity audit
+  pass; two clean release builds are byte-identical. The exact candidate-commit
+  archive identity is recorded in the pull-request assurance evidence rather than
+  self-referentially in this commit;
 - MCP-201 blocked transport foundation: exact local implementation commit
   `fb0234b9a6a968fe68c2fbe98388f2415393c9c1`, based on protected-main commit
   `997d5fdd478797b20b05d1980be8f986645d410e`, passes the complete locked gate with
