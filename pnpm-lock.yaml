@@ -20,9 +20,18 @@ importers:
 
   apps/mcp-gateway:
     dependencies:
+      '@gis-ai-go/authority-context':
+        specifier: workspace:*
+        version: link:../../packages/authority-context
       '@gis-ai-go/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
+      '@gis-ai-go/evidence':
+        specifier: workspace:*
+        version: link:../../packages/evidence
+      '@gis-ai-go/policy-client':
+        specifier: workspace:*
+        version: link:../../packages/policy-client
       '@modelcontextprotocol/server':
         specifier: 2.0.0
         version: 2.0.0
@@ -49,7 +58,27 @@ importers:
         specifier: 4.1.11
         version: 4.1.11(@types/node@24.13.3)(jsdom@30.0.1)(vite@8.2.1(@types/node@24.13.3))
 
+  packages/authority-context:
+    dependencies:
+      '@gis-ai-go/evidence':
+        specifier: workspace:*
+        version: link:../evidence
+
   packages/contracts: {}
+
+  packages/evidence: {}
+
+  packages/policy-client:
+    dependencies:
+      '@gis-ai-go/authority-context':
+        specifier: workspace:*
+        version: link:../authority-context
+      '@gis-ai-go/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+      '@gis-ai-go/evidence':
+        specifier: workspace:*
+        version: link:../evidence
 
 packages:
 

@@ -15,7 +15,7 @@
   "security": [],
   "x-gis-ai-go-lifecycle": "candidate-blocked",
   "x-gis-ai-go-active-catalogue-operations": [],
-  "x-gis-ai-go-blocked-by": "inline-evidence-and-public-policy-unavailable",
+  "x-gis-ai-go-blocked-by": "transport-and-interoperability-unverified",
   "paths": {
     "/healthz": {
       "get": {
@@ -150,7 +150,7 @@
             "const": "blocked"
           },
           "reason": {
-            "const": "inline-evidence-and-public-policy-unavailable"
+            "const": "transport-and-interoperability-unverified"
           },
           "active_tools": {
             "type": "array",

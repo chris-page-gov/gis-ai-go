@@ -1,0 +1,22 @@
+{
+  "authority_context_id": "gis-ai-go:public-authority-context:sha256:cc90ac84527a6a85bc3e02529b5b4422d1a7bdf5bdcd77346a78006eeca1d34c",
+  "canonicalisation": "rfc8785-jcs",
+  "decision_id": "gis-ai-go:public-policy-decision:sha256:d90bab8e8fb33ff2833d4dcb6b398a0fcf2bea8fcc469b9415c9bffecaa1cbd6",
+  "effect": "allow-with-obligations",
+  "obligations": [
+    "inline-evidence-receipt",
+    "not-attested",
+    "not-persisted",
+    "preserve-attribution",
+    "preserve-described-resource-licence",
+    "preserve-record-licence"
+  ],
+  "operation": "catalogue.search",
+  "policy_default_effect": "deny",
+  "policy_id": "gis-ai-go:public-policy:sha256:f39abe3f35f910dd27c9af9296bbccba33f76fec6d8d6acbba7c3b846d9a1e8f",
+  "policy_version": "1.0.0",
+  "reason_code": "public-catalogue-read-allowed",
+  "request_id": "request-public-catalogue-001",
+  "schema": "gis-ai-go.public-policy-decision.v1",
+  "trace_id": "0123456789abcdef0123456789abcdef"
+}

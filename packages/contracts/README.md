@@ -17,10 +17,12 @@ authority for transport requests and responses. The checksum-verified OKF bundle
 the authority for catalogue records; TypeScript types do not create new records or
 provider capabilities.
 
-The candidate catalogue result schema deliberately omits a receipt. `EVID-204` must
-add and verify the canonical inline evidence contract before any public catalogue
-tool is activated; an opaque reference must not imply an evidence store that does
-not exist.
+The candidate catalogue result schema requires the canonical EVID-204A inline
+receipt on every successful search and description result. The receipt explicitly
+states that it is not persisted and not attested; it is not an opaque reference to
+an evidence store. Transport activation remains a separately reviewed lifecycle
+decision.
 
 The package does not start a listener, fetch a provider, execute Python, decide
-policy or persist evidence.
+policy or persist evidence. Those responsibilities remain in their bounded
+consumer packages.

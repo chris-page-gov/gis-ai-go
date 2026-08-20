@@ -53,7 +53,7 @@ test("readiness is deliberately blocked with zero active operations", async () =
   assert.equal(response.status, 503);
   assert.deepEqual(await response.json(), {
     status: "blocked",
-    reason: "inline-evidence-and-public-policy-unavailable",
+    reason: "transport-and-interoperability-unverified",
     active_tools: [],
     active_api_operations: [],
   });

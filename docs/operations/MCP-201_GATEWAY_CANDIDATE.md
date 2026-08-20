@@ -5,7 +5,7 @@
 - protected-main base: `e5e6d4db5ac7036198cde64279e815f214f3defd`
 - supported public product: immutable
   [`v0.1.0`](https://github.com/chris-page-gov/gis-ai-go/releases/tag/v0.1.0)
-- activation block: `inline-evidence-and-public-policy-unavailable`
+- current activation block: `transport-and-interoperability-unverified`
 
 ## Purpose
 
@@ -46,7 +46,10 @@ The transport-neutral application implements deterministic in-process
   schema without truncation or semantic reinterpretation;
 - stable sorting and catalogue-native source relationships; and
 - opaque deterministic cursors bound to the exact catalogue content root and
-  normalised search criteria.
+  normalised search criteria; and
+- after the bounded EVID-204A follow-up, a server-owned anonymous-open authority,
+  compiled default-deny public policy and required canonical inline receipt on
+  every successful result.
 
 Cursor digests detect corruption and misuse across catalogue or query boundaries.
 They are not an authentication mechanism and convey no authority.
@@ -75,8 +78,8 @@ This candidate has no:
 - MCP listener, discovery response or tool registration;
 - public deployment, public service URL or registry entry;
 - provider adapter or provider network call;
-- public policy decision point, identity integration or rate service; or
-- canonical evidence store or reviewed inline result receipt.
+- external policy decision point, OPA, identity integration or rate service; or
+- evidence store, ledger, lookup or attestation.
 
 The static Explorer remains the only supported public product. It does not depend
 on this process.
@@ -87,12 +90,13 @@ The production activation value is frozen with zero active MCP tools and zero
 active direct-API operations. It has no environment-variable, command-line or test
 escape hatch.
 
-EVID-204 must provide reviewed public policy decisions and canonical inline
-evidence receipts on the shared application path. A later pull request must then
-add and verify the protocol-conformant MCP listener, direct catalogue routes,
-matching lifecycle discovery, malicious-input controls and client
-interoperability. Only that reviewed change may replace the block and advertise a
-catalogue capability.
+The bounded EVID-204A follow-up provides reviewed public policy decisions and
+canonical, non-persisted, non-attested inline evidence on the shared application
+path without activating it. A later pull request must add and verify the
+protocol-conformant MCP listener, direct catalogue routes, matching lifecycle
+discovery, malicious-input controls and client interoperability. Only that reviewed
+change may replace the current block and advertise a catalogue capability.
 
-See the [verification record](MCP-201_VERIFICATION.md) for the distinction between
-the two protected-main slices and their accepted evidence.
+See the [MCP-201 verification record](MCP-201_VERIFICATION.md) and
+[EVID-204A evidence boundary](EVID-204_INLINE_EVIDENCE.md) for the distinction
+between merged capability foundations and inactive follow-up work.

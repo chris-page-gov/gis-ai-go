@@ -13,6 +13,7 @@ research recommendations remain unchanged in the preserved pack at
 - [ADR-0007: Immutable GitHub Pages publication](ADR-0007-immutable-pages-publication.md)
 - [ADR-0008: Supported Pages transport from verified payload](ADR-0008-supported-pages-transport.md)
 - [ADR-0009: Read-only MCP tool lifecycle](ADR-0009-read-only-mcp-tool-lifecycle.md)
+- [ADR-0010: Canonical public inline evidence](ADR-0010-canonical-public-inline-evidence.md)
 
 Research decisions D01–D19 are accepted as constraints for building and evaluating
 Stage 0, not as blanket authority for later production stages. Research decision D20

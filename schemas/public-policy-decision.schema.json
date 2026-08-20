@@ -1,0 +1,171 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:public-policy-decision:v1",
+  "title": "GIS AI GO public policy decision",
+  "description": "A bounded decision produced by the compiled default-deny public catalogue policy. It contains only the governed operation, policy binding, controlled outcome and obligations.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "canonicalisation",
+    "decision_id",
+    "request_id",
+    "trace_id",
+    "authority_context_id",
+    "policy_id",
+    "policy_version",
+    "policy_default_effect",
+    "operation",
+    "effect",
+    "reason_code",
+    "obligations"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gis-ai-go.public-policy-decision.v1"
+    },
+    "canonicalisation": {
+      "const": "rfc8785-jcs"
+    },
+    "decision_id": {
+      "type": "string",
+      "pattern": "^gis-ai-go:public-policy-decision:sha256:[0-9a-f]{64}$"
+    },
+    "request_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "trace_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{32}$"
+    },
+    "authority_context_id": {
+      "type": "string",
+      "pattern": "^gis-ai-go:public-authority-context:sha256:[0-9a-f]{64}$"
+    },
+    "policy_id": {
+      "type": "string",
+      "pattern": "^gis-ai-go:public-policy:sha256:[0-9a-f]{64}$"
+    },
+    "policy_version": {
+      "type": "string",
+      "maxLength": 32,
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+    },
+    "policy_default_effect": {
+      "const": "deny"
+    },
+    "operation": {
+      "$ref": "#/$defs/governed_operation"
+    },
+    "effect": {
+      "enum": [
+        "allow-with-obligations",
+        "deny"
+      ]
+    },
+    "reason_code": {
+      "enum": [
+        "public-catalogue-read-allowed",
+        "operation-not-allowed",
+        "authority-context-not-applicable",
+        "publication-not-public"
+      ]
+    },
+    "obligations": {
+      "type": "array",
+      "maxItems": 6,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/obligation"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "effect": {
+            "const": "allow-with-obligations"
+          }
+        },
+        "required": [
+          "effect"
+        ]
+      },
+      "then": {
+        "properties": {
+          "operation": {
+            "enum": [
+              "catalogue.search",
+              "catalogue.describe"
+            ]
+          },
+          "reason_code": {
+            "const": "public-catalogue-read-allowed"
+          },
+          "obligations": {
+            "minItems": 6,
+            "maxItems": 6
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "effect": {
+            "const": "deny"
+          }
+        },
+        "required": [
+          "effect"
+        ]
+      },
+      "then": {
+        "properties": {
+          "reason_code": {
+            "enum": [
+              "operation-not-allowed",
+              "authority-context-not-applicable",
+              "publication-not-public"
+            ]
+          },
+          "obligations": {
+            "maxItems": 0
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "governed_operation": {
+      "enum": [
+        "catalogue.search",
+        "catalogue.describe",
+        "selection.resolve",
+        "data.query",
+        "spatial.locate",
+        "spatial.analyse",
+        "statistics.compare",
+        "route.plan",
+        "map.render",
+        "artefact.export",
+        "evidence.inspect",
+        "workflow.execute"
+      ]
+    },
+    "obligation": {
+      "enum": [
+        "inline-evidence-receipt",
+        "preserve-record-licence",
+        "preserve-described-resource-licence",
+        "preserve-attribution",
+        "not-persisted",
+        "not-attested"
+      ]
+    }
+  }
+}

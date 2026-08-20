@@ -14,6 +14,25 @@ from urllib.parse import quote
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def npm_workspace_versions(root: Path) -> dict[str, str]:
+    """Return canonical versions for the root and every pnpm workspace package."""
+    manifests = [root / "package.json"]
+    manifests.extend(sorted((root / "apps").glob("*/package.json")))
+    manifests.extend(sorted((root / "packages").glob("*/package.json")))
+
+    versions: dict[str, str] = {}
+    for manifest in manifests:
+        package = json.loads(manifest.read_text(encoding="utf-8"))
+        name = package.get("name")
+        version = package.get("version")
+        if not isinstance(name, str) or not isinstance(version, str):
+            raise AssertionError(f"Workspace manifest lacks a package name or version: {manifest}")
+        if name in versions:
+            raise AssertionError(f"Duplicate workspace package name: {name}")
+        versions[name] = version
+    return versions
+
+
 def npm_components() -> Iterator[dict[str, str]]:
     result = subprocess.run(
         ["pnpm", "list", "--recursive", "--depth", "Infinity", "--json"],
@@ -23,11 +42,18 @@ def npm_components() -> Iterator[dict[str, str]]:
         text=True,
     )
     projects = json.loads(result.stdout)
+    workspace_versions = npm_workspace_versions(ROOT)
 
     def visit(dependencies: dict[str, Any]) -> Iterator[dict[str, str]]:
         for name, detail in dependencies.items():
             version = detail.get("version")
             if version:
+                if version.startswith("link:"):
+                    version = workspace_versions.get(name)
+                    if version is None:
+                        raise AssertionError(
+                            f"Workspace link has no matching checked-in package manifest: {name}"
+                        )
                 encoded = quote(name, safe="/")
                 yield {
                     "type": "library",

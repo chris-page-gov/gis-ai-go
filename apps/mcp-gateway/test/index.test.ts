@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import * as gateway from "../src/index.js";
 import { catalogueActivation, gatewayMetadata } from "../src/index.js";
 
 test("publishes the agreed inactive gateway identity", () => {
@@ -14,11 +15,13 @@ test("publishes the agreed inactive gateway identity", () => {
 test("has no activation or environment-variable escape hatch", () => {
   assert.deepEqual(catalogueActivation, {
     state: "blocked",
-    reason: "inline-evidence-and-public-policy-unavailable",
+    reason: "transport-and-interoperability-unverified",
     activeTools: [],
     activeApiOperations: [],
   });
   assert.equal(Object.isFrozen(catalogueActivation), true);
   assert.deepEqual(gatewayMetadata.activeTools, []);
   assert.deepEqual(gatewayMetadata.activeApiOperations, []);
+  assert.equal("searchCatalogue" in gateway, false);
+  assert.equal("describeCatalogue" in gateway, false);
 });

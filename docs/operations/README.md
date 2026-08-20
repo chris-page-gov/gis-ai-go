@@ -19,3 +19,4 @@ MCP service or catalogue API exists.
 - [`v0.1.0` supported-release evidence](V0.1.0_RELEASE_EVIDENCE.md)
 - [MCP-201 inactive gateway candidate boundary](MCP-201_GATEWAY_CANDIDATE.md)
 - [MCP-201 verification record](MCP-201_VERIFICATION.md)
+- [EVID-204 canonical public inline evidence](EVID-204_INLINE_EVIDENCE.md)

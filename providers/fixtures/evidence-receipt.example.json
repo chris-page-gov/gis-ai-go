@@ -1,79 +1,129 @@
 {
-  "receipt_id": "receipt_demo_001",
-  "created_at": "2026-08-19T12:00:03Z",
-  "request_id": "request_demo_001",
-  "trace_id": "0123456789abcdef0123456789abcdef",
-  "authority_context_id": "authctx_demo_psga_001",
-  "policy_decision_id": "pdp_demo_001",
-  "operation": {
-    "tool": "data.query",
-    "version": "0.1.0-proposed",
-    "parameters_digest": "sha256:synthetic-parameters",
-    "workflow_id": "WF03"
+  "authority_context": {
+    "access": {
+      "authentication": "none",
+      "contains_personal_data": false,
+      "contains_protected_data": false,
+      "publication_classification": "public",
+      "read_only": true,
+      "tier": "open"
+    },
+    "canonicalisation": "rfc8785-jcs",
+    "construction": {
+      "product": "gis-ai-go-gateway",
+      "profile": "anonymous-open",
+      "source": "server"
+    },
+    "context_id": "gis-ai-go:public-authority-context:sha256:cc90ac84527a6a85bc3e02529b5b4422d1a7bdf5bdcd77346a78006eeca1d34c",
+    "evidence": {
+      "attestation": "not-attested",
+      "persistence": "not-persisted",
+      "receipt": "inline-required"
+    },
+    "permitted_operations": [
+      "catalogue.describe",
+      "catalogue.search"
+    ],
+    "schema": "gis-ai-go.public-authority-context.v1"
   },
-  "sources": [
-    {
-      "provider": "Ordnance Survey",
-      "dataset": "OS NGD Buildings",
-      "version": "synthetic-fixture-2026-08-19",
-      "uri": "urn:synthetic:os-ngd-buildings",
-      "retrieved_at": "2026-08-19T12:00:02Z",
-      "checksum": "sha256:synthetic-source",
-      "licence": "Synthetic stand-in; no licensed data included"
-    }
-  ],
-  "transformations": [
-    {
-      "name": "aggregate-count",
-      "parameters": {
-        "group_by": "accessibility-status"
-      },
-      "input_crs": "EPSG:27700",
-      "output_crs": null,
-      "software": "PostGIS synthetic fixture"
-    }
-  ],
-  "software": [
-    {
-      "name": "gis-ai-go-execution",
-      "version": "0.1.0-proposed",
-      "digest": "sha256:synthetic-image"
-    }
-  ],
-  "outputs": [
-    {
-      "artefact_id": "result_demo_001",
-      "uri": null,
-      "media_type": "application/json",
-      "sha256": "sha256:synthetic-output",
-      "size_bytes": 420,
-      "redactions": [
-        "feature geometries withheld"
-      ]
-    }
-  ],
+  "catalogue": {
+    "content_root_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "id": "gis-ai-go:bundle:public-discovery",
+    "record_count": 36,
+    "reviewed_at": "2026-08-20T00:00:00Z",
+    "revision": "1111111111111111111111111111111111111111",
+    "stale_after": "2027-02-20T00:00:00Z",
+    "version": "0.1.0"
+  },
+  "created_at": "2026-08-20T08:00:00Z",
+  "evidence_handling": {
+    "attestation": "not-attested",
+    "delivery": "inline-only",
+    "persistence": "not-persisted"
+  },
   "licence_obligations": [
     {
-      "type": "attribution",
-      "status": "applied"
+      "attribution": "Contains HM Land Registry public sector information.",
+      "described_resource_licence": "Open Government Licence",
+      "record_id": "hmlr:dataset:inspire-index-polygons",
+      "record_licence": "MIT"
+    }
+  ],
+  "operation": {
+    "contract_version": "v1",
+    "name": "catalogue.search",
+    "normalised_parameters": {
+      "domain": "gis-ai-go.catalogue-parameters.v1",
+      "sha256": "b3f8d2fb0417f06784e9ebf48ac81d434fdbf163b281df6744ecd275169db3e8"
+    }
+  },
+  "policy_decision": {
+    "authority_context_id": "gis-ai-go:public-authority-context:sha256:cc90ac84527a6a85bc3e02529b5b4422d1a7bdf5bdcd77346a78006eeca1d34c",
+    "canonicalisation": "rfc8785-jcs",
+    "decision_id": "gis-ai-go:public-policy-decision:sha256:d90bab8e8fb33ff2833d4dcb6b398a0fcf2bea8fcc469b9415c9bffecaa1cbd6",
+    "effect": "allow-with-obligations",
+    "obligations": [
+      "inline-evidence-receipt",
+      "not-attested",
+      "not-persisted",
+      "preserve-attribution",
+      "preserve-described-resource-licence",
+      "preserve-record-licence"
+    ],
+    "operation": "catalogue.search",
+    "policy_default_effect": "deny",
+    "policy_id": "gis-ai-go:public-policy:sha256:f39abe3f35f910dd27c9af9296bbccba33f76fec6d8d6acbba7c3b846d9a1e8f",
+    "policy_version": "1.0.0",
+    "reason_code": "public-catalogue-read-allowed",
+    "request_id": "request-public-catalogue-001",
+    "schema": "gis-ai-go.public-policy-decision.v1",
+    "trace_id": "0123456789abcdef0123456789abcdef"
+  },
+  "receipt_id": "gis-ai-go:evidence-receipt:sha256:fba0ab0152db4114169cca27bfa1ce2817b42155a7c35a78f7bfe6e427ecada7",
+  "request_id": "request-public-catalogue-001",
+  "result": {
+    "domain": "gis-ai-go.catalogue-result-core.v1",
+    "media_type": "application/json",
+    "returned_record_count": 1,
+    "sha256": "1fe79c3a539931e3217942de8e2390164a43ac721c857f534e0af0e2c339f7a3"
+  },
+  "schema": "gis-ai-go.evidence-receipt.v1",
+  "software": {
+    "name": "gis-ai-go-mcp-gateway",
+    "revision": "1111111111111111111111111111111111111111",
+    "version": "0.1.0"
+  },
+  "trace_id": "0123456789abcdef0123456789abcdef",
+  "transformations": [
+    {
+      "name": "load-checksum-verified-catalogue",
+      "version": "v1"
     },
     {
-      "type": "no_persistent_export",
-      "status": "enforced"
+      "name": "normalise-parameters",
+      "version": "v1"
+    },
+    {
+      "name": "filter-catalogue",
+      "version": "v1"
+    },
+    {
+      "name": "project-result-core",
+      "version": "v1"
     }
   ],
   "verification": {
-    "status": "passed",
+    "canonicalisation": "rfc8785-jcs",
     "checks": [
-      "schema",
-      "policy-obligation",
-      "source-digest"
-    ]
-  },
-  "attestation": {
-    "status": "not-attested",
-    "attester": null,
-    "receipt_digest": null
-  },
-  "retention_classification": "synthetic-demo-30-days"
+      "authority-context",
+      "catalogue-integrity",
+      "licence-obligations",
+      "normalised-parameters-digest",
+      "public-policy-decision",
+      "result-core-digest",
+      "schema"
+    ],
+    "digest_algorithm": "sha256",
+    "status": "passed"
+  }
 }

@@ -6,7 +6,10 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
+from urllib.parse import quote
 
+import scripts.check_versions as check_versions
 from scripts.check_versions import (
     is_valid_product_version,
     release_metadata_errors,
@@ -18,7 +21,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 class ReleaseMetadataTests(unittest.TestCase):
-    def test_product_version_is_stable_semver(self) -> None:
+    def test_product_version_is_stable_semver_and_rejects_workspace_drift(self) -> None:
         for value in ("0.0.0", "0.1.0", "1.0.0", "10.23.456"):
             with self.subTest(value=value):
                 self.assertTrue(is_valid_product_version(value))
@@ -36,6 +39,58 @@ class ReleaseMetadataTests(unittest.TestCase):
             with self.subTest(value=value):
                 self.assertFalse(is_valid_product_version(value))
 
+        expected_manifests = (
+            "package.json",
+            "apps/mcp-gateway/package.json",
+            "apps/public-explorer/package.json",
+            "packages/authority-context/package.json",
+            "packages/contracts/package.json",
+            "packages/evidence/package.json",
+            "packages/policy-client/package.json",
+        )
+        self.assertEqual(check_versions.npm_package_manifests(ROOT), expected_manifests)
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            (root / "VERSION").write_text("0.1.0\n", encoding="utf-8")
+            for relative in expected_manifests:
+                manifest = root / relative
+                manifest.parent.mkdir(parents=True, exist_ok=True)
+                version = "9.9.9" if relative == "packages/evidence/package.json" else "0.1.0"
+                manifest.write_text(json.dumps({"version": version}), encoding="utf-8")
+            (root / "pyproject.toml").write_text(
+                '[project]\nname = "gis-ai-go"\nversion = "0.1.0"\n',
+                encoding="utf-8",
+            )
+            execution = root / "services" / "geo-execution" / "pyproject.toml"
+            execution.parent.mkdir(parents=True)
+            execution.write_text(
+                '[project]\nname = "gis-ai-go-execution"\nversion = "0.1.0"\n',
+                encoding="utf-8",
+            )
+            (root / "uv.lock").write_text(
+                '[[package]]\nname = "gis-ai-go"\nversion = "0.1.0"\n\n'
+                '[[package]]\nname = "gis-ai-go-execution"\nversion = "0.1.0"\n',
+                encoding="utf-8",
+            )
+
+            with patch.object(check_versions, "ROOT", root):
+                with self.assertRaisesRegex(
+                    SystemExit,
+                    r"packages/evidence/package\.json=9\.9\.9",
+                ):
+                    check_versions.main([])
+
+            extra_manifest = root / "packages" / "future-package" / "package.json"
+            extra_manifest.parent.mkdir(parents=True)
+            extra_manifest.write_text(json.dumps({"version": "9.9.9"}), encoding="utf-8")
+            with patch.object(check_versions, "ROOT", root):
+                with self.assertRaisesRegex(
+                    SystemExit,
+                    r"packages/future-package/package\.json=9\.9\.9",
+                ):
+                    check_versions.main([])
+
     def test_sbom_uses_canonical_product_version(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             output = Path(temporary_directory) / "sbom.cdx.json"
@@ -51,6 +106,24 @@ class ReleaseMetadataTests(unittest.TestCase):
         expected = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
         self.assertEqual(sbom["metadata"]["component"]["version"], expected)
         self.assertNotIn("Stage 0", sbom["metadata"]["properties"][0]["value"])
+        workspace_components = {
+            "@gis-ai-go/authority-context",
+            "@gis-ai-go/contracts",
+            "@gis-ai-go/evidence",
+            "@gis-ai-go/policy-client",
+        }
+        for name in workspace_components:
+            with self.subTest(package=name):
+                manifest_path = next(
+                    path
+                    for path in (ROOT / "packages").glob("*/package.json")
+                    if json.loads(path.read_text(encoding="utf-8"))["name"] == name
+                )
+                version = json.loads(manifest_path.read_text(encoding="utf-8"))["version"]
+                matches = [item for item in sbom["components"] if item["name"] == name]
+                self.assertEqual(len(matches), 1)
+                self.assertEqual(matches[0]["version"], version)
+                self.assertEqual(matches[0]["purl"], f"pkg:npm/{quote(name, safe='/')}@{version}")
 
     def test_bootstrap_version_does_not_claim_release_metadata(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:

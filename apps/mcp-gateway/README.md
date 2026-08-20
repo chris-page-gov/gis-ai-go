@@ -17,7 +17,11 @@ It is an implementation workbench, not a supported or deployed service.
   use closed request, result and problem envelopes, bounded inputs and outputs, and
   cursors bound to both the catalogue content root and normalised search criteria.
   A snapshot that cannot fit the public result schema is rejected rather than
-  truncated.
+  truncated. Every successful result follows one evidence-producing path through
+  the server-owned anonymous-open authority context and checked-in default-deny
+  public policy. Its canonical inline receipt binds the exact catalogue, normalised
+  parameter digest, result core, gateway revision and record-specific licence
+  evidence while stating `not-persisted` and `not-attested`.
 - the HTTP candidate listens only on `127.0.0.1:8787` and exposes `GET /healthz`,
   `GET /readyz` and `GET /openapi.json`. Readiness always returns `503` with zero
   active tools and zero active API operations.
@@ -29,13 +33,15 @@ authority.
 
 The application functions are not mounted on HTTP routes. There is no
 `catalogue.search` or `catalogue.describe` endpoint, MCP listener, MCP tool
-registration, public deployment, provider call, policy engine or evidence store.
+registration, public deployment, provider call, external policy service or evidence
+store.
 There is no environment-variable or command-line activation override.
 
 Activation remains hard-blocked as
-`inline-evidence-and-public-policy-unavailable`. EVID-204 must add reviewed public
-policy decisions and canonical inline evidence receipts before a later reviewed
-change may mount or advertise either operation.
+`transport-and-interoperability-unverified`. A later reviewed change must add and
+verify the protocol-conformant transports and client interoperability before it may
+mount or advertise either operation. The compiled public document is not OPA,
+authentication, identity or an enterprise entitlement service.
 
 ## Local verification
 
@@ -55,4 +61,4 @@ pnpm --filter @gis-ai-go/mcp-gateway run start:http
 ```
 
 See the [candidate boundary](../../docs/operations/MCP-201_GATEWAY_CANDIDATE.md)
-and [verification record](../../docs/operations/MCP-201_VERIFICATION.md).
+and [EVID-204 inline-evidence boundary](../../docs/operations/EVID-204_INLINE_EVIDENCE.md).

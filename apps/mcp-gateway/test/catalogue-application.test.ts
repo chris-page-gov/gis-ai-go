@@ -8,6 +8,8 @@ import {
   type CatalogueRecord,
   type JsonValue,
 } from "@gis-ai-go/contracts";
+import { verifyInlineReceipt } from "@gis-ai-go/evidence";
+import { PUBLIC_CATALOGUE_POLICY } from "@gis-ai-go/policy-client";
 
 import {
   assertCatalogueResultSnapshotBounds,
@@ -35,7 +37,20 @@ const CONTEXT = Object.freeze({
 const SNAPSHOT = await loadCatalogueSnapshot(SOURCE_CATALOGUE, {
   now: new Date("2026-08-20T12:00:00Z"),
 });
-const APPLICATION = createCatalogueApplication(SNAPSHOT);
+const TEST_APPLICATION_OPTIONS = Object.freeze({
+  software: Object.freeze({
+    name: "gis-ai-go-mcp-gateway" as const,
+    version: "0.1.0",
+    revision: "a".repeat(40),
+  }),
+  now: () => new Date("2026-08-20T12:34:56Z"),
+});
+
+function testApplication(snapshot: CatalogueSnapshot = SNAPSHOT) {
+  return createCatalogueApplication(snapshot, TEST_APPLICATION_OPTIONS);
+}
+
+const APPLICATION = testApplication();
 const MUTATION_RECORD_ID = "hmlr:dataset:price-paid-data";
 
 function snapshotForBundle(bundle: CatalogueBundle): CatalogueSnapshot {
@@ -96,6 +111,45 @@ test("search returns governed Price Paid and INSPIRE summaries with controlled f
   assert.equal(pricePaid.data.records[0]?.authority, "source-authoritative");
   assert.equal(pricePaid.data.records[0]?.rights, "open-with-conditions");
   assert.ok(pricePaid.data.facets.types.some(({ value }) => value === "dataset"));
+  assert.equal(pricePaid.evidence_receipt.schema, "gis-ai-go.evidence-receipt.v1");
+  assert.equal(pricePaid.evidence_receipt.operation.name, "catalogue.search");
+  assert.equal(pricePaid.evidence_receipt.policy_decision.effect, "allow-with-obligations");
+  assert.equal(pricePaid.evidence_receipt.policy_decision.policy_default_effect, "deny");
+  assert.deepEqual(
+    pricePaid.evidence_receipt.licence_obligations.map(({ record_id: id }) => id),
+    pricePaid.data.records.map(({ id }) => id).sort(),
+  );
+  assert.deepEqual(pricePaid.evidence_receipt.evidence_handling, {
+    attestation: "not-attested",
+    delivery: "inline-only",
+    persistence: "not-persisted",
+  });
+  assert.equal(Object.isFrozen(pricePaid), true);
+  assert.equal(Object.isFrozen(pricePaid.evidence_receipt), true);
+  assert.equal(JSON.stringify(pricePaid.evidence_receipt).includes("Price Paid"), false);
+
+  const { evidence_receipt: pricePaidReceipt, ...pricePaidCore } = pricePaid;
+  const receiptVerification = verifyInlineReceipt(pricePaidReceipt, {
+    normalisedParameters: {
+      query: "price paid",
+      facets: {
+        types: ["dataset"],
+        authority: [],
+        access: [],
+        rights: [],
+        freshness: [],
+        tags: [],
+      },
+      limit: 20,
+      offset: 0,
+    },
+    resultCore: pricePaidCore,
+    publicPolicy: PUBLIC_CATALOGUE_POLICY,
+    expectedCatalogue: pricePaid.catalogue,
+    expectedSoftware: TEST_APPLICATION_OPTIONS.software,
+    licenceObligations: pricePaidReceipt.licence_obligations,
+  });
+  assert.equal(receiptVerification.valid, true, receiptVerification.errors.join("; "));
 
   const inspire = APPLICATION.search(
     { query: "INSPIRE", facets: { tags: ["inspire"] }, limit: 100 },
@@ -107,6 +161,88 @@ test("search returns governed Price Paid and INSPIRE summaries with controlled f
   );
   assert.equal(inspire.data.page.returned, inspire.data.records.length);
   assert.equal(inspire.data.page.next_cursor, null);
+});
+
+test("inline receipt verification rejects parameter replay and result or rights tampering", () => {
+  const result = APPLICATION.search({ query: "Price Paid", limit: 1 }, CONTEXT);
+  const { evidence_receipt: receipt, ...resultCore } = result;
+  const normalisedParameters = {
+    query: "price paid",
+    facets: {
+      types: [],
+      authority: [],
+      access: [],
+      rights: [],
+      freshness: [],
+      tags: [],
+    },
+    limit: 1,
+    offset: 0,
+  };
+  const expectedLicences = receipt.licence_obligations;
+
+  const replay = verifyInlineReceipt(receipt, {
+    normalisedParameters: { ...normalisedParameters, offset: 1 },
+    resultCore,
+    publicPolicy: PUBLIC_CATALOGUE_POLICY,
+    licenceObligations: expectedLicences,
+  });
+  assert.equal(replay.valid, false);
+
+  const changedResult = {
+    ...resultCore,
+    data: {
+      ...resultCore.data,
+      page: {
+        ...resultCore.data.page,
+        matched: resultCore.data.page.matched + 1,
+      },
+    },
+  };
+  const resultTamper = verifyInlineReceipt(receipt, {
+    normalisedParameters,
+    resultCore: changedResult,
+    publicPolicy: PUBLIC_CATALOGUE_POLICY,
+    licenceObligations: expectedLicences,
+  });
+  assert.equal(resultTamper.valid, false);
+
+  const changedReceipt = {
+    ...receipt,
+    licence_obligations: receipt.licence_obligations.map((obligation, index) =>
+      index === 0 ? { ...obligation, attribution: "Changed attribution" } : obligation,
+    ),
+  };
+  const rightsTamper = verifyInlineReceipt(changedReceipt, {
+    normalisedParameters,
+    resultCore,
+    publicPolicy: PUBLIC_CATALOGUE_POLICY,
+    licenceObligations: expectedLicences,
+  });
+  assert.equal(rightsTamper.valid, false);
+});
+
+test("application creation requires exact software identity and a valid injected clock", () => {
+  const invalidOptions = [
+    {},
+    { software: TEST_APPLICATION_OPTIONS.software, unexpected: true },
+    { software: { ...TEST_APPLICATION_OPTIONS.software, name: "other-gateway" } },
+    { software: { ...TEST_APPLICATION_OPTIONS.software, version: "0.1.0-dev" } },
+    { software: { ...TEST_APPLICATION_OPTIONS.software, revision: "A".repeat(40) } },
+    { software: TEST_APPLICATION_OPTIONS.software, now: "not-a-function" },
+  ] as const;
+  for (const options of invalidOptions) {
+    assert.throws(
+      () => createCatalogueApplication(SNAPSHOT, options as never),
+      TypeError,
+    );
+  }
+
+  const invalidClock = createCatalogueApplication(SNAPSHOT, {
+    software: TEST_APPLICATION_OPTIONS.software,
+    now: () => new Date(Number.NaN),
+  });
+  assert.throws(() => invalidClock.search({}, CONTEXT), /clock must return a valid Date/u);
 });
 
 test("application creation rejects parser-valid records outside the result contract", () => {
@@ -153,7 +289,7 @@ test("application creation rejects parser-valid records outside the result contr
 
   for (const [path, overrides] of cases) {
     const snapshot = parserValidSnapshotWithRecord(overrides);
-    assert.throws(() => createCatalogueApplication(snapshot), (error: unknown) => {
+    assert.throws(() => testApplication(snapshot), (error: unknown) => {
       assert.ok(error instanceof Error);
       assert.match(error.message, /^Catalogue result contract rejected at /u);
       assert.ok(error.message.includes(path));
@@ -166,9 +302,9 @@ test("result bounds reject excessive source references, facets and source-native
   const base = SNAPSHOT.recordsById.get(MUTATION_RECORD_ID);
   assert.ok(base);
 
-  const sourceRefs = Array.from({ length: 101 }, (_, index) => `source:${index}`);
+  const sourceRefs = Array.from({ length: 100 }, (_, index) => `source:${index}`);
   assert.throws(
-    () => createCatalogueApplication(uncheckedSnapshotWithRecord({ sourceRefs })),
+    () => testApplication(uncheckedSnapshotWithRecord({ sourceRefs })),
     /sourceRefs/u,
   );
 
@@ -183,7 +319,7 @@ test("result bounds reject excessive source references, facets and source-native
   ];
   for (const details of detailCases) {
     assert.throws(
-      () => createCatalogueApplication(uncheckedSnapshotWithRecord({ details })),
+      () => testApplication(uncheckedSnapshotWithRecord({ details })),
       /details/u,
     );
   }
@@ -233,7 +369,7 @@ test("pagination is deterministic and rejects tampering or replay", () => {
     ...SNAPSHOT,
     contentRootSha256: "f".repeat(64),
   }) satisfies CatalogueSnapshot;
-  const changedApplication = createCatalogueApplication(changedSnapshot);
+  const changedApplication = testApplication(changedSnapshot);
   expectProblem(
     () => changedApplication.search({ query: "HMLR", limit: 1, cursor }, CONTEXT),
     "invalid_cursor",
@@ -259,6 +395,18 @@ test("query limits count normalised terms and Unicode code points", () => {
     () => APPLICATION.search({ query: astralCharacter.repeat(257) }, CONTEXT),
     "invalid_request",
   );
+
+  const unpairedSurrogate = expectProblem(
+    () => APPLICATION.search({ query: "\ud800" }, CONTEXT),
+    "invalid_request",
+  );
+  assert.deepEqual(unpairedSurrogate.problem.errors, [
+    {
+      path: "$.query",
+      code: "invalid_value",
+      message: "Query must contain valid Unicode scalar values.",
+    },
+  ]);
 });
 
 test("closed requests reject unknown properties, facet values and tags", () => {
@@ -286,7 +434,7 @@ test("closed requests reject unknown properties, facet values and tags", () => {
 });
 
 test("hostile unknown property identities remain controlled catalogue problems", () => {
-  const hostileKeys = ["x".repeat(300), "unsafe\nproperty"] as const;
+  const hostileKeys = ["x".repeat(300), "unsafe\nproperty", "\ud800"] as const;
   for (const key of hostileKeys) {
     const root = expectProblem(
       () => APPLICATION.search({ [key]: true }, CONTEXT),
@@ -492,6 +640,28 @@ test("describe preserves full governed fields and stable source expansions", () 
   assert.deepEqual(relationshipIds, [...(relationshipIds ?? [])].sort());
   assert.deepEqual(sourceIds, relationshipIds);
   assert.ok(result.data.included.sources?.every((source) => source.title.length > 0));
+
+  assert.equal(result.evidence_receipt.operation.name, "catalogue.describe");
+  const evidencedRecordIds = [result.data.record.id, ...(sourceIds ?? [])].sort();
+  assert.equal(
+    result.evidence_receipt.result.returned_record_count,
+    evidencedRecordIds.length,
+  );
+  assert.deepEqual(
+    result.evidence_receipt.licence_obligations.map(({ record_id: id }) => id),
+    evidencedRecordIds,
+  );
+  const { evidence_receipt: receipt, ...resultCore } = result;
+  const verification = verifyInlineReceipt(receipt, {
+    normalisedParameters: {
+      record_id: "hmlr:dataset:price-paid-data",
+      include: ["relationships", "sources"],
+    },
+    resultCore,
+    publicPolicy: PUBLIC_CATALOGUE_POLICY,
+    licenceObligations: receipt.licence_obligations,
+  });
+  assert.equal(verification.valid, true, verification.errors.join("; "));
 });
 
 test("describe include order is canonical and IDs are exact and case-sensitive", () => {
@@ -544,4 +714,18 @@ test("describe include order is canonical and IDs are exact and case-sensitive",
     "No catalogue record has the supplied exact ID.",
   );
   assert.equal(hostileMissing.problem.detail?.includes("missing\nrecord"), false);
+});
+
+test("describe does not duplicate a self-referencing source projection or licence", () => {
+  const result = APPLICATION.describe({ record_id: "S-ARAZZO" }, CONTEXT);
+  assert.deepEqual(result.data.record.source_refs, ["S-ARAZZO"]);
+  assert.deepEqual(result.data.included.relationships, [
+    { relation: "source", record_id: "S-ARAZZO" },
+  ]);
+  assert.deepEqual(result.data.included.sources, []);
+  assert.deepEqual(
+    result.evidence_receipt.licence_obligations.map(({ record_id: id }) => id),
+    ["S-ARAZZO"],
+  );
+  assert.equal(result.evidence_receipt.result.returned_record_count, 1);
 });
