@@ -5,15 +5,18 @@
   "description": "Accessible static public catalogue Explorer for GIS AI GO",
   "license": "MIT",
   "type": "module",
+  "dependencies": {
+    "@gis-ai-go/contracts": "workspace:*"
+  },
   "scripts": {
     "prepare:data": "node scripts/prepare-data.mjs",
     "check:build-boundary": "node scripts/check-build-boundary.mjs",
-    "build": "pnpm run prepare:data && pnpm run check:build-boundary && vite build && pnpm run check:dist",
+    "build": "pnpm --filter @gis-ai-go/contracts run build && pnpm run prepare:data && pnpm run check:build-boundary && vite build && pnpm run check:dist",
     "check:dist": "node scripts/check-dist.mjs",
     "preview": "vite preview",
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "test:build": "node --test test/build/*.test.mjs",
-    "test:unit": "pnpm run test:build && vitest run",
+    "test:unit": "pnpm --filter @gis-ai-go/contracts run build && pnpm run test:build && vitest run",
     "test:browser": "playwright test",
     "test:public": "playwright test --config playwright.public.config.ts"
   },

@@ -1,0 +1,827 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:catalogue-result:v1",
+  "title": "GIS AI GO catalogue result",
+  "description": "A bounded candidate success envelope for catalogue.search or catalogue.describe. It is not yet an active transport contract.",
+  "$comment": "This candidate intentionally omits an evidence receipt. EVID-204 must introduce a reviewed inline receipt before any public catalogue tool is activated.",
+  "oneOf": [
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "operation",
+        "request_id",
+        "trace_id",
+        "catalogue",
+        "warnings",
+        "data"
+      ],
+      "properties": {
+        "schema": {
+          "const": "gis-ai-go.catalogue-result.v1"
+        },
+        "operation": {
+          "const": "catalogue.search"
+        },
+        "request_id": {
+          "$ref": "#/$defs/request_id"
+        },
+        "trace_id": {
+          "$ref": "#/$defs/trace_id"
+        },
+        "catalogue": {
+          "$ref": "#/$defs/catalogue_identity"
+        },
+        "warnings": {
+          "$ref": "#/$defs/warnings"
+        },
+        "data": {
+          "$ref": "#/$defs/search_data"
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "operation",
+        "request_id",
+        "trace_id",
+        "catalogue",
+        "warnings",
+        "data"
+      ],
+      "properties": {
+        "schema": {
+          "const": "gis-ai-go.catalogue-result.v1"
+        },
+        "operation": {
+          "const": "catalogue.describe"
+        },
+        "request_id": {
+          "$ref": "#/$defs/request_id"
+        },
+        "trace_id": {
+          "$ref": "#/$defs/trace_id"
+        },
+        "catalogue": {
+          "$ref": "#/$defs/catalogue_identity"
+        },
+        "warnings": {
+          "$ref": "#/$defs/warnings"
+        },
+        "data": {
+          "$ref": "#/$defs/describe_data"
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "request_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "trace_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{32}$"
+    },
+    "record_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+    },
+    "catalogue_identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "revision",
+        "content_root_sha256",
+        "record_count",
+        "reviewed_at",
+        "stale_after"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+        },
+        "revision": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "content_root_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "record_count": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10000
+        },
+        "reviewed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "stale_after": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "maxItems": 20,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1024
+      }
+    },
+    "authority_class": {
+      "enum": [
+        "derived",
+        "project-authoritative",
+        "source-authoritative"
+      ]
+    },
+    "access_state": {
+      "enum": [
+        "planned-non-executing",
+        "public",
+        "public-metadata"
+      ]
+    },
+    "rights_state": {
+      "enum": [
+        "metadata-citation",
+        "open-with-conditions",
+        "project-mit"
+      ]
+    },
+    "freshness_status": {
+      "enum": [
+        "current",
+        "review-required"
+      ]
+    },
+    "record_type": {
+      "enum": [
+        "bundle",
+        "dataset",
+        "provider",
+        "source",
+        "workflow"
+      ]
+    },
+    "record_status": {
+      "enum": [
+        "candidate",
+        "candidate-metadata",
+        "candidate-non-executing",
+        "external-source"
+      ]
+    },
+    "tags": {
+      "type": "array",
+      "maxItems": 50,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128
+      }
+    },
+    "record_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "title",
+        "description",
+        "authority",
+        "access",
+        "rights",
+        "freshness",
+        "status",
+        "tags"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/record_id"
+        },
+        "type": {
+          "$ref": "#/$defs/record_type"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "authority": {
+          "$ref": "#/$defs/authority_class"
+        },
+        "access": {
+          "$ref": "#/$defs/access_state"
+        },
+        "rights": {
+          "$ref": "#/$defs/rights_state"
+        },
+        "freshness": {
+          "$ref": "#/$defs/freshness_status"
+        },
+        "status": {
+          "$ref": "#/$defs/record_status"
+        },
+        "tags": {
+          "$ref": "#/$defs/tags"
+        }
+      }
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "class",
+        "statement",
+        "source"
+      ],
+      "properties": {
+        "class": {
+          "$ref": "#/$defs/authority_class"
+        },
+        "statement": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        }
+      }
+    },
+    "publication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "classification",
+        "contains_personal_data",
+        "contains_protected_data"
+      ],
+      "properties": {
+        "classification": {
+          "const": "public"
+        },
+        "contains_personal_data": {
+          "const": false
+        },
+        "contains_protected_data": {
+          "const": false
+        }
+      }
+    },
+    "access": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tier",
+        "state",
+        "authentication"
+      ],
+      "properties": {
+        "tier": {
+          "const": "open"
+        },
+        "state": {
+          "$ref": "#/$defs/access_state"
+        },
+        "authentication": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        }
+      }
+    },
+    "freshness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "observed_at",
+        "reviewed_at",
+        "stale_after",
+        "status"
+      ],
+      "properties": {
+        "observed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "reviewed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "stale_after": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "status": {
+          "$ref": "#/$defs/freshness_status"
+        }
+      }
+    },
+    "rights": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "state",
+        "record_licence",
+        "described_resource_licence",
+        "attribution"
+      ],
+      "properties": {
+        "state": {
+          "$ref": "#/$defs/rights_state"
+        },
+        "record_licence": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        "described_resource_licence": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        "attribution": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8192
+        }
+      }
+    },
+    "record_detail": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "title",
+        "description",
+        "authority",
+        "publication",
+        "access",
+        "rights",
+        "freshness",
+        "status",
+        "source_refs",
+        "limitations",
+        "tags",
+        "details"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/record_id"
+        },
+        "type": {
+          "$ref": "#/$defs/record_type"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "authority": {
+          "$ref": "#/$defs/authority"
+        },
+        "publication": {
+          "$ref": "#/$defs/publication"
+        },
+        "access": {
+          "$ref": "#/$defs/access"
+        },
+        "rights": {
+          "$ref": "#/$defs/rights"
+        },
+        "freshness": {
+          "$ref": "#/$defs/freshness"
+        },
+        "status": {
+          "$ref": "#/$defs/record_status"
+        },
+        "source_refs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 100,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/record_id"
+          }
+        },
+        "limitations": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 50,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2048
+          }
+        },
+        "tags": {
+          "$ref": "#/$defs/tags"
+        },
+        "details": {
+          "$ref": "#/$defs/source_native_object"
+        }
+      }
+    },
+    "source_native_value": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "string",
+          "maxLength": 65536,
+          "pattern": "^[^\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f\\u007f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069]*$"
+        },
+        {
+          "type": "array",
+          "maxItems": 10000,
+          "items": {
+            "$ref": "#/$defs/source_native_value"
+          }
+        },
+        {
+          "$ref": "#/$defs/source_native_object"
+        }
+      ]
+    },
+    "source_native_object": {
+      "$comment": "Server-owned source-native metadata has already passed the shared depth, node, dangerous-key, plain-text and URL policy. This recursive schema preserves its field names while bounding every container and value.",
+      "type": "object",
+      "maxProperties": 256,
+      "propertyNames": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256,
+        "pattern": "^[^\\u0000-\\u001f\\u007f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069]+$",
+        "not": {
+          "enum": [
+            "__proto__",
+            "constructor",
+            "prototype"
+          ]
+        }
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/source_native_value"
+      }
+    },
+    "relationship": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "relation",
+        "record_id"
+      ],
+      "properties": {
+        "relation": {
+          "const": "source"
+        },
+        "record_id": {
+          "$ref": "#/$defs/record_id"
+        }
+      }
+    },
+    "source_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title",
+        "authority",
+        "access",
+        "rights",
+        "freshness"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/record_id"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "authority": {
+          "$ref": "#/$defs/authority_class"
+        },
+        "access": {
+          "$ref": "#/$defs/access_state"
+        },
+        "rights": {
+          "$ref": "#/$defs/rights_state"
+        },
+        "freshness": {
+          "$ref": "#/$defs/freshness_status"
+        }
+      }
+    },
+    "count": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "record_type_facet_count": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "count"
+      ],
+      "properties": {
+        "value": {
+          "$ref": "#/$defs/record_type"
+        },
+        "count": {
+          "$ref": "#/$defs/count"
+        }
+      }
+    },
+    "authority_facet_count": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "count"
+      ],
+      "properties": {
+        "value": {
+          "$ref": "#/$defs/authority_class"
+        },
+        "count": {
+          "$ref": "#/$defs/count"
+        }
+      }
+    },
+    "access_facet_count": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "count"
+      ],
+      "properties": {
+        "value": {
+          "$ref": "#/$defs/access_state"
+        },
+        "count": {
+          "$ref": "#/$defs/count"
+        }
+      }
+    },
+    "rights_facet_count": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "count"
+      ],
+      "properties": {
+        "value": {
+          "$ref": "#/$defs/rights_state"
+        },
+        "count": {
+          "$ref": "#/$defs/count"
+        }
+      }
+    },
+    "freshness_facet_count": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "count"
+      ],
+      "properties": {
+        "value": {
+          "$ref": "#/$defs/freshness_status"
+        },
+        "count": {
+          "$ref": "#/$defs/count"
+        }
+      }
+    },
+    "tag_facet_count": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "count"
+      ],
+      "properties": {
+        "value": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "count": {
+          "$ref": "#/$defs/count"
+        }
+      }
+    },
+    "facet_counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "types",
+        "authority",
+        "access",
+        "rights",
+        "freshness",
+        "tags"
+      ],
+      "properties": {
+        "types": {
+          "type": "array",
+          "maxItems": 5,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/record_type_facet_count"
+          }
+        },
+        "authority": {
+          "type": "array",
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/authority_facet_count"
+          }
+        },
+        "access": {
+          "type": "array",
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/access_facet_count"
+          }
+        },
+        "rights": {
+          "type": "array",
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/rights_facet_count"
+          }
+        },
+        "freshness": {
+          "type": "array",
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/freshness_facet_count"
+          }
+        },
+        "tags": {
+          "type": "array",
+          "maxItems": 100,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/tag_facet_count"
+          }
+        }
+      }
+    },
+    "page": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "limit",
+        "returned",
+        "matched",
+        "next_cursor"
+      ],
+      "properties": {
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "returned": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "matched": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "next_cursor": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1,
+          "maxLength": 1024
+        }
+      }
+    },
+    "search_data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "records",
+        "facets",
+        "page"
+      ],
+      "properties": {
+        "records": {
+          "type": "array",
+          "maxItems": 100,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/record_summary"
+          }
+        },
+        "facets": {
+          "$ref": "#/$defs/facet_counts"
+        },
+        "page": {
+          "$ref": "#/$defs/page"
+        }
+      }
+    },
+    "included": {
+      "type": "object",
+      "additionalProperties": false,
+      "maxProperties": 2,
+      "properties": {
+        "relationships": {
+          "type": "array",
+          "maxItems": 100,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/relationship"
+          }
+        },
+        "sources": {
+          "type": "array",
+          "maxItems": 100,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/source_summary"
+          }
+        }
+      }
+    },
+    "describe_data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "record",
+        "included"
+      ],
+      "properties": {
+        "record": {
+          "$ref": "#/$defs/record_detail"
+        },
+        "included": {
+          "$ref": "#/$defs/included"
+        }
+      }
+    }
+  }
+}

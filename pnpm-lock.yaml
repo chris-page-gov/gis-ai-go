@@ -25,6 +25,10 @@ importers:
         version: 2.0.0
 
   apps/public-explorer:
+    dependencies:
+      '@gis-ai-go/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
     devDependencies:
       '@axe-core/playwright':
         specifier: 4.13.0
