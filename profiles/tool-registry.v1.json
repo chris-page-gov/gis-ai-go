@@ -1,0 +1,1450 @@
+{
+  "schema": "gis-ai-go.tool-registry.v1",
+  "version": "1.0.0",
+  "canonicalOrder": [
+    "catalogue.search",
+    "catalogue.describe",
+    "selection.resolve",
+    "data.query",
+    "spatial.locate",
+    "spatial.analyse",
+    "statistics.compare",
+    "route.plan",
+    "map.render",
+    "artefact.export",
+    "evidence.inspect",
+    "workflow.execute"
+  ],
+  "activationRequirements": [
+    "implementation",
+    "release",
+    "policy",
+    "read-only",
+    "schema",
+    "threat",
+    "evidence",
+    "interoperability",
+    "fallback"
+  ],
+  "runtimeAuthority": {
+    "source": "apps/mcp-gateway/src/activation.ts",
+    "registryCanActivate": false,
+    "environmentOverride": false,
+    "productionRegistration": false
+  },
+  "source": {
+    "decision": {
+      "path": "docs/decisions/ADR-0009-read-only-mcp-tool-lifecycle.md",
+      "status": "accepted"
+    },
+    "research": {
+      "path": "docs/research/2026-08-19/research-pack/data/tool-catalogue.json",
+      "retrieved": "2026-08-19",
+      "sha256": "851f626bae4d63e8355ff9ca4021b56041ffa7e432d41f7f682c214151b5a8c3",
+      "gitBlob": "0514fba4ff4765c951c632f6a1c122fe02b1d178",
+      "immutable": true,
+      "records": [
+        "T01",
+        "T02",
+        "T03",
+        "T04",
+        "T05",
+        "T06",
+        "T07",
+        "T08",
+        "T09",
+        "T10",
+        "T11",
+        "T12"
+      ]
+    }
+  },
+  "tools": [
+    {
+      "id": "T01",
+      "name": "catalogue.search",
+      "namespace": "catalogue",
+      "purpose": "Search policy-visible OKF and provider catalogue records.",
+      "readOnly": true,
+      "mutating": false,
+      "releaseTarget": "v0.2.0",
+      "current": {
+        "implementationState": "implemented",
+        "lifecycleState": "suspended",
+        "discoveryEligible": false,
+        "activationGates": {
+          "releaseEnabled": false,
+          "policy": false,
+          "schema": false,
+          "threat": false,
+          "evidence": false,
+          "interoperability": false,
+          "fallback": false
+        }
+      },
+      "v02Target": {
+        "lifecycleState": "active",
+        "discoveryIntended": true,
+        "runtimeAuthority": false
+      },
+      "runtimeSchemas": {
+        "input": {
+          "state": "accepted",
+          "ref": "schemas/catalogue-search-request.schema.json"
+        },
+        "output": {
+          "state": "accepted",
+          "ref": "schemas/catalogue-result.schema.json"
+        },
+        "problem": {
+          "state": "accepted",
+          "ref": "schemas/catalogue-problem.schema.json"
+        }
+      },
+      "support": {
+        "operation": "catalogue.search",
+        "operationState": "implemented-inactive",
+        "providerState": "candidate-partial",
+        "providerDependencies": [
+          "OKF index",
+          "OGC API – Records adapters"
+        ]
+      },
+      "accessTiers": [
+        "open",
+        "PSGA",
+        "commercial"
+      ],
+      "policyAttributes": [
+        "actor",
+        "organisation",
+        "discover",
+        "provider",
+        "dataset",
+        "licence_tier",
+        "purpose"
+      ],
+      "costPerformance": "Low; static index first, provider catalogue fallback",
+      "controlledErrors": [
+        "INVALID_QUERY",
+        "POLICY_DENY",
+        "CATALOGUE_UNAVAILABLE",
+        "CURSOR_INVALID"
+      ],
+      "cursor": {
+        "state": "optional",
+        "maxLength": 1024,
+        "artefactFallback": "not-implemented",
+        "researchStatement": "Bounded inline response; cursor pagination or immutable artefact when limits are exceeded."
+      },
+      "crs": {
+        "state": "not-applicable",
+        "requirements": []
+      },
+      "provenance": {
+        "requiredFields": [
+          "request_id",
+          "trace_id",
+          "provider",
+          "dataset",
+          "dataset_version",
+          "source_uris",
+          "retrieved_at",
+          "policy_decision_id",
+          "transformation",
+          "software",
+          "output_hash",
+          "licence_obligations"
+        ]
+      },
+      "fallback": {
+        "state": "implemented",
+        "behaviour": "Return static governed snapshot with freshness warning."
+      },
+      "threats": {
+        "risks": [
+          "Unauthorised capability disclosure",
+          "prompt injection in metadata"
+        ]
+      },
+      "source": {
+        "researchId": "T01",
+        "pointer": "/tools/0",
+        "inputSchemaPointer": "/tools/0/input_schema",
+        "outputSchemaPointer": "/tools/0/output_schema"
+      }
+    },
+    {
+      "id": "T02",
+      "name": "catalogue.describe",
+      "namespace": "catalogue",
+      "purpose": "Return a richly linked record, relationships, rights, freshness and source evidence.",
+      "readOnly": true,
+      "mutating": false,
+      "releaseTarget": "v0.2.0",
+      "current": {
+        "implementationState": "implemented",
+        "lifecycleState": "suspended",
+        "discoveryEligible": false,
+        "activationGates": {
+          "releaseEnabled": false,
+          "policy": false,
+          "schema": false,
+          "threat": false,
+          "evidence": false,
+          "interoperability": false,
+          "fallback": false
+        }
+      },
+      "v02Target": {
+        "lifecycleState": "active",
+        "discoveryIntended": true,
+        "runtimeAuthority": false
+      },
+      "runtimeSchemas": {
+        "input": {
+          "state": "accepted",
+          "ref": "schemas/catalogue-describe-request.schema.json"
+        },
+        "output": {
+          "state": "accepted",
+          "ref": "schemas/catalogue-result.schema.json"
+        },
+        "problem": {
+          "state": "accepted",
+          "ref": "schemas/catalogue-problem.schema.json"
+        }
+      },
+      "support": {
+        "operation": "catalogue.describe",
+        "operationState": "implemented-inactive",
+        "providerState": "candidate-partial",
+        "providerDependencies": [
+          "OKF bundle",
+          "provider datapacks"
+        ]
+      },
+      "accessTiers": [
+        "open",
+        "PSGA",
+        "commercial"
+      ],
+      "policyAttributes": [
+        "actor",
+        "discover",
+        "resource",
+        "field_projection"
+      ],
+      "costPerformance": "Low",
+      "controlledErrors": [
+        "NOT_FOUND",
+        "POLICY_DENY",
+        "STALE_RECORD"
+      ],
+      "cursor": {
+        "state": "none",
+        "maxLength": null,
+        "artefactFallback": "not-implemented",
+        "researchStatement": "Bounded inline response; cursor pagination or immutable artefact when limits are exceeded."
+      },
+      "crs": {
+        "state": "not-applicable",
+        "requirements": []
+      },
+      "provenance": {
+        "requiredFields": [
+          "request_id",
+          "trace_id",
+          "provider",
+          "dataset",
+          "dataset_version",
+          "source_uris",
+          "retrieved_at",
+          "policy_decision_id",
+          "transformation",
+          "software",
+          "output_hash",
+          "licence_obligations"
+        ]
+      },
+      "fallback": {
+        "state": "partial",
+        "behaviour": "Return the last approved record and mark unavailable live checks."
+      },
+      "threats": {
+        "risks": [
+          "Protected metadata disclosure",
+          "stale record"
+        ]
+      },
+      "source": {
+        "researchId": "T02",
+        "pointer": "/tools/1",
+        "inputSchemaPointer": "/tools/1/input_schema",
+        "outputSchemaPointer": "/tools/1/output_schema"
+      }
+    },
+    {
+      "id": "T03",
+      "name": "selection.resolve",
+      "namespace": "selection",
+      "purpose": "Resolve human or agent intent into a non-executing, provider-native selection plan.",
+      "readOnly": true,
+      "mutating": false,
+      "releaseTarget": "v0.2.0",
+      "current": {
+        "implementationState": "not-implemented",
+        "lifecycleState": "planned",
+        "discoveryEligible": false,
+        "activationGates": {
+          "releaseEnabled": false,
+          "policy": false,
+          "schema": false,
+          "threat": false,
+          "evidence": false,
+          "interoperability": false,
+          "fallback": false
+        }
+      },
+      "v02Target": {
+        "lifecycleState": "active",
+        "discoveryIntended": true,
+        "runtimeAuthority": false
+      },
+      "runtimeSchemas": {
+        "input": {
+          "state": "missing",
+          "ref": null
+        },
+        "output": {
+          "state": "missing",
+          "ref": null
+        },
+        "problem": {
+          "state": "missing",
+          "ref": null
+        }
+      },
+      "support": {
+        "operation": "selection.resolve",
+        "operationState": "not-implemented",
+        "providerState": "planned",
+        "providerDependencies": [
+          "OKF selection metadata",
+          "provider schema registry"
+        ]
+      },
+      "accessTiers": [
+        "open",
+        "PSGA",
+        "commercial"
+      ],
+      "policyAttributes": [
+        "actor",
+        "purpose",
+        "resource_visibility",
+        "resolution_limit"
+      ],
+      "costPerformance": "Low-to-medium; deterministic constraints plus bounded language assistance",
+      "controlledErrors": [
+        "AMBIGUOUS_SELECTION",
+        "MISSING_DIMENSION",
+        "POLICY_DENY",
+        "NO_COMPATIBLE_PROVIDER"
+      ],
+      "cursor": {
+        "state": "not-implemented",
+        "maxLength": null,
+        "artefactFallback": "not-implemented",
+        "researchStatement": "Bounded inline response; cursor pagination or immutable artefact when limits are exceeded."
+      },
+      "crs": {
+        "state": "not-applicable",
+        "requirements": []
+      },
+      "provenance": {
+        "requiredFields": [
+          "request_id",
+          "trace_id",
+          "provider",
+          "dataset",
+          "dataset_version",
+          "source_uris",
+          "retrieved_at",
+          "policy_decision_id",
+          "transformation",
+          "software",
+          "output_hash",
+          "licence_obligations"
+        ]
+      },
+      "fallback": {
+        "state": "not-implemented",
+        "behaviour": "Return required choices and no executable plan."
+      },
+      "threats": {
+        "risks": [
+          "Intent injection",
+          "selection of unavailable dataset"
+        ]
+      },
+      "source": {
+        "researchId": "T03",
+        "pointer": "/tools/2",
+        "inputSchemaPointer": "/tools/2/input_schema",
+        "outputSchemaPointer": "/tools/2/output_schema"
+      }
+    },
+    {
+      "id": "T04",
+      "name": "data.query",
+      "namespace": "data",
+      "purpose": "Execute a bounded provider-native or cached data query and return a canonical result envelope.",
+      "readOnly": true,
+      "mutating": false,
+      "releaseTarget": "v0.2.0",
+      "current": {
+        "implementationState": "not-implemented",
+        "lifecycleState": "planned",
+        "discoveryEligible": false,
+        "activationGates": {
+          "releaseEnabled": false,
+          "policy": false,
+          "schema": false,
+          "threat": false,
+          "evidence": false,
+          "interoperability": false,
+          "fallback": false
+        }
+      },
+      "v02Target": {
+        "lifecycleState": "active",
+        "discoveryIntended": true,
+        "runtimeAuthority": false
+      },
+      "runtimeSchemas": {
+        "input": {
+          "state": "missing",
+          "ref": null
+        },
+        "output": {
+          "state": "missing",
+          "ref": null
+        },
+        "problem": {
+          "state": "missing",
+          "ref": null
+        }
+      },
+      "support": {
+        "operation": "data.query",
+        "operationState": "not-implemented",
+        "providerState": "planned",
+        "providerDependencies": [
+          "provider adapters",
+          "PostGIS",
+          "object storage"
+        ]
+      },
+      "accessTiers": [
+        "open",
+        "PSGA",
+        "commercial"
+      ],
+      "policyAttributes": [
+        "query",
+        "dataset",
+        "fields",
+        "purpose",
+        "legal_authority",
+        "licence_entitlement",
+        "output_destination",
+        "feature_count"
+      ],
+      "costPerformance": "Variable; preflight estimate and quotas required",
+      "controlledErrors": [
+        "POLICY_DENY",
+        "PROVIDER_UNAVAILABLE",
+        "QUERY_TOO_EXPENSIVE",
+        "OUTPUT_REQUIRES_APPROVAL",
+        "LICENCE_CONSTRAINT"
+      ],
+      "cursor": {
+        "state": "not-implemented",
+        "maxLength": null,
+        "artefactFallback": "not-implemented",
+        "researchStatement": "Bounded inline response; cursor pagination or immutable artefact when limits are exceeded."
+      },
+      "crs": {
+        "state": "required-before-implementation",
+        "requirements": [
+          "Declare CRS and axis order for spatial results."
+        ]
+      },
+      "provenance": {
+        "requiredFields": [
+          "request_id",
+          "trace_id",
+          "provider",
+          "dataset",
+          "dataset_version",
+          "source_uris",
+          "retrieved_at",
+          "policy_decision_id",
+          "transformation",
+          "software",
+          "output_hash",
+          "licence_obligations"
+        ]
+      },
+      "fallback": {
+        "state": "not-implemented",
+        "behaviour": "Use approved cache only when policy permits and show freshness."
+      },
+      "threats": {
+        "risks": [
+          "Data exfiltration",
+          "expensive query",
+          "provider limit breach"
+        ]
+      },
+      "source": {
+        "researchId": "T04",
+        "pointer": "/tools/3",
+        "inputSchemaPointer": "/tools/3/input_schema",
+        "outputSchemaPointer": "/tools/3/output_schema"
+      }
+    },
+    {
+      "id": "T05",
+      "name": "spatial.locate",
+      "namespace": "spatial",
+      "purpose": "Resolve coordinates, identifiers or place text and return containing/current/historic geographies.",
+      "readOnly": true,
+      "mutating": false,
+      "releaseTarget": "later-reviewed-release",
+      "current": {
+        "implementationState": "not-implemented",
+        "lifecycleState": "planned",
+        "discoveryEligible": false,
+        "activationGates": {
+          "releaseEnabled": false,
+          "policy": false,
+          "schema": false,
+          "threat": false,
+          "evidence": false,
+          "interoperability": false,
+          "fallback": false
+        }
+      },
+      "v02Target": {
+        "lifecycleState": "planned",
+        "discoveryIntended": false,
+        "runtimeAuthority": false
+      },
+      "runtimeSchemas": {
+        "input": {
+          "state": "missing",
+          "ref": null
+        },
+        "output": {
+          "state": "missing",
+          "ref": null
+        },
+        "problem": {
+          "state": "missing",
+          "ref": null
+        }
+      },
+      "support": {
+        "operation": "spatial.locate",
+        "operationState": "not-implemented",
+        "providerState": "planned",
+        "providerDependencies": [
+          "ONS geography cache",
+          "OS Names/Places where entitled"
+        ]
+      },
+      "accessTiers": [
+        "open",
+        "PSGA",
+        "commercial"
+      ],
+      "policyAttributes": [
+        "location_precision",
+        "dataset",
+        "as_of",
+        "licence_tier"
+      ],
+      "costPerformance": "Low indexed lookup; provider call when needed",
+      "controlledErrors": [
+        "LOCATION_INVALID",
+        "NO_MATCH",
+        "POLICY_DOWNGRADE",
+        "TEMPORAL_VERSION_UNKNOWN"
+      ],
+      "cursor": {
+        "state": "not-implemented",
+        "maxLength": null,
+        "artefactFallback": "not-implemented",
+        "researchStatement": "Bounded inline response; cursor pagination or immutable artefact when limits are exceeded."
+      },
+      "crs": {
+        "state": "required-before-implementation",
+        "requirements": [
+          "Declare CRS and axis order for coordinate input and output."
+        ]
+      },
+      "provenance": {
+        "requiredFields": [
+          "request_id",
+          "trace_id",
+          "provider",
+          "dataset",
+          "dataset_version",
+          "source_uris",
+          "retrieved_at",
+          "policy_decision_id",
+          "transformation",
+          "software",
+          "output_hash",
+          "licence_obligations"
+        ]
+      },
+      "fallback": {
+        "state": "not-implemented",
+        "behaviour": "Return coarser open geography or no result with explanation."
+      },
+      "threats": {
+        "risks": [
+          "Sensitive location inference",
+          "false precision"
+        ]
+      },
+      "source": {
+        "researchId": "T05",
+        "pointer": "/tools/4",
+        "inputSchemaPointer": "/tools/4/input_schema",
+        "outputSchemaPointer": "/tools/4/output_schema"
+      }
+    },
+    {
+      "id": "T06",
+      "name": "spatial.analyse",
+      "namespace": "spatial",
+      "purpose": "Run deterministic spatial operations such as intersect, buffer, nearest, join or aggregate.",
+      "readOnly": true,
+      "mutating": false,
+      "releaseTarget": "later-reviewed-release",
+      "current": {
+        "implementationState": "not-implemented",
+        "lifecycleState": "planned",
+        "discoveryEligible": false,
+        "activationGates": {
+          "releaseEnabled": false,
+          "policy": false,
+          "schema": false,
+          "threat": false,
+          "evidence": false,
+          "interoperability": false,
+          "fallback": false
+        }
+      },
+      "v02Target": {
+        "lifecycleState": "planned",
+        "discoveryIntended": false,
+        "runtimeAuthority": false
+      },
+      "runtimeSchemas": {
+        "input": {
+          "state": "missing",
+          "ref": null
+        },
+        "output": {
+          "state": "missing",
+          "ref": null
+        },
+        "problem": {
+          "state": "missing",
+          "ref": null
+        }
+      },
+      "support": {
+        "operation": "spatial.analyse",
+        "operationState": "not-implemented",
+        "providerState": "planned",
+        "providerDependencies": [
+          "Python geospatial service",
+          "PostGIS",
+          "PROJ"
+        ]
+      },
+      "accessTiers": [
+        "open",
+        "PSGA",
+        "commercial"
+      ],
+      "policyAttributes": [
+        "operation",
+        "datasets",
+        "resolution",
+        "area",
+        "record_count",
+        "derived_output",
+        "purpose"
+      ],
+      "costPerformance": "Variable; geometry complexity and record count bounded",
+      "controlledErrors": [
+        "INVALID_GEOMETRY",
+        "CRS_ERROR",
+        "COMPLEXITY_LIMIT",
+        "POLICY_DENY",
+        "TOPOLOGY_ERROR"
+      ],
+      "cursor": {
+        "state": "not-implemented",
+        "maxLength": null,
+        "artefactFallback": "not-implemented",
+        "researchStatement": "Bounded inline response; cursor pagination or immutable artefact when limits are exceeded."
+      },
+      "crs": {
+        "state": "required-before-implementation",
+        "requirements": [
+          "Declare source and output CRS and axis order."
+        ]
+      },
+      "provenance": {
+        "requiredFields": [
+          "request_id",
+          "trace_id",
+          "provider",
+          "dataset",
+          "dataset_version",
+          "source_uris",
+          "retrieved_at",
+          "policy_decision_id",
+          "transformation",
+          "software",
+          "output_hash",
+          "licence_obligations"
+        ]
+      },
+      "fallback": {
+        "state": "not-implemented",
+        "behaviour": "Offer simplified/aggregated operation or artefact job."
+      },
+      "threats": {
+        "risks": [
+          "Pathological geometry",
+          "inference",
+          "DoS",
+          "licence contamination"
+        ]
+      },
+      "source": {
+        "researchId": "T06",
+        "pointer": "/tools/5",
+        "inputSchemaPointer": "/tools/5/input_schema",
+        "outputSchemaPointer": "/tools/5/output_schema"
+      }
+    },
+    {
+      "id": "T07",
+      "name": "statistics.compare",
+      "namespace": "statistics",
+      "purpose": "Compare statistical observations across compatible geographies, periods or groups.",
+      "readOnly": true,
+      "mutating": false,
+      "releaseTarget": "later-reviewed-release",
+      "current": {
+        "implementationState": "not-implemented",
+        "lifecycleState": "planned",
+        "discoveryEligible": false,
+        "activationGates": {
+          "releaseEnabled": false,
+          "policy": false,
+          "schema": false,
+          "threat": false,
+          "evidence": false,
+          "interoperability": false,
+          "fallback": false
+        }
+      },
+      "v02Target": {
+        "lifecycleState": "planned",
+        "discoveryIntended": false,
+        "runtimeAuthority": false
+      },
+      "runtimeSchemas": {
+        "input": {
+          "state": "missing",
+          "ref": null
+        },
+        "output": {
+          "state": "missing",
+          "ref": null
+        },
+        "problem": {
+          "state": "missing",
+          "ref": null
+        }
+      },
+      "support": {
+        "operation": "statistics.compare",
+        "operationState": "not-implemented",
+        "providerState": "planned",
+        "providerDependencies": [
+          "ONS Data API",
+          "Nomis",
+          "statistical metadata"
+        ]
+      },
+      "accessTiers": [
+        "open"
+      ],
+      "policyAttributes": [
+        "dataset",
+        "measure",
+        "geography",
+        "time",
+        "disclosure",
+        "output"
+      ],
+      "costPerformance": "Medium; dataset queries and compatibility checks",
+      "controlledErrors": [
+        "INCOMPATIBLE_MEASURES",
+        "SUPPRESSED",
+        "GEOGRAPHY_VERSION_MISMATCH",
+        "MISSING_DENOMINATOR"
+      ],
+      "cursor": {
+        "state": "not-implemented",
+        "maxLength": null,
+        "artefactFallback": "not-implemented",
+        "researchStatement": "Bounded inline response; cursor pagination or immutable artefact when limits are exceeded."
+      },
+      "crs": {
+        "state": "not-applicable",
+        "requirements": []
+      },
+      "provenance": {
+        "requiredFields": [
+          "request_id",
+          "trace_id",
+          "provider",
+          "dataset",
+          "dataset_version",
+          "source_uris",
+          "retrieved_at",
+          "policy_decision_id",
+          "transformation",
+          "software",
+          "output_hash",
+          "licence_obligations"
+        ]
+      },
+      "fallback": {
+        "state": "not-implemented",
+        "behaviour": "Return comparability explanation without a numeric comparison."
+      },
+      "threats": {
+        "risks": [
+          "Invalid denominator",
+          "suppression disclosure",
+          "incomparable vintages"
+        ]
+      },
+      "source": {
+        "researchId": "T07",
+        "pointer": "/tools/6",
+        "inputSchemaPointer": "/tools/6/input_schema",
+        "outputSchemaPointer": "/tools/6/output_schema"
+      }
+    },
+    {
+      "id": "T08",
+      "name": "route.plan",
+      "namespace": "route",
+      "purpose": "Plan a deterministic route using an approved network and routing profile.",
+      "readOnly": true,
+      "mutating": false,
+      "releaseTarget": "later-reviewed-release",
+      "current": {
+        "implementationState": "not-implemented",
+        "lifecycleState": "planned",
+        "discoveryEligible": false,
+        "activationGates": {
+          "releaseEnabled": false,
+          "policy": false,
+          "schema": false,
+          "threat": false,
+          "evidence": false,
+          "interoperability": false,
+          "fallback": false
+        }
+      },
+      "v02Target": {
+        "lifecycleState": "planned",
+        "discoveryIntended": false,
+        "runtimeAuthority": false
+      },
+      "runtimeSchemas": {
+        "input": {
+          "state": "missing",
+          "ref": null
+        },
+        "output": {
+          "state": "missing",
+          "ref": null
+        },
+        "problem": {
+          "state": "missing",
+          "ref": null
+        }
+      },
+      "support": {
+        "operation": "route.plan",
+        "operationState": "not-implemented",
+        "providerState": "planned",
+        "providerDependencies": [
+          "approved network data",
+          "pgRouting or provider routing service"
+        ]
+      },
+      "accessTiers": [
+        "open",
+        "PSGA",
+        "commercial"
+      ],
+      "policyAttributes": [
+        "network_dataset",
+        "profile",
+        "purpose",
+        "location_sensitivity",
+        "cost"
+      ],
+      "costPerformance": "Medium; bounded graph search",
+      "controlledErrors": [
+        "NO_ROUTE",
+        "PROFILE_UNAVAILABLE",
+        "POLICY_DENY",
+        "NETWORK_STALE"
+      ],
+      "cursor": {
+        "state": "not-implemented",
+        "maxLength": null,
+        "artefactFallback": "not-implemented",
+        "researchStatement": "Bounded inline response; cursor pagination or immutable artefact when limits are exceeded."
+      },
+      "crs": {
+        "state": "required-before-implementation",
+        "requirements": [
+          "Declare CRS and axis order for coordinate inputs and route geometry."
+        ]
+      },
+      "provenance": {
+        "requiredFields": [
+          "request_id",
+          "trace_id",
+          "provider",
+          "dataset",
+          "dataset_version",
+          "source_uris",
+          "retrieved_at",
+          "policy_decision_id",
+          "transformation",
+          "software",
+          "output_hash",
+          "licence_obligations"
+        ]
+      },
+      "fallback": {
+        "state": "not-implemented",
+        "behaviour": "Return route-not-available and provider/source options; never invent a route."
+      },
+      "threats": {
+        "risks": [
+          "Unsafe route interpretation",
+          "network licence leakage",
+          "location sensitivity"
+        ]
+      },
+      "source": {
+        "researchId": "T08",
+        "pointer": "/tools/7",
+        "inputSchemaPointer": "/tools/7/input_schema",
+        "outputSchemaPointer": "/tools/7/output_schema"
+      }
+    },
+    {
+      "id": "T09",
+      "name": "map.render",
+      "namespace": "map",
+      "purpose": "Render a deterministic map specification or static image from policy-approved layers.",
+      "readOnly": true,
+      "mutating": false,
+      "releaseTarget": "later-reviewed-release",
+      "current": {
+        "implementationState": "not-implemented",
+        "lifecycleState": "planned",
+        "discoveryEligible": false,
+        "activationGates": {
+          "releaseEnabled": false,
+          "policy": false,
+          "schema": false,
+          "threat": false,
+          "evidence": false,
+          "interoperability": false,
+          "fallback": false
+        }
+      },
+      "v02Target": {
+        "lifecycleState": "planned",
+        "discoveryIntended": false,
+        "runtimeAuthority": false
+      },
+      "runtimeSchemas": {
+        "input": {
+          "state": "missing",
+          "ref": null
+        },
+        "output": {
+          "state": "missing",
+          "ref": null
+        },
+        "problem": {
+          "state": "missing",
+          "ref": null
+        }
+      },
+      "support": {
+        "operation": "map.render",
+        "operationState": "not-implemented",
+        "providerState": "planned",
+        "providerDependencies": [
+          "MapLibre style registry",
+          "tile services",
+          "static renderer"
+        ]
+      },
+      "accessTiers": [
+        "open",
+        "PSGA",
+        "commercial"
+      ],
+      "policyAttributes": [
+        "layers",
+        "fields",
+        "resolution",
+        "audience",
+        "watermark",
+        "attribution"
+      ],
+      "costPerformance": "Low-to-medium; tile/render bounded",
+      "controlledErrors": [
+        "LAYER_DENIED",
+        "STYLE_INVALID",
+        "ATTRIBUTION_MISSING",
+        "RENDER_LIMIT"
+      ],
+      "cursor": {
+        "state": "not-implemented",
+        "maxLength": null,
+        "artefactFallback": "not-implemented",
+        "researchStatement": "Bounded inline response; cursor pagination or immutable artefact when limits are exceeded."
+      },
+      "crs": {
+        "state": "required-before-implementation",
+        "requirements": [
+          "Declare CRS and axis order for every spatial layer and rendered output."
+        ]
+      },
+      "provenance": {
+        "requiredFields": [
+          "request_id",
+          "trace_id",
+          "provider",
+          "dataset",
+          "dataset_version",
+          "source_uris",
+          "retrieved_at",
+          "policy_decision_id",
+          "transformation",
+          "software",
+          "output_hash",
+          "licence_obligations"
+        ]
+      },
+      "fallback": {
+        "state": "not-implemented",
+        "behaviour": "Return accessible map specification and text summary."
+      },
+      "threats": {
+        "risks": [
+          "Protected feature leakage",
+          "missing attribution",
+          "visual misrepresentation"
+        ]
+      },
+      "source": {
+        "researchId": "T09",
+        "pointer": "/tools/8",
+        "inputSchemaPointer": "/tools/8/input_schema",
+        "outputSchemaPointer": "/tools/8/output_schema"
+      }
+    },
+    {
+      "id": "T10",
+      "name": "artefact.export",
+      "namespace": "artefact",
+      "purpose": "Create a governed downloadable result with manifest, expiry and audience constraints.",
+      "readOnly": true,
+      "mutating": false,
+      "releaseTarget": "later-reviewed-release",
+      "current": {
+        "implementationState": "not-implemented",
+        "lifecycleState": "planned",
+        "discoveryEligible": false,
+        "activationGates": {
+          "releaseEnabled": false,
+          "policy": false,
+          "schema": false,
+          "threat": false,
+          "evidence": false,
+          "interoperability": false,
+          "fallback": false
+        }
+      },
+      "v02Target": {
+        "lifecycleState": "planned",
+        "discoveryIntended": false,
+        "runtimeAuthority": false
+      },
+      "runtimeSchemas": {
+        "input": {
+          "state": "missing",
+          "ref": null
+        },
+        "output": {
+          "state": "missing",
+          "ref": null
+        },
+        "problem": {
+          "state": "missing",
+          "ref": null
+        }
+      },
+      "support": {
+        "operation": "artefact.export",
+        "operationState": "not-implemented",
+        "providerState": "planned",
+        "providerDependencies": [
+          "object storage",
+          "malware/content scanner",
+          "approval workflow"
+        ]
+      },
+      "accessTiers": [
+        "open",
+        "PSGA",
+        "commercial"
+      ],
+      "policyAttributes": [
+        "export",
+        "format",
+        "destination",
+        "audience",
+        "retention",
+        "feature_count",
+        "licence",
+        "approval"
+      ],
+      "costPerformance": "Variable storage/egress",
+      "controlledErrors": [
+        "APPROVAL_REQUIRED",
+        "EXPORT_DENIED",
+        "FORMAT_UNAVAILABLE",
+        "RETENTION_INVALID",
+        "SCAN_FAILED"
+      ],
+      "cursor": {
+        "state": "not-implemented",
+        "maxLength": null,
+        "artefactFallback": "not-implemented",
+        "researchStatement": "Bounded inline response; cursor pagination or immutable artefact when limits are exceeded."
+      },
+      "crs": {
+        "state": "required-before-implementation",
+        "requirements": [
+          "Preserve or explicitly transform CRS and axis order in spatial artefacts."
+        ]
+      },
+      "provenance": {
+        "requiredFields": [
+          "request_id",
+          "trace_id",
+          "provider",
+          "dataset",
+          "dataset_version",
+          "source_uris",
+          "retrieved_at",
+          "policy_decision_id",
+          "transformation",
+          "software",
+          "output_hash",
+          "licence_obligations"
+        ]
+      },
+      "fallback": {
+        "state": "not-implemented",
+        "behaviour": "Offer smaller inline result or approved aggregate."
+      },
+      "threats": {
+        "risks": [
+          "Bulk exfiltration",
+          "licence breach",
+          "long-lived signed URL"
+        ]
+      },
+      "source": {
+        "researchId": "T10",
+        "pointer": "/tools/9",
+        "inputSchemaPointer": "/tools/9/input_schema",
+        "outputSchemaPointer": "/tools/9/output_schema"
+      }
+    },
+    {
+      "id": "T11",
+      "name": "evidence.inspect",
+      "namespace": "evidence",
+      "purpose": "Retrieve the policy decision, source lineage, transformations and receipt for an operation.",
+      "readOnly": true,
+      "mutating": false,
+      "releaseTarget": "v0.2.0",
+      "current": {
+        "implementationState": "implemented",
+        "lifecycleState": "suspended",
+        "discoveryEligible": false,
+        "activationGates": {
+          "releaseEnabled": false,
+          "policy": false,
+          "schema": false,
+          "threat": false,
+          "evidence": false,
+          "interoperability": false,
+          "fallback": false
+        }
+      },
+      "v02Target": {
+        "lifecycleState": "active",
+        "discoveryIntended": true,
+        "runtimeAuthority": false
+      },
+      "runtimeSchemas": {
+        "input": {
+          "state": "accepted",
+          "ref": "schemas/evidence-inspect-request.schema.json"
+        },
+        "output": {
+          "state": "accepted",
+          "ref": "schemas/evidence-inspect-result.schema.json"
+        },
+        "problem": {
+          "state": "missing",
+          "ref": null
+        }
+      },
+      "support": {
+        "operation": "evidence.inspect",
+        "operationState": "implemented-inactive",
+        "providerState": "candidate-partial",
+        "providerDependencies": [
+          "evidence store",
+          "policy decision store",
+          "source ledger"
+        ]
+      },
+      "accessTiers": [
+        "open",
+        "PSGA",
+        "commercial",
+        "auditor"
+      ],
+      "policyAttributes": [
+        "audit_access",
+        "subject_relationship",
+        "case_reference",
+        "redaction"
+      ],
+      "costPerformance": "Low",
+      "controlledErrors": [
+        "NOT_FOUND",
+        "AUDIT_DENY",
+        "REDACTED",
+        "EVIDENCE_INTEGRITY_FAILURE"
+      ],
+      "cursor": {
+        "state": "none",
+        "maxLength": null,
+        "artefactFallback": "not-implemented",
+        "researchStatement": "Bounded inline response; cursor pagination or immutable artefact when limits are exceeded."
+      },
+      "crs": {
+        "state": "not-applicable",
+        "requirements": []
+      },
+      "provenance": {
+        "requiredFields": [
+          "request_id",
+          "trace_id",
+          "provider",
+          "dataset",
+          "dataset_version",
+          "source_uris",
+          "retrieved_at",
+          "policy_decision_id",
+          "transformation",
+          "software",
+          "output_hash",
+          "licence_obligations"
+        ]
+      },
+      "fallback": {
+        "state": "partial",
+        "behaviour": "Return a redacted public receipt or challenge route."
+      },
+      "threats": {
+        "risks": [
+          "Audit data privacy",
+          "evidence tampering"
+        ]
+      },
+      "source": {
+        "researchId": "T11",
+        "pointer": "/tools/10",
+        "inputSchemaPointer": "/tools/10/input_schema",
+        "outputSchemaPointer": "/tools/10/output_schema"
+      }
+    },
+    {
+      "id": "T12",
+      "name": "workflow.execute",
+      "namespace": "workflow",
+      "purpose": "Start or resume a registered, policy-approved workflow and return explicit state.",
+      "readOnly": false,
+      "mutating": true,
+      "releaseTarget": "v0.3.0",
+      "current": {
+        "implementationState": "not-implemented",
+        "lifecycleState": "planned",
+        "discoveryEligible": false,
+        "activationGates": {
+          "releaseEnabled": false,
+          "policy": false,
+          "schema": false,
+          "threat": false,
+          "evidence": false,
+          "interoperability": false,
+          "fallback": false
+        }
+      },
+      "v02Target": {
+        "lifecycleState": "planned",
+        "discoveryIntended": false,
+        "runtimeAuthority": false
+      },
+      "runtimeSchemas": {
+        "input": {
+          "state": "missing",
+          "ref": null
+        },
+        "output": {
+          "state": "missing",
+          "ref": null
+        },
+        "problem": {
+          "state": "missing",
+          "ref": null
+        }
+      },
+      "support": {
+        "operation": "workflow.execute",
+        "operationState": "not-implemented",
+        "providerState": "planned",
+        "providerDependencies": [
+          "workflow registry",
+          "Arazzo definitions",
+          "Tasks store",
+          "approval service"
+        ]
+      },
+      "accessTiers": [
+        "open",
+        "PSGA",
+        "commercial"
+      ],
+      "policyAttributes": [
+        "workflow",
+        "actor",
+        "permit",
+        "purpose",
+        "risk_tier",
+        "approval",
+        "budget"
+      ],
+      "costPerformance": "Workflow-specific; preflight estimate",
+      "controlledErrors": [
+        "WORKFLOW_NOT_FOUND",
+        "PERMIT_REQUIRED",
+        "PERMIT_EXPIRED",
+        "APPROVAL_REQUIRED",
+        "STATE_CONFLICT",
+        "CANCELLED"
+      ],
+      "cursor": {
+        "state": "not-implemented",
+        "maxLength": null,
+        "artefactFallback": "not-implemented",
+        "researchStatement": "Bounded inline response; cursor pagination or immutable artefact when limits are exceeded."
+      },
+      "crs": {
+        "state": "not-applicable",
+        "requirements": []
+      },
+      "provenance": {
+        "requiredFields": [
+          "request_id",
+          "trace_id",
+          "provider",
+          "dataset",
+          "dataset_version",
+          "source_uris",
+          "retrieved_at",
+          "policy_decision_id",
+          "transformation",
+          "software",
+          "output_hash",
+          "licence_obligations"
+        ]
+      },
+      "fallback": {
+        "state": "not-implemented",
+        "behaviour": "Return current state and required human action; no implicit continuation."
+      },
+      "threats": {
+        "risks": [
+          "Workflow confusion",
+          "replay",
+          "approval bypass",
+          "partial side effects"
+        ]
+      },
+      "source": {
+        "researchId": "T12",
+        "pointer": "/tools/11",
+        "inputSchemaPointer": "/tools/11/input_schema",
+        "outputSchemaPointer": "/tools/11/output_schema"
+      }
+    }
+  ]
+}

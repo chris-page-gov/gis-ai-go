@@ -8,6 +8,9 @@ importers:
 
   .:
     devDependencies:
+      '@gis-ai-go/tool-registry':
+        specifier: workspace:*
+        version: link:packages/tool-registry
       '@types/node':
         specifier: 24.13.3
         version: 24.13.3
@@ -92,6 +95,8 @@ importers:
       '@gis-ai-go/evidence':
         specifier: workspace:*
         version: link:../evidence
+
+  packages/tool-registry: {}
 
 packages:
 

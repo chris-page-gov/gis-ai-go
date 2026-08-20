@@ -48,6 +48,7 @@ class ReleaseMetadataTests(unittest.TestCase):
             "packages/evidence/package.json",
             "packages/policy-client/package.json",
             "packages/provider-adapter-sdk/package.json",
+            "packages/tool-registry/package.json",
         )
         self.assertEqual(check_versions.npm_package_manifests(ROOT), expected_manifests)
 
@@ -112,6 +113,7 @@ class ReleaseMetadataTests(unittest.TestCase):
             "@gis-ai-go/contracts",
             "@gis-ai-go/evidence",
             "@gis-ai-go/policy-client",
+            "@gis-ai-go/tool-registry",
         }
         for name in workspace_components:
             with self.subTest(package=name):
