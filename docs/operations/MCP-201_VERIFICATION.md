@@ -184,7 +184,8 @@ check suite or workflow run for the merge.
 ## Local MCP and direct-API transport candidate
 
 - protected-main base: `997d5fdd478797b20b05d1980be8f986645d410e`
-- candidate commit: pending local commit and protected pull request
+- candidate implementation commit:
+  `fb0234b9a6a968fe68c2fbe98388f2415393c9c1`
 - pull request, remote CI, CodeQL and attestation: not yet created
 - deployment, public service URL and registry entry: none
 - activation state: blocked; default MCP tool and direct-API arrays empty;
@@ -192,7 +193,7 @@ check suite or workflow run for the merge.
 
 ### Candidate outcome
 
-The frozen local working tree adds direct POST search and description handlers,
+The exact local candidate commit adds direct POST search and description handlers,
 an MCP 2026-07-28 HTTP route and a protocol-clean STDIO entry point. All use one
 checksum-verified catalogue snapshot, the same application, exact canonical
 request and result schemas, and the existing canonical inline evidence path.
@@ -296,9 +297,8 @@ The exact frozen local candidate passes:
   corrections were manually reviewed and dynamically tested; the candidate commit,
   tree and attestation remain the durable identity.
 
-The candidate commit, pull-request assurance, CodeQL and protected-main evidence
-remain pending. None of the historical accepted evidence above accepts these new
-working-tree bytes.
+Pull-request assurance, CodeQL and protected-main evidence remain pending. None of
+the historical accepted evidence above accepts these candidate bytes.
 
 Pinned SDK-client conformance is not independent major-host interoperability.
 Complete non-App result values exist, but host-specific fallback, lifecycle and

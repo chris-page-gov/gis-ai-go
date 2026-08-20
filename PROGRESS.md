@@ -116,7 +116,7 @@ The supported target active set is exactly `catalogue.search`,
 
 ## Next
 
-1. Commit the reviewed blocked transport candidate and pass the protected
+1. Push the reviewed blocked transport candidate and pass the protected
    pull-request gate without changing its zero-activation boundary.
 2. Verify independent major-host interoperability and the complete non-App fallback
    and lifecycle journeys before considering activation or deployment of
@@ -128,12 +128,13 @@ The supported target active set is exactly `catalogue.search`,
 ## Current blockers
 
 - No local implementation or review blocker remains for the blocked transport
-  slice; its candidate commit and protected pull-request evidence are pending.
+  slice; its exact candidate commit exists and protected pull-request evidence is
+  pending.
 - Activating or publishing a catalogue service remains hard-blocked. Raw protocol
   transcripts and the pinned SDK client do not establish independent major-host
   interoperability, and host-specific non-App fallback and lifecycle evidence is
   still pending.
-- Direct routes and MCP transports now exist only in the local working tree. The
+- Direct routes and MCP transports now exist only on the local candidate branch. The
   production/default capability arrays are empty, readiness is `503`, and there is
   no public service deployment or activation override.
 - The candidate has no provider adapter, provider call, evidence store or durable
@@ -144,20 +145,21 @@ The supported target active set is exactly `catalogue.search`,
 
 ## Latest evidence
 
-- MCP-201 blocked transport candidate: frozen local working tree based on
-  protected-main commit `997d5fdd478797b20b05d1980be8f986645d410e`; the complete
-  locked gate passes with 19 contract, 20 evidence, 2 authority-context, 6 policy,
-  86 gateway, 16 Explorer build-policy, 42 Explorer unit and component, 95
-  repository Python, 2 execution-boundary and 27 browser tests;
+- MCP-201 blocked transport candidate: exact local implementation commit
+  `fb0234b9a6a968fe68c2fbe98388f2415393c9c1`, based on protected-main commit
+  `997d5fdd478797b20b05d1980be8f986645d410e`, passes the complete locked gate with
+  19 contract, 20 evidence, 2 authority-context, 6 policy, 86 gateway, 16 Explorer
+  build-policy, 42 Explorer unit and component, 95 repository Python, 2
+  execution-boundary and 27 browser tests;
 - MCP-201 blocked transport assurance: two clean release builds are byte-identical
   at archive SHA-256
   `ff7d3e19bfbf12d610526e3e62a3fc14e6c7960a34ddbf3190eb044a74767035`;
   15 schemas, 55 records and 3 evaluation manifests validate; 308 links, 183
   research hashes, 2 ledgers and 71 source identifiers resolve; the 516-file scan,
   9 diagrams and 163-component SBOM pass; two independent current-byte reviews and
-  the completed security diff review report no P0–P2 finding; candidate commit,
-  pull request, CI, CodeQL and attestation remain pending, and no deployment or
-  independent major-host evidence is claimed;
+  the completed security diff review report no P0–P2 finding; pull request, CI,
+  CodeQL and attestation remain pending, and no deployment or independent
+  major-host evidence is claimed;
 - MCP-201 shared catalogue contract: protected-main commit
   `e5e6d4db5ac7036198cde64279e815f214f3defd`, passing assurance and provenance in
   [run 32338916345](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32338916345),

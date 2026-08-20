@@ -97,16 +97,17 @@ and [attestation 41836254](https://github.com/chris-page-gov/gis-ai-go/attestati
 binds the exact source archive to that commit. There is still no live provider
 adapter, external policy service, identity integration or evidence store.
 
-A third MCP-201 slice is now a local, unaccepted candidate based on protected-main
-commit `997d5fdd478797b20b05d1980be8f986645d410e`. It implements bounded direct
+A third MCP-201 slice is now a local, unaccepted candidate at exact implementation
+commit `fb0234b9a6a968fe68c2fbe98388f2415393c9c1`, based on protected-main commit
+`997d5fdd478797b20b05d1980be8f986645d410e`. It implements bounded direct
 `POST /catalogue/search` and `POST /catalogue/describe` handlers and modern MCP
 2026-07-28 HTTP and STDIO transports over that same application path. Explicit
 constructor options can register the two tools, matching API operations and
 read-only catalogue resources for local conformance tests. The production/default
 tool and API arrays remain empty, resources default to none, readiness remains
-`503`, and the shipped entry points provide no activation override. This working
-tree has no accepted commit, pull request, CI evidence, deployment, public service
-URL or registry entry. Its frozen local bytes pass the complete locked repository
+`503`, and the shipped entry points provide no activation override. The candidate
+has no pull request, CI evidence, deployment, public service URL or
+registry entry. Its exact local bytes pass the complete locked repository
 gate and independent architecture, integration and security reviews with no
 P0–P2 finding. Pinned SDK conformance does not replace the still-pending independent
 host and non-App fallback evidence required before activation.
