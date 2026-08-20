@@ -47,7 +47,6 @@ const DATE_TIME =
   /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/u;
 const SHA_40 = /^[0-9a-f]{40}$/u;
 const SEMVER = /^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)$/u;
-const HTML_LIKE = /<\s*(?:!--|!doctype\b|\/?[a-z][^>]*)>/iu;
 const CONTROL_CHARACTER = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/u;
 const BIDI_CONTROL = /[\u061c\u200e\u200f\u202a-\u202e\u2066-\u2069]/u;
 const DANGEROUS_KEYS = new Set(["__proto__", "constructor", "prototype"]);
@@ -77,6 +76,70 @@ function exactKeys(value: ObjectValue, expected: readonly string[], path: string
   }
 }
 
+function isEcmaWhitespace(code: number): boolean {
+  return (
+    code === 0x0009 ||
+    (code >= 0x000a && code <= 0x000d) ||
+    code === 0x0020 ||
+    code === 0x00a0 ||
+    code === 0x1680 ||
+    (code >= 0x2000 && code <= 0x200a) ||
+    code === 0x2028 ||
+    code === 0x2029 ||
+    code === 0x202f ||
+    code === 0x205f ||
+    code === 0x3000 ||
+    code === 0xfeff
+  );
+}
+
+function isAsciiLetter(code: number): boolean {
+  const lower = code | 0x20;
+  return lower >= 0x61 && lower <= 0x7a;
+}
+
+/**
+ * Detect tag, comment and doctype-shaped markup in linear time.
+ *
+ * A final closing bracket proves that every candidate before it has a possible
+ * terminator. Each opening bracket and intervening character is then visited at
+ * most a constant number of times, avoiding backtracking over attacker-controlled
+ * catalogue strings.
+ */
+function containsHtmlLikeContent(value: string): boolean {
+  const finalClose = value.lastIndexOf(">");
+  if (finalClose < 0) return false;
+
+  let open = value.indexOf("<");
+  while (open >= 0 && open < finalClose) {
+    let cursor = open + 1;
+    while (cursor < finalClose && isEcmaWhitespace(value.charCodeAt(cursor))) {
+      cursor += 1;
+    }
+
+    let marker = value.charCodeAt(cursor);
+    if (marker === 0x2f) {
+      cursor += 1;
+      marker = value.charCodeAt(cursor);
+    }
+    if (isAsciiLetter(marker)) return true;
+
+    if (marker === 0x21) {
+      const isComment =
+        value.charCodeAt(cursor + 1) === 0x2d && value.charCodeAt(cursor + 2) === 0x2d;
+      if (isComment) return true;
+
+      const doctypeEnd = cursor + 8;
+      const isDoctype = value.slice(cursor + 1, doctypeEnd).toLowerCase() === "doctype";
+      const boundary = value.charCodeAt(doctypeEnd);
+      if (isDoctype && (boundary === 0x3e || isEcmaWhitespace(boundary))) return true;
+    }
+
+    open = value.indexOf("<", open + 1);
+  }
+  return false;
+}
+
 function stringAt(
   value: unknown,
   path: string,
@@ -91,7 +154,7 @@ function stringAt(
   if (CONTROL_CHARACTER.test(value) || BIDI_CONTROL.test(value)) {
     fail(path, "string contains an unsafe control character");
   }
-  if (options.plain && HTML_LIKE.test(value)) {
+  if (options.plain && containsHtmlLikeContent(value)) {
     fail(path, "HTML-like content is not permitted");
   }
   return value;

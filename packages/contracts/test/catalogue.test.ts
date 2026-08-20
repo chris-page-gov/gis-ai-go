@@ -94,6 +94,24 @@ test("rejects unsafe HTML, controls, bidi text and unsafe navigable URLs", () =>
   markup.records[0]!.title = '<img src=x onerror="globalThis.pwned=true">';
   assert.throws(() => parseCatalogue(markup), /HTML-like/);
 
+  for (const unsafe of ["<!-- untrusted -->", "<!doctype html>", "< /SCRIPT >"]) {
+    const alternateMarkup = cloneFixture();
+    alternateMarkup.records[0]!.description = unsafe;
+    assert.throws(() => parseCatalogue(alternateMarkup), /HTML-like/);
+  }
+
+  const comparison = cloneFixture();
+  comparison.records[0]!.description = "A value can be 1 < 2 while another is 3 > 1.";
+  assert.doesNotThrow(() => parseCatalogue(comparison));
+
+  const unterminatedCandidates = cloneFixture();
+  unterminatedCandidates.records[0]!.description = "<a".repeat(8_000);
+  assert.doesNotThrow(() => parseCatalogue(unterminatedCandidates));
+
+  const terminatedCandidates = cloneFixture();
+  terminatedCandidates.records[0]!.description = `${"<a".repeat(8_000)}>`;
+  assert.throws(() => parseCatalogue(terminatedCandidates), /HTML-like/);
+
   const control = cloneFixture();
   control.records[0]!.description = "Trusted\u0007evil";
   assert.throws(() => parseCatalogue(control), /unsafe control/);
