@@ -95,7 +95,9 @@ listed above completed this slice's remote gate.
 - pull-request CodeQL:
   [passing](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32344358198)
 - protected-main merge: `4948890c10adb4f0ac6f427cda21cb0c0c4607dd`
-- protected-main acceptance evidence: pending this docs-only follow-up
+- acceptance-evidence pull request:
+  [28](https://github.com/chris-page-gov/gis-ai-go/pull/28)
+- protected-main acceptance run: pending this docs-only follow-up
 
 ### Candidate outcome
 
