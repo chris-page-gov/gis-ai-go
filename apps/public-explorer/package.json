@@ -14,7 +14,8 @@
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "test:build": "node --test test/build/*.test.mjs",
     "test:unit": "pnpm run test:build && vitest run",
-    "test:browser": "playwright test"
+    "test:browser": "playwright test",
+    "test:public": "playwright test --config playwright.public.config.ts"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.13.0",

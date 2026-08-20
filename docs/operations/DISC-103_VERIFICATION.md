@@ -1,6 +1,6 @@
 # DISC-103 verification record
 
-- status: implementation candidate
+- status: verified on protected main
 - reviewed on: 20 August 2026
 - work item: DISC-103
 - publication: none; GitHub Pages remains disabled
@@ -69,8 +69,16 @@ The release content root is intentionally not claimed here: the build receipt bi
 the Git revision, so DISC-104 and the release gate must record the exact merged
 revision and its corresponding artefact root.
 
-The pull-request head, remote assurance and CodeQL evidence must be added before
-merge. This candidate has not been deployed or released.
+The implementation merged through
+[pull request 10](https://github.com/chris-page-gov/gis-ai-go/pull/10) at
+`e5a522ee17f3a0a6f5857245c5ae3acd767efc25`. The pull-request
+[assurance run](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32316389446)
+and [CodeQL run](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32316387958)
+passed, followed by the protected-main
+[assurance run](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32316482090).
+The merged revision reproducibly builds OKF content root
+`c3fdadf975194580d1f659e7f3f3b609099b720129b9d8149801115f659c4040`.
+This product has not yet been deployed or released.
 
 ## Rollback
 

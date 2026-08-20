@@ -6,13 +6,14 @@ on:
       - main
   pull_request:
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   assurance:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
+    permissions:
+      contents: read
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -45,6 +46,39 @@ jobs:
       - name: Run assurance
         run: pnpm run check
 
+      - name: Package immutable Pages source
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && success() }}
+        run: |
+          uv run --locked --cache-dir .uv-cache python scripts/package_pages.py \
+            --dist apps/public-explorer/dist \
+            --output-dir artifacts/pages \
+            --source-commit "$GITHUB_SHA" \
+            --repository "$GITHUB_REPOSITORY" \
+            --version "$(tr -d '\n' < VERSION)" \
+            --base-path /gis-ai-go/
+
+      - name: Verify immutable Pages source
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && success() }}
+        run: |
+          uv run --locked --cache-dir .uv-cache python scripts/verify_pages_archive.py \
+            --archive artifacts/pages/artifact.tar \
+            --checksum artifacts/pages/artifact.tar.sha256 \
+            --receipt artifacts/pages/archive-receipt.json \
+            --expected-source-commit "$GITHUB_SHA" \
+            --expected-repository "$GITHUB_REPOSITORY" \
+            --expected-version "$(tr -d '\n' < VERSION)" \
+            --expected-base-path /gis-ai-go/
+
+      - name: Upload immutable Pages source
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && success() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: pages-source-${{ github.sha }}
+          path: artifacts/pages/
+          if-no-files-found: error
+          retention-days: 90
+          compression-level: 0
+
       - name: Upload generated evidence
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -52,5 +86,62 @@ jobs:
           name: assurance-evidence
           path: |
             artifacts/
+            !artifacts/pages/**
             apps/public-explorer/test-results/
           if-no-files-found: warn
+
+  provenance:
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    needs: assurance
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      actions: read
+      attestations: write
+      contents: read
+      id-token: write
+    steps:
+      - name: Check out attested source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          version: 0.12.2
+          enable-cache: true
+
+      - name: Download immutable Pages source
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: pages-source-${{ github.sha }}
+          path: artifacts/pages
+
+      - name: Verify archive before attestation
+        run: |
+          uv run --locked --cache-dir .uv-cache python scripts/verify_pages_archive.py \
+            --archive artifacts/pages/artifact.tar \
+            --checksum artifacts/pages/artifact.tar.sha256 \
+            --receipt artifacts/pages/archive-receipt.json \
+            --expected-source-commit "$GITHUB_SHA" \
+            --expected-repository "$GITHUB_REPOSITORY" \
+            --expected-version "$(tr -d '\n' < VERSION)" \
+            --expected-base-path /gis-ai-go/
+
+      - name: Attest immutable Pages source
+        id: attestation
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: artifacts/pages/artifact.tar
+
+      - name: Record provenance
+        env:
+          ATTESTATION_URL: ${{ steps.attestation.outputs.attestation-url }}
+        run: |
+          {
+            printf '### Immutable Pages source\n\n'
+            printf -- '- Source commit: `%s`\n' "$GITHUB_SHA"
+            printf -- '- Artefact: `pages-source-%s`\n' "$GITHUB_SHA"
+            printf -- '- Attestation: %s\n' "$ATTESTATION_URL"
+          } >> "$GITHUB_STEP_SUMMARY"

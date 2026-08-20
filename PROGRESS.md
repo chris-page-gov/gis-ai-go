@@ -10,14 +10,15 @@ reproducible GitHub Pages deployment.
 
 ## Active workstream
 
-`DISC-103 — Add reviewed public geospatial examples`
+`DISC-104 — Publish immutable GitHub Pages artefacts`
 
-- add digest-locked HM Land Registry journeys LR-Q003, LR-Q006 and LR-Q012;
-- add non-executing ONS data, ONS geography and LandIS capability records;
-- preserve exact source, release, retrieval, review, rights and access semantics;
-- fail closed on forbidden fields, unresolved evidence or mixed rights presented as
-  open;
-- prove the new journeys through contract, Explorer and real-browser assurance.
+- package only the checked Explorer distribution as a deterministic publication
+  artefact with checksums, provenance, receipt and SBOM;
+- deploy the exact artefact from a successful protected-`main` assurance run;
+- verify the public product, catalogue journeys, CSP, network boundary,
+  accessibility and source identity in a real browser;
+- rehearse rollback to a previous accepted artefact and restore the current one
+  without rebuilding either artefact.
 
 ## Completed
 
@@ -45,37 +46,47 @@ reproducible GitHub Pages deployment.
   graph, timeline, non-legal schematic map, durable URLs and machine-readable
   downloads;
 - full local `pnpm run check` passed on 20 August 2026.
+- `DISC-103` merged through [pull request 10](https://github.com/chris-page-gov/gis-ai-go/pull/10)
+  at `e5a522ee17f3a0a6f5857245c5ae3acd767efc25` with passing assurance and
+  CodeQL;
+- the canonical public bundle now contains 36 records covering reviewed HMLR
+  discovery journeys, HMLR datasets and non-executing ONS and LandIS provider
+  capabilities with exact rights and provenance boundaries.
 
 ## Next
 
-1. Complete and merge the reviewed examples through `DISC-103`.
-2. Publish the immutable static product through `DISC-104` after the final gate.
+1. Publish and verify the immutable static product through `DISC-104`.
+2. Prove artefact-only rollback and restore the current accepted deployment.
 3. Assemble, tag and verify the first supported `v0.1.0` release.
 
 ## Current blockers
 
-- GitHub Pages stays disabled until the hardened Explorer, attribution review and
-  browser/accessibility gates pass.
+- GitHub Pages stays disabled until the immutable publication workflow and
+  protected-main artefact pass their local and remote gates.
 - Protected PSGA and commercial deployments require separate rights, credentials
   and isolated infrastructure; they do not block the open product.
 
 ## Latest evidence
 
-- canonical OKF content and Explorer: merged on protected `main` at `6984f30`;
-- main assurance and CodeQL: passing at `6984f30` on 20 August 2026;
+- canonical OKF content, Explorer and reviewed public examples: merged on protected
+  `main` at `e5a522e`;
+- main assurance and CodeQL: passing at `e5a522e` on 20 August 2026;
 - Explorer assurance includes
-  16 build-policy tests, 36 unit and component tests, 18 browser journeys and
+  16 build-policy tests, 42 unit and component tests, 25 browser journeys and
   production integrity checks;
 - bounded security diff review: all changed runtime, interface and build-assurance
   files covered; the confirmed Low CSP/origin assurance gap, exact HTML-attribute
   parsing, fresh preview-server enforcement, and defensive symlink and lock-strict
   hardening are remediated with passing regressions;
 - DISC-103 source review: exact provider snapshots and HMLR `v0.3.0` inputs are
-  selected; the 36-record local candidate passes the complete repository gate,
-  including 25 browser journeys, and independent review is complete;
+  selected; the merged 36-record product passed the complete repository gate,
+  including 25 browser journeys, and independent review;
 - DISC-103 security review: the selected HMLR inputs and copied licence are
   independently bound to approved v0.3.0 digests, and coordinated source, rights,
   licence and lock mutations now fail closed;
+- DISC-104 local candidate: 17 archive and 10 workflow contract tests, the complete
+  repository gate and 4 public-artefact browser tests pass; protected-main build,
+  attestation, deployment and rollback evidence remain to be produced;
 - public repository: verified with personal `noreply` commit identity;
 - deployed product: none;
 - latest supported release: none.

@@ -5,6 +5,7 @@ const origin = `http://127.0.0.1:${port}`;
 
 export default defineConfig({
   testDir: "./test/browser",
+  testIgnore: "public-deployment.spec.ts",
   outputDir: "./test-results",
   fullyParallel: false,
   forbidOnly: Boolean(process.env.CI),
