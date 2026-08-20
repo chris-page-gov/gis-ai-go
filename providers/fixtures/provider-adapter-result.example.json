@@ -1,0 +1,50 @@
+{
+  "schema": "gis-ai-go.provider-adapter-result.v1",
+  "provider": {
+    "id": "fixture.statistics",
+    "adapterId": "gis-ai-go.synthetic-statistics"
+  },
+  "dataset": {
+    "id": "population-count",
+    "edition": "2026",
+    "version": "1",
+    "versionUri": "urn:gis-ai-go:fixture:provider:fixture.statistics:datasets:population-count:editions:2026:versions:1"
+  },
+  "dimensions": [
+    { "dimension": "time", "option": "2026" },
+    { "dimension": "geography", "option": "FIXTURE-EW" },
+    { "dimension": "measure", "option": "population" }
+  ],
+  "observations": [
+    { "value": "1000", "unit": "synthetic persons" }
+  ],
+  "rights": {
+    "state": "project-synthetic",
+    "licence": "MIT",
+    "licenceUri": "https://opensource.org/license/mit",
+    "attribution": "GIS AI GO synthetic fixture; not official statistics.",
+    "obligations": [
+      "Keep the result labelled as synthetic.",
+      "Do not attribute fixture values to an external provider."
+    ],
+    "exceptions": [],
+    "evidenceUris": [
+      "https://github.com/chris-page-gov/gis-ai-go/blob/main/LICENSE"
+    ],
+    "reviewedAt": "2026-08-20T00:00:00Z"
+  },
+  "provenance": {
+    "providerVersion": {
+      "providerId": "fixture.statistics",
+      "datasetId": "population-count",
+      "edition": "2026",
+      "version": "1",
+      "versionUri": "urn:gis-ai-go:fixture:provider:fixture.statistics:datasets:population-count:editions:2026:versions:1",
+      "sourceDate": "2026-08-20",
+      "dimensionOrder": ["time", "geography", "measure"]
+    },
+    "adapter": { "id": "gis-ai-go.synthetic-statistics", "version": "1" },
+    "transformations": ["exact-fixture-key-lookup.v1", "rfc8785-canonical-json.v1"],
+    "synthetic": true
+  }
+}

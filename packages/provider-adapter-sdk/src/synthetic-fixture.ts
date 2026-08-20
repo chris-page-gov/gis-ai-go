@@ -1,4 +1,10 @@
-import { canonicalJsonBytes, canonicalJsonClone } from "@gis-ai-go/evidence";
+import {
+  CANONICAL_DOMAINS,
+  canonicalDigest,
+  canonicalJsonBytes,
+  canonicalJsonClone,
+  type CanonicalDigest,
+} from "@gis-ai-go/evidence";
 
 import { ProviderAdapterFault, normaliseAdapterError } from "./contract.js";
 import {
@@ -40,6 +46,7 @@ const RIGHTS: ProviderRights = canonicalJsonClone({
     "Keep the result labelled as synthetic.",
     "Do not attribute fixture values to an external provider.",
   ],
+  exceptions: [],
   evidenceUris: ["https://github.com/chris-page-gov/gis-ai-go/blob/main/LICENSE"],
   reviewedAt: "2026-08-20T00:00:00Z",
 });
@@ -246,6 +253,12 @@ export class SyntheticFixtureAdapter implements ProviderAdapter {
 
 export function serialiseProviderAdapterResult(result: ProviderAdapterResult): Uint8Array {
   return canonicalJsonBytes(result);
+}
+
+export function digestProviderAdapterResult(
+  result: ProviderAdapterResult,
+): CanonicalDigest<typeof CANONICAL_DOMAINS.providerAdapterResult> {
+  return canonicalDigest(CANONICAL_DOMAINS.providerAdapterResult, result);
 }
 
 export function createSyntheticFixtureAdapter(

@@ -11,18 +11,21 @@ The supported target active set is exactly `catalogue.search`,
 
 ## Active workstream
 
-`EXEC-202 — Implement the typed deterministic execution service`
+`ADAPT-203 — Implement the first bounded open provider adapter`
 
-- share closed versioned gateway/Python request, result and problem envelopes;
-- allow only deterministic `fixture.features.query` over fictional public records;
-- enforce exact source, CRS and axis order plus geometry, feature, coordinate,
-  byte, output, complexity, deadline and cancellation bounds;
-- preserve trace, provider-native source/version/rights and explicit
-  transformation/software evidence without raw errors;
-- expose loopback-only private health, readiness, OpenAPI, execution and
-  cancellation surfaces with no identity or policy authority; and
-- verify non-root, read-only, network-none container operation before protected
-  pull-request acceptance.
+- retain the accepted deterministic fixture adapter and exact EXEC-202 dependency;
+- implement only the fixed version `121` ONS weekly-deaths selection with no caller
+  URL, query, credential, redirect or provider-link traversal;
+- enforce public DNS and pinned TLS, one process-shared call in flight across all
+  adapter instances, 30 process-shared attempts per minute,
+  two attempts, a 20-second complete deadline and separate compressed,
+  decompressed and canonical byte limits;
+- reject invalid media, encoding, UTF-8, duplicate keys, schema/version/native-ID
+  and rights drift without reflecting raw provider errors;
+- preserve native dimension order, exact source/version/OGL rights and
+  domain-separated deterministic result evidence; and
+- keep both ONS lifecycle planes suspended and every gateway, MCP, direct API,
+  Python dispatch, listener, registry and deployment unchanged.
 
 ## Completed
 
@@ -113,18 +116,19 @@ The supported target active set is exactly `catalogue.search`,
 
 ## Next
 
-1. Freeze the EXEC-202 candidate in a reviewed commit, protected pull request and
-   exact-head assurance record; no deployment is part of this change.
-2. Implement ADAPT-203 through a separately reviewed fixed-endpoint open provider
-   contract; do not expand the synthetic allowlist implicitly.
+1. Freeze the ADAPT-203 fixed-endpoint candidate in a reviewed commit, protected
+   pull request and exact-head assurance record; no activation or deployment is
+   part of this change.
+2. Integrate an accepted adapter through the exact EXEC-202 boundary only in a
+   later reviewed slice; do not expand the synthetic allowlist implicitly.
 3. Complete durable EVID-204 storage and `evidence.inspect`, then add the bounded
    TOOLS-205 registry without activating an unassured tool.
 
 ## Current blockers
 
-- There is no local implementation or test blocker for the synthetic-only EXEC-202
-  candidate. Commit, pull-request review, protected checks, CodeQL and attestation
-  are pending.
+- There is no focused implementation or test blocker for the inactive ADAPT-203B
+  candidate. Complete repository assurance and independent review are pending; no
+  commit, pull request, activation or deployment is part of this worktree task.
 - The gateway assertion is a typed private hand-off, not workload authentication or
   a signed policy decision. Any non-loopback deployment remains blocked on explicit
   service identity and network-policy evidence.
@@ -138,14 +142,31 @@ The supported target active set is exactly `catalogue.search`,
 - Direct routes and MCP transports now exist on protected `main`, but the
   production/default capability arrays are empty, readiness is `503`, and there is
   no public service deployment or activation override.
-- The candidate has no provider adapter, provider call, evidence store or durable
-  rate service; those are not implied capabilities.
+- The EXEC-202 service has no live-provider dispatch. The separate ADAPT-203B
+  candidate has a process-local bounded ONS adapter and one opt-in public probe, but
+  no gateway or production activation, durable rate service or evidence store.
 - Protected PSGA and commercial deployments require separate rights, credentials
   and isolated infrastructure. They remain outside this release and do not block
   the open product.
 
 ## Latest evidence
 
+- ADAPT-203B local candidate: the complete locked gate passes 409 tests, with one
+  deliberately skipped opt-in live-provider test, including 31 provider-adapter,
+  99 gateway and 27 real-browser tests;
+- ADAPT-203B repository assurance: 27 schemas and 67 records validate; 338 local
+  links, 183 immutable research hashes, 2 ledgers and 71 source identifiers
+  resolve; the 607-file secret scan, 9 diagrams and 165-component SBOM pass; two
+  clean Explorer release builds are byte-identical;
+- ADAPT-203B live evidence: the final opt-in no-credential probe at
+  `2026-08-20T20:21:08.947Z` reached the exact fixed version `121` selection in
+  one attempt over TLS 1.3 with HTTP 200. The 2,399-byte canonical result has
+  domain-separated SHA-256
+  `309a7c0a374f93f20d4b4cc8aaa4530c4a828ea27e4e26e266b367e59b7da3bd`.
+  The evidence record and live-probe output retain only version, rights, status,
+  hash/size and safe timing/TLS/byte metadata, with no raw response body,
+  observation value, address, credential or path. A deterministic test fixture
+  separately retains the public aggregate scalar `10471` to reproduce that digest;
 - EXEC-202 local candidate: the complete locked gate passes with 19 shared-contract,
   25 canonical-evidence, 2 authority-context, 6 policy, 95 gateway, 16 Explorer
   build-policy, 42 Explorer unit/component, 99 repository Python, 20 execution

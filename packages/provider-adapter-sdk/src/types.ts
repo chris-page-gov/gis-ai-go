@@ -33,6 +33,7 @@ export interface ProviderRights {
   readonly licenceUri: string;
   readonly attribution: string;
   readonly obligations: readonly string[];
+  readonly exceptions: readonly string[];
   readonly evidenceUris: readonly string[];
   readonly reviewedAt: string;
 }
@@ -128,6 +129,8 @@ export interface ProviderAdapterProvenance {
   };
   readonly transformations: readonly string[];
   readonly synthetic: boolean;
+  /** Exact internally constructed source URI; provider-returned links are never trusted. */
+  readonly sourceUri?: string;
 }
 
 export interface ProviderAdapterResult {
@@ -145,7 +148,12 @@ export interface ProviderAdapterResult {
   readonly dimensions: readonly ProviderSelection[];
   readonly observations: readonly {
     readonly value: string;
-    readonly unit: string;
+    /** `null` preserves an upstream response that supplies no unit. */
+    readonly unit: string | null;
+    readonly metadata?: readonly {
+      readonly name: string;
+      readonly value: string;
+    }[];
   }[];
   readonly rights: ProviderRights;
   readonly provenance: ProviderAdapterProvenance;
@@ -179,6 +187,27 @@ export interface ProviderAdapter {
   health(): AdapterHealth;
   estimate(request: unknown): ProviderAdapterEstimate;
   execute(request: unknown): ProviderAdapterResult;
+  normalise_error(error: unknown): NormalisedAdapterError;
+  licence_evidence(): ProviderRights;
+  provenance(): ProviderAdapterProvenance;
+}
+
+export interface ProviderAdapterExecutionOptions {
+  readonly signal?: AbortSignal;
+  /** Accepted EXEC-202 absolute RFC 3339 deadline; the adapter also applies its lower local ceiling. */
+  readonly deadline?: string;
+}
+
+/** Live adapters have the same seven operations but execute asynchronously. */
+export interface AsyncProviderAdapter {
+  readonly operations: readonly AdapterOperation[];
+  describe(): AdapterDescription;
+  health(): AdapterHealth;
+  estimate(request: unknown): ProviderAdapterEstimate;
+  execute(
+    request: unknown,
+    options?: ProviderAdapterExecutionOptions,
+  ): Promise<ProviderAdapterResult>;
   normalise_error(error: unknown): NormalisedAdapterError;
   licence_evidence(): ProviderRights;
   provenance(): ProviderAdapterProvenance;

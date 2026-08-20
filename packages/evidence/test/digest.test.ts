@@ -34,6 +34,10 @@ test("separates equal canonical bytes in different semantic domains", () => {
     domainSeparatedSha256(CANONICAL_DOMAINS.catalogueParameters, value),
     domainSeparatedSha256(CANONICAL_DOMAINS.catalogueResultCore, value),
   );
+  assert.notEqual(
+    domainSeparatedSha256(CANONICAL_DOMAINS.providerAdapterResult, value),
+    domainSeparatedSha256(CANONICAL_DOMAINS.executionResultData, value),
+  );
 });
 
 test("creates and verifies namespaced content identities", () => {

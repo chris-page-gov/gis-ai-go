@@ -40,7 +40,7 @@
       }
     },
     "integrationState": {
-      "const": "preflight-complete"
+      "const": "implemented-inactive"
     },
     "operations": {
       "type": "array",
@@ -180,7 +180,7 @@
           "uniqueItems": true,
           "items": { "enum": [429, 502, 503, 504] }
         },
-        "maxRetryAfterSeconds": { "type": "integer", "minimum": 0, "maximum": 60 }
+        "maxRetryAfterSeconds": { "const": 5 }
       }
     },
     "estimate": {

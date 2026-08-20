@@ -63,15 +63,26 @@ the application rather than creating transport-specific truncation.
 controls and residual risks. It does not approve a public listener, live provider or
 production deployment.
 
-## ADAPT-203 provider preflight scope
+## ADAPT-203A accepted provider-preflight boundary
 
 | Risk | Control in this slice | Residual boundary |
 | --- | --- | --- |
-| Caller-controlled egress or redirect SSRF | Exact HTTPS origin, method, path and query allowlist; credentials, ports, fragments, wildcards, duplicate parameters and redirects fail closed. | A live adapter must reuse accepted EXEC-202 typed identifiers and add DNS, connection and cancellation controls. |
-| Provider overload and response amplification | Recorded provider limits, a lower local ceiling, bounded attempts, deadlines and compressed/decompressed byte ceilings. | No live HTTP client or shared durable rate service exists yet. |
+| Caller-controlled egress or redirect SSRF | Exact HTTPS origin, method, path and query allowlist; credentials, ports, fragments, wildcards, duplicate parameters and redirects fail closed. | The inactive adapter below adds DNS, connection and cancellation controls; later integration must still reuse the accepted EXEC-202 typed identifiers. |
+| Provider overload and response amplification | Recorded provider limits, a lower local ceiling, bounded attempts, deadlines and compressed/decompressed byte ceilings. | The adapter below implements process-local admission only; no shared durable rate service exists. |
 | Version, dimension or rights drift | Exact dataset, edition, version, native dimension order, source date, official URIs and OGL evidence are schema-locked. Unknown or changed rights must fail closed. | Source and rights need revalidation before activation and after provider change. |
-| Error and payload leakage | Closed safe error vocabulary; fixture tests reject hostile structures and prove raw exception details are not reflected. No live payload is committed. Accepted EXEC-202 supplies the generic safe-error and log boundary. | Provider-specific live response parsing and redaction must be implemented and tested in the later live-adapter slice. |
+| Error and payload leakage | Closed safe error vocabulary; fixture tests reject hostile structures and prove raw exception details are not reflected. No raw live response body is committed; one public aggregate scalar is retained only in a deterministic test fixture to reproduce the live result digest. Accepted EXEC-202 supplies the generic safe-error and log boundary. | The adapter below adds closed provider-specific live-response parsing; deployed provider-specific log redaction remains a later integration gate. |
 | Partial provider suspension | Discovery and invocation lifecycle planes are independent and suspended by default. | Gateway registry and execution dispatch must enforce the same state after integration. |
+
+## ADAPT-203 inactive live-adapter scope
+
+| Risk | Control in this slice | Residual boundary |
+| --- | --- | --- |
+| RK10 SSRF and DNS rebinding | The adapter constructs one exact HTTPS path and ordered raw query. Every attempt resolves the fixed hostname, rejects any special/non-public answer, pins one validated address and retains the hostname for TLS SNI and certificate verification. Redirects, proxies, credentials, cookies, caller URLs and provider links are unused. | There is no deployed egress policy or service integration; any later runtime must enforce the same origin independently at the network plane. |
+| RK16 decompression bomb and malformed payload | Compressed input is capped while reading; cancellable gzip expansion is capped separately; media type, encoding and fatal UTF-8 checks precede a bounded duplicate-key-rejecting JSON parser and exact response validation. Canonical output has its own lower cap. | Only identity and gzip are supported. A future encoding or larger response requires a new reviewed bound. |
+| RK17 provider exhaustion | One process-shared call is admitted at a time across all adapter instances, with 30 process-shared actual attempt starts per rolling minute, two attempts, 2-second DNS/connect and 5-second response limits, at most 5 seconds of usable `Retry-After`, and a 20-second absolute call deadline reduced by the EXEC deadline. Cancellation reaches DNS, socket, body, decompressor and backoff. | Rate state is process-local and intentionally not represented as a durable distributed limiter. The adapter is therefore not activated. |
+| RK20 provenance or rights spoofing | Closed validation binds dataset, edition, version, native dimension order/options, exact constructed source URI, release date, empty ONS `Data Marking`, OGL evidence and deterministic transformations. The canonical result uses its own domain-separated digest. | Rights are a dated public review, not a provider-signed assertion. Any changed or non-empty marking fails closed pending review. |
+| RK25 payload or operational leakage | The opt-in evidence record and probe output retain only versions, rights, status, result hash/size and safe timings/TLS/byte counts. They exclude response bodies, observation values, IP addresses, credentials and paths. A deterministic test separately retains the public aggregate scalar needed to reproduce the digest. Controlled errors do not reflect provider content. | A deployed logging and retention policy remains a separate gate. |
+| Lifecycle confusion | Discovery and invocation remain independently suspended by default, and no gateway, MCP, direct API, Python dispatch, listener or deployment imports the adapter. | Later EXEC-202 integration needs explicit registry, policy, round-trip and rollback evidence. |
 
 ## TOOLS-205 non-activating registry scope
 

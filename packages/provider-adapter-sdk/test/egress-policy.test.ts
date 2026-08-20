@@ -6,6 +6,7 @@ import {
   ADAPTER_OPERATIONS,
   ProviderAdapterFault,
   assertFixedEgressTarget,
+  createOnsDataApiAdapter,
   type FixedEgressPolicy,
   type ProviderAdapterEstimate,
 } from "../src/index.js";
@@ -29,9 +30,12 @@ interface PreflightRecord {
   readonly egressPolicy: FixedEgressPolicy;
   readonly estimate: ProviderAdapterEstimate;
   readonly rights: {
+    readonly state: string;
     readonly licence: string;
     readonly licenceUri: string;
     readonly attribution: string;
+    readonly obligations: readonly string[];
+    readonly exceptions: readonly string[];
     readonly evidenceUris: readonly string[];
     readonly reviewedAt: string;
   };
@@ -59,7 +63,7 @@ function preflightRecord(): PreflightRecord {
 test("locks the selected ONS identity, dimension order, rights and inactive boundary", () => {
   const record = preflightRecord();
 
-  assert.equal(record.integrationState, "preflight-complete");
+  assert.equal(record.integrationState, "implemented-inactive");
   assert.deepEqual(record.operations, ADAPTER_OPERATIONS);
   assert.deepEqual(
     {
@@ -125,7 +129,7 @@ test("locks the selected ONS identity, dimension order, rights and inactive boun
     maxDecompressedBytes: 1_048_576,
     maxAttempts: 2,
     retryableStatuses: [429, 502, 503, 504],
-    maxRetryAfterSeconds: 60,
+    maxRetryAfterSeconds: 5,
   });
   assert.equal(record.estimate.confidence, "upper-bound");
   if (record.estimate.confidence !== "upper-bound") {
@@ -148,12 +152,18 @@ test("locks the selected ONS identity, dimension order, rights and inactive boun
     record.rights.attribution,
     "Source: Office for National Statistics licensed under the Open Government Licence v.3.0",
   );
+  assert.deepEqual(record.rights.exceptions, [
+    "The ONS logo is excluded and is not retrieved or redistributed.",
+    "Any record-level third-party exception overrides this general evidence and must fail closed.",
+    "The selected aggregate dataset page stated no additional exception when reviewed.",
+  ]);
   assert.deepEqual(record.rights.evidenceUris, [
     "https://www.ons.gov.uk/datasets/weekly-deaths-region/editions/time-series/versions/121",
     "https://www.ons.gov.uk/help/terms-conditions",
     "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
   ]);
   assert.equal(record.rights.reviewedAt, "2026-08-20T17:40:35Z");
+  assert.deepEqual(createOnsDataApiAdapter().licence_evidence(), record.rights);
   assert.equal(record.probe.credentialsUsed, false);
   assert.equal(record.probe.payloadStored, false);
   assert.deepEqual(record.probe.selection, [

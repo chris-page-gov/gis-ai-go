@@ -120,7 +120,8 @@ deployment, public service URL or registry entry. Pinned SDK conformance does no
 replace the still-pending independent host and non-App fallback evidence required
 before activation.
 
-An EXEC-202 local merge candidate now replaces the Stage 0 Python rejection stub
+Accepted EXEC-202 commit `6837af6eaa01ffb45e7da08d6a9131cedd1b1a0b`
+replaces the Stage 0 Python rejection stub
 with one private deterministic `fixture.features.query` operation. Versioned closed
 schemas and a TypeScript gateway builder/response validator preserve W3C trace and
 the exact synthetic provider, dataset, version, rights and source URI across the
@@ -129,8 +130,16 @@ validity, features, coordinates, input/output bytes, complexity, a 30-second
 deadline and cooperative cancellation. It has no end-user authentication, policy
 authority, live provider, arbitrary URL/path/SQL/code route or public ingress. The
 digest-pinned container runs non-root and passes read-only, network-none acceptance.
-The complete local repository gate passes, but this candidate has no accepted
-commit, pull request, protected-main assurance, deployment or registry entry yet.
+Its accepted boundary has no deployment or registry entry.
+
+An ADAPT-203B local candidate, based on the reviewed ADAPT-203A preflight head,
+implements one no-credential ONS Data API adapter over the exact published version
+and single aggregate observation selected in the preflight. It has fixed HTTPS/DNS
+egress, independent default-suspended lifecycle planes, bounded retry/rate/bytes,
+strict response parsing, deterministic rights/provenance and a privacy-safe opt-in
+live-probe record. It is not imported by the gateway or Python service and does not
+activate a tool, API operation, listener, provider or deployment. It has no accepted
+commit, pull request or protected-main assurance yet.
 
 ## Non-negotiable boundaries
 

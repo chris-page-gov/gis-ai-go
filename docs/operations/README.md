@@ -27,6 +27,6 @@ or API is deployed.
 - [EVID-204 durable public evidence candidate](EVID-204_DURABLE_LEDGER.md)
 - [EVID-204 evidence inspection transport candidate](EVID-204_INSPECT_TRANSPORT.md)
 - [EXEC-202 private execution service](EXEC-202_EXECUTION_SERVICE.md)
-- [ADAPT-203 provider contract and ONS preflight](ADAPT-203_PROVIDER_PREFLIGHT.md)
+- [ADAPT-203 provider contract and inactive ONS adapter](ADAPT-203_PROVIDER_PREFLIGHT.md)
 - [TOOLS-205 non-activating tool registry candidate](TOOLS-205_TOOL_REGISTRY.md)
 - [QUAL-206 host interoperability and secure-tunnel runbook](QUAL-206_INTEROPERABILITY.md)

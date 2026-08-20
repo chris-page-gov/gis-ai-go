@@ -18,3 +18,5 @@ The `@gis-ai-go/provider-adapter-sdk` package supplies a frozen statistics fixtu
 with fixture-native dataset, version, dimension and option identifiers. Both its
 discovery and invocation planes are suspended unless a test activates them
 explicitly. It performs no egress and labels every result as synthetic.
+`provider-adapter-result.example.json` is the closed contract projection of that
+synthetic result; it is not an ONS payload or live evidence.

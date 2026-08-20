@@ -297,6 +297,29 @@ def main() -> None:
             ],
         ),
         (
+            "provider-adapter-result.schema.json",
+            [
+                (
+                    "provider-adapter-result.example.json",
+                    load_json(fixture_dir / "provider-adapter-result.example.json"),
+                )
+            ],
+        ),
+        (
+            "provider-live-probe.schema.json",
+            [
+                (
+                    "data-api-adapter-live-probe.v1.json",
+                    load_json(
+                        ROOT
+                        / "providers"
+                        / "ons"
+                        / "data-api-adapter-live-probe.v1.json"
+                    ),
+                )
+            ],
+        ),
+        (
             "tool-registry.schema.json",
             [
                 (
