@@ -41,6 +41,10 @@ The Explorer has no production runtime dependency. The private
 `@gis-ai-go/provider-adapter-sdk` workspace package reuses the existing evidence
 package for RFC 8785 bytes and adds no third-party dependency. No external provider
 SDK, geospatial runtime, OPA binary, database driver or cloud dependency is present.
+The private `@gis-ai-go/tool-registry` package also has no dependency. Its root
+development-only workspace link ensures that the first-party package identity is
+locked and included in the dependency SBOM without importing it into the gateway or
+creating a runtime activation path.
 EXEC-202 adds no Python package dependency: its geometry, HTTP and cancellation
 acceptance use the standard library over checked-in synthetic records. Its official
 Python base is tag-and-digest pinned, runs non-root and is bound into the repository

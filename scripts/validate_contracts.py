@@ -297,6 +297,15 @@ def main() -> None:
             ],
         ),
         (
+            "tool-registry.schema.json",
+            [
+                (
+                    "profiles/tool-registry.v1.json",
+                    load_json(ROOT / "profiles" / "tool-registry.v1.json"),
+                )
+            ],
+        ),
+        (
             "decision.schema.json",
             [
                 (record["id"], record)

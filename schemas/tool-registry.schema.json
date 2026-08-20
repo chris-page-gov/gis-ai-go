@@ -1,0 +1,644 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:tool-registry:v1",
+  "title": "GIS AI GO tool registry",
+  "description": "Closed governance profiles for the 12 canonical GIS AI GO tools. This contract does not activate or advertise a runtime capability.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "canonicalOrder",
+    "activationRequirements",
+    "runtimeAuthority",
+    "source",
+    "tools"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gis-ai-go.tool-registry.v1"
+    },
+    "version": {
+      "const": "1.0.0"
+    },
+    "canonicalOrder": {
+      "type": "array",
+      "prefixItems": [
+        { "const": "catalogue.search" },
+        { "const": "catalogue.describe" },
+        { "const": "selection.resolve" },
+        { "const": "data.query" },
+        { "const": "spatial.locate" },
+        { "const": "spatial.analyse" },
+        { "const": "statistics.compare" },
+        { "const": "route.plan" },
+        { "const": "map.render" },
+        { "const": "artefact.export" },
+        { "const": "evidence.inspect" },
+        { "const": "workflow.execute" }
+      ],
+      "items": false,
+      "minItems": 12,
+      "maxItems": 12
+    },
+    "activationRequirements": {
+      "type": "array",
+      "prefixItems": [
+        { "const": "implementation" },
+        { "const": "release" },
+        { "const": "policy" },
+        { "const": "read-only" },
+        { "const": "schema" },
+        { "const": "threat" },
+        { "const": "evidence" },
+        { "const": "interoperability" },
+        { "const": "fallback" }
+      ],
+      "items": false,
+      "minItems": 9,
+      "maxItems": 9
+    },
+    "runtimeAuthority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "registryCanActivate",
+        "environmentOverride",
+        "productionRegistration"
+      ],
+      "properties": {
+        "source": {
+          "const": "apps/mcp-gateway/src/activation.ts"
+        },
+        "registryCanActivate": {
+          "const": false
+        },
+        "environmentOverride": {
+          "const": false
+        },
+        "productionRegistration": {
+          "type": "boolean"
+        }
+      }
+    },
+    "source": {
+      "$ref": "#/$defs/registrySource"
+    },
+    "tools": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "allOf": [
+            { "$ref": "#/$defs/toolProfile" },
+            {
+              "properties": {
+                "id": { "const": "T01" },
+                "name": { "const": "catalogue.search" }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            { "$ref": "#/$defs/toolProfile" },
+            {
+              "properties": {
+                "id": { "const": "T02" },
+                "name": { "const": "catalogue.describe" }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            { "$ref": "#/$defs/toolProfile" },
+            {
+              "properties": {
+                "id": { "const": "T03" },
+                "name": { "const": "selection.resolve" }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            { "$ref": "#/$defs/toolProfile" },
+            {
+              "properties": {
+                "id": { "const": "T04" },
+                "name": { "const": "data.query" }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            { "$ref": "#/$defs/toolProfile" },
+            {
+              "properties": {
+                "id": { "const": "T05" },
+                "name": { "const": "spatial.locate" }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            { "$ref": "#/$defs/toolProfile" },
+            {
+              "properties": {
+                "id": { "const": "T06" },
+                "name": { "const": "spatial.analyse" }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            { "$ref": "#/$defs/toolProfile" },
+            {
+              "properties": {
+                "id": { "const": "T07" },
+                "name": { "const": "statistics.compare" }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            { "$ref": "#/$defs/toolProfile" },
+            {
+              "properties": {
+                "id": { "const": "T08" },
+                "name": { "const": "route.plan" }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            { "$ref": "#/$defs/toolProfile" },
+            {
+              "properties": {
+                "id": { "const": "T09" },
+                "name": { "const": "map.render" }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            { "$ref": "#/$defs/toolProfile" },
+            {
+              "properties": {
+                "id": { "const": "T10" },
+                "name": { "const": "artefact.export" }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            { "$ref": "#/$defs/toolProfile" },
+            {
+              "properties": {
+                "id": { "const": "T11" },
+                "name": { "const": "evidence.inspect" }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            { "$ref": "#/$defs/toolProfile" },
+            {
+              "properties": {
+                "id": { "const": "T12" },
+                "name": { "const": "workflow.execute" }
+              }
+            }
+          ]
+        }
+      ],
+      "items": false,
+      "minItems": 12,
+      "maxItems": 12,
+      "uniqueItems": true
+    }
+  },
+  "$defs": {
+    "registrySource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["decision", "research"],
+      "properties": {
+        "decision": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["path", "status"],
+          "properties": {
+            "path": {
+              "const": "docs/decisions/ADR-0009-read-only-mcp-tool-lifecycle.md"
+            },
+            "status": {
+              "const": "accepted"
+            }
+          }
+        },
+        "research": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "retrieved",
+            "sha256",
+            "gitBlob",
+            "immutable",
+            "records"
+          ],
+          "properties": {
+            "path": {
+              "const": "docs/research/2026-08-19/research-pack/data/tool-catalogue.json"
+            },
+            "retrieved": {
+              "const": "2026-08-19"
+            },
+            "sha256": {
+              "const": "851f626bae4d63e8355ff9ca4021b56041ffa7e432d41f7f682c214151b5a8c3"
+            },
+            "gitBlob": {
+              "const": "0514fba4ff4765c951c632f6a1c122fe02b1d178"
+            },
+            "immutable": {
+              "const": true
+            },
+            "records": {
+              "type": "array",
+              "prefixItems": [
+                { "const": "T01" },
+                { "const": "T02" },
+                { "const": "T03" },
+                { "const": "T04" },
+                { "const": "T05" },
+                { "const": "T06" },
+                { "const": "T07" },
+                { "const": "T08" },
+                { "const": "T09" },
+                { "const": "T10" },
+                { "const": "T11" },
+                { "const": "T12" }
+              ],
+              "items": false,
+              "minItems": 12,
+              "maxItems": 12
+            }
+          }
+        }
+      }
+    },
+    "toolProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "namespace",
+        "purpose",
+        "readOnly",
+        "mutating",
+        "releaseTarget",
+        "current",
+        "v02Target",
+        "runtimeSchemas",
+        "support",
+        "accessTiers",
+        "policyAttributes",
+        "costPerformance",
+        "controlledErrors",
+        "cursor",
+        "crs",
+        "provenance",
+        "fallback",
+        "threats",
+        "source"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^T(?:0[1-9]|1[0-2])$"
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z]+\\.[a-z]+$",
+          "maxLength": 64
+        },
+        "namespace": {
+          "type": "string",
+          "pattern": "^[a-z]+$",
+          "maxLength": 32
+        },
+        "purpose": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "readOnly": {
+          "type": "boolean"
+        },
+        "mutating": {
+          "type": "boolean"
+        },
+        "releaseTarget": {
+          "enum": ["v0.2.0", "later-reviewed-release", "v0.3.0"]
+        },
+        "current": {
+          "$ref": "#/$defs/currentState"
+        },
+        "v02Target": {
+          "$ref": "#/$defs/v02Target"
+        },
+        "runtimeSchemas": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["input", "output", "problem"],
+          "properties": {
+            "input": { "$ref": "#/$defs/runtimeSchemaReference" },
+            "output": { "$ref": "#/$defs/runtimeSchemaReference" },
+            "problem": { "$ref": "#/$defs/runtimeSchemaReference" }
+          }
+        },
+        "support": {
+          "$ref": "#/$defs/support"
+        },
+        "accessTiers": {
+          "$ref": "#/$defs/nonEmptyStringArray"
+        },
+        "policyAttributes": {
+          "$ref": "#/$defs/nonEmptyStringArray"
+        },
+        "costPerformance": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "controlledErrors": {
+          "description": "Governance error-code vocabulary mirrored from the immutable research profile. Runtime error-contract availability is declared separately by runtimeSchemas.problem.",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*$",
+            "maxLength": 64
+          }
+        },
+        "cursor": {
+          "$ref": "#/$defs/cursor"
+        },
+        "crs": {
+          "$ref": "#/$defs/crs"
+        },
+        "provenance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["requiredFields"],
+          "properties": {
+            "requiredFields": {
+              "$ref": "#/$defs/nonEmptyStringArray"
+            }
+          }
+        },
+        "fallback": {
+          "$ref": "#/$defs/fallback"
+        },
+        "threats": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["risks"],
+          "properties": {
+            "risks": {
+              "$ref": "#/$defs/nonEmptyStringArray"
+            }
+          }
+        },
+        "source": {
+          "$ref": "#/$defs/toolSource"
+        }
+      }
+    },
+    "currentState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "implementationState",
+        "lifecycleState",
+        "discoveryEligible",
+        "activationGates"
+      ],
+      "properties": {
+        "implementationState": {
+          "enum": ["implemented", "not-implemented"]
+        },
+        "lifecycleState": {
+          "enum": ["active", "planned", "suspended", "retired"]
+        },
+        "discoveryEligible": {
+          "type": "boolean"
+        },
+        "activationGates": {
+          "$ref": "#/$defs/activationGates"
+        }
+      }
+    },
+    "activationGates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "releaseEnabled",
+        "policy",
+        "schema",
+        "threat",
+        "evidence",
+        "interoperability",
+        "fallback"
+      ],
+      "properties": {
+        "releaseEnabled": { "type": "boolean" },
+        "policy": { "type": "boolean" },
+        "schema": { "type": "boolean" },
+        "threat": { "type": "boolean" },
+        "evidence": { "type": "boolean" },
+        "interoperability": { "type": "boolean" },
+        "fallback": { "type": "boolean" }
+      }
+    },
+    "v02Target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lifecycleState", "discoveryIntended", "runtimeAuthority"],
+      "properties": {
+        "lifecycleState": {
+          "enum": ["active", "planned"]
+        },
+        "discoveryIntended": {
+          "type": "boolean"
+        },
+        "runtimeAuthority": {
+          "const": false
+        }
+      }
+    },
+    "runtimeSchemaReference": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["state", "ref"],
+          "properties": {
+            "state": { "const": "accepted" },
+            "ref": {
+              "type": "string",
+              "pattern": "^schemas/[a-z0-9-]+\\.schema\\.json$",
+              "maxLength": 128
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["state", "ref"],
+          "properties": {
+            "state": { "const": "missing" },
+            "ref": { "type": "null" }
+          }
+        }
+      ]
+    },
+    "support": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "operation",
+        "operationState",
+        "providerState",
+        "providerDependencies"
+      ],
+      "properties": {
+        "operation": {
+          "type": "string",
+          "pattern": "^[a-z]+\\.[a-z]+$",
+          "maxLength": 64
+        },
+        "operationState": {
+          "enum": ["implemented-inactive", "not-implemented"]
+        },
+        "providerState": {
+          "enum": ["candidate-partial", "planned"]
+        },
+        "providerDependencies": {
+          "$ref": "#/$defs/nonEmptyStringArray"
+        }
+      }
+    },
+    "cursor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "maxLength", "artefactFallback", "researchStatement"],
+      "properties": {
+        "state": {
+          "enum": ["none", "optional", "not-implemented"]
+        },
+        "maxLength": {
+          "oneOf": [
+            { "type": "integer", "minimum": 1, "maximum": 4096 },
+            { "type": "null" }
+          ]
+        },
+        "artefactFallback": {
+          "enum": ["implemented", "not-implemented"]
+        },
+        "researchStatement": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    },
+    "crs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "requirements"],
+      "properties": {
+        "state": {
+          "enum": ["not-applicable", "required-before-implementation"]
+        },
+        "requirements": {
+          "type": "array",
+          "maxItems": 4,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        }
+      }
+    },
+    "fallback": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "behaviour"],
+      "properties": {
+        "state": {
+          "enum": ["implemented", "partial", "not-implemented"]
+        },
+        "behaviour": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    },
+    "toolSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "researchId",
+        "pointer",
+        "inputSchemaPointer",
+        "outputSchemaPointer"
+      ],
+      "properties": {
+        "researchId": {
+          "type": "string",
+          "pattern": "^T(?:0[1-9]|1[0-2])$"
+        },
+        "pointer": {
+          "type": "string",
+          "pattern": "^/tools/(?:[0-9]|1[01])$"
+        },
+        "inputSchemaPointer": {
+          "type": "string",
+          "pattern": "^/tools/(?:[0-9]|1[01])/input_schema$"
+        },
+        "outputSchemaPointer": {
+          "type": "string",
+          "pattern": "^/tools/(?:[0-9]|1[01])/output_schema$"
+        }
+      }
+    },
+    "nonEmptyStringArray": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256
+      }
+    }
+  }
+}

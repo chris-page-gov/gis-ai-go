@@ -55,3 +55,13 @@ production deployment.
 | Version, dimension or rights drift | Exact dataset, edition, version, native dimension order, source date, official URIs and OGL evidence are schema-locked. Unknown or changed rights must fail closed. | Source and rights need revalidation before activation and after provider change. |
 | Error and payload leakage | Closed safe error vocabulary; fixture tests reject hostile structures and prove raw exception details are not reflected. No live payload is committed. Accepted EXEC-202 supplies the generic safe-error and log boundary. | Provider-specific live response parsing and redaction must be implemented and tested in the later live-adapter slice. |
 | Partial provider suspension | Discovery and invocation lifecycle planes are independent and suspended by default. | Gateway registry and execution dispatch must enforce the same state after integration. |
+
+## TOOLS-205 non-activating registry scope
+
+| Research risk | Control in this slice | Residual boundary |
+| --- | --- | --- |
+| RK02 tool poisoning and RK24 model/tool hallucination | Closed schema and runtime validation require the exact 12 IDs and names in deterministic ADR-0009 order. Planned profiles cannot enter the current callable helper. | Future descriptions and implementation-specific schemas still need adversarial review before activation. |
+| RK03 confused deputy and RK08 policy bypass | Current implementation, lifecycle, discovery and seven assurance gates are separate from explicitly non-runtime `v02Target` metadata. All current gates are false and the callable set is empty. | The gateway remains the sole runtime authority; any later activation must enforce policy on discovery and invocation. |
+| RK11 licence/data exfiltration and RK30 operational drift | Every profile records provider dependencies, access tiers, policy attributes, controlled errors, provenance and fallback requirements. Mutating `workflow.execute` is explicitly deferred to `v0.3.0`. | Provider, entitlement and cross-tier enforcement are metadata only until their operation slices are implemented and tested. |
+| RK20 provenance spoofing and RK21 audit tampering | The profile binds the immutable research path, SHA-256, Git blob and per-tool JSON pointers; Python tests compare every mirrored research field. Runtime documents and helper results are recursively frozen. | The profile is unsigned repository data; release provenance and protected-main controls remain necessary. |
+| RK23 supply-chain compromise | The private package has no dependency and its identity is locked and included in the SBOM. It has no environment override or gateway import. | Existing Node.js, package-manager and CI supply-chain controls remain release gates. |
