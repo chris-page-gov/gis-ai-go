@@ -13,7 +13,8 @@ pnpm run build:explorer
 
 Generated catalogue files and browser reports are ignored. The eventual GitHub Pages
 workflow publishes only `dist/`, never the repository root or immutable research
-viewer. Deployment remains outside DISC-102.
+viewer. Deployment remains outside DISC-103 and is controlled by the separate
+DISC-104 publication gate.
 
 Before Vite runs, the build rejects symlinked or special-file public and distribution
 trees and requires the exact checksum-derived public inventory. The finished
@@ -29,8 +30,11 @@ browser storage, analytics, map tiles, provider APIs or WebMCP.
 Search and selected facets use the query string. The selected view uses `view`, and
 the source-native record identifier uses `#record=…`. Supported facets are `type`,
 `authority`, `access`, `rights`, `freshness` and `tag`; unknown or oversized state is
-discarded with a visible warning. The graph contains only explicit `sourceRefs`, and
-the coverage schematic contains no real geometry or legal boundary.
+discarded with a visible warning. Search is limited to the governed record fields and
+an explicit allowlist of question and provider-capability details. It does not index
+arbitrary nested details, rights conditions or forbidden-target notes. The graph
+contains only explicit `sourceRefs`, and the coverage schematic contains no real
+geometry or legal boundary.
 
 Run the focused checks with:
 

@@ -9,6 +9,7 @@ research recommendations remain unchanged in the preserved pack at
 - [ADR-0003: MIT licence](ADR-0003-mit-licence.md)
 - [ADR-0004: Public autonomous delivery](ADR-0004-public-autonomous-delivery.md)
 - [ADR-0005: Static public Explorer](ADR-0005-static-public-explorer.md)
+- [ADR-0006: Reviewed public geospatial examples](ADR-0006-reviewed-public-geospatial-examples.md)
 
 Research decisions D01–D19 are accepted as constraints for building and evaluating
 Stage 0, not as blanket authority for later production stages. Research decision D20

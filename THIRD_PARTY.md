@@ -18,3 +18,19 @@ The derivative public bundle must attribute HM Land Registry and any named third
 party according to each selected record. It contains metadata only. HMLR, GOV.UK,
 Ordnance Survey, Royal Mail and other source content, names and trade marks retain
 their own rights and conditions and are not relicensed by the GIS AI GO MIT licence.
+
+## Public provider and source metadata
+
+GIS AI GO also projects metadata-only descriptions of Office for National
+Statistics and Land Information System capabilities from the dated, checksum-locked
+research pack. The descriptions are original GIS AI GO research released under this
+repository's MIT licence; the organisations, source services, datasets, names and
+trade marks they describe retain their own rights.
+
+ONS material is attributed to the Office for National Statistics. The Open
+Government Licence applies only where the named ONS source or product says it does;
+Ordnance Survey, Royal Mail and other third-party conditions remain product-specific.
+
+LandIS material is attributed to Cranfield University and the Land Information
+System. Its catalogue has mixed access and per-record rights. This repository does
+not grant blanket reuse rights in LandIS records, services or data.

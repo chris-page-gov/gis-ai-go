@@ -1,6 +1,6 @@
 # Current context
 
-Last updated: 19 August 2026
+Last updated: 20 August 2026
 
 ## Authority and reading order
 
@@ -34,16 +34,18 @@ Start every implementation task by reading, in order:
 ## Current implementation state
 
 Stage 0 is complete at commit `983b1a102aa8038c9f50ae1b1894315c3ae0b89f`.
-It provides governance, candidate contracts, synthetic fixtures, architecture
-sources, locked workspaces and an assurance harness. It is not a functional product:
-there is no deployed Explorer, MCP listener, live provider adapter, policy engine,
-identity integration or evidence store.
+The canonical OKF build and accessible static Explorer are merged through
+`DISC-101` and `DISC-102`; protected `main` is at
+`6984f3097cff578f0d22088ca8582ebe55725115`. The Explorer is a functional static
+candidate in repository and CI, but it is not deployed. There is no MCP listener,
+live provider adapter, policy engine, identity integration or evidence store.
 
 The owner has authorised autonomous implementation in the open under
 [`ADR-0004`](docs/decisions/ADR-0004-public-autonomous-delivery.md). The active
 outcome is the `v0.1.0` public discovery product. The repository is public under the
 owner's personal `chris-page-gov` account. Pull-request assurance, security controls
-and branch protection govern development on `main`.
+and branch protection govern development on `main`. The active outcome is DISC-103:
+reviewed, metadata-only public geospatial examples before the DISC-104 Pages gate.
 
 ## Non-negotiable boundaries
 

@@ -81,15 +81,15 @@ test("restores a direct URL containing every approved facet", async ({ page }) =
   await expect(
     page.getByRole("searchbox", { name: /Search(?: the public)? catalogue/i }),
   ).toHaveValue("Price Paid");
-  for (const label of [
-    /Dataset/i,
-    /Source authoritative/i,
-    /^Public(?: \(\d+\))?$/i,
-    /Open with conditions/i,
-    /^Current(?: \(\d+\))?$/i,
-    /^hmlr(?: \(\d+\))?$/i,
+  for (const id of [
+    "#facet-types-dataset",
+    "#facet-authority-source-authoritative",
+    "#facet-access-public",
+    "#facet-rights-open-with-conditions",
+    "#facet-freshness-current",
+    "#facet-tags-hmlr",
   ]) {
-    await expect(page.getByRole("checkbox", { name: label })).toBeChecked();
+    await expect(page.locator(id)).toBeChecked();
   }
 
   const current = new URL(page.url());

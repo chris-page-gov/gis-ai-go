@@ -10,6 +10,7 @@ under its upstream licence: code is Apache-2.0 and original metadata, evaluation
 governance material is CC BY 4.0. HMLR, GOV.UK and other third-party source material
 retains its own rights and conditions.
 
-GIS AI GO projects only three reviewed metadata records. It imports no dataset rows,
-addresses, transactions, property records, geometry, credentials or service responses.
-Public access to a source page is not treated as blanket permission for its contents.
+GIS AI GO projects three reviewed dataset metadata records and three non-executing
+evaluation journeys. It imports no dataset rows, addresses, transactions, property
+records, geometry, credentials or service responses. Public access to a source page
+is not treated as blanket permission for its contents.

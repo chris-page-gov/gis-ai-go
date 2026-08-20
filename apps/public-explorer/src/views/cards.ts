@@ -172,8 +172,7 @@ function externalSourceLink(record: CatalogueRecord): HTMLAnchorElement | null {
 }
 
 function detailRows(record: CatalogueRecord): ReturnType<typeof definitionList> {
-  const formats = stringArrayDetail(record, "formats");
-  const rows = [
+  const rows: Array<{ term: string; description: Node | string }> = [
     { term: "Source-native ID", description: record.id },
     { term: "Record type", description: humaniseToken(record.type) },
     { term: "Publisher", description: publisherName(record) },
@@ -191,22 +190,69 @@ function detailRows(record: CatalogueRecord): ReturnType<typeof definitionList> 
     { term: "Review by", description: time(record.freshness.staleAfter) },
   ];
 
-  const jurisdiction = stringDetail(record, "jurisdiction");
-  const cadence = stringDetail(record, "cadence");
-  const accessModel = stringDetail(record, "accessModel");
-  if (jurisdiction !== null) {
-    rows.push({ term: "Geographic coverage", description: jurisdiction });
-  }
-  if (cadence !== null) {
-    rows.push({ term: "Update cadence", description: cadence });
-  }
-  if (accessModel !== null) {
-    rows.push({ term: "Source access model", description: accessModel });
-  }
-  if (formats.length > 0) {
-    rows.push({ term: "Formats", description: formats.join(", ") });
-  }
+  const addString = (term: string, ...keys: readonly string[]): void => {
+    for (const key of keys) {
+      const value = stringDetail(record, key);
+      if (value !== null) {
+        rows.push({ term, description: value });
+        return;
+      }
+    }
+  };
+  const addDate = (term: string, ...keys: readonly string[]): void => {
+    for (const key of keys) {
+      const value = stringDetail(record, key);
+      if (value !== null) {
+        rows.push({ term, description: time(value) });
+        return;
+      }
+    }
+  };
+  const addList = (
+    term: string,
+    key: string,
+    format: (value: string) => string = (value) => value,
+  ): void => {
+    const values = stringArrayDetail(record, key);
+    if (values.length > 0) {
+      rows.push({ term, description: bulletList(values.map(format)) });
+    }
+  };
+
+  addString("Worked question", "questionId");
+  addString("Question", "query");
+  addString("Purpose", "intent");
+  addList("Expected findings", "expectedPropositions");
+  addString("Near-miss safeguard", "nearMissRule");
+  addString("Geographic coverage", "jurisdiction", "geographicScope");
+  addString("Update cadence", "cadence", "updateFrequency");
+  addString("Source access model", "accessModel");
+  addList("Described capabilities", "datasetsServices");
+  addList("Access mechanisms", "mechanisms");
+  addList("Described access tiers", "accessTiers", humaniseToken);
+  addList("Identifiers", "identifiers");
+  addList("Formats", "formats");
+  addString("Non-executing integration note", "recommendedIntegration");
+  addString("Caching and redistribution", "cachingRedistribution");
+  addDate("Metadata snapshot generated", "metadataSnapshotGeneratedAt");
+  addDate("Question research vintage", "questionResearchCutoff");
+  addDate("Publisher last updated", "publisherLastUpdated");
+  addDate("Source published", "published");
+  addDate("Source retrieved", "retrieved", "retrievedOn");
+  addDate("Source release", "releaseTaggedAt", "releasedAt", "releaseDate");
   return definitionList(rows);
+}
+
+function publisherEvidenceLink(source: CatalogueRecord): HTMLAnchorElement | null {
+  const candidate = stringDetail(source, "url");
+  if (candidate === null) {
+    return null;
+  }
+  const safe = safeNavigableHref(candidate, document.baseURI);
+  if (safe === null) {
+    return null;
+  }
+  return link(`Open publisher evidence for ${source.title}`, safe);
 }
 
 function renderSourceReferences(
@@ -224,6 +270,10 @@ function renderSourceReferences(
       item.textContent = source?.title ?? sourceId;
     } else {
       item.append(navigationLink(source.title, source.id, navigation));
+      const publisherEvidence = publisherEvidenceLink(source);
+      if (publisherEvidence !== null) {
+        appendChildren(item, [" — ", publisherEvidence]);
+      }
     }
     list.append(item);
   }

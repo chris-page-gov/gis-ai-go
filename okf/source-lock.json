@@ -4,7 +4,7 @@
   "inputs": [
     {
       "path": "THIRD_PARTY.md",
-      "sha256": "b6663752dffd08483b5ef2c371cca332f2f408fbc94f1a5db01f56e9852b4465",
+      "sha256": "1d243b9fe1319a2705c2e82d8ca5394361ddbe180fa7f2d0b6e39b1c0d76442e",
       "role": "live-third-party-notice"
     },
     {
@@ -24,12 +24,12 @@
     },
     {
       "path": "okf/profile/public-discovery-v1.json",
-      "sha256": "b7a691d076436f41fee5ea1b4ec04e1edd71ba9d450259f0c728b67ddc33466d",
+      "sha256": "d69cd91bd2e5ebdcb4d71686b0990476c9011dc0e4b2b117ba3ebec673171ded",
       "role": "live-publication-profile"
     },
     {
       "path": "okf/source/publication.json",
-      "sha256": "317a63811029f25314fcfd17dd27807b1fc855b9b182fa76e1b6d4f2368a081f",
+      "sha256": "0f9f2f074796225bfe00a711641c7b3e56c0ebf03ee0a495ae8f8a61df49c91a",
       "role": "live-publication-selection"
     },
     {
@@ -39,8 +39,13 @@
     },
     {
       "path": "okf/vendor/okf-landregistry/v0.3.0/PROVENANCE.md",
-      "sha256": "f801360d07d261e36d5178335374b92d93a703a0e258f5e46f35b9c5f6a77951",
+      "sha256": "1193e604d5751484a8672d503e645e34caddcfe8619000a465e80c819a66c6b8",
       "role": "project-provenance-note"
+    },
+    {
+      "path": "okf/vendor/okf-landregistry/v0.3.0/evaluation/questions.json",
+      "sha256": "c4423c70ed4207061d8cfea7d0956b87ddbc9e487fe3a512bc30ba2fbdba8fc0",
+      "role": "upstream-evaluation-questions"
     },
     {
       "path": "okf/vendor/okf-landregistry/v0.3.0/governance/rights-review.json",
@@ -82,11 +87,13 @@
     "repository": "https://github.com/chris-page-gov/okf-LandRegistry",
     "retrieved_on": "2026-08-19",
     "tag": "v0.3.0",
+    "tagged_at": "2026-08-12T01:43:30+01:00",
     "annotated_tag_object": "d4159f1076c090dd69260a08308f4162859e4165",
     "commit": "1d708e39f2cde19610d43c5a7f5e36e4a2f947bc",
     "tree": "aa60922cc25f73980d6480c1a7ffc85fb1fc59dd",
     "approved_candidate": "751b6c1e80fbbad3c07f19798c74aebd603eb62c",
-    "release_root_sha256": "6a29e38e7bb805aafb7f36ba8d1fa4ce976875f45997049cd4808d6ede7f75e1"
+    "release_root_sha256": "6a29e38e7bb805aafb7f36ba8d1fa4ce976875f45997049cd4808d6ede7f75e1",
+    "evaluation_questions_sha256": "c4423c70ed4207061d8cfea7d0956b87ddbc9e487fe3a512bc30ba2fbdba8fc0"
   },
   "supersedes_unresolved_research_reference": {
     "recorded_commit_prefix": "4580c9e",

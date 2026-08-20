@@ -1,6 +1,6 @@
 # Delivery progress
 
-Last updated: 19 August 2026
+Last updated: 20 August 2026
 
 ## Current outcome
 
@@ -10,14 +10,14 @@ reproducible GitHub Pages deployment.
 
 ## Active workstream
 
-`DISC-102 — Build the accessible public Explorer`
+`DISC-103 — Add reviewed public geospatial examples`
 
-- build a static search, facet and governed data-card journey from the canonical OKF
-  bundle;
-- provide complete graph, timeline and schematic-map non-visual alternatives;
-- preserve direct URL state and browser history without requiring WebMCP;
-- prove keyboard, touch, zoom, forced-colour, reduced-motion and hostile-record
-  behaviour in real-browser assurance.
+- add digest-locked HM Land Registry journeys LR-Q003, LR-Q006 and LR-Q012;
+- add non-executing ONS data, ONS geography and LandIS capability records;
+- preserve exact source, release, retrieval, review, rights and access semantics;
+- fail closed on forbidden fields, unresolved evidence or mixed rights presented as
+  open;
+- prove the new journeys through contract, Explorer and real-browser assurance.
 
 ## Completed
 
@@ -38,13 +38,19 @@ reproducible GitHub Pages deployment.
   passing main assurance and CodeQL;
 - canonical OKF generation now produces 18 source-locked public metadata records in
   equivalent Markdown, JSON and JSON-LD projections;
-- full local `pnpm run check` passed on 19 August 2026.
+- `DISC-102` merged through [pull request 9](https://github.com/chris-page-gov/gis-ai-go/pull/9)
+  at `6984f3097cff578f0d22088ca8582ebe55725115` with passing assurance and
+  CodeQL;
+- the accessible static Explorer now provides search, facets, governed cards,
+  graph, timeline, non-legal schematic map, durable URLs and machine-readable
+  downloads;
+- full local `pnpm run check` passed on 20 August 2026.
 
 ## Next
 
-1. Merge `DISC-102` after component, browser, security and accessibility assurance.
-2. Add the reviewed public source families through `DISC-103`.
-3. Publish the immutable static product through `DISC-104` after the final gate.
+1. Complete and merge the reviewed examples through `DISC-103`.
+2. Publish the immutable static product through `DISC-104` after the final gate.
+3. Assemble, tag and verify the first supported `v0.1.0` release.
 
 ## Current blockers
 
@@ -55,15 +61,21 @@ reproducible GitHub Pages deployment.
 
 ## Latest evidence
 
-- canonical OKF content: merged and passing on protected `main` at `4ff9cc7`;
-- remote assurance and CodeQL: passing on `main`, 19 August 2026;
-- active Explorer branch: the complete `pnpm run check` gate passes, including
+- canonical OKF content and Explorer: merged on protected `main` at `6984f30`;
+- main assurance and CodeQL: passing at `6984f30` on 20 August 2026;
+- Explorer assurance includes
   16 build-policy tests, 36 unit and component tests, 18 browser journeys and
   production integrity checks;
 - bounded security diff review: all changed runtime, interface and build-assurance
   files covered; the confirmed Low CSP/origin assurance gap, exact HTML-attribute
   parsing, fresh preview-server enforcement, and defensive symlink and lock-strict
   hardening are remediated with passing regressions;
+- DISC-103 source review: exact provider snapshots and HMLR `v0.3.0` inputs are
+  selected; the 36-record local candidate passes the complete repository gate,
+  including 25 browser journeys, and independent review is complete;
+- DISC-103 security review: the selected HMLR inputs and copied licence are
+  independently bound to approved v0.3.0 digests, and coordinated source, rights,
+  licence and lock mutations now fail closed;
 - public repository: verified with personal `noreply` commit identity;
 - deployed product: none;
 - latest supported release: none.
