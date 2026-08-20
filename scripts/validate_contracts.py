@@ -283,6 +283,20 @@ def main() -> None:
             ],
         ),
         (
+            "provider-adapter-preflight.schema.json",
+            [
+                (
+                    "data-api-adapter-preflight.v1.json",
+                    load_json(
+                        ROOT
+                        / "providers"
+                        / "ons"
+                        / "data-api-adapter-preflight.v1.json"
+                    ),
+                )
+            ],
+        ),
+        (
             "decision.schema.json",
             [
                 (record["id"], record)

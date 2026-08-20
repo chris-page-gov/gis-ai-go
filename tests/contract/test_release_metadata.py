@@ -47,6 +47,7 @@ class ReleaseMetadataTests(unittest.TestCase):
             "packages/contracts/package.json",
             "packages/evidence/package.json",
             "packages/policy-client/package.json",
+            "packages/provider-adapter-sdk/package.json",
         )
         self.assertEqual(check_versions.npm_package_manifests(ROOT), expected_manifests)
 

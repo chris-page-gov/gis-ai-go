@@ -24,3 +24,4 @@ remain blocked, and no public MCP service or catalogue API is deployed.
 - [EVID-204 canonical public inline evidence](EVID-204_INLINE_EVIDENCE.md)
 - [EVID-204 durable public evidence candidate](EVID-204_DURABLE_LEDGER.md)
 - [EXEC-202 private execution service](EXEC-202_EXECUTION_SERVICE.md)
+- [ADAPT-203 provider contract and ONS preflight](ADAPT-203_PROVIDER_PREFLIGHT.md)

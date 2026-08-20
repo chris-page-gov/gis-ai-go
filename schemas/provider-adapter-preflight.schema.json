@@ -1,0 +1,377 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:provider-adapter-preflight:1",
+  "title": "Provider adapter preflight record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "adapterId",
+    "provider",
+    "integrationState",
+    "operations",
+    "lifecycle",
+    "providerVersion",
+    "egressPolicy",
+    "estimate",
+    "rateEvidence",
+    "rights",
+    "sourceEvidence",
+    "probe",
+    "dependency"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gis-ai-go.provider-adapter-preflight.v1"
+    },
+    "adapterId": {
+      "$ref": "#/$defs/boundedId"
+    },
+    "provider": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "authority", "baseOrigin", "authentication"],
+      "properties": {
+        "id": { "$ref": "#/$defs/boundedId" },
+        "name": { "$ref": "#/$defs/boundedText" },
+        "authority": { "$ref": "#/$defs/boundedText" },
+        "baseOrigin": { "$ref": "#/$defs/httpsUri" },
+        "authentication": { "const": "none" }
+      }
+    },
+    "integrationState": {
+      "const": "preflight-complete"
+    },
+    "operations": {
+      "type": "array",
+      "prefixItems": [
+        { "const": "describe" },
+        { "const": "health" },
+        { "const": "estimate" },
+        { "const": "execute" },
+        { "const": "normalise_error" },
+        { "const": "licence_evidence" },
+        { "const": "provenance" }
+      ],
+      "items": false,
+      "minItems": 7,
+      "maxItems": 7
+    },
+    "lifecycle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["discovery", "invocation", "reason"],
+      "properties": {
+        "discovery": { "const": "suspended" },
+        "invocation": { "const": "suspended" },
+        "reason": { "$ref": "#/$defs/boundedText" }
+      }
+    },
+    "providerVersion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "providerId",
+        "datasetId",
+        "edition",
+        "versionId",
+        "versionNumber",
+        "versionUri",
+        "sourceDate",
+        "lastUpdated",
+        "dimensionOrder",
+        "codeListIds"
+      ],
+      "properties": {
+        "providerId": { "$ref": "#/$defs/boundedId" },
+        "datasetId": { "$ref": "#/$defs/boundedId" },
+        "edition": { "$ref": "#/$defs/boundedId" },
+        "versionId": { "type": "string", "pattern": "^[1-9][0-9]{0,8}$" },
+        "versionNumber": { "type": "integer", "minimum": 1, "maximum": 999999999 },
+        "versionUri": { "$ref": "#/$defs/httpsUri" },
+        "sourceDate": { "type": "string", "format": "date" },
+        "lastUpdated": { "type": "string", "format": "date-time" },
+        "dimensionOrder": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/boundedId" }
+        },
+        "codeListIds": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/boundedId" },
+          "minProperties": 1,
+          "maxProperties": 20
+        }
+      }
+    },
+    "egressPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "origin",
+        "method",
+        "routes",
+        "allowCallerUrl",
+        "allowCredentials",
+        "maxRedirects",
+        "connectTimeoutMs",
+        "responseTimeoutMs",
+        "maxCompressedBytes",
+        "maxDecompressedBytes",
+        "maxAttempts",
+        "retryableStatuses",
+        "maxRetryAfterSeconds"
+      ],
+      "properties": {
+        "mode": { "const": "fixed" },
+        "origin": { "const": "https://api.beta.ons.gov.uk" },
+        "method": { "const": "GET" },
+        "routes": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 10,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "queryParameters", "canonicalRawQuery"],
+            "properties": {
+              "path": { "type": "string", "pattern": "^/v1/", "maxLength": 512 },
+              "queryParameters": {
+                "type": "array",
+                "maxItems": 20,
+                "uniqueItems": true,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["name", "value"],
+                  "properties": {
+                    "name": { "$ref": "#/$defs/queryName" },
+                    "value": { "$ref": "#/$defs/queryValue" }
+                  }
+                }
+              },
+              "canonicalRawQuery": {
+                "type": "string",
+                "maxLength": 4096,
+                "pattern": "^(?:[A-Za-z][A-Za-z0-9._~-]*=[A-Za-z0-9][A-Za-z0-9._~-]*(?:&[A-Za-z][A-Za-z0-9._~-]*=[A-Za-z0-9][A-Za-z0-9._~-]*)*)?$"
+              }
+            }
+          }
+        },
+        "allowCallerUrl": { "const": false },
+        "allowCredentials": { "const": false },
+        "maxRedirects": { "const": 0 },
+        "connectTimeoutMs": { "type": "integer", "minimum": 100, "maximum": 10000 },
+        "responseTimeoutMs": { "type": "integer", "minimum": 100, "maximum": 30000 },
+        "maxCompressedBytes": { "type": "integer", "minimum": 1024, "maximum": 1048576 },
+        "maxDecompressedBytes": {
+          "type": "integer",
+          "minimum": 1024,
+          "maximum": 4194304
+        },
+        "maxAttempts": { "type": "integer", "minimum": 1, "maximum": 3 },
+        "retryableStatuses": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": { "enum": [429, 502, 503, 504] }
+        },
+        "maxRetryAfterSeconds": { "type": "integer", "minimum": 0, "maximum": 60 }
+      }
+    },
+    "estimate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "confidence",
+        "maxObservations",
+        "maxAttempts",
+        "maxCompressedResponseBytes",
+        "maxDecompressedResponseBytes",
+        "maxCanonicalResponseBytes"
+      ],
+      "properties": {
+        "confidence": { "const": "upper-bound" },
+        "maxObservations": { "const": 1 },
+        "maxAttempts": { "const": 2 },
+        "maxCompressedResponseBytes": { "const": 262144 },
+        "maxDecompressedResponseBytes": { "const": 1048576 },
+        "maxCanonicalResponseBytes": { "const": 262144 }
+      }
+    },
+    "rateEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourceUri", "observedAt", "publishedLimits", "localCeiling"],
+      "properties": {
+        "sourceUri": { "$ref": "#/$defs/httpsUri" },
+        "observedAt": { "type": "string", "format": "date-time" },
+        "publishedLimits": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 10,
+          "items": { "$ref": "#/$defs/boundedText" }
+        },
+        "localCeiling": { "$ref": "#/$defs/boundedText" }
+      }
+    },
+    "rights": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "state",
+        "licence",
+        "licenceUri",
+        "attribution",
+        "obligations",
+        "exceptions",
+        "evidenceUris",
+        "reviewedAt"
+      ],
+      "properties": {
+        "state": { "const": "open-with-conditions" },
+        "licence": { "const": "Open Government Licence v3.0" },
+        "licenceUri": {
+          "const": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
+        },
+        "attribution": { "$ref": "#/$defs/boundedText" },
+        "obligations": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "items": { "$ref": "#/$defs/boundedText" }
+        },
+        "exceptions": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "items": { "$ref": "#/$defs/boundedText" }
+        },
+        "evidenceUris": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 20,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/httpsUri" }
+        },
+        "reviewedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "sourceEvidence": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 20,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["purpose", "uri", "observedAt", "facts"],
+        "properties": {
+          "purpose": { "$ref": "#/$defs/boundedId" },
+          "uri": { "$ref": "#/$defs/httpsUri" },
+          "observedAt": { "type": "string", "format": "date-time" },
+          "facts": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": { "$ref": "#/$defs/boundedText" }
+          }
+        }
+      }
+    },
+    "probe": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "observedAt",
+        "bounded",
+        "credentialsUsed",
+        "payloadStored",
+        "versionStatus",
+        "observationStatus",
+        "selection"
+      ],
+      "properties": {
+        "observedAt": { "type": "string", "format": "date-time" },
+        "bounded": { "const": true },
+        "credentialsUsed": { "const": false },
+        "payloadStored": { "const": false },
+        "versionStatus": { "const": 200 },
+        "observationStatus": { "const": 200 },
+        "selection": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["dimension", "option"],
+            "properties": {
+              "dimension": { "$ref": "#/$defs/boundedId" },
+              "option": { "$ref": "#/$defs/boundedId" }
+            }
+          }
+        }
+      }
+    },
+    "dependency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "workItem",
+        "status",
+        "acceptedCommit",
+        "reason",
+        "providedByExecutionBoundary"
+      ],
+      "properties": {
+        "workItem": { "const": "EXEC-202" },
+        "status": { "const": "accepted" },
+        "acceptedCommit": {
+          "const": "6837af6eaa01ffb45e7da08d6a9131cedd1b1a0b"
+        },
+        "reason": { "$ref": "#/$defs/boundedText" },
+        "providedByExecutionBoundary": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/boundedId" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "boundedId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9](?:[A-Za-z0-9._~-]*[A-Za-z0-9])?$"
+    },
+    "boundedText": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2048
+    },
+    "queryName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z][A-Za-z0-9._~-]*$"
+    },
+    "queryValue": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9](?:[A-Za-z0-9._~-]*[A-Za-z0-9])?$"
+    },
+    "httpsUri": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://"
+    }
+  }
+}

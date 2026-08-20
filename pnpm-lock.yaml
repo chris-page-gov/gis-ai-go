@@ -87,6 +87,12 @@ importers:
         specifier: workspace:*
         version: link:../evidence
 
+  packages/provider-adapter-sdk:
+    dependencies:
+      '@gis-ai-go/evidence':
+        specifier: workspace:*
+        version: link:../evidence
+
 packages:
 
   '@asamuzakjp/css-color@6.0.7':
