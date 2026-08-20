@@ -33,6 +33,12 @@ It is an implementation workbench, not a supported or deployed service.
 - the HTTP candidate listens only on `127.0.0.1:8787` and exposes `GET /healthz`,
   `GET /readyz` and `GET /openapi.json`. Readiness always returns `503` with zero
   active tools and zero active API operations.
+- `startCatalogueStdio` and the shipped STDIO entrypoint remain modern-only at
+  MCP `2026-07-28` and reject every legacy opening. A separately named
+  `startCatalogueLegacyConformanceStdio` constructor can negotiate the bounded
+  `2025-06-18` fallback for isolated host conformance only. It requires the exact
+  exported `MCP_LEGACY_CONFORMANCE_ONLY` symbol, which cannot be reconstructed
+  from an environment variable, command-line value or JSON configuration.
 
 The cursor digest detects corruption; it conveys no identity, authentication or
 authority.
@@ -46,6 +52,9 @@ MCP tool or resource, public deployment, provider call or external policy servic
 The portable evidence store and inspector are inactive embedding components; no
 shipped entry point supplies their configuration or a ledger path.
 There is no environment-variable or command-line activation override.
+The test-only legacy launcher is separately named, requires both the existing
+conformance gate and an exact `--legacy-stdio-conformance-only` argument, and is
+not referenced by a package script or shipped entrypoint.
 
 Protocol-conformant MCP and direct transport candidates already exist. Activation
 remains hard-blocked until the inspection transport, independent-host
@@ -71,5 +80,6 @@ pnpm --filter @gis-ai-go/mcp-gateway run build
 pnpm --filter @gis-ai-go/mcp-gateway run start:http
 ```
 
-See the [candidate boundary](../../docs/operations/MCP-201_GATEWAY_CANDIDATE.md)
-and [EVID-204 inspection transport boundary](../../docs/operations/EVID-204_INSPECT_TRANSPORT.md).
+See the [candidate boundary](../../docs/operations/MCP-201_GATEWAY_CANDIDATE.md),
+the [EVID-204 inspection transport boundary](../../docs/operations/EVID-204_INSPECT_TRANSPORT.md)
+and the [QUAL-206 interoperability runbook](../../docs/operations/QUAL-206_INTEROPERABILITY.md).
