@@ -4,18 +4,20 @@ Last updated: 20 August 2026
 
 ## Current outcome
 
-Deliver `v0.1.0`: an accessible public GIS AI GO discovery product with a canonical
-OKF bundle, reviewed public geospatial metadata examples with record-specific
-rights, linked machine-readable data and a reproducible GitHub Pages deployment.
+Deliver `v0.2.0`: expose the supported governed catalogue and evidence model through
+an open, read-only MCP and direct API without weakening the static `v0.1.0` product.
 
 ## Active workstream
 
-`v0.1.0 — Publish the first supported static discovery release`
+`v0.2.0 — Establish the open read-only MCP foundation`
 
-- synchronise version and release metadata;
-- verify and tag the exact protected-main release commit;
-- deploy its attested artefact and retain the passing public receipt; and
-- publish durable release assets and final evidence.
+- provision the milestone and issue-backed delivery slices;
+- implement a protocol-conformant, fail-closed catalogue gateway over canonical
+  records and deterministic fixtures;
+- retain policy, evidence, rate and complexity boundaries in every public contract;
+  and
+- prove non-App MCP client, direct API and static-product interoperability before
+  any public service or registry entry.
 
 ## Completed
 
@@ -62,17 +64,30 @@ rights, linked machine-readable data and a reproducible GitHub Pages deployment.
   at `24925fc7f77b416d557c719942c86eaa3578b4b1` with passing pull-request and
   protected-main assurance, provenance and CodeQL; and
 - two clean release builds are byte-identical, while browser, accessibility,
-  security and release-metadata gates have no unresolved P0-P2 findings.
+  security and release-metadata gates have no unresolved P0-P2 findings;
+- release [pull request 17](https://github.com/chris-page-gov/gis-ai-go/pull/17)
+  merged as protected-main commit
+  `f1bda209e6309bf4f14f7ab7f524c442e59917b8` with passing assurance,
+  provenance and CodeQL;
+- annotated tag `v0.1.0` is protected against update and deletion with no bypass;
+- the exact attested release artefact was deployed in
+  [run 32331337338](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32331337338),
+  deployment `5995702325`, and passed all four public-browser acceptance tests; and
+- [`v0.1.0`](https://github.com/chris-page-gov/gis-ai-go/releases/tag/v0.1.0)
+  is published as the immutable latest release with nine checksummed evidence
+  assets.
 
 ## Next
 
-1. Merge the synchronised `v0.1.0` release commit through protected `main`.
-2. Tag and verify that exact commit and its attested immutable artefact.
-3. Deploy the tagged artefact, retain public evidence and publish the GitHub Release.
+1. Close the completed `v0.1.0` milestone after this evidence reaches protected
+   `main`.
+2. Provision the `v0.2.0` milestone and bounded MCP delivery issues.
+3. Implement the first protocol and catalogue slice through the normal protected
+   pull-request gate.
 
 ## Current blockers
 
-- No blocker is known for the open `v0.1.0` discovery product.
+- No blocker is known for establishing the open `v0.2.0` foundation.
 - Protected PSGA and commercial deployments require separate rights, credentials
   and isolated infrastructure. They remain outside this release and do not block
   the open product.
@@ -87,6 +102,21 @@ rights, linked machine-readable data and a reproducible GitHub Pages deployment.
   canonical verification receipt after a successful deployed-browser gate;
 - QUAL-105 independent security and accessibility reviews: no P0-P2 finding or
   material evidence error remains;
+- supported release: immutable latest
+  [`v0.1.0`](https://github.com/chris-page-gov/gis-ai-go/releases/tag/v0.1.0),
+  protected tag object `2f566c6e26dd17b13799e2976500e14701f04d11` and release commit
+  `f1bda209e6309bf4f14f7ab7f524c442e59917b8`;
+- release commit assurance and provenance: passing in
+  [run 32330917042](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32330917042);
+- release commit CodeQL for Actions, JavaScript/TypeScript and Python: passing in
+  [run 32330916721](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32330916721);
+- canonical release archive SHA-256
+  `acf072986dafc34795039e363d0d5d09af44432fa392ff3aee5525887e1081a4`,
+  payload root `80a649a5e4bebc36fb38c7b6d51d84056d1b2ff4c8b5f6b96c75bb6d03c6d245`
+  and OKF content root
+  `f6da572916ea850f6825e276867504a835bc783d76cea8038f72c8d1d42c2750`;
+- GitHub release and all nine assets pass GitHub release attestation verification,
+  while a fresh post-publication download passes the published checksum ledger;
 - canonical OKF content, Explorer, reviewed public examples and supported Pages
   transport: merged on protected `main` at
   `a0e826384cf50d9d81b87489dbf3580e8e3602f7`;
@@ -131,4 +161,5 @@ rights, linked machine-readable data and a reproducible GitHub Pages deployment.
   bound to `a0e826384cf50d9d81b87489dbf3580e8e3602f7`;
 - public repository: verified with personal `noreply` commit identity;
 - deployed product: <https://chris-page-gov.github.io/gis-ai-go/>;
-- latest supported release: none.
+- latest supported release:
+  [`v0.1.0`](https://github.com/chris-page-gov/gis-ai-go/releases/tag/v0.1.0).

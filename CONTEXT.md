@@ -25,7 +25,8 @@ Start every implementation task by reading, in order:
   and AI agents;
 - repository: `chris-page-gov/gis-ai-go`;
 - licence: MIT, copyright © 2026 Chris Page;
-- release being assembled: `v0.1.0`.
+- latest supported release:
+  [`v0.1.0`](https://github.com/chris-page-gov/gis-ai-go/releases/tag/v0.1.0).
 
 “Locus Accord” is a superseded codename preserved only in historical research.
 `chris-page-gov/mcp-geo` is read-only evidence at commit
@@ -37,24 +38,31 @@ Stage 0 is complete at commit `983b1a102aa8038c9f50ae1b1894315c3ae0b89f`.
 The canonical OKF build, accessible static Explorer and reviewed public examples
 are merged through `DISC-101`, `DISC-102` and `DISC-103`. `DISC-104` is complete
 through [pull request 14](https://github.com/chris-page-gov/gis-ai-go/pull/14),
-whose accepted implementation and deployed source commit is
-`a0e826384cf50d9d81b87489dbf3580e8e3602f7`. The Explorer is deployed and verified at
-<https://chris-page-gov.github.io/gis-ai-go/>. There is no MCP listener, live
-provider adapter, policy engine, identity integration or evidence store.
+whose accepted implementation commit is
+`a0e826384cf50d9d81b87489dbf3580e8e3602f7`. The Explorer is deployed and verified
+at <https://chris-page-gov.github.io/gis-ai-go/> from the later release commit
+recorded below. There is no MCP listener, live provider adapter, policy engine,
+identity integration or evidence store.
 
 The owner has authorised autonomous implementation in the open under
-[`ADR-0004`](docs/decisions/ADR-0004-public-autonomous-delivery.md). The active
-outcome is the `v0.1.0` public discovery product. The repository is public under the
-owner's personal `chris-page-gov` account. Pull-request assurance, security controls
-and branch protection govern development on `main`. `DISC-104` retained two
+[`ADR-0004`](docs/decisions/ADR-0004-public-autonomous-delivery.md). The repository
+is public under the owner's personal `chris-page-gov` account. Pull-request
+assurance, security controls and branch protection govern development on `main`.
+`DISC-104` retained two
 immutable, attested protected-main source artefacts, deployed both through GitHub's
 pinned official Pages transport, rolled back to the earlier artefact and restored
 the current one without rebuilding either product. All four public-browser
 acceptance suites passed. QUAL-105 then merged through
 [pull request 16](https://github.com/chris-page-gov/gis-ai-go/pull/16) at
 `24925fc7f77b416d557c719942c86eaa3578b4b1`, completing implementation release
-assurance without redeploying the `0.0.0` candidate. The active workstream is now
-assembling, tagging, deploying and verifying `v0.1.0`.
+assurance. Release [pull request 17](https://github.com/chris-page-gov/gis-ai-go/pull/17)
+merged as `f1bda209e6309bf4f14f7ab7f524c442e59917b8`; its attested artefact was deployed,
+verified in a real browser and published as the protected, immutable
+[`v0.1.0`](https://github.com/chris-page-gov/gis-ai-go/releases/tag/v0.1.0)
+release. The [release evidence record](docs/operations/V0.1.0_RELEASE_EVIDENCE.md)
+is the durable hand-off. The active roadmap outcome is now `v0.2.0`: an open,
+read-only MCP and direct-API surface over the same governed catalogue and evidence
+model.
 
 ## Non-negotiable boundaries
 

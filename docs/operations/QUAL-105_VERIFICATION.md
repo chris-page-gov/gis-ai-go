@@ -1,10 +1,12 @@
 # QUAL-105 release-assurance verification record
 
-- status: verified on protected main; release evidence pending
+- status: complete for supported `v0.1.0`
 - reviewed on: 20 August 2026
 - work item: [QUAL-105](https://github.com/chris-page-gov/gis-ai-go/issues/7)
 - release target: `v0.1.0`
-- public candidate: <https://chris-page-gov.github.io/gis-ai-go/>
+- supported release:
+  [`v0.1.0`](https://github.com/chris-page-gov/gis-ai-go/releases/tag/v0.1.0)
+- public product: <https://chris-page-gov.github.io/gis-ai-go/>
 
 ## Outcome
 
@@ -17,7 +19,7 @@ The release remains a static, public, metadata-only discovery product. This gate
 does not claim an MCP listener, provider execution, identity integration, policy
 engine, protected-data integration or production service assurance.
 
-## Accepted baseline
+## Accepted pre-release baseline
 
 - DISC-104 deployment evidence is merged on protected `main` at
   `5cc1626c9e412393a520b463c6ba670ee51799f0`;
@@ -31,7 +33,7 @@ engine, protected-data integration or production service assurance.
 - on 20 August 2026, the repository had no open CodeQL, Dependabot or secret-scanning
   alerts.
 
-The live candidate reports source
+The pre-release candidate reported source
 `a0e826384cf50d9d81b87489dbf3580e8e3602f7`, version `0.0.0`, payload root
 `cbc0893a46a4674ef7d13aa4aebcbeb0355f9c8a08286a6500bfc954cb5d6ef6` and OKF
 content root `a620158911cc60259f0ceab2af0dfdd886783a50bfe98000d692fd534bd08ec0`.
@@ -40,7 +42,7 @@ content root `a620158911cc60259f0ceab2af0dfdd886783a50bfe98000d692fd534bd08ec0`.
 
 ### Release journeys and negative cases
 
-The candidate retains the complete catalogue, direct-route, back/forward, download,
+The release candidate retained the complete catalogue, direct-route, back/forward, download,
 hostile-state, CSP, network, forced-colours, reduced-motion and small-viewport
 browser suites. It adds a WebMCP-present case with inert sentinels and proves that
 the Explorer neither invokes, replaces nor mutates them. This is graceful non-use
@@ -73,9 +75,9 @@ and reports the common archive SHA-256 on success.
 
 DISC-104 proved the exact live commit, payload, OKF root, checksum ledger, primary
 journeys, clean console and publication-path-only network boundary across original
-deployment, rollback and restoration. The tagged release must repeat this public
-gate and retain a successful `public-verification-receipt.json` before the GitHub
-Release is published.
+deployment, rollback and restoration. The tagged release repeated this public gate
+and retained a successful `public-verification-receipt.json` before the immutable
+GitHub Release was published.
 
 ### Release evidence and metadata
 
@@ -87,7 +89,7 @@ feature branches with an unchanged version may retain their required changelog
 fragments. The public workflow must upload a canonical verification receipt even
 when the passing browser run produces no trace or failure file.
 
-## Candidate verification
+## Pre-release candidate verification
 
 The working-tree candidate passed:
 
@@ -124,6 +126,43 @@ Resulting main assurance and provenance passed in
 and main CodeQL passed in
 [run 32329061657](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32329061657).
 
+## Supported release evidence
+
+Release [pull request 17](https://github.com/chris-page-gov/gis-ai-go/pull/17)
+merged as protected-main commit
+`f1bda209e6309bf4f14f7ab7f524c442e59917b8`. Assurance and provenance passed in
+[run 32330917042](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32330917042),
+and CodeQL passed for Actions, JavaScript/TypeScript and Python in
+[run 32330916721](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32330916721).
+
+The annotated `v0.1.0` tag resolves through tag object
+`2f566c6e26dd17b13799e2976500e14701f04d11` to that exact release commit. A
+no-bypass tag ruleset blocks update and deletion. GitHub's immutable-release control
+is enabled, and
+[`v0.1.0`](https://github.com/chris-page-gov/gis-ai-go/releases/tag/v0.1.0)
+is the immutable latest, non-prerelease release.
+
+The attested release archive has SHA-256
+`acf072986dafc34795039e363d0d5d09af44432fa392ff3aee5525887e1081a4`, payload
+root `80a649a5e4bebc36fb38c7b6d51d84056d1b2ff4c8b5f6b96c75bb6d03c6d245`
+and OKF content root
+`f6da572916ea850f6825e276867504a835bc783d76cea8038f72c8d1d42c2750`.
+[Attestation 41776630](https://github.com/chris-page-gov/gis-ai-go/attestations/41776630)
+binds the archive to the exact protected-main source and CI workflow.
+
+[Pages run 32331337338](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32331337338)
+deployed that verified payload as deployment `5995702325`. All four public-browser
+tests passed, and the public receipt records version `0.1.0`, the exact source
+commit, payload root, OKF root and public checksum-ledger digest
+`75d3a3c9ad8fad2cd7d5a8ee67851fd7655457aae9473ae717f0f4dbc67da815`.
+
+The immutable release contains exactly nine assets. GitHub release verification and
+all nine per-asset checks pass. A fresh post-publication download passed
+`RELEASE-ASSETS.sha256`; its ledger has SHA-256
+`8c062a5872dbc50760380f9826b153abbd14e10f015694b99b6af4f298ce89e4`.
+The top-level CycloneDX dependency SBOM contains 145 components, while the separate
+52-file publication inventory remains bound inside the canonical archive.
+
 ## Limitations and residual risks
 
 - The product is a static metadata catalogue, not an HMLR, ONS, Ordnance Survey or
@@ -142,11 +181,10 @@ and main CodeQL passed in
 - GitHub Pages supplies the hosting boundary. The application enforces its exact
   meta Content Security Policy, but the repository does not control response-header
   policies such as `frame-ancestors`.
-- Actions artefacts expire. Before support is declared, no-bypass `v*` tag protection
-  and GitHub release immutability must be enabled and verified. The release must
-  attach the canonical archive, checksum, receipt, SBOM, attestation verification
-  and public-verification evidence to that immutable GitHub Release.
+- Actions artefacts expire. The immutable release therefore retains the canonical
+  archive, checksum, receipt, SBOM, attestation verification and public-verification
+  evidence as durable assets.
 
-QUAL-105 remains open until the tagged `v0.1.0` artefact is deployed, its public
-receipt passes, the GitHub Release and durable assets exist, and final evidence is
-merged on protected `main`.
+The protected-main merge of this final record closes QUAL-105: the tagged artefact
+is deployed, its public receipt passes, and the immutable GitHub Release and durable
+assets exist.

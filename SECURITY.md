@@ -2,8 +2,8 @@
 
 ## Current status
 
-GIS AI GO is a public open-source project and has no supported production release
-yet.
+GIS AI GO is a public open-source project. Its supported `v0.1.0` release is a
+static, metadata-only discovery product hosted on GitHub Pages.
 The current gateway and execution service remain fail-closed scaffolds. Do not
 connect unreviewed code to provider credentials, protected data or public listeners.
 The public Explorer is a static metadata-only build; it is not a provider client or
@@ -33,7 +33,12 @@ defects may use the public bug template.
   keyboard operation and machine-readable download integrity;
 - GitHub secret scanning, push protection, Dependabot security updates and CodeQL
   default setup are enabled for the public repository;
-- no security claim is made for later identity, policy or hosting designs.
+- the supported tag is protected against update and deletion by a no-bypass
+  ruleset; and
+- the immutable GitHub Release retains the checksummed archive, receipts,
+  attestation verification, release evidence and dependency SBOM;
+- no security claim is made for later identity, policy, provider or service designs.
 
 The custom and platform scans are baselines, not substitutes for dependency review
-or a dedicated security assessment before a supported release.
+or a dedicated security assessment before a later networked service, identity,
+policy or provider-integration release.
