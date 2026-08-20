@@ -136,8 +136,10 @@ The supported target active set is exactly `catalogue.search`,
   and [attestation 41792357](https://github.com/chris-page-gov/gis-ai-go/attestations/41792357);
 - MCP-201 gateway candidate: exact implementation commit
   `442f788108106744e1e2ed7283e38c2a22aac5f1` passes the complete local gate and an
-  independent no-P0-P2 review; protected pull-request evidence remains pending and
-  the candidate exposes no catalogue operation, MCP tool or public deployment;
+  independent no-P0-P2 review; draft
+  [pull request 27](https://github.com/chris-page-gov/gis-ai-go/pull/27) is open with
+  protected checks pending, and the candidate exposes no catalogue operation, MCP
+  tool or public deployment;
 - current complete local gate: type checking, 38 gateway tests, 16 Explorer
   build-policy tests, 42 Explorer unit and component tests, 88 repository Python
   tests, 2 execution-boundary tests and 27 real-browser tests pass;

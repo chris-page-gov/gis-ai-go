@@ -88,7 +88,7 @@ listed above completed this slice's remote gate.
 - complete local gate: passing at the candidate implementation commit on
   20 August 2026
 - independent current-byte review: `SHIP`; no P0, P1 or P2 finding
-- pull request: `local-candidate/pending`
+- pull request: [27](https://github.com/chris-page-gov/gis-ai-go/pull/27)
 - pull-request assurance and provenance: `local-candidate/pending`
 - pull-request CodeQL: `local-candidate/pending`
 - protected-main merge and post-merge evidence: `local-candidate/pending`
@@ -151,8 +151,8 @@ commit; the repaired current bytes then received an independent `SHIP` review an
 passed all 38 gateway tests. This does not claim that the absent public service has
 been security-tested as a deployed service.
 
-The pull request, remote CodeQL, protected-main merge and post-merge evidence remain
-deliberately `local-candidate/pending` until they exist.
+Pull-request assurance, remote CodeQL, protected-main merge and post-merge evidence
+remain deliberately `local-candidate/pending` until they exist.
 
 ## Activation and publication boundary
 
