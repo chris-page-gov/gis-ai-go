@@ -13,6 +13,7 @@ import {
   type CatalogueApplication,
 } from "./catalogue-application.js";
 import type { CatalogueSnapshot } from "./catalogue-snapshot.js";
+import type { EvidenceInspectApplication } from "./evidence-application.js";
 import {
   BoundedJsonError,
   createGatewayHttpHandler,
@@ -24,12 +25,12 @@ import {
   MCP_HTTP_MAX_STANDALONE_BODY_BYTES,
 } from "./mcp-http.js";
 import {
-  type CatalogueMcpOperation,
   type CatalogueMcpRequestContextFactory,
-  type CatalogueMcpResource,
+  type GatewayMcpOperation,
+  type GatewayMcpResource,
 } from "./mcp-server.js";
 import { gatewayMetadata } from "./metadata.js";
-import type { CatalogueApiOperation } from "./openapi.js";
+import type { GatewayApiOperation } from "./openapi.js";
 import { createCatalogueProblem } from "./problem.js";
 
 const MAX_URL_LENGTH = 4_096;
@@ -71,12 +72,13 @@ const FETCH_FORBIDDEN_METHODS = new Set(["CONNECT", "TRACE", "TRACK"]);
 
 export interface GatewayNodeServerOptions {
   /** Explicit local-conformance seam. Omission keeps every direct route blocked. */
-  readonly enabledApiOperations?: readonly CatalogueApiOperation[];
+  readonly enabledApiOperations?: readonly GatewayApiOperation[];
   /** Explicit local-conformance seam. Omission keeps every MCP tool blocked. */
-  readonly enabledMcpOperations?: readonly CatalogueMcpOperation[];
+  readonly enabledMcpOperations?: readonly GatewayMcpOperation[];
   /** Explicit local-conformance seam. Omission advertises no MCP resources. */
-  readonly enabledMcpResources?: readonly CatalogueMcpResource[];
+  readonly enabledMcpResources?: readonly GatewayMcpResource[];
   readonly application?: CatalogueApplication;
+  readonly evidenceApplication?: EvidenceInspectApplication;
   readonly createTraceId?: () => string;
   readonly createMcpRequestContext?: CatalogueMcpRequestContextFactory;
   readonly directAllowedHosts?: readonly string[];
@@ -428,6 +430,9 @@ export function createGatewayNodeServer(
   const directHandler = createGatewayHttpHandler({
     snapshot,
     application,
+    ...(options.evidenceApplication === undefined
+      ? {}
+      : { evidenceApplication: options.evidenceApplication }),
     ...(options.enabledApiOperations === undefined
       ? {}
       : { enabledApiOperations: options.enabledApiOperations }),
@@ -442,6 +447,9 @@ export function createGatewayNodeServer(
   });
   const mcpHandler = createCatalogueMcpHttpHandler({
     application,
+    ...(options.evidenceApplication === undefined
+      ? {}
+      : { evidenceApplication: options.evidenceApplication }),
     snapshot,
     ...(options.enabledMcpOperations === undefined
       ? {}

@@ -40,6 +40,23 @@ The immutable descriptor also fixes a bounded minimum retention period and each
 record exposes `retain_until`. No deletion is implemented; production disposal
 policy and evidence remain open.
 
+## EVID-204C evidence inspection transport candidate
+
+The direct and MCP faces are explicit local-conformance seams over the accepted
+transport-neutral inspector. They do not change production activation or publish a
+service.
+
+| Research risk | Control in this slice | Residual boundary |
+| --- | --- | --- |
+| RK08 policy bypass | Every face calls one inspector, which re-verifies the ledger and permits only embedded anonymous-open public decisions. Tool, resource and direct registration are separately explicit and empty by default. | Host interoperability, deployment identity, network policy and a reviewed production activation decision remain release gates. |
+| RK20 provenance spoofing | Direct, MCP structured, MCP text, MCP resource and STDIO results are byte-equivalent projections of one verified record and event. Shared closed schemas are advertised on both operation faces. | The event chain is not a signature, attestation, WORM store or external checkpoint. |
+| RK21 audit tampering | A verification or corruption failure becomes one controlled unavailable problem and returns no partial record. Tests truncate an event after restart and prove fail-closed behaviour. | File-system operators remain trusted; complete unanchored tail deletion and disaster recovery need external controls. |
+| RK25 query-history exposure | Lookups accept one content identity. Problems do not reflect receipt text or ledger paths, and stored records retain digests rather than query, prompt, geometry, credentials or original result material. | Operational hosting logs, backups and future protected evidence require a separate privacy and retention review. |
+
+The bounded resource and duplicated tool representations share a narrower result
+ceiling than the direct HTTP response. Oversize evidence therefore fails closed in
+the application rather than creating transport-specific truncation.
+
 ## EXEC-202 private execution scope
 
 [`EXEC-202.md`](EXEC-202.md) records the private synthetic execution trust boundary,

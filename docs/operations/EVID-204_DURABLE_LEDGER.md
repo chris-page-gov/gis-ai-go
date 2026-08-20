@@ -1,6 +1,6 @@
 # EVID-204 durable public evidence candidate
 
-- status: local candidate; not activated or deployed
+- status: accepted storage candidate on protected `main`; not activated or deployed
 - work item: [EVID-204](https://github.com/chris-page-gov/gis-ai-go/issues/22)
 - decision: [ADR-0011](../decisions/ADR-0011-durable-public-evidence-ledger.md)
 - base: protected `main` commit `66507f9a6e6c0da23a8af4682268f9362d93bc06`
@@ -81,9 +81,11 @@ without an external checkpoint. One writer owns a root; concurrent-process
 coordination, backups, external checkpoints, disaster recovery and production
 retention assurance remain open.
 
-No direct route, MCP registration, listener activation, deployment or public
-registry entry is included. `evidence.inspect` remains absent from all production
-activation arrays.
+This accepted storage slice included no direct route, MCP registration, listener
+activation, deployment or public registry entry. The later
+[inspection transport candidate](EVID-204_INSPECT_TRANSPORT.md) adds only explicit
+constructor seams. `evidence.inspect` remains absent from all production activation
+arrays.
 
 ## Verification
 
@@ -95,7 +97,8 @@ pnpm --filter @gis-ai-go/mcp-gateway run test
 pnpm run validate:contracts
 ```
 
-The candidate includes regressions for restart, canonical bytes, corruption,
-truncation, sequence gaps, identity collision, orphan records, replay, retention,
-private material, inspection and catalogue persistence failure. Final pull-request,
-CodeQL, protected-main, attestation and any activation evidence remain pending.
+The accepted storage slice includes regressions for restart, canonical bytes,
+corruption, truncation, sequence gaps, identity collision, orphan records, replay,
+retention, private material, inspection and catalogue persistence failure. Its
+pull-request, CodeQL, protected-main and attestation evidence are complete. The
+inspection transport candidate and any activation still require their own review.

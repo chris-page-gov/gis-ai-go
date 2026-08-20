@@ -11,10 +11,11 @@ export interface BlockedCatalogueActivation {
 /**
  * The only production activation state in this candidate.
  *
- * EVID-204A supplies reviewed in-process public policy decisions and inline
- * receipts. Transport registration, protocol conformance and interoperability
- * remain unverified, so no catalogue operation is mounted or advertised. There
- * is deliberately no environment-variable or command-line override.
+ * Reviewed applications and explicit local-conformance transport seams now exist
+ * for catalogue and public evidence operations. Host interoperability, release
+ * activation and deployment remain unverified, so no operation is mounted or
+ * advertised by production defaults. There is deliberately no environment-variable
+ * or command-line override.
  */
 export const catalogueActivation: BlockedCatalogueActivation = Object.freeze({
   state: "blocked",
