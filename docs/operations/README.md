@@ -3,9 +3,9 @@
 This directory preserves the Stage 0 boundary, dependency baseline and verification
 as historical evidence. Current authority and status are in [`CONTEXT.md`](../../CONTEXT.md)
 and [`PROGRESS.md`](../../PROGRESS.md); ADR-0004 records progression beyond the local
-pause. The static Explorer remains the verified `0.0.0` public candidate while the
-tagged `v0.1.0` artefact and supported-release evidence are assembled. No MCP service
-exists.
+pause. The static Explorer is the supported
+[`v0.1.0`](https://github.com/chris-page-gov/gis-ai-go/releases/tag/v0.1.0)
+public discovery product. No MCP service exists.
 
 - [Stage 0 boundary](STAGE_0_BOUNDARY.md)
 - [Dependency baseline](DEPENDENCIES.md)
@@ -15,3 +15,4 @@ exists.
 - [DISC-104 GitHub Pages runbook](DISC-104_RUNBOOK.md)
 - [DISC-104 GitHub Pages verification record](DISC-104_VERIFICATION.md)
 - [QUAL-105 release-assurance verification record](QUAL-105_VERIFICATION.md)
+- [`v0.1.0` supported-release evidence](V0.1.0_RELEASE_EVIDENCE.md)

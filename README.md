@@ -7,12 +7,13 @@ boundary is deliberately broader than AI or MCP.
 
 ## Status
 
-**QUAL-105 is complete and `v0.1.0` is assembled for release.** The current public
-site at <https://chris-page-gov.github.io/gis-ai-go/> remains the verified `0.0.0`
-candidate until the tagged `v0.1.0` artefact is deployed and its public-verification
-receipt passes. Support will be declared only after the protected tag, verified
-deployment, immutable GitHub Release, durable checksummed assets and merged final
-evidence all exist and pass their gates.
+**[`v0.1.0`](https://github.com/chris-page-gov/gis-ai-go/releases/tag/v0.1.0)
+is the first supported public discovery release.** Its exact protected-main artefact
+is deployed and verified at <https://chris-page-gov.github.io/gis-ai-go/>. The
+annotated tag is protected, the GitHub Release is immutable and its nine durable
+assets include checksums, receipts, provenance verification and the dependency SBOM.
+The [release evidence record](docs/operations/V0.1.0_RELEASE_EVIDENCE.md) binds the
+source, build, deployment and public-browser acceptance identities.
 
 The Explorer is a static, metadata-only product; there is no MCP service. Live status is in
 [`PROGRESS.md`](PROGRESS.md); current authority and boundaries are in
@@ -23,7 +24,8 @@ The Explorer is a static, metadata-only product; there is no MCP service. Live s
 - product: **GIS AI GO**
 - repository: `gis-ai-go`
 - provisional MCP Registry identifier: `io.github.chris-page-gov/gis-ai-go`
-- release being assembled: `v0.1.0`
+- latest supported release:
+  [`v0.1.0`](https://github.com/chris-page-gov/gis-ai-go/releases/tag/v0.1.0)
 - licence: [MIT](LICENSE), copyright © 2026 Chris Page; identified
   [third-party material](THIRD_PARTY.md) retains its own terms
 
@@ -61,7 +63,7 @@ pnpm run check
 ```
 
 The check builds and type-checks the TypeScript boundary, runs TypeScript and Python
-unit tests, reproducibly builds and validates the public OKF candidate and Explorer,
+unit tests, reproducibly builds and validates the public OKF publication and Explorer,
 runs its real-browser accessibility and security journeys, validates other schemas
 and fixtures, checks local links, performs a baseline secret scan, renders diagrams
 and creates a CycloneDX SBOM in `artifacts/`.

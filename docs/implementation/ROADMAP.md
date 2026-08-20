@@ -4,7 +4,10 @@ The owner has authorised Codex to progress autonomously through the open-product
 roadmap. Each release advances only when its tests and publication evidence pass;
 this is an evidence gate, not a request for repeated permission.
 
-## `v0.1.0` — public discovery product
+## `v0.1.0` — public discovery product (released)
+
+Status: supported and immutable at
+[`v0.1.0`](https://github.com/chris-page-gov/gis-ai-go/releases/tag/v0.1.0).
 
 Outcome: a useful, accessible static product that people can browse without an MCP
 host or account.
@@ -23,7 +26,7 @@ Deliver:
 Gate: source/data rights review, exact-source integrity, browser journeys, WCAG 2.2
 AA acceptance, clean console, security checks, SBOM and rollback rehearsal.
 
-## `v0.2.0` — open read-only MCP
+## `v0.2.0` — open read-only MCP (next)
 
 Outcome: the same governed catalogue and evidence model is usable by MCP clients and
 direct API consumers without reducing the non-MCP product.

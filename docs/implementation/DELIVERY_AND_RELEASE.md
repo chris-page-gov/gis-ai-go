@@ -58,6 +58,11 @@ Create the GitHub release from the immutable tag. Attach or link the checksummed
 artefacts and evidence record. Do not describe a local scaffold, draft or synthetic
 test as a deployed capability.
 
+After immutable publication, merge a documentation-only evidence pull request that
+updates the canonical support status and links the release, deployment and public
+receipt. Then close the completed release issue and milestone. This evidence update
+must not move the tag, replace release assets or redeploy the accepted product.
+
 ## Deployment and rollback
 
 Before the first tag, a public acceptance candidate may deploy only from an attested
@@ -66,9 +71,9 @@ release deploys only the artefact built and attested from the exact verified rel
 commit, after that commit carries its immutable tag. Verify the exact deployed
 commit in a real browser/client, including identity, primary
 journeys, accessibility, console, security controls and rollback. The live Pages
-Explorer remains a release candidate until the exact `v0.1.0` tagged artefact passes
-deployment and public verification; the historical research viewer is never the
-product deployment.
+Explorer is the supported `v0.1.0` static discovery product. A future release
+remains a candidate until its exact tagged artefact passes deployment and public
+verification; the historical research viewer is never the product deployment.
 
 Prefer an ordinary revert or previous immutable artefact over history rewriting.
 Suspend a provider, tool, registry entry or protected tier independently when its
