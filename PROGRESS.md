@@ -61,8 +61,10 @@ reproducible GitHub Pages deployment.
 
 ## Current blockers
 
-- GitHub Pages stays disabled until the immutable publication workflow and
-  protected-main artefact pass their local and remote gates.
+- GitHub Pages is configured but has no successful deployment. Three accepted
+  artefacts reached Pages ingestion before its tar-header checks rejected
+  unprefixed, root-owned members; the canonical producer and verifier now carry the
+  compatibility correction, which needs protected-main evidence.
 - Protected PSGA and commercial deployments require separate rights, credentials
   and isolated infrastructure; they do not block the open product.
 
@@ -84,7 +86,7 @@ reproducible GitHub Pages deployment.
 - DISC-103 security review: the selected HMLR inputs and copied licence are
   independently bound to approved v0.3.0 digests, and coordinated source, rights,
   licence and lock mutations now fail closed;
-- DISC-104 local candidate: 17 archive and 10 workflow contract tests, the complete
+- DISC-104 local candidate: 20 archive and 10 workflow contract tests, the complete
   repository gate and 4 public-artefact browser tests pass; protected-main build,
   attestation, deployment and rollback evidence remain to be produced;
 - public repository: verified with personal `noreply` commit identity;

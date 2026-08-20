@@ -29,6 +29,10 @@ MAX_FILES = 10_010
 MAX_METADATA_BYTES = 2 * 1024 * 1024
 SHA256_RE = re.compile(r"[0-9a-f]{64}\Z")
 COMMIT_RE = re.compile(r"[0-9a-f]{40}\Z")
+ARCHIVE_UID = 1000
+ARCHIVE_GID = 1000
+ARCHIVE_USER_NAME = ""
+ARCHIVE_GROUP_NAME = ""
 
 
 def sha256_bytes(value: bytes) -> str:
@@ -61,7 +65,13 @@ def safe_archive_path(value: str) -> str:
     logical = PurePosixPath(value)
     if (
         not value
+        or value in {".", ".."}
         or value.startswith("/")
+        or value.startswith("./")
+        or value.endswith("/")
+        or "//" in value
+        or "/./" in value
+        or value.endswith("/.")
         or "\\" in value
         or "\0" in value
         or logical.is_absolute()
@@ -83,6 +93,14 @@ def safe_archive_path(value: str) -> str:
     if hidden and value not in {".nojekyll", "catalogue/.explorer-generated"}:
         raise ValueError(f"unexpected hidden archive path: {value}")
     return value
+
+
+def logical_tar_member_path(value: str) -> str:
+    """Return the logical publication path from the exact Pages tar form."""
+    if not value.startswith("./"):
+        raise ValueError(f"archive member must start with './': {value!r}")
+    logical = value[2:]
+    return safe_archive_path(logical)
 
 
 def parse_checksum_ledger(value: bytes, label: str) -> list[dict[str, str]]:
@@ -134,13 +152,13 @@ def deterministic_tar(files: dict[str, bytes]) -> bytes:
     with tarfile.open(fileobj=buffer, mode="w", format=tarfile.USTAR_FORMAT) as archive:
         for path in sorted(files):
             value = files[path]
-            member = tarfile.TarInfo(path)
+            member = tarfile.TarInfo(f"./{path}")
             member.size = len(value)
             member.mode = 0o644
-            member.uid = 0
-            member.gid = 0
-            member.uname = ""
-            member.gname = ""
+            member.uid = ARCHIVE_UID
+            member.gid = ARCHIVE_GID
+            member.uname = ARCHIVE_USER_NAME
+            member.gname = ARCHIVE_GROUP_NAME
             member.mtime = 0
             member.type = tarfile.REGTYPE
             archive.addfile(member, io.BytesIO(value))
@@ -154,22 +172,25 @@ def read_archive(value: bytes) -> dict[str, bytes]:
             members = archive.getmembers()
             if len(members) > MAX_FILES:
                 raise ValueError(f"archive exceeds {MAX_FILES} members")
-            paths = [member.name for member in members]
+            paths = [logical_tar_member_path(member.name) for member in members]
             if paths != sorted(paths) or len(paths) != len(set(paths)):
                 raise ValueError("archive paths must be unique and sorted")
-            for member in members:
-                path = safe_archive_path(member.name)
+            for member, path in zip(members, paths, strict=True):
                 if member.type != tarfile.REGTYPE or not member.isfile():
                     raise ValueError(f"archive must contain regular files only: {path}")
                 if member.linkname:
                     raise ValueError(f"archive member must not link elsewhere: {path}")
                 if member.pax_headers:
                     raise ValueError(f"archive must not contain PAX metadata: {path}")
+                if member.uid == 0 or member.gid == 0:
+                    raise ValueError(
+                        f"archive member must use normalised non-root ownership: {path}"
+                    )
                 if (
-                    member.uid != 0
-                    or member.gid != 0
-                    or member.uname != ""
-                    or member.gname != ""
+                    member.uid != ARCHIVE_UID
+                    or member.gid != ARCHIVE_GID
+                    or member.uname != ARCHIVE_USER_NAME
+                    or member.gname != ARCHIVE_GROUP_NAME
                     or member.mode != 0o644
                     or member.mtime != 0
                 ):
@@ -508,7 +529,7 @@ def verify_archive(
         label="publication provenance",
     )
     if require_keys(provenance["builder"], {"name", "version"}, "provenance builder") != {
-        "name": "scripts/package_pages.py", "version": "1.0.0"
+        "name": "scripts/package_pages.py", "version": "1.0.1"
     }:
         raise ValueError("publication provenance builder is not recognised")
     source = require_keys(
@@ -560,7 +581,9 @@ def verify_archive(
     )
     if determinism != {
         "archiveFormat": "POSIX ustar", "pathOrder": "lexicographic UTF-8 publication path",
-        "uid": 0, "gid": 0, "userName": "", "groupName": "", "fileMode": "0644",
+        "uid": ARCHIVE_UID, "gid": ARCHIVE_GID,
+        "userName": ARCHIVE_USER_NAME, "groupName": ARCHIVE_GROUP_NAME,
+        "fileMode": "0644",
         "modificationTime": 0, "wallClockIncluded": False,
     }:
         raise ValueError("publication provenance determinism contract differs")

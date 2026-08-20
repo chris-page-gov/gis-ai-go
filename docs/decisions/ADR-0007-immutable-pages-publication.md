@@ -23,8 +23,10 @@ for a successful push to protected `main`. The deterministic archive contains on
 the checked Explorer distribution, `.nojekyll` and publication metadata. It records
 the source commit, product version, `/gis-ai-go/` base path, canonical URL, OKF
 content root, complete file manifest, checksums, provenance, site receipt and
-CycloneDX SBOM. Tar paths, ownership, modes and modification times are normalised;
-wall-clock time is excluded.
+CycloneDX SBOM. Tar paths use the Pages-required `./` root, ownership uses a fixed
+non-root numeric identity, and modes and modification times are normalised;
+wall-clock time is excluded. The fixed identity describes archive transport only;
+it does not claim an operating-system account.
 
 Attest the exact tar archive in a separate successful-main job. Retain the tar,
 checksum and outer receipt together as `pages-source-<source-commit>`. Deployment is

@@ -21,7 +21,11 @@ ROOT = Path(__file__).resolve().parents[1]
 EXPECTED_REPOSITORY = "chris-page-gov/gis-ai-go"
 EXPECTED_BASE_PATH = "/gis-ai-go/"
 CANONICAL_URL = "https://chris-page-gov.github.io/gis-ai-go/"
-BUILDER_VERSION = "1.0.0"
+BUILDER_VERSION = "1.0.1"
+ARCHIVE_UID = 1000
+ARCHIVE_GID = 1000
+ARCHIVE_USER_NAME = ""
+ARCHIVE_GROUP_NAME = ""
 MAX_FILE_BYTES = 32 * 1024 * 1024
 MAX_TOTAL_BYTES = 128 * 1024 * 1024
 MAX_FILES = 10_000
@@ -347,13 +351,16 @@ def deterministic_tar(files: dict[str, bytes]) -> bytes:
             if path != ".nojekyll" and not path.startswith("publication/"):
                 safe_relative_path(path)
             value = files[path]
-            member = tarfile.TarInfo(path)
+            # Pages ingestion requires every member to use an explicit ./ root.
+            member = tarfile.TarInfo(f"./{path}")
             member.size = len(value)
             member.mode = 0o644
-            member.uid = 0
-            member.gid = 0
-            member.uname = ""
-            member.gname = ""
+            # GitHub Pages rejects root-owned tar members during ingestion. Keep
+            # ownership deterministic, but deliberately non-privileged.
+            member.uid = ARCHIVE_UID
+            member.gid = ARCHIVE_GID
+            member.uname = ARCHIVE_USER_NAME
+            member.gname = ARCHIVE_GROUP_NAME
             member.mtime = 0
             member.type = tarfile.REGTYPE
             archive.addfile(member, io.BytesIO(value))
@@ -406,10 +413,10 @@ def build_archive(
             "determinism": {
                 "archiveFormat": "POSIX ustar",
                 "pathOrder": "lexicographic UTF-8 publication path",
-                "uid": 0,
-                "gid": 0,
-                "userName": "",
-                "groupName": "",
+                "uid": ARCHIVE_UID,
+                "gid": ARCHIVE_GID,
+                "userName": ARCHIVE_USER_NAME,
+                "groupName": ARCHIVE_GROUP_NAME,
                 "fileMode": "0644",
                 "modificationTime": 0,
                 "wallClockIncluded": False,
