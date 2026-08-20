@@ -5,7 +5,8 @@ as historical evidence. Current authority and status are in [`CONTEXT.md`](../..
 and [`PROGRESS.md`](../../PROGRESS.md); ADR-0004 records progression beyond the local
 pause. The static Explorer is the supported
 [`v0.1.0`](https://github.com/chris-page-gov/gis-ai-go/releases/tag/v0.1.0)
-public discovery product. No MCP service exists.
+public discovery product. An inactive local gateway candidate exists, but no public
+MCP service or catalogue API exists.
 
 - [Stage 0 boundary](STAGE_0_BOUNDARY.md)
 - [Dependency baseline](DEPENDENCIES.md)
@@ -16,4 +17,5 @@ public discovery product. No MCP service exists.
 - [DISC-104 GitHub Pages verification record](DISC-104_VERIFICATION.md)
 - [QUAL-105 release-assurance verification record](QUAL-105_VERIFICATION.md)
 - [`v0.1.0` supported-release evidence](V0.1.0_RELEASE_EVIDENCE.md)
-- [MCP-201 shared catalogue contract verification record](MCP-201_VERIFICATION.md)
+- [MCP-201 inactive gateway candidate boundary](MCP-201_GATEWAY_CANDIDATE.md)
+- [MCP-201 verification record](MCP-201_VERIFICATION.md)

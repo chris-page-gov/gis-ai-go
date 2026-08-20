@@ -20,6 +20,9 @@ importers:
 
   apps/mcp-gateway:
     dependencies:
+      '@gis-ai-go/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
       '@modelcontextprotocol/server':
         specifier: 2.0.0
         version: 2.0.0

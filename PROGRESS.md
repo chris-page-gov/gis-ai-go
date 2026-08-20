@@ -15,15 +15,17 @@ The supported target active set is exactly `catalogue.search`,
 
 - use the accepted lifecycle boundary from
   [`ADR-0009`](docs/decisions/ADR-0009-read-only-mcp-tool-lifecycle.md);
-- build MCP and direct API over the catalogue foundation already adopted by the
-  static Explorer;
-- advertise only implemented, enabled, public and read-only tools;
-- implement `catalogue.search` and `catalogue.describe` as the first end-to-end
-  runtime slice;
+- pass the inactive loopback gateway candidate through the protected pull-request
+  gate without changing the supported public product;
+- retain the checksum-verified immutable catalogue loader and deterministic,
+  transport-neutral `catalogue.search`/`catalogue.describe` application;
+- expose only health, blocked readiness and OpenAPI while policy and inline
+  evidence are unavailable;
+- advertise no tool and mount no catalogue API operation in this candidate;
 - retain policy, evidence, rate and complexity boundaries in every public contract;
   and
-- prove non-App MCP client, direct API and static-product interoperability before
-  any public service or registry entry.
+- require EVID-204 and later non-App MCP, direct API and static-product
+  interoperability evidence before any public service or registry entry.
 
 ## Completed
 
@@ -86,33 +88,60 @@ The supported target active set is exactly `catalogue.search`,
   [pull request 18](https://github.com/chris-page-gov/gis-ai-go/pull/18) at
   `80ac89d89e04751045693cecff4a3a714d121ebe`;
 - [`ADR-0009`](docs/decisions/ADR-0009-read-only-mcp-tool-lifecycle.md) defines the
-  exact read-only tool lifecycle and supported five-tool `v0.2.0` target; and
+  exact read-only tool lifecycle and supported five-tool `v0.2.0` target;
+- the first MCP-201 contract slice reached protected `main` at
+  `e5e6d4db5ac7036198cde64279e815f214f3defd`, with passing assurance and provenance
+  in [run 32338916345](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32338916345),
+  passing CodeQL in
+  [run 32338916269](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32338916269)
+  and [attestation 41792357](https://github.com/chris-page-gov/gis-ai-go/attestations/41792357);
+- that slice defines closed catalogue search, description and problem schemas,
+  query-analysis bounds and the shared catalogue core without activating a tool;
+  and
 - the existing Explorer adopts a reusable shared catalogue foundation without
   gaining any dependency on a running service.
 
 ## Next
 
-1. Implement the direct API and MCP `catalogue.search`/`catalogue.describe` slice
-   through the normal protected pull-request gate.
-2. Add policy decisions and immutable evidence receipts to the same application
-   path before treating its results as material service evidence.
-3. Activate `evidence.inspect`, `selection.resolve` and `data.query` only after
+1. Pass the locally verified inactive gateway candidate through the protected
+   pull-request gate while keeping readiness blocked and the public product unchanged.
+2. EVID-204 must add reviewed public policy decisions and canonical inline evidence
+   receipts to the shared application path.
+3. Add and verify the protocol-conformant MCP listener and direct catalogue routes,
+   then activate `catalogue.search` and `catalogue.describe` only when their full
+   policy, evidence, lifecycle and interoperability gates pass.
+4. Activate `evidence.inspect`, `selection.resolve` and `data.query` only after
    their separate evidence gates pass; keep the other seven profiles planned.
 
 ## Current blockers
 
-- No blocker is known for establishing the open `v0.2.0` foundation.
-- The lifecycle and shared catalogue foundation do not create a listener, API,
-  provider adapter or evidence store; those remain implementation work rather than
-  blockers.
+- No blocker is known for merging the deliberately inactive local gateway
+  candidate.
+- Activating or publishing a catalogue service is hard-blocked until EVID-204 adds
+  reviewed public policy and canonical inline evidence receipts. The current
+  candidate has no activation override.
+- The candidate has no MCP listener, catalogue API operation, provider adapter or
+  evidence store; those remain implementation work, not implied capabilities.
 - Protected PSGA and commercial deployments require separate rights, credentials
   and isolated infrastructure. They remain outside this release and do not block
   the open product.
 
 ## Latest evidence
 
-- QUAL-105 complete local gate: type checking, 4 gateway tests, 16 Explorer
-  build-policy tests, 42 Explorer unit and component tests, 82 repository Python
+- MCP-201 shared catalogue contract: protected-main commit
+  `e5e6d4db5ac7036198cde64279e815f214f3defd`, passing assurance and provenance in
+  [run 32338916345](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32338916345),
+  passing CodeQL in
+  [run 32338916269](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32338916269)
+  and [attestation 41792357](https://github.com/chris-page-gov/gis-ai-go/attestations/41792357);
+- MCP-201 gateway candidate: exact implementation commit
+  `442f788108106744e1e2ed7283e38c2a22aac5f1` passes the complete local gate and an
+  independent no-P0-P2 review; draft
+  [pull request 27](https://github.com/chris-page-gov/gis-ai-go/pull/27) is open with
+  protected checks pending, and the candidate exposes no catalogue operation, MCP
+  tool or public deployment;
+- current complete local gate: type checking, 38 gateway tests, 16 Explorer
+  build-policy tests, 42 Explorer unit and component tests, 88 repository Python
   tests, 2 execution-boundary tests and 27 real-browser tests pass;
 - QUAL-105 reproducibility: two complete clean locked builds produce byte-identical
   Pages archives, checksums and receipts; the public workflow now emits a mandatory

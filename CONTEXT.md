@@ -41,8 +41,8 @@ through [pull request 14](https://github.com/chris-page-gov/gis-ai-go/pull/14),
 whose accepted implementation commit is
 `a0e826384cf50d9d81b87489dbf3580e8e3602f7`. The Explorer is deployed and verified
 at <https://chris-page-gov.github.io/gis-ai-go/> from the later release commit
-recorded below. There is no MCP listener, live provider adapter, policy engine,
-identity integration or evidence store.
+recorded below. There is no public MCP listener or catalogue API, live provider
+adapter, policy engine, identity integration or evidence store.
 
 The owner has authorised autonomous implementation in the open under
 [`ADR-0004`](docs/decisions/ADR-0004-public-autonomous-delivery.md). The repository
@@ -68,12 +68,24 @@ target advertises exactly `catalogue.search`, `catalogue.describe`,
 `evidence.inspect`, `selection.resolve` and `data.query`; the other seven profiles
 remain planned, and mutating `workflow.execute` is deferred to `v0.3.0`.
 
-MCP-201 establishes this lifecycle contract and a reusable catalogue foundation
-over the existing checksum-verified bundle, adopted by the static Explorer. This
-change does not create a service transport. There is still no MCP listener, direct API, live
-provider adapter, policy engine, identity integration or evidence store. The next
-slice will implement `catalogue.search` and `catalogue.describe` through one
-MCP/direct-API application path over that shared foundation.
+The first MCP-201 slice established this lifecycle contract and a reusable catalogue
+foundation over the existing checksum-verified bundle, adopted by the static
+Explorer. It reached protected `main` at
+`e5e6d4db5ac7036198cde64279e815f214f3defd`, with passing assurance and provenance
+in [run 32338916345](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32338916345),
+passing CodeQL in
+[run 32338916269](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32338916269)
+and [attestation 41792357](https://github.com/chris-page-gov/gis-ai-go/attestations/41792357).
+
+The current branch adds an inactive local gateway candidate: a fail-closed,
+checksum-verified immutable catalogue loader and one deterministic,
+transport-neutral `catalogue.search`/`catalogue.describe` application. Its HTTP
+listener is restricted to loopback and exposes only health, deliberately blocked
+readiness and its OpenAPI contract. It exposes no search or description route,
+starts no MCP listener, registers no MCP tool and is not publicly deployed.
+Activation is hard-blocked until EVID-204 supplies reviewed public policy and
+canonical inline evidence receipts. There is still no live provider adapter,
+policy engine, identity integration or evidence store.
 
 ## Non-negotiable boundaries
 
