@@ -1,7 +1,7 @@
 # MCP-201 verification record
 
-- status: shared catalogue, inactive gateway and EVID-204A slices accepted on
-  protected `main`; MCP and direct-API transport slice remains a local candidate
+- status: shared catalogue, inactive gateway, EVID-204A and inactive transport
+  slices accepted on protected `main`; activation and publication remain blocked
 - reviewed on: 20 August 2026
 - work item: [MCP-201](https://github.com/chris-page-gov/gis-ai-go/issues/19)
 
@@ -181,19 +181,32 @@ The pull-request head and protected-main merge both resolve to tree
 code-scanning alerts at the end of that window. No job failed: GitHub created no
 check suite or workflow run for the merge.
 
-## Local MCP and direct-API transport candidate
+## Accepted MCP and direct-API transport foundation
 
 - protected-main base: `997d5fdd478797b20b05d1980be8f986645d410e`
 - candidate implementation commit:
   `fb0234b9a6a968fe68c2fbe98388f2415393c9c1`
-- pull request, remote CI, CodeQL and attestation: not yet created
+- pull-request head: `3a92c005e67ca1d239c1f4a3c0a955b19c59bd7a`
+- pull request: [31](https://github.com/chris-page-gov/gis-ai-go/pull/31)
+- pull-request assurance:
+  [passing](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32389353007)
+- pull-request provenance: skipped as designed for the pull-request event
+- pull-request CodeQL:
+  [passing](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32389350801)
+- protected-main merge: `edc26c0396ecd230570de1ab0fd402338567f67d`
+- protected-main assurance and provenance:
+  [passing](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32389721338)
+- protected-main CodeQL:
+  [passing](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32389721461)
+- protected-main provenance:
+  [attestation 41912276](https://github.com/chris-page-gov/gis-ai-go/attestations/41912276)
 - deployment, public service URL and registry entry: none
 - activation state: blocked; default MCP tool and direct-API arrays empty;
   resources default to none
 
-### Candidate outcome
+### Accepted outcome
 
-The exact local candidate commit adds direct POST search and description handlers,
+The exact implementation commit adds direct POST search and description handlers,
 an MCP 2026-07-28 HTTP route and a protocol-clean STDIO entry point. All use one
 checksum-verified catalogue snapshot, the same application, exact canonical
 request and result schemas, and the existing canonical inline evidence path.
@@ -258,7 +271,7 @@ concurrency limit returns a face-appropriate `429` response with `Retry-After: 1
 capacity is released after a completed or abandoned request. Shutdown is
 idempotent and closes MCP state before the HTTP listener.
 
-### Current verification state
+### Accepted verification state
 
 Focused development checks exercise:
 
@@ -274,7 +287,7 @@ Focused development checks exercise:
   rejection, concurrent admission and clean shutdown; and
 - built-runtime entry points and the full-checkout canonical-schema dependency.
 
-The exact frozen local candidate passes:
+The exact implementation candidate passed:
 
 - 19 of 19 shared-contract, 20 of 20 canonical-evidence, 2 of 2
   authority-context, 6 of 6 policy-client and 86 of 86 gateway tests;
@@ -294,11 +307,23 @@ The exact frozen local candidate passes:
 - two independent final reviews with no P0–P2 finding in the frozen
   post-remediation working tree. A separate completed security diff review also
   found no P0–P2 issue but retained its original snapshot warning. Post-snapshot
-  corrections were manually reviewed and dynamically tested; the candidate commit,
-  tree and attestation remain the durable identity.
+  corrections were manually reviewed and dynamically tested. The implementation
+  commit, pull-request head, protected merge, archive and attestation provide the
+  durable identities.
 
-Pull-request assurance, CodeQL and protected-main evidence remain pending. None of
-the historical accepted evidence above accepts these candidate bytes.
+The exact pull-request head passed assurance, all three CodeQL language analyses
+and the aggregate CodeQL check. Protected-main assurance and provenance then passed
+in run 32389721338, and protected-main CodeQL passed in run 32389721461 with zero
+open code-scanning alerts. The accepted Pages-source artefact is
+`pages-source-edc26c0396ecd230570de1ab0fd402338567f67d`, artefact ID `9414404528`,
+with uploaded ZIP digest
+`91e543fd4aba13b4ddaa3b445126d1fd09fe615336742bc4c507b163d658d227`.
+Independent download and archive verification passed at archive SHA-256
+`20ddcfeb54d40ed3c55784856d608d94e81e6a73f7870d03f2cf7a85e11b8fd5`
+and payload root
+`47f23253421feef5be1fd2ed20f865ed188c889d70a9a6a804d21108216122e7`.
+Strict attestation verification bound that archive to the exact repository,
+`ci.yml`, protected-main ref, merge commit and GitHub-hosted runner.
 
 Pinned SDK-client conformance is not independent major-host interoperability.
 Complete non-App result values exist, but host-specific fallback, lifecycle and
@@ -307,19 +332,19 @@ documentation.
 
 ## Activation and publication boundary
 
-No service or new public endpoint is published by any accepted or local slice. The
+No service or new public endpoint is published by any accepted slice. The
 supported public product remains the static `v0.1.0` Explorer.
 
 EVID-204A changed the activation reason to
 `transport-and-interoperability-unverified` after adding reviewed public policy
-decisions and required canonical inline result receipts. The current local slice
-implements the transport and direct route code without changing that activation
-document. Independent major-host interoperability, fallback and lifecycle evidence,
-protected pull-request and protected-main assurance, and a separate reviewed
-activation decision are still required before either operation can be advertised or
+decisions and required canonical inline result receipts. The accepted transport
+slice implements the transport and direct route code without changing that
+activation document. Independent major-host interoperability, fallback and
+lifecycle evidence, a separate reviewed activation decision, and deployment
+rollback evidence are still required before either operation can be advertised or
 published.
 
 The durable candidate boundary is documented in
-[MCP-201 blocked transport candidate](MCP-201_GATEWAY_CANDIDATE.md).
+[MCP-201 inactive transport boundary](MCP-201_GATEWAY_CANDIDATE.md).
 
 [sdk-header-defect]: https://github.com/modelcontextprotocol/typescript-sdk/issues/2589

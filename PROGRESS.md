@@ -116,25 +116,25 @@ The supported target active set is exactly `catalogue.search`,
 
 ## Next
 
-1. Push the reviewed blocked transport candidate and pass the protected
-   pull-request gate without changing its zero-activation boundary.
-2. Verify independent major-host interoperability and the complete non-App fallback
+1. Verify independent major-host interoperability and the complete non-App fallback
    and lifecycle journeys before considering activation or deployment of
    `catalogue.search` and `catalogue.describe`.
+2. Make any activation a separate reviewed change with explicit rollback and
+   publication evidence; do not reuse the constructor-only conformance seam.
 3. Add `evidence.inspect`, durable evidence handling, `selection.resolve` and
    `data.query` only after their separate evidence gates pass; keep the other seven
    profiles planned.
 
 ## Current blockers
 
-- No local implementation or review blocker remains for the blocked transport
-  slice; its exact candidate commit exists and protected pull-request evidence is
-  pending.
+- The inactive transport foundation is accepted on protected `main`; there is no
+  remaining implementation, pull-request, assurance, CodeQL or attestation blocker
+  for that zero-activation slice.
 - Activating or publishing a catalogue service remains hard-blocked. Raw protocol
   transcripts and the pinned SDK client do not establish independent major-host
   interoperability, and host-specific non-App fallback and lifecycle evidence is
   still pending.
-- Direct routes and MCP transports now exist only on the local candidate branch. The
+- Direct routes and MCP transports now exist on protected `main`, but the
   production/default capability arrays are empty, readiness is `503`, and there is
   no public service deployment or activation override.
 - The candidate has no provider adapter, provider call, evidence store or durable
@@ -145,7 +145,7 @@ The supported target active set is exactly `catalogue.search`,
 
 ## Latest evidence
 
-- MCP-201 blocked transport candidate: exact local implementation commit
+- MCP-201 blocked transport foundation: exact local implementation commit
   `fb0234b9a6a968fe68c2fbe98388f2415393c9c1`, based on protected-main commit
   `997d5fdd478797b20b05d1980be8f986645d410e`, passes the complete locked gate with
   19 contract, 20 evidence, 2 authority-context, 6 policy, 86 gateway, 16 Explorer
@@ -157,9 +157,23 @@ The supported target active set is exactly `catalogue.search`,
   15 schemas, 55 records and 3 evaluation manifests validate; 308 links, 183
   research hashes, 2 ledgers and 71 source identifiers resolve; the 516-file scan,
   9 diagrams and 163-component SBOM pass; two independent current-byte reviews and
-  the completed security diff review report no P0–P2 finding; pull request, CI,
-  CodeQL and attestation remain pending, and no deployment or independent
-  major-host evidence is claimed;
+  the completed security diff review report no P0–P2 finding;
+- MCP-201 transport acceptance: protected
+  [pull request 31](https://github.com/chris-page-gov/gis-ai-go/pull/31) at exact
+  head `3a92c005e67ca1d239c1f4a3c0a955b19c59bd7a` passed assurance in
+  [run 32389353007](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32389353007)
+  and CodeQL in
+  [run 32389350801](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32389350801),
+  then merged as `edc26c0396ecd230570de1ab0fd402338567f67d`; protected-main
+  assurance and provenance passed in
+  [run 32389721338](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32389721338),
+  CodeQL passed in
+  [run 32389721461](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32389721461),
+  and [attestation 41912276](https://github.com/chris-page-gov/gis-ai-go/attestations/41912276)
+  binds archive SHA-256
+  `20ddcfeb54d40ed3c55784856d608d94e81e6a73f7870d03f2cf7a85e11b8fd5`
+  to that exact commit and run; no deployment or independent major-host evidence
+  is claimed;
 - MCP-201 shared catalogue contract: protected-main commit
   `e5e6d4db5ac7036198cde64279e815f214f3defd`, passing assurance and provenance in
   [run 32338916345](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32338916345),

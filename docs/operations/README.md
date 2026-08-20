@@ -5,10 +5,10 @@ as historical evidence. Current authority and status are in [`CONTEXT.md`](../..
 and [`PROGRESS.md`](../../PROGRESS.md); ADR-0004 records progression beyond the local
 pause. The static Explorer is the supported
 [`v0.1.0`](https://github.com/chris-page-gov/gis-ai-go/releases/tag/v0.1.0)
-public discovery product. A blocked local gateway candidate now contains MCP
-2026-07-28 HTTP and STDIO transports plus direct catalogue route implementations,
-but its default capability lists are empty and no public MCP service or catalogue
-API is deployed.
+public discovery product. An accepted inactive gateway foundation on protected
+`main` contains MCP 2026-07-28 HTTP and STDIO transports plus direct catalogue route
+implementations. Its default capability lists are empty, activation and publication
+remain blocked, and no public MCP service or catalogue API is deployed.
 
 - [Stage 0 boundary](STAGE_0_BOUNDARY.md)
 - [Dependency baseline](DEPENDENCIES.md)
@@ -19,6 +19,6 @@ API is deployed.
 - [DISC-104 GitHub Pages verification record](DISC-104_VERIFICATION.md)
 - [QUAL-105 release-assurance verification record](QUAL-105_VERIFICATION.md)
 - [`v0.1.0` supported-release evidence](V0.1.0_RELEASE_EVIDENCE.md)
-- [MCP-201 blocked transport candidate boundary](MCP-201_GATEWAY_CANDIDATE.md)
+- [MCP-201 inactive transport boundary](MCP-201_GATEWAY_CANDIDATE.md)
 - [MCP-201 verification record](MCP-201_VERIFICATION.md)
 - [EVID-204 canonical public inline evidence](EVID-204_INLINE_EVIDENCE.md)
