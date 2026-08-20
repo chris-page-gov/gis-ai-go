@@ -1,0 +1,167 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "GIS AI GO gateway candidate",
+    "summary": "Inactive local gateway candidate over the governed public catalogue",
+    "description": "This contract exposes health, blocked readiness and itself. It mounts no catalogue operation.",
+    "version": "0.1.0"
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:8787",
+      "description": "Local candidate only"
+    }
+  ],
+  "security": [],
+  "x-gis-ai-go-lifecycle": "candidate-blocked",
+  "x-gis-ai-go-active-catalogue-operations": [],
+  "x-gis-ai-go-blocked-by": "inline-evidence-and-public-policy-unavailable",
+  "paths": {
+    "/healthz": {
+      "get": {
+        "operationId": "healthCheck",
+        "summary": "Check that the local candidate process is running",
+        "responses": {
+          "200": {
+            "description": "The process is running and the catalogue snapshot loaded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/readyz": {
+      "get": {
+        "operationId": "readinessCheck",
+        "summary": "Report the deliberate activation block",
+        "responses": {
+          "503": {
+            "description": "No catalogue operation is active",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Readiness"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/openapi.json": {
+      "get": {
+        "operationId": "openApiContract",
+        "summary": "Read this candidate contract",
+        "responses": {
+          "200": {
+            "description": "The exact local candidate OpenAPI document",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CatalogueIdentity": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "version",
+          "revision",
+          "content_root_sha256",
+          "record_count",
+          "stale",
+          "warnings"
+        ],
+        "properties": {
+          "version": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{40}$"
+          },
+          "content_root_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "record_count": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "stale": {
+            "type": "boolean"
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "Health": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "status",
+          "product",
+          "lifecycle",
+          "catalogue"
+        ],
+        "properties": {
+          "status": {
+            "const": "ok"
+          },
+          "product": {
+            "const": "GIS AI GO"
+          },
+          "lifecycle": {
+            "const": "candidate-blocked"
+          },
+          "catalogue": {
+            "$ref": "#/components/schemas/CatalogueIdentity"
+          }
+        }
+      },
+      "Readiness": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "status",
+          "reason",
+          "active_tools",
+          "active_api_operations"
+        ],
+        "properties": {
+          "status": {
+            "const": "blocked"
+          },
+          "reason": {
+            "const": "inline-evidence-and-public-policy-unavailable"
+          },
+          "active_tools": {
+            "type": "array",
+            "maxItems": 0
+          },
+          "active_api_operations": {
+            "type": "array",
+            "maxItems": 0
+          }
+        }
+      }
+    }
+  }
+}

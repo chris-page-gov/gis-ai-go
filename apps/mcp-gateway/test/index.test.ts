@@ -1,29 +1,24 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { assertStageZeroRequest, gatewayMetadata } from "../src/index.js";
+import { catalogueActivation, gatewayMetadata } from "../src/index.js";
 
-test("publishes the agreed non-networked identity", () => {
+test("publishes the agreed inactive gateway identity", () => {
   assert.equal(gatewayMetadata.product, "GIS AI GO");
   assert.equal(gatewayMetadata.registryId, "io.github.chris-page-gov/gis-ai-go");
+  assert.equal(gatewayMetadata.protocolTarget, "2026-07-28");
   assert.equal(gatewayMetadata.liveProviderCalls, false);
+  assert.equal(gatewayMetadata.lifecycle, "candidate-blocked");
 });
 
-test("rejects non-synthetic work", () => {
-  assert.throws(
-    () => assertStageZeroRequest({ synthetic: false, networkAccess: false }),
-    /synthetic requests only/,
-  );
-});
-
-test("rejects network access", () => {
-  assert.throws(
-    () => assertStageZeroRequest({ synthetic: true, networkAccess: true }),
-    /forbids network/,
-  );
-});
-
-test("accepts an offline synthetic validation request", () => {
-  const result = assertStageZeroRequest({ synthetic: true, networkAccess: false });
-  assert.equal(result.stage, 0);
+test("has no activation or environment-variable escape hatch", () => {
+  assert.deepEqual(catalogueActivation, {
+    state: "blocked",
+    reason: "inline-evidence-and-public-policy-unavailable",
+    activeTools: [],
+    activeApiOperations: [],
+  });
+  assert.equal(Object.isFrozen(catalogueActivation), true);
+  assert.deepEqual(gatewayMetadata.activeTools, []);
+  assert.deepEqual(gatewayMetadata.activeApiOperations, []);
 });
