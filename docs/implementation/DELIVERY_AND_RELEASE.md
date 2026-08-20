@@ -54,11 +54,14 @@ test as a deployed capability.
 
 ## Deployment and rollback
 
-Deploy only from a verified tag or an artefact built from that tag. Verify the exact
-deployed commit in a real browser/client, including identity, primary journeys,
-accessibility, console, security headers and rollback. GitHub Pages remains disabled
-until the hardened `v0.1.0` Explorer passes its gate; the historical research viewer
-is never the product deployment.
+Before the first tag, a public acceptance candidate may deploy only from an attested
+successful protected-`main` artefact under the DISC-104 workflow. A supported
+release deploys only the artefact built and attested from the exact verified release
+commit, after that commit carries its immutable tag. Verify the exact deployed
+commit in a real browser/client, including identity, primary
+journeys, accessibility, console, security controls and rollback. The live Pages
+Explorer remains a release candidate until the `v0.1.0` gate passes; the historical
+research viewer is never the product deployment.
 
 Prefer an ordinary revert or previous immutable artefact over history rewriting.
 Suspend a provider, tool, registry entry or protected tier independently when its
