@@ -62,7 +62,18 @@ verified in a real browser and published as the protected, immutable
 release. The [release evidence record](docs/operations/V0.1.0_RELEASE_EVIDENCE.md)
 is the durable hand-off. The active roadmap outcome is now `v0.2.0`: an open,
 read-only MCP and direct-API surface over the same governed catalogue and evidence
-model.
+model. [`ADR-0009`](docs/decisions/ADR-0009-read-only-mcp-tool-lifecycle.md)
+distinguishes the 12 governed profiles from callable tools. The supported `v0.2.0`
+target advertises exactly `catalogue.search`, `catalogue.describe`,
+`evidence.inspect`, `selection.resolve` and `data.query`; the other seven profiles
+remain planned, and mutating `workflow.execute` is deferred to `v0.3.0`.
+
+MCP-201 establishes this lifecycle contract and a reusable catalogue foundation
+over the existing checksum-verified bundle, adopted by the static Explorer. This
+change does not create a service transport. There is still no MCP listener, direct API, live
+provider adapter, policy engine, identity integration or evidence store. The next
+slice will implement `catalogue.search` and `catalogue.describe` through one
+MCP/direct-API application path over that shared foundation.
 
 ## Non-negotiable boundaries
 

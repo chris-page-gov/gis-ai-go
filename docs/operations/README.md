@@ -16,3 +16,4 @@ public discovery product. No MCP service exists.
 - [DISC-104 GitHub Pages verification record](DISC-104_VERIFICATION.md)
 - [QUAL-105 release-assurance verification record](QUAL-105_VERIFICATION.md)
 - [`v0.1.0` supported-release evidence](V0.1.0_RELEASE_EVIDENCE.md)
+- [MCP-201 shared catalogue contract verification record](MCP-201_VERIFICATION.md)

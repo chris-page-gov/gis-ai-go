@@ -36,15 +36,22 @@ Deliver:
 - protocol-conformant TypeScript gateway and typed Python execution boundary;
 - deterministic fixture and open-data provider adapters;
 - policy-aware catalogue discovery and immutable evidence receipts;
-- complete non-App results and map/artefact fallbacks;
-- the researched 12-tool surface:
+- complete non-App results for every advertised tool;
+- lifecycle profiles for the researched 12-tool surface:
   `catalogue.search`, `catalogue.describe`, `selection.resolve`, `data.query`,
   `spatial.locate`, `spatial.analyse`, `statistics.compare`, `route.plan`,
-  `map.render`, `artefact.export`, `evidence.inspect`, `workflow.execute`.
+  `map.render`, `artefact.export`, `evidence.inspect`, `workflow.execute`;
+- an exact supported active set of `catalogue.search`, `catalogue.describe`,
+  `evidence.inspect`, `selection.resolve` and `data.query`; and
+- planned status for the other seven profiles, with map and artefact fallbacks
+  required before their corresponding tools can become active.
 
 Gate: protocol conformance, malicious-input tests, deterministic provider fixtures,
-host interoperability, reproducibility, rate/complexity limits and deployment
-rollback. Public registration follows only when the deployed candidate passes.
+host interoperability, reproducibility, rate/complexity limits, exact lifecycle
+agreement across MCP and direct API, no advertised unimplemented tool, and
+deployment rollback. Public registration follows only when the deployed candidate
+passes. [`ADR-0009`](../decisions/ADR-0009-read-only-mcp-tool-lifecycle.md) defines
+the activation boundary; mutating `workflow.execute` is deferred to `v0.3.0`.
 
 ## `v0.3.0` — governed open platform
 

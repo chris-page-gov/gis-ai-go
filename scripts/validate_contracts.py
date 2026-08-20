@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate Stage 0 schemas, promoted fixtures and research-record projections."""
+"""Validate repository schemas, promoted fixtures and research projections."""
 
 from __future__ import annotations
 
@@ -48,6 +48,21 @@ def validate_records(
     return len(records)
 
 
+def validate_schema_catalogue() -> int:
+    schema_paths = sorted((ROOT / "schemas").glob("*.schema.json"))
+    if not schema_paths:
+        raise AssertionError("No repository contract schemas were found")
+    for schema_path in schema_paths:
+        schema = load_json(schema_path)
+        Draft202012Validator.check_schema(schema)
+        schema_id = schema.get("$id", "")
+        if not schema_id.startswith("urn:gis-ai-go:schema:"):
+            raise AssertionError(
+                f"{schema_path.name} has an unexpected $id: {schema_id}"
+            )
+    return len(schema_paths)
+
+
 def assert_unique_ids(path: Path, key: str, expected_count: int) -> None:
     document = load_json(path)
     records = document[key]
@@ -59,6 +74,7 @@ def assert_unique_ids(path: Path, key: str, expected_count: int) -> None:
 
 
 def main() -> None:
+    schema_count = validate_schema_catalogue()
     fixture_dir = ROOT / "providers" / "fixtures"
     mappings: list[tuple[str, list[tuple[str, Any]]]] = [
         (
@@ -133,7 +149,7 @@ def main() -> None:
     assert_unique_ids(ROOT / "evaluation" / "stage-0-tests.json", "cases", 6)
 
     print(
-        f"Validated 8 schemas and {record_count} records; checked expected counts and "
+        f"Validated {schema_count} schemas and {record_count} records; checked expected counts and "
         "unique identifiers in 3 evaluation manifests."
     )
 

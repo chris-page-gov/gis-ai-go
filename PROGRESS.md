@@ -6,14 +6,20 @@ Last updated: 20 August 2026
 
 Deliver `v0.2.0`: expose the supported governed catalogue and evidence model through
 an open, read-only MCP and direct API without weakening the static `v0.1.0` product.
+The supported target active set is exactly `catalogue.search`,
+`catalogue.describe`, `evidence.inspect`, `selection.resolve` and `data.query`.
 
 ## Active workstream
 
-`v0.2.0 — Establish the open read-only MCP foundation`
+`MCP-201 — Implement the first catalogue transport slice`
 
-- provision the milestone and issue-backed delivery slices;
-- implement a protocol-conformant, fail-closed catalogue gateway over canonical
-  records and deterministic fixtures;
+- use the accepted lifecycle boundary from
+  [`ADR-0009`](docs/decisions/ADR-0009-read-only-mcp-tool-lifecycle.md);
+- build MCP and direct API over the catalogue foundation already adopted by the
+  static Explorer;
+- advertise only implemented, enabled, public and read-only tools;
+- implement `catalogue.search` and `catalogue.describe` as the first end-to-end
+  runtime slice;
 - retain policy, evidence, rate and complexity boundaries in every public contract;
   and
 - prove non-App MCP client, direct API and static-product interoperability before
@@ -75,19 +81,30 @@ an open, read-only MCP and direct API without weakening the static `v0.1.0` prod
   deployment `5995702325`, and passed all four public-browser acceptance tests; and
 - [`v0.1.0`](https://github.com/chris-page-gov/gis-ai-go/releases/tag/v0.1.0)
   is published as the immutable latest release with nine checksummed evidence
-  assets.
+  assets; and
+- the supported-release hand-off reached protected `main` through
+  [pull request 18](https://github.com/chris-page-gov/gis-ai-go/pull/18) at
+  `80ac89d89e04751045693cecff4a3a714d121ebe`;
+- [`ADR-0009`](docs/decisions/ADR-0009-read-only-mcp-tool-lifecycle.md) defines the
+  exact read-only tool lifecycle and supported five-tool `v0.2.0` target; and
+- the existing Explorer adopts a reusable shared catalogue foundation without
+  gaining any dependency on a running service.
 
 ## Next
 
-1. Close the completed `v0.1.0` milestone after this evidence reaches protected
-   `main`.
-2. Provision the `v0.2.0` milestone and bounded MCP delivery issues.
-3. Implement the first protocol and catalogue slice through the normal protected
-   pull-request gate.
+1. Implement the direct API and MCP `catalogue.search`/`catalogue.describe` slice
+   through the normal protected pull-request gate.
+2. Add policy decisions and immutable evidence receipts to the same application
+   path before treating its results as material service evidence.
+3. Activate `evidence.inspect`, `selection.resolve` and `data.query` only after
+   their separate evidence gates pass; keep the other seven profiles planned.
 
 ## Current blockers
 
 - No blocker is known for establishing the open `v0.2.0` foundation.
+- The lifecycle and shared catalogue foundation do not create a listener, API,
+  provider adapter or evidence store; those remain implementation work rather than
+  blockers.
 - Protected PSGA and commercial deployments require separate rights, credentials
   and isolated infrastructure. They remain outside this release and do not block
   the open product.
