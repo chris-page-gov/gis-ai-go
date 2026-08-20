@@ -25,7 +25,7 @@ Start every implementation task by reading, in order:
   and AI agents;
 - repository: `chris-page-gov/gis-ai-go`;
 - licence: MIT, copyright © 2026 Chris Page;
-- current release target: `v0.1.0`.
+- release being assembled: `v0.1.0`.
 
 “Locus Accord” is a superseded codename preserved only in historical research.
 `chris-page-gov/mcp-geo` is read-only evidence at commit
@@ -50,8 +50,11 @@ and branch protection govern development on `main`. `DISC-104` retained two
 immutable, attested protected-main source artefacts, deployed both through GitHub's
 pinned official Pages transport, rolled back to the earlier artefact and restored
 the current one without rebuilding either product. All four public-browser
-acceptance suites passed. The active workstream is `QUAL-105`: complete integrity,
-security, browser and WCAG release assurance before assembling `v0.1.0`.
+acceptance suites passed. QUAL-105 then merged through
+[pull request 16](https://github.com/chris-page-gov/gis-ai-go/pull/16) at
+`24925fc7f77b416d557c719942c86eaa3578b4b1`, completing implementation release
+assurance without redeploying the `0.0.0` candidate. The active workstream is now
+assembling, tagging, deploying and verifying `v0.1.0`.
 
 ## Non-negotiable boundaries
 
