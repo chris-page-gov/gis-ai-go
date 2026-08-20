@@ -1,7 +1,14 @@
 import { describe, expect, it } from "vitest";
 
 import { renderCardsView, renderRecordCard } from "../../src/views/cards";
-import { focusedRecord, navigation, sources } from "./fixtures";
+import {
+  focusedRecord,
+  landisProviderRecord,
+  navigation,
+  onsProviderRecord,
+  sources,
+  workedQuestionRecord,
+} from "./fixtures";
 
 describe("catalogue cards", () => {
   it("renders untrusted catalogue text without creating markup", () => {
@@ -59,5 +66,51 @@ describe("catalogue cards", () => {
     expect(labels).toContain("Official download page");
     expect(labels).toContain("Official technical guidance");
     expect(labels).not.toContain("HM Land Registry open publications");
+    expect(
+      [...rendered.querySelectorAll("a")].some(
+        (anchor) =>
+          anchor.textContent === "Open publisher evidence for Official dataset page" &&
+          anchor.href.includes("source%3Adataset"),
+      ),
+    ).toBe(true);
+  });
+
+  it("shows reviewed worked-question findings as governed, non-executing detail", () => {
+    const rendered = renderCardsView(
+      [workedQuestionRecord],
+      [workedQuestionRecord, ...sources],
+      workedQuestionRecord,
+      navigation,
+    );
+
+    expect(rendered.textContent).toContain("Worked question");
+    expect(rendered.textContent).toContain("LR-Q003");
+    expect(rendered.textContent).toContain("online copy or official copy proof of ownership");
+    expect(rendered.textContent).toContain("An online copy is not proof of ownership.");
+    expect(rendered.textContent).toContain("Planned Non Executing");
+  });
+
+  it("shows bounded ONS capabilities and mixed, per-record LandIS conditions", () => {
+    const ons = renderCardsView(
+      [onsProviderRecord],
+      [onsProviderRecord, ...sources],
+      onsProviderRecord,
+      navigation,
+    );
+    expect(ons.textContent).toContain("datasets");
+    expect(ons.textContent).toContain("observations");
+    expect(ons.textContent).toContain("REST API");
+    expect(ons.textContent).toContain("No provider connection is made");
+
+    const landis = renderCardsView(
+      [landisProviderRecord],
+      [landisProviderRecord, ...sources],
+      landisProviderRecord,
+      navigation,
+    );
+    expect(landis.textContent).toContain("Commercial or restricted where record terms require");
+    expect(landis.textContent).toContain("Read and enforce each record licence");
+    expect(landis.textContent).toContain("No live provider call");
+    expect(landis.textContent).toContain("do not execute here");
   });
 });

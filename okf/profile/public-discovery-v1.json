@@ -28,16 +28,25 @@
   "forbidden_payload_keys": [
     "address",
     "apiKey",
+    "certificate",
     "coordinates",
+    "cookie",
     "credential",
+    "feature",
     "features",
     "geometry",
+    "logo",
     "ownerName",
+    "ownership",
     "password",
     "personalData",
     "propertyAddress",
+    "serviceResponse",
+    "signedUrl",
+    "titleNumber",
     "token",
-    "transactionRow"
+    "transactionRow",
+    "uprn"
   ],
   "url_policy": {
     "allowed": [

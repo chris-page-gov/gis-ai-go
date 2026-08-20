@@ -8,12 +8,22 @@
   "compatibility_profile": "https://chris-page-gov.github.io/okf-explorer/profile/bundle-wiki/v1/",
   "status": "candidate",
   "observed_at": "2026-07-29T07:53:38Z",
-  "reviewed_at": "2026-08-19T00:00:00Z",
-  "stale_after": "2026-11-19T00:00:00Z",
+  "reviewed_at": "2026-08-20T00:00:00Z",
+  "stale_after": "2026-11-20T00:00:00Z",
+  "expected_record_count": 36,
   "selected": {
     "research_provider_ids": [
-      "PV-HMLR-OPEN"
+      "PV-HMLR-OPEN",
+      "PV-LANDIS",
+      "PV-ONS-DATA",
+      "PV-ONS-GEO"
     ],
+    "research_provider_sha256_by_id": {
+      "PV-HMLR-OPEN": "2c9b1712ad8995bd4e6bd37699bad6fc233462cf874f7fdba14e5e0bfb23f824",
+      "PV-LANDIS": "a735efba3e6d58d533f17d438e053246f7902705881186de542f5d26043e2c2a",
+      "PV-ONS-DATA": "535e6eb65fc9af4507e30700d425393a658a085a3a240689f4b37124dc8f8622",
+      "PV-ONS-GEO": "75f4313b278f360c0e60a8095ffdedca16aaabc7ce7ec91448ba1a1659203c1c"
+    },
     "research_workflow_ids": [
       "WF01"
     ],
@@ -21,7 +31,17 @@
       "hmlr:dataset:inspire-index-polygons",
       "hmlr:dataset:local-land-charges-inspire",
       "hmlr:dataset:price-paid-data"
-    ]
+    ],
+    "hmlr_question_ids": [
+      "LR-Q003",
+      "LR-Q006",
+      "LR-Q012"
+    ],
+    "hmlr_question_sha256_by_id": {
+      "LR-Q003": "1ceea667a350027240418de79439ecbe83f77a7243290b7970e3847a19f84547",
+      "LR-Q006": "3d4980bd7f63ff5c65bd519584a42c85adab907bad17d216345467d07c507ab0",
+      "LR-Q012": "84269ab3c74e31517e7fb9a2c3eb7fba71b9e9757418be5674cfe778b88d452c"
+    }
   },
   "attribution_by_record": {
     "hmlr:dataset:inspire-index-polygons": "HM Land Registry and Ordnance Survey attribution is required by the source terms. This bundle contains metadata only.",
@@ -29,8 +49,10 @@
     "hmlr:dataset:price-paid-data": "HM Land Registry attribution is required. Address fields in the source data have additional Ordnance Survey and Royal Mail conditions; this bundle contains no address or transaction rows."
   },
   "limitations": [
-    "This candidate contains metadata only and does not include provider distributions, property records, addresses, transactions or geometry.",
-    "It does not implement an Explorer, MCP listener, provider call, policy decision or legal determination.",
+    "This candidate contains metadata only and does not include provider distributions, property records, addresses, transaction rows or geometry.",
+    "The HMLR question journeys are non-executing discovery aids. They do not authenticate to, order from or automate a paid, portal, Business Gateway or terms-restricted service.",
+    "ONS Open Government Licence coverage and LandIS access and rights remain product- or record-specific; a public catalogue page is not a blanket reuse grant.",
+    "It does not implement an MCP listener, provider call, policy decision or legal determination.",
     "Source URLs, release dates, fees and terms must be revalidated before the first supported release.",
     "The HMLR source release records no independent human legal, licence, privacy, security or accessibility audit."
   ]

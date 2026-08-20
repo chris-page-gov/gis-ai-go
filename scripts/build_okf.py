@@ -9,16 +9,51 @@ import json
 import re
 import shutil
 import subprocess
+from collections.abc import Iterable
 from pathlib import Path, PurePosixPath
-from typing import Any, Iterable
+from typing import Any
 from urllib.parse import urlparse
 
 from jsonschema import Draft202012Validator, FormatChecker
 
-BUILDER_VERSION = "1.0.0"
+BUILDER_VERSION = "1.1.1"
 GENERATED_MARKER = "gis-ai-go-okf-builder.v1\n"
 PUBLIC_BASE = "https://chris-page-gov.github.io/gis-ai-go/"
 HMLR_VENDOR = Path("okf/vendor/okf-landregistry/v0.3.0")
+HMLR_QUESTIONS = HMLR_VENDOR / "evaluation/questions.json"
+HMLR_RELEASE_SOURCE_ID = "S-OKF-HMLR-V0.3.0"
+HMLR_QUESTIONS_SHA256 = (
+    "c4423c70ed4207061d8cfea7d0956b87ddbc9e487fe3a512bc30ba2fbdba8fc0"
+)
+HMLR_APPROVED_INPUT_SHA256 = {
+    HMLR_VENDOR / "LICENSE.md": (
+        "cddac196d90d8b0d418c9af6d88ba9a3e169f720fb17e438886b74603fdcdf8c"
+    ),
+    HMLR_VENDOR / "evaluation/questions.json": HMLR_QUESTIONS_SHA256,
+    HMLR_VENDOR / "source/curated-records.json": (
+        "4e585751d2747281068f8f389ebdb791e3364c09c4dbb57347db810c39e83b4a"
+    ),
+    HMLR_VENDOR / "source/curated-rights-access.json": (
+        "a5c6dbfd97c3f5bbf462bb10cb1e3425b144a68f4c5fb462b55782936ad17136"
+    ),
+}
+HMLR_RELEASE_EXPECTED = {
+    "repository": "https://github.com/chris-page-gov/okf-LandRegistry",
+    "retrieved_on": "2026-08-19",
+    "tag": "v0.3.0",
+    "tagged_at": "2026-08-12T01:43:30+01:00",
+    "annotated_tag_object": "d4159f1076c090dd69260a08308f4162859e4165",
+    "commit": "1d708e39f2cde19610d43c5a7f5e36e4a2f947bc",
+    "tree": "aa60922cc25f73980d6480c1a7ffc85fb1fc59dd",
+    "approved_candidate": "751b6c1e80fbbad3c07f19798c74aebd603eb62c",
+    "release_root_sha256": "6a29e38e7bb805aafb7f36ba8d1fa4ce976875f45997049cd4808d6ede7f75e1",
+    "evaluation_questions_sha256": HMLR_QUESTIONS_SHA256,
+}
+HMLR_SUPERSEDED_EXPECTED = {
+    "recorded_commit_prefix": "4580c9e",
+    "status": "not-resolvable-in-local-clone-or-refs",
+    "decision": "Use the approved immutable v0.3.0 release identity above.",
+}
 MAX_INPUT_FILE_BYTES = 16 * 1024 * 1024
 MAX_INPUT_BYTES = 64 * 1024 * 1024
 MAX_RECORDS = 10_000
@@ -30,16 +65,21 @@ def load_json(path: Path) -> Any:
 
 
 def canonical_json_bytes(value: Any) -> bytes:
-    return (json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True) + "\n").encode()
+    return (
+        json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
+    ).encode()
 
 
 def canonical_record_sha256(value: Any) -> str:
-    payload = json.dumps(
-        value,
-        ensure_ascii=False,
-        separators=(",", ":"),
-        sort_keys=True,
-    ).encode() + b"\n"
+    payload = (
+        json.dumps(
+            value,
+            ensure_ascii=False,
+            separators=(",", ":"),
+            sort_keys=True,
+        ).encode()
+        + b"\n"
+    )
     return hashlib.sha256(payload).hexdigest()
 
 
@@ -49,6 +89,18 @@ def sha256_bytes(value: bytes) -> str:
 
 def sha256_file(path: Path) -> str:
     return sha256_bytes(path.read_bytes())
+
+
+def verify_approved_hmlr_inputs(root: Path) -> None:
+    """Bind every published upstream HMLR input to the approved v0.3.0 tag."""
+    for relative, expected in HMLR_APPROVED_INPUT_SHA256.items():
+        path = locked_path(root, relative.as_posix())
+        actual = sha256_file(path)
+        if actual != expected:
+            raise ValueError(
+                "HMLR approved v0.3.0 input hash mismatch for "
+                f"{relative}: expected {expected}, found {actual}"
+            )
 
 
 def normalise_datetime(value: str) -> str:
@@ -85,7 +137,9 @@ def verify_source_lock(root: Path, source_lock: dict[str, Any]) -> list[dict[str
     if not all(isinstance(path, str) for path in paths):
         raise ValueError("source lock paths must be strings")
     if paths != sorted(paths) or len(paths) != len(set(paths)):
-        raise ValueError("source lock paths must be unique and lexicographically sorted")
+        raise ValueError(
+            "source lock paths must be unique and lexicographically sorted"
+        )
 
     verified: list[dict[str, Any]] = []
     total_bytes = 0
@@ -129,7 +183,9 @@ def verify_source_lock(root: Path, source_lock: dict[str, Any]) -> list[dict[str
         actual_paths: set[str] = set()
         for path in input_root.rglob("*"):
             if path.is_symlink():
-                raise ValueError(f"controlled inputs must not contain symbolic links: {path}")
+                raise ValueError(
+                    f"controlled inputs must not contain symbolic links: {path}"
+                )
             if path.is_file():
                 actual_paths.add(path.relative_to(root).as_posix())
         locked_paths = {
@@ -195,7 +251,9 @@ def research_source_record(
 ) -> dict[str, Any]:
     url = source["url"]
     validate_url(url)
-    notes = source.get("notes") or "Citation metadata only; consult the source for scope."
+    notes = (
+        source.get("notes") or "Citation metadata only; consult the source for scope."
+    )
     return {
         "schema": "gis-ai-go-okf-concept.v1",
         "id": source["id"],
@@ -244,9 +302,34 @@ def research_source_record(
 
 
 def provider_record(
-    provider: dict[str, Any], publication: dict[str, Any]
+    provider: dict[str, Any], publication: dict[str, Any], snapshot_generated_at: str
 ) -> dict[str, Any]:
     source_refs = sorted(provider["source_ids"])
+    access_tiers = provider["access_tier"]
+    if not isinstance(access_tiers, list) or not access_tiers:
+        raise ValueError(f"provider {provider['id']} has no described access tiers")
+    mixed_access = len(access_tiers) > 1 or any(
+        "restricted" in tier.lower() or "commercial" in tier.lower()
+        for tier in access_tiers
+    )
+    licence = provider["licence"]
+    if mixed_access and not all(
+        phrase in licence.lower() for phrase in ("each record", "blanket licence")
+    ):
+        raise ValueError(
+            f"mixed-access provider {provider['id']} lacks per-record rights wording"
+        )
+
+    identifier_parts = provider["id"].lower().split("-")
+    family = identifier_parts[1] if len(identifier_parts) > 1 else "external"
+    tags = {"metadata-only", "provider", family}
+    tags.add("mixed-access" if mixed_access else "open")
+    if "geo" in identifier_parts:
+        tags.add("geography")
+    if "data" in identifier_parts:
+        tags.add("statistics")
+    if family == "landis":
+        tags.add("soil")
     return {
         "schema": "gis-ai-go-okf-concept.v1",
         "id": provider["id"],
@@ -267,18 +350,25 @@ def provider_record(
         "rights": {
             "state": "metadata-citation",
             "recordLicence": "MIT",
-            "describedResourceLicence": provider["licence"],
+            "describedResourceLicence": licence,
             "attribution": provider["attribution"],
         },
-        "freshness": freshness(publication, publication["reviewed_at"]),
+        "freshness": freshness(publication, snapshot_generated_at),
         "status": "candidate-metadata",
         "sourceRefs": source_refs,
         "limitations": [
             provider["known_changes"],
             provider["quality_limitations"],
+            provider["caching_redistribution"],
+            (
+                "The described provider has mixed, per-record access and rights; this "
+                "public metadata record is not a blanket open-data statement."
+                if mixed_access
+                else "Open access and reuse remain source- and product-specific."
+            ),
             "No live provider call, data distribution or service response is included.",
         ],
-        "tags": ["hmlr", "open", "provider"],
+        "tags": sorted(tags),
         "details": {
             "geographicScope": provider["geographic_scope"],
             "datasetsServices": provider["datasets_services"],
@@ -286,7 +376,15 @@ def provider_record(
             "updateFrequency": provider["update_frequency"],
             "mechanisms": provider["mechanisms"],
             "formats": provider["formats"],
+            "accessTiers": access_tiers,
+            "describedAccess": "mixed-per-record"
+            if mixed_access
+            else "open-source-specific",
+            "authentication": provider["authentication"],
             "cost": provider["cost"],
+            "cachingRedistribution": provider["caching_redistribution"],
+            "metadataSnapshotGeneratedAt": snapshot_generated_at,
+            "sourceRecordSha256": canonical_record_sha256(provider),
             "recommendedIntegration": provider["recommended_integration"],
         },
     }
@@ -336,6 +434,239 @@ def workflow_record(
     }
 
 
+def hmlr_release_source_record(
+    source_lock: dict[str, Any], publication: dict[str, Any]
+) -> dict[str, Any]:
+    release = source_lock.get("external_release")
+    if release != HMLR_RELEASE_EXPECTED:
+        raise ValueError(
+            "HMLR external release identity differs from the approved v0.3.0 pin"
+        )
+    release_url = f"{release['repository']}/releases/tag/{release['tag']}"
+    validate_url(release_url)
+    unresolved = source_lock.get("supersedes_unresolved_research_reference")
+    if unresolved != HMLR_SUPERSEDED_EXPECTED:
+        raise ValueError("HMLR superseded research reference is missing or has changed")
+    return {
+        "schema": "gis-ai-go-okf-concept.v1",
+        "id": HMLR_RELEASE_SOURCE_ID,
+        "type": "source",
+        "title": "Digest-locked okf-LandRegistry v0.3.0 release",
+        "description": (
+            "GIS AI GO provenance for the approved immutable HMLR public-estate "
+            "metadata release used by the selected datasets and discovery journeys."
+        ),
+        "authority": {
+            "class": "derived",
+            "statement": (
+                "GIS AI GO records the exact upstream release identity; HM Land "
+                "Registry and the cited official sources remain authoritative for "
+                "current services, records and terms."
+            ),
+            "source": release_url,
+        },
+        "publication": publication_envelope(),
+        "access": {
+            "tier": "open",
+            "state": "public-metadata",
+            "authentication": "None for the cited public release metadata.",
+        },
+        "rights": {
+            "state": "metadata-citation",
+            "recordLicence": (
+                "CC BY 4.0 for upstream metadata; GIS AI GO provenance additions are MIT."
+            ),
+            "describedResourceLicence": (
+                "Per record; consult the upstream rights evidence and each official source."
+            ),
+            "attribution": "HM Land Registry public-estate OKF Bundle contributors, v0.3.0.",
+        },
+        "freshness": freshness(publication, release["tagged_at"]),
+        "status": "external-source",
+        "sourceRefs": [HMLR_RELEASE_SOURCE_ID],
+        "limitations": [
+            "This release identity is provenance evidence, not proof of current service terms.",
+            (
+                "It supersedes the unresolved research-ledger commit prefix 4580c9e "
+                "without erasing that recorded discrepancy."
+            ),
+            "The release does not imply HM Land Registry endorsement of GIS AI GO.",
+        ],
+        "tags": ["hmlr", "okf", "release-provenance", "source"],
+        "details": {
+            "repository": release["repository"],
+            "releaseUrl": release_url,
+            "releaseTag": release["tag"],
+            "releaseTaggedAt": release["tagged_at"],
+            "retrievedOn": release["retrieved_on"],
+            "annotatedTagObject": release["annotated_tag_object"],
+            "commit": release["commit"],
+            "tree": release["tree"],
+            "approvedCandidate": release["approved_candidate"],
+            "releaseRootSha256": release["release_root_sha256"],
+            "evaluationQuestionsSha256": release["evaluation_questions_sha256"],
+            "supersededResearchCommitPrefix": unresolved["recorded_commit_prefix"],
+            "supersededResearchReferenceStatus": unresolved["status"],
+            "supersededResearchDecision": unresolved["decision"],
+        },
+    }
+
+
+def hmlr_question_record(
+    question: dict[str, Any],
+    source_refs: list[str],
+    caveat_text_by_id: dict[str, str],
+    known_hard_failure_ids: set[str],
+    research_cutoff: str,
+    expected_sha256: str,
+    publication: dict[str, Any],
+) -> dict[str, Any]:
+    actual_sha256 = canonical_record_sha256(question)
+    if actual_sha256 != expected_sha256:
+        raise ValueError(f"selected HMLR question digest mismatch: {question['id']}")
+
+    required_caveat_ids = question.get("required_caveat_ids")
+    if not isinstance(required_caveat_ids, list) or not required_caveat_ids:
+        raise ValueError(
+            f"selected HMLR question lacks mandatory caveats: {question['id']}"
+        )
+    missing_caveats = sorted(set(required_caveat_ids) - set(caveat_text_by_id))
+    if missing_caveats:
+        raise ValueError(
+            f"selected HMLR question has unknown mandatory caveats: "
+            f"{question['id']} {missing_caveats}"
+        )
+    hard_failure_ids = question.get("hard_failure_ids")
+    if not isinstance(hard_failure_ids, list) or not hard_failure_ids:
+        raise ValueError(
+            f"selected HMLR question lacks hard-failure controls: {question['id']}"
+        )
+    missing_hard_failures = sorted(set(hard_failure_ids) - known_hard_failure_ids)
+    if missing_hard_failures:
+        raise ValueError(
+            f"selected HMLR question has unknown hard failures: "
+            f"{question['id']} {missing_hard_failures}"
+        )
+
+    positive_sources = question.get("expected_sources")
+    if not isinstance(positive_sources, list) or not positive_sources:
+        raise ValueError(
+            f"selected HMLR question lacks positive sources: {question['id']}"
+        )
+    positive_urls = []
+    expected_source_ids = []
+    for source in positive_sources:
+        if not isinstance(source, dict):
+            raise TypeError(
+                f"selected HMLR question has an invalid source: {question['id']}"
+            )
+        url = source.get("canonical_url")
+        source_id = source.get("source_id")
+        if not isinstance(url, str) or not isinstance(source_id, str):
+            raise TypeError(
+                f"selected HMLR question has an invalid source: {question['id']}"
+            )
+        validate_url(url)
+        positive_urls.append(url)
+        expected_source_ids.append(source_id)
+    if len(positive_urls) != len(set(positive_urls)):
+        raise ValueError(
+            f"selected HMLR question has duplicate sources: {question['id']}"
+        )
+    if question.get("runtime_expected_source_url") not in positive_urls:
+        raise ValueError(
+            f"selected HMLR question runtime source is outside its positive sources: "
+            f"{question['id']}"
+        )
+
+    forbidden_targets = []
+    forbidden_urls = set()
+    for target in question.get("must_not_retrieve", []):
+        if not isinstance(target, dict):
+            raise TypeError("selected HMLR question has an invalid forbidden target")
+        target_id = target.get("target_id")
+        reason = target.get("reason")
+        url = target.get("canonical_url")
+        if not all(
+            isinstance(value, str) and value for value in (target_id, reason, url)
+        ):
+            raise TypeError("selected HMLR question has an invalid forbidden target")
+        validate_url(url)
+        if url in positive_urls:
+            raise ValueError(
+                f"selected HMLR question target is both required and forbidden: "
+                f"{question['id']}"
+            )
+        forbidden_targets.append({"id": target_id, "reason": reason})
+        forbidden_urls.add(url)
+    if not forbidden_targets or len(forbidden_urls) != len(forbidden_targets):
+        raise ValueError(
+            f"selected HMLR question requires unique forbidden targets: {question['id']}"
+        )
+
+    limitations = [caveat_text_by_id[identifier] for identifier in required_caveat_ids]
+    limitations.append(
+        "Non-executing discovery journey only; no provider request, order or authentication occurs."
+    )
+    title_query = question["query"]
+    return {
+        "schema": "gis-ai-go-okf-concept.v1",
+        "id": question["id"],
+        "type": "workflow",
+        "title": f"{question['id']} — {title_query[0].upper()}{title_query[1:]}",
+        "description": question["intent"],
+        "authority": {
+            "class": "derived",
+            "statement": (
+                "Digest-bound projection of an upstream v0.3.0 calibration input; "
+                "the cited canonical official sources control authoritative claims."
+            ),
+            "source": HMLR_RELEASE_SOURCE_ID,
+        },
+        "publication": publication_envelope(),
+        "access": {
+            "tier": "open",
+            "state": "planned-non-executing",
+            "authentication": (
+                "Not applicable: this record does not call, order from or authenticate "
+                "to any provider service."
+            ),
+        },
+        "rights": {
+            "state": "metadata-citation",
+            "recordLicence": (
+                "CC BY 4.0 for upstream metadata; GIS AI GO projection additions are MIT."
+            ),
+            "describedResourceLicence": (
+                "Not applicable; cited guidance and services retain their own terms."
+            ),
+            "attribution": "HM Land Registry public-estate OKF Bundle contributors, v0.3.0.",
+        },
+        "freshness": freshness(publication, research_cutoff),
+        "status": "candidate-non-executing",
+        "sourceRefs": sorted(set(source_refs) | {HMLR_RELEASE_SOURCE_ID}),
+        "limitations": limitations,
+        "tags": sorted(set(question["tags"]) | {"hmlr", "metadata-only", "workflow"}),
+        "details": {
+            "questionId": question["id"],
+            "query": question["query"],
+            "intent": question["intent"],
+            "questionType": question["question_type"],
+            "suitePartition": question["suite_partition"],
+            "expectedTerms": question["expected_terms"],
+            "expectedMinResults": question["expected_min_results"],
+            "expectedSourceIds": expected_source_ids,
+            "expectedPropositions": question["expected_propositions"],
+            "nearMissRule": question["near_miss_rule"],
+            "hardFailureIds": hard_failure_ids,
+            "requiredCaveatIds": required_caveat_ids,
+            "forbiddenTargets": forbidden_targets,
+            "questionResearchCutoff": research_cutoff,
+            "sourceRecordSha256": actual_sha256,
+        },
+    }
+
+
 def source_record_id(url: str) -> str:
     return f"hmlr-source:{sha256_bytes(url.encode())[:16]}"
 
@@ -354,7 +685,10 @@ def hmlr_source_record(
         "id": source_id,
         "type": "source",
         "title": f"Official HMLR source: {label}",
-        "description": "Public evidence page cited by the selected upstream metadata record.",
+        "description": (
+            "Public evidence page cited by a selected upstream metadata record or "
+            "non-executing discovery journey."
+        ),
         "authority": {
             "class": "source-authoritative",
             "statement": (
@@ -381,8 +715,10 @@ def hmlr_source_record(
         "status": "external-source",
         "sourceRefs": [source_id],
         "limitations": [
-            "A public evidence page does not imply that linked data, services or "
-            "attachments are open."
+            (
+                "A public evidence page does not imply that linked data, services or "
+                "attachments are open."
+            )
         ],
         "tags": ["hmlr", "official-source", "source"],
         "details": {
@@ -398,20 +734,29 @@ def hmlr_dataset_record(
     source_refs: list[str],
     publication: dict[str, Any],
 ) -> dict[str, Any]:
-    if rights["access_state"] != "public" or rights["rights_state"] != "open-with-conditions":
-        raise ValueError(f"selected HMLR record does not have publishable rights: {record['id']}")
+    if (
+        rights["access_state"] != "public"
+        or rights["rights_state"] != "open-with-conditions"
+    ):
+        raise ValueError(
+            f"selected HMLR record does not have publishable rights: {record['id']}"
+        )
     actual = canonical_record_sha256(record)
     if actual != rights["curated_record_sha256"]:
         raise ValueError(f"selected HMLR record digest mismatch: {record['id']}")
     attribution = publication["attribution_by_record"].get(record["id"])
     if not attribution:
-        raise ValueError(f"selected HMLR record lacks explicit attribution: {record['id']}")
+        raise ValueError(
+            f"selected HMLR record lacks explicit attribution: {record['id']}"
+        )
     if "inspire" in record["id"].lower():
         caveats = " ".join(record["caveats"]).lower()
         if "indicative" not in caveats or not any(
             term in caveats for term in ("legal", "definitive")
         ):
-            raise ValueError(f"selected INSPIRE record lacks a non-legal caveat: {record['id']}")
+            raise ValueError(
+                f"selected INSPIRE record lacks a non-legal caveat: {record['id']}"
+            )
 
     return {
         "schema": "gis-ai-go-okf-concept.v1",
@@ -444,7 +789,9 @@ def hmlr_dataset_record(
         "sourceRefs": sorted(source_refs),
         "limitations": sorted(
             set(record["caveats"])
-            | {"Metadata only; no provider distribution or feature payload is included."}
+            | {
+                "Metadata only; no provider distribution or feature payload is included."
+            }
         ),
         "tags": sorted(set(record["topics"]) | {"hmlr", "metadata-only"}),
         "details": {
@@ -503,7 +850,9 @@ def product_record(publication: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def select_unique(rows: list[dict[str, Any]], ids: list[str], label: str) -> list[dict[str, Any]]:
+def select_unique(
+    rows: list[dict[str, Any]], ids: list[str], label: str
+) -> list[dict[str, Any]]:
     by_id = {row["id"]: row for row in rows}
     if len(by_id) != len(rows):
         raise ValueError(f"duplicate IDs in {label}")
@@ -521,27 +870,64 @@ def validate_reference_closure(records: list[dict[str, Any]]) -> None:
     for record in records:
         missing = sorted(set(record["sourceRefs"]) - known)
         if missing:
-            raise ValueError(f"unresolved source references for {record['id']}: {missing}")
+            raise ValueError(
+                f"unresolved source references for {record['id']}: {missing}"
+            )
 
 
-def build_records(root: Path, publication: dict[str, Any]) -> list[dict[str, Any]]:
+def build_records(
+    root: Path, publication: dict[str, Any], source_lock: dict[str, Any]
+) -> list[dict[str, Any]]:
+    verify_approved_hmlr_inputs(root)
     research_data = root / "docs/research/2026-08-19/research-pack/data"
     providers_doc = load_json(research_data / "providers.json")
     workflows_doc = load_json(research_data / "workflows.json")
     sources_doc = load_json(research_data / "sources.json")
     hmlr_records_doc = load_json(root / HMLR_VENDOR / "source/curated-records.json")
-    hmlr_rights_doc = load_json(root / HMLR_VENDOR / "source/curated-rights-access.json")
+    hmlr_rights_doc = load_json(
+        root / HMLR_VENDOR / "source/curated-rights-access.json"
+    )
+    hmlr_questions_doc = load_json(root / HMLR_QUESTIONS)
+
+    questions = hmlr_questions_doc.get("questions")
+    if (
+        hmlr_questions_doc.get("schema") != "okf-explorer-evaluation-suite.v1"
+        or hmlr_questions_doc.get("question_count") != 24
+        or not isinstance(questions, list)
+        or len(questions) != hmlr_questions_doc["question_count"]
+    ):
+        raise ValueError("HMLR evaluation question suite metadata is invalid")
 
     selected = publication["selected"]
     providers = select_unique(
         providers_doc["providers"], selected["research_provider_ids"], "providers"
     )
+    provider_sha256_by_id = selected.get("research_provider_sha256_by_id")
+    if not isinstance(provider_sha256_by_id, dict) or set(provider_sha256_by_id) != {
+        row["id"] for row in providers
+    }:
+        raise ValueError("selected provider digest inventory is incomplete")
+    for provider in providers:
+        expected = provider_sha256_by_id[provider["id"]]
+        if (
+            not isinstance(expected, str)
+            or canonical_record_sha256(provider) != expected
+        ):
+            raise ValueError(f"selected provider digest mismatch: {provider['id']}")
     workflows = select_unique(
         workflows_doc["workflows"], selected["research_workflow_ids"], "workflows"
     )
     hmlr_records = select_unique(
         hmlr_records_doc["records"], selected["hmlr_record_ids"], "HMLR records"
     )
+    hmlr_questions = select_unique(
+        questions, selected["hmlr_question_ids"], "HMLR questions"
+    )
+    question_sha256_by_id = selected.get("hmlr_question_sha256_by_id")
+    if not isinstance(question_sha256_by_id, dict) or set(question_sha256_by_id) != {
+        row["id"] for row in hmlr_questions
+    }:
+        raise ValueError("selected HMLR question digest inventory is incomplete")
     rights_rows = hmlr_rights_doc["classifications"]
     rights_by_id = {row["source_native_id"]: row for row in rights_rows}
     if len(rights_by_id) != len(rights_rows):
@@ -556,7 +942,9 @@ def build_records(root: Path, publication: dict[str, Any]) -> list[dict[str, Any
         sources_doc["sources"], sorted(referenced_research_sources), "sources"
     )
     research_source_ids_by_url = {
-        row["url"]: row["id"] for row in selected_sources if row["url"].startswith("https://")
+        row["url"]: row["id"]
+        for row in selected_sources
+        if row["url"].startswith("https://")
     }
 
     url_references: dict[str, set[str]] = {}
@@ -569,12 +957,57 @@ def build_records(root: Path, publication: dict[str, Any]) -> list[dict[str, Any
             refs.append(source_id)
             if source_id.startswith("hmlr-source:"):
                 url_references.setdefault(url, set()).add(row["id"])
-        hmlr_source_refs[row["id"]] = refs
+        hmlr_source_refs[row["id"]] = sorted(set(refs) | {HMLR_RELEASE_SOURCE_ID})
+
+    question_source_refs: dict[str, list[str]] = {}
+    for question in hmlr_questions:
+        refs = []
+        for source in question["expected_sources"]:
+            url = source["canonical_url"]
+            validate_url(url)
+            source_id = research_source_ids_by_url.get(url, source_record_id(url))
+            refs.append(source_id)
+            if source_id.startswith("hmlr-source:"):
+                url_references.setdefault(url, set()).add(question["id"])
+        question_source_refs[question["id"]] = refs
+
+    caveat_rows = hmlr_questions_doc.get("caveat_registry")
+    hard_failure_rows = hmlr_questions_doc.get("hard_failures")
+    if not isinstance(caveat_rows, list) or not isinstance(hard_failure_rows, list):
+        raise TypeError("HMLR evaluation controls are missing")
+    caveat_text_by_id = {row.get("id"): row.get("text") for row in caveat_rows}
+    known_hard_failure_ids = {row.get("id") for row in hard_failure_rows}
+    if (
+        None in caveat_text_by_id
+        or not all(
+            isinstance(text, str) and text for text in caveat_text_by_id.values()
+        )
+        or None in known_hard_failure_ids
+        or len(caveat_text_by_id) != len(caveat_rows)
+        or len(known_hard_failure_ids) != len(hard_failure_rows)
+    ):
+        raise ValueError("HMLR evaluation controls contain duplicate or invalid IDs")
 
     records: list[dict[str, Any]] = [product_record(publication)]
-    records.extend(provider_record(row, publication) for row in providers)
+    records.extend(
+        provider_record(row, publication, providers_doc["generated_at"])
+        for row in providers
+    )
     records.extend(workflow_record(row, publication) for row in workflows)
+    records.extend(
+        hmlr_question_record(
+            question,
+            question_source_refs[question["id"]],
+            caveat_text_by_id,
+            known_hard_failure_ids,
+            hmlr_questions_doc["research_cutoff"],
+            question_sha256_by_id[question["id"]],
+            publication,
+        )
+        for question in hmlr_questions
+    )
     records.extend(research_source_record(row, publication) for row in selected_sources)
+    records.append(hmlr_release_source_record(source_lock, publication))
     for row in hmlr_records:
         rights = rights_by_id.get(row["id"])
         if not rights:
@@ -598,6 +1031,11 @@ def build_records(root: Path, publication: dict[str, Any]) -> list[dict[str, Any
         )
 
     records.sort(key=lambda record: (record["type"], record["id"]))
+    if len(records) != publication["expected_record_count"]:
+        raise ValueError(
+            f"generated record count {len(records)} differs from expected "
+            f"{publication['expected_record_count']}"
+        )
     if len(records) > MAX_RECORDS:
         raise ValueError(f"generated record count exceeds {MAX_RECORDS}")
     validate_reference_closure(records)
@@ -622,13 +1060,17 @@ def validate_records(
         reject_forbidden_keys(record, forbidden)
         for value in walk_urls(record):
             validate_url(value)
-        errors = sorted(concept_validator.iter_errors(record), key=lambda error: list(error.path))
+        errors = sorted(
+            concept_validator.iter_errors(record), key=lambda error: list(error.path)
+        )
         if errors:
             detail = "; ".join(
                 f"{'/'.join(map(str, error.path)) or '<root>'}: {error.message}"
                 for error in errors
             )
-            raise ValueError(f"record {record['id']} failed schema validation: {detail}")
+            raise ValueError(
+                f"record {record['id']} failed schema validation: {detail}"
+            )
 
 
 def walk_urls(value: Any, key: str = "") -> Iterable[str]:
@@ -848,7 +1290,10 @@ def prepare_output(output: Path) -> None:
         raise ValueError(f"output directory must not be a symbolic link: {output}")
     if output.exists():
         marker = output / ".okf-generated"
-        if not marker.is_file() or marker.read_text(encoding="utf-8") != GENERATED_MARKER:
+        if (
+            not marker.is_file()
+            or marker.read_text(encoding="utf-8") != GENERATED_MARKER
+        ):
             raise ValueError(f"refusing to replace unmarked output directory: {output}")
         shutil.rmtree(output)
     output.mkdir(parents=True)
@@ -881,7 +1326,7 @@ def build(root: Path, output: Path, revision: str) -> dict[str, Any]:
     schema = load_json(root / "schemas/okf-publication-bundle.schema.json")
     version = (root / "VERSION").read_text(encoding="utf-8").strip()
 
-    records = build_records(root, publication)
+    records = build_records(root, publication, source_lock)
     validate_records(records, profile, schema)
     validate_output_paths(records)
     bundle = {
@@ -926,7 +1371,9 @@ def build(root: Path, output: Path, revision: str) -> dict[str, Any]:
         "records": records,
     }
     bundle_errors = sorted(
-        Draft202012Validator(schema, format_checker=FormatChecker()).iter_errors(bundle),
+        Draft202012Validator(schema, format_checker=FormatChecker()).iter_errors(
+            bundle
+        ),
         key=lambda error: list(error.path),
     )
     if bundle_errors:
@@ -946,7 +1393,9 @@ def build(root: Path, output: Path, revision: str) -> dict[str, Any]:
     write_file(output, "okf-bundle.json", canonical_json_bytes(bundle))
     jsonld = jsonld_document(bundle)
     write_file(output, "okf-bundle.jsonld", canonical_json_bytes(jsonld))
-    write_file(output, "context.jsonld", canonical_json_bytes({"@context": jsonld["@context"]}))
+    write_file(
+        output, "context.jsonld", canonical_json_bytes({"@context": jsonld["@context"]})
+    )
     write_file(output, "index.md", index_markdown(bundle))
     for record in records:
         write_file(output, record_output_path(record), record_markdown(record))
@@ -1001,7 +1450,9 @@ def build(root: Path, output: Path, revision: str) -> dict[str, Any]:
     }
     write_file(output, "manifest.json", canonical_json_bytes(manifest))
 
-    content_files = existing_payloads(output, {"CHECKSUMS.sha256", "build-receipt.json"})
+    content_files = existing_payloads(
+        output, {"CHECKSUMS.sha256", "build-receipt.json"}
+    )
     content_checksums = "".join(
         f"{sha256_file(output / path)}  {path}\n" for path in content_files
     ).encode()
@@ -1062,7 +1513,9 @@ def git_revision(root: Path) -> str:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
+    parser.add_argument(
+        "--root", type=Path, default=Path(__file__).resolve().parents[1]
+    )
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--revision")
     return parser.parse_args()

@@ -382,7 +382,17 @@ function parseRecord(value: unknown, index: number): CatalogueRecord {
   const tags = uniqueStringsAt(record.tags, `${path}.tags`);
   const details = objectAt(record.details, `${path}.details`);
   validateDetailLinks(details, `${path}.details`);
-  for (const key of ["publisherLastUpdated", "published", "releasedAt", "releaseDate"] as const) {
+  for (const key of [
+    "metadataSnapshotGeneratedAt",
+    "publisherLastUpdated",
+    "published",
+    "questionResearchCutoff",
+    "retrieved",
+    "retrievedOn",
+    "releaseTaggedAt",
+    "releasedAt",
+    "releaseDate",
+  ] as const) {
     const detail = details[key];
     if (detail !== undefined && detail !== null) {
       dateLikeAt(detail, `${path}.details.${key}`);
@@ -626,6 +636,28 @@ function approvedDetailText(value: JsonValue | undefined): string[] {
   return [];
 }
 
+// This is deliberately an allowlist. In particular, do not replace it with a
+// recursive walk of `details` or include rights text: those fields may contain
+// long, provider-specific material that is not part of the controlled search
+// contract.
+const SEARCHABLE_DETAIL_FIELDS = [
+  "publisher",
+  "organisation",
+  "jurisdiction",
+  "geographicScope",
+  "formats",
+  "cadence",
+  "updateFrequency",
+  "accessModel",
+  "questionId",
+  "query",
+  "intent",
+  "expectedTerms",
+  "expectedPropositions",
+  "datasetsServices",
+  "mechanisms",
+] as const;
+
 function searchableText(record: CatalogueRecord): string {
   return normaliseSearchText(
     [
@@ -636,10 +668,9 @@ function searchableText(record: CatalogueRecord): string {
       record.authority.statement,
       ...record.limitations,
       ...record.tags,
-      ...approvedDetailText(record.details.publisher),
-      ...approvedDetailText(record.details.jurisdiction),
-      ...approvedDetailText(record.details.formats),
-      ...approvedDetailText(record.details.cadence),
+      ...SEARCHABLE_DETAIL_FIELDS.flatMap((field) =>
+        approvedDetailText(record.details[field]),
+      ),
     ].join(" "),
   );
 }
@@ -882,7 +913,11 @@ export function deriveTimeline(records: readonly CatalogueRecord[]): TimelineMod
     add(record, "observation", record.freshness.observedAt);
     add(record, "modification", optionalDetailDate(record, ["publisherLastUpdated"]));
     add(record, "publication", optionalDetailDate(record, ["published"]));
-    add(record, "release", optionalDetailDate(record, ["releasedAt", "releaseDate"]));
+    add(
+      record,
+      "release",
+      optionalDetailDate(record, ["releaseTaggedAt", "releasedAt", "releaseDate"]),
+    );
   }
 
   const kindOrder = new Map(TIMELINE_EVENT_KINDS.map((kind, index) => [kind, index]));

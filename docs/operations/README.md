@@ -9,3 +9,4 @@ pause. There is no deployed product yet.
 - [Dependency baseline](DEPENDENCIES.md)
 - [Stage 0 verification record](STAGE_0_VERIFICATION.md)
 - [DISC-102 Explorer verification record](DISC-102_VERIFICATION.md)
+- [DISC-103 reviewed examples verification record](DISC-103_VERIFICATION.md)

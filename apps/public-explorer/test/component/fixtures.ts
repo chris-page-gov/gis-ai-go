@@ -92,6 +92,100 @@ export const sources = [
   sourceRecord("source:guidance", "Official technical guidance"),
 ];
 
+export const workedQuestionRecord: CatalogueRecord = {
+  ...focusedRecord,
+  id: "LR-Q003",
+  type: "workflow",
+  title: "LR-Q003 — Online copy or official copy?",
+  description: "A reviewed, non-executing retrieval question.",
+  access: {
+    tier: "open",
+    state: "planned-non-executing",
+    authentication: "Not applicable: this is a non-executing description.",
+  },
+  rights: {
+    state: "project-mit",
+    recordLicence: "MIT",
+    describedResourceLicence: "Not applicable; this is a non-executing description.",
+    attribution: "Copyright © 2026 Chris Page.",
+  },
+  status: "candidate-non-executing",
+  sourceRefs: ["source:dataset", "source:guidance"],
+  limitations: [
+    "An online copy is not proof of ownership.",
+    "Official copies and ordinary online downloads are distinct products.",
+  ],
+  tags: ["hmlr", "official-copy", "worked-question"],
+  details: {
+    questionId: "LR-Q003",
+    query: "online copy or official copy proof of ownership",
+    intent: "Distinguish informational downloads from official copies.",
+    expectedPropositions: [
+      "An online copy is not proof of ownership.",
+      "Official copies have a distinct order route and evidential role.",
+    ],
+    nearMissRule:
+      "Merely linking to a paid download without explaining its evidential status is insufficient.",
+  },
+};
+
+export const onsProviderRecord: CatalogueRecord = {
+  ...focusedRecord,
+  id: "PV-ONS-DATA",
+  type: "provider",
+  title: "ONS Data API",
+  description: "Version-bound discovery of public ONS data capabilities.",
+  access: {
+    tier: "open",
+    state: "public-metadata",
+    authentication: "No provider connection is made by this candidate bundle.",
+  },
+  rights: {
+    state: "metadata-citation",
+    recordLicence: "MIT",
+    describedResourceLicence: "Open Government Licence where stated.",
+    attribution: "Office for National Statistics.",
+  },
+  status: "candidate-metadata",
+  sourceRefs: ["source:dataset"],
+  limitations: ["No live provider call, data distribution or service response is included."],
+  tags: ["ons", "provider"],
+  details: {
+    geographicScope: "UK statistics; dataset-specific",
+    datasetsServices: ["datasets", "versions", "editions", "dimensions", "observations"],
+    mechanisms: ["REST API", "bulk downloads"],
+    updateFrequency: "Dataset-specific",
+    formats: ["JSON", "CSV"],
+    recommendedIntegration: "Version-bound observation retrieval; this record does not execute it.",
+  },
+};
+
+export const landisProviderRecord: CatalogueRecord = {
+  ...onsProviderRecord,
+  id: "PV-LANDIS",
+  title: "LandIS",
+  description: "Cranfield University soil information service metadata.",
+  rights: {
+    ...onsProviderRecord.rights,
+    describedResourceLicence:
+      "Read and enforce each record licence; do not infer one blanket licence from open access.",
+    attribution: "Cranfield University and LandIS; apply source-specific attribution.",
+  },
+  limitations: [
+    "No live provider call, data distribution or service response is included.",
+    "Access and rights remain mixed and product-specific.",
+  ],
+  tags: ["landis", "provider", "soil"],
+  details: {
+    geographicScope: "England and Wales; product-specific",
+    datasetsServices: ["NATMAP", "Soilscapes", "National Soil Inventory"],
+    mechanisms: ["public portal", "downloads", "OGC API – Records catalogue"],
+    accessTiers: ["open", "commercial or restricted where record terms require"],
+    recommendedIntegration:
+      "Harvest records as metadata; cache only licence-confirmed products; do not execute here.",
+  },
+};
+
 export const navigation = {
   hrefForRecord: (recordId: string | null): string =>
     recordId === null ? "?view=cards" : `?view=cards#record=${encodeURIComponent(recordId)}`,

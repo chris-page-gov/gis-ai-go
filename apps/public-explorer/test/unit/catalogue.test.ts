@@ -54,6 +54,10 @@ describe("canonical catalogue validation", () => {
     const unsafeUrl = cloneFixture();
     unsafeUrl.records[0]!.details.url = "javascript:alert(1)";
     expect(() => parseCatalogue(unsafeUrl)).toThrow(/navigable URL/);
+
+    const invalidRetrievalDate = cloneFixture();
+    Object.assign(invalidRetrievalDate.records[0]!.details, { retrieved: "not-a-date" });
+    expect(() => parseCatalogue(invalidRetrievalDate)).toThrow(/valid calendar date|RFC 3339/);
   });
 
   it("rejects a missing legal caveat and dangerous object keys", () => {
@@ -98,6 +102,66 @@ describe("search and facets", () => {
     expect(searchRecords(bundle.records, rightsOnly)).toHaveLength(0);
   });
 
+  it("searches reviewed question and capability fields but not arbitrary details or rights", () => {
+    const bundle = parseCatalogue(cloneFixture());
+    const base = createDefaultExplorerState(bundle);
+    const template = bundle.records[1]!;
+    const question = {
+      ...template,
+      id: "LR-Q003",
+      type: "workflow" as const,
+      title: "LR-Q003 worked question",
+      rights: {
+        ...template.rights,
+        describedResourceLicence: "rights-only-sentinel",
+      },
+      details: {
+        questionId: "LR-Q003",
+        query: "online copy or official copy proof of ownership",
+        expectedPropositions: [
+          "An online copy is not proof of ownership.",
+          "Official copies have a distinct route.",
+        ],
+        arbitrarySummary: "unknown-detail-sentinel",
+        forbiddenTargets: [
+          { id: "NEGATIVE-TARGET", reason: "nested-detail-sentinel" },
+        ],
+      },
+    };
+    const provider = {
+      ...template,
+      id: "PV-ONS-DATA",
+      type: "provider" as const,
+      title: "ONS Data API",
+      details: {
+        datasetsServices: ["datasets", "versions", "editions", "dimensions", "observations"],
+      },
+    };
+    const records = [...bundle.records, question, provider];
+
+    expect(
+      searchRecords(records, {
+        ...base,
+        query: "online copy official copy proof ownership",
+        types: [],
+      }).map((record) => record.id),
+    ).toContain("LR-Q003");
+    expect(
+      searchRecords(records, { ...base, query: "dimensions observations", types: [] }).map(
+        (record) => record.id,
+      ),
+    ).toEqual(["PV-ONS-DATA"]);
+    expect(searchRecords(records, { ...base, query: "rights-only-sentinel", types: [] })).toEqual(
+      [],
+    );
+    expect(
+      searchRecords(records, { ...base, query: "unknown-detail-sentinel", types: [] }),
+    ).toEqual([]);
+    expect(
+      searchRecords(records, { ...base, query: "nested-detail-sentinel", types: [] }),
+    ).toEqual([]);
+  });
+
   it("derives state-aware counts while retaining zero-count known choices", () => {
     const bundle = parseCatalogue(cloneFixture());
     const state: ExplorerState = {
@@ -135,16 +199,25 @@ describe("derived evidence views", () => {
   });
 
   it("keeps observation, modification, publication and release semantics separate", () => {
-    const bundle = parseCatalogue(cloneFixture());
+    const fixture = cloneFixture();
+    Object.assign(fixture.records[0]!.details, {
+      releaseTaggedAt: "2026-08-12T01:43:30+01:00",
+    });
+    const bundle = parseCatalogue(fixture);
     const timeline = deriveTimeline(bundle.records);
     expect(timeline.events.filter((event) => event.kind === "observation")).toHaveLength(2);
     expect(timeline.events.filter((event) => event.kind === "modification")).toHaveLength(1);
     expect(timeline.events.filter((event) => event.kind === "publication")).toHaveLength(1);
-    expect(timeline.events.filter((event) => event.kind === "release")).toHaveLength(0);
+    expect(timeline.events.filter((event) => event.kind === "release")).toEqual([
+      expect.objectContaining({
+        recordId: DEFAULT_RECORD_ID,
+        date: "2026-08-12T01:43:30+01:00",
+      }),
+    ]);
     expect(timeline.missing).toEqual([
       { kind: "modification", recordCount: 1 },
       { kind: "publication", recordCount: 1 },
-      { kind: "release", recordCount: 2 },
+      { kind: "release", recordCount: 1 },
     ]);
   });
 });
