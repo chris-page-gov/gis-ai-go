@@ -1,13 +1,17 @@
 # MCP-201 shared catalogue contract verification record
 
-- status: complete local candidate gate passed; pull-request and protected-main
+- status: pull-request implementation and security gates passed; protected-main
   verification pending
 - reviewed on: 20 August 2026
 - work item: [MCP-201](https://github.com/chris-page-gov/gis-ai-go/issues/19)
 - protected-main base: `80ac89d89e04751045693cecff4a3a714d121ebe`
 - candidate implementation commit: `5150cc25a56fb4263f4f6ec832f8995ad2a9d4c9`
+- security remediation commit: `2e6094e4c81d0cb60fa19e5cf0a4f6dc4ae30082`
 - pull request: [26](https://github.com/chris-page-gov/gis-ai-go/pull/26)
-- pull-request assurance and CodeQL: pending
+- pull-request assurance:
+  [passing](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32338159020)
+- pull-request CodeQL:
+  [passing](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32338156959)
 - protected-main merge and post-merge assurance: pending
 
 ## Outcome
@@ -60,6 +64,14 @@ The current working-tree bytes passed the complete locked `pnpm run check` on
   base; and
 - an independent current-byte review with a `SHIP` verdict and no P0, P1 or P2
   finding.
+
+The first pull-request CodeQL run identified a high-severity polynomial regular
+expression in the inherited HTML-like-content guard. The issue was reproduced on
+the real parser path, replaced by a linear-time scanner and covered by adversarial
+and legitimate controls. The exact remediation commit passed the complete local
+gate, pull-request assurance, all three CodeQL language analyses and the aggregate
+"No new alerts" check; the original alert is closed as fixed and the repository has
+no open code-scanning alert.
 
 These local results do not replace pull-request checks, CodeQL, protected-main
 merge or post-merge assurance. Those remote evidence gates remain pending and must
