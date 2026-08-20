@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:evidence-ledger-event:v1",
+  "title": "GIS AI GO public evidence ledger event",
+  "description": "One immutable content-addressed event in the hash-chained public evidence sequence.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "event_id",
+    "ledger_id",
+    "sequence",
+    "event_type",
+    "recorded_at",
+    "previous_event_id",
+    "record_id",
+    "receipt_id",
+    "replay_key_sha256",
+    "retain_until"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gis-ai-go.evidence-ledger-event.v1"
+    },
+    "event_id": {
+      "$ref": "#/$defs/event_id"
+    },
+    "ledger_id": {
+      "$ref": "#/$defs/ledger_id"
+    },
+    "sequence": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1000000
+    },
+    "event_type": {
+      "const": "evidence.stored"
+    },
+    "recorded_at": {
+      "$ref": "#/$defs/timestamp"
+    },
+    "previous_event_id": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/event_id"
+        }
+      ]
+    },
+    "record_id": {
+      "$ref": "#/$defs/record_id"
+    },
+    "receipt_id": {
+      "$ref": "#/$defs/receipt_id"
+    },
+    "replay_key_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "retain_until": {
+      "$ref": "#/$defs/timestamp"
+    }
+  },
+  "$defs": {
+    "event_id": {
+      "type": "string",
+      "pattern": "^gis-ai-go:evidence-ledger-event:sha256:[0-9a-f]{64}$"
+    },
+    "ledger_id": {
+      "type": "string",
+      "pattern": "^gis-ai-go:public-evidence-ledger:sha256:[0-9a-f]{64}$"
+    },
+    "record_id": {
+      "type": "string",
+      "pattern": "^gis-ai-go:public-evidence-record:sha256:[0-9a-f]{64}$"
+    },
+    "receipt_id": {
+      "type": "string",
+      "pattern": "^gis-ai-go:evidence-receipt:sha256:[0-9a-f]{64}$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "maxLength": 24
+    }
+  }
+}

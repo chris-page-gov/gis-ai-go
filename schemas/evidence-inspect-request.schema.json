@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:evidence-inspect-request:v1",
+  "title": "GIS AI GO evidence inspection request",
+  "description": "A closed lookup for one authorised anonymous-open receipt identity.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "receipt_id"
+  ],
+  "properties": {
+    "receipt_id": {
+      "type": "string",
+      "pattern": "^gis-ai-go:evidence-receipt:sha256:[0-9a-f]{64}$"
+    }
+  }
+}

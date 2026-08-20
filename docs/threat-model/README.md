@@ -20,3 +20,22 @@ application. It does not activate or publish a service.
 
 The public policy is a compiled checked-in JSON document. It is not OPA, protected
 identity, authentication or an enterprise entitlement decision.
+
+## EVID-204B durable public-evidence candidate
+
+ADR-0011 adds an inactive portable store and transport-neutral inspection
+application. It does not activate or publish a service.
+
+| Research risk | Control in this slice | Residual boundary |
+| --- | --- | --- |
+| RK08 policy bypass | Persistence accepts only a receipt that passes full independent material verification. Inspection returns only records whose embedded decision is anonymous-open and allowed. | `evidence.inspect` has no public route or tool. Any later activation needs its own policy and interoperability evidence. |
+| RK20 provenance spoofing | Content-addressed records and events bind the exact receipt, ledger, retention and sequence. | No signature, attestation or independent computation replay is claimed. |
+| RK21 audit tampering | Exclusive writes prevent API overwrite. Restart checks canonical bytes, identities, event order, hash links, missing or orphan records, replay and truncation. | Direct file-system writers remain trusted. Complete unanchored tail deletion needs an external checkpoint; this is not WORM storage. |
+| RK25 query-history exposure | The ledger retains only the receipt's semantic digests and explicitly rejects raw-query, cursor, prompt, geometry, credential and machine-path fields. | Operational logs, backups and future protected evidence need separate privacy review. |
+
+One writer owns a ledger root. Contention fails closed rather than merging events.
+Corrupt stores are quarantined and restored from a separately verified complete
+copy; there is no silent or in-place repair.
+The immutable descriptor also fixes a bounded minimum retention period and each
+record exposes `retain_until`. No deletion is implemented; production disposal
+policy and evidence remain open.

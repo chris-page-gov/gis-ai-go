@@ -1613,6 +1613,21 @@ function assertReceiptConstants(receipt: InlineEvidenceReceipt): void {
 }
 
 /**
+ * Verify the closed inline receipt envelope and its content identity without
+ * claiming that independently supplied parameters or result material were replayed.
+ */
+export function verifyInlineReceiptStructure(receipt: unknown): boolean {
+  try {
+    assertInlineReceiptSchema(receipt);
+    assertReceiptIdentity(receipt);
+    assertReceiptConstants(receipt);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Verify the receipt against independently supplied parameters, result core and
  * compiled policy. Errors are bounded and never reflect the raw query material.
  */

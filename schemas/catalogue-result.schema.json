@@ -2,8 +2,8 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "urn:gis-ai-go:schema:catalogue-result:v1",
   "title": "GIS AI GO catalogue result",
-  "description": "A bounded candidate success envelope for catalogue.search or catalogue.describe with required inline public evidence. It is not yet an active transport contract.",
-  "$comment": "The evidence receipt is inline-only, not persisted and not attested. Activation remains a separate reviewed lifecycle decision.",
+  "description": "A bounded candidate success envelope for catalogue.search or catalogue.describe with required inline public evidence and an optional durable storage reference. It is not yet an active transport contract.",
+  "$comment": "The inline receipt records its issue-time non-persisted state. evidence_storage is emitted only after the separate append-only write succeeds. Activation remains a separate reviewed lifecycle decision.",
   "oneOf": [
     {
       "type": "object",
@@ -36,6 +36,9 @@
         },
         "evidence_receipt": {
           "$ref": "urn:gis-ai-go:schema:evidence-receipt:v1"
+        },
+        "evidence_storage": {
+          "$ref": "#/$defs/evidence_storage"
         },
         "warnings": {
           "$ref": "#/$defs/warnings"
@@ -77,6 +80,9 @@
         "evidence_receipt": {
           "$ref": "urn:gis-ai-go:schema:evidence-receipt:v1"
         },
+        "evidence_storage": {
+          "$ref": "#/$defs/evidence_storage"
+        },
         "warnings": {
           "$ref": "#/$defs/warnings"
         },
@@ -96,6 +102,45 @@
     "trace_id": {
       "type": "string",
       "pattern": "^[0-9a-f]{32}$"
+    },
+    "evidence_storage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "ledger_id",
+        "record_id",
+        "event_id",
+        "persisted_at",
+        "retain_until"
+      ],
+      "properties": {
+        "status": {
+          "const": "persisted"
+        },
+        "ledger_id": {
+          "type": "string",
+          "pattern": "^gis-ai-go:public-evidence-ledger:sha256:[0-9a-f]{64}$"
+        },
+        "record_id": {
+          "type": "string",
+          "pattern": "^gis-ai-go:public-evidence-record:sha256:[0-9a-f]{64}$"
+        },
+        "event_id": {
+          "type": "string",
+          "pattern": "^gis-ai-go:evidence-ledger-event:sha256:[0-9a-f]{64}$"
+        },
+        "persisted_at": {
+          "type": "string",
+          "format": "date-time",
+          "maxLength": 24
+        },
+        "retain_until": {
+          "type": "string",
+          "format": "date-time",
+          "maxLength": 24
+        }
+      }
     },
     "record_id": {
       "type": "string",

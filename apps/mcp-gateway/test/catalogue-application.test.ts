@@ -1,6 +1,17 @@
 import assert from "node:assert/strict";
+import {
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
+
+import { fromJsonSchema, type JsonSchemaType } from "@modelcontextprotocol/server";
 
 import {
   parseCatalogue,
@@ -8,7 +19,11 @@ import {
   type CatalogueRecord,
   type JsonValue,
 } from "@gis-ai-go/contracts";
-import { verifyInlineReceipt } from "@gis-ai-go/evidence";
+import {
+  PublicEvidenceLedgerError,
+  openPublicEvidenceLedger,
+  verifyInlineReceipt,
+} from "@gis-ai-go/evidence";
 import { PUBLIC_CATALOGUE_POLICY } from "@gis-ai-go/policy-client";
 
 import {
@@ -26,6 +41,7 @@ import {
   isCanonicalCatalogueProblemInstance,
   type CatalogueProblemCode,
 } from "../src/problem.js";
+import { MCP_CATALOGUE_OUTPUT_SCHEMAS } from "../src/mcp-server.js";
 
 const SOURCE_CATALOGUE = fileURLToPath(
   new URL("../../../../artifacts/okf/", import.meta.url),
@@ -220,6 +236,62 @@ test("inline receipt verification rejects parameter replay and result or rights 
     licenceObligations: expectedLicences,
   });
   assert.equal(rightsTamper.valid, false);
+});
+
+test("returns a durable reference only after the configured append-only write succeeds", async () => {
+  const root = mkdtempSync(join(tmpdir(), "gis-ai-go-catalogue-evidence-"));
+  try {
+    const ledger = openPublicEvidenceLedger({
+      rootDirectory: root,
+      retentionDays: 365,
+      now: () => new Date("2026-08-20T12:34:57Z"),
+    });
+    const application = createCatalogueApplication(SNAPSHOT, {
+      ...TEST_APPLICATION_OPTIONS,
+      evidenceLedger: ledger,
+    });
+    const context = {
+      requestId: "request-durable-catalogue-001",
+      traceId: "1123456789abcdef0123456789abcdef",
+    };
+    const result = application.search({ query: "Price Paid", limit: 1 }, context);
+
+    assert.equal(result.evidence_storage?.status, "persisted");
+    assert.equal(result.evidence_storage?.ledger_id, ledger.descriptor.ledger_id);
+    assert.deepEqual(
+      ledger.inspect(result.evidence_receipt.receipt_id)?.reference,
+      result.evidence_storage,
+    );
+    const outputSchema = fromJsonSchema<unknown>(
+      MCP_CATALOGUE_OUTPUT_SCHEMAS["catalogue.search"] as JsonSchemaType,
+    );
+    const outputValidation = await outputSchema["~standard"].validate(result);
+    assert.equal(outputValidation.issues, undefined);
+    assert.equal(result.evidence_receipt.evidence_handling.persistence, "not-persisted");
+    assert.equal("evidence_storage" in APPLICATION.search({}, CONTEXT), false);
+
+    const eventName = readdirSync(join(root, "events"))[0]!;
+    const eventPath = join(root, "events", eventName);
+    const event = readFileSync(eventPath, "utf8");
+    writeFileSync(eventPath, event.slice(0, -1));
+    assert.throws(
+      () =>
+        application.search(
+          { query: "INSPIRE", limit: 1 },
+          {
+            requestId: "request-durable-catalogue-002",
+            traceId: "2123456789abcdef0123456789abcdef",
+          },
+        ),
+      (error: unknown) => {
+        assert.ok(error instanceof PublicEvidenceLedgerError);
+        assert.equal(error.code, "truncation");
+        return true;
+      },
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });
 
 test("application creation requires exact software identity and a valid injected clock", () => {
