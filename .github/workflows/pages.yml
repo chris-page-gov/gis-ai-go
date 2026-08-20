@@ -168,9 +168,26 @@ jobs:
           path: artifacts/pages
           github-token: ${{ github.token }}
 
+      - name: Read selected archive version
+        id: selected_version
+        run: |
+          selected_version="$(jq -er '
+            if (.version | type) == "string" then
+              .version
+            else
+              error("archive receipt version must be a string")
+            end
+          ' artifacts/pages/archive-receipt.json)"
+          if [[ ! "$selected_version" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            echo 'The selected archive version is not a stable semantic version' >&2
+            exit 1
+          fi
+          printf 'version=%s\n' "$selected_version" >> "$GITHUB_OUTPUT"
+
       - name: Verify archive structure and receipt
         env:
           ARCHIVE_SHA256: ${{ inputs.archive_sha256 }}
+          SELECTED_VERSION: ${{ steps.selected_version.outputs.version }}
           SOURCE_COMMIT: ${{ inputs.source_commit }}
         run: |
           uv run --locked --cache-dir .uv-cache python scripts/verify_pages_archive.py \
@@ -179,7 +196,7 @@ jobs:
             --receipt artifacts/pages/archive-receipt.json \
             --expected-source-commit "$SOURCE_COMMIT" \
             --expected-repository "$GITHUB_REPOSITORY" \
-            --expected-version "$(tr -d '\n' < VERSION)" \
+            --expected-version "$SELECTED_VERSION" \
             --expected-base-path /gis-ai-go/ \
             --expected-archive-sha256 "$ARCHIVE_SHA256"
 
@@ -199,14 +216,11 @@ jobs:
             --deny-self-hosted-runners \
             --format json > deployment-evidence/attestation-verification.json
 
-      - name: Record accepted product version
+      - name: Record accepted product identity
         id: product
+        env:
+          SELECTED_VERSION: ${{ steps.selected_version.outputs.version }}
         run: |
-          version="$(tr -d '\r\n' < VERSION)"
-          if [[ ! "$version" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
-            echo 'VERSION is not a stable semantic version' >&2
-            exit 1
-          fi
           okf_content_root="$(jq -r '.okfContentRootSha256' \
             artifacts/pages/archive-receipt.json)"
           payload_root="$(jq -r '.payloadRootSha256' \
@@ -226,7 +240,7 @@ jobs:
             exit 1
           fi
           {
-            printf 'version=%s\n' "$version"
+            printf 'version=%s\n' "$SELECTED_VERSION"
             printf 'okf_content_root=%s\n' "$okf_content_root"
             printf 'payload_root=%s\n' "$payload_root"
             printf 'public_checksums_sha256=%s\n' "$public_checksums_sha256"
@@ -293,6 +307,7 @@ jobs:
       - name: Materialise verified Pages payload
         env:
           ARCHIVE_SHA256: ${{ inputs.archive_sha256 }}
+          SELECTED_VERSION: ${{ steps.selected_version.outputs.version }}
           SOURCE_COMMIT: ${{ inputs.source_commit }}
         run: |
           mkdir -p deployment-staging
@@ -303,7 +318,7 @@ jobs:
             --output-dir deployment-staging/site \
             --expected-source-commit "$SOURCE_COMMIT" \
             --expected-repository "$GITHUB_REPOSITORY" \
-            --expected-version "$(tr -d '\r\n' < VERSION)" \
+            --expected-version "$SELECTED_VERSION" \
             --expected-base-path /gis-ai-go/ \
             --expected-archive-sha256 "$ARCHIVE_SHA256"
 
@@ -383,11 +398,73 @@ jobs:
           PUBLIC_BASE_URL: ${{ needs.deploy.outputs.page_url }}
         run: pnpm --filter @gis-ai-go/public-explorer run test:public
 
+      - name: Write public verification receipt
+        env:
+          ARCHIVE_SHA256: ${{ inputs.archive_sha256 }}
+          DEPLOYMENT_MODE: ${{ inputs.mode }}
+          OKF_CONTENT_ROOT: ${{ needs.prepare.outputs.okf_content_root }}
+          PAGE_URL: ${{ needs.deploy.outputs.page_url }}
+          PAYLOAD_ROOT: ${{ needs.prepare.outputs.payload_root }}
+          PRODUCT_VERSION: ${{ needs.prepare.outputs.product_version }}
+          PUBLIC_CHECKSUMS_SHA256: ${{ needs.prepare.outputs.public_checksums_sha256 }}
+          REPOSITORY: ${{ github.repository }}
+          SOURCE_COMMIT: ${{ inputs.source_commit }}
+          SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+          WORKFLOW_COMMIT: ${{ github.sha }}
+          WORKFLOW_RUN_ATTEMPT: ${{ github.run_attempt }}
+          WORKFLOW_RUN_ID: ${{ github.run_id }}
+          WORKFLOW_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          mkdir -p public-verification-evidence
+          jq -S -n \
+            --arg schemaVersion 'gis-ai-go.pages-public-verification-receipt.v1' \
+            --arg repository "$REPOSITORY" \
+            --arg workflowRun "$WORKFLOW_RUN_URL" \
+            --arg workflowRunAttempt "$WORKFLOW_RUN_ATTEMPT" \
+            --arg workflowRunId "$WORKFLOW_RUN_ID" \
+            --arg workflowCommit "$WORKFLOW_COMMIT" \
+            --arg mode "$DEPLOYMENT_MODE" \
+            --arg publicUrl "$PAGE_URL" \
+            --arg productVersion "$PRODUCT_VERSION" \
+            --arg sourceRunId "$SOURCE_RUN_ID" \
+            --arg sourceCommit "$SOURCE_COMMIT" \
+            --arg archiveSha256 "$ARCHIVE_SHA256" \
+            --arg payloadRoot "$PAYLOAD_ROOT" \
+            --arg okfContentRoot "$OKF_CONTENT_ROOT" \
+            --arg publicChecksumsSha256 "$PUBLIC_CHECKSUMS_SHA256" \
+            '{
+              schemaVersion: $schemaVersion,
+              repository: $repository,
+              workflowRun: $workflowRun,
+              workflowRunAttempt: $workflowRunAttempt,
+              workflowRunId: $workflowRunId,
+              workflowCommit: $workflowCommit,
+              mode: $mode,
+              publicUrl: $publicUrl,
+              productVersion: $productVersion,
+              sourceRunId: $sourceRunId,
+              sourceCommit: $sourceCommit,
+              archiveSha256: $archiveSha256,
+              payloadRootSha256: $payloadRoot,
+              okfContentRootSha256: $okfContentRoot,
+              publicChecksumsSha256: $publicChecksumsSha256
+            }' > public-verification-evidence/public-verification-receipt.json
+
       - name: Upload public verification evidence
-        if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: public-verification-${{ inputs.source_commit }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            public-verification-evidence/public-verification-receipt.json
+            apps/public-explorer/test-results/
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Upload failed public verification diagnostics
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: public-verification-failure-${{ inputs.source_commit }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: apps/public-explorer/test-results/
           if-no-files-found: warn
           retention-days: 90

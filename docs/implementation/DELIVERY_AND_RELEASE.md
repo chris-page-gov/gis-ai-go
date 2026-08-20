@@ -31,6 +31,12 @@ same-pattern tests.
   capabilities and patch releases remain backwards compatible.
 - Keep `VERSION`, root/component npm and Python manifests and workspace-lock versions
   synchronised. `pnpm run validate:versions` enforces this invariant.
+- Run `pnpm run validate:release-readiness` in a release pull request. That explicit
+  gate additionally requires the dated changelog section, exact release link,
+  matching release notes and consumed material fragments. Required CI invokes it
+  automatically whenever `VERSION` changes in a pull request and again on the
+  resulting `main` push. Ordinary feature pull requests with an unchanged version
+  do not run the release-only metadata checks.
 - Feature branches add `changelog.d` fragments; the release pull request folds them
   into `CHANGELOG.md` and deletes them.
 - The release commit is the only commit that changes versions, finalises the dated

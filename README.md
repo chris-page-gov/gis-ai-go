@@ -7,13 +7,12 @@ boundary is deliberately broader than AI or MCP.
 
 ## Status
 
-**Stage 0 is verified and `v0.1.0` is in active delivery.** The foundation contains
-governance, candidate contracts, synthetic fixtures, architecture sources and an
-assurance harness. The first functional release will add the accessible public
-discovery product described in the [roadmap](docs/implementation/ROADMAP.md).
+**Stage 0 is verified and `v0.1.0` is in release assurance.** The accessible public
+discovery product described in the [roadmap](docs/implementation/ROADMAP.md) is
+deployed as a release candidate at <https://chris-page-gov.github.io/gis-ai-go/>.
+It is not yet a supported release.
 
-The Explorer is implemented as a local static build but is not yet deployed; there
-is no MCP service. Live status is in
+The Explorer is a static, metadata-only product; there is no MCP service. Live status is in
 [`PROGRESS.md`](PROGRESS.md); current authority and boundaries are in
 [`CONTEXT.md`](CONTEXT.md); notable changes are in [`CHANGELOG.md`](CHANGELOG.md).
 

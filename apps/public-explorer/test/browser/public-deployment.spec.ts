@@ -300,7 +300,7 @@ test("passes public keyboard, WCAG and 320-pixel reflow acceptance", async ({ pa
   await expect(page.locator("#main-content")).toBeFocused();
 
   const violations = await new AxeBuilder({ page })
-    .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22a", "wcag22aa"])
     .analyze();
   expect(violations.violations, JSON.stringify(violations.violations, null, 2)).toEqual([]);
   expect(
