@@ -7,10 +7,12 @@ from pathlib import Path
 from typing import Any
 
 from jsonschema import Draft202012Validator, FormatChecker
+from referencing import Registry, Resource
 
 
 ROOT = Path(__file__).resolve().parents[2]
 SCHEMA_DIR = ROOT / "schemas"
+FIXTURE_DIR = ROOT / "providers" / "fixtures"
 
 SCHEMA_IDS = {
     "catalogue-search-request.schema.json": (
@@ -28,10 +30,25 @@ def load_schema(name: str) -> dict[str, Any]:
     return json.loads((SCHEMA_DIR / name).read_text(encoding="utf-8"))
 
 
+def build_schema_registry() -> Registry:
+    resources = []
+    for path in sorted(SCHEMA_DIR.glob("*.schema.json")):
+        schema = json.loads(path.read_text(encoding="utf-8"))
+        resources.append((schema["$id"], Resource.from_contents(schema)))
+    return Registry().with_resources(resources)
+
+
+SCHEMA_REGISTRY = build_schema_registry()
+
+
 def validator(name: str) -> Draft202012Validator:
     schema = load_schema(name)
     Draft202012Validator.check_schema(schema)
-    return Draft202012Validator(schema, format_checker=FormatChecker())
+    return Draft202012Validator(
+        schema,
+        registry=SCHEMA_REGISTRY,
+        format_checker=FormatChecker(),
+    )
 
 
 def assert_valid(
@@ -94,6 +111,35 @@ SEARCH_RECORD = {
     "status": "candidate-metadata",
     "tags": ["hmlr", "boundaries"],
 }
+
+
+def evidence_receipt(
+    operation: str,
+    request_id: str,
+    trace_id: str,
+    returned_record_count: int,
+) -> dict[str, Any]:
+    receipt = json.loads(
+        (FIXTURE_DIR / "evidence-receipt.example.json").read_text(encoding="utf-8")
+    )
+    receipt["request_id"] = request_id
+    receipt["trace_id"] = trace_id
+    receipt["operation"]["name"] = operation
+    receipt["policy_decision"]["request_id"] = request_id
+    receipt["policy_decision"]["trace_id"] = trace_id
+    receipt["policy_decision"]["operation"] = operation
+    receipt["catalogue"] = copy.deepcopy(CATALOGUE)
+    receipt["result"]["returned_record_count"] = returned_record_count
+    if operation == "catalogue.describe":
+        receipt["transformations"] = [
+            {
+                "name": "load-checksum-verified-catalogue",
+                "version": "v1",
+            },
+            {"name": "normalise-parameters", "version": "v1"},
+            {"name": "project-result-core", "version": "v1"},
+        ]
+    return receipt
 
 
 class CatalogueApiSchemaTests(unittest.TestCase):
@@ -175,6 +221,12 @@ class CatalogueApiSchemaTests(unittest.TestCase):
             "request_id": "request-001",
             "trace_id": "0" * 32,
             "catalogue": CATALOGUE,
+            "evidence_receipt": evidence_receipt(
+                "catalogue.search",
+                "request-001",
+                "0" * 32,
+                1,
+            ),
             "warnings": [],
             "data": {
                 "records": [SEARCH_RECORD],
@@ -196,12 +248,19 @@ class CatalogueApiSchemaTests(unittest.TestCase):
         }
         assert_valid(self, schema_validator, result)
 
-        unsupported_evidence = copy.deepcopy(result)
-        unsupported_evidence["evidence"] = {
-            "receipt_id": "receipt_catalogue_001",
-            "receipt_digest": f"sha256:{'b' * 64}",
-        }
-        assert_invalid(self, schema_validator, unsupported_evidence)
+        missing_evidence = copy.deepcopy(result)
+        missing_evidence.pop("evidence_receipt")
+        assert_invalid(self, schema_validator, missing_evidence)
+
+        legacy_evidence = copy.deepcopy(result)
+        legacy_evidence["evidence"] = {"receipt_id": "receipt_catalogue_001"}
+        assert_invalid(self, schema_validator, legacy_evidence)
+
+        persisted_evidence = copy.deepcopy(result)
+        persisted_evidence["evidence_receipt"]["evidence_handling"]["persistence"] = (
+            "persisted"
+        )
+        assert_invalid(self, schema_validator, persisted_evidence)
 
         unknown = copy.deepcopy(result)
         unknown["data"]["records"][0]["details"] = {"arbitrary": True}
@@ -227,6 +286,12 @@ class CatalogueApiSchemaTests(unittest.TestCase):
             "request_id": "request-002",
             "trace_id": "1" * 32,
             "catalogue": CATALOGUE,
+            "evidence_receipt": evidence_receipt(
+                "catalogue.describe",
+                "request-002",
+                "1" * 32,
+                1,
+            ),
             "warnings": [
                 "This catalogue contains public metadata and does not execute providers."
             ],
@@ -321,6 +386,19 @@ class CatalogueApiSchemaTests(unittest.TestCase):
         unsafe_key = copy.deepcopy(result)
         unsafe_key["data"]["record"]["details"] = {"trusted\u202eevil": True}
         assert_invalid(self, schema_validator, unsafe_key)
+
+        excessive_source_refs = copy.deepcopy(result)
+        excessive_source_refs["data"]["record"]["source_refs"] = [
+            f"source:{index}" for index in range(100)
+        ]
+        assert_invalid(self, schema_validator, excessive_source_refs)
+
+        excessive_sources = copy.deepcopy(result)
+        source = excessive_sources["data"]["included"]["sources"][0]
+        excessive_sources["data"]["included"]["sources"] = [
+            {**source, "id": f"source:{index}"} for index in range(100)
+        ]
+        assert_invalid(self, schema_validator, excessive_sources)
 
     def test_problem_envelope_rejects_unbounded_or_unknown_data(self) -> None:
         schema_validator = validator("catalogue-problem.schema.json")

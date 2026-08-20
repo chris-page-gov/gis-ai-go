@@ -1,269 +1,505 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:gis-ai-go:schema:evidence-receipt:0",
-  "$comment": "Candidate promoted from the immutable 19 August 2026 research pack.",
-  "title": "Result Evidence Receipt",
+  "$id": "urn:gis-ai-go:schema:evidence-receipt:v1",
+  "title": "GIS AI GO inline catalogue evidence receipt",
+  "description": "A closed inline-only receipt for a successful public catalogue result. It binds canonical parameter and result digests and explicitly records that it is neither persisted nor attested.",
   "type": "object",
   "additionalProperties": false,
   "required": [
+    "schema",
     "receipt_id",
     "created_at",
     "request_id",
     "trace_id",
-    "authority_context_id",
-    "policy_decision_id",
     "operation",
-    "sources",
+    "authority_context",
+    "policy_decision",
+    "catalogue",
     "transformations",
     "software",
-    "outputs",
+    "result",
     "licence_obligations",
     "verification",
-    "attestation",
-    "retention_classification"
+    "evidence_handling"
   ],
   "properties": {
+    "schema": {
+      "const": "gis-ai-go.evidence-receipt.v1"
+    },
     "receipt_id": {
       "type": "string",
-      "pattern": "^receipt_[A-Za-z0-9_-]+$"
+      "pattern": "^gis-ai-go:evidence-receipt:sha256:[0-9a-f]{64}$"
     },
     "created_at": {
       "type": "string",
+      "maxLength": 35,
       "format": "date-time"
     },
     "request_id": {
-      "type": "string"
+      "$ref": "#/$defs/request_id"
+    },
+    "trace_id": {
+      "$ref": "#/$defs/trace_id"
+    },
+    "operation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "contract_version",
+        "normalised_parameters"
+      ],
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/catalogue_operation"
+        },
+        "contract_version": {
+          "const": "v1"
+        },
+        "normalised_parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "domain",
+            "sha256"
+          ],
+          "properties": {
+            "domain": {
+              "const": "gis-ai-go.catalogue-parameters.v1"
+            },
+            "sha256": {
+              "$ref": "#/$defs/sha256"
+            }
+          }
+        }
+      }
+    },
+    "authority_context": {
+      "$ref": "urn:gis-ai-go:schema:public-authority-context:v1"
+    },
+    "policy_decision": {
+      "allOf": [
+        {
+          "$ref": "urn:gis-ai-go:schema:public-policy-decision:v1"
+        },
+        {
+          "properties": {
+            "effect": {
+              "const": "allow-with-obligations"
+            },
+            "reason_code": {
+              "const": "public-catalogue-read-allowed"
+            }
+          }
+        }
+      ]
+    },
+    "catalogue": {
+      "$ref": "#/$defs/catalogue_identity"
+    },
+    "transformations": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 4,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/transformation"
+      }
+    },
+    "software": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "version",
+        "revision"
+      ],
+      "properties": {
+        "name": {
+          "const": "gis-ai-go-mcp-gateway"
+        },
+        "version": {
+          "$ref": "#/$defs/semver"
+        },
+        "revision": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        }
+      }
+    },
+    "result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "domain",
+        "sha256",
+        "media_type",
+        "returned_record_count"
+      ],
+      "properties": {
+        "domain": {
+          "const": "gis-ai-go.catalogue-result-core.v1"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "media_type": {
+          "const": "application/json"
+        },
+        "returned_record_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        }
+      }
+    },
+    "licence_obligations": {
+      "$comment": "Entries must be sorted in ascending Unicode code-point order by record_id and contain one entry for each returned record.",
+      "type": "array",
+      "maxItems": 100,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "record_id",
+          "record_licence",
+          "described_resource_licence",
+          "attribution"
+        ],
+        "properties": {
+          "record_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "record_licence": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2048
+          },
+          "described_resource_licence": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2048
+          },
+          "attribution": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8192
+          }
+        }
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "canonicalisation",
+        "digest_algorithm",
+        "checks"
+      ],
+      "properties": {
+        "status": {
+          "const": "passed"
+        },
+        "canonicalisation": {
+          "const": "rfc8785-jcs"
+        },
+        "digest_algorithm": {
+          "const": "sha256"
+        },
+        "checks": {
+          "type": "array",
+          "minItems": 7,
+          "maxItems": 7,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "authority-context",
+              "public-policy-decision",
+              "catalogue-integrity",
+              "normalised-parameters-digest",
+              "result-core-digest",
+              "licence-obligations",
+              "schema"
+            ]
+          }
+        }
+      }
+    },
+    "evidence_handling": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "delivery",
+        "persistence",
+        "attestation"
+      ],
+      "properties": {
+        "delivery": {
+          "const": "inline-only"
+        },
+        "persistence": {
+          "const": "not-persisted"
+        },
+        "attestation": {
+          "const": "not-attested"
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "operation": {
+            "properties": {
+              "name": {
+                "const": "catalogue.search"
+              }
+            },
+            "required": [
+              "name"
+            ]
+          }
+        },
+        "required": [
+          "operation"
+        ]
+      },
+      "then": {
+        "properties": {
+          "policy_decision": {
+            "properties": {
+              "operation": {
+                "const": "catalogue.search"
+              }
+            }
+          },
+          "transformations": {
+            "minItems": 4,
+            "maxItems": 4,
+            "prefixItems": [
+              {
+                "$ref": "#/$defs/load_catalogue_transformation"
+              },
+              {
+                "$ref": "#/$defs/normalise_parameters_transformation"
+              },
+              {
+                "$ref": "#/$defs/filter_catalogue_transformation"
+              },
+              {
+                "$ref": "#/$defs/project_result_transformation"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "operation": {
+            "properties": {
+              "name": {
+                "const": "catalogue.describe"
+              }
+            },
+            "required": [
+              "name"
+            ]
+          }
+        },
+        "required": [
+          "operation"
+        ]
+      },
+      "then": {
+        "properties": {
+          "policy_decision": {
+            "properties": {
+              "operation": {
+                "const": "catalogue.describe"
+              }
+            }
+          },
+          "transformations": {
+            "minItems": 3,
+            "maxItems": 3,
+            "prefixItems": [
+              {
+                "$ref": "#/$defs/load_catalogue_transformation"
+              },
+              {
+                "$ref": "#/$defs/normalise_parameters_transformation"
+              },
+              {
+                "$ref": "#/$defs/project_result_transformation"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "request_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
     },
     "trace_id": {
       "type": "string",
       "pattern": "^[0-9a-f]{32}$"
     },
-    "authority_context_id": {
-      "type": "string"
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
     },
-    "policy_decision_id": {
-      "type": "string"
+    "semver": {
+      "type": "string",
+      "maxLength": 32,
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
     },
-    "operation": {
+    "catalogue_operation": {
+      "enum": [
+        "catalogue.search",
+        "catalogue.describe"
+      ]
+    },
+    "catalogue_identity": {
       "type": "object",
+      "additionalProperties": false,
       "required": [
-        "tool",
+        "id",
         "version",
-        "parameters_digest"
+        "revision",
+        "content_root_sha256",
+        "record_count",
+        "reviewed_at",
+        "stale_after"
       ],
       "properties": {
-        "tool": {
-          "type": "string"
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
         },
         "version": {
-          "type": "string"
+          "$ref": "#/$defs/semver"
         },
-        "parameters_digest": {
-          "type": "string"
+        "revision": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
         },
-        "workflow_id": {
-          "type": [
-            "string",
-            "null"
-          ]
+        "content_root_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "record_count": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10000
+        },
+        "reviewed_at": {
+          "type": "string",
+          "maxLength": 35,
+          "format": "date-time"
+        },
+        "stale_after": {
+          "type": "string",
+          "maxLength": 35,
+          "format": "date-time"
         }
-      },
-      "additionalProperties": true
-    },
-    "sources": {
-      "type": "array",
-      "minItems": 1,
-      "items": {
-        "type": "object",
-        "required": [
-          "provider",
-          "dataset",
-          "version",
-          "uri",
-          "retrieved_at",
-          "checksum"
-        ],
-        "properties": {
-          "provider": {
-            "type": "string"
-          },
-          "dataset": {
-            "type": "string"
-          },
-          "version": {
-            "type": "string"
-          },
-          "uri": {
-            "type": "string"
-          },
-          "retrieved_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "checksum": {
-            "type": "string"
-          },
-          "licence": {
-            "type": "string"
-          }
-        },
-        "additionalProperties": true
       }
     },
-    "transformations": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": [
-          "name",
-          "parameters",
-          "input_crs",
-          "output_crs"
-        ],
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "parameters": {
-            "type": "object"
-          },
-          "input_crs": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "output_crs": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "software": {
-            "type": "string"
-          }
-        },
-        "additionalProperties": true
-      }
-    },
-    "software": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": [
-          "name",
-          "version"
-        ],
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "version": {
-            "type": "string"
-          },
-          "digest": {
-            "type": "string"
-          }
-        },
-        "additionalProperties": true
-      }
-    },
-    "outputs": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": [
-          "media_type",
-          "sha256"
-        ],
-        "properties": {
-          "artefact_id": {
-            "type": "string"
-          },
-          "uri": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "media_type": {
-            "type": "string"
-          },
-          "sha256": {
-            "type": "string"
-          },
-          "size_bytes": {
-            "type": "integer"
-          },
-          "redactions": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        },
-        "additionalProperties": true
-      }
-    },
-    "licence_obligations": {
-      "type": "array",
-      "items": {
-        "type": "object"
-      }
-    },
-    "verification": {
+    "transformation": {
       "type": "object",
+      "additionalProperties": false,
       "required": [
-        "status"
+        "name",
+        "version"
       ],
       "properties": {
-        "status": {
+        "name": {
           "enum": [
-            "not-run",
-            "passed",
-            "failed",
-            "partial"
+            "normalise-parameters",
+            "load-checksum-verified-catalogue",
+            "filter-catalogue",
+            "project-result-core"
           ]
         },
-        "checks": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
+        "version": {
+          "const": "v1"
         }
-      },
-      "additionalProperties": true
+      }
     },
-    "attestation": {
+    "load_catalogue_transformation": {
       "type": "object",
-      "required": [
-        "status"
-      ],
+      "additionalProperties": false,
       "properties": {
-        "status": {
-          "enum": [
-            "not-attested",
-            "attested",
-            "failed"
-          ]
+        "name": {
+          "const": "load-checksum-verified-catalogue"
         },
-        "attester": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "receipt_digest": {
-          "type": [
-            "string",
-            "null"
-          ]
+        "version": {
+          "const": "v1"
         }
       },
-      "additionalProperties": true
+      "required": [
+        "name",
+        "version"
+      ]
     },
-    "retention_classification": {
-      "type": "string"
+    "normalise_parameters_transformation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "const": "normalise-parameters"
+        },
+        "version": {
+          "const": "v1"
+        }
+      },
+      "required": [
+        "name",
+        "version"
+      ]
+    },
+    "filter_catalogue_transformation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "const": "filter-catalogue"
+        },
+        "version": {
+          "const": "v1"
+        }
+      },
+      "required": [
+        "name",
+        "version"
+      ]
+    },
+    "project_result_transformation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "const": "project-result-core"
+        },
+        "version": {
+          "const": "v1"
+        }
+      },
+      "required": [
+        "name",
+        "version"
+      ]
     }
   }
 }

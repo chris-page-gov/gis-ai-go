@@ -13,6 +13,14 @@ STABLE_SEMVER = re.compile(r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$")
 RELEASE_DATE = r"\d{4}-\d{2}-\d{2}"
 
 
+def npm_package_manifests(root: Path) -> tuple[str, ...]:
+    """Return every root and pnpm-workspace package manifest deterministically."""
+    manifests = [root / "package.json"]
+    manifests.extend(sorted((root / "apps").glob("*/package.json")))
+    manifests.extend(sorted((root / "packages").glob("*/package.json")))
+    return tuple(path.relative_to(root).as_posix() for path in manifests)
+
+
 def is_valid_product_version(value: str) -> bool:
     """Return whether a version is stable SemVer and valid unchanged in Python metadata."""
     return STABLE_SEMVER.fullmatch(value) is not None
@@ -102,12 +110,7 @@ def main(argv: Sequence[str] | None = None) -> None:
         raise SystemExit(f"VERSION must be stable Semantic Versioning X.Y.Z: {version!r}")
 
     observed: dict[str, str] = {}
-    for relative in (
-        "package.json",
-        "apps/mcp-gateway/package.json",
-        "apps/public-explorer/package.json",
-        "packages/contracts/package.json",
-    ):
+    for relative in npm_package_manifests(ROOT):
         value = load_json(ROOT / relative).get("version")
         observed[relative] = str(value)
 

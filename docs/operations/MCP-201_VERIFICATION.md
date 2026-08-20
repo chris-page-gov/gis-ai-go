@@ -1,7 +1,7 @@
 # MCP-201 verification record
 
-- status: shared catalogue contract and inactive gateway candidate merged on
-  protected `main`; acceptance-evidence run pending
+- status: shared catalogue contract and inactive gateway candidate accepted on
+  protected `main`; EVID-204A remains an inactive local candidate
 - reviewed on: 20 August 2026
 - work item: [MCP-201](https://github.com/chris-page-gov/gis-ai-go/issues/19)
 
@@ -32,9 +32,9 @@ define a bounded foundation for later read-only catalogue delivery.
 
 It does not provide an MCP listener, catalogue API, provider adapter, execution
 path or evidence store. `catalogue.search` and `catalogue.describe` are not
-registered, advertised or active. Its candidate result schema rejects an opaque
-evidence reference rather than implying persistence or attestation that does not
-exist.
+registered, advertised or active. EVID-204A subsequently replaces the earlier
+receiptless candidate result with a required inline receipt that expressly says it
+is not persisted and not attested.
 
 ### Contract scope
 
@@ -97,7 +97,12 @@ listed above completed this slice's remote gate.
 - protected-main merge: `4948890c10adb4f0ac6f427cda21cb0c0c4607dd`
 - acceptance-evidence pull request:
   [28](https://github.com/chris-page-gov/gis-ai-go/pull/28)
-- protected-main acceptance run: pending this docs-only follow-up
+- protected-main acceptance run:
+  [passing](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32346195668)
+- protected-main acceptance CodeQL:
+  [passing](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32346195675)
+- protected-main acceptance attestation:
+  [41809248](https://github.com/chris-page-gov/gis-ai-go/attestations/41809248)
 
 ### Candidate outcome
 
@@ -118,9 +123,9 @@ The HTTP candidate binds to loopback and exposes only:
 - `GET /openapi.json`, whose contract contains no catalogue operation path.
 
 There is no search or description route, MCP listener or tool registration, public
-deployment, provider call, policy engine or evidence store. The application code
-can be tested directly, but it cannot be activated through an environment variable,
-command-line option or test mode.
+deployment, provider call, external policy service or evidence store. The
+application code can be tested directly, but it cannot be activated through an
+environment variable, command-line option or test mode.
 
 Malformed request identities, hostile unknown keys and non-canonical URL paths fail
 through bounded problem envelopes rather than escaping as raw server errors. The
@@ -157,12 +162,19 @@ commit; the repaired current bytes then received an independent `SHIP` review an
 passed all 38 gateway tests. This does not claim that the absent public service has
 been security-tested as a deployed service.
 
-The pull-request gate and protected-main merge are complete. GitHub did not emit a
-push workflow for the implementation merge during the 15-minute monitored
-acceptance window, so this docs-only follow-up deliberately leaves the
-protected-main acceptance run pending rather than treating absent evidence as a
-pass. Its protected-main run must cover the unchanged runtime tree before this
-slice is recorded complete.
+The pull-request gate and implementation merge completed, but GitHub did not emit a
+push workflow for that runtime merge during the 15-minute monitored acceptance
+window. The unchanged runtime tree was therefore accepted through the subsequent
+docs-only [pull request 28](https://github.com/chris-page-gov/gis-ai-go/pull/28),
+which merged as `87d6a1b4f8fb15597e5ae91132aa9b61dca57667`. Protected-main assurance and
+provenance passed in
+[run 32346195668](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32346195668),
+CodeQL passed in
+[run 32346195675](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32346195675),
+and [attestation 41809248](https://github.com/chris-page-gov/gis-ai-go/attestations/41809248)
+binds archive SHA-256
+`f6adb7998c26bef62a651ec825e3a4426d955af4a09167b264dfa221d0ef28b0` to that exact
+protected-main commit and run.
 
 The pull-request head and protected-main merge both resolve to tree
 `5b04c4552a0d750aa7a904fbcde4aebd7b1bd1d4`, and the repository had zero open
@@ -174,12 +186,13 @@ check suite or workflow run for the merge.
 No service or new public endpoint is published by either slice. The supported
 public product remains the static `v0.1.0` Explorer.
 
-Activation is hard-blocked as
-`inline-evidence-and-public-policy-unavailable`. EVID-204 must add reviewed public
-policy decisions and canonical inline result receipts to the shared application
-path. A later reviewed MCP-201 change must add and test the protocol-conformant MCP
-listener, direct catalogue routes, lifecycle agreement and interoperability before
-either operation can be advertised or published.
+The EVID-204A local candidate changes the activation reason to
+`transport-and-interoperability-unverified` only after adding reviewed public policy
+decisions and required canonical inline result receipts to the shared application
+path. It does not activate an operation. A later reviewed MCP-201 change must add
+and test the protocol-conformant MCP listener, direct catalogue routes, lifecycle
+agreement and interoperability before either operation can be advertised or
+published.
 
 The durable candidate boundary is documented in
 [MCP-201 inactive gateway candidate](MCP-201_GATEWAY_CANDIDATE.md).

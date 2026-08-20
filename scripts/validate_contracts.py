@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from jsonschema import Draft202012Validator, FormatChecker
+from referencing import Registry, Resource
 
 ROOT = Path(__file__).resolve().parents[1]
 RESEARCH_DATA = (
@@ -25,6 +26,17 @@ def load_json(path: Path) -> Any:
         return json.load(handle)
 
 
+def build_schema_registry() -> Registry:
+    resources = []
+    for schema_path in sorted((ROOT / "schemas").glob("*.schema.json")):
+        schema = load_json(schema_path)
+        resources.append((schema["$id"], Resource.from_contents(schema)))
+    return Registry().with_resources(resources)
+
+
+SCHEMA_REGISTRY = build_schema_registry()
+
+
 def validate_records(
     schema_name: str,
     records: list[tuple[str, Any]],
@@ -36,7 +48,11 @@ def validate_records(
     if not schema_id.startswith("urn:gis-ai-go:schema:"):
         raise AssertionError(f"{schema_name} has an unexpected $id: {schema_id}")
 
-    validator = Draft202012Validator(schema, format_checker=FormatChecker())
+    validator = Draft202012Validator(
+        schema,
+        registry=SCHEMA_REGISTRY,
+        format_checker=FormatChecker(),
+    )
     for label, record in records:
         errors = sorted(validator.iter_errors(record), key=lambda error: list(error.path))
         if errors:
@@ -92,6 +108,24 @@ def main() -> None:
                 (
                     "policy-decision.example.json",
                     load_json(fixture_dir / "policy-decision.example.json"),
+                )
+            ],
+        ),
+        (
+            "public-authority-context.schema.json",
+            [
+                (
+                    "public-authority-context.example.json",
+                    load_json(fixture_dir / "public-authority-context.example.json"),
+                )
+            ],
+        ),
+        (
+            "public-policy-decision.schema.json",
+            [
+                (
+                    "public-policy-decision.example.json",
+                    load_json(fixture_dir / "public-policy-decision.example.json"),
                 )
             ],
         ),

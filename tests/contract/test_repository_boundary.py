@@ -7,6 +7,8 @@ import tomllib
 import unittest
 from pathlib import Path
 
+from scripts.check_versions import npm_package_manifests
+
 ROOT = Path(__file__).resolve().parents[2]
 RESEARCH = ROOT / "docs" / "research" / "2026-08-19"
 
@@ -28,12 +30,7 @@ class RepositoryBoundaryTests(unittest.TestCase):
             self.assertNotIn("locus-accord", schema["$id"])
 
     def test_repository_uses_mit_licence_metadata(self) -> None:
-        for relative in (
-            "package.json",
-            "apps/mcp-gateway/package.json",
-            "apps/public-explorer/package.json",
-            "packages/contracts/package.json",
-        ):
+        for relative in npm_package_manifests(ROOT):
             package = json.loads((ROOT / relative).read_text(encoding="utf-8"))
             self.assertTrue(package["private"])
             self.assertEqual(package["license"], "MIT")
@@ -53,7 +50,10 @@ class RepositoryBoundaryTests(unittest.TestCase):
                 encoding="utf-8"
             )
         )
-        self.assertEqual(receipt["software"][0]["name"], "gis-ai-go-execution")
+        self.assertEqual(receipt["schema"], "gis-ai-go.evidence-receipt.v1")
+        self.assertEqual(receipt["software"]["name"], "gis-ai-go-mcp-gateway")
+        self.assertEqual(receipt["evidence_handling"]["persistence"], "not-persisted")
+        self.assertEqual(receipt["evidence_handling"]["attestation"], "not-attested")
 
     def test_package_uv_run_commands_are_lock_strict(self) -> None:
         excluded_parts = {".git", "artifacts", "dist", "node_modules"}

@@ -104,12 +104,15 @@ The supported target active set is exactly `catalogue.search`,
   all CodeQL language analyses and an independent no-P0-P2 review; and
 - the candidate verifies the immutable catalogue, supplies deterministic bounded
   in-process search and description, and exposes only loopback health, blocked
-  readiness and OpenAPI with zero active tools or API operations.
+  readiness and OpenAPI with zero active tools or API operations; and
+- the local EVID-204A candidate adds RFC 8785 canonicalisation, content-addressed
+  anonymous-open authority and policy decisions, and independently verified inline
+  receipts to every in-process catalogue success while keeping activation blocked.
 
 ## Next
 
-1. Add the bounded EVID-204 anonymous-open public policy and canonical inline receipt
-   slice while keeping readiness blocked and persistence absent.
+1. Complete independent review and the protected pull-request gate for the bounded
+   EVID-204A inline-evidence candidate.
 2. Add and verify the protocol-conformant MCP listener and direct catalogue routes,
    then activate `catalogue.search` and `catalogue.describe` only when their full
    policy, evidence, lifecycle and interoperability gates pass.
@@ -118,9 +121,9 @@ The supported target active set is exactly `catalogue.search`,
 
 ## Current blockers
 
-- No blocker is known for the bounded EVID-204 inline-evidence slice.
-- Activating or publishing a catalogue service is hard-blocked until EVID-204 adds
-  reviewed public policy and canonical inline evidence receipts. The current
+- No blocker is known for the bounded EVID-204A pull-request gate.
+- Activating or publishing a catalogue service remains hard-blocked until transport
+  conformance and interoperability are implemented and reviewed. The current
   candidate has no activation override.
 - The candidate has no MCP listener, catalogue API operation, provider adapter or
   evidence store; those remain implementation work, not implied capabilities.
@@ -146,8 +149,19 @@ The supported target active set is exactly `catalogue.search`,
   [run 32344358198](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32344358198),
   then merged as `4948890c10adb4f0ac6f427cda21cb0c0c4607dd`; the candidate exposes no
   catalogue operation, MCP tool or public deployment;
-- current complete local gate: type checking, 38 gateway tests, 16 Explorer
-  build-policy tests, 42 Explorer unit and component tests, 88 repository Python
+- EVID-204A local candidate: 19 shared-contract tests, 20 canonical-evidence tests,
+  2 authority-context tests, 6 public-policy tests and 41 gateway tests pass; all
+  94 repository Python tests, 2 execution-boundary tests, 16 Explorer build-policy
+  tests, 42 Explorer unit and component tests and 27 real-browser tests also pass;
+  the gate validates 11 manifests and locks, 15 schemas and 55 records, 308 local
+  links, 183 immutable research hashes, 2 ledgers and 71 source identifiers, scans
+  508 text files, renders 9 diagrams and emits a 149-component SBOM;
+- EVID-204A reproducibility: two clean locked builds produced the same Pages archive
+  SHA-256 `f6adb7998c26bef62a651ec825e3a4426d955af4a09167b264dfa221d0ef28b0`;
+  the OKF content root is
+  `157ccef25e03043b69bf1f2be180b4b0242b5056c17edcfcd15acbd94c6e2007`;
+- current complete local gate: type checking, 41 gateway tests, 16 Explorer
+  build-policy tests, 42 Explorer unit and component tests, 94 repository Python
   tests, 2 execution-boundary tests and 27 real-browser tests pass;
 - QUAL-105 reproducibility: two complete clean locked builds produce byte-identical
   Pages archives, checksums and receipts; the public workflow now emits a mandatory

@@ -18,6 +18,16 @@ import {
   type RecordType,
   type RightsState,
 } from "@gis-ai-go/contracts";
+import {
+  buildInlineReceipt,
+  canonicalJsonClone,
+  verifyInlineReceipt,
+  type EvidenceSoftwareIdentity,
+  type InlineEvidenceReceipt,
+  type PublicCatalogueOperation,
+  type RecordLicenceObligation,
+} from "@gis-ai-go/evidence";
+import { evaluatePublicCataloguePolicy } from "@gis-ai-go/policy-client";
 
 import type { CatalogueSnapshot } from "./catalogue-snapshot.js";
 import {
@@ -136,7 +146,7 @@ export interface CatalogueRecordDetail {
   readonly details: Readonly<Record<string, JsonValue>>;
 }
 
-export interface CatalogueSearchResult {
+export interface CatalogueSearchResultCore {
   readonly schema: "gis-ai-go.catalogue-result.v1";
   readonly operation: "catalogue.search";
   readonly request_id: string;
@@ -155,7 +165,11 @@ export interface CatalogueSearchResult {
   };
 }
 
-export interface CatalogueDescribeResult {
+export interface CatalogueSearchResult extends CatalogueSearchResultCore {
+  readonly evidence_receipt: InlineEvidenceReceipt;
+}
+
+export interface CatalogueDescribeResultCore {
   readonly schema: "gis-ai-go.catalogue-result.v1";
   readonly operation: "catalogue.describe";
   readonly request_id: string;
@@ -181,6 +195,15 @@ export interface CatalogueDescribeResult {
   };
 }
 
+export interface CatalogueDescribeResult extends CatalogueDescribeResultCore {
+  readonly evidence_receipt: InlineEvidenceReceipt;
+}
+
+export interface CatalogueApplicationOptions {
+  readonly software: EvidenceSoftwareIdentity;
+  readonly now?: () => Date;
+}
+
 export interface CatalogueApplication {
   readonly search: (
     request: unknown,
@@ -190,6 +213,11 @@ export interface CatalogueApplication {
     request: unknown,
     context: CatalogueProblemContext,
   ) => CatalogueDescribeResult;
+}
+
+interface CatalogueEvidenceRuntime {
+  readonly software: EvidenceSoftwareIdentity;
+  readonly now: () => Date;
 }
 
 interface NormalisedSearchRequest {
@@ -387,7 +415,7 @@ function assertResultRecord(record: CatalogueRecord, path: string): void {
     FRESHNESS_STATUSES,
   );
   assertControlledResultValue(record.status, `${path}.status`, RECORD_STATUSES);
-  assertResultStringArray(record.sourceRefs, `${path}.sourceRefs`, 1, 100, 512);
+  assertResultStringArray(record.sourceRefs, `${path}.sourceRefs`, 1, 99, 512);
   assertResultStringArray(record.limitations, `${path}.limitations`, 1, 50, 2_048);
   assertResultStringArray(record.tags, `${path}.tags`, 0, 50, 128);
   assertSourceNativeValue(record.details, `${path}.details`, new WeakSet<object>());
@@ -489,10 +517,60 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
   return prototype === Object.prototype || prototype === null;
 }
 
+function applicationRuntime(options: CatalogueApplicationOptions): CatalogueEvidenceRuntime {
+  if (!isPlainObject(options)) {
+    throw new TypeError("Catalogue application options must be a plain object");
+  }
+  const optionKeys = Object.keys(options).sort();
+  if (
+    (optionKeys.length !== 1 || optionKeys[0] !== "software") &&
+    (optionKeys.length !== 2 || optionKeys[0] !== "now" || optionKeys[1] !== "software")
+  ) {
+    throw new TypeError("Catalogue application options have an unexpected shape");
+  }
+  if (!isPlainObject(options.software)) {
+    throw new TypeError("Catalogue application software must be a plain object");
+  }
+  const softwareKeys = Object.keys(options.software).sort();
+  if (
+    softwareKeys.length !== 3 ||
+    softwareKeys[0] !== "name" ||
+    softwareKeys[1] !== "revision" ||
+    softwareKeys[2] !== "version" ||
+    options.software.name !== "gis-ai-go-mcp-gateway" ||
+    !RESULT_SEMVER.test(options.software.version) ||
+    !RESULT_SHA40.test(options.software.revision)
+  ) {
+    throw new TypeError("Catalogue application software identity is invalid");
+  }
+  if (options.now !== undefined && typeof options.now !== "function") {
+    throw new TypeError("Catalogue application now option must be a function");
+  }
+  return Object.freeze({
+    software: canonicalJsonClone(options.software),
+    now: options.now ?? (() => new Date()),
+  });
+}
+
+function hasOnlyPairedSurrogates(value: string): boolean {
+  for (let index = 0; index < value.length; index += 1) {
+    const codeUnit = value.charCodeAt(index);
+    if (codeUnit >= 0xd800 && codeUnit <= 0xdbff) {
+      const next = value.charCodeAt(index + 1);
+      if (!(next >= 0xdc00 && next <= 0xdfff)) return false;
+      index += 1;
+    } else if (codeUnit >= 0xdc00 && codeUnit <= 0xdfff) {
+      return false;
+    }
+  }
+  return true;
+}
+
 function isProblemBoundedText(value: string, maximum: number): boolean {
   return (
     codePointLength(value) >= 1 &&
     codePointLength(value) <= maximum &&
+    hasOnlyPairedSurrogates(value) &&
     !PROBLEM_CONTROL_CHARACTER.test(value)
   );
 }
@@ -646,6 +724,14 @@ function normaliseSearchRequest(
     if (request.query.length === 0) {
       fieldFailure(context, "$.query", "out_of_range", "Query must not be empty.");
     }
+    if (!hasOnlyPairedSurrogates(request.query)) {
+      fieldFailure(
+        context,
+        "$.query",
+        "invalid_value",
+        "Query must contain valid Unicode scalar values.",
+      );
+    }
     const analysis = analyseCatalogueQuery(request.query);
     if (analysis.exceedsCharacterLimit) {
       fieldFailure(
@@ -715,6 +801,105 @@ function catalogueIdentity(snapshot: CatalogueSnapshot): CatalogueIdentity {
     reviewed_at: snapshot.bundle.reviewedAt,
     stale_after: snapshot.bundle.staleAfter,
   };
+}
+
+function receiptTimestamp(runtime: CatalogueEvidenceRuntime): string {
+  const value = runtime.now();
+  if (!(value instanceof Date) || !Number.isFinite(value.valueOf())) {
+    throw new TypeError("Catalogue application clock must return a valid Date");
+  }
+  return value.toISOString();
+}
+
+function licenceObligations(
+  records: readonly CatalogueRecord[],
+): readonly RecordLicenceObligation[] {
+  return records.map((record) => ({
+    record_id: record.id,
+    record_licence: record.rights.recordLicence,
+    described_resource_licence: record.rights.describedResourceLicence,
+    attribution: record.rights.attribution,
+  }));
+}
+
+function resultWithEvidence(
+  resultCore: CatalogueSearchResultCore,
+  normalisedParameters: unknown,
+  returnedRecords: readonly CatalogueRecord[],
+  snapshot: CatalogueSnapshot,
+  context: CatalogueProblemContext,
+  runtime: CatalogueEvidenceRuntime,
+): CatalogueSearchResult;
+function resultWithEvidence(
+  resultCore: CatalogueDescribeResultCore,
+  normalisedParameters: unknown,
+  returnedRecords: readonly CatalogueRecord[],
+  snapshot: CatalogueSnapshot,
+  context: CatalogueProblemContext,
+  runtime: CatalogueEvidenceRuntime,
+): CatalogueDescribeResult;
+function resultWithEvidence(
+  resultCore: CatalogueSearchResultCore | CatalogueDescribeResultCore,
+  normalisedParameters: unknown,
+  returnedRecords: readonly CatalogueRecord[],
+  snapshot: CatalogueSnapshot,
+  context: CatalogueProblemContext,
+  runtime: CatalogueEvidenceRuntime,
+): CatalogueSearchResult | CatalogueDescribeResult {
+  const operation: PublicCatalogueOperation = resultCore.operation;
+  const policyEvaluation = evaluatePublicCataloguePolicy({
+    requestId: context.requestId,
+    traceId: context.traceId,
+    operation,
+    catalogue: snapshot.bundle,
+  });
+  if (!policyEvaluation.allowed || policyEvaluation.decision === null) {
+    throwCatalogueProblem("service_unavailable", context, {
+      detail: "The public catalogue policy did not authorise this result.",
+    });
+  }
+
+  const immutableCore = canonicalJsonClone(resultCore);
+  const transformations = [
+    { name: "load-checksum-verified-catalogue", version: "v1" },
+    { name: "normalise-parameters", version: "v1" },
+    ...(operation === "catalogue.search"
+      ? ([{ name: "filter-catalogue", version: "v1" }] as const)
+      : []),
+    { name: "project-result-core", version: "v1" },
+  ] as const;
+  const recordLicences = licenceObligations(returnedRecords);
+  const receipt = buildInlineReceipt({
+    createdAt: receiptTimestamp(runtime),
+    requestId: context.requestId,
+    traceId: context.traceId,
+    operation,
+    normalisedParameters,
+    authorityContext: policyEvaluation.authorityContext,
+    publicPolicy: policyEvaluation.policy,
+    policyDecision: policyEvaluation.decision,
+    catalogue: immutableCore.catalogue,
+    transformations,
+    software: runtime.software,
+    resultCore: immutableCore,
+    licenceObligations: recordLicences,
+  });
+  const verification = verifyInlineReceipt(receipt, {
+    normalisedParameters,
+    resultCore: immutableCore,
+    publicPolicy: policyEvaluation.policy,
+    expectedAuthorityContext: policyEvaluation.authorityContext,
+    expectedPolicyDecision: policyEvaluation.decision,
+    expectedCatalogue: immutableCore.catalogue,
+    expectedSoftware: runtime.software,
+    licenceObligations: recordLicences,
+  });
+  if (!verification.valid) {
+    throw new Error("The catalogue application produced unverifiable inline evidence");
+  }
+  return canonicalJsonClone({ ...immutableCore, evidence_receipt: receipt }) as
+    | CatalogueSearchResult
+    | CatalogueDescribeResult;
 }
 
 function summary(record: CatalogueRecord): CatalogueRecordSummary {
@@ -811,6 +996,7 @@ function searchCatalogueFromValidatedSnapshot(
   snapshot: CatalogueSnapshot,
   input: unknown,
   context: CatalogueProblemContext,
+  runtime: CatalogueEvidenceRuntime,
 ): CatalogueSearchResult {
   const request = normaliseSearchRequest(input, snapshot, context);
   const state = searchState(request);
@@ -850,7 +1036,7 @@ function searchCatalogueFromValidatedSnapshot(
         )
       : null;
 
-  return {
+  const resultCore: CatalogueSearchResultCore = {
     schema: "gis-ai-go.catalogue-result.v1",
     operation: "catalogue.search",
     request_id: context.requestId,
@@ -868,16 +1054,19 @@ function searchCatalogueFromValidatedSnapshot(
       },
     },
   };
-}
-
-export function searchCatalogue(
-  snapshot: CatalogueSnapshot,
-  input: unknown,
-  context: CatalogueProblemContext,
-): CatalogueSearchResult {
-  assertCatalogueProblemContext(context);
-  assertCatalogueResultSnapshotBounds(snapshot);
-  return searchCatalogueFromValidatedSnapshot(snapshot, input, context);
+  return resultWithEvidence(
+    resultCore,
+    {
+      query: request.query,
+      facets: request.facets,
+      limit: request.limit,
+      offset,
+    },
+    pageRecords,
+    snapshot,
+    context,
+    runtime,
+  );
 }
 
 function normaliseDescribeRequest(
@@ -924,6 +1113,7 @@ function describeCatalogueFromValidatedSnapshot(
   snapshot: CatalogueSnapshot,
   input: unknown,
   context: CatalogueProblemContext,
+  runtime: CatalogueEvidenceRuntime,
 ): CatalogueDescribeResult {
   const request = normaliseDescribeRequest(input, context);
   const record = snapshot.recordsById.get(request.recordId);
@@ -938,11 +1128,16 @@ function describeCatalogueFromValidatedSnapshot(
     relation: "source" as const,
     record_id: recordId,
   }));
-  const sources = sourceIds.map((recordId) => {
+  const sourceRecords = sourceIds
+    .filter((recordId) => recordId !== record.id)
+    .map((recordId) => {
     const source = snapshot.recordsById.get(recordId);
     if (source === undefined) {
       throw new Error(`Validated catalogue source ${recordId} is unavailable`);
     }
+      return source;
+    });
+  const sources = sourceRecords.map((source) => {
     return {
       id: source.id,
       title: source.title,
@@ -953,7 +1148,7 @@ function describeCatalogueFromValidatedSnapshot(
     };
   });
 
-  return {
+  const resultCore: CatalogueDescribeResultCore = {
     schema: "gis-ai-go.catalogue-result.v1",
     operation: "catalogue.describe",
     request_id: context.requestId,
@@ -968,29 +1163,34 @@ function describeCatalogueFromValidatedSnapshot(
       },
     },
   };
-}
-
-export function describeCatalogue(
-  snapshot: CatalogueSnapshot,
-  input: unknown,
-  context: CatalogueProblemContext,
-): CatalogueDescribeResult {
-  assertCatalogueProblemContext(context);
-  assertCatalogueResultSnapshotBounds(snapshot);
-  return describeCatalogueFromValidatedSnapshot(snapshot, input, context);
+  return resultWithEvidence(
+    resultCore,
+    {
+      record_id: request.recordId,
+      include: [...request.include],
+    },
+    request.include.has("sources") ? [record, ...sourceRecords] : [record],
+    snapshot,
+    context,
+    runtime,
+  );
 }
 
 /** Bind the two catalogue operations to one immutable, transport-neutral snapshot. */
-export function createCatalogueApplication(snapshot: CatalogueSnapshot): CatalogueApplication {
+export function createCatalogueApplication(
+  snapshot: CatalogueSnapshot,
+  options: CatalogueApplicationOptions,
+): CatalogueApplication {
   assertCatalogueResultSnapshotBounds(snapshot);
+  const runtime = applicationRuntime(options);
   return Object.freeze({
     search: (request: unknown, context: CatalogueProblemContext) => {
       assertCatalogueProblemContext(context);
-      return searchCatalogueFromValidatedSnapshot(snapshot, request, context);
+      return searchCatalogueFromValidatedSnapshot(snapshot, request, context, runtime);
     },
     describe: (request: unknown, context: CatalogueProblemContext) => {
       assertCatalogueProblemContext(context);
-      return describeCatalogueFromValidatedSnapshot(snapshot, request, context);
+      return describeCatalogueFromValidatedSnapshot(snapshot, request, context, runtime);
     },
   });
 }

@@ -84,10 +84,12 @@ checksum-verified catalogue loader and deterministic transport-neutral
 `catalogue.search`/`catalogue.describe` application. Its loopback listener exposes
 only health, deliberately blocked readiness and its OpenAPI contract. It exposes
 no catalogue route, starts no MCP listener, registers no tool and is not publicly
-deployed. EVID-204 is now the active prerequisite: it must add server-constructed
-anonymous-open policy decisions and canonical inline receipts that state they are
-not persisted and not attested. There is still no live provider adapter, policy
-engine, identity integration or evidence store.
+deployed. The local EVID-204A candidate adds server-constructed anonymous-open
+policy decisions and canonical inline receipts that state they are not persisted
+and not attested, without changing that activation boundary. Its complete locked
+local gate passes; protected pull-request and main evidence remain pending. There
+is still no live provider adapter, external policy service, identity integration or
+evidence store.
 
 ## Non-negotiable boundaries
 

@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:public-authority-context:v1",
+  "title": "GIS AI GO public authority context",
+  "description": "The single server-constructed anonymous-open authority context for public catalogue discovery. It contains only fixed server-owned public access attributes.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "context_id",
+    "canonicalisation",
+    "construction",
+    "access",
+    "permitted_operations",
+    "evidence"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gis-ai-go.public-authority-context.v1"
+    },
+    "context_id": {
+      "type": "string",
+      "pattern": "^gis-ai-go:public-authority-context:sha256:[0-9a-f]{64}$"
+    },
+    "canonicalisation": {
+      "const": "rfc8785-jcs"
+    },
+    "construction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "profile",
+        "product"
+      ],
+      "properties": {
+        "source": {
+          "const": "server"
+        },
+        "profile": {
+          "const": "anonymous-open"
+        },
+        "product": {
+          "const": "gis-ai-go-gateway"
+        }
+      }
+    },
+    "access": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "authentication",
+        "tier",
+        "publication_classification",
+        "contains_personal_data",
+        "contains_protected_data",
+        "read_only"
+      ],
+      "properties": {
+        "authentication": {
+          "const": "none"
+        },
+        "tier": {
+          "const": "open"
+        },
+        "publication_classification": {
+          "const": "public"
+        },
+        "contains_personal_data": {
+          "const": false
+        },
+        "contains_protected_data": {
+          "const": false
+        },
+        "read_only": {
+          "const": true
+        }
+      }
+    },
+    "permitted_operations": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "catalogue.search",
+          "catalogue.describe"
+        ]
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "receipt",
+        "persistence",
+        "attestation"
+      ],
+      "properties": {
+        "receipt": {
+          "const": "inline-required"
+        },
+        "persistence": {
+          "const": "not-persisted"
+        },
+        "attestation": {
+          "const": "not-attested"
+        }
+      }
+    }
+  }
+}

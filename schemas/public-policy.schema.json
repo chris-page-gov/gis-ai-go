@@ -1,0 +1,215 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:public-policy:v1",
+  "title": "GIS AI GO compiled public catalogue policy",
+  "description": "A versioned compiled JSON allow-list for the anonymous-open public catalogue. Every operation not named by a rule is denied.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "policy_id",
+    "version",
+    "canonicalisation",
+    "compilation",
+    "default_effect",
+    "applies_to",
+    "rules"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gis-ai-go.public-policy.v1"
+    },
+    "policy_id": {
+      "type": "string",
+      "pattern": "^gis-ai-go:public-policy:sha256:[0-9a-f]{64}$"
+    },
+    "version": {
+      "type": "string",
+      "maxLength": 32,
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+    },
+    "canonicalisation": {
+      "const": "rfc8785-jcs"
+    },
+    "compilation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "runtime"
+      ],
+      "properties": {
+        "kind": {
+          "const": "compiled-json"
+        },
+        "runtime": {
+          "const": "gis-ai-go-gateway"
+        }
+      }
+    },
+    "default_effect": {
+      "const": "deny"
+    },
+    "applies_to": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "authority_profile",
+        "access_tier",
+        "publication_classification",
+        "contains_personal_data",
+        "contains_protected_data",
+        "read_only"
+      ],
+      "properties": {
+        "authority_profile": {
+          "const": "anonymous-open"
+        },
+        "access_tier": {
+          "const": "open"
+        },
+        "publication_classification": {
+          "const": "public"
+        },
+        "contains_personal_data": {
+          "const": false
+        },
+        "contains_protected_data": {
+          "const": false
+        },
+        "read_only": {
+          "const": true
+        }
+      }
+    },
+    "rules": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/rule"
+      },
+      "allOf": [
+        {
+          "contains": {
+            "type": "object",
+            "required": [
+              "operation"
+            ],
+            "properties": {
+              "operation": {
+                "const": "catalogue.search"
+              }
+            }
+          },
+          "minContains": 1,
+          "maxContains": 1
+        },
+        {
+          "contains": {
+            "type": "object",
+            "required": [
+              "operation"
+            ],
+            "properties": {
+              "operation": {
+                "const": "catalogue.describe"
+              }
+            }
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "obligation": {
+      "enum": [
+        "inline-evidence-receipt",
+        "preserve-record-licence",
+        "preserve-described-resource-licence",
+        "preserve-attribution",
+        "not-persisted",
+        "not-attested"
+      ]
+    },
+    "rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rule_id",
+        "operation",
+        "effect",
+        "obligations"
+      ],
+      "properties": {
+        "rule_id": {
+          "enum": [
+            "public-catalogue-search",
+            "public-catalogue-describe"
+          ]
+        },
+        "operation": {
+          "enum": [
+            "catalogue.search",
+            "catalogue.describe"
+          ]
+        },
+        "effect": {
+          "const": "allow-with-obligations"
+        },
+        "obligations": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 6,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/obligation"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "operation": {
+                "const": "catalogue.search"
+              }
+            },
+            "required": [
+              "operation"
+            ]
+          },
+          "then": {
+            "properties": {
+              "rule_id": {
+                "const": "public-catalogue-search"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "operation": {
+                "const": "catalogue.describe"
+              }
+            },
+            "required": [
+              "operation"
+            ]
+          },
+          "then": {
+            "properties": {
+              "rule_id": {
+                "const": "public-catalogue-describe"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
