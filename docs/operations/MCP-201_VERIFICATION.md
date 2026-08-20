@@ -1,7 +1,7 @@
 # MCP-201 verification record
 
-- status: shared catalogue contract verified on protected `main`; inactive gateway
-  candidate verified locally with pull-request evidence pending
+- status: shared catalogue contract and inactive gateway candidate merged on
+  protected `main`; acceptance-evidence run pending
 - reviewed on: 20 August 2026
 - work item: [MCP-201](https://github.com/chris-page-gov/gis-ai-go/issues/19)
 
@@ -89,13 +89,19 @@ listed above completed this slice's remote gate.
   20 August 2026
 - independent current-byte review: `SHIP`; no P0, P1 or P2 finding
 - pull request: [27](https://github.com/chris-page-gov/gis-ai-go/pull/27)
-- pull-request assurance and provenance: `local-candidate/pending`
-- pull-request CodeQL: `local-candidate/pending`
-- protected-main merge and post-merge evidence: `local-candidate/pending`
+- pull-request assurance:
+  [passing](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32344360889)
+- pull-request provenance: skipped as designed for the pull-request event
+- pull-request CodeQL:
+  [passing](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32344358198)
+- protected-main merge: `4948890c10adb4f0ac6f427cda21cb0c0c4607dd`
+- acceptance-evidence pull request:
+  [28](https://github.com/chris-page-gov/gis-ai-go/pull/28)
+- protected-main acceptance run: pending this docs-only follow-up
 
 ### Candidate outcome
 
-The current local bytes add a fail-closed, checksum-verified immutable catalogue
+The protected-main bytes add a fail-closed, checksum-verified immutable catalogue
 loader and a deterministic, transport-neutral application for
 `catalogue.search` and `catalogue.describe`. The functions use closed envelopes,
 bounded inputs and outputs, and deterministic cursors bound to the exact catalogue
@@ -151,8 +157,17 @@ commit; the repaired current bytes then received an independent `SHIP` review an
 passed all 38 gateway tests. This does not claim that the absent public service has
 been security-tested as a deployed service.
 
-Pull-request assurance, remote CodeQL, protected-main merge and post-merge evidence
-remain deliberately `local-candidate/pending` until they exist.
+The pull-request gate and protected-main merge are complete. GitHub did not emit a
+push workflow for the implementation merge during the 15-minute monitored
+acceptance window, so this docs-only follow-up deliberately leaves the
+protected-main acceptance run pending rather than treating absent evidence as a
+pass. Its protected-main run must cover the unchanged runtime tree before this
+slice is recorded complete.
+
+The pull-request head and protected-main merge both resolve to tree
+`5b04c4552a0d750aa7a904fbcde4aebd7b1bd1d4`, and the repository had zero open
+code-scanning alerts at the end of that window. No job failed: GitHub created no
+check suite or workflow run for the merge.
 
 ## Activation and publication boundary
 

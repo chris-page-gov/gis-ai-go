@@ -77,15 +77,17 @@ passing CodeQL in
 [run 32338916269](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32338916269)
 and [attestation 41792357](https://github.com/chris-page-gov/gis-ai-go/attestations/41792357).
 
-The current branch adds an inactive local gateway candidate: a fail-closed,
-checksum-verified immutable catalogue loader and one deterministic,
-transport-neutral `catalogue.search`/`catalogue.describe` application. Its HTTP
-listener is restricted to loopback and exposes only health, deliberately blocked
-readiness and its OpenAPI contract. It exposes no search or description route,
-starts no MCP listener, registers no MCP tool and is not publicly deployed.
-Activation is hard-blocked until EVID-204 supplies reviewed public policy and
-canonical inline evidence receipts. There is still no live provider adapter,
-policy engine, identity integration or evidence store.
+The second MCP-201 slice merged through
+[pull request 27](https://github.com/chris-page-gov/gis-ai-go/pull/27) as
+`4948890c10adb4f0ac6f427cda21cb0c0c4607dd`. It adds an inactive, fail-closed,
+checksum-verified catalogue loader and deterministic transport-neutral
+`catalogue.search`/`catalogue.describe` application. Its loopback listener exposes
+only health, deliberately blocked readiness and its OpenAPI contract. It exposes
+no catalogue route, starts no MCP listener, registers no tool and is not publicly
+deployed. EVID-204 is now the active prerequisite: it must add server-constructed
+anonymous-open policy decisions and canonical inline receipts that state they are
+not persisted and not attested. There is still no live provider adapter, policy
+engine, identity integration or evidence store.
 
 ## Non-negotiable boundaries
 
