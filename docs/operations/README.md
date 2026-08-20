@@ -29,3 +29,4 @@ or API is deployed.
 - [EXEC-202 private execution service](EXEC-202_EXECUTION_SERVICE.md)
 - [ADAPT-203 provider contract and ONS preflight](ADAPT-203_PROVIDER_PREFLIGHT.md)
 - [TOOLS-205 non-activating tool registry candidate](TOOLS-205_TOOL_REGISTRY.md)
+- [QUAL-206 host interoperability and secure-tunnel runbook](QUAL-206_INTEROPERABILITY.md)

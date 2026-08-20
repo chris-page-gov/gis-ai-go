@@ -1,0 +1,94 @@
+{
+  "schema": "gis-ai-go.qual-206-live-host-evidence.v1",
+  "status": "local-live-candidate-pass",
+  "observed_at": "2026-08-20T20:50:45.447Z",
+  "source": {
+    "repository": "chris-page-gov/gis-ai-go",
+    "commit": "66507f9a6e6c0da23a8af4682268f9362d93bc06",
+    "version": "0.1.0",
+    "production_activation": false
+  },
+  "harness": {
+    "node_version": "v26.7.0",
+    "files": [
+      {
+        "path": "scripts/qual_206_conformance_server.mjs",
+        "sha256": "aba0f4415bc9f94443be8b79eee06b03bdd275ca9854218dee30102c20a6778f"
+      },
+      {
+        "path": "scripts/qual_206_telemetry_proxy.mjs",
+        "sha256": "3800e4458932ee1324ad03d64007f23f76f49682a6eabdc191ecf6eaccb501d5"
+      }
+    ],
+    "evaluation_corpus": {
+      "path": "tests/interoperability/qual_206_cases.json",
+      "role": "Reviewed current assurance corpus; not a live-session runtime input.",
+      "sha256": "23ac9bc1a76d524bd0e250b11b9ba321b09e66bd5921f1463f50c150001cd389"
+    }
+  },
+  "tunnel": {
+    "name": "gis-ai-go-v0-2-interoperability",
+    "id": "tunnel_6a873e7214308191bfe27240c1c03f68",
+    "client_version": "0.0.12+881c9a8fed7cccbe6607cd419863bbca506b8215",
+    "client_binary_sha256": "b1757220cf4722cec9085ee4a908cf0ee4c1a499a33bd99979b9a9c7669e29b1",
+    "health_status": 200,
+    "readiness_status": 200,
+    "control_plane_commands": 1,
+    "successful_responses": 1,
+    "enqueue_to_response_ms": 342,
+    "poll_to_response_ms": 276,
+    "command_age_ms": 66.227,
+    "poll_cycles_at_capture": 63,
+    "queue_capacity": 20,
+    "queue_length": 0,
+    "worker_capacity": 10,
+    "worker_occupancy": 0
+  },
+  "host": {
+    "name": "ChatGPT",
+    "displayed_model": "5.6 Sol Light",
+    "app_name": "GIS AI GO v0.2 interoperability",
+    "app_id": "asdk_app_6a873f853628819184bccb4a9b961576",
+    "app_version_id": "asdk_app_v_6a873f85363081918f25a5aeaee98159",
+    "reported_work_duration_seconds": 9,
+    "conversation_id_sha256": "f3969322ff170a8fb0c668fefab30ede461dab198b374c391ed33462d713d0a4"
+  },
+  "request": {
+    "operation": "catalogue.search",
+    "public_query": "INSPIRE",
+    "frame_bytes": 953,
+    "frame_sha256": "06dcbc0510861c6155de29be6e2622c82fe26c0d84968c1615ab387396eb634c",
+    "parameters_bytes": 897,
+    "parameters_sha256": "583956214a33bfc0c86fb8899c7951fdcadaf95d37e678ea2353dd0685727e56",
+    "request_id_sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+  },
+  "result": {
+    "record_id": "hmlr:dataset:inspire-index-polygons",
+    "title": "Index polygons spatial data (INSPIRE)",
+    "receipt_id": "gis-ai-go:evidence-receipt:sha256:c911e6ee04607f0c109ce5ae3d30e98dc0e463ff8f74b2567b9c83efad7caf61",
+    "server_duration_ms": 46.193125,
+    "frame_bytes": 16675,
+    "frame_sha256": "77ce6473dd47ed5b42ee7a688f88f6df7406e70e72eb3e6fe2830586db574c2b",
+    "outcome": "success"
+  },
+  "telemetry": {
+    "schema": "gis-ai-go.qual-206-host-telemetry.v1",
+    "session_id": "4ec07135-6a1e-4a2d-932b-8708f0eaac05",
+    "retained_copy_name": "chatgpt-tunnel-20260820T205045Z-3800e445.jsonl",
+    "retained_copy_mode": "0600",
+    "retained_copy_bytes": 2277,
+    "retained_copy_sha256": "50dfd3a6472690acde558f7704d315be7d8012c0b7d502e53ed00f553fa6e700",
+    "event_count": 6,
+    "event_counts": {
+      "session_start": 3,
+      "session_end": 1,
+      "request": 1,
+      "response": 1
+    },
+    "request_count": 1,
+    "response_count": 1,
+    "raw_content_retained": false,
+    "local_detailed_log_retention": "operator-controlled"
+  },
+  "boundary": "This proves one local ChatGPT conformance session. It does not activate or publish the MCP service and does not satisfy the independent-host matrix alone."
+}
