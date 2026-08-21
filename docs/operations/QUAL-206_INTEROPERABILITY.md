@@ -8,10 +8,10 @@
 - reviewed source base: `66507f9a6e6c0da23a8af4682268f9362d93bc06`
 - legacy fallback integration base: protected `main` commit
   `5a7e441bfc754af2bf95ec49a5ec113951c7c0bf`
-- legacy fallback status: the prior PR #40 head passed focused, complete, CI and
-  CodeQL assurance; this dependency-rebased candidate is local and has not yet
-  been pushed, rechecked in the pull request, merged, deployed or retested through
-  a live host
+- legacy fallback status: accepted through
+  [pull request 40](https://github.com/chris-page-gov/gis-ai-go/pull/40) at
+  protected `main` commit `e1fc1cbe69ea72c9aa310607d80f392ef56b0d58`;
+  it has not been deployed or retested through a live host
 - supported public product: immutable
   [`v0.1.0`](https://github.com/chris-page-gov/gis-ai-go/releases/tag/v0.1.0)
 - production MCP activation: empty
@@ -460,24 +460,27 @@ key, but the historical non-OpenAI probes did not capture their parent-process
 environments; do not treat those scans as proof of process-level absence. The
 hardened repeat procedure above closes that boundary for future probes.
 
-## Constructor-only legacy STDIO fallback candidate
+## Constructor-only legacy STDIO fallback
 
-This separately reviewed candidate addresses only the protocol-opening failure
+This separately reviewed and accepted fallback addresses only the protocol-opening failure
 seen in current Codex CLI `0.146.1` and Claude Code `2.1.204`. The retained Codex
 frame requested `2025-06-18`; the retained Claude frame used the same legacy
 `initialize` method. Those observations remain bound to source commit `66507f9`
 and the modern-only harness bytes recorded in their existing evidence files. Do
 not relabel either result or replace its source commit after testing this fallback.
 
-The current local implementation is rebased onto protected `main` commit
-`5a7e441bfc754af2bf95ec49a5ec113951c7c0bf`, which contains the accepted
-ADAPT-203 provider slice and the merged inactive public-read v2 prerequisite. The
-rebase was conflict-free: the fallback patch had no path overlap with the v2
-change and remained byte-identical across its runtime, tests, launcher and
-retained evidence. Only this candidate provenance and status prose was updated
-after the rebase. The exact rebased candidate commit belongs in the external
-hand-off and pull-request evidence rather than self-referentially in this
-document.
+The implementation was reviewed after a conflict-free rebase onto protected `main`
+commit `5a7e441bfc754af2bf95ec49a5ec113951c7c0bf`, which contained the accepted
+ADAPT-203 provider slice and inactive public-read v2 prerequisite. The fallback
+patch had no path overlap with the v2 change and remained byte-identical across its
+runtime, tests, launcher and retained evidence; only its provenance and status prose
+changed. It then merged through
+[pull request 40](https://github.com/chris-page-gov/gis-ai-go/pull/40) as
+`e1fc1cbe69ea72c9aa310607d80f392ef56b0d58`, preserving reviewed tree
+`7887453327c8da2ed435d7637c3818afd3632fb4`. Protected-main
+[CI](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32431175681) and
+[CodeQL](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32431175548)
+passed. No host was rerun and the retained observations remain unscored.
 
 The repository pins the official Model Context Protocol SDK packages to `2.0.0`.
 That SDK exposes `serveStdio(factory, { legacy: "serve" })`, which pins a
@@ -646,12 +649,12 @@ receipt, record, event and storage identities. Assertions require exactly one
 provider execution, record and event and scan index/problem/inspection material for
 the raw key and observation.
 
-The later inactive public-read transport candidate also proves direct, modern MCP
-HTTP and modern MCP STDIO parity for the wrapper, completed retry and v2 inspection.
-It does not edit the source-hashed ten-case corpus, turn the local fixture into host
-evidence or change any historic result. `data.query` advertises `idempotentHint:
-true` because the mandatory key cannot repeat side effects; a repeat returns `409`,
-not a replayed success. See the
+The accepted inactive public-read transport and reconciliation slices also prove
+direct, modern MCP HTTP and modern MCP STDIO parity for the wrapper, completed retry
+and v2 inspection. They do not edit the source-hashed ten-case corpus, turn the local
+fixture into host evidence or change any historic result. `data.query` advertises
+`idempotentHint: true` because the mandatory key cannot repeat side effects; a repeat
+returns `409`, not a replayed success. See the
 [public-read transport boundary](TOOLS-205_PUBLIC_READ_TRANSPORT.md).
 
 Reproduce the evidence with `pnpm run test:interoperability`. The script builds the
@@ -719,8 +722,9 @@ On 21 August 2026, the rebased local fallback candidate passed:
 The provider-adapter suite passed `31` deterministic tests and deliberately skipped
 its single explicitly enabled live probe. No provider call, host probe, credential,
 tunnel action, activation or deployment formed part of this rebase assurance. The
-candidate still requires an exact pull-request review and protected-main checks
-before any acceptance claim.
+fallback subsequently passed exact pull-request review and protected-main assurance
+through pull request 40. No host was rerun during that acceptance, so its exploratory
+readiness and capability classifications remain unchanged.
 
 ## Teardown and repeatability
 

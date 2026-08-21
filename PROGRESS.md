@@ -11,19 +11,16 @@ The supported target active set is exactly `catalogue.search`,
 
 ## Active workstream
 
-`EVID-204 — Reconcile a persisted receipt after a lost data.query response`
+`DEPLOY-207 — Prepare an unregistered v0.2.0 service candidate`
 
-- add a required non-secret, 256-bit caller idempotency key around the accepted
-  `data.query` parameters without changing their receipt digest;
-- persist only the domain-separated key digest and receipt linkage in a private,
-  fail-closed reconciliation index; never retain the query result for replay;
-- recover only the verified receipt identity through `evidence.inspect` v2 after a
-  completed response is lost, while pending, completed and conflicting retries remain
-  controlled errors with no second provider execution;
-- execute the deterministic `QUAL-206-HOST-015` drop, restart and reconcile fixture;
-  and
-- keep the reviewed, full-gate-passing candidate uncommitted, unactivated, non-live
-  and undeployed while its exact frozen identity is recorded for hand-off.
+- package a pinned, minimal, non-root gateway image and an offline local Compose
+  harness without changing production activation;
+- prove exact-source image construction, repeat-build identity, SBOM, vulnerability
+  scanning, health, blocked-readiness, storage and rollback boundaries;
+- define deployment-neutral HTTPS ingress, workload identity, private persistent
+  storage, admission and log-minimisation requirements; and
+- stop before any public runtime, provider call, registry publication, activation,
+  tag or release that requires separate operational authority.
 
 ## Completed
 
@@ -115,28 +112,37 @@ The supported target active set is exactly `catalogue.search`,
   (`6837af6`), durable public ledger (`cb6b817`), bounded adapter preflight
   (`364c868`), tool registry (`76103c1`), receipt inspection transport (`c4d43f9`),
   fixed ONS adapter (`ef960f7`), public-read v2 contracts (`5a7e441`), selection
-  resolver (`99426de`), data-query application (`b5f8edc`) and inactive public-read
-  transports (`51147e0`); and
+  resolver (`99426de`), data-query application (`b5f8edc`), inactive public-read
+  transports (`51147e0`) and receipt-only reconciliation (`5253041`);
+- EVID-204 reconciliation merged through
+  [pull request 46](https://github.com/chris-page-gov/gis-ai-go/pull/46) with its
+  exact reviewed tree, passing protected-main assurance and provenance in
+  [run 32456796186](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32456796186),
+  passing CodeQL in
+  [run 32456796369](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32456796369)
+  and strict SLSA
+  [attestation 42067801](https://github.com/chris-page-gov/gis-ai-go/attestations/42067801);
+  and
 - those protected-main slices remain explicitly injected and suspended: production
   operation arrays are empty, readiness is `503`, and there is no public MCP service,
   live provider capability, deployment or `v0.2.0` release.
 
 ## Next
 
-1. Record the exact frozen manifest and assurance evidence for the independently
-   reviewed, full-gate-passing EVID-204 reconciliation candidate.
-2. After freeze, create one reviewed commit and protected pull request with exact-head
-   assurance; do not activate, deploy, tag or release from that slice.
-3. Complete the remaining security, accessibility, storage-admission and independent
-   host-interoperability assurance, then seek a separate owner decision for any
-   production activation, deployment and `v0.2.0` release.
+1. Build and review the repository-only DEPLOY-207 gateway image, local Compose
+   candidate and exact-source assurance without enabling a production tool.
+2. Complete container reproducibility, SBOM, vulnerability, storage, admission,
+   suspension and rollback tests, while recording the remaining host-specific gates.
+3. Only after a separately authorised public runtime exists, deploy an unregistered
+   candidate and complete live QUAL-206 evidence before any activation, registry
+   publication, tag or `v0.2.0` release.
 
 ## Current blockers
 
-- There is no known implementation or owner-decision blocker for the inactive
-  reconciliation candidate. Independent review reports no remaining P0-P2 and the
-  complete repository gate passes; it remains uncommitted until its frozen identity
-  is recorded, with no activation or deployment.
+- There is no known blocker for the repository-only image, Compose and assurance
+  candidate. The repository currently has no gateway image, service Compose topology,
+  public runtime, workload identity, persistent volume or service deployment
+  workflow.
 - The gateway assertion is a typed private hand-off, not workload authentication or
   a signed policy decision. Any non-loopback deployment remains blocked on explicit
   service identity and network-policy evidence.
@@ -160,14 +166,17 @@ The supported target active set is exactly `catalogue.search`,
 
 ## Latest evidence
 
-- current protected-main base: `51147e0c7af438c28bb8dc4c66c8eb7fb27d3ded`;
+- current protected-main base: `525304145088bda558687438c87440bde1f642a4`;
   every accepted public-read operation and transport remains inactive by default;
-- current EVID-204 reconciliation candidate: focused evidence-core, gateway,
-  HTTP/MCP/STDIO privacy and deterministic HOST-015 tests pass. The complete local
-  gate passes with 162 gateway, 55 evidence, 16 interoperability, 116 repository
-  Python, 20 execution-service and 27 browser tests; independent full-diff review
-  reports no remaining P0-P2. This is local candidate assurance, not protected-main
-  acceptance, activation or live interoperability evidence;
+- EVID-204 reconciliation acceptance: protected-main assurance and provenance pass
+  in [run 32456796186](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32456796186),
+  CodeQL passes in
+  [run 32456796369](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32456796369),
+  open code-scanning alerts are zero and strict SLSA
+  [attestation 42067801](https://github.com/chris-page-gov/gis-ai-go/attestations/42067801)
+  binds archive SHA-256
+  `8a477ba0f7abd207c72f3d762661067b3cc52ed9d4a749ee169063e0084712b7`
+  to the exact merge. The accepted slice remains inactive, undeployed and non-live;
 - ADAPT-203B local candidate: the complete locked gate passes 409 tests, with one
   deliberately skipped opt-in live-provider test, including 31 provider-adapter,
   99 gateway and 27 real-browser tests;

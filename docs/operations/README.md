@@ -7,13 +7,12 @@ pause. The static Explorer is the supported
 [`v0.1.0`](https://github.com/chris-page-gov/gis-ai-go/releases/tag/v0.1.0)
 public discovery product. An accepted inactive gateway foundation on protected
 `main` contains MCP 2026-07-28 HTTP and STDIO transports plus direct catalogue route
-implementations. Later local candidates add explicitly constructed direct and MCP
-`evidence.inspect`, `selection.resolve` and `data.query` faces over the accepted
-applications and durable ledger. A further inactive candidate adds a digest-only
-reconciliation index and receipt-only inspect v2 recovery; only its deterministic,
-non-live and unscored `QUAL-206-HOST-015` case passes locally. Default capability
-lists remain empty, activation and publication remain blocked, and no public MCP
-service or API is deployed.
+implementations. Accepted inactive slices add explicitly constructed direct and MCP
+`evidence.inspect`, `selection.resolve` and `data.query` faces over the applications
+and durable ledger, plus a digest-only reconciliation index and receipt-only inspect
+v2 recovery. Its deterministic, non-live and unscored `QUAL-206-HOST-015` case passes
+locally. Default capability lists remain empty, activation and publication remain
+blocked, and no public MCP service or API is deployed.
 
 - [Stage 0 boundary](STAGE_0_BOUNDARY.md)
 - [Dependency baseline](DEPENDENCIES.md)
