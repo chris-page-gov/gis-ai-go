@@ -5,6 +5,12 @@
   four independent-host readiness attempts are documented but not ready;
   capability scoring and activation remain pending
 - reviewed source base: `66507f9a6e6c0da23a8af4682268f9362d93bc06`
+- legacy fallback integration base: protected `main` commit
+  `5a7e441bfc754af2bf95ec49a5ec113951c7c0bf`
+- legacy fallback status: the prior PR #40 head passed focused, complete, CI and
+  CodeQL assurance; this dependency-rebased candidate is local and has not yet
+  been pushed, rechecked in the pull request, merged, deployed or retested through
+  a live host
 - supported public product: immutable
   [`v0.1.0`](https://github.com/chris-page-gov/gis-ai-go/releases/tag/v0.1.0)
 - production MCP activation: empty
@@ -447,6 +453,130 @@ key, but the historical non-OpenAI probes did not capture their parent-process
 environments; do not treat those scans as proof of process-level absence. The
 hardened repeat procedure above closes that boundary for future probes.
 
+## Constructor-only legacy STDIO fallback candidate
+
+This separately reviewed candidate addresses only the protocol-opening failure
+seen in current Codex CLI `0.146.1` and Claude Code `2.1.204`. The retained Codex
+frame requested `2025-06-18`; the retained Claude frame used the same legacy
+`initialize` method. Those observations remain bound to source commit `66507f9`
+and the modern-only harness bytes recorded in their existing evidence files. Do
+not relabel either result or replace its source commit after testing this fallback.
+
+The current local implementation is rebased onto protected `main` commit
+`5a7e441bfc754af2bf95ec49a5ec113951c7c0bf`, which contains the accepted
+ADAPT-203 provider slice and the merged inactive public-read v2 prerequisite. The
+rebase was conflict-free: the fallback patch had no path overlap with the v2
+change and remained byte-identical across its runtime, tests, launcher and
+retained evidence. Only this candidate provenance and status prose was updated
+after the rebase. The exact rebased candidate commit belongs in the external
+hand-off and pull-request evidence rather than self-referentially in this
+document.
+
+The repository pins the official Model Context Protocol SDK packages to `2.0.0`.
+That SDK exposes `serveStdio(factory, { legacy: "serve" })`, which pins a
+connection to the legacy era after its opening, and the official client exposes
+`versionNegotiation: { mode: "legacy" }`. GIS AI GO uses those APIs only through:
+
+- `startCatalogueLegacyConformanceStdio`;
+- the exact, non-serialisable `MCP_LEGACY_CONFORMANCE_ONLY` constructor symbol;
+- the singleton legacy protocol revision `2025-06-18`; and
+- the same bounded framing, activated local-conformance operations, schemas,
+  application functions, structured errors and resources as the modern path.
+
+`startCatalogueStdio`, `runCatalogueStdioMain`, MCP HTTP and all package start
+scripts remain strict `2026-07-28` paths. The production activation arrays remain
+empty. Supplying conformance-looking environment variables to the shipped STDIO
+executable does not enable the fallback. There is no production environment or
+command-line escape, and no tunnel or public endpoint is created.
+
+### Build and verify an exact fallback checkout
+
+Do not use an uncommitted working tree for retained host evidence. After the
+fallback has a reviewed commit, create a detached checkout of that exact source:
+
+```bash
+export QUAL206_FALLBACK_COMMIT=<full-reviewed-fallback-commit>
+export QUAL206_FALLBACK_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/gis-ai-go-qual206-fallback.XXXXXX")"
+git worktree add --detach "$QUAL206_FALLBACK_ROOT/repository" \
+  "$QUAL206_FALLBACK_COMMIT"
+cd "$QUAL206_FALLBACK_ROOT/repository"
+test "$(git rev-parse HEAD)" = "$QUAL206_FALLBACK_COMMIT"
+test -z "$(git status --porcelain)"
+pnpm install --frozen-lockfile
+uv sync --locked
+pnpm run test:interoperability
+pnpm --filter @gis-ai-go/mcp-gateway run test
+```
+
+The raw and official-client regressions cover `initialize`,
+`notifications/initialized`, `tools/list`, `tools/call`, `resources/list`,
+`resources/templates/list` and `resources/read`. Further tests prove semantic
+schema, application-result and structured-error parity, exact constructor
+authority and non-bypass of the shipped STDIO executable.
+
+### Run the fallback through minimised telemetry
+
+Use only the separately named test launcher. It fails unless both the existing
+conformance environment gate and the exact test-only argument are present:
+
+```bash
+export GIS_AI_GO_QUAL_206_CONFORMANCE=1
+export GIS_AI_GO_QUAL_206_SOURCE_COMMIT="$QUAL206_FALLBACK_COMMIT"
+umask 077
+node scripts/qual_206_telemetry_proxy.mjs \
+  --log "$QUAL206_FALLBACK_ROOT/legacy-host.jsonl" \
+  --client <bounded-host-version-label> -- \
+  node scripts/qual_206_legacy_conformance_server.mjs \
+  --legacy-stdio-conformance-only
+```
+
+For a host registry, retain the `/usr/bin/env -u OPENAI_API_KEY -u CODEX_API_KEY`
+outer command from the independent-host procedure. Replace only the final server
+command with this ordered pair:
+
+```text
+<QUAL206_NODE> <QUAL206_REPO>/scripts/qual_206_legacy_conformance_server.mjs
+--legacy-stdio-conformance-only
+```
+
+The unchanged proxy records allowlisted method and operation labels, frame and
+parameter sizes and SHA-256 digests, response outcome and timing, source commit
+and process lifecycle. It never records raw parameters, results, credentials or
+stderr. The two opening methods remain deliberately labelled `other`; their exact
+frame and parameter hashes still document the negotiation without retaining the
+client identity payload.
+
+Use `claude mcp list` first because it checks connection health without asking a
+model to perform a task. A Codex registry listing confirms configuration but does
+not itself open the MCP server; do not invoke a model task merely to manufacture a
+readiness result when model authentication is unavailable. Transport readiness may
+be `ready` after initialisation and listing succeed; capability remains `unscored`
+until a bounded call and result are observed. Remove the disposable profile,
+telemetry and detached worktree after a
+reviewed path-free summary is produced.
+
+One credential-stripped exploratory Claude Code `2.1.204` health check against the
+uncommitted candidate completed the `2025-06-18` initialise exchange and
+`tools/list`, then exited cleanly with no pending request. It used no model
+authentication and made no model task, tool call or resource read. Codex CLI
+`0.146.1` accepted the same closed server definition through a configuration-only
+check, but its registry command does not open the server; Codex connectivity
+therefore remains untested and capability remains unscored. The new path-free
+[`exploratory summary`](../../tests/interoperability/evidence/legacy-fallback-exploratory-2026-08-20.json)
+binds the source and compiled runtime bytes, frame and parameter digests, timings
+and isolation controls. It explicitly has no candidate commit and is not accepted
+host evidence; repeat it from an exact reviewed commit before making a support
+claim.
+
+That exploratory summary deliberately retains base commit `b798a40`, a null
+candidate commit and its original runtime hashes because those are the bytes that
+were observed. The rebase did not rerun a host, use a credential, touch the
+ChatGPT tunnel or upgrade that exploratory observation into accepted evidence.
+
+This fallback is local-only. Do not attach it to the existing ChatGPT tunnel,
+change that tunnel's profile, publish its address, activate a production tool or
+infer general host compatibility from the official-client regression.
+
 ## Historical failure-derived cases
 
 [`qual_206_cases.json`](../../tests/interoperability/qual_206_cases.json) contains
@@ -472,7 +602,7 @@ data or licensed feature payloads. Changes to a historical case require a fresh
 review against its cited source-hashed material; changes to a candidate-assurance
 case require review against the current named contract or threat boundary.
 
-## Local assurance evidence
+## Earlier ChatGPT-candidate local assurance
 
 The complete locked `pnpm run check` gate passed on the final ChatGPT evidence
 bytes on 20 August 2026 with loopback permission for the real HTTP tests:
@@ -491,8 +621,33 @@ bytes on 20 August 2026 with loopback permission for the real HTTP tests:
 
 The first sandboxed attempt denied nine loopback binds with `EPERM`. The identical
 gate passed when rerun with loopback permission; no test was skipped or weakened.
-These are local candidate results. The candidate commit, protected pull-request
-checks and protected-main provenance remain pending.
+These are the earlier local candidate results for the final ChatGPT evidence
+wrapper. They predate the legacy fallback and remain historical. Their then-current
+candidate commit, protected pull-request checks and protected-main provenance were
+pending at that point.
+
+## Rebased fallback-candidate local assurance
+
+On 21 August 2026, the rebased local fallback candidate passed:
+
+- interoperability `13/13` and gateway `105/105` tests, including raw and
+  official SDK `2025-06-18` journeys, modern-only production entrypoints and
+  constructor-authority non-bypass;
+- the complete locked `pnpm run check` gate with contracts `19`, evidence `38`,
+  authority `3`, policy `11`, provider adapter `32`, tool registry `7`, gateway
+  `105` and interoperability `13` tests;
+- Explorer build-policy `16`, unit/component `42` and browser `27` tests;
+- repository Python `109` and execution-service `20` tests;
+- two byte-identical release builds, `35` schemas and `76` records, `343` local
+  links, `183` research hashes, `2` ledgers and `71` source identifiers;
+- a `633`-file secret and machine-path scan, `9` rendered diagrams and a
+  `165`-component CycloneDX SBOM.
+
+The provider-adapter suite passed `31` deterministic tests and deliberately skipped
+its single explicitly enabled live probe. No provider call, host probe, credential,
+tunnel action, activation or deployment formed part of this rebase assurance. The
+candidate still requires an exact pull-request review and protected-main checks
+before any acceptance claim.
 
 ## Teardown and repeatability
 

@@ -12,8 +12,10 @@ import {
 } from "@modelcontextprotocol/server/stdio";
 
 import {
+  createCatalogueLegacyConformanceMcpServerFactory,
   createCatalogueMcpServerFactory,
   isBoundedMcpRequestId,
+  MCP_LEGACY_CONFORMANCE_ONLY,
   type CatalogueMcpOptions,
 } from "./mcp-server.js";
 
@@ -33,6 +35,12 @@ type TransportMessageExtra = Parameters<NonNullable<Transport["onmessage"]>>[1];
 export interface CatalogueMcpStdioOptions extends CatalogueMcpOptions {
   /** Test or embedding seam. Omission uses the current process's stdio. */
   readonly transport?: Transport;
+}
+
+export interface CatalogueLegacyConformanceStdioOptions
+  extends CatalogueMcpStdioOptions {
+  /** Exact constructor authority; no serialised or environment form exists. */
+  readonly compatibility: typeof MCP_LEGACY_CONFORMANCE_ONLY;
 }
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
@@ -241,4 +249,40 @@ export function startCatalogueStdio(
     transport: new BoundedStdioTransport(transport),
     ...(options.onerror === undefined ? {} : { onerror: options.onerror }),
   });
+}
+
+/**
+ * Start an explicit conformance-only STDIO connection which can negotiate
+ * either the legacy 2025-06-18 handshake or the canonical modern protocol.
+ *
+ * This constructor is not used by a shipped entrypoint and has no environment
+ * or command-line activation path. Missing or substituted authority fails
+ * before the transport is constructed or started.
+ */
+export function startCatalogueLegacyConformanceStdio(
+  options: CatalogueLegacyConformanceStdioOptions,
+): StdioServerHandle {
+  if (
+    typeof options !== "object" ||
+    options === null ||
+    options.compatibility !== MCP_LEGACY_CONFORMANCE_ONLY
+  ) {
+    throw new TypeError("Legacy MCP compatibility requires explicit conformance authority");
+  }
+  const transport =
+    options.transport ??
+    new StdioServerTransport(undefined, undefined, {
+      maxBufferSize: MCP_STDIO_MAX_BUFFER_BYTES,
+    });
+  return serveStdio(
+    createCatalogueLegacyConformanceMcpServerFactory(
+      options,
+      options.compatibility,
+    ),
+    {
+      legacy: "serve",
+      transport: new BoundedStdioTransport(transport),
+      ...(options.onerror === undefined ? {} : { onerror: options.onerror }),
+    },
+  );
 }

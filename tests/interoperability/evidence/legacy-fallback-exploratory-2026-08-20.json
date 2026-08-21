@@ -1,0 +1,146 @@
+{
+  "schema": "gis-ai-go.qual-206-legacy-fallback-exploratory.v1",
+  "status": "exploratory-connectivity-pass",
+  "observed_at": "2026-08-20T22:00:08.710Z",
+  "source": {
+    "repository": "chris-page-gov/gis-ai-go",
+    "base_commit": "b798a40b940e135b933c3b757cb5a9f9ff6aa2ae",
+    "candidate_commit": null,
+    "worktree_changes_uncommitted": true,
+    "production_activation": false,
+    "public_endpoint_created": false,
+    "runtime_files": [
+      {
+        "path": "apps/mcp-gateway/src/mcp-server.ts",
+        "sha256": "ee39e4cc99c8ed082f790f2eba3df908a8b4bf0830dd5ee7a8cc770206b657d9"
+      },
+      {
+        "path": "apps/mcp-gateway/src/mcp-stdio.ts",
+        "sha256": "68c229a0252064f630a5c2d5c057e5348b1e4ce6974aecd48b291cd05db6a794"
+      },
+      {
+        "path": "scripts/qual_206_legacy_conformance_server.mjs",
+        "sha256": "bf87bec24357d5fd6d419bd8b4374642ab46a2f3dfa6d9baebde46f7498edb9c"
+      },
+      {
+        "path": "scripts/qual_206_telemetry_proxy.mjs",
+        "sha256": "3800e4458932ee1324ad03d64007f23f76f49682a6eabdc191ecf6eaccb501d5"
+      }
+    ],
+    "compiled_runtime": [
+      {
+        "source_path": "apps/mcp-gateway/dist/src/mcp-server.js",
+        "sha256": "860e466d5ab7215cec0dde4e67260fd1bd33f1166b21aa2d092d8e6dcad49018"
+      },
+      {
+        "source_path": "apps/mcp-gateway/dist/src/mcp-stdio.js",
+        "sha256": "035d8260308479133537ba5fa07a7bbf2affbc4ed6072859a924f01089ce95ef"
+      }
+    ]
+  },
+  "claude": {
+    "name": "Claude Code",
+    "version": "2.1.204",
+    "binary_sha256": "1677b67595b6251156d62600dc85d4070ec385b72dd0b07e73742a56030952c3",
+    "command": "mcp list",
+    "model_authentication_supplied": false,
+    "model_task_requested": false,
+    "transport_readiness": "ready",
+    "capability": "unscored",
+    "classification": "legacy-handshake-and-tool-list-pass",
+    "host_result": "Connected",
+    "requested_protocol_version": "2025-06-18",
+    "initialize_success": true,
+    "tools_list_success": true,
+    "tool_call_observed": false,
+    "resource_read_observed": false
+  },
+  "telemetry": {
+    "schema": "gis-ai-go.qual-206-host-telemetry.v1",
+    "session_id_sha256": "95a43bf984f4199269e82cb8538dd51fed160e9e4697c2902ca67fc0c9db2b79",
+    "command_sha256": "0b192ef8c52c80283ee5752c7edf6e26041a59408dc6f9db632bc99de9949255",
+    "node_version": "v26.7.0",
+    "source_commit": "b798a40b940e135b933c3b757cb5a9f9ff6aa2ae",
+    "retained_private_bytes": 2856,
+    "retained_private_sha256": "621572d2fe6a838513bb6d46af7c7a213efe7aafbf93cc35e2b26c4aa744c00a",
+    "retained_private_mode": "0600",
+    "event_count": 7,
+    "event_counts": {
+      "session_start": 1,
+      "request": 3,
+      "response": 2,
+      "session_end": 1
+    },
+    "initialize_request": {
+      "method_label": "other",
+      "frame_bytes": 323,
+      "frame_sha256": "e4be5810197faf2a09f6ffcf87a35a270bd35df9c5a6d1115d7253bfb1358299",
+      "parameters_bytes": 267,
+      "parameters_sha256": "df19797912d3d069ec097cb62af844c49e8ffabb28231cf508952deb2c47f2eb"
+    },
+    "initialize_response": {
+      "outcome": "success",
+      "duration_ms": 132.4015,
+      "frame_bytes": 447,
+      "frame_sha256": "10e742b466fae9fadfc2cbfaff2442d4d667b91d964dd2e5a7fb33dc19e866a7"
+    },
+    "initialized_notification": {
+      "method_label": "other",
+      "frame_bytes": 54,
+      "frame_sha256": "1991440c743375cc3f711ec3788c732cfff71984933a8bf73701ff563427860d",
+      "parameters_bytes": 4,
+      "parameters_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+    },
+    "tools_list_request": {
+      "method_label": "tools/list",
+      "frame_bytes": 46,
+      "frame_sha256": "75f0c7627a35c7e96a0a88482622a0d1ec7e81c0eb5414a88ba7aab9450cf73b",
+      "parameters_bytes": 4,
+      "parameters_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+    },
+    "tools_list_response": {
+      "outcome": "success",
+      "duration_ms": 1.117875,
+      "frame_bytes": 47304,
+      "frame_sha256": "30b56ca69a8767fe393ceaf3c86d29ca91d3026f73255c56bff7616fd7ea7cb5"
+    },
+    "exit_code": 0,
+    "pending_request_count": 0,
+    "raw_content_published": false
+  },
+  "codex": {
+    "name": "Codex CLI",
+    "version": "0.146.1",
+    "binary_sha256": "35d248101b211d6248ad4e6b8c1d441fe81236da87afb9f3e9ea51a049e9f179",
+    "configuration_validation": "pass",
+    "normal_registry_mutated": false,
+    "model_task_requested": false,
+    "mcp_process_started": false,
+    "transport_readiness": "not_tested",
+    "capability": "unscored",
+    "reason": "Codex mcp get validates configuration but does not open the server; no model task was invoked merely to obtain connectivity evidence."
+  },
+  "isolation": {
+    "temporary_profile": true,
+    "directory_mode": "0700",
+    "proxy_log_mode": "0600",
+    "claude_config_mode": "0600",
+    "normal_profile_mutation_observed": false,
+    "parent_openai_key_variables_removed": true,
+    "mcp_child_openai_key_variables_removed": true,
+    "files_scanned_for_token_patterns": 5,
+    "token_pattern_matches": 0,
+    "raw_host_logs_published": false
+  },
+  "limitations": {
+    "accepted_evidence": false,
+    "candidate_commit_missing": true,
+    "repeat_from_exact_committed_source_required": true,
+    "claude_tool_call_not_observed": true,
+    "claude_resource_read_not_observed": true,
+    "codex_connectivity_not_observed": true,
+    "chatgpt_tunnel_touched": false,
+    "capability_result_claimed": false
+  },
+  "boundary": "This is a new path-free exploratory readiness summary for an uncommitted local fallback candidate. It does not alter earlier host evidence, establish a released host claim, activate a tool, publish a service or change the supported public product."
+}

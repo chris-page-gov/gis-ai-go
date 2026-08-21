@@ -10,6 +10,11 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
 const SERVER = join(ROOT, "scripts", "qual_206_conformance_server.mjs");
+const LEGACY_SERVER = join(
+  ROOT,
+  "scripts",
+  "qual_206_legacy_conformance_server.mjs",
+);
 const PROXY = join(ROOT, "scripts", "qual_206_telemetry_proxy.mjs");
 const CASES = join(ROOT, "tests", "interoperability", "qual_206_cases.json");
 const CHATGPT_EVIDENCE = join(
@@ -33,7 +38,15 @@ const CODEX_HOST_EVIDENCE = join(
   "evidence",
   "codex-cli-2026-08-20.json",
 );
+const LEGACY_FALLBACK_EVIDENCE = join(
+  ROOT,
+  "tests",
+  "interoperability",
+  "evidence",
+  "legacy-fallback-exploratory-2026-08-20.json",
+);
 const SOURCE_COMMIT = "66507f9a6e6c0da23a8af4682268f9362d93bc06";
+const LEGACY_CANDIDATE_BASE = "b798a40b940e135b933c3b757cb5a9f9ff6aa2ae";
 const META = {
   "io.modelcontextprotocol/protocolVersion": "2026-07-28",
   "io.modelcontextprotocol/clientCapabilities": {},
@@ -77,6 +90,149 @@ test("conformance server fails closed without the explicit test flag", async () 
   assert.notEqual(code, 0);
   assert.equal(stdout, "");
   assert.match(stderr, /GIS_AI_GO_QUAL_206_CONFORMANCE=1/u);
+});
+
+test("legacy conformance server fails closed without both explicit authorities", async () => {
+  const missingArgument = run(process.execPath, [LEGACY_SERVER], {
+    env: {
+      GIS_AI_GO_QUAL_206_CONFORMANCE: "1",
+      GIS_AI_GO_QUAL_206_SOURCE_COMMIT: LEGACY_CANDIDATE_BASE,
+    },
+    input: "",
+  });
+  const [argumentCode] = await once(missingArgument.child, "exit");
+  assert.notEqual(argumentCode, 0);
+  assert.equal(missingArgument.output().stdout, "");
+  assert.match(
+    missingArgument.output().stderr,
+    /--legacy-stdio-conformance-only/u,
+  );
+
+  const missingEnvironment = run(
+    process.execPath,
+    [LEGACY_SERVER, "--legacy-stdio-conformance-only"],
+    {
+      env: {
+        GIS_AI_GO_QUAL_206_CONFORMANCE: "",
+        GIS_AI_GO_QUAL_206_SOURCE_COMMIT: LEGACY_CANDIDATE_BASE,
+      },
+      input: "",
+    },
+  );
+  const [environmentCode] = await once(missingEnvironment.child, "exit");
+  assert.notEqual(environmentCode, 0);
+  assert.equal(missingEnvironment.output().stdout, "");
+  assert.match(
+    missingEnvironment.output().stderr,
+    /GIS_AI_GO_QUAL_206_CONFORMANCE=1/u,
+  );
+});
+
+test("legacy conformance journey keeps the existing minimised telemetry boundary", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "gis-ai-go-qual-206-legacy-"));
+  const telemetry = join(directory, "telemetry.jsonl");
+  const messages = [
+    {
+      jsonrpc: "2.0",
+      id: 1,
+      method: "initialize",
+      params: {
+        protocolVersion: "2025-06-18",
+        capabilities: {},
+        clientInfo: { name: "legacy-telemetry-test", version: "1.0.0" },
+      },
+    },
+    {
+      jsonrpc: "2.0",
+      method: "notifications/initialized",
+      params: {},
+    },
+    { jsonrpc: "2.0", id: 2, method: "tools/list", params: {} },
+    {
+      jsonrpc: "2.0",
+      id: 3,
+      method: "tools/call",
+      params: {
+        name: "catalogue.describe",
+        arguments: { record_id: "LR-Q003" },
+      },
+    },
+    { jsonrpc: "2.0", id: 4, method: "resources/list", params: {} },
+    {
+      jsonrpc: "2.0",
+      id: 5,
+      method: "resources/templates/list",
+      params: {},
+    },
+    {
+      jsonrpc: "2.0",
+      id: 6,
+      method: "resources/read",
+      params: { uri: "gis-ai-go://catalogue/public" },
+    },
+  ];
+  const invocation = run(
+    process.execPath,
+    [
+      PROXY,
+      "--log",
+      telemetry,
+      "--client",
+      "legacy-node-test",
+      "--",
+      process.execPath,
+      LEGACY_SERVER,
+      "--legacy-stdio-conformance-only",
+    ],
+    {
+      env: {
+        GIS_AI_GO_QUAL_206_CONFORMANCE: "1",
+        GIS_AI_GO_QUAL_206_SOURCE_COMMIT: LEGACY_CANDIDATE_BASE,
+      },
+      input: `${messages.map((value) => JSON.stringify(value)).join("\n")}\n`,
+    },
+  );
+  const [code] = await once(invocation.child, "exit");
+  const { stderr, stdout } = invocation.output();
+  assert.equal(code, 0, stderr);
+  assert.equal(stderr, "");
+  const replies = stdout.trim().split("\n").map((line) => JSON.parse(line));
+  assert.equal(replies.length, 6);
+  const repliesById = new Map(replies.map((reply) => [reply.id, reply]));
+  assert.equal(repliesById.get(1).result.protocolVersion, "2025-06-18");
+  assert.deepEqual(
+    repliesById.get(2).result.tools.map((tool) => tool.name),
+    ["catalogue.describe", "catalogue.search"],
+  );
+  assert.equal(
+    repliesById.get(3).result.structuredContent.operation,
+    "catalogue.describe",
+  );
+  assert.equal(
+    repliesById.get(6).result.contents[0].uri,
+    "gis-ai-go://catalogue/public",
+  );
+
+  const logText = await readFile(telemetry, "utf8");
+  const events = logText.trim().split("\n").map((line) => JSON.parse(line));
+  assert.equal(events[0].source_commit, LEGACY_CANDIDATE_BASE);
+  assert.equal(events.at(-1).event, "session_end");
+  assert.equal(events.filter((event) => event.event === "request").length, 7);
+  assert.equal(events.filter((event) => event.event === "response").length, 6);
+  assert.deepEqual(
+    events.filter((event) => event.event === "request").map((event) => event.method),
+    [
+      "other",
+      "other",
+      "tools/list",
+      "tools/call",
+      "resources/list",
+      "resources/templates/list",
+      "resources/read",
+    ],
+  );
+  assert.doesNotMatch(logText, /legacy-telemetry-test|LR-Q003|catalogue\/public/u);
+  assert.equal((await stat(telemetry)).mode & 0o777, 0o600);
 });
 
 test("proxy records minimised telemetry for a real deterministic tool call", async () => {
@@ -521,6 +677,68 @@ test("Codex CLI readiness evidence binds the exact case and remains unscored", a
   for (const digest of JSON.stringify(evidence).matchAll(/[0-9a-f]{64}/gu)) {
     assert.equal(digest[0].length, 64);
   }
+  assert.doesNotMatch(
+    JSON.stringify(evidence),
+    /\/Users\/|\/private\/tmp|sk-|device[_ -]?id|access[_ -]?token/iu,
+  );
+});
+
+test("legacy fallback evidence is new, source-bound and explicitly exploratory", async () => {
+  const evidence = JSON.parse(await readFile(LEGACY_FALLBACK_EVIDENCE, "utf8"));
+  assert.equal(
+    evidence.schema,
+    "gis-ai-go.qual-206-legacy-fallback-exploratory.v1",
+  );
+  assert.equal(evidence.status, "exploratory-connectivity-pass");
+  assert.equal(evidence.source.base_commit, LEGACY_CANDIDATE_BASE);
+  assert.equal(evidence.source.candidate_commit, null);
+  assert.equal(evidence.source.worktree_changes_uncommitted, true);
+  assert.equal(evidence.source.production_activation, false);
+  assert.equal(evidence.source.public_endpoint_created, false);
+  for (const entry of evidence.source.runtime_files) {
+    assert.equal(entry.path.startsWith("/"), false);
+    assert.equal(sha256(await readFile(join(ROOT, entry.path))), entry.sha256);
+  }
+  for (const entry of evidence.source.compiled_runtime) {
+    assert.equal(entry.source_path.startsWith("/"), false);
+    assert.equal(
+      sha256(await readFile(join(ROOT, entry.source_path))),
+      entry.sha256,
+    );
+  }
+  assert.equal(evidence.claude.version, "2.1.204");
+  assert.equal(evidence.claude.model_authentication_supplied, false);
+  assert.equal(evidence.claude.model_task_requested, false);
+  assert.equal(evidence.claude.transport_readiness, "ready");
+  assert.equal(evidence.claude.capability, "unscored");
+  assert.equal(evidence.claude.initialize_success, true);
+  assert.equal(evidence.claude.tools_list_success, true);
+  assert.equal(evidence.telemetry.source_commit, LEGACY_CANDIDATE_BASE);
+  assert.equal(evidence.telemetry.event_count, 7);
+  assert.deepEqual(evidence.telemetry.event_counts, {
+    session_start: 1,
+    request: 3,
+    response: 2,
+    session_end: 1,
+  });
+  assert.equal(evidence.telemetry.initialize_response.outcome, "success");
+  assert.equal(evidence.telemetry.tools_list_response.outcome, "success");
+  assert.equal(evidence.telemetry.exit_code, 0);
+  assert.equal(evidence.telemetry.pending_request_count, 0);
+  assert.equal(evidence.telemetry.raw_content_published, false);
+  assert.equal(evidence.codex.version, "0.146.1");
+  assert.equal(evidence.codex.configuration_validation, "pass");
+  assert.equal(evidence.codex.normal_registry_mutated, false);
+  assert.equal(evidence.codex.model_task_requested, false);
+  assert.equal(evidence.codex.mcp_process_started, false);
+  assert.equal(evidence.codex.transport_readiness, "not_tested");
+  assert.equal(evidence.codex.capability, "unscored");
+  assert.equal(evidence.isolation.parent_openai_key_variables_removed, true);
+  assert.equal(evidence.isolation.mcp_child_openai_key_variables_removed, true);
+  assert.equal(evidence.isolation.token_pattern_matches, 0);
+  assert.equal(evidence.limitations.accepted_evidence, false);
+  assert.equal(evidence.limitations.repeat_from_exact_committed_source_required, true);
+  assert.equal(evidence.limitations.chatgpt_tunnel_touched, false);
   assert.doesNotMatch(
     JSON.stringify(evidence),
     /\/Users\/|\/private\/tmp|sk-|device[_ -]?id|access[_ -]?token/iu,
