@@ -75,6 +75,67 @@ class PagesWorkflowTests(unittest.TestCase):
         )
         self.assertNotIn("contents: write", CI_WORKFLOW + PAGES_WORKFLOW)
 
+    def test_ci_exposes_one_stable_assurance_gate_for_both_producers(self) -> None:
+        repository = CI_WORKFLOW.split("\n  repository_assurance:\n", 1)[1].split(
+            "\n  gateway_image:\n", 1
+        )[0]
+        gateway = CI_WORKFLOW.split("\n  gateway_image:\n", 1)[1].split(
+            "\n  assurance:\n", 1
+        )[0]
+        assurance = CI_WORKFLOW.split("\n  assurance:\n", 1)[1].split(
+            "\n  provenance:\n", 1
+        )[0]
+
+        self.assertEqual(CI_WORKFLOW.count("\n  assurance:\n"), 1)
+        self.assertIn("name: Repository assurance", repository)
+        self.assertIn("timeout-minutes: 20", repository)
+        self.assertIn("name: Gateway image assurance", gateway)
+        self.assertIn("needs: repository_assurance", gateway)
+        self.assertIn("timeout-minutes: 50", gateway)
+        self.assertNotIn("\n  gateway-image:\n", CI_WORKFLOW)
+
+        self.assertIn("name: assurance", assurance)
+        self.assertIn("if: always()", assurance)
+        self.assertIn("permissions: {}", assurance)
+        self.assertIn("- repository_assurance", assurance)
+        self.assertIn("- gateway_image", assurance)
+        self.assertIn(
+            "REPOSITORY_ASSURANCE_RESULT: ${{ needs.repository_assurance.result }}",
+            assurance,
+        )
+        self.assertIn(
+            "GATEWAY_IMAGE_RESULT: ${{ needs.gateway_image.result }}", assurance
+        )
+        self.assertIn(
+            '[[ "$REPOSITORY_ASSURANCE_RESULT" != \'success\' ]]', assurance
+        )
+        self.assertIn('[[ "$GATEWAY_IMAGE_RESULT" != \'success\' ]]', assurance)
+        self.assertIn("exit 1", assurance)
+
+        self.assertLess(
+            CI_WORKFLOW.index("\n  repository_assurance:\n"),
+            CI_WORKFLOW.index("\n  gateway_image:\n"),
+        )
+        self.assertLess(
+            CI_WORKFLOW.index("\n  gateway_image:\n"),
+            CI_WORKFLOW.index("\n  assurance:\n"),
+        )
+
+    def test_ci_gateway_uploads_only_complete_successful_evidence(self) -> None:
+        gateway = CI_WORKFLOW.split("\n  gateway_image:\n", 1)[1].split(
+            "\n  assurance:\n", 1
+        )[0]
+        accepted_name = "- name: Upload immutable gateway image evidence"
+        accepted = gateway.split(accepted_name, 1)[1]
+        self.assertIn("if: success()", accepted)
+        self.assertIn("name: gateway-image-${{ github.sha }}", accepted)
+        self.assertIn("path: artifacts/gateway/", accepted)
+        self.assertIn("if-no-files-found: error", accepted)
+        self.assertNotIn("if: always()", accepted)
+        self.assertEqual(gateway.count("path: artifacts/gateway/"), 1)
+        self.assertNotIn("gateway-image-failure-", gateway)
+        self.assertNotIn(".gateway-quarantine-", gateway)
+
     def test_ci_publishes_pages_source_only_after_successful_main_assurance(self) -> None:
         guard = (
             "if: ${{ github.event_name == 'push' && "
@@ -86,15 +147,19 @@ class PagesWorkflowTests(unittest.TestCase):
         self.assertIn("retention-days: 90", CI_WORKFLOW)
 
         diagnostic = CI_WORKFLOW.split("- name: Upload generated evidence", 1)[1].split(
-            "\n\n  provenance:", 1
+            "\n\n  gateway_image:", 1
         )[0]
         self.assertIn("if: always()", diagnostic)
         self.assertIn("!artifacts/pages/**", diagnostic)
         self.assertNotIn("pages-source-${{ github.sha }}", diagnostic)
 
     def test_ci_reverifies_and_attests_the_exact_archive(self) -> None:
-        provenance = CI_WORKFLOW.split("\n  provenance:\n", 1)[1]
-        self.assertIn("needs: assurance", provenance)
+        provenance = CI_WORKFLOW.split("\n  provenance:\n", 1)[1].split(
+            "\n  gateway-provenance:\n", 1
+        )[0]
+        self.assertIn("- assurance", provenance)
+        self.assertIn("- repository_assurance", provenance)
+        self.assertIn("timeout-minutes: 10", provenance)
         self.assertIn("actions: read", provenance)
         self.assertIn("attestations: write", provenance)
         self.assertIn("id-token: write", provenance)
@@ -105,6 +170,78 @@ class PagesWorkflowTests(unittest.TestCase):
             provenance,
         )
         self.assertIn("subject-path: artifacts/pages/artifact.tar", provenance)
+
+    def test_gateway_provenance_rebuilds_context_before_complete_verification(
+        self,
+    ) -> None:
+        provenance = CI_WORKFLOW.split("\n  gateway-provenance:\n", 1)[1]
+        self.assertIn("- assurance", provenance)
+        self.assertIn("- gateway_image", provenance)
+        self.assertIn("timeout-minutes: 20", provenance)
+        self.assertIn("version: 10.33.2", provenance)
+        self.assertIn("node-version: 24.19.0", provenance)
+        self.assertIn("version: 0.12.2", provenance)
+        self.assertIn("pnpm install --frozen-lockfile", provenance)
+        self.assertIn(
+            "uv sync --locked --group dev --cache-dir .uv-cache", provenance
+        )
+
+        download = "- name: Download immutable gateway image evidence"
+        rebuild = "- name: Regenerate the governed OKF projection"
+        acquire = "- name: Acquire and validate pinned Trivy scanner over network"
+        verify = "- name: Verify complete protected-main gateway image evidence"
+        self.assertLess(provenance.index(download), provenance.index(rebuild))
+        self.assertLess(provenance.index(rebuild), provenance.index(acquire))
+        self.assertLess(provenance.index(acquire), provenance.index(verify))
+        for attestation in (
+            "- name: Attest immutable gateway OCI archive",
+            "- name: Attest gateway image SBOM",
+            "- name: Attest gateway image evidence manifest",
+        ):
+            with self.subTest(attestation=attestation):
+                self.assertLess(provenance.index(verify), provenance.index(attestation))
+        self.assertIn("run: pnpm run build:okf", provenance)
+        self.assertIn("run: pnpm run verify:gateway-image-evidence", provenance)
+
+        acquisition = provenance.split(acquire, 1)[1].split(
+            f"\n\n      {verify}", 1
+        )[0]
+        digest = "62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969"
+        self.assertIn(
+            f"TRIVY_IMAGE: aquasec/trivy:0.74.0@sha256:{digest}", acquisition
+        )
+        self.assertIn(
+            f"TRIVY_REPO_DIGEST: aquasec/trivy@sha256:{digest}", acquisition
+        )
+        self.assertIn('docker pull "$TRIVY_IMAGE"', acquisition)
+        self.assertIn('docker image inspect "$TRIVY_IMAGE"', acquisition)
+        self.assertIn('jq -e --arg expected "$TRIVY_REPO_DIGEST"', acquisition)
+        self.assertIn(".[0].RepoDigests", acquisition)
+        self.assertIn("index($expected) != null", acquisition)
+        self.assertNotIn("replay", acquire.lower())
+
+        for subject in (
+            "artifacts/gateway/gateway-image.oci.tar",
+            "artifacts/gateway/gateway-image.sbom.cdx.json",
+            "artifacts/gateway/gateway-image-evidence-manifest.json",
+        ):
+            with self.subTest(subject=subject):
+                self.assertIn(f"subject-path: {subject}", provenance)
+
+        for forbidden in (
+            "docker push",
+            "docker tag",
+            "docker compose up",
+            "docker stack deploy",
+            "git tag",
+            "gh release",
+            "kubectl",
+            "helm upgrade",
+            "fly deploy",
+            "MCP_GEO_ACTIVE_PROVIDER",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, CI_WORKFLOW)
 
     def test_deployment_is_manual_and_has_the_exact_audit_inputs(self) -> None:
         self.assertIn("\n  workflow_dispatch:\n", PAGES_WORKFLOW)

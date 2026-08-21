@@ -5,6 +5,9 @@
   "description": "Compiled default-deny policy for the GIS AI GO public catalogue",
   "license": "MIT",
   "type": "module",
+  "files": [
+    "dist"
+  ],
   "exports": {
     ".": {
       "types": "./src/index.ts",

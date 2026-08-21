@@ -5,6 +5,9 @@
   "description": "Canonical JSON, content identities and inline evidence receipts for GIS AI GO",
   "license": "MIT",
   "type": "module",
+  "files": [
+    "dist"
+  ],
   "exports": {
     ".": {
       "types": "./src/index.ts",

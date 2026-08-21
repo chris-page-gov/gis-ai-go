@@ -11,14 +11,19 @@ from pathlib import Path
 from typing import Any, Iterator
 from urllib.parse import quote
 
+from gateway_image import (
+    NODE_BASE_DIGEST,
+    NODE_BASE_NAME,
+    NODE_BASE_VERSION,
+    parse_gateway_containerfile_pins,
+)
+
 ROOT = Path(__file__).resolve().parents[1]
 EXECUTION_BASE_NAME = "python"
 EXECUTION_BASE_VERSION = "3.12.14-slim-bookworm"
 EXECUTION_BASE_DIGEST = (
     "sha256:a116514e19457bcb7af7efe9c3dd0b9b71e85b317694e7882a1c52aa15a78134"
 )
-
-
 def npm_workspace_versions(root: Path) -> dict[str, str]:
     """Return canonical versions for the root and every pnpm workspace package."""
     manifests = [root / "package.json"]
@@ -114,6 +119,29 @@ def execution_container_components() -> Iterator[dict[str, str]]:
     }
 
 
+def gateway_container_components() -> Iterator[dict[str, str]]:
+    """Bind the blocked gateway image to its reviewed multi-architecture base."""
+
+    containerfile = (ROOT / "apps" / "mcp-gateway" / "Containerfile").read_text(
+        encoding="utf-8"
+    )
+    parsed = parse_gateway_containerfile_pins(containerfile)
+    expected = f"{NODE_BASE_NAME}:{NODE_BASE_VERSION}@{NODE_BASE_DIGEST}"
+    if parsed["node_reference"] != expected:
+        raise AssertionError("gateway Containerfile differs from the SBOM base identity")
+    purl = (
+        f"pkg:oci/{NODE_BASE_NAME}@{quote(NODE_BASE_VERSION, safe='')}"
+        f"?repository_url=docker.io%2Flibrary%2Fnode"
+        f"&digest={quote(NODE_BASE_DIGEST, safe='')}"
+    )
+    yield {
+        "type": "container",
+        "name": NODE_BASE_NAME,
+        "version": NODE_BASE_VERSION,
+        "purl": purl,
+    }
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", type=Path, required=True)
@@ -124,6 +152,7 @@ def main() -> None:
         *npm_components(),
         *python_components(),
         *execution_container_components(),
+        *gateway_container_components(),
     ]:
         key = (component["purl"], component["name"], component["version"])
         unique[key] = component
@@ -149,9 +178,9 @@ def main() -> None:
                 {
                     "name": "gis-ai-go:scope",
                     "value": (
-                        "resolved package dependencies and the pinned private execution "
-                        "container base; full operating-system package inventory is deferred "
-                        "to release-image assurance"
+                        "resolved package dependencies plus the pinned private execution and "
+                        "blocked gateway container bases; full gateway image operating-system "
+                        "inventory is emitted by the separate DEPLOY-207 image SBOM"
                     ),
                 }
             ],

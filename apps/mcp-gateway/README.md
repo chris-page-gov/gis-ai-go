@@ -70,6 +70,14 @@ It is an implementation workbench, not a supported or deployed service.
 - the HTTP candidate listens only on `127.0.0.1:8787` and exposes `GET /healthz`,
   `GET /readyz` and `GET /openapi.json`. Readiness always returns `503` with zero
   active tools and zero active API operations.
+- a separate container entrypoint binds `0.0.0.0:8787` only inside the reviewed
+  image so its offline Compose bridge can reach it. It verifies fixed private,
+  disjoint ledger and reconciliation volumes, but supplies no operation, resource,
+  application or provider seam. Compose declares only `127.0.0.1:8787`. Acceptance
+  separately records whether the engine realised that host-loopback mapping or the
+  permitted no-port internal-network fallback. The checker validates the complete
+  port inventory and normalises only the reviewed Docker `null` and empty-list
+  serialisations to that fallback; it is not host-ingress evidence.
 - `startCatalogueStdio` and the shipped STDIO entrypoint remain modern-only at
   MCP `2026-07-28` and reject every legacy opening. A separately named
   `startCatalogueLegacyConformanceStdio` constructor can negotiate the bounded
@@ -88,11 +96,19 @@ constructor options exist for local conformance tests, including `evidence.inspe
 selection or data endpoint, active MCP tool or resource, public deployment,
 provider call or external policy service.
 The portable evidence store and inspector are inactive embedding components; no
-shipped entry point supplies their configuration, ledger path or reconciliation-
-index path.
+active application receives their configuration. The blocked container entrypoint
+opens fixed roots only to prove that the durable volume boundary is safe and
+restart-verifiable.
 There is no environment-variable or command-line activation override. The
 selection and data applications and their explicit transport options are not
 referenced by any shipped entrypoint or default capability list.
+The blocked image is built from a materialised, checksum-bound Git-tracked and OKF
+context. Environment files are rejected and ignored, dependency fetching precedes
+the broad source copy, and subsequent install, build and runtime mutations have no
+BuildKit network. Its final image gate requires canonical OCI/source/runtime
+verification, exact repeat-build bytes, a full Syft SBOM, replayable Trivy evidence,
+container acceptance and the closed 12-file evidence manifest. Those controls do
+not enable this package.
 The test-only legacy launcher is separately named, requires both the existing
 conformance gate and an exact `--legacy-stdio-conformance-only` argument, and is
 not referenced by a package script or shipped entrypoint.
@@ -125,5 +141,6 @@ pnpm --filter @gis-ai-go/mcp-gateway run start:http
 See the [candidate boundary](../../docs/operations/MCP-201_GATEWAY_CANDIDATE.md),
 the [EVID-204 inspection transport boundary](../../docs/operations/EVID-204_INSPECT_TRANSPORT.md),
 the [inactive public-read transport boundary](../../docs/operations/TOOLS-205_PUBLIC_READ_TRANSPORT.md),
-the [QUAL-206 interoperability runbook](../../docs/operations/QUAL-206_INTEROPERABILITY.md)
-and the [inactive selection resolver boundary](../../docs/operations/TOOLS-205_SELECTION_RESOLVE.md).
+the [QUAL-206 interoperability runbook](../../docs/operations/QUAL-206_INTEROPERABILITY.md),
+the [inactive selection resolver boundary](../../docs/operations/TOOLS-205_SELECTION_RESOLVE.md),
+and the [blocked container runbook](../../docs/operations/DEPLOY-207_GATEWAY_CONTAINER.md).

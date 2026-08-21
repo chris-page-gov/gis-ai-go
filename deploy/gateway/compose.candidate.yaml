@@ -1,0 +1,59 @@
+name: gis-ai-go-deploy-207
+
+services:
+  gateway:
+    image: ${GIS_AI_GO_GATEWAY_IMAGE:?Set GIS_AI_GO_GATEWAY_IMAGE to the locally loaded exact image}
+    pull_policy: never
+    user: "65532:65532"
+    read_only: true
+    restart: "no"
+    stop_grace_period: 35s
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 64
+    mem_limit: 256m
+    memswap_limit: 256m
+    cpus: 0.5
+    ulimits:
+      nofile:
+        soft: 1024
+        hard: 1024
+    ports:
+      - target: 8787
+        published: "8787"
+        host_ip: 127.0.0.1
+        protocol: tcp
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=1m,mode=0700,uid=65532,gid=65532
+    volumes:
+      - type: volume
+        source: evidence-ledger
+        target: /var/lib/gis-ai-go/ledger
+      - type: volume
+        source: reconciliation-index
+        target: /var/lib/gis-ai-go/reconciliation
+    networks:
+      - offline
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256m
+          pids: 64
+    logging:
+      driver: json-file
+      options:
+        max-size: 1m
+        max-file: "1"
+
+networks:
+  offline:
+    driver: bridge
+    internal: true
+
+volumes:
+  evidence-ledger:
+  reconciliation-index:

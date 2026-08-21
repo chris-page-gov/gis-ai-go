@@ -42,7 +42,7 @@ whose accepted implementation commit is
 `a0e826384cf50d9d81b87489dbf3580e8e3602f7`. The Explorer is deployed and verified
 at <https://chris-page-gov.github.io/gis-ai-go/> from the later release commit
 recorded below. Protected `main` is now at
-`525304145088bda558687438c87440bde1f642a4` and contains inactive catalogue,
+`bc47a41f830a5763f5b5d60a2ed578fec79c796a` and contains inactive catalogue,
 evidence, selection and fixed-data-query applications, direct and MCP transport
 seams, and receipt-only lost-response reconciliation. Production operation arrays
 remain empty, readiness remains `503`, and there is no public MCP service, live
