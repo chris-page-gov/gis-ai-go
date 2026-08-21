@@ -373,12 +373,12 @@
     {
       "id": "QUAL-206-HOST-015",
       "title": "Persisted result with lost host response needs idempotent reconciliation",
-      "status": "expected-failing",
-      "classification": "pre-activation-known-gap",
+      "status": "passing",
+      "classification": "non-live-pre-activation",
       "execution_mode": "non-live",
       "scoring": "unscored",
       "live_capability_evidence": false,
-      "activation_boundary": "design-only-no-runtime-wiring",
+      "activation_boundary": "local-runtime-wired-production-unactivated",
       "extends_cases": ["QUAL-206-HOST-002"],
       "provenance": {
         "kind": "historical-derived",
@@ -391,8 +391,8 @@
       "fixture": {
         "kind": "synthetic-deterministic",
         "setup": [
-          "Use fixed request and trace identities, a one-call adapter spy, a temporary durable ledger and a transport that can drop the completed response.",
-          "Restart ledger inspection before the retry to prove the accepted record and event remain valid."
+          "Use fixed request, trace and caller-generated idempotency identities, a one-call adapter spy, a temporary durable ledger and a fault boundary that drops the completed response.",
+          "Reopen fresh ledger, reconciliation-index and application instances before retrying, without exposing the first receipt identity to the caller."
         ],
         "variants": [
           {
@@ -401,29 +401,24 @@
           },
           {
             "id": "same-request-retry",
-            "stimulus": "The host retries the same semantic request without a receipt ID or governed idempotency key."
+            "stimulus": "The host retries the same semantic request with its caller-known idempotency key but without the lost receipt ID."
           }
         ]
       },
       "assertions": [
         {
           "id": "at-most-once-side-effects",
-          "expected": "Across the dropped response and retry there is at most one provider call, one evidence record and one ledger event."
+          "expected": "Across the dropped response, restart, retry and inspection there is exactly one provider execution, one evidence record and one ledger event."
         },
         {
-          "id": "telemetry-separates-completion",
-          "expected": "Bounded telemetry distinguishes server execution and persistence complete from host delivery incomplete without retaining raw request or result content."
+          "id": "completed-retry-fails-closed",
+          "expected": "The restarted data.query retry returns receipt-free idempotency_completed with status 409 before provider preflight, execution or another evidence write."
         },
         {
-          "id": "known-gap-stays-visible",
-          "expected": "The pre-activation evaluator reports this case as expected-failing until a governed request or idempotency lookup can recover the lost receipt identity."
+          "id": "receipt-only-recovery",
+          "expected": "A separate evidence.inspect v2 lookup by the caller-known key recovers the verified receipt, record, event and storage identities without replaying result material or exposing the raw key."
         }
-      ],
-      "known_gap": {
-        "missing_capability": "There is no governed idempotency key or request-to-receipt lookup, and evidence.inspect accepts only the receipt ID that the host did not receive.",
-        "expected_failure": "A retry cannot reconcile the already persisted success without either duplicating execution or receiving a duplicate-replay rejection that does not identify the existing receipt.",
-        "activation_condition": "Implement and review bounded lost-response reconciliation that returns the existing receipt by a non-secret idempotency identity, then prove restart and concurrent-retry behaviour before activation."
-      }
+      ]
     },
     {
       "id": "QUAL-206-HOST-017",

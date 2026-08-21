@@ -91,9 +91,9 @@ const RUNTIME_SCHEMA_REFS_BY_ID: Readonly<
     problem: "schemas/selection-resolve-problem.schema.json",
   },
   T04: {
-    input: "schemas/data-query-parameters.schema.json",
+    input: "schemas/data-query-request.schema.json",
     output: "schemas/data-query-result.schema.json",
-    problem: "schemas/data-query-problem.schema.json",
+    problem: "schemas/data-query-operation-problem.schema.json",
   },
   T05: { input: null, output: null, problem: null },
   T06: { input: null, output: null, problem: null },
@@ -102,9 +102,9 @@ const RUNTIME_SCHEMA_REFS_BY_ID: Readonly<
   T09: { input: null, output: null, problem: null },
   T10: { input: null, output: null, problem: null },
   T11: {
-    input: "schemas/evidence-inspect-request.schema.json",
+    input: "schemas/evidence-inspect-operation-request.schema.json",
     output: "schemas/evidence-inspect-operation-result.schema.json",
-    problem: null,
+    problem: "schemas/catalogue-problem.schema.json",
   },
   T12: { input: null, output: null, problem: null },
 });
@@ -118,7 +118,12 @@ const CURRENT_PUBLIC_READ_PROVIDER_DEPENDENCIES = Object.freeze({
   T04: Object.freeze([
     "explicitly injected ONS Data API adapter",
     "public-read policy",
-    "public evidence contract",
+    "durable public evidence ledger",
+    "receipt-only idempotency reconciliation index",
+  ]),
+  T11: Object.freeze([
+    "durable public evidence ledger",
+    "receipt-only idempotency reconciliation index",
   ]),
 } as const);
 
@@ -142,6 +147,14 @@ const CURRENT_PUBLIC_READ_CONTROLLED_ERRORS = Object.freeze({
     "PROVIDER_TIMEOUT",
     "PROVIDER_UNAVAILABLE",
     "PROVIDER_CONTRACT_FAILED",
+    "EVIDENCE_UNAVAILABLE",
+    "IDEMPOTENCY_PENDING",
+    "IDEMPOTENCY_COMPLETED",
+    "IDEMPOTENCY_CONFLICT",
+  ]),
+  T11: Object.freeze([
+    "INVALID_REQUEST",
+    "EVIDENCE_NOT_FOUND",
     "EVIDENCE_UNAVAILABLE",
   ]),
 } as const);
@@ -448,11 +461,7 @@ function validateProfile(value: unknown, index: number): ToolProfile {
     if (inputSchema.state !== "accepted" || outputSchema.state !== "accepted") {
       invalidRegistry();
     }
-    if (
-      expectedId === "T11"
-        ? problemSchema.state !== "missing"
-        : problemSchema.state !== "accepted"
-    ) {
+    if (problemSchema.state !== "accepted") {
       invalidRegistry();
     }
   } else if (
@@ -485,7 +494,7 @@ function validateProfile(value: unknown, index: number): ToolProfile {
   validateStringArray(profile.policyAttributes, 1, 32);
   assertString(profile.costPerformance, 1, 256);
   validateStringArray(profile.controlledErrors, 1, 16, ERROR_CODE_PATTERN);
-  if (expectedId === "T03" || expectedId === "T04") {
+  if (expectedId === "T03" || expectedId === "T04" || expectedId === "T11") {
     assertExactSequence(
       support.providerDependencies,
       CURRENT_PUBLIC_READ_PROVIDER_DEPENDENCIES[expectedId],
@@ -548,7 +557,19 @@ function validateProfile(value: unknown, index: number): ToolProfile {
       crs.state !== "not-applicable" ||
       fallback.state !== "not-implemented" ||
       fallback.behaviour !==
-        "Fail closed; no cache, alternate provider or result fallback is permitted."
+        "Fail closed; no result cache, alternate provider or result fallback is permitted."
+    ) {
+      invalidRegistry();
+    }
+  }
+  if (expectedId === "T11") {
+    if (
+      cursor.state !== "none" ||
+      cursor.maxLength !== null ||
+      crs.state !== "not-applicable" ||
+      fallback.state !== "not-implemented" ||
+      fallback.behaviour !==
+        "Fail closed; no alternate receipt, result replay or challenge route is implemented."
     ) {
       invalidRegistry();
     }

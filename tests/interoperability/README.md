@@ -27,15 +27,19 @@ The schema-validated
 [`qual_206_cases_expansion.json`](qual_206_cases_expansion.json) composes seven
 additional historical-derived cases with that frozen base. Cases `HOST-011` to
 `HOST-015`, `HOST-017` and `HOST-018` are deterministic, non-live, pre-activation
-design cases and remain unscored. `HOST-015` is explicitly expected-failing until
-lost-response reconciliation exists. `HOST-016` is only a deferred entry: it must
+cases and remain unscored. `HOST-015` alone is locally passing at the
+`local-runtime-wired-production-unactivated` boundary: its executable fixture drops
+a success after verified persistence, reopens fresh instances, returns a receipt-free
+completed retry and recovers the receipt through `evidence.inspect` v2 without result
+replay. This is not live host or production-activation evidence. `HOST-016` is only a
+deferred entry: it must
 not become runnable until GIS AI GO has a governed cache with coverage and rebuild
 evidence. The closed contract is
 [`qual-206-evaluation-expansion.schema.json`](../../schemas/qual-206-evaluation-expansion.schema.json).
 
 The combined design suite therefore contains 17 unique runnable-case identifiers:
 the ten unchanged v1 cases plus seven expansion cases. It does not turn the new
-cases into observed host results, activate a tool, call a provider or alter any
+cases into observed host results, activate a tool, call a live provider or alter any
 historical capability classification. `HOST-017` and `HOST-018` extend the
 assertion coverage of retained `HOST-006` and `HOST-005` respectively; `HOST-015`
 adds an evidence-integrity boundary related to `HOST-002` without rewriting any of

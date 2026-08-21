@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 import unittest
 from pathlib import Path
@@ -13,6 +14,12 @@ from referencing import Registry, Resource
 ROOT = Path(__file__).resolve().parents[2]
 SCHEMA_DIR = ROOT / "schemas"
 FIXTURE_DIR = ROOT / "providers" / "fixtures"
+DATA_QUERY_PARAMETERS_V1_SHA256 = (
+    "7370321b97b194b24f3ecfc0ec67d5edab943b8535607f382e460959dc677a8c"
+)
+DATA_QUERY_PROBLEM_V1_SHA256 = (
+    "264f1ad4eca32c1498fe5f0400372819a5b935fb426d9ec8b8ee3ba6c04f41d3"
+)
 
 
 def load(path: Path) -> dict[str, Any]:
@@ -57,6 +64,14 @@ class DataQueryContractTests(unittest.TestCase):
         self.parameters = load(FIXTURE_DIR / "data-query-parameters.example.json")
         self.result = load(FIXTURE_DIR / "data-query-result.example.json")
         self.problem = load(FIXTURE_DIR / "data-query-problem.example.json")
+        self.request = load(FIXTURE_DIR / "data-query-request.example.json")
+        self.reconciliation_problems = [
+            load(
+                FIXTURE_DIR
+                / f"data-query-reconciliation-{state}-problem.example.json"
+            )
+            for state in ("pending", "completed", "conflict")
+        ]
         self.cancelled_problem = load(
             FIXTURE_DIR / "data-query-cancelled-problem.example.json"
         )
@@ -72,8 +87,17 @@ class DataQueryContractTests(unittest.TestCase):
             "data-query-result.schema.json": (
                 "urn:gis-ai-go:schema:data-query-result:v1"
             ),
+            "data-query-request.schema.json": (
+                "urn:gis-ai-go:schema:data-query-request:v1"
+            ),
             "data-query-problem.schema.json": (
                 "urn:gis-ai-go:schema:data-query-problem:v1"
+            ),
+            "data-query-reconciliation-problem.schema.json": (
+                "urn:gis-ai-go:schema:data-query-reconciliation-problem:v1"
+            ),
+            "data-query-operation-problem.schema.json": (
+                "urn:gis-ai-go:schema:data-query-operation-problem:v1"
             ),
         }
         for name, schema_id in expected.items():
@@ -86,6 +110,46 @@ class DataQueryContractTests(unittest.TestCase):
             10,
             len(load(SCHEMA_DIR / "data-query-problem.schema.json")["oneOf"]),
         )
+
+    def test_versioned_wrapper_and_problem_dispatcher_do_not_widen_v1(self) -> None:
+        parameters_path = SCHEMA_DIR / "data-query-parameters.schema.json"
+        problem_path = SCHEMA_DIR / "data-query-problem.schema.json"
+        self.assertEqual(
+            DATA_QUERY_PARAMETERS_V1_SHA256,
+            hashlib.sha256(parameters_path.read_bytes()).hexdigest(),
+        )
+        self.assertEqual(
+            DATA_QUERY_PROBLEM_V1_SHA256,
+            hashlib.sha256(problem_path.read_bytes()).hexdigest(),
+        )
+        request = validator("data-query-request.schema.json")
+        old_problem = validator("data-query-problem.schema.json")
+        reconciliation_problem = validator(
+            "data-query-reconciliation-problem.schema.json"
+        )
+        operation_problem = validator("data-query-operation-problem.schema.json")
+
+        self.assertTrue(request.is_valid(self.request))
+        self.assertEqual(self.parameters, self.request["parameters"])
+        self.assertFalse(request.is_valid(self.parameters))
+        for fixture in self.reconciliation_problems:
+            with self.subTest(code=fixture["code"]):
+                self.assertFalse(old_problem.is_valid(fixture))
+                self.assertTrue(reconciliation_problem.is_valid(fixture))
+                self.assertTrue(operation_problem.is_valid(fixture))
+                text = json.dumps(fixture, sort_keys=True)
+                self.assertNotIn("gis-ai-go:ik:v1:", text)
+                self.assertNotIn("evidence-receipt", text)
+        self.assertTrue(operation_problem.is_valid(self.problem))
+        self.assertFalse(reconciliation_problem.is_valid(self.problem))
+
+        zero_key = copy.deepcopy(self.request)
+        zero_key["idempotency_key"] = f"gis-ai-go:ik:v1:{'0' * 64}"
+        self.assertFalse(request.is_valid(zero_key))
+
+        widened_parameters = copy.deepcopy(self.request)
+        widened_parameters["parameters"]["limit"] = 2
+        self.assertFalse(request.is_valid(widened_parameters))
 
     def test_exact_parameters_and_success_fixture_validate(self) -> None:
         parameters = validator("data-query-parameters.schema.json")

@@ -13,4 +13,5 @@ export * from "./mcp-server.js";
 export * from "./mcp-stdio.js";
 export * from "./openapi.js";
 export * from "./problem.js";
+export { haveExactlyLinkedReconciliationApplications } from "./reconciliation-applications.js";
 export * from "./selection-application.js";

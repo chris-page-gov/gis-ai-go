@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:evidence-reconciliation-claim:v1",
+  "title": "GIS AI GO evidence reconciliation claim",
+  "description": "An immutable digest-only ownership claim. It contains no raw idempotency key, query or result material.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "claim_id", "index_id", "ledger_id", "claimed_at", "retain_until", "operation", "idempotency_key_sha256", "request_fingerprint_sha256", "request_id", "trace_id", "resource_id", "normalised_parameters", "privacy"],
+  "properties": {
+    "schema": { "const": "gis-ai-go.evidence-reconciliation-claim.v1" },
+    "claim_id": {
+      "type": "string",
+      "pattern": "^gis-ai-go:evidence-reconciliation-claim:sha256:[0-9a-f]{64}$"
+    },
+    "index_id": {
+      "type": "string",
+      "pattern": "^gis-ai-go:evidence-reconciliation-index:sha256:[0-9a-f]{64}$"
+    },
+    "ledger_id": {
+      "type": "string",
+      "pattern": "^gis-ai-go:public-evidence-ledger:sha256:[0-9a-f]{64}$"
+    },
+    "claimed_at": { "type": "string", "format": "date-time", "pattern": "Z$" },
+    "retain_until": { "type": "string", "format": "date-time", "pattern": "Z$" },
+    "operation": { "const": "data.query" },
+    "idempotency_key_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "request_fingerprint_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "request_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^(?!.*gis-ai-go:ik:v1:[0-9a-f]{64})[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "trace_id": { "type": "string", "pattern": "^[0-9a-f]{32}$" },
+    "resource_id": {
+      "type": "string",
+      "pattern": "^gis-ai-go:public-read-resource:sha256:[0-9a-f]{64}$"
+    },
+    "normalised_parameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["domain", "sha256"],
+      "properties": {
+        "domain": { "const": "gis-ai-go.data-query-parameters.v1" },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    },
+    "privacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["raw_idempotency_key", "raw_query", "result_material", "credentials", "personal_data", "machine_path"],
+      "properties": {
+        "raw_idempotency_key": { "const": false },
+        "raw_query": { "const": false },
+        "result_material": { "const": false },
+        "credentials": { "const": false },
+        "personal_data": { "const": false },
+        "machine_path": { "const": false }
+      }
+    }
+  }
+}

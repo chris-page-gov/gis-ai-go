@@ -314,7 +314,7 @@
           "maxLength": 160
         },
         "status": {
-          "enum": ["pending", "expected-failing"]
+          "enum": ["pending", "expected-failing", "passing"]
         },
         "classification": {
           "enum": ["non-live-pre-activation", "pre-activation-known-gap"]
@@ -329,7 +329,10 @@
           "const": false
         },
         "activation_boundary": {
-          "const": "design-only-no-runtime-wiring"
+          "enum": [
+            "design-only-no-runtime-wiring",
+            "local-runtime-wired-production-unactivated"
+          ]
         },
         "extends_cases": {
           "type": "array",
@@ -412,6 +415,36 @@
             },
             "not": {
               "required": ["known_gap"]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "QUAL-206-HOST-015"
+              }
+            },
+            "required": ["id"]
+          },
+          "then": {
+            "properties": {
+              "status": { "const": "passing" },
+              "classification": { "const": "non-live-pre-activation" },
+              "activation_boundary": {
+                "const": "local-runtime-wired-production-unactivated"
+              }
+            },
+            "not": {
+              "required": ["known_gap"]
+            }
+          },
+          "else": {
+            "properties": {
+              "status": { "enum": ["pending", "expected-failing"] },
+              "activation_boundary": {
+                "const": "design-only-no-runtime-wiring"
+              }
             }
           }
         }

@@ -80,6 +80,12 @@ const catalogueSearchRequestSchema = sharedSchema(
 const evidenceInspectRequestSchema = sharedSchema(
   "evidence-inspect-request.schema.json",
 );
+const evidenceInspectRequestV2Schema = sharedSchema(
+  "evidence-inspect-request-v2.schema.json",
+);
+const evidenceInspectOperationRequestSchema = sharedSchema(
+  "evidence-inspect-operation-request.schema.json",
+);
 const evidenceInspectOperationResultSchema = sharedSchema(
   "evidence-inspect-operation-result.schema.json",
 );
@@ -126,8 +132,15 @@ const selectionPlanSchema = sharedSchema("selection-plan.schema.json");
 const dataQueryParametersSchema = sharedSchema(
   "data-query-parameters.schema.json",
 );
+const dataQueryRequestSchema = sharedSchema("data-query-request.schema.json");
 const dataQueryResultSchema = sharedSchema("data-query-result.schema.json");
 const dataQueryProblemSchema = sharedSchema("data-query-problem.schema.json");
+const dataQueryReconciliationProblemSchema = sharedSchema(
+  "data-query-reconciliation-problem.schema.json",
+);
+const dataQueryOperationProblemSchema = sharedSchema(
+  "data-query-operation-problem.schema.json",
+);
 
 function deepFreeze<T>(value: T, seen = new WeakSet<object>()): T {
   if (value === null || typeof value !== "object" || seen.has(value)) return value;
@@ -383,6 +396,74 @@ function evidenceOperationResultSchema(): CatalogueJsonSchema {
   return deepFreeze({ ...dispatcher, $defs: rootDefinitions });
 }
 
+function evidenceOperationRequestJsonSchema(): CatalogueJsonSchema {
+  const dispatcher = cloneJson(evidenceInspectOperationRequestSchema);
+  const rootDefinitions: Record<string, unknown> = {};
+  rewriteReferences(dispatcher, "", {
+    "urn:gis-ai-go:schema:evidence-inspect-request:v1":
+      "#/$defs/evidence_inspect_request_v1",
+    "urn:gis-ai-go:schema:evidence-inspect-request:v2":
+      "#/$defs/evidence_inspect_request_v2",
+  });
+  embedSchemaResource(
+    evidenceInspectRequestSchema,
+    "evidence_inspect_request_v1",
+    "inspect_request_v1",
+    {},
+    rootDefinitions,
+  );
+  embedSchemaResource(
+    evidenceInspectRequestV2Schema,
+    "evidence_inspect_request_v2",
+    "inspect_request_v2",
+    {},
+    rootDefinitions,
+  );
+  return deepFreeze({ ...dispatcher, $defs: rootDefinitions });
+}
+
+function dataQueryRequestJsonSchema(): CatalogueJsonSchema {
+  const request = cloneJson(dataQueryRequestSchema);
+  const rootDefinitions: Record<string, unknown> = {};
+  rewriteReferences(request, "", {
+    "urn:gis-ai-go:schema:data-query-parameters:v1":
+      "#/$defs/data_query_parameters_v1",
+  });
+  embedSchemaResource(
+    dataQueryParametersSchema,
+    "data_query_parameters_v1",
+    "data_query_parameters_v1",
+    {},
+    rootDefinitions,
+  );
+  return deepFreeze({ ...request, $defs: rootDefinitions });
+}
+
+function dataQueryOperationProblemJsonSchema(): CatalogueJsonSchema {
+  const dispatcher = cloneJson(dataQueryOperationProblemSchema);
+  const rootDefinitions: Record<string, unknown> = {};
+  rewriteReferences(dispatcher, "", {
+    "urn:gis-ai-go:schema:data-query-problem:v1": "#/$defs/data_query_problem_v1",
+    "urn:gis-ai-go:schema:data-query-reconciliation-problem:v1":
+      "#/$defs/data_query_reconciliation_problem_v1",
+  });
+  embedSchemaResource(
+    dataQueryProblemSchema,
+    "data_query_problem_v1",
+    "data_query_problem_v1",
+    {},
+    rootDefinitions,
+  );
+  embedSchemaResource(
+    dataQueryReconciliationProblemSchema,
+    "data_query_reconciliation_problem_v1",
+    "data_query_reconciliation_problem_v1",
+    {},
+    rootDefinitions,
+  );
+  return deepFreeze({ ...dispatcher, $defs: rootDefinitions });
+}
+
 function publicReadOperationResultSchema(
   schema: unknown,
   operation: PublicReadApiOperation,
@@ -474,7 +555,7 @@ export const catalogueDescribeResultJsonSchema = catalogueOperationResultSchema(
   "catalogue.describe",
 );
 export const evidenceInspectRequestJsonSchema = deepFreeze(
-  cloneJson(evidenceInspectRequestSchema),
+  evidenceOperationRequestJsonSchema(),
 );
 export const evidenceInspectResultJsonSchema = evidenceOperationResultSchema();
 export const selectionResolveRequestJsonSchema = deepFreeze(
@@ -490,6 +571,7 @@ export const selectionResolveProblemJsonSchema = deepFreeze(
 export const dataQueryParametersJsonSchema = deepFreeze(
   cloneJson(dataQueryParametersSchema),
 );
+export const dataQueryRequestOperationJsonSchema = dataQueryRequestJsonSchema();
 export const dataQueryResultJsonSchema = publicReadOperationResultSchema(
   dataQueryResultSchema,
   "data.query",
@@ -497,6 +579,8 @@ export const dataQueryResultJsonSchema = publicReadOperationResultSchema(
 export const dataQueryProblemJsonSchema = deepFreeze(
   cloneJson(dataQueryProblemSchema),
 );
+export const dataQueryOperationProblemSchemaJson =
+  dataQueryOperationProblemJsonSchema();
 export const catalogueProblemJsonSchema = deepFreeze(cloneJson(catalogueProblemSchema));
 
 /** Exact canonical schemas shared by direct API and MCP advertisements. */
@@ -525,9 +609,9 @@ export const PUBLIC_READ_OPERATION_JSON_SCHEMAS = deepFreeze({
     problemSchema: selectionResolveProblemJsonSchema,
   },
   "data.query": {
-    inputSchema: dataQueryParametersJsonSchema,
+    inputSchema: dataQueryRequestOperationJsonSchema,
     outputSchema: dataQueryResultJsonSchema,
-    problemSchema: dataQueryProblemJsonSchema,
+    problemSchema: dataQueryOperationProblemSchemaJson,
   },
 } as const);
 
@@ -553,7 +637,16 @@ function normaliseOperations(
     }
     selected.add(operation);
   }
-  return GATEWAY_API_OPERATIONS.filter((operation) => selected.has(operation));
+  const normalised = GATEWAY_API_OPERATIONS.filter((operation) => selected.has(operation));
+  if (
+    normalised.includes("data.query") &&
+    !normalised.includes("evidence.inspect")
+  ) {
+    throw new TypeError(
+      "data.query OpenAPI mounting requires the exact linked evidence.inspect operation",
+    );
+  }
+  return normalised;
 }
 
 /** Build the exact local-candidate contract for the explicitly mounted API set. */
@@ -582,8 +675,10 @@ export function createCatalogueOpenApiDocument(
   schemas.SelectionResolveResult = cloneJson(selectionResolveResultJsonSchema);
   schemas.SelectionResolveProblem = cloneJson(selectionResolveProblemJsonSchema);
   schemas.DataQueryParameters = cloneJson(dataQueryParametersJsonSchema);
+  schemas.DataQueryRequest = cloneJson(dataQueryRequestOperationJsonSchema);
   schemas.DataQueryResult = cloneJson(dataQueryResultJsonSchema);
   schemas.DataQueryProblem = cloneJson(dataQueryProblemJsonSchema);
+  schemas.DataQueryOperationProblem = cloneJson(dataQueryOperationProblemSchemaJson);
   schemas.CatalogueProblem = cloneJson(catalogueProblemJsonSchema);
   document["x-gis-ai-go-mounted-candidate-catalogue-operations"] =
     CATALOGUE_API_OPERATIONS.filter((operation) => selected.includes(operation));

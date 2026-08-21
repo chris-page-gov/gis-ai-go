@@ -429,7 +429,7 @@
       "runtimeSchemas": {
         "input": {
           "state": "accepted",
-          "ref": "schemas/data-query-parameters.schema.json"
+          "ref": "schemas/data-query-request.schema.json"
         },
         "output": {
           "state": "accepted",
@@ -437,7 +437,7 @@
         },
         "problem": {
           "state": "accepted",
-          "ref": "schemas/data-query-problem.schema.json"
+          "ref": "schemas/data-query-operation-problem.schema.json"
         }
       },
       "support": {
@@ -447,7 +447,8 @@
         "providerDependencies": [
           "explicitly injected ONS Data API adapter",
           "public-read policy",
-          "public evidence contract"
+          "durable public evidence ledger",
+          "receipt-only idempotency reconciliation index"
         ]
       },
       "accessTiers": [
@@ -476,7 +477,10 @@
         "PROVIDER_TIMEOUT",
         "PROVIDER_UNAVAILABLE",
         "PROVIDER_CONTRACT_FAILED",
-        "EVIDENCE_UNAVAILABLE"
+        "EVIDENCE_UNAVAILABLE",
+        "IDEMPOTENCY_PENDING",
+        "IDEMPOTENCY_COMPLETED",
+        "IDEMPOTENCY_CONFLICT"
       ],
       "cursor": {
         "state": "none",
@@ -506,7 +510,7 @@
       },
       "fallback": {
         "state": "not-implemented",
-        "behaviour": "Fail closed; no cache, alternate provider or result fallback is permitted."
+        "behaviour": "Fail closed; no result cache, alternate provider or result fallback is permitted."
       },
       "threats": {
         "risks": [
@@ -1250,15 +1254,15 @@
       "runtimeSchemas": {
         "input": {
           "state": "accepted",
-          "ref": "schemas/evidence-inspect-request.schema.json"
+          "ref": "schemas/evidence-inspect-operation-request.schema.json"
         },
         "output": {
           "state": "accepted",
           "ref": "schemas/evidence-inspect-operation-result.schema.json"
         },
         "problem": {
-          "state": "missing",
-          "ref": null
+          "state": "accepted",
+          "ref": "schemas/catalogue-problem.schema.json"
         }
       },
       "support": {
@@ -1266,9 +1270,8 @@
         "operationState": "implemented-inactive",
         "providerState": "candidate-partial",
         "providerDependencies": [
-          "evidence store",
-          "policy decision store",
-          "source ledger"
+          "durable public evidence ledger",
+          "receipt-only idempotency reconciliation index"
         ]
       },
       "accessTiers": [
@@ -1285,10 +1288,9 @@
       ],
       "costPerformance": "Low",
       "controlledErrors": [
-        "NOT_FOUND",
-        "AUDIT_DENY",
-        "REDACTED",
-        "EVIDENCE_INTEGRITY_FAILURE"
+        "INVALID_REQUEST",
+        "EVIDENCE_NOT_FOUND",
+        "EVIDENCE_UNAVAILABLE"
       ],
       "cursor": {
         "state": "none",
@@ -1317,8 +1319,8 @@
         ]
       },
       "fallback": {
-        "state": "partial",
-        "behaviour": "Return a redacted public receipt or challenge route."
+        "state": "not-implemented",
+        "behaviour": "Fail closed; no alternate receipt, result replay or challenge route is implemented."
       },
       "threats": {
         "risks": [

@@ -2,7 +2,8 @@
 
 - status: local conformance candidate; not activated or deployed
 - work item: [EVID-204](https://github.com/chris-page-gov/gis-ai-go/issues/22)
-- decision: [ADR-0011](../decisions/ADR-0011-durable-public-evidence-ledger.md)
+- decisions: [ADR-0011](../decisions/ADR-0011-durable-public-evidence-ledger.md)
+  and [ADR-0012](../decisions/ADR-0012-receipt-only-lost-response-reconciliation.md)
 - protected-main base: `364c8680ad11399e0547a843be2a04da7a737301`
 
 ## Outcome boundary
@@ -10,7 +11,8 @@
 This slice connects the accepted transport-neutral `evidence.inspect` application
 to the existing direct API and modern MCP HTTP and STDIO candidates. All faces call
 the same `createEvidenceInspectApplication` instance over one already opened and
-verified `PublicEvidenceLedger`.
+verified `PublicEvidenceLedger`. The later v2 key lookup also closes the application
+over that ledger's exact reconciliation-index instance.
 
 The integration is available only through explicit constructor options:
 
@@ -22,6 +24,10 @@ The integration is available only through explicit constructor options:
   `gis-ai-go://evidence/receipts/{receipt_id}` when `enabledResources` includes
   `evidence.receipt`.
 
+Any face that mounts `data.query` must mount this tool on the same transport and
+must supply the application branded with the exact same index as the data
+application. Mismatched, legacy and proxy-wrapped pairs fail construction.
+
 The production activation arrays remain empty. The shipped HTTP and STDIO entry
 points supply no ledger path, inspection application or activation override.
 Readiness remains `503` with zero active tools and API operations. No listener is
@@ -29,16 +35,26 @@ published and no registry entry or deployment is created.
 
 ## Contract and parity
 
-The direct API and MCP advertisements use the same closed repository schemas for
-the exact receipt lookup and complete evidence result. The generated OpenAPI and
-MCP output schema are self-contained projections of the canonical full-checkout
-schemas; the gateway build is deliberately not a standalone `dist/` package.
+The direct API and MCP advertisements use the same closed repository dispatchers.
+The unchanged `evidence-inspect-request.schema.json` v1 branch accepts one exact
+receipt identity. The additive `gis-ai-go.evidence-inspect-request.v2` branch
+accepts exactly `schema`, `source_operation: data.query` and the caller-known
+idempotency key. A v2 lookup is available only when the inspector is constructed
+with the exact ledger-linked reconciliation index. The generated OpenAPI and MCP
+schemas are self-contained projections of the canonical full-checkout schemas; the
+gateway build is deliberately not a standalone `dist/` package.
 
 Every successful face returns the same complete object: public evidence record,
 hash-chain event, durable storage reference and explicit verification statements.
 MCP supplies that object as both `structuredContent` and identical plain JSON text.
 The resource returns the same plain JSON text. The result states that ingest
 material was verified but not retained and that no attestation exists.
+
+The v2 key lookup resolves internally to the original receipt and returns the
+existing `gis-ai-go.evidence-inspect-result.v2` object. It never returns the claim,
+key digest, raw key, original observation or original `data.query` result. The MCP
+resource remains only `gis-ai-go://evidence/receipts/{receipt_id}`; no resource URI
+accepts or embeds an idempotency key.
 
 The shared result is bounded so the duplicated MCP compatibility representation,
 resource response and direct response all fail closed before transport limits are
@@ -48,21 +64,24 @@ crossed. Stored data remains untrusted data, never instructions.
 
 | Condition | HTTP status | Public code |
 | --- | ---: | --- |
-| malformed or non-receipt lookup | `400` | `invalid_request` |
-| valid receipt identity absent from the ledger | `404` | `evidence_not_found` |
-| verification, corruption or ledger I/O failure | `503` | `evidence_unavailable` |
+| malformed receipt or v2 key lookup | `400` | `invalid_request` |
+| valid receipt identity or v2 key absent from its store | `404` | `evidence_not_found` |
+| known claim without verified completion | `503` | `evidence_unavailable` |
+| verification, corruption, index or ledger I/O failure | `503` | `evidence_unavailable` |
 | unexpected gateway failure | `500` | `internal_error` |
 
 Problem responses contain request and trace identities but never the submitted
-receipt text, ledger root, machine path, file name or raw exception. MCP tool
+receipt or key text, key digest, ledger/index root, machine path, file name or raw
+exception. MCP tool
 failures use the same problem object in structured and plain-text forms. The MCP
 resource-not-found protocol response necessarily echoes its bounded public resource
 URI; it contains only the receipt content identity, never a storage path. A resource
 verification failure maps to one fixed non-reflective error.
 
-Corruption is never repaired in place. Stop the affected operation, quarantine the
-complete ledger root and restore a complete independently verified copy as set out
-in [the durable-ledger runbook](EVID-204_DURABLE_LEDGER.md).
+Corruption is never repaired in place. Stop the affected operation, identify the
+failed verified root, quarantine the linked ledger and reconciliation index as one
+coherent pair, and restore a complete independently verified pair as set out in
+[the durable-ledger runbook](EVID-204_DURABLE_LEDGER.md).
 
 ## Repeatable verification
 
@@ -76,11 +95,13 @@ pnpm run validate:contracts
 pnpm run check
 ```
 
-The focused suite creates a temporary ledger, persists an evidenced catalogue
-result, reopens and verifies the ledger, and then compares direct API, MCP HTTP,
-MCP STDIO, resource and plain-text results. It also truncates an immutable event and
-proves all affected operation faces return only the controlled unavailable problem.
-Temporary machine paths are assertions against leakage and are not placed in
+The focused suite creates temporary ledger and index roots, persists evidenced
+catalogue and data results, reopens and verifies the stores, and then compares
+direct API, MCP HTTP, MCP STDIO, resource and plain-text results. It covers v1
+receipt lookup, v2 key lookup, absent and incomplete key states, and proves that no
+resource URI accepts a key. It also truncates immutable evidence and proves all
+affected operation faces return only the controlled unavailable problem. Temporary
+machine paths and raw keys are assertions against leakage and are not placed in
 fixtures, logs or durable repository evidence.
 
 No live provider, external identity, OPA service, public deployment or original

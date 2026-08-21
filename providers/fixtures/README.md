@@ -35,6 +35,19 @@ response. The provider, caller-cancelled and caller-deadline problem fixtures ar
 deliberately receipt-free and cannot retain an abort reason, deadline, adapter
 message, provider status, payload, credential, path or stack.
 
+The `data-query-request` fixture wraps those unchanged parameters with a synthetic
+caller-generated 256-bit idempotency key. The three reconciliation-problem fixtures
+are closed, receipt-free 409 responses for pending, completed and conflicting use of
+that key. The public correlation key must be random and must not encode personal or
+secret material. `evidence-inspect-request-v2` demonstrates the separate receipt-only
+lookup; the key is input material and is never a resource URI.
+
+The reconciliation index, claim and resolution examples are deterministic synthetic
+storage documents. The claim retains only domain-separated digests and bounded public
+identifiers; the resolution retains only the receipt identity. They contain neither
+the raw idempotency key nor query or result material, and do not demonstrate an
+activated transport or provider call.
+
 The `@gis-ai-go/provider-adapter-sdk` package supplies a frozen statistics fixture
 with fixture-native dataset, version, dimension and option identifiers. Both its
 discovery and invocation planes are suspended unless a test activates them

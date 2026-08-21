@@ -119,6 +119,7 @@ const REQUEST_ID = /^[A-Za-z0-9][A-Za-z0-9._:-]*$/u;
 const TRACE_ID = /^[0-9a-f]{32}$/u;
 const CONTROL_CHARACTER = /[\u0000-\u001f\u007f]/u;
 const INSTANCE_PATH = /^\/(?:[A-Za-z0-9._~:/-]|%[0-9A-F]{2})*$/u;
+const RAW_IDEMPOTENCY_KEY_TEXT = /gis-ai-go:ik:v1:[0-9a-f]{64}/u;
 
 function codePointLength(value: string): number {
   return Array.from(value).length;
@@ -163,7 +164,11 @@ export function isCanonicalCatalogueProblemInstance(value: unknown): value is st
   } catch {
     return false;
   }
-  return INSTANCE_PATH.test(value) && canonicalPath === value;
+  return (
+    INSTANCE_PATH.test(value) &&
+    canonicalPath === value &&
+    !RAW_IDEMPOTENCY_KEY_TEXT.test(value)
+  );
 }
 
 /** Validate the request and trace identity shared by success and problem envelopes. */
@@ -171,7 +176,8 @@ export function assertCatalogueProblemContext(context: CatalogueProblemContext):
   if (
     typeof context.requestId !== "string" ||
     codePointLength(context.requestId) > 128 ||
-    !REQUEST_ID.test(context.requestId)
+    !REQUEST_ID.test(context.requestId) ||
+    RAW_IDEMPOTENCY_KEY_TEXT.test(context.requestId)
   ) {
     throw new TypeError("requestId does not match the catalogue problem contract");
   }
@@ -180,7 +186,8 @@ export function assertCatalogueProblemContext(context: CatalogueProblemContext):
   }
   if (
     context.instance !== undefined &&
-    !isCanonicalCatalogueProblemInstance(context.instance)
+    (!isCanonicalCatalogueProblemInstance(context.instance) ||
+      RAW_IDEMPOTENCY_KEY_TEXT.test(context.instance))
   ) {
     throw new TypeError(
       "instance must be a bounded canonical absolute path without a query or fragment",

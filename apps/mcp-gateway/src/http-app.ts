@@ -9,10 +9,12 @@ import {
 import type { CatalogueSnapshot } from "./catalogue-snapshot.js";
 import {
   EvidenceInspectError,
+  isReconciledEvidenceInspectApplication,
   type EvidenceInspectApplication,
 } from "./evidence-application.js";
 import {
   DataQueryApplicationError,
+  isReconciledDataQueryApplication,
   type DataQueryApplication,
 } from "./data-query-application.js";
 import { gatewayMetadata } from "./metadata.js";
@@ -26,12 +28,14 @@ import {
   isCatalogueProblemError,
   type CatalogueProblemContext,
 } from "./problem.js";
+import { haveExactlyLinkedReconciliationApplications } from "./reconciliation-applications.js";
 import {
   type SelectionResolveApplication,
   type SelectionResolveProblem,
 } from "./selection-application.js";
 
 const REQUEST_ID = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/u;
+const RAW_IDEMPOTENCY_KEY_TEXT = /gis-ai-go:ik:v1:[0-9a-f]{64}/u;
 const TRACE_ID = /^[0-9a-f]{32}$/u;
 const CONTENT_LENGTH = /^(?:0|[1-9][0-9]*)$/u;
 const JSON_NUMBER = /^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?/u;
@@ -57,6 +61,8 @@ export interface GatewayHttpOptions {
   readonly snapshot: CatalogueSnapshot;
   readonly allowedHosts?: readonly string[];
   readonly allowedOrigins?: readonly string[];
+  /** Trusted test seam. Reconciled data.query always ignores caller request IDs. */
+  readonly createRequestId?: () => string;
   readonly createTraceId?: () => string;
   readonly enabledApiOperations?: readonly GatewayApiOperation[];
   readonly application?: CatalogueApplication;
@@ -152,7 +158,9 @@ function isJsonContentType(value: string | null): boolean {
 
 function requestId(request: Request): string {
   const candidate = request.headers.get("x-request-id");
-  return candidate !== null && REQUEST_ID.test(candidate)
+  return candidate !== null &&
+      REQUEST_ID.test(candidate) &&
+      !RAW_IDEMPOTENCY_KEY_TEXT.test(candidate)
     ? candidate
     : randomBytes(16).toString("hex");
 }
@@ -512,9 +520,24 @@ function operationApplications(
   const needsEvidence = enabledApiOperations.includes("evidence.inspect");
   const needsSelection = enabledApiOperations.includes("selection.resolve");
   const needsDataQuery = enabledApiOperations.includes("data.query");
+  if (needsDataQuery && !needsEvidence) {
+    throw new TypeError(
+      "data.query transport requires the exact linked evidence.inspect operation",
+    );
+  }
   if (needsEvidence && options.evidenceApplication === undefined) {
     throw new TypeError(
       "evidenceApplication is required when evidence.inspect is explicitly mounted",
+    );
+  }
+  if (
+    needsEvidence &&
+    !isReconciledEvidenceInspectApplication(
+      options.evidenceApplication as EvidenceInspectApplication,
+    )
+  ) {
+    throw new TypeError(
+      "evidence.inspect transport requires a ledger-linked reconciliation application",
     );
   }
   if (needsSelection && options.selectionApplication === undefined) {
@@ -525,6 +548,27 @@ function operationApplications(
   if (needsDataQuery && options.dataQueryApplication === undefined) {
     throw new TypeError(
       "dataQueryApplication is required when data.query is explicitly mounted",
+    );
+  }
+  if (
+    needsDataQuery &&
+    !isReconciledDataQueryApplication(
+      options.dataQueryApplication as DataQueryApplication,
+    )
+  ) {
+    throw new TypeError(
+      "data.query transport requires a ledger-linked reconciliation application",
+    );
+  }
+  if (
+    needsDataQuery &&
+    !haveExactlyLinkedReconciliationApplications(
+      options.dataQueryApplication as DataQueryApplication,
+      options.evidenceApplication as EvidenceInspectApplication,
+    )
+  ) {
+    throw new TypeError(
+      "data.query and evidence.inspect transports require the exact shared reconciliation index",
     );
   }
   return Object.freeze({
@@ -576,6 +620,7 @@ export function createGatewayHttpHandler(
   const openApiDocument = createCatalogueOpenApiDocument(enabledApiOperations);
   const applications = operationApplications(options, enabledApiOperations);
   const enabled = new Set(enabledApiOperations);
+  const createRequestId = options.createRequestId ?? (() => randomBytes(16).toString("hex"));
   const createTraceId = options.createTraceId ?? (() => randomBytes(16).toString("hex"));
 
   if (allowedHosts.size === 0 || allowedOrigins.size === 0) {
@@ -590,6 +635,12 @@ export function createGatewayHttpHandler(
   if (options.onerror !== undefined && typeof options.onerror !== "function") {
     throw new TypeError("onerror must be a function");
   }
+  if (
+    options.createRequestId !== undefined &&
+    typeof options.createRequestId !== "function"
+  ) {
+    throw new TypeError("createRequestId must be a function");
+  }
 
   return async (request: Request): Promise<Response> => {
     const traceId = createTraceId();
@@ -597,8 +648,19 @@ export function createGatewayHttpHandler(
       throw new TypeError("Trace identifiers must be 16-byte lowercase hexadecimal values");
     }
     const parsedUrl = new URL(request.url);
+    const generatedRequestId = parsedUrl.pathname === "/data/query"
+      ? createRequestId()
+      : requestId(request);
+    if (
+      !REQUEST_ID.test(generatedRequestId) ||
+      RAW_IDEMPOTENCY_KEY_TEXT.test(generatedRequestId)
+    ) {
+      throw new TypeError(
+        "Generated request identifiers must match the catalogue problem contract",
+      );
+    }
     const context: CatalogueProblemContext = {
-      requestId: requestId(request),
+      requestId: generatedRequestId,
       traceId,
       ...(isCanonicalCatalogueProblemInstance(parsedUrl.pathname)
         ? { instance: parsedUrl.pathname }

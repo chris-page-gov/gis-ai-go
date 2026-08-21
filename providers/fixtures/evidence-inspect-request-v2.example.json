@@ -1,0 +1,5 @@
+{
+  "schema": "gis-ai-go.evidence-inspect-request.v2",
+  "source_operation": "data.query",
+  "idempotency_key": "gis-ai-go:ik:v1:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+}

@@ -35,6 +35,10 @@ import {
   type PublicReadEvidenceReceipt,
   type PublicReadReceiptVerificationMaterial,
 } from "./public-read-receipt.js";
+import {
+  PUBLIC_EVIDENCE_LEDGER_MAX_EVENTS,
+  publicEvidenceLedgerEventLimit,
+} from "./public-ledger-capacity.js";
 
 const LEDGER_PREFIX = "gis-ai-go:public-evidence-ledger";
 const RECORD_PREFIX = "gis-ai-go:public-evidence-record";
@@ -49,7 +53,7 @@ const RECORD_FILE = /^([0-9a-f]{64})\.json$/u;
 const MAX_DESCRIPTOR_BYTES = 16_384;
 const MAX_EVENT_BYTES = 65_536;
 const MAX_RECORD_BYTES = 4_194_304;
-const MAX_EVENTS = 1_000_000;
+const MAX_EVENTS = PUBLIC_EVIDENCE_LEDGER_MAX_EVENTS;
 const MIN_RETENTION_DAYS = 1;
 const MAX_RETENTION_DAYS = 3_650;
 const LEDGER_HEALTH_CHECKS = Object.freeze([
@@ -79,9 +83,10 @@ const FORBIDDEN_PRIVATE_KEYS = new Set([
   "token",
 ]);
 const FORBIDDEN_PRIVATE_TEXT =
-  /(?:^\/(?:Users|home)\/|^[A-Za-z]:\\Users\\|\bBearer\s+|-----BEGIN [^-]*PRIVATE KEY-----)/u;
+  /(?:^\/(?:Users|home)\/|^[A-Za-z]:\\Users\\|\bBearer\s+|-----BEGIN [^-]*PRIVATE KEY-----|gis-ai-go:ik:v1:[0-9a-f]{64})/u;
 
 export type PublicEvidenceLedgerErrorCode =
+  | "capacity"
   | "collision"
   | "corruption"
   | "invalid-configuration"
@@ -239,6 +244,11 @@ interface LedgerState {
   readonly lastEvent: PublicEvidenceLedgerEvent | null;
 }
 
+interface VerifiedLedgerState {
+  readonly state: LedgerState;
+  readonly health: PublicEvidenceLedgerHealth;
+}
+
 function fail(code: PublicEvidenceLedgerErrorCode, message: string): never {
   throw new PublicEvidenceLedgerError(code, message);
 }
@@ -265,7 +275,10 @@ function normaliseOpenOptions(value: unknown): OpenPublicEvidenceLedgerOptions {
     ) {
       return fail("invalid-configuration", "Evidence storage options must be a plain object");
     }
-    const descriptors = Object.getOwnPropertyDescriptors(value);
+    const descriptors = Object.getOwnPropertyDescriptors(value) as Record<
+      string,
+      PropertyDescriptor
+    >;
     const keys = Reflect.ownKeys(value);
     if (
       keys.some((key) => typeof key !== "string") ||
@@ -332,8 +345,8 @@ function digestFromId(value: string): string {
   return value.slice(value.lastIndexOf(":") + 1);
 }
 
-function isGroupOrWorldWritable(mode: number): boolean {
-  return process.platform !== "win32" && (mode & 0o022) !== 0;
+function hasExactPrivateMode(mode: number, expected: 0o600 | 0o700): boolean {
+  return process.platform === "win32" || (mode & 0o777) === expected;
 }
 
 function regularDirectory(path: string): void {
@@ -342,7 +355,7 @@ function regularDirectory(path: string): void {
     if (
       !stat.isDirectory() ||
       stat.isSymbolicLink() ||
-      isGroupOrWorldWritable(stat.mode)
+      !hasExactPrivateMode(stat.mode, 0o700)
     ) {
       fail(
         "corruption",
@@ -358,8 +371,8 @@ function regularDirectory(path: string): void {
 function regularFile(path: string, maximum: number): Stats {
   try {
     const stat = lstatSync(path);
-    if (!stat.isFile() || stat.isSymbolicLink() || isGroupOrWorldWritable(stat.mode)) {
-      fail("corruption", "Evidence storage contains a non-regular file");
+    if (!stat.isFile() || stat.isSymbolicLink() || !hasExactPrivateMode(stat.mode, 0o600)) {
+      fail("corruption", "Evidence storage contains a non-private regular file");
     }
     if (stat.size < 2 || stat.size > maximum) {
       fail("truncation", "Evidence storage file is empty, truncated or over its bound");
@@ -382,6 +395,60 @@ function sameFile(left: Stats, right: Stats): boolean {
     left.mtimeMs === right.mtimeMs &&
     left.ctimeMs === right.ctimeMs
   );
+}
+
+function snapshotReceiptIdentities(value: unknown): readonly string[] {
+  try {
+    if (!Array.isArray(value) || utilTypes.isProxy(value)) {
+      fail("invalid-configuration", "Evidence bulk inspection identities must be an array");
+    }
+    const descriptors = Object.getOwnPropertyDescriptors(value) as Record<
+      string,
+      PropertyDescriptor
+    >;
+    const lengthDescriptor = descriptors.length;
+    if (
+      lengthDescriptor === undefined ||
+      !("value" in lengthDescriptor) ||
+      !Number.isSafeInteger(lengthDescriptor.value) ||
+      lengthDescriptor.value < 0 ||
+      lengthDescriptor.value > MAX_EVENTS
+    ) {
+      fail("invalid-configuration", "Evidence bulk inspection identities are invalid");
+    }
+    const length = lengthDescriptor.value as number;
+    const keys = Reflect.ownKeys(value);
+    if (keys.some((key) => typeof key !== "string")) {
+      fail("invalid-configuration", "Evidence bulk inspection identities are not closed");
+    }
+    const stringKeys = keys as string[];
+    if (
+      stringKeys.length !== length + 1 ||
+      stringKeys.some(
+        (key) => key !== "length" && !/^(?:0|[1-9][0-9]*)$/u.test(key),
+      )
+    ) {
+      fail("invalid-configuration", "Evidence bulk inspection identities are not closed");
+    }
+    const snapshot: string[] = [];
+    for (let index = 0; index < length; index += 1) {
+      const descriptor = descriptors[String(index)];
+      if (
+        descriptor === undefined ||
+        !("value" in descriptor) ||
+        !descriptor.enumerable ||
+        typeof descriptor.value !== "string" ||
+        !RECEIPT_ID.test(descriptor.value)
+      ) {
+        fail("invalid-configuration", "Evidence bulk inspection identity is invalid");
+      }
+      snapshot.push(descriptor.value);
+    }
+    return Object.freeze(snapshot);
+  } catch (error) {
+    if (error instanceof PublicEvidenceLedgerError) throw error;
+    fail("invalid-configuration", "Evidence bulk inspection identities could not be inspected");
+  }
 }
 
 function readCanonicalDocument(path: string, maximum: number): unknown {
@@ -862,20 +929,34 @@ export class PublicEvidenceLedger {
   readonly #recordsDirectory: string;
   readonly #eventsDirectory: string;
   readonly #now: () => Date;
+  readonly #maximumEvents: number;
 
   private constructor(
     root: string,
     descriptor: PublicEvidenceLedgerDescriptor,
     now: () => Date,
+    maximumEvents: number,
   ) {
     this.#root = root;
     this.#recordsDirectory = join(root, "records");
     this.#eventsDirectory = join(root, "events");
     this.descriptor = descriptor;
     this.#now = now;
+    this.#maximumEvents = maximumEvents;
+  }
+
+  /**
+   * Return the canonical storage root for explicitly linked local durability components.
+   *
+   * The path is operational configuration, not evidence material, and must never be
+   * serialised into a receipt, record, event or public response.
+   */
+  public storageRootDirectory(): string {
+    return this.#root;
   }
 
   public static open(options: OpenPublicEvidenceLedgerOptions): PublicEvidenceLedger {
+    const maximumEvents = publicEvidenceLedgerEventLimit(options);
     const snapshot = normaliseOpenOptions(options);
     if (
       typeof snapshot.rootDirectory !== "string" ||
@@ -933,12 +1014,21 @@ export class PublicEvidenceLedger {
     if (descriptor.retention_days !== retentionDays) {
       fail("retention-mismatch", "Evidence retention cannot change for an existing ledger");
     }
-    const ledger = new PublicEvidenceLedger(root, canonicalJsonClone(descriptor), now);
+    const ledger = new PublicEvidenceLedger(
+      root,
+      canonicalJsonClone(descriptor),
+      now,
+      maximumEvents,
+    );
     ledger.verify();
     return ledger;
   }
 
   public verify(): PublicEvidenceLedgerHealth {
+    return this.#verifyState().health;
+  }
+
+  #verifyState(): VerifiedLedgerState {
     regularDirectory(this.#root);
     regularDirectory(this.#recordsDirectory);
     regularDirectory(this.#eventsDirectory);
@@ -1041,7 +1131,7 @@ export class PublicEvidenceLedger {
       fail("truncation", "Evidence storage contains an orphaned or unsequenced record");
     }
 
-    return Object.freeze({
+    const health: PublicEvidenceLedgerHealth = Object.freeze({
       status: "verified",
       ledger_id: this.descriptor.ledger_id,
       event_count: eventNames.length,
@@ -1049,13 +1139,22 @@ export class PublicEvidenceLedger {
       last_event_id: previous?.event_id ?? null,
       checks: LEDGER_HEALTH_CHECKS,
     });
+    const state: LedgerState = Object.freeze({
+      recordsById,
+      eventsByRecordId,
+      eventsByReceiptId,
+      replayKeys,
+      lastEvent: previous,
+    });
+    return Object.freeze({ state, health });
   }
 
   public persistReceipt(
     receipt: PublicEvidenceReceipt,
     material: PublicEvidenceReceiptVerificationMaterial,
   ): StoredPublicEvidence {
-    const health = this.verify();
+    const verified = this.#verifyState();
+    const { health, state } = verified;
     let receiptSnapshot: PublicEvidenceReceipt;
     let materialSnapshot: PublicEvidenceReceiptVerificationMaterial;
     try {
@@ -1081,13 +1180,15 @@ export class PublicEvidenceLedger {
       fail("invalid-receipt", "Evidence storage rejected an unverifiable public receipt");
     }
     assertPrivacy(receiptSnapshot);
-    const state = this.#loadState();
     const key = replayKey(receiptSnapshot);
     if (
       state.replayKeys.has(key) ||
       state.eventsByReceiptId.has(receiptSnapshot.receipt_id)
     ) {
       fail("replay", "Evidence storage rejected a repeated evidence binding");
+    }
+    if (health.event_count >= this.#maximumEvents) {
+      fail("capacity", "Evidence storage reached its accepted event capacity");
     }
     const persistedAt = currentTimestamp(this.#now);
     const record = buildRecord(this.descriptor, receiptSnapshot, persistedAt);
@@ -1127,8 +1228,7 @@ export class PublicEvidenceLedger {
     if (!RECEIPT_ID.test(identity) && !RECORD_ID.test(identity)) {
       return null;
     }
-    this.verify();
-    const state = this.#loadState();
+    const state = this.#verifyState().state;
     const event = RECEIPT_ID.test(identity)
       ? state.eventsByReceiptId.get(identity)
       : state.eventsByRecordId.get(identity);
@@ -1151,64 +1251,40 @@ export class PublicEvidenceLedger {
     });
   }
 
-  #loadState(): LedgerState {
-    const recordsById = new Map<string, PublicEvidenceRecord>();
-    const eventsByRecordId = new Map<string, PublicEvidenceLedgerEvent>();
-    const eventsByReceiptId = new Map<string, PublicEvidenceLedgerEvent>();
-    const replayKeys = new Set<string>();
-    const recordNames = readdirSync(this.#recordsDirectory).sort();
-    for (const name of recordNames) {
-      const match = RECORD_FILE.exec(name);
-      if (match === null) fail("corruption", "Evidence state record name is invalid");
-      const record = readCanonicalDocument(
-        join(this.#recordsDirectory, name),
-        MAX_RECORD_BYTES,
-      );
-      assertRecord(record, this.descriptor);
-      if (digestFromId(record.record_id) !== match[1] || recordsById.has(record.record_id)) {
-        fail("collision", "Evidence state record identity is duplicated or misplaced");
-      }
-      recordsById.set(record.record_id, canonicalJsonClone(record));
-    }
-    let lastEvent: PublicEvidenceLedgerEvent | null = null;
-    const eventNames = readdirSync(this.#eventsDirectory).sort();
-    for (const [index, name] of eventNames.entries()) {
-      const match = EVENT_FILE.exec(name);
-      if (match === null || Number(match[1]) !== index + 1) {
-        fail("truncation", "Evidence state event sequence is incomplete");
-      }
-      const event = readCanonicalDocument(join(this.#eventsDirectory, name), MAX_EVENT_BYTES);
-      const eventRecord = asRecord(event);
-      const record = recordsById.get(String(eventRecord.record_id));
-      if (record === undefined) fail("corruption", "Evidence state has a missing record");
-      assertEvent(
-        event,
-        this.descriptor,
-        record,
-        index + 1,
-        lastEvent?.event_id ?? null,
-      );
-      if (
-        digestFromId(event.event_id) !== match[2] ||
-        eventsByRecordId.has(event.record_id) ||
-        eventsByReceiptId.has(event.receipt_id) ||
-        replayKeys.has(event.replay_key_sha256)
-      ) {
-        fail("replay", "Evidence state contains a duplicate or misplaced event");
-      }
-      eventsByRecordId.set(event.record_id, canonicalJsonClone(event));
-      eventsByReceiptId.set(event.receipt_id, canonicalJsonClone(event));
-      replayKeys.add(event.replay_key_sha256);
-      lastEvent = canonicalJsonClone(event);
-    }
-    return {
-      recordsById,
-      eventsByRecordId,
-      eventsByReceiptId,
-      replayKeys,
-      lastEvent,
-    };
+  /**
+   * Verify the ledger once and resolve a bounded receipt set from one loaded state.
+   * This is the internal bulk seam used by reconciliation verification; it does
+   * not change the single-identity inspection contract.
+   */
+  public inspectReceipts(
+    identities: readonly string[],
+  ): readonly (StoredPublicEvidence | null)[] {
+    const snapshot = snapshotReceiptIdentities(identities);
+    const state = this.#verifyState().state;
+    return Object.freeze(
+      snapshot.map((identity) => {
+        const event = state.eventsByReceiptId.get(identity);
+        if (event === undefined) return null;
+        const record = state.recordsById.get(event.record_id);
+        if (record === undefined) {
+          fail("corruption", "Evidence bulk inspection found a missing immutable record");
+        }
+        return canonicalJsonClone({
+          record,
+          event,
+          reference: {
+            status: "persisted" as const,
+            ledger_id: this.descriptor.ledger_id,
+            record_id: record.record_id,
+            event_id: event.event_id,
+            persisted_at: record.persisted_at,
+            retain_until: record.retain_until,
+          },
+        }) as StoredPublicEvidence;
+      }),
+    );
   }
+
 }
 
 /** Open or create a portable, append-only public evidence ledger. */

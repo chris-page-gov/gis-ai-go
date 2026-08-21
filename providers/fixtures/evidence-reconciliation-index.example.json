@@ -1,0 +1,21 @@
+{
+  "created_at": "2026-08-21T01:00:01.000Z",
+  "index_id": "gis-ai-go:evidence-reconciliation-index:sha256:0392da33a8435707ce748d4dde638ae081d85a35647f6661f952dcd5570e75e8",
+  "ledger_id": "gis-ai-go:public-evidence-ledger:sha256:4745a89946829a56c7e8261d661ccbc174f52b8b2d105e2b1111c27101f06200",
+  "retention_days": 365,
+  "schema": "gis-ai-go.evidence-reconciliation-index.v1",
+  "scope": {
+    "authority_profile": "anonymous-open",
+    "contains_personal_data": false,
+    "contains_protected_data": false,
+    "lookup_operation": "evidence.inspect",
+    "source_operations": ["data.query"]
+  },
+  "storage": {
+    "attestation": "not-attested",
+    "model": "exclusive-content-addressed-claims-and-resolutions",
+    "overwrite": "forbidden",
+    "raw_idempotency_key": "not-retained",
+    "result_material": "not-retained"
+  }
+}

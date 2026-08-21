@@ -2,7 +2,8 @@
 
 - status: accepted storage candidate on protected `main`; not activated or deployed
 - work item: [EVID-204](https://github.com/chris-page-gov/gis-ai-go/issues/22)
-- decision: [ADR-0011](../decisions/ADR-0011-durable-public-evidence-ledger.md)
+- decisions: [ADR-0011](../decisions/ADR-0011-durable-public-evidence-ledger.md)
+  and [ADR-0012](../decisions/ADR-0012-receipt-only-lost-response-reconciliation.md)
 - base: protected `main` commit `66507f9a6e6c0da23a8af4682268f9362d93bc06`
 
 ## Implemented boundary
@@ -24,8 +25,11 @@ key.
 `PublicEvidenceLedger.persistReceipt` accepts a receipt only with the independently
 supplied parameter, result, policy and rights material required by
 `verifyInlineReceipt`. It verifies the existing ledger, rejects private fields,
-creates the record and event without overwrite, synchronises both files, verifies
-the complete ledger again, and only then returns a `status: persisted` reference.
+rejects replay, and refuses a genuinely new receipt before either immutable write
+when the accepted one-million-event ceiling is full. It then creates the record and
+event without overwrite, synchronises both files, verifies the complete ledger
+again, and only then returns a `status: persisted` reference. Replay rejection and
+inspection remain available at the ceiling.
 
 `createCatalogueApplication` has an explicit embedding option for this ledger. The
 default remains unchanged and returns only the ADR-0010 inline receipt. With a
@@ -33,17 +37,56 @@ ledger, the result adds `evidence_storage` only after persistence succeeds. The
 inline receipt continues to record its issue-time policy decision; the separate
 storage reference and event record the later durable action.
 
-`createEvidenceInspectApplication` is transport-neutral. It accepts only a closed
-receipt identity and returns the verified public record, event and storage
-reference. It does not retain or claim to replay the original query or result
-material.
+The accepted v1 `createEvidenceInspectApplication` seam is transport-neutral. Its
+unchanged request accepts one closed receipt identity and returns the verified public
+record, event and storage reference. The additive v2 reconciliation request is
+described below. Neither request retains or claims to replay the original query or
+result material.
+
+## Inactive receipt-only reconciliation extension
+
+The later inactive candidate adds a separate
+`PublicEvidenceReconciliationIndex` linked to one exact ledger:
+
+```text
+index.json
+claim-ownership/<key-sha256>
+claims/<key-sha256>.json
+claim-ready/<key-sha256>
+resolutions/<key-sha256>.json
+resolution-ready/<key-sha256>
+```
+
+The raw `gis-ai-go:ik:v1` key is domain-separated and hashed before it becomes a
+file name or document field. Claims retain only the operation, reviewed resource,
+parameter digest, semantic fingerprint and bounded request/trace identities.
+Resolutions retain only claim, fingerprint and receipt identities. Parameters,
+observations and result material are not retained. The ledger and index recursively
+reject a complete raw key in stored strings; storage roots cannot contain one.
+
+An exclusive, content-free ownership marker is synchronised before a new provider
+execution. Canonical claim and resolution JSON is fully synchronised before its
+ready marker is published. Resolution publication must precede ledger persistence.
+After ledger persistence, a completed re-read must verify the exact receipt, record,
+event and storage identities before the first success is returned. Ownership without
+a ready claim, or a resolution without the linked ledger receipt, remains pending
+and can never authorise another execution.
+
+Ownership and claim documents are immutable. No expiry, release, reclamation or
+operator-resolution procedure is implemented. Cancellation, an adapter rejection or
+an uncertain failure after ownership can therefore leave a key permanently pending.
+The index refuses a genuinely new key before publication once 4,096 claims are
+owned; pending, completed and conflicting existing keys remain available first.
+This bounds local filesystem growth and linear verification work. It is not a
+cluster quota or an activation-safe admission service.
 
 ## Restart and readiness contract
 
 Opening or verifying the ledger checks:
 
 1. immutable descriptor identity and retention;
-2. real directories and regular files, with no symbolic links;
+2. real directories and regular files, with no symbolic links and exact POSIX
+   modes `0700` and `0600` respectively;
 3. exact canonical bytes and complete record terminators;
 4. record and event content identities;
 5. contiguous sequence numbers and prior-event links;
@@ -59,13 +102,15 @@ contract remains deliberately blocked for the wider `v0.2.0` lifecycle gate.
 
 ## Corruption response
 
-Do not repair or truncate a failed ledger in place.
+Do not repair or truncate a failed ledger or linked reconciliation index in place.
 
 1. stop the writer and any affected operation;
-2. quarantine the complete ledger directory;
+2. identify which verified root failed, then quarantine the linked ledger and index
+   directories as one coherent pair;
 3. retain the controlled error code and surrounding operational logs, without
    copying private payloads;
-4. restore a complete copy whose descriptor, records and events pass `verify()`;
+4. restore a complete pair whose descriptors, claims, resolutions, records and
+   events pass both `verify()` calls;
    and
 5. investigate the file-system and writer boundary before resuming.
 
@@ -73,13 +118,21 @@ There is no automated deletion. `retain_until` is a minimum; records remain
 inspectable afterwards. A future disposal process must be separately authorised and
 must append its own governed evidence.
 
+Exact private modes are now part of verification. An existing local candidate with
+broader modes such as `0750` or `0640` must be migrated only while its writer and
+all inspectors are stopped: take a recoverable copy, set every store directory to
+`0700` and every descriptor, document and marker to `0600`, then reopen the ledger
+and index and require both verification passes before resuming. Do not chmod a live
+store or treat a permission-only change as repair for any other verification fault.
+
 ## Residual boundary
 
-This is an application-level append-only store, not a signature, attestation, WORM
-medium or malicious-operator defence. A complete tail deletion cannot be detected
-without an external checkpoint. One writer owns a root; concurrent-process
-coordination, backups, external checkpoints, disaster recovery and production
-retention assurance remain open.
+These are application-level append-only stores, not signatures, attestations, WORM
+media or malicious-operator defences. A complete tail deletion cannot be detected
+without an external checkpoint. One writer owns the ledger root. The index excludes
+same-key execution across processes that share it, but does not make different-key
+ledger appends generally multi-writer safe. Backups, external checkpoints, disaster
+recovery and production retention assurance remain open.
 
 This accepted storage slice included no direct route, MCP registration, listener
 activation, deployment or public registry entry. The later
@@ -119,3 +172,11 @@ corruption, truncation, sequence gaps, identity collision, orphan records, repla
 retention, private material, inspection and catalogue persistence failure. Its
 pull-request, CodeQL, protected-main and attestation evidence are complete. The
 inspection transport candidate and any activation still require their own review.
+
+The inactive reconciliation extension additionally tests atomic same-key ownership,
+competing and reopened instances, incomplete publication and restart states, exact
+private modes, symbolic-link and overlapping-root rejection,
+resolution-before-ledger ordering, linear bulk linkage verification, raw-key
+exclusion, pre-publication index and ledger capacity refusal, at-cap recovery,
+conflict and retention handling. It has local review evidence only and changes no
+accepted protected-main or activation claim.

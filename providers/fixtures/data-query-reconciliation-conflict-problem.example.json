@@ -1,0 +1,11 @@
+{
+  "schema": "gis-ai-go.data-query-reconciliation-problem.v1",
+  "type": "urn:gis-ai-go:problem:data-query-idempotency-conflict",
+  "title": "Data query idempotency conflict",
+  "status": 409,
+  "code": "idempotency_conflict",
+  "detail": "This idempotency key is bound to a different semantic request.",
+  "request_id": "request-data-query-retry-003",
+  "trace_id": "a123456789abcdef0123456789abcdef",
+  "instance": "/data/query"
+}

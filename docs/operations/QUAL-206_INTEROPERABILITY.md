@@ -3,7 +3,8 @@
 - status: local conformance and four ChatGPT secure-tunnel probes passed, including
   the current final telemetry wrapper;
   four independent-host readiness attempts are documented but not ready;
-  capability scoring and activation remain pending
+  deterministic `HOST-015` application recovery passes locally but remains non-live
+  and unscored; capability scoring and activation remain pending
 - reviewed source base: `66507f9a6e6c0da23a8af4682268f9362d93bc06`
 - legacy fallback integration base: protected `main` commit
   `5a7e441bfc754af2bf95ec49a5ec113951c7c0bf`
@@ -31,6 +32,12 @@ The conformance entry point refuses to start unless
 `GIS_AI_GO_QUAL_206_CONFORMANCE=1` and a full lowercase source commit are supplied.
 Neither production executable supplies those test-only options. No provider is
 called, no provider credential is needed and no public endpoint is created.
+
+The same interoperability command also runs a separate deterministic
+`QUAL-206-HOST-015` gateway fixture. That fixture mounts the inactive data and
+inspection applications only in process with a controlled provider transport and
+temporary private stores. It is not exposed by the catalogue conformance server or
+secure tunnel and is not live-host evidence.
 
 ## Build the exact local candidate
 
@@ -612,10 +619,11 @@ corpus identity recorded by the earlier ChatGPT and Codex sessions.
 
 The separate schema-validated
 [`qual_206_cases_expansion.json`](../../tests/interoperability/qual_206_cases_expansion.json)
-composes seven additional cases with that frozen base. Every new case is
-`non-live`, `unscored` and behind the `design-only-no-runtime-wiring` activation
-boundary. The case definitions are expected assertions for a future deterministic
-harness, not observed host results or evidence of current tool availability.
+composes seven additional cases with that frozen base. Every new case is `non-live`
+and `unscored`. Six remain pending behind the
+`design-only-no-runtime-wiring` activation boundary. `HOST-015` alone is locally
+passing at `local-runtime-wired-production-unactivated`; this does not make it an
+observed host result or evidence of current public tool availability.
 
 | Case | Boundary | Expected pre-activation assertion |
 | --- | --- | --- |
@@ -623,22 +631,36 @@ harness, not observed host results or evidence of current tool availability.
 | `HOST-012` | historical and near-match drift | Historical, workplace and unreviewed `latest` candidates do not replace fixed dataset version `121`; equal scores remain ambiguous. |
 | `HOST-013` | `data.query` validation | Dataset, version, dimension, option, order, unknown-field and limit mutations fail before adapter egress with no receipt or ledger write. |
 | `HOST-014` | partial and drifted output | Empty, duplicate, identity-drifted, count-mismatched or degraded output is never described as complete and cannot gain evidence. |
-| `HOST-015` | response lost after persistence | Explicitly **expected-failing**: at-most-once reconciliation is absent because the caller has neither the lost receipt ID nor a governed idempotency lookup. |
+| `HOST-015` | response lost after persistence | **Locally passing, non-live and unscored:** one caller key prevents another execution after restart, and inspect v2 recovers the verified receipt without replaying the result. |
 | `HOST-017` | tool metadata and repair-hint poisoning | Registry drift fails closed; instruction-like metadata remains quoted data and cannot select an unregistered tool or external destination. |
 | `HOST-018` | host fallback provenance | Use a complete same-source structured or text result, or report unsupported; never substitute web search, another plugin, a custom artefact or an external service. |
 
-`HOST-015` must remain expected-failing until one reviewed request or idempotency
-identity can return an already persisted receipt after restart without repeating
-provider execution, evidence storage or a ledger event. `evidence.inspect` alone
-does not close the gap because its input is the receipt ID lost with the response.
+The executable test title begins
+`QUAL-206-HOST-015 drops a persisted response then reconciles after restart`. Its
+first-call wrapper awaits the application success, verifies persistence and then
+throws without exposing the result or receipt identity. Fresh ledger, index and
+application instances reopen. A same-key retry returns receipt-free
+`idempotency_completed` with status `409` before health, estimate, rights,
+provenance or provider execution. A separate inspect v2 call recovers the original
+receipt, record, event and storage identities. Assertions require exactly one
+provider execution, record and event and scan index/problem/inspection material for
+the raw key and observation.
 
-The later inactive public-read transport candidate adds deterministic local
-direct, modern MCP HTTP and modern MCP STDIO coverage for the accepted selection
-and data applications. It does not edit the source-hashed case corpus, turn these
-cases into live host evidence or change any historic result. `data.query` is marked
-non-idempotent because a repeat may make another provider attempt and ledger event.
-The candidate deliberately leaves `HOST-015` unresolved and expected-failing; see
-the [public-read transport boundary](TOOLS-205_PUBLIC_READ_TRANSPORT.md).
+The later inactive public-read transport candidate also proves direct, modern MCP
+HTTP and modern MCP STDIO parity for the wrapper, completed retry and v2 inspection.
+It does not edit the source-hashed ten-case corpus, turn the local fixture into host
+evidence or change any historic result. `data.query` advertises `idempotentHint:
+true` because the mandatory key cannot repeat side effects; a repeat returns `409`,
+not a replayed success. See the
+[public-read transport boundary](TOOLS-205_PUBLIC_READ_TRANSPORT.md).
+
+Reproduce the evidence with `pnpm run test:interoperability`. The script builds the
+gateway, runs the historical minimised-telemetry harness and explicitly runs the
+compiled `apps/mcp-gateway/dist/test/qual-206-host-015.test.js` fixture. The local
+fixture records deterministic counters and content identities in assertions; it
+does not publish a session log or raw request/result. Host sessions must continue to
+use the digest-only proxy described above, with frame sizes, hashes, timings and
+bounded outcomes rather than raw keys, arguments or responses.
 
 `HOST-016` is deliberately not a runnable case. Its source-bound cache incident
 shows why an ingested status cannot prove shard coverage, but GIS AI GO does not

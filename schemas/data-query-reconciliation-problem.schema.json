@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:data-query-reconciliation-problem:v1",
+  "title": "GIS AI GO data query reconciliation problem",
+  "description": "A receipt-free 409 result for an already-owned idempotency key. It never discloses the key, its digest, a receipt identity or result material.",
+  "oneOf": [
+    { "$ref": "#/$defs/pending" },
+    { "$ref": "#/$defs/completed" },
+    { "$ref": "#/$defs/conflict" }
+  ],
+  "$defs": {
+    "requestId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^(?!.*gis-ai-go:ik:v1:[0-9a-f]{64})[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "traceId": { "type": "string", "pattern": "^[0-9a-f]{32}$" },
+    "instance": {
+      "type": "string",
+      "format": "uri-reference",
+      "minLength": 1,
+      "maxLength": 2048,
+      "pattern": "^(?!.*gis-ai-go:ik:v1:[0-9a-f]{64}).*$"
+    },
+    "pending": {
+      "$ref": "#/$defs/problem",
+      "properties": {
+        "type": { "const": "urn:gis-ai-go:problem:data-query-idempotency-pending" },
+        "title": { "const": "Data query reconciliation pending" },
+        "code": { "const": "idempotency_pending" },
+        "detail": { "const": "This idempotency key is already owned by an unfinished data query." }
+      }
+    },
+    "completed": {
+      "$ref": "#/$defs/problem",
+      "properties": {
+        "type": { "const": "urn:gis-ai-go:problem:data-query-idempotency-completed" },
+        "title": { "const": "Data query already completed" },
+        "code": { "const": "idempotency_completed" },
+        "detail": { "const": "This idempotency key completed previously; inspect its durable evidence." }
+      }
+    },
+    "conflict": {
+      "$ref": "#/$defs/problem",
+      "properties": {
+        "type": { "const": "urn:gis-ai-go:problem:data-query-idempotency-conflict" },
+        "title": { "const": "Data query idempotency conflict" },
+        "code": { "const": "idempotency_conflict" },
+        "detail": { "const": "This idempotency key is bound to a different semantic request." }
+      }
+    },
+    "problem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "type", "title", "status", "code", "detail", "request_id", "trace_id"],
+      "properties": {
+        "schema": { "const": "gis-ai-go.data-query-reconciliation-problem.v1" },
+        "type": { "type": "string" },
+        "title": { "type": "string" },
+        "status": { "const": 409 },
+        "code": { "enum": ["idempotency_pending", "idempotency_completed", "idempotency_conflict"] },
+        "detail": { "type": "string" },
+        "request_id": { "$ref": "#/$defs/requestId" },
+        "trace_id": { "$ref": "#/$defs/traceId" },
+        "instance": { "$ref": "#/$defs/instance" }
+      }
+    }
+  }
+}

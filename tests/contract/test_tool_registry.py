@@ -64,12 +64,14 @@ CURRENT_APPLICATION_METADATA = {
             "EVIDENCE_UNAVAILABLE",
         ],
         "fallbackBehaviour": "Return required choices and no executable plan.",
+        "fallbackState": "implemented",
     },
     "T04": {
         "providerDependencies": [
             "explicitly injected ONS Data API adapter",
             "public-read policy",
-            "public evidence contract",
+            "durable public evidence ledger",
+            "receipt-only idempotency reconciliation index",
         ],
         "costPerformance": (
             "Bounded to one observation, two provider attempts and a 20 second adapter ceiling"
@@ -85,10 +87,31 @@ CURRENT_APPLICATION_METADATA = {
             "PROVIDER_UNAVAILABLE",
             "PROVIDER_CONTRACT_FAILED",
             "EVIDENCE_UNAVAILABLE",
+            "IDEMPOTENCY_PENDING",
+            "IDEMPOTENCY_COMPLETED",
+            "IDEMPOTENCY_CONFLICT",
         ],
         "fallbackBehaviour": (
-            "Fail closed; no cache, alternate provider or result fallback is permitted."
+            "Fail closed; no result cache, alternate provider or result fallback is permitted."
         ),
+        "fallbackState": "not-implemented",
+    },
+    "T11": {
+        "providerDependencies": [
+            "durable public evidence ledger",
+            "receipt-only idempotency reconciliation index",
+        ],
+        "costPerformance": "Low",
+        "controlledErrors": [
+            "INVALID_REQUEST",
+            "EVIDENCE_NOT_FOUND",
+            "EVIDENCE_UNAVAILABLE",
+        ],
+        "fallbackBehaviour": (
+            "Fail closed; no alternate receipt, result replay or challenge route is "
+            "implemented."
+        ),
+        "fallbackState": "not-implemented",
     },
 }
 
@@ -173,6 +196,10 @@ class ToolRegistryContractTests(unittest.TestCase):
                     self.assertEqual(
                         profile["fallback"]["behaviour"],
                         current_metadata["fallbackBehaviour"],
+                    )
+                    self.assertEqual(
+                        profile["fallback"]["state"],
+                        current_metadata["fallbackState"],
                     )
                 self.assertEqual(profile["accessTiers"], research["access_tiers"])
                 self.assertEqual(

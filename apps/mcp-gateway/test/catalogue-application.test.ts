@@ -558,6 +558,7 @@ test("the central problem factory accepts schema boundaries and rejects invalid 
   assert.equal(isCanonicalCatalogueProblemInstance("not/a/path"), false);
 
   const validContext = { requestId: "request-1", traceId: "a".repeat(32) };
+  const rawKey = `gis-ai-go:ik:v1:${"b".repeat(64)}`;
   const invalidRuns: readonly (() => unknown)[] = [
     () => createCatalogueProblem("invalid_request", { ...validContext, requestId: "" }),
     () =>
@@ -566,6 +567,16 @@ test("the central problem factory accepts schema boundaries and rejects invalid 
         requestId: `r${"a".repeat(128)}`,
       }),
     () => createCatalogueProblem("invalid_request", { ...validContext, traceId: "A".repeat(32) }),
+    () =>
+      createCatalogueProblem("invalid_request", {
+        ...validContext,
+        requestId: `prefix-${rawKey}`,
+      }),
+    () =>
+      createCatalogueProblem("invalid_request", {
+        ...validContext,
+        instance: `/requests/${rawKey}`,
+      }),
     () =>
       createCatalogueProblem("invalid_request", {
         ...validContext,

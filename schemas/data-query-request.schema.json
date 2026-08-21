@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:data-query-request:v1",
+  "title": "GIS AI GO idempotent public ONS data query request",
+  "description": "A caller-generated public correlation key wrapped around the unchanged reviewed data.query parameters. The raw key is never retained in evidence storage.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "idempotency_key", "parameters"],
+  "properties": {
+    "schema": { "const": "gis-ai-go.data-query-request.v1" },
+    "idempotency_key": {
+      "type": "string",
+      "description": "A random public correlation identity generated and retained by the caller. It must not encode personal data, credentials, tokens or other secrets.",
+      "pattern": "^gis-ai-go:ik:v1:(?!0{64}$)[0-9a-f]{64}$"
+    },
+    "parameters": {
+      "$ref": "urn:gis-ai-go:schema:data-query-parameters:v1"
+    }
+  }
+}

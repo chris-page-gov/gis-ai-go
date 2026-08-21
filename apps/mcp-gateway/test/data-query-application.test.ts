@@ -1,13 +1,17 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 
 import {
+  CANONICAL_DOMAINS,
+  EvidenceReconciliationIndexError,
   PUBLIC_READ_ONS_RESOURCE,
   PublicEvidenceLedger,
   canonicalJson,
+  domainSeparatedSha256,
+  openEvidenceReconciliationIndex,
   verifyPublicReadReceipt,
 } from "@gis-ai-go/evidence";
 import {
@@ -30,6 +34,7 @@ import {
   createDataQueryApplication,
   type DataQueryApplicationOptions,
   type DataQueryProblemCode,
+  type DataQueryReconciliationProblemCode,
 } from "../src/data-query-application.js";
 
 const SOFTWARE = Object.freeze({
@@ -43,6 +48,16 @@ const CONTEXT = Object.freeze({
   traceId: "7123456789abcdef0123456789abcdef",
   instance: "/data/query",
 } as const);
+
+const IDEMPOTENCY_KEY = `gis-ai-go:ik:v1:${"a".repeat(64)}`;
+
+function reconciledRequest(key = IDEMPOTENCY_KEY) {
+  return {
+    schema: "gis-ai-go.data-query-request.v1" as const,
+    idempotency_key: key,
+    parameters: PUBLIC_ONS_DATA_QUERY_PARAMETERS,
+  };
+}
 
 const ACTIVE_INVOCATION = Object.freeze({
   discovery: "suspended",
@@ -175,6 +190,29 @@ async function expectProblem(
     assert.equal(serialised.includes("receipt"), false);
     assert.equal(serialised.includes("providerStatus"), false);
     assert.equal(serialised.includes("stack"), false);
+    captured = error;
+    return true;
+  });
+  assert.ok(captured);
+  return captured;
+}
+
+async function expectReconciliationProblem(
+  run: () => Promise<unknown>,
+  code: DataQueryReconciliationProblemCode,
+): Promise<DataQueryApplicationError> {
+  let captured: DataQueryApplicationError | undefined;
+  await assert.rejects(run, (error: unknown) => {
+    assert.ok(error instanceof DataQueryApplicationError);
+    assert.equal(error.problem.code, code);
+    assert.equal(
+      error.problem.schema,
+      "gis-ai-go.data-query-reconciliation-problem.v1",
+    );
+    assert.equal(error.problem.status, 409);
+    const serialised = canonicalJson(error.problem);
+    assert.equal(serialised.includes(IDEMPOTENCY_KEY), false);
+    assert.equal(serialised.includes("receipt"), false);
     captured = error;
     return true;
   });
@@ -806,5 +844,255 @@ test("returns no receipt when evidence time or storage fails", async (context) =
     assert.equal(canonicalJson(error.problem).includes("private-ledger-secret"), false);
   } finally {
     rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("reconciles a lost success after restart without provider preflight or execution", async (context) => {
+  const parent = mkdtempSync(join(tmpdir(), "gis-ai-go-data-query-reconcile-"));
+  try {
+    const ledgerRoot = join(parent, "ledger");
+    const indexRoot = join(parent, "index");
+    const ledger = PublicEvidenceLedger.open({
+      rootDirectory: ledgerRoot,
+      retentionDays: 30,
+      now: () => new Date("2026-08-21T01:00:01.000Z"),
+    });
+    const index = openEvidenceReconciliationIndex({
+      rootDirectory: indexRoot,
+      ledger,
+      now: () => new Date("2026-08-21T01:00:00.000Z"),
+    });
+    const firstCalls = { count: 0, urls: [] as string[] };
+    const first = application(adapter(firstCalls), {
+      evidenceLedger: ledger,
+      reconciliationIndex: index,
+    });
+    const deliveredButSuppressed = await first.query(reconciledRequest(), CONTEXT);
+    assert.equal(firstCalls.count, 1);
+    assert.equal(deliveredButSuppressed.evidence_storage?.status, "persisted");
+
+    const restartedLedger = PublicEvidenceLedger.open({
+      rootDirectory: ledgerRoot,
+      retentionDays: 30,
+    });
+    const restartedIndex = openEvidenceReconciliationIndex({
+      rootDirectory: indexRoot,
+      ledger: restartedLedger,
+    });
+    const retryCalls = { count: 0, urls: [] as string[] };
+    const retryAdapter = adapter(retryCalls, {
+      discovery: "suspended",
+      invocation: "suspended",
+      reason: "Completed reconciliation must bypass provider preflight.",
+    });
+    context.mock.method(retryAdapter, "health", () => {
+      throw new Error("provider preflight must not run for completed reconciliation");
+    });
+    const retry = application(retryAdapter, {
+      evidenceLedger: restartedLedger,
+      reconciliationIndex: restartedIndex,
+    });
+    await expectReconciliationProblem(
+      () =>
+        retry.query(reconciledRequest(), {
+          requestId: "request-data-query-retry-2",
+          traceId: "8123456789abcdef0123456789abcdef",
+        }),
+      "idempotency_completed",
+    );
+    assert.equal(retryCalls.count, 0);
+    assert.equal(restartedLedger.verify().record_count, 1);
+    assert.equal(restartedLedger.verify().event_count, 1);
+  } finally {
+    rmSync(parent, { recursive: true, force: true });
+  }
+});
+
+test("keeps an executed but unreceipted key pending and never executes it twice", async () => {
+  const parent = mkdtempSync(join(tmpdir(), "gis-ai-go-data-query-pending-"));
+  try {
+    const ledger = PublicEvidenceLedger.open({ rootDirectory: join(parent, "ledger") });
+    const index = openEvidenceReconciliationIndex({
+      rootDirectory: join(parent, "index"),
+      ledger,
+    });
+    const calls = { count: 0, urls: [] as string[] };
+    const reconciled = application(adapter(calls), {
+      evidenceLedger: ledger,
+      reconciliationIndex: index,
+      now: () => new Date(Number.NaN),
+    });
+    await expectProblem(
+      () => reconciled.query(reconciledRequest(), CONTEXT),
+      "evidence_unavailable",
+    );
+    assert.equal(calls.count, 1);
+    await expectReconciliationProblem(
+      () => reconciled.query(reconciledRequest(), CONTEXT),
+      "idempotency_pending",
+    );
+    assert.equal(calls.count, 1);
+    assert.equal(ledger.verify().record_count, 0);
+  } finally {
+    rmSync(parent, { recursive: true, force: true });
+  }
+});
+
+test("maps exhausted reconciliation admission to a fixed evidence-unavailable problem", async (
+  context,
+) => {
+  const parent = mkdtempSync(join(tmpdir(), "gis-ai-go-data-query-capacity-"));
+  try {
+    const indexRoot = join(parent, "index");
+    const ledger = PublicEvidenceLedger.open({ rootDirectory: join(parent, "ledger") });
+    const index = openEvidenceReconciliationIndex({ rootDirectory: indexRoot, ledger });
+    context.mock.method(index, "claim", () => {
+      throw new EvidenceReconciliationIndexError(
+        "capacity",
+        `private capacity detail for ${IDEMPOTENCY_KEY}`,
+      );
+    });
+    const calls = { count: 0, urls: [] as string[] };
+    const error = await expectProblem(
+      () =>
+        application(adapter(calls), {
+          evidenceLedger: ledger,
+          reconciliationIndex: index,
+        }).query(reconciledRequest(), CONTEXT),
+      "evidence_unavailable",
+    );
+    assert.equal(error.problem.status, 503);
+    assert.equal(canonicalJson(error.problem).includes(IDEMPOTENCY_KEY), false);
+    assert.equal(canonicalJson(error.problem).includes("private capacity detail"), false);
+    assert.equal(calls.count, 0);
+    assert.deepEqual(readdirSync(join(indexRoot, "claim-ownership")), []);
+    assert.deepEqual(readdirSync(join(indexRoot, "claims")), []);
+    assert.deepEqual(readdirSync(join(indexRoot, "claim-ready")), []);
+  } finally {
+    context.mock.reset();
+    rmSync(parent, { recursive: true, force: true });
+  }
+});
+
+test("admits only one simultaneous same-key execution and completes one evidence chain", async () => {
+  const parent = mkdtempSync(join(tmpdir(), "gis-ai-go-data-query-concurrent-key-"));
+  try {
+    const ledger = PublicEvidenceLedger.open({ rootDirectory: join(parent, "ledger") });
+    const index = openEvidenceReconciliationIndex({
+      rootDirectory: join(parent, "index"),
+      ledger,
+    });
+    let executions = 0;
+    let signalStarted: (() => void) | undefined;
+    const started = new Promise<void>((resolve) => {
+      signalStarted = resolve;
+    });
+    let releaseExecution: (() => void) | undefined;
+    const release = new Promise<void>((resolve) => {
+      releaseExecution = resolve;
+    });
+    const holdingTransport: FixedHttpsTransport = async ({ policy }) => {
+      executions += 1;
+      assert.equal(policy, ONS_EGRESS_POLICY);
+      signalStarted?.();
+      await release;
+      return response();
+    };
+    const reconciled = application(
+      new OnsDataApiAdapter({
+        lifecycle: ACTIVE_INVOCATION,
+        transport: holdingTransport,
+        now: () => Date.parse("2030-01-01T00:00:00Z"),
+      }),
+      { evidenceLedger: ledger, reconciliationIndex: index },
+    );
+
+    const first = reconciled.query(reconciledRequest(), CONTEXT);
+    await started;
+    const second = expectReconciliationProblem(
+      () =>
+        reconciled.query(reconciledRequest(), {
+          requestId: "request-data-query-concurrent-2",
+          traceId: "a123456789abcdef0123456789abcdef",
+        }),
+      "idempotency_pending",
+    );
+    await second;
+    assert.equal(executions, 1);
+    releaseExecution?.();
+    const result = await first;
+    assert.equal(result.evidence_storage?.status, "persisted");
+
+    const indexHealth = index.verify();
+    const ledgerHealth = ledger.verify();
+    assert.equal(indexHealth.claim_count, 1);
+    assert.equal(indexHealth.resolution_count, 1);
+    assert.equal(indexHealth.completed_count, 1);
+    assert.equal(indexHealth.pending_count, 0);
+    assert.equal(ledgerHealth.record_count, 1);
+    assert.equal(ledgerHealth.event_count, 1);
+    assert.equal(executions, 1);
+  } finally {
+    rmSync(parent, { recursive: true, force: true });
+  }
+});
+
+test("detects a pre-existing different fingerprint before provider preflight", async (context) => {
+  const parent = mkdtempSync(join(tmpdir(), "gis-ai-go-data-query-conflict-"));
+  try {
+    const ledger = PublicEvidenceLedger.open({ rootDirectory: join(parent, "ledger") });
+    const index = openEvidenceReconciliationIndex({
+      rootDirectory: join(parent, "index"),
+      ledger,
+    });
+    index.claim({
+      idempotencyKey: IDEMPOTENCY_KEY,
+      operation: "data.query",
+      requestId: "request-hostile-preseed",
+      traceId: "9123456789abcdef0123456789abcdef",
+      resourceId: PUBLIC_READ_ONS_RESOURCE.resource_id,
+      normalisedParametersSha256: "b".repeat(64),
+    });
+    const calls = { count: 0, urls: [] as string[] };
+    const injected = adapter(calls);
+    context.mock.method(injected, "health", () => {
+      throw new Error("provider preflight must not run for a conflicting key");
+    });
+    const reconciled = application(injected, {
+      evidenceLedger: ledger,
+      reconciliationIndex: index,
+    });
+    await expectReconciliationProblem(
+      () => reconciled.query(reconciledRequest(), CONTEXT),
+      "idempotency_conflict",
+    );
+    assert.equal(calls.count, 0);
+    assert.notEqual(
+      domainSeparatedSha256(
+        CANONICAL_DOMAINS.dataQueryParameters,
+        PUBLIC_ONS_DATA_QUERY_PARAMETERS,
+      ),
+      "b".repeat(64),
+    );
+  } finally {
+    rmSync(parent, { recursive: true, force: true });
+  }
+});
+
+test("requires the exact ledger linked to a supplied reconciliation index", () => {
+  const parent = mkdtempSync(join(tmpdir(), "gis-ai-go-data-query-link-"));
+  try {
+    const ledger = PublicEvidenceLedger.open({ rootDirectory: join(parent, "ledger") });
+    const other = PublicEvidenceLedger.open({ rootDirectory: join(parent, "other-ledger") });
+    const index = openEvidenceReconciliationIndex({
+      rootDirectory: join(parent, "index"),
+      ledger,
+    });
+    assert.throws(
+      () => application(adapter(), { evidenceLedger: other, reconciliationIndex: index }),
+      /exact explicitly linked evidence ledger/u,
+    );
+  } finally {
+    rmSync(parent, { recursive: true, force: true });
   }
 });

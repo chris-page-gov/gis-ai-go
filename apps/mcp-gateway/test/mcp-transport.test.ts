@@ -144,10 +144,15 @@ async function rawExchange(
   handler: McpHttpHandler,
   body: unknown,
   options?: Parameters<typeof rawRequest>[1],
-): Promise<{ readonly response: Response; readonly message: JsonObject }> {
+): Promise<{
+  readonly response: Response;
+  readonly message: JsonObject;
+  readonly rawText: string;
+}> {
   const response = await handler.fetch(rawRequest(body, options));
-  const message = (await response.json()) as JsonObject;
-  return { response, message };
+  const rawText = await response.text();
+  const message = JSON.parse(rawText) as JsonObject;
+  return { response, message, rawText };
 }
 
 function resultOf(message: JsonObject): JsonObject {
@@ -660,6 +665,83 @@ test("serves the activated public bundle and bounded record template", async (t)
   assert.deepEqual(errorOf(doubleEncoded.message).data, { uri: doubleEncodedUri });
 });
 
+test("rejects raw idempotency keys in registered and unregistered resource URIs", async (t) => {
+  const reported: Error[] = [];
+  const handler = enabledHandler(APPLICATION, {
+    enabledOperations: [],
+    enabledResources: MCP_CATALOGUE_RESOURCES,
+    onerror: (error) => reported.push(error),
+  });
+  t.after(() => handler.close());
+  const rawKey = `gis-ai-go:ik:v1:${"d".repeat(64)}`;
+  const encodedKey = encodeURIComponent(rawKey);
+  const multiplyEncodedKey = encodeURIComponent(encodedKey);
+  const resourceUris = [
+    `gis-ai-go://catalogue/records/${rawKey}`,
+    `gis-ai-go://catalogue/records/${encodedKey}`,
+    `gis-ai-go://catalogue/records/${multiplyEncodedKey}`,
+    `gis-ai-go://evidence/receipts/${rawKey}`,
+    `gis-ai-go://evidence/receipts/${encodedKey}`,
+    `gis-ai-go://evidence/receipts/${multiplyEncodedKey}`,
+    `gis-ai-go://unregistered/${rawKey}`,
+    `gis-ai-go://unregistered/${encodedKey}`,
+    `gis-ai-go://unregistered/${multiplyEncodedKey}`,
+  ];
+
+  for (const [offset, uri] of resourceUris.entries()) {
+    const exchange = await rawExchange(
+      handler,
+      rawBody(66 + offset, "resources/read", { uri }),
+      { nameHeader: uri },
+    );
+    assert.equal(exchange.response.status, 400);
+    const error = errorOf(exchange.message);
+    assert.equal(error.code, -32_602);
+    assert.equal(error.message, "Invalid params");
+    assert.deepEqual(error.data, {
+      reason: "privacy_sensitive_resource_uri",
+      field: "params.uri",
+    });
+    const serialised = JSON.stringify(exchange.message);
+    assert.equal(serialised.includes(rawKey), false);
+    assert.equal(serialised.includes(encodedKey), false);
+    assert.equal(serialised.includes(multiplyEncodedKey), false);
+  }
+  const overboundUri =
+    `gis-ai-go://unregistered/${"x".repeat(2_048)}/${multiplyEncodedKey}`;
+  const overbound = await rawExchange(
+    handler,
+    rawBody(80, "resources/read", { uri: overboundUri }),
+    { nameHeader: overboundUri },
+  );
+  assert.equal(overbound.response.status, 400);
+  assert.deepEqual(errorOf(overbound.message).data, {
+    reason: "request_field_out_of_bounds",
+    field: "params.uri",
+  });
+  assert.equal(JSON.stringify(overbound.message).includes(multiplyEncodedKey), false);
+
+  for (const uri of [
+    `gis-ai-go://catalogue/records/${rawKey}`,
+    `gis-ai-go://evidence/receipts/${multiplyEncodedKey}`,
+    overboundUri,
+  ]) {
+    const notification = await handler.fetch(
+      rawRequest(
+        {
+          jsonrpc: "2.0",
+          method: "resources/read",
+          params: { _meta: MODERN_META, uri },
+        },
+        { nameHeader: uri },
+      ),
+    );
+    assert.equal(notification.status, 202);
+    assert.equal(await notification.text(), "");
+  }
+  assert.deepEqual(reported, []);
+});
+
 test("requires both HTTP Accept media types before entering the SDK", async (t) => {
   const handler = enabledHandler();
   t.after(() => handler.close());
@@ -688,13 +770,23 @@ test("requires both HTTP Accept media types before entering the SDK", async (t) 
 });
 
 test("rejects every unsafe JSON-RPC request ID before SDK dispatch", async (t) => {
-  const handler = enabledHandler();
+  const reported: Error[] = [];
+  const handler = enabledHandler(APPLICATION, {
+    onerror: (error) => reported.push(error),
+  });
   t.after(() => handler.close());
+  const rawKey = `gis-ai-go:ik:v1:${"a".repeat(64)}`;
+  const encodedKey = encodeURIComponent(rawKey);
+  const multiplyEncodedKey = encodeURIComponent(encodedKey);
   const ids: readonly unknown[] = [
     "x".repeat(129),
     "unsafe\nid",
     Number.MAX_SAFE_INTEGER + 1,
     null,
+    rawKey,
+    `request-${rawKey}`,
+    encodedKey,
+    multiplyEncodedKey,
   ];
   for (const [index, id] of ids.entries()) {
     const response = await rawExchange(handler, {
@@ -709,13 +801,179 @@ test("rejects every unsafe JSON-RPC request ID before SDK dispatch", async (t) =
     assert.deepEqual(errorOf(response.message).data, {
       reason: "invalid_request_id",
     });
+    const wire = response.rawText;
+    assert.equal(wire.includes(rawKey), false);
+    assert.equal(wire.includes(encodedKey), false);
+    assert.equal(wire.includes(multiplyEncodedKey), false);
   }
-  const maximum = await rawExchange(
-    handler,
-    rawBody("x".repeat(128), "server/discover"),
+  for (const id of ["x".repeat(128), "request-42", 42] as const) {
+    const accepted = await rawExchange(handler, rawBody(id, "server/discover"));
+    assert.equal(accepted.response.status, 200);
+    assert.equal(accepted.message.id, id);
+  }
+  const notification = await handler.fetch(
+    rawRequest({
+      jsonrpc: "2.0",
+      method: "notifications/cancelled",
+      params: { _meta: MODERN_META, requestId: "request-42" },
+    }),
   );
-  assert.equal(maximum.response.status, 200);
-  assert.equal(maximum.message.id, "x".repeat(128));
+  assert.equal(notification.status, 202);
+  assert.equal(await notification.text(), "");
+  assert.deepEqual(reported, []);
+});
+
+test("rejects reconciliation keys in HTTP protocol parity fields before SDK dispatch", async (t) => {
+  const reported: Error[] = [];
+  const handler = enabledHandler(APPLICATION, {
+    onerror: (error) => reported.push(error),
+  });
+  t.after(() => handler.close());
+  const rawKey = `gis-ai-go:ik:v1:${"f".repeat(64)}`;
+  const prefixedKey = `request-${rawKey}`;
+  const encodedKey = encodeURIComponent(rawKey);
+  const multiplyEncodedKey = encodeURIComponent(encodedKey);
+  const protocolKey = "io.modelcontextprotocol/protocolVersion";
+  let id = 81;
+
+  for (const sensitiveValue of [
+    rawKey,
+    prefixedKey,
+    encodedKey,
+    multiplyEncodedKey,
+  ]) {
+    const requestCases: readonly {
+      readonly body: JsonObject;
+      readonly options: Parameters<typeof rawRequest>[1];
+    }[] = [
+      {
+        body: rawBody(id, "server/discover"),
+        options: { methodHeader: sensitiveValue },
+      },
+      {
+        body: rawBody(id, sensitiveValue),
+        options: { methodHeader: "server/discover" },
+      },
+      {
+        body: rawBody(id, "tools/call", {
+          name: "catalogue.search",
+          arguments: {},
+        }),
+        options: { nameHeader: sensitiveValue },
+      },
+      {
+        body: rawBody(id, "tools/call", {
+          name: sensitiveValue,
+          arguments: {},
+        }),
+        options: { nameHeader: "catalogue.search" },
+      },
+      {
+        body: rawBody(id, "server/discover"),
+        options: { protocolHeader: sensitiveValue },
+      },
+      {
+        body: rawBody(id, "server/discover", {}, {
+          ...MODERN_META,
+          [protocolKey]: sensitiveValue,
+        }),
+        options: { protocolHeader: MCP_PROTOCOL_VERSION },
+      },
+    ];
+    for (const item of requestCases) {
+      const exchange = await rawExchange(handler, {
+        ...item.body,
+        id,
+      }, item.options);
+      id += 1;
+      assert.equal(exchange.response.status, 400);
+      assert.equal(exchange.message.id, null);
+      assert.equal(errorOf(exchange.message).code, -32_600);
+      assert.equal(errorOf(exchange.message).message, "Invalid Request");
+      assert.deepEqual(errorOf(exchange.message).data, {
+        reason: "privacy_sensitive_protocol_field",
+      });
+      for (const keyForm of [
+        rawKey,
+        prefixedKey,
+        encodedKey,
+        multiplyEncodedKey,
+      ]) {
+        assert.equal(exchange.rawText.includes(keyForm), false);
+      }
+    }
+
+    const notificationCases: readonly {
+      readonly body: JsonObject;
+      readonly options: Parameters<typeof rawRequest>[1];
+    }[] = [
+      {
+        body: {
+          jsonrpc: "2.0",
+          method: "notifications/cancelled",
+          params: { _meta: MODERN_META, requestId: "request-42" },
+        },
+        options: { methodHeader: sensitiveValue },
+      },
+      {
+        body: {
+          jsonrpc: "2.0",
+          method: sensitiveValue,
+          params: { _meta: MODERN_META },
+        },
+        options: { methodHeader: "notifications/cancelled" },
+      },
+      {
+        body: {
+          jsonrpc: "2.0",
+          method: "tools/call",
+          params: {
+            _meta: MODERN_META,
+            name: "catalogue.search",
+            arguments: {},
+          },
+        },
+        options: { nameHeader: sensitiveValue },
+      },
+      {
+        body: {
+          jsonrpc: "2.0",
+          method: "tools/call",
+          params: {
+            _meta: MODERN_META,
+            name: sensitiveValue,
+            arguments: {},
+          },
+        },
+        options: { nameHeader: "catalogue.search" },
+      },
+      {
+        body: {
+          jsonrpc: "2.0",
+          method: "notifications/cancelled",
+          params: { _meta: MODERN_META, requestId: "request-42" },
+        },
+        options: { protocolHeader: sensitiveValue },
+      },
+      {
+        body: {
+          jsonrpc: "2.0",
+          method: "notifications/cancelled",
+          params: {
+            _meta: { ...MODERN_META, [protocolKey]: sensitiveValue },
+            requestId: "request-42",
+          },
+        },
+        options: { protocolHeader: MCP_PROTOCOL_VERSION },
+      },
+    ];
+    for (const item of notificationCases) {
+      const response = await handler.fetch(rawRequest(item.body, item.options));
+      assert.equal(response.status, 202);
+      assert.equal(await response.text(), "");
+    }
+  }
+  assert.deepEqual(reported, []);
 });
 
 test("preserves the pinned SDK 405 route for GET and DELETE without Accept", async (t) => {

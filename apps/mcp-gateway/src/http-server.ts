@@ -85,6 +85,7 @@ export interface GatewayNodeServerOptions {
   readonly evidenceApplication?: EvidenceInspectApplication;
   readonly selectionApplication?: SelectionResolveApplication;
   readonly dataQueryApplication?: DataQueryApplication;
+  readonly createRequestId?: () => string;
   readonly createTraceId?: () => string;
   readonly createMcpRequestContext?: CatalogueMcpRequestContextFactory;
   readonly directAllowedHosts?: readonly string[];
@@ -474,6 +475,12 @@ function assertServerOptions(options: GatewayNodeServerOptions): number {
   if (options.onerror !== undefined && typeof options.onerror !== "function") {
     throw new TypeError("onerror must be a function");
   }
+  if (
+    options.createRequestId !== undefined &&
+    typeof options.createRequestId !== "function"
+  ) {
+    throw new TypeError("createRequestId must be a function");
+  }
   return maximum;
 }
 
@@ -505,6 +512,9 @@ export function createGatewayNodeServer(
     ...(options.enabledApiOperations === undefined
       ? {}
       : { enabledApiOperations: options.enabledApiOperations }),
+    ...(options.createRequestId === undefined
+      ? {}
+      : { createRequestId: options.createRequestId }),
     ...(options.createTraceId === undefined ? {} : { createTraceId: options.createTraceId }),
     ...(options.directAllowedHosts === undefined
       ? {}
