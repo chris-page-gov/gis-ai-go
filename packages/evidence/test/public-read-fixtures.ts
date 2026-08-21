@@ -2,6 +2,9 @@ import {
   CANONICALISATION,
   DATA_QUERY_OBLIGATIONS,
   PUBLIC_READ_ONS_RESOURCE,
+  PUBLIC_READ_ONS_SELECTION_PLAN,
+  PUBLIC_READ_SELECTION_PROFILE,
+  PUBLIC_SELECTION_WARNINGS,
   SELECTION_RESOLVE_OBLIGATIONS,
   buildPublicReadAuthorityContext,
   buildPublicReadPolicy,
@@ -130,8 +133,31 @@ function resultCore(
             status: "resolved",
             ambiguity: null,
             resource_id: PUBLIC_READ_ONS_RESOURCE.resource_id,
+            plan: PUBLIC_READ_ONS_SELECTION_PLAN,
+            ranking: {
+              algorithm: PUBLIC_READ_SELECTION_PROFILE.ranking.algorithm,
+              version: PUBLIC_READ_SELECTION_PROFILE.ranking.version,
+              selection_profile_id:
+                PUBLIC_READ_SELECTION_PROFILE.selection_profile_id,
+              selected_candidate_id:
+                PUBLIC_READ_SELECTION_PROFILE.candidates[0].candidate_id,
+              considered_candidates: 1,
+              score: 132,
+              matched_constraints: [
+                "constraints.profile_ids",
+                "constraints.provider_ids",
+                "constraints.dataset_ids",
+                "constraints.editions",
+                "constraints.versions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath",
+              ],
+              top_score_tied: false,
+            },
           },
-    warnings: [],
+    warnings: operation === "selection.resolve" ? PUBLIC_SELECTION_WARNINGS : [],
   };
 }
 

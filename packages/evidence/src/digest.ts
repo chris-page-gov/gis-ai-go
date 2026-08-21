@@ -31,6 +31,8 @@ export const CANONICAL_DOMAINS = Object.freeze({
   publicPolicyDecision: "gis-ai-go.public-policy-decision.v1",
   publicPolicyDecisionV2: "gis-ai-go.public-policy-decision.v2",
   publicReadResource: "gis-ai-go.public-read-resource.v1",
+  publicSelectionProfile: "gis-ai-go.public-selection-profile.v1",
+  selectionPlan: "gis-ai-go.selection-plan.v1",
   selectionResolveParameters: "gis-ai-go.selection-resolve-parameters.v1",
   selectionResolveResultCore: "gis-ai-go.selection-resolve-result-core.v1",
 } as const);

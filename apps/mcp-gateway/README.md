@@ -30,6 +30,12 @@ It is an implementation workbench, not a supported or deployed service.
   receipt identity. Explicit local-conformance options can mount the same instance
   as a direct route, MCP HTTP or STDIO tool and receipt resource. It remains absent
   from every default registration.
+- `createSelectionResolveApplication` applies one checked finite constraint grammar
+  to the accepted `PV-ONS-DATA` resource. It returns either an exact
+  content-addressed non-executable plan with public-read v2 evidence, or a closed
+  problem with `plan: null`. Question text is untrusted and is never interpreted,
+  reflected, persisted or sent to a provider. The application has no adapter,
+  execution or network dependency and is not mounted by any transport.
 - the HTTP candidate listens only on `127.0.0.1:8787` and exposes `GET /healthz`,
   `GET /readyz` and `GET /openapi.json`. Readiness always returns `503` with zero
   active tools and zero active API operations.
@@ -82,4 +88,5 @@ pnpm --filter @gis-ai-go/mcp-gateway run start:http
 
 See the [candidate boundary](../../docs/operations/MCP-201_GATEWAY_CANDIDATE.md),
 the [EVID-204 inspection transport boundary](../../docs/operations/EVID-204_INSPECT_TRANSPORT.md)
-and the [QUAL-206 interoperability runbook](../../docs/operations/QUAL-206_INTEROPERABILITY.md).
+the [QUAL-206 interoperability runbook](../../docs/operations/QUAL-206_INTEROPERABILITY.md)
+and the [inactive selection resolver boundary](../../docs/operations/TOOLS-205_SELECTION_RESOLVE.md).

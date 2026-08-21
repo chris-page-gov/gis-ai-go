@@ -4,7 +4,11 @@ import test from "node:test";
 import {
   CANONICALISATION,
   PUBLIC_READ_ONS_RESOURCE,
+  PUBLIC_READ_ONS_SELECTION_PLAN,
+  PUBLIC_READ_SELECTION_PROFILE,
   PublicReadReceiptError,
+  buildPublicSelectionPlan,
+  buildPublicSelectionProfile,
   buildPublicReadPolicyDecision,
   buildPublicReadReceipt,
   canonicalJson,
@@ -13,6 +17,8 @@ import {
   verifyPublicReadResource,
   verifyPublicReadReceipt,
   verifyPublicReadReceiptStructure,
+  verifyPublicSelectionPlan,
+  verifyPublicSelectionProfile,
 } from "../src/index.js";
 import {
   makePublicReadReceiptBuildInput,
@@ -65,6 +71,43 @@ test("binds the exact profile, provider, dataset, version and rights evidence", 
     rights_sha256: "305b49e6d1f55de0109de12b2cbf0b7ec5da1d573e111f5884736c832b2e4b17",
     version: "121",
   });
+});
+
+test("binds the exact reviewed selection profile and non-executable plan", () => {
+  assert.equal(verifyPublicSelectionPlan(PUBLIC_READ_ONS_SELECTION_PLAN), true);
+  assert.equal(verifyPublicSelectionProfile(PUBLIC_READ_SELECTION_PROFILE), true);
+  assert.equal(
+    PUBLIC_READ_ONS_SELECTION_PLAN.plan_id,
+    "gis-ai-go:selection-plan:sha256:dbae1e78051a3a3bdfd0b49c0318d54df3a500effcb85df8cf34ad4e3cd31d9e",
+  );
+  assert.equal(
+    PUBLIC_READ_SELECTION_PROFILE.selection_profile_id,
+    "gis-ai-go:public-selection-profile:sha256:344fe6d8cbec7c355735ee711cd19b067be306f4087b30c341efec6c5e819f8e",
+  );
+  assert.equal(PUBLIC_READ_ONS_SELECTION_PLAN.execution, "forbidden");
+  assert.equal(PUBLIC_READ_ONS_SELECTION_PLAN.controls.provider_execution, false);
+
+  const alteredPlan = structuredClone(PUBLIC_READ_ONS_SELECTION_PLAN) as unknown as {
+    plan_id?: string;
+    data_query: { dataset: { version: string } };
+  };
+  delete alteredPlan.plan_id;
+  alteredPlan.data_query.dataset.version = "latest";
+  assert.throws(
+    () => buildPublicSelectionPlan(alteredPlan as never),
+    PublicReadReceiptError,
+  );
+
+  const alteredProfile = structuredClone(PUBLIC_READ_SELECTION_PROFILE) as unknown as {
+    selection_profile_id?: string;
+    ranking: { tie_handling: string };
+  };
+  delete alteredProfile.selection_profile_id;
+  alteredProfile.ranking.tie_handling = "choose-first";
+  assert.throws(
+    () => buildPublicSelectionProfile(alteredProfile as never),
+    PublicReadReceiptError,
+  );
 });
 
 test("fails closed on altered parameters, result material and retained identities", () => {
@@ -221,6 +264,25 @@ test("enforces every fixed parameter and closed successful-result boundary", () 
   selectionResult.data.extra = true;
   assert.throws(
     () => buildPublicReadReceipt({ ...selection, resultCore: selectionResult }),
+    PublicReadReceiptError,
+  );
+
+  const alteredPlanResult = structuredClone(selection.resultCore) as {
+    data: { plan: { execution: string } };
+  };
+  alteredPlanResult.data.plan.execution = "allowed";
+  assert.throws(
+    () => buildPublicReadReceipt({ ...selection, resultCore: alteredPlanResult }),
+    PublicReadReceiptError,
+  );
+
+  const alteredRankingResult = structuredClone(selection.resultCore) as {
+    data: { ranking: { score: number; top_score_tied: boolean } };
+  };
+  alteredRankingResult.data.ranking.score += 1;
+  alteredRankingResult.data.ranking.top_score_tied = true;
+  assert.throws(
+    () => buildPublicReadReceipt({ ...selection, resultCore: alteredRankingResult }),
     PublicReadReceiptError,
   );
 });

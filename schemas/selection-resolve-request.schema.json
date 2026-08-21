@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:selection-resolve-request:v1",
+  "title": "GIS AI GO selection resolution request",
+  "description": "A bounded constraints-only request. The question is untrusted display context and is never interpreted, reflected, persisted or sent to a provider.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["question", "constraints"],
+  "properties": {
+    "question": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "$comment": "Runtime validation additionally requires NFC, rejects control and bidirectional formatting characters, and counts Unicode code points."
+    },
+    "candidate_record_ids": { "$ref": "#/$defs/identifier_values" },
+    "constraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "profile_ids": { "$ref": "#/$defs/identifier_values" },
+        "provider_ids": { "$ref": "#/$defs/identifier_values" },
+        "dataset_ids": { "$ref": "#/$defs/identifier_values" },
+        "editions": { "$ref": "#/$defs/identifier_values" },
+        "versions": { "$ref": "#/$defs/identifier_values" },
+        "dimensions": {
+          "type": "object",
+          "additionalProperties": false,
+          "minProperties": 1,
+          "properties": {
+            "time": { "$ref": "#/$defs/identifier_values" },
+            "geography": { "$ref": "#/$defs/identifier_values" },
+            "week": { "$ref": "#/$defs/identifier_values" },
+            "causeofdeath": { "$ref": "#/$defs/identifier_values" }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "identifier_values": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 4,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+      }
+    }
+  }
+}

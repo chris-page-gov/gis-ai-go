@@ -32,6 +32,8 @@ const POLICY_ID_PREFIX = "gis-ai-go:public-policy";
 const DECISION_ID_PREFIX = "gis-ai-go:public-policy-decision";
 const RECEIPT_ID_PREFIX = "gis-ai-go:evidence-receipt";
 const RESOURCE_ID_PREFIX = "gis-ai-go:public-read-resource";
+const SELECTION_PLAN_ID_PREFIX = "gis-ai-go:selection-plan";
+const SELECTION_PROFILE_ID_PREFIX = "gis-ai-go:public-selection-profile";
 const MAX_NORMALISED_PARAMETERS_BYTES = 16_384;
 const MAX_RESULT_CORE_BYTES = 262_144;
 
@@ -258,6 +260,119 @@ export interface PublicReadResultEvidenceBinding {
   readonly version: string;
   readonly rights_sha256: string;
   readonly returned_item_count: 1;
+}
+
+export interface PublicSelectionPlanCore {
+  readonly schema: "gis-ai-go.selection-plan.v1";
+  readonly operation: "data.query";
+  readonly execution: "forbidden";
+  readonly resource_id: string;
+  readonly profile: {
+    readonly id: "PV-ONS-DATA";
+    readonly sha256: string;
+  };
+  readonly provider: {
+    readonly id: "ons-data-api";
+    readonly adapter_id: "gis-ai-go.ons-data-api";
+    readonly adapter_version: "1";
+  };
+  readonly data_query: {
+    readonly schema: "gis-ai-go.data-query-parameters.v1";
+    readonly resource_id: string;
+    readonly dataset: {
+      readonly id: "weekly-deaths-region";
+      readonly edition: "time-series";
+      readonly version: "121";
+    };
+    readonly selections: PublicReadResource["selections"];
+    readonly limit: 1;
+  };
+  readonly rights_sha256: string;
+  readonly controls: {
+    readonly provider_execution: false;
+    readonly caller_url: false;
+    readonly credentials: false;
+    readonly network: "not-used";
+  };
+}
+
+export interface PublicSelectionPlan extends PublicSelectionPlanCore {
+  readonly plan_id: string;
+}
+
+export const PUBLIC_SELECTION_CONSTRAINT_FIELDS = Object.freeze([
+  "candidate_record_ids",
+  "constraints.profile_ids",
+  "constraints.provider_ids",
+  "constraints.dataset_ids",
+  "constraints.editions",
+  "constraints.versions",
+  "constraints.dimensions.time",
+  "constraints.dimensions.geography",
+  "constraints.dimensions.week",
+  "constraints.dimensions.causeofdeath",
+] as const);
+export type PublicSelectionConstraintField =
+  (typeof PUBLIC_SELECTION_CONSTRAINT_FIELDS)[number];
+
+export const PUBLIC_SELECTION_WARNINGS = Object.freeze([
+  "This plan is non-executable and no provider was called.",
+  "Question text is untrusted data and was not interpreted.",
+] as const);
+
+export interface PublicSelectionProfileCore {
+  readonly schema: "gis-ai-go.public-selection-profile.v1";
+  readonly operation: "selection.resolve";
+  readonly resource_id: string;
+  readonly question_handling: "untrusted-not-interpreted";
+  readonly resolution: "closed-constraints-only";
+  readonly execution: "forbidden";
+  readonly grammar: {
+    readonly maximum_request_bytes: 16_384;
+    readonly maximum_question_code_points: 512;
+    readonly maximum_values_per_field: 4;
+    readonly anchor_fields: readonly [
+      "candidate_record_ids",
+      "constraints.profile_ids",
+      "constraints.provider_ids",
+      "constraints.dataset_ids",
+    ];
+    readonly required_dimension_fields: readonly [
+      "constraints.dimensions.time",
+      "constraints.dimensions.geography",
+      "constraints.dimensions.week",
+      "constraints.dimensions.causeofdeath",
+    ];
+  };
+  readonly ranking: {
+    readonly algorithm: "weighted-exact-constraints";
+    readonly version: "v1";
+    readonly field_order: typeof PUBLIC_SELECTION_CONSTRAINT_FIELDS;
+    readonly weights: Readonly<Record<PublicSelectionConstraintField, number>>;
+    readonly tie_handling: "ambiguous-no-plan";
+  };
+  readonly candidates: readonly [
+    {
+      readonly candidate_id: "PV-ONS-DATA:weekly-deaths-region:time-series:121";
+      readonly record_id: "PV-ONS-DATA";
+      readonly resource_id: string;
+      readonly accepted_values: {
+        readonly profile_id: "PV-ONS-DATA";
+        readonly provider_id: "ons-data-api";
+        readonly dataset_id: "weekly-deaths-region";
+        readonly edition: "time-series";
+        readonly version: "121";
+        readonly dimensions: Readonly<
+          Record<"time" | "geography" | "week" | "causeofdeath", string>
+        >;
+      };
+      readonly plan: PublicSelectionPlan;
+    },
+  ];
+}
+
+export interface PublicSelectionProfile extends PublicSelectionProfileCore {
+  readonly selection_profile_id: string;
 }
 
 export const PUBLIC_READ_RECEIPT_VERIFICATION_CHECKS = Object.freeze([
@@ -573,6 +688,195 @@ export function buildPublicReadResource(core: PublicReadResourceCore): PublicRea
 }
 
 export const PUBLIC_READ_ONS_RESOURCE = buildPublicReadResource(PUBLIC_READ_ONS_RESOURCE_CORE);
+
+export const PUBLIC_READ_ONS_SELECTION_PLAN_CORE: PublicSelectionPlanCore =
+  canonicalJsonClone({
+    schema: "gis-ai-go.selection-plan.v1",
+    operation: "data.query",
+    execution: "forbidden",
+    resource_id: PUBLIC_READ_ONS_RESOURCE.resource_id,
+    profile: {
+      id: PUBLIC_READ_ONS_RESOURCE.profile.id,
+      sha256: PUBLIC_READ_ONS_RESOURCE.profile.sha256,
+    },
+    provider: {
+      id: PUBLIC_READ_ONS_RESOURCE.provider.id,
+      adapter_id: PUBLIC_READ_ONS_RESOURCE.provider.adapter_id,
+      adapter_version: PUBLIC_READ_ONS_RESOURCE.provider.adapter_version,
+    },
+    data_query: {
+      schema: "gis-ai-go.data-query-parameters.v1",
+      resource_id: PUBLIC_READ_ONS_RESOURCE.resource_id,
+      dataset: {
+        id: PUBLIC_READ_ONS_RESOURCE.dataset.id,
+        edition: PUBLIC_READ_ONS_RESOURCE.dataset.edition,
+        version: PUBLIC_READ_ONS_RESOURCE.dataset.version,
+      },
+      selections: PUBLIC_READ_ONS_RESOURCE.selections,
+      limit: 1,
+    },
+    rights_sha256: domainSeparatedSha256(
+      CANONICAL_DOMAINS.providerRights,
+      PUBLIC_READ_ONS_RESOURCE.rights,
+    ),
+    controls: {
+      provider_execution: false,
+      caller_url: false,
+      credentials: false,
+      network: "not-used",
+    },
+  });
+
+export function buildPublicSelectionPlan(
+  core: PublicSelectionPlanCore = PUBLIC_READ_ONS_SELECTION_PLAN_CORE,
+): PublicSelectionPlan {
+  const snapshot = snapshotAt<PublicSelectionPlanCore>(core, "$.selection_plan");
+  if (!sameCanonical(snapshot, PUBLIC_READ_ONS_SELECTION_PLAN_CORE)) {
+    fail("$.selection_plan", "must be the exact non-executable reviewed ONS plan");
+  }
+  return buildIdentity<PublicSelectionPlanCore, PublicSelectionPlan>(
+    snapshot,
+    "plan_id",
+    SELECTION_PLAN_ID_PREFIX,
+    CANONICAL_DOMAINS.selectionPlan,
+  );
+}
+
+export const PUBLIC_READ_ONS_SELECTION_PLAN = buildPublicSelectionPlan();
+
+export function verifyPublicSelectionPlan(value: unknown): value is PublicSelectionPlan {
+  try {
+    const snapshot = snapshotAt<PublicSelectionPlan>(value, "$.selection_plan");
+    const { identity, core } = identityCore(snapshot, "plan_id", "$.selection_plan");
+    assertContentId(identity, SELECTION_PLAN_ID_PREFIX, "$.selection_plan.plan_id");
+    if (!sameCanonical(core, PUBLIC_READ_ONS_SELECTION_PLAN_CORE)) {
+      fail("$.selection_plan", "does not match the exact non-executable reviewed ONS plan");
+    }
+    return verifyContentAddress(
+      identity,
+      SELECTION_PLAN_ID_PREFIX,
+      CANONICAL_DOMAINS.selectionPlan,
+      core,
+    );
+  } catch {
+    return false;
+  }
+}
+
+export const PUBLIC_READ_SELECTION_PROFILE_CORE: PublicSelectionProfileCore =
+  canonicalJsonClone({
+    schema: "gis-ai-go.public-selection-profile.v1",
+    operation: "selection.resolve",
+    resource_id: PUBLIC_READ_ONS_RESOURCE.resource_id,
+    question_handling: "untrusted-not-interpreted",
+    resolution: "closed-constraints-only",
+    execution: "forbidden",
+    grammar: {
+      maximum_request_bytes: 16_384,
+      maximum_question_code_points: 512,
+      maximum_values_per_field: 4,
+      anchor_fields: [
+        "candidate_record_ids",
+        "constraints.profile_ids",
+        "constraints.provider_ids",
+        "constraints.dataset_ids",
+      ],
+      required_dimension_fields: [
+        "constraints.dimensions.time",
+        "constraints.dimensions.geography",
+        "constraints.dimensions.week",
+        "constraints.dimensions.causeofdeath",
+      ],
+    },
+    ranking: {
+      algorithm: "weighted-exact-constraints",
+      version: "v1",
+      field_order: PUBLIC_SELECTION_CONSTRAINT_FIELDS,
+      weights: {
+        candidate_record_ids: 128,
+        "constraints.profile_ids": 64,
+        "constraints.provider_ids": 32,
+        "constraints.dataset_ids": 16,
+        "constraints.editions": 8,
+        "constraints.versions": 4,
+        "constraints.dimensions.time": 2,
+        "constraints.dimensions.geography": 2,
+        "constraints.dimensions.week": 2,
+        "constraints.dimensions.causeofdeath": 2,
+      },
+      tie_handling: "ambiguous-no-plan",
+    },
+    candidates: [
+      {
+        candidate_id: "PV-ONS-DATA:weekly-deaths-region:time-series:121",
+        record_id: PUBLIC_READ_ONS_RESOURCE.profile.id,
+        resource_id: PUBLIC_READ_ONS_RESOURCE.resource_id,
+        accepted_values: {
+          profile_id: PUBLIC_READ_ONS_RESOURCE.profile.id,
+          provider_id: PUBLIC_READ_ONS_RESOURCE.provider.id,
+          dataset_id: PUBLIC_READ_ONS_RESOURCE.dataset.id,
+          edition: PUBLIC_READ_ONS_RESOURCE.dataset.edition,
+          version: PUBLIC_READ_ONS_RESOURCE.dataset.version,
+          dimensions: {
+            time: PUBLIC_READ_ONS_RESOURCE.selections[0].option,
+            geography: PUBLIC_READ_ONS_RESOURCE.selections[1].option,
+            week: PUBLIC_READ_ONS_RESOURCE.selections[2].option,
+            causeofdeath: PUBLIC_READ_ONS_RESOURCE.selections[3].option,
+          },
+        },
+        plan: PUBLIC_READ_ONS_SELECTION_PLAN,
+      },
+    ],
+  });
+
+export function buildPublicSelectionProfile(
+  core: PublicSelectionProfileCore = PUBLIC_READ_SELECTION_PROFILE_CORE,
+): PublicSelectionProfile {
+  const snapshot = snapshotAt<PublicSelectionProfileCore>(core, "$.selection_profile");
+  if (!sameCanonical(snapshot, PUBLIC_READ_SELECTION_PROFILE_CORE)) {
+    fail("$.selection_profile", "must be the exact reviewed public selection profile");
+  }
+  return buildIdentity<PublicSelectionProfileCore, PublicSelectionProfile>(
+    snapshot,
+    "selection_profile_id",
+    SELECTION_PROFILE_ID_PREFIX,
+    CANONICAL_DOMAINS.publicSelectionProfile,
+  );
+}
+
+export const PUBLIC_READ_SELECTION_PROFILE = buildPublicSelectionProfile();
+
+export function verifyPublicSelectionProfile(
+  value: unknown,
+): value is PublicSelectionProfile {
+  try {
+    const snapshot = snapshotAt<PublicSelectionProfile>(
+      value,
+      "$.selection_profile",
+    );
+    const { identity, core } = identityCore(
+      snapshot,
+      "selection_profile_id",
+      "$.selection_profile",
+    );
+    assertContentId(
+      identity,
+      SELECTION_PROFILE_ID_PREFIX,
+      "$.selection_profile.selection_profile_id",
+    );
+    if (!sameCanonical(core, PUBLIC_READ_SELECTION_PROFILE_CORE)) {
+      fail("$.selection_profile", "does not match the reviewed public selection profile");
+    }
+    return verifyContentAddress(
+      identity,
+      SELECTION_PROFILE_ID_PREFIX,
+      CANONICAL_DOMAINS.publicSelectionProfile,
+      core,
+    );
+  } catch {
+    return false;
+  }
+}
 
 export function verifyPublicReadResource(value: unknown): value is PublicReadResource {
   try {
@@ -1032,6 +1336,47 @@ function assertNormalisedParameters(
   assertFixedSelections(parameters.selections, "$.normalised_parameters.selections", resource);
 }
 
+function assertSelectionMatchedConstraints(
+  value: unknown,
+  path: string,
+): readonly PublicSelectionConstraintField[] {
+  if (!Array.isArray(value) || value.length < 5 || value.length > 10) {
+    fail(path, "must contain one anchor and all four required dimensions");
+  }
+  const order = new Map(
+    PUBLIC_SELECTION_CONSTRAINT_FIELDS.map((field, index) => [field, index]),
+  );
+  let previous = -1;
+  const matched: PublicSelectionConstraintField[] = [];
+  for (const [index, field] of value.entries()) {
+    if (
+      typeof field !== "string" ||
+      !PUBLIC_SELECTION_CONSTRAINT_FIELDS.includes(
+        field as PublicSelectionConstraintField,
+      )
+    ) {
+      fail(`${path}[${index}]`, "is not a controlled selection constraint field");
+    }
+    const position = order.get(field as PublicSelectionConstraintField);
+    if (position === undefined || position <= previous) {
+      fail(path, "must be unique and ordered by the reviewed selection profile");
+    }
+    previous = position;
+    matched.push(field as PublicSelectionConstraintField);
+  }
+  if (
+    !PUBLIC_READ_SELECTION_PROFILE.grammar.anchor_fields.some((field) =>
+      matched.includes(field),
+    ) ||
+    !PUBLIC_READ_SELECTION_PROFILE.grammar.required_dimension_fields.every((field) =>
+      matched.includes(field),
+    )
+  ) {
+    fail(path, "must bind one provider anchor and every fixed provider dimension");
+  }
+  return Object.freeze(matched);
+}
+
 function assertObservation(value: unknown, path: string): void {
   const observation = recordAt(value, path);
   const keys = Object.keys(observation).sort();
@@ -1096,13 +1441,54 @@ function inspectResultCore(
     }
     assertObservation(data.observations[0], "$.result_core.data.observations[0]");
   } else {
-    assertExactKeys(data, ["ambiguity", "resource_id", "status"], "$.result_core.data");
+    assertExactKeys(
+      data,
+      ["ambiguity", "plan", "ranking", "resource_id", "status"],
+      "$.result_core.data",
+    );
     if (
       data.status !== "resolved" ||
       data.ambiguity !== null ||
-      data.resource_id !== resource.resource_id
+      data.resource_id !== resource.resource_id ||
+      !verifyPublicSelectionPlan(data.plan)
     ) {
       fail("$.result_core.data", "must contain one unambiguous exact resource resolution");
+    }
+    const ranking = recordAt(data.ranking, "$.result_core.data.ranking");
+    assertExactKeys(
+      ranking,
+      [
+        "algorithm",
+        "considered_candidates",
+        "matched_constraints",
+        "score",
+        "selected_candidate_id",
+        "selection_profile_id",
+        "top_score_tied",
+        "version",
+      ],
+      "$.result_core.data.ranking",
+    );
+    const matched = assertSelectionMatchedConstraints(
+      ranking.matched_constraints,
+      "$.result_core.data.ranking.matched_constraints",
+    );
+    const score = matched.reduce(
+      (total, field) => total + PUBLIC_READ_SELECTION_PROFILE.ranking.weights[field],
+      0,
+    );
+    if (
+      ranking.algorithm !== PUBLIC_READ_SELECTION_PROFILE.ranking.algorithm ||
+      ranking.version !== PUBLIC_READ_SELECTION_PROFILE.ranking.version ||
+      ranking.selection_profile_id !==
+        PUBLIC_READ_SELECTION_PROFILE.selection_profile_id ||
+      ranking.selected_candidate_id !==
+        PUBLIC_READ_SELECTION_PROFILE.candidates[0].candidate_id ||
+      ranking.considered_candidates !== 1 ||
+      ranking.score !== score ||
+      ranking.top_score_tied !== false
+    ) {
+      fail("$.result_core.data.ranking", "does not match the deterministic profile ranking");
     }
   }
   if (!sameCanonical(result.evidence_binding, publicReadResultEvidenceBinding(resource))) {
@@ -1114,6 +1500,12 @@ function inspectResultCore(
   result.warnings.forEach((warning, index) =>
     stringAt(warning, `$.result_core.warnings[${index}]`, 1_024),
   );
+  if (
+    operation === "selection.resolve" &&
+    !sameCanonical(result.warnings, PUBLIC_SELECTION_WARNINGS)
+  ) {
+    fail("$.result_core.warnings", "must state the exact non-execution and trust boundary");
+  }
   return 1;
 }
 

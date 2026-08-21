@@ -150,6 +150,11 @@ The next slices must remain inactive until they add, in order:
 4. lifecycle, suspension and zero-default activation tests; and
 5. fresh review and release evidence on the then-current protected `main`.
 
+The first item is implemented by the separate
+[inactive selection resolver candidate](TOOLS-205_SELECTION_RESOLVE.md). That
+application remains unmounted and does not satisfy the later transport, lifecycle,
+host, activation or deployment gates.
+
 Owner approval, credentials and deployment are not required for this contract-only
 candidate. A later public ONS live query still needs explicit activation and
 operational approval. No reusable provider credential is expected for this exact

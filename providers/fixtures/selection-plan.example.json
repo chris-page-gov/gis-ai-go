@@ -1,0 +1,39 @@
+{
+  "controls": {
+    "caller_url": false,
+    "credentials": false,
+    "network": "not-used",
+    "provider_execution": false
+  },
+  "data_query": {
+    "dataset": {
+      "edition": "time-series",
+      "id": "weekly-deaths-region",
+      "version": "121"
+    },
+    "limit": 1,
+    "resource_id": "gis-ai-go:public-read-resource:sha256:c7130712a40d75e71bcf0259792404389bea2e549adf6733f34d491f83e99f68",
+    "schema": "gis-ai-go.data-query-parameters.v1",
+    "selections": [
+      { "dimension": "time", "option": "2026" },
+      { "dimension": "geography", "option": "E92000001" },
+      { "dimension": "week", "option": "week-24" },
+      { "dimension": "causeofdeath", "option": "all-causes" }
+    ]
+  },
+  "execution": "forbidden",
+  "operation": "data.query",
+  "plan_id": "gis-ai-go:selection-plan:sha256:dbae1e78051a3a3bdfd0b49c0318d54df3a500effcb85df8cf34ad4e3cd31d9e",
+  "profile": {
+    "id": "PV-ONS-DATA",
+    "sha256": "535e6eb65fc9af4507e30700d425393a658a085a3a240689f4b37124dc8f8622"
+  },
+  "provider": {
+    "adapter_id": "gis-ai-go.ons-data-api",
+    "adapter_version": "1",
+    "id": "ons-data-api"
+  },
+  "resource_id": "gis-ai-go:public-read-resource:sha256:c7130712a40d75e71bcf0259792404389bea2e549adf6733f34d491f83e99f68",
+  "rights_sha256": "305b49e6d1f55de0109de12b2cbf0b7ec5da1d573e111f5884736c832b2e4b17",
+  "schema": "gis-ai-go.selection-plan.v1"
+}
