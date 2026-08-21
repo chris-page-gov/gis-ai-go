@@ -7,8 +7,11 @@ import {
 
 import {
   MCP_PROTOCOL_VERSION,
+  containsRawIdempotencyKeyInMcpResourceUri,
+  containsRawIdempotencyKeyInMcpText,
   createCatalogueMcpServerFactory,
   isBoundedMcpRequestId,
+  isBoundedMcpResourceUri,
   type CatalogueMcpOptions,
 } from "./mcp-server.js";
 import { withMcpHttpDataQuerySignal } from "./mcp-request-signal.js";
@@ -17,6 +20,7 @@ import { BoundedJsonError, parseBoundedJsonBytes } from "./http-app.js";
 const HEADER_MISMATCH = -32_020;
 const TRANSPORT_ERROR = -32_000;
 const INVALID_REQUEST = -32_600;
+const INVALID_PARAMS = -32_602;
 const PARSE_ERROR = -32_700;
 const REQUIRED_ACCEPT_TYPES = Object.freeze([
   "application/json",
@@ -84,6 +88,16 @@ function errorResponse(
       },
     },
   );
+}
+
+function notificationAcknowledgement(): Response {
+  return new Response(null, {
+    status: 202,
+    headers: {
+      "cache-control": "no-store",
+      "x-content-type-options": "nosniff",
+    },
+  });
 }
 
 function positiveQuality(parameters: readonly string[]): boolean {
@@ -213,6 +227,58 @@ function rejectInvalidRequestId(body: unknown): Response | undefined {
   });
 }
 
+function rejectSensitiveProtocolControl(
+  request: Request,
+  body: unknown,
+): Response | undefined {
+  const bodyObject = isPlainObject(body) ? body : undefined;
+  const params = isPlainObject(bodyObject?.params) ? bodyObject.params : undefined;
+  const meta = isPlainObject(params?._meta) ? params._meta : undefined;
+  const values: readonly unknown[] = [
+    request.headers.get("mcp-method"),
+    request.headers.get("mcp-name"),
+    request.headers.get("mcp-protocol-version"),
+    bodyObject?.method,
+    params?.name,
+    meta?.[PROTOCOL_VERSION_META_KEY],
+  ];
+  if (!values.some(containsRawIdempotencyKeyInMcpText)) return undefined;
+  if (
+    bodyObject?.jsonrpc === "2.0" &&
+    !Object.hasOwn(bodyObject, "id")
+  ) {
+    return notificationAcknowledgement();
+  }
+  return errorResponse(400, INVALID_REQUEST, "Invalid Request", {
+    reason: "privacy_sensitive_protocol_field",
+  });
+}
+
+function rejectSensitiveResourceUri(body: unknown): Response | undefined {
+  if (
+    !isPlainObject(body) ||
+    body.method !== "resources/read" ||
+    !isPlainObject(body.params) ||
+    !Object.hasOwn(body.params, "uri")
+  ) {
+    return undefined;
+  }
+  const rejection = (
+    reason: "request_field_out_of_bounds" | "privacy_sensitive_resource_uri",
+  ): Response =>
+    body.jsonrpc === "2.0" && !Object.hasOwn(body, "id")
+      ? notificationAcknowledgement()
+      : errorResponse(400, INVALID_PARAMS, "Invalid params", {
+          reason,
+          field: "params.uri",
+        });
+  if (!isBoundedMcpResourceUri(body.params.uri)) {
+    return rejection("request_field_out_of_bounds");
+  }
+  if (!containsRawIdempotencyKeyInMcpResourceUri(body.params.uri)) return undefined;
+  return rejection("privacy_sensitive_resource_uri");
+}
+
 function rejectMissingModernProtocolHeader(
   request: Request,
   body: unknown,
@@ -286,6 +352,15 @@ export function createCatalogueMcpHttpHandler(
       if (prepared.response !== undefined) return prepared.response;
       const invalidId = rejectInvalidRequestId(prepared.body);
       if (invalidId !== undefined) return invalidId;
+      const sensitiveResourceUri = rejectSensitiveResourceUri(prepared.body);
+      if (sensitiveResourceUri !== undefined) return sensitiveResourceUri;
+      const sensitiveProtocolControl = rejectSensitiveProtocolControl(
+        request,
+        prepared.body,
+      );
+      if (sensitiveProtocolControl !== undefined) {
+        return sensitiveProtocolControl;
+      }
       const guarded = rejectMissingModernProtocolHeader(request, prepared.body);
       if (guarded !== undefined) return guarded;
       const exactRequestOptions = prepared.body === undefined

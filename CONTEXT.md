@@ -1,6 +1,6 @@
 # Current context
 
-Last updated: 20 August 2026
+Last updated: 21 August 2026
 
 ## Authority and reading order
 
@@ -41,8 +41,12 @@ through [pull request 14](https://github.com/chris-page-gov/gis-ai-go/pull/14),
 whose accepted implementation commit is
 `a0e826384cf50d9d81b87489dbf3580e8e3602f7`. The Explorer is deployed and verified
 at <https://chris-page-gov.github.io/gis-ai-go/> from the later release commit
-recorded below. There is no public MCP listener or catalogue API, live provider
-adapter, external policy service, identity integration or evidence store.
+recorded below. Protected `main` is now at
+`51147e0c7af438c28bb8dc4c66c8eb7fb27d3ded` and contains inactive catalogue,
+evidence, selection and fixed-data-query applications plus direct and MCP transport
+seams. Production operation arrays remain empty, readiness remains `503`, and there
+is no public MCP service, live provider capability, external policy or identity
+service, deployment or `v0.2.0` release.
 
 The owner has authorised autonomous implementation in the open under
 [`ADR-0004`](docs/decisions/ADR-0004-public-autonomous-delivery.md). The repository
@@ -132,14 +136,24 @@ authority, live provider, arbitrary URL/path/SQL/code route or public ingress. T
 digest-pinned container runs non-root and passes read-only, network-none acceptance.
 Its accepted boundary has no deployment or registry entry.
 
-An ADAPT-203B local candidate, based on the reviewed ADAPT-203A preflight head,
-implements one no-credential ONS Data API adapter over the exact published version
-and single aggregate observation selected in the preflight. It has fixed HTTPS/DNS
-egress, independent default-suspended lifecycle planes, bounded retry/rate/bytes,
-strict response parsing, deterministic rights/provenance and a privacy-safe opt-in
-live-probe record. It is not imported by the gateway or Python service and does not
-activate a tool, API operation, listener, provider or deployment. It has no accepted
-commit, pull request or protected-main assurance yet.
+The protected-main sequence after the catalogue transports accepted the deterministic
+EXEC-202 service (`6837af6`), durable public ledger (`cb6b817`), bounded adapter
+preflight (`364c868`), tool registry (`76103c1`), receipt inspection transport
+(`c4d43f9`), fixed no-credential ONS adapter (`ef960f7`), public-read v2 contracts
+(`5a7e441`), selection resolver (`99426de`), data-query application (`b5f8edc`) and
+inactive public-read transports (`51147e0`). These are explicit injection and local
+conformance seams, not an activated or deployed service. The production registry and
+API arrays remain empty and the accepted ONS lifecycle planes remain suspended.
+
+The current uncommitted EVID-204 candidate adds receipt-only lost-response
+reconciliation: a required non-secret data-query idempotency key, a private digest
+index, completed-retry blocking and `evidence.inspect` v2 key lookup. It does not
+cache or replay query results. Its deterministic `QUAL-206-HOST-015` fixture drops a
+success after verified persistence, reopens fresh instances and recovers the receipt
+without another provider execution. The complete local repository gate passes and
+independent full-diff review reports no remaining P0-P2. There is no commit, pull
+request, protected-main acceptance, activation, deployment, live host evidence or
+release claim for this candidate.
 
 ## Non-negotiable boundaries
 

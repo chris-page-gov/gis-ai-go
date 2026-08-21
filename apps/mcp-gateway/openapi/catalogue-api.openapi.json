@@ -209,7 +209,7 @@
       "post": {
         "operationId": "evidenceInspect",
         "summary": "Inspect one verified public evidence receipt",
-        "description": "A local conformance route over the restart-verified anonymous-open evidence ledger. It returns stored evidence as untrusted data and does not replay the original result material. It is not a public deployment.",
+        "description": "A local conformance route over the restart-verified anonymous-open evidence ledger and optional exact-linked reconciliation index. It accepts the unchanged v1 receipt lookup or the v2 data-query idempotency-key lookup, returns stored evidence as untrusted data and does not replay the original result material. It is not a public deployment.",
         "x-gis-ai-go-operation": "evidence.inspect",
         "x-gis-ai-go-lifecycle": "candidate-conformance-only",
         "requestBody": {
@@ -337,14 +337,14 @@
       "post": {
         "operationId": "dataQuery",
         "summary": "Run the exact reviewed public ONS query",
-        "description": "An explicitly mounted local-conformance route over the bounded data query application and injected adapter. It has no caller-selected URL or query and is not a public deployment.",
+        "description": "An explicitly mounted local-conformance route over the bounded data query application, injected adapter, durable ledger and exact-linked reconciliation index. It requires a caller-generated non-secret idempotency key and the same mounted evidence inspector. A completed retry returns 409 and inspection recovers only the receipt; no result is replayed. It has no caller-selected URL or query and is not a public deployment.",
         "x-gis-ai-go-operation": "data.query",
         "x-gis-ai-go-lifecycle": "candidate-conformance-only",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/DataQueryParameters" }
+              "schema": { "$ref": "#/components/schemas/DataQueryRequest" }
             }
           }
         },
@@ -384,6 +384,14 @@
             "content": {
               "application/problem+json": {
                 "schema": { "$ref": "#/components/schemas/DataQueryProblem" }
+              }
+            }
+          },
+          "409": {
+            "description": "The idempotency key is pending, completed or bound to another semantic request",
+            "content": {
+              "application/problem+json": {
+                "schema": { "$ref": "#/components/schemas/DataQueryOperationProblem" }
               }
             }
           },
@@ -565,7 +573,7 @@
         ]
       },
       "EvidenceInspectRequest": {
-        "$ref": "urn:gis-ai-go:schema:evidence-inspect-request:v1"
+        "$ref": "urn:gis-ai-go:schema:evidence-inspect-operation-request:v1"
       },
       "EvidenceInspectResult": {
         "$ref": "urn:gis-ai-go:schema:evidence-inspect-operation-result:v1"
@@ -582,11 +590,17 @@
       "DataQueryParameters": {
         "$ref": "urn:gis-ai-go:schema:data-query-parameters:v1"
       },
+      "DataQueryRequest": {
+        "$ref": "urn:gis-ai-go:schema:data-query-request:v1"
+      },
       "DataQueryResult": {
         "$ref": "urn:gis-ai-go:schema:data-query-result:v1"
       },
       "DataQueryProblem": {
         "$ref": "urn:gis-ai-go:schema:data-query-problem:v1"
+      },
+      "DataQueryOperationProblem": {
+        "$ref": "urn:gis-ai-go:schema:data-query-operation-problem:v1"
       },
       "CatalogueProblem": {
         "$ref": "urn:gis-ai-go:schema:catalogue-problem:v1"

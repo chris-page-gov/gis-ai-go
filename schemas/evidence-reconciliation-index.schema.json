@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:evidence-reconciliation-index:v1",
+  "title": "GIS AI GO evidence reconciliation index descriptor",
+  "description": "The immutable descriptor for a receipt-only, ledger-linked idempotency reconciliation index.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "index_id", "created_at", "ledger_id", "retention_days", "scope", "storage"],
+  "properties": {
+    "schema": { "const": "gis-ai-go.evidence-reconciliation-index.v1" },
+    "index_id": {
+      "type": "string",
+      "pattern": "^gis-ai-go:evidence-reconciliation-index:sha256:[0-9a-f]{64}$"
+    },
+    "created_at": { "type": "string", "format": "date-time", "pattern": "Z$" },
+    "ledger_id": {
+      "type": "string",
+      "pattern": "^gis-ai-go:public-evidence-ledger:sha256:[0-9a-f]{64}$"
+    },
+    "retention_days": { "type": "integer", "minimum": 1, "maximum": 3650 },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["authority_profile", "source_operations", "lookup_operation", "contains_personal_data", "contains_protected_data"],
+      "properties": {
+        "authority_profile": { "const": "anonymous-open" },
+        "source_operations": {
+          "type": "array",
+          "prefixItems": [{ "const": "data.query" }],
+          "items": false,
+          "minItems": 1,
+          "maxItems": 1
+        },
+        "lookup_operation": { "const": "evidence.inspect" },
+        "contains_personal_data": { "const": false },
+        "contains_protected_data": { "const": false }
+      }
+    },
+    "storage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["model", "overwrite", "raw_idempotency_key", "result_material", "attestation"],
+      "properties": {
+        "model": { "const": "exclusive-content-addressed-claims-and-resolutions" },
+        "overwrite": { "const": "forbidden" },
+        "raw_idempotency_key": { "const": "not-retained" },
+        "result_material": { "const": "not-retained" },
+        "attestation": { "const": "not-attested" }
+      }
+    }
+  }
+}

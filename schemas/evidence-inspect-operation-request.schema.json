@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:evidence-inspect-operation-request:v1",
+  "title": "GIS AI GO evidence inspection operation request",
+  "description": "The closed versioned lookup contracts supported by evidence.inspect.",
+  "oneOf": [
+    { "$ref": "urn:gis-ai-go:schema:evidence-inspect-request:v1" },
+    { "$ref": "urn:gis-ai-go:schema:evidence-inspect-request:v2" }
+  ]
+}

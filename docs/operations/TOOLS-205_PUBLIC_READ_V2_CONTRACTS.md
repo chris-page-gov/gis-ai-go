@@ -2,13 +2,13 @@
 
 ## Status and boundary
 
-This is an inactive prerequisite candidate for `selection.resolve` and
-`data.query`. It adds a parallel authority, policy and evidence contract plane;
-it does not implement either application, register a route or MCP tool, call a
-provider, activate a lifecycle plane, add an environment override or deploy a
-service. The suspended `evidence.inspect` profile changes only its accepted output
-reference to the closed version dispatcher described below; its current discovery
-and activation gates remain false.
+This record describes the inactive prerequisite candidate for `selection.resolve`
+and `data.query` at the time it was accepted. It added a parallel authority, policy
+and evidence contract plane without implementing either application, registering a
+route or MCP tool, calling a provider, activating a lifecycle plane, adding an
+environment override or deploying a service. Later inactive application, transport
+and lost-response reconciliation slices build on these unchanged receipt domains;
+their current discovery and activation gates remain false.
 
 The integrated candidate is based on protected `main` at
 `ef960f70fe409b0dcf7d75b0b92ac28802b5b6db`, which includes the accepted
@@ -108,8 +108,10 @@ Mixed ledgers re-verify after restart. Exact and semantic replay, receipt-materi
 substitution, record tampering, private paths, credentials, prompts and retained raw
 parameter or result material fail closed. The existing transport-neutral
 `evidence.inspect` application and its direct API, MCP HTTP, STDIO, resource and
-plain-text projections accept either record version without changing the request,
-route or activation state. A v1 record returns
+plain-text projections accept either record version. The accepted v1 receipt lookup
+remains byte-identical. The later reconciliation extension adds a separately
+identified v2 key lookup and closed operation-request dispatcher without changing
+the route or activation state. A v1 record returns
 `gis-ai-go.evidence-inspect-result.v1`; a v2 record returns the distinct
 `gis-ai-go.evidence-inspect-result.v2`. The accepted v1 result-schema bytes and
 meaning remain unchanged. The inactive operation registry and OpenAPI/MCP contract
@@ -137,23 +139,33 @@ The authority package exports `PUBLIC_READ_AUTHORITY_CONTEXT` and
 `PUBLIC_READ_POLICY_CORE`, `PUBLIC_READ_POLICY`, `evaluatePublicReadPolicy()` and
 `isAllowedPublicReadOperation()`.
 
+## Later receipt-only reconciliation contract
+
+The inactive reconciliation extension preserves the parameter and receipt identities
+above. `gis-ai-go.data-query-request.v1` wraps the unchanged parameters with a
+caller-generated 256-bit idempotency key; the receipt still binds only the inner
+parameter digest. The additive `gis-ai-go.evidence-inspect-request.v2` branch uses
+that caller-known key to resolve the already persisted receipt after a lost response.
+The existing receipt-ID resource and v1 inspect request are unchanged, and no result
+cache or result replay is introduced.
+
+The key itself is prohibited from evidence storage. Only its operation-scoped digest,
+the semantic request fingerprint, claim identity and receipt resolution are retained
+in a separate exact-ledger-linked index. Pending, completed and conflicting retries
+are fixed receipt-free `409` problems in a distinct schema; the historical ten-code
+data-query problem v1 remains unchanged.
+
 ## Remaining gates
 
-The next slices must remain inactive until they add, in order:
+The later inactive slices now implement deterministic selection, the fixed injected
+ONS adapter call, direct/MCP/STDIO parity, receipt-only reconciliation and suspended
+registry metadata. They retain zero-default activation and do not alter the original
+contract-only acceptance claim.
 
-1. deterministic `selection.resolve` normalisation and explicit ambiguity/problem
-   results without provider execution;
-2. an injected call from `data.query` to the accepted fixed ONS adapter, with no
-   caller URL, credential or lifecycle override;
-3. shared application results and exact direct API, MCP HTTP, STDIO, resource and
-   plain-text byte parity;
-4. lifecycle, suspension and zero-default activation tests; and
-5. fresh review and release evidence on the then-current protected `main`.
-
-The first item is implemented by the separate
-[inactive selection resolver candidate](TOOLS-205_SELECTION_RESOLVE.md). That
-application remains unmounted and does not satisfy the later transport, lifecycle,
-host, activation or deployment gates.
+Public use still requires approved T04 fallback, independent live-host evidence,
+accessibility and security assurance, a reviewed release and activation decision,
+deployment and rollback evidence, and governed admission, reclamation and retention
+for the reconciliation store.
 
 Owner approval, credentials and deployment are not required for this contract-only
 candidate. A later public ONS live query still needs explicit activation and

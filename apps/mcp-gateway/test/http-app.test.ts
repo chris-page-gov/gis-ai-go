@@ -319,6 +319,24 @@ test("rejects non-canonical request paths without escaping the problem envelope"
   assert.equal((await canonical.json() as Record<string, unknown>).instance, "/unknown");
 });
 
+test("omits a raw idempotency key path from the controlled unknown-route problem", async () => {
+  const rawKey = `gis-ai-go:ik:v1:${"b".repeat(64)}`;
+  const reported: Error[] = [];
+  const privateHandle = createGatewayHttpHandler({
+    snapshot,
+    createTraceId: () => "d".repeat(32),
+    onerror: (error) => reported.push(error),
+  });
+  const response = await privateHandle(request(`/${rawKey}`));
+  assert.equal(response.status, 400);
+  const text = await response.text();
+  assert.equal(text.includes(rawKey), false);
+  const problem = JSON.parse(text) as Record<string, unknown>;
+  assert.equal(problem.code, "invalid_request");
+  assert.equal("instance" in problem, false);
+  assert.deepEqual(reported, []);
+});
+
 test("accepts a bounded request identifier without reflecting an invalid one", async () => {
   const accepted = await handle(
     request("/unknown", { headers: { "x-request-id": "caller-request:42" } }),
@@ -330,6 +348,17 @@ test("accepts a bounded request identifier without reflecting an invalid one", a
   );
   assert.match(
     (await rejected.json() as Record<string, unknown>).request_id as string,
+    /^[0-9a-f]{32}$/u,
+  );
+
+  const rawKey = `gis-ai-go:ik:v1:${"a".repeat(64)}`;
+  const rejectedKey = await handle(
+    request("/unknown", { headers: { "x-request-id": `prefix-${rawKey}` } }),
+  );
+  const rejectedKeyText = await rejectedKey.text();
+  assert.equal(rejectedKeyText.includes(rawKey), false);
+  assert.match(
+    (JSON.parse(rejectedKeyText) as Record<string, unknown>).request_id as string,
     /^[0-9a-f]{32}$/u,
   );
 });

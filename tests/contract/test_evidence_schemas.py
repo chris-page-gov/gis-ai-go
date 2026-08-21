@@ -44,13 +44,34 @@ SCHEMA_IDS = {
     "evidence-inspect-result-v2.schema.json": (
         "urn:gis-ai-go:schema:evidence-inspect-result:v2"
     ),
+    "evidence-inspect-request.schema.json": (
+        "urn:gis-ai-go:schema:evidence-inspect-request:v1"
+    ),
+    "evidence-inspect-request-v2.schema.json": (
+        "urn:gis-ai-go:schema:evidence-inspect-request:v2"
+    ),
+    "evidence-inspect-operation-request.schema.json": (
+        "urn:gis-ai-go:schema:evidence-inspect-operation-request:v1"
+    ),
     "evidence-inspect-operation-result.schema.json": (
         "urn:gis-ai-go:schema:evidence-inspect-operation-result:v1"
+    ),
+    "evidence-reconciliation-index.schema.json": (
+        "urn:gis-ai-go:schema:evidence-reconciliation-index:v1"
+    ),
+    "evidence-reconciliation-claim.schema.json": (
+        "urn:gis-ai-go:schema:evidence-reconciliation-claim:v1"
+    ),
+    "evidence-reconciliation-resolution.schema.json": (
+        "urn:gis-ai-go:schema:evidence-reconciliation-resolution:v1"
     ),
 }
 
 V1_INSPECT_SCHEMA_SHA256 = (
     "ab6973053b58bdb59c94cd8c5db9c354e1954cb84a188d5d7db579442e6f7b61"
+)
+V1_INSPECT_REQUEST_SCHEMA_SHA256 = (
+    "879e1eab287910a998254ca18832d9789631a2aeec9d0124e27f381020c97806"
 )
 ACCEPTED_PROVIDER_PROFILE_ID = "PV-ONS-DATA"
 ACCEPTED_PROVIDER_PROFILE_POINTER = "/providers/1"
@@ -246,6 +267,18 @@ class EvidenceSchemaTests(unittest.TestCase):
         )
         self.public_read_receipt = load_json(
             FIXTURE_DIR / "evidence-receipt-v2.example.json"
+        )
+        self.inspect_request_v2 = load_json(
+            FIXTURE_DIR / "evidence-inspect-request-v2.example.json"
+        )
+        self.reconciliation_index = load_json(
+            FIXTURE_DIR / "evidence-reconciliation-index.example.json"
+        )
+        self.reconciliation_claim = load_json(
+            FIXTURE_DIR / "evidence-reconciliation-claim.example.json"
+        )
+        self.reconciliation_resolution = load_json(
+            FIXTURE_DIR / "evidence-reconciliation-resolution.example.json"
         )
         self.inspect_v1 = inspection_result(
             self.receipt,
@@ -449,6 +482,65 @@ class EvidenceSchemaTests(unittest.TestCase):
         v1_record_with_v2_result = copy.deepcopy(self.inspect_v1)
         v1_record_with_v2_result["schema"] = "gis-ai-go.evidence-inspect-result.v2"
         assert_invalid(self, operation_validator, v1_record_with_v2_result)
+
+    def test_receipt_and_idempotency_lookups_are_explicit_without_widening_v1(self) -> None:
+        v1_path = SCHEMA_DIR / "evidence-inspect-request.schema.json"
+        self.assertEqual(
+            V1_INSPECT_REQUEST_SCHEMA_SHA256,
+            hashlib.sha256(v1_path.read_bytes()).hexdigest(),
+        )
+        v1_request = {"receipt_id": self.receipt["receipt_id"]}
+        v1_validator = validator("evidence-inspect-request.schema.json")
+        v2_validator = validator("evidence-inspect-request-v2.schema.json")
+        operation_validator = validator(
+            "evidence-inspect-operation-request.schema.json"
+        )
+        assert_valid(self, v1_validator, v1_request)
+        assert_invalid(self, v1_validator, self.inspect_request_v2)
+        assert_valid(self, v2_validator, self.inspect_request_v2)
+        assert_invalid(self, v2_validator, v1_request)
+        assert_valid(self, operation_validator, v1_request)
+        assert_valid(self, operation_validator, self.inspect_request_v2)
+
+        zero_key = copy.deepcopy(self.inspect_request_v2)
+        zero_key["idempotency_key"] = f"gis-ai-go:ik:v1:{'0' * 64}"
+        assert_invalid(self, v2_validator, zero_key)
+
+    def test_reconciliation_storage_schemas_are_digest_only_and_closed(self) -> None:
+        for name, fixture in (
+            ("evidence-reconciliation-index.schema.json", self.reconciliation_index),
+            ("evidence-reconciliation-claim.schema.json", self.reconciliation_claim),
+            (
+                "evidence-reconciliation-resolution.schema.json",
+                self.reconciliation_resolution,
+            ),
+        ):
+            with self.subTest(schema=name):
+                assert_valid(self, validator(name), fixture)
+                text = json.dumps(fixture, sort_keys=True)
+                self.assertNotIn("gis-ai-go:ik:v1:", text)
+                self.assertNotIn('"query"', text)
+                self.assertNotIn('"result"', text)
+                widened = copy.deepcopy(fixture)
+                widened["raw_key"] = "prohibited"
+                assert_invalid(self, validator(name), widened)
+
+        self.assertEqual(
+            self.reconciliation_index["index_id"],
+            self.reconciliation_claim["index_id"],
+        )
+        self.assertEqual(
+            self.reconciliation_claim["claim_id"],
+            self.reconciliation_resolution["claim_id"],
+        )
+        self.assertEqual(
+            self.reconciliation_claim["idempotency_key_sha256"],
+            self.reconciliation_resolution["idempotency_key_sha256"],
+        )
+        self.assertEqual(
+            self.reconciliation_claim["request_fingerprint_sha256"],
+            self.reconciliation_resolution["request_fingerprint_sha256"],
+        )
 
     def test_anonymous_open_context_is_server_constructed_and_contains_no_identity(self) -> None:
         schema_validator = validator("public-authority-context.schema.json")

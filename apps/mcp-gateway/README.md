@@ -26,10 +26,14 @@ It is an implementation workbench, not a supported or deployed service.
   receipt into content-addressed record and event files. Only a completed,
   re-verified write adds `evidence_storage` to the result. Storage failure fails the
   operation. The default remains inline-only.
-- `createEvidenceInspectApplication` reads only verified anonymous-open records by
-  receipt identity. Explicit local-conformance options can mount the same instance
-  as a direct route, MCP HTTP or STDIO tool and receipt resource. It remains absent
-  from every default registration.
+- `createEvidenceInspectApplication` reads only verified anonymous-open records. Its
+  unchanged v1 request uses a receipt identity; its additive v2 request uses a
+  caller-known `data.query` idempotency key and a linked reconciliation index to
+  recover the original verified receipt after a lost response. It never replays the
+  original result. Explicit local-conformance options can mount the same reconciled
+  instance as a direct route or MCP HTTP/STDIO tool. The only MCP evidence resource
+  remains the receipt-ID URI; no URI contains a raw idempotency key. Every default
+  registration remains empty.
 - `createSelectionResolveApplication` applies one checked finite constraint grammar
   to the accepted `PV-ONS-DATA` resource. It returns either an exact
   content-addressed non-executable plan with public-read v2 evidence, or a closed
@@ -41,13 +45,28 @@ It is an implementation workbench, not a supported or deployed service.
   for the exact reviewed ONS single-observation query. It requires an explicitly
   injected `OnsDataApiAdapter`, verifies public-read v2 policy plus the adapter's
   invocation health, estimate, rights, provenance and result independently, then
-  builds and fully verifies one v2 receipt. Discovery may remain suspended; an
-  invocation-suspended adapter cannot execute. There is no default adapter,
-  environment activation or live-provider call in ordinary tests. Caller signal
-  cancellation and caller deadline expiry are checked before and after execution
-  and remain distinct from an adapter-local provider timeout. Explicit local
-  conformance options can mount the same application on the direct API, modern MCP
-  HTTP and modern MCP STDIO; every default remains empty.
+  builds and fully verifies one v2 receipt. A reconciled instance also requires an
+  exact linked ledger and reconciliation index. Its transport request wraps the
+  unchanged parameters with one mandatory caller-generated 256-bit idempotency key.
+  A repeated pending or completed key returns a receipt-free `409` before provider
+  preflight; a conflicting semantic fingerprint also returns `409`. The caller then
+  uses `evidence.inspect` v2 to recover the receipt, not the original result.
+  Discovery may remain suspended; an invocation-suspended adapter cannot execute a
+  new key. There is no default adapter, environment activation or live-provider call
+  in ordinary tests. Caller signal cancellation and caller deadline expiry are
+  checked before and after execution and remain distinct from an adapter-local
+  provider timeout. Explicit local-conformance options mount only a reconciliation-
+  branded instance on the direct API, modern MCP HTTP and modern MCP STDIO. Every
+  data face must also mount the inspector branded with the exact same index. Direct
+  data requests ignore caller request-ID headers and use a server-generated
+  identity. Shared HTTP and STDIO ingress also rejects a complete raw, prefixed,
+  percent-encoded or multiply encoded key in request IDs, methods, tool names and
+  protocol-version claims before SDK dispatch; HTTP applies the same rule to its
+  parity headers. Requests use a fixed `id: null` error, notifications remain silent
+  and ordinary bounded protocol controls retain their behaviour. A genuinely new
+  key is refused before ownership publication at the fixed 4,096-claim local
+  index ceiling; this maps to the existing non-reflective `503 evidence_unavailable`
+  problem. Every default remains empty.
 - the HTTP candidate listens only on `127.0.0.1:8787` and exposes `GET /healthz`,
   `GET /readyz` and `GET /openapi.json`. Readiness always returns `503` with zero
   active tools and zero active API operations.
@@ -69,7 +88,8 @@ constructor options exist for local conformance tests, including `evidence.inspe
 selection or data endpoint, active MCP tool or resource, public deployment,
 provider call or external policy service.
 The portable evidence store and inspector are inactive embedding components; no
-shipped entry point supplies their configuration or a ledger path.
+shipped entry point supplies their configuration, ledger path or reconciliation-
+index path.
 There is no environment-variable or command-line activation override. The
 selection and data applications and their explicit transport options are not
 referenced by any shipped entrypoint or default capability list.

@@ -2,10 +2,11 @@
 
 Reviewed on 21 August 2026.
 
-This record preserves the application-only boundary at the time it was accepted.
-The subsequent explicitly mounted local-conformance transport candidate is recorded
-in [`TOOLS-205_PUBLIC_READ_TRANSPORT.md`](TOOLS-205_PUBLIC_READ_TRANSPORT.md); it
-does not change this slice's historical activation or publication claims.
+This record preserves the application-only boundary at the time it was accepted and
+documents the later inactive lost-response reconciliation extension. The explicitly
+mounted local-conformance transport candidate is recorded in
+[`TOOLS-205_PUBLIC_READ_TRANSPORT.md`](TOOLS-205_PUBLIC_READ_TRANSPORT.md). Neither
+extension changes the original slice's historical activation or publication claims.
 
 ## Outcome and boundary
 
@@ -22,8 +23,21 @@ active. Its discovery plane may remain suspended because this application neithe
 lists providers nor changes capability advertising. Discovery-active with
 invocation-suspended still fails before provider transport.
 
-The only accepted request is the closed five-key
-`gis-ai-go.data-query-parameters.v1` object. It binds:
+The legacy unmounted application-only seam accepts the closed five-key
+`gis-ai-go.data-query-parameters.v1` object. A transport-mountable reconciled
+application requires the exact linked evidence ledger and reconciliation index, and
+accepts only this additive wrapper:
+
+```json
+{
+  "schema": "gis-ai-go.data-query-request.v1",
+  "idempotency_key": "gis-ai-go:ik:v1:<64 lowercase hexadecimal>",
+  "parameters": { "schema": "gis-ai-go.data-query-parameters.v1" }
+}
+```
+
+The non-zero 256-bit key is generated and retained by the caller. The complete
+parameters object remains the unchanged five-key contract and binds:
 
 - the exact accepted public-read resource identity;
 - ONS dataset `weekly-deaths-region`, edition `time-series`, version `121`;
@@ -33,40 +47,59 @@ The only accepted request is the closed five-key
 
 A different value, order, property or shape fails before adapter execution. The
 application accepts no URL, query string, credential, provider choice, wildcard,
-SQL, lifecycle setting or output bound from the caller.
+SQL, lifecycle setting or output bound from the caller. The receipt parameter digest
+continues to cover only the inner parameters, so accepted receipt bytes and meaning
+are not widened by the recovery wrapper.
+
+Mounted direct HTTP ignores caller `x-request-id` for `/data/query` and creates an
+opaque server request identity; mounted MCP uses a server-created context. Explicit
+identity factories are trusted test seams. The application context is therefore a
+server-owned input, while the public key contract requires callers not to encode
+personal or secret material in the key.
 
 ## Execution order
 
-Every successful call follows one fixed order:
+Every new reconciled call follows one fixed order:
 
-1. detach and compare the exact five-key parameters, context and optional execution
-   controls;
+1. detach and compare the exact wrapper, five-key parameters, context and optional
+   execution controls;
 2. check the caller signal and absolute deadline using the application's trusted
-   clock, with cancellation taking precedence, before policy evaluation, before
-   adapter preflight and immediately before execution;
-3. evaluate and verify the server-owned anonymous-open authority, checked
+   clock, with cancellation taking precedence;
+3. derive the operation-scoped key digest and semantic fingerprint, then inspect the
+   index before policy or provider preflight. A different fingerprint returns
+   `idempotency_conflict`; pending returns `idempotency_pending`; completed returns
+   `idempotency_completed`;
+4. only for an absent key, evaluate and verify the server-owned anonymous-open
+   authority, checked
    default-deny v2 policy, per-call allow decision and exact public-read resource;
-4. require an invocation-active health record, independently compare the adapter's
+5. require an invocation-active health record, independently compare the adapter's
    upper-bound estimate, OGL rights and provenance with the accepted resource;
-5. call the explicitly injected adapter's `execute()` exactly once with the shared
+6. recheck caller controls, publish exclusive key ownership and a complete canonical
+   claim, recheck controls again, then call the explicitly injected adapter's
+   `execute()` exactly once with the shared
    cancellation signal and absolute RFC 3339 deadline;
-6. recheck caller controls in the execution rejection path before mapping an adapter
+7. recheck caller controls in the execution rejection path before mapping an adapter
    error, and immediately after a resolved execution before validating its result;
-7. independently detach and check the returned provider, adapter, dataset, edition,
+8. independently detach and check the returned provider, adapter, dataset, edition,
    version URI, native dimension order, one 15-digit-or-smaller integer string,
    `unit: null`, empty ONS Data Marking, OGL rights, provenance and 256 KiB
    canonical-result ceiling;
-8. project the receipt-free result core, construct a public-read v2 receipt and
+9. project the receipt-free result core, construct a public-read v2 receipt and
    immediately verify it with the full parameter, result, policy, authority,
    decision, resource and software material; and
-9. when an explicit verified public ledger is injected, complete and re-verify its
-   append-only write before adding `evidence_storage`.
+10. publish and synchronise the receipt-only resolution, persist and re-verify the
+    receipt in the exact linked ledger, then re-read completion and compare the
+    receipt, resolution, record, event and storage identities before adding
+    `evidence_storage` and returning the first success.
 
 There is no provider call during policy, health, estimate, rights or provenance
 failure. An evidence-clock, receipt-verification or storage failure returns no
-success result or receipt. A cancelled signal or elapsed caller deadline also
-returns no result, receipt or durable write. Neither the abort reason nor the
-deadline value can appear in a problem.
+success result, receipt, ledger record or ledger event. A cancelled signal or
+elapsed caller deadline also returns no result, receipt, record or event. Once
+exclusive ownership has been published, however, any cancellation, adapter failure
+or uncertain evidence failure leaves that immutable key pending. It is not released
+for another execution. Neither the abort reason nor the deadline value can appear in
+a problem.
 
 ## Results and problems
 
@@ -74,10 +107,13 @@ The success shape is `gis-ai-go.data-query-result.v1`. It contains one
 numeric-string observation with a `null` unit, the fixed evidence binding and a
 fully verified `gis-ai-go.evidence-receipt.v2`. The receipt preserves the reviewed
 profile hash, provider and adapter identity, dataset version, dimension order,
-rights, attribution and byte/attempt limits. Durable storage is optional and
-explicit; the default remains verified inline evidence only.
+rights, attribution and byte/attempt limits. Durable storage remains optional only
+for the unmounted legacy application seam. A transport-mountable reconciled instance
+requires the exact ledger and index, and every successful response includes verified
+`evidence_storage`.
 
-Failures use `gis-ai-go.data-query-problem.v1` and exactly one of ten codes:
+Ordinary failures retain the byte-identical `gis-ai-go.data-query-problem.v1` and
+exactly one of ten codes:
 
 - `invalid_request`;
 - `query_cancelled`;
@@ -95,6 +131,20 @@ the caller-control plane. Cancellation wins when both controls have ended.
 `provider_timeout` remains a `504` only for an adapter or provider-local timeout
 while the external signal and deadline are still live.
 
+Reconciliation failures use the distinct
+`gis-ai-go.data-query-reconciliation-problem.v1` contract. Its three fixed codes all
+have status `409`:
+
+- `idempotency_pending` for a key whose ownership or durable completion is not yet
+  verifiable;
+- `idempotency_completed` for a key already linked to verified durable evidence;
+  and
+- `idempotency_conflict` for reuse against a different semantic fingerprint.
+
+The closed `data-query-operation-problem.schema.json` dispatcher accepts either
+problem version. It does not relabel the widened operation contract as v1. Every
+reconciliation problem is receipt-free and cannot reflect the raw key or its digest.
+
 Problem titles, details, types and status values are fixed. They cannot represent
 an adapter error message, provider status, payload, path, stack, credential,
 parameter/result material or evidence receipt. Adapter failures are normalised and
@@ -108,8 +158,13 @@ The gateway package exports:
 - `createDataQueryApplication()`;
 - `DataQueryApplication`, `DataQueryApplicationOptions` and
   `DataQueryInvocationOptions`;
-- `DataQueryParameters`, `DataQueryResultCore` and `DataQueryResult`; and
-- `DATA_QUERY_PROBLEM_CODES`, `DataQueryProblem` and
+- `DataQueryParameters`, `DataQueryRequest`, `DataQueryResultCore` and
+  `DataQueryResult`;
+- `isReconciledDataQueryApplication()` as the module-private identity-backed
+  transport-coherence predicate and `haveExactlyLinkedReconciliationApplications()`
+  for the mandatory data/inspection pair; and
+- `DATA_QUERY_PROBLEM_CODES`, `DATA_QUERY_RECONCILIATION_PROBLEM_CODES`,
+  `DataQueryProblem`, `DataQueryReconciliationProblem` and
   `DataQueryApplicationError`.
 
 The promoted schemas and examples are:
@@ -117,6 +172,9 @@ The promoted schemas and examples are:
 - [`data-query-parameters.schema.json`](../../schemas/data-query-parameters.schema.json)
   and
   the promoted `data-query-parameters.example.json` fixture;
+- [`data-query-request.schema.json`](../../schemas/data-query-request.schema.json)
+  and
+  [`data-query-request.example.json`](../../providers/fixtures/data-query-request.example.json);
 - [`data-query-result.schema.json`](../../schemas/data-query-result.schema.json) and
   [`data-query-result.example.json`](../../providers/fixtures/data-query-result.example.json);
   and
@@ -125,7 +183,11 @@ The promoted schemas and examples are:
   [`data-query-problem.example.json`](../../providers/fixtures/data-query-problem.example.json),
   [`data-query-cancelled-problem.example.json`][cancelled-problem]
   and
-  [`data-query-deadline-exceeded-problem.example.json`][deadline-problem].
+  [`data-query-deadline-exceeded-problem.example.json`][deadline-problem]; and
+- [`data-query-reconciliation-problem.schema.json`](../../schemas/data-query-reconciliation-problem.schema.json)
+  plus the closed
+  [`data-query-operation-problem.schema.json`](../../schemas/data-query-operation-problem.schema.json)
+  dispatcher and pending, completed and conflict fixtures.
 
 [cancelled-problem]: ../../providers/fixtures/data-query-cancelled-problem.example.json
 [deadline-problem]: ../../providers/fixtures/data-query-deadline-exceeded-problem.example.json
@@ -136,9 +198,15 @@ a stored provider response, fresh live observation or activation claim.
 
 ## Remaining gates
 
-This application-only slice still cannot be called through a shipped product. A
-later integration must add and review direct API and MCP schema/result/problem
-parity, registry implementation state, complete non-App rendering, lifecycle
-agreement, independent-host evidence, operational cache/fallback behaviour and
-deployment rollback before any activation. No new live ONS call is needed for this
-inactive application test slice.
+This application still cannot be called through a shipped product. Local direct API
+and modern MCP HTTP/STDIO parity, receipt-only restart recovery and the suspended
+registry profile are implemented, but every production/default registration and
+activation gate remains empty or false. Approved fallback, live independent-host
+evidence, accessibility, release assurance, deployment security and rollback still
+require separate review before activation. No live ONS call is used or required for
+this inactive reconciliation assurance.
+
+The guarantee is deliberately narrow: one caller key cannot repeat provider work
+when all contenders share one governed index, and the linked ledger has one writer.
+There is no result cache, result replay, unrelated-key multi-writer coordination or
+cluster-wide exactly-once claim.

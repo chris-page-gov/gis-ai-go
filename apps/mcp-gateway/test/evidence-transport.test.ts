@@ -23,6 +23,7 @@ import { getPublicReadAuthorityContext } from "@gis-ai-go/authority-context";
 import {
   PUBLIC_READ_ONS_RESOURCE,
   buildPublicReadReceipt,
+  openEvidenceReconciliationIndex,
   openPublicEvidenceLedger,
   publicReadResultEvidenceBinding,
 } from "@gis-ai-go/evidence";
@@ -76,13 +77,19 @@ interface EvidenceFixture {
 }
 
 interface PublicReadEvidenceFixture {
+  readonly root: string;
   readonly receiptId: string;
+  readonly idempotencyKey: string;
   readonly application: ReturnType<typeof createEvidenceInspectApplication>;
 }
 
 function evidenceFixture(t: TestContext): EvidenceFixture {
   const root = mkdtempSync(join(tmpdir(), "gis-ai-go-evidence-transport-"));
-  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const indexRoot = `${root}-reconciliation`;
+  t.after(() => {
+    rmSync(root, { recursive: true, force: true });
+    rmSync(indexRoot, { recursive: true, force: true });
+  });
   const ledger = openPublicEvidenceLedger({
     rootDirectory: root,
     retentionDays: 365,
@@ -111,17 +118,25 @@ function evidenceFixture(t: TestContext): EvidenceFixture {
     now: () => new Date("2026-08-21T12:00:00Z"),
   });
   assert.equal(restarted.verify().event_count, 1);
+  const reconciliation = openEvidenceReconciliationIndex({
+    rootDirectory: indexRoot,
+    ledger: restarted,
+  });
   return {
     root,
     receiptId: persisted.evidence_receipt.receipt_id,
-    application: createEvidenceInspectApplication(restarted),
+    application: createEvidenceInspectApplication(restarted, reconciliation),
     catalogueApplication,
   };
 }
 
 function publicReadEvidenceFixture(t: TestContext): PublicReadEvidenceFixture {
   const root = mkdtempSync(join(tmpdir(), "gis-ai-go-public-read-transport-"));
-  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const indexRoot = `${root}-reconciliation`;
+  t.after(() => {
+    rmSync(root, { recursive: true, force: true });
+    rmSync(indexRoot, { recursive: true, force: true });
+  });
   const ledger = openPublicEvidenceLedger({
     rootDirectory: root,
     retentionDays: 365,
@@ -181,6 +196,23 @@ function publicReadEvidenceFixture(t: TestContext): PublicReadEvidenceFixture {
     software,
     resultCore,
   });
+  const idempotencyKey = `gis-ai-go:ik:v1:${"8".repeat(64)}`;
+  const reconciliation = openEvidenceReconciliationIndex({
+    rootDirectory: indexRoot,
+    ledger,
+    now: () => new Date("2026-08-20T19:00:00Z"),
+  });
+  const claim = reconciliation.claim({
+    idempotencyKey,
+    operation: "data.query",
+    requestId,
+    traceId,
+    resourceId: receipt.resource.resource_id,
+    normalisedParametersSha256: receipt.operation.normalised_parameters.sha256,
+  });
+  assert.equal(claim.status, "claimed");
+  if (claim.status !== "claimed") assert.fail("claim was not acquired");
+  reconciliation.resolve(claim.claim, receipt);
   ledger.persistReceipt(receipt, {
     normalisedParameters,
     resultCore,
@@ -195,10 +227,16 @@ function publicReadEvidenceFixture(t: TestContext): PublicReadEvidenceFixture {
     retentionDays: 365,
     now: () => new Date("2026-08-21T19:00:00Z"),
   });
+  const restartedReconciliation = openEvidenceReconciliationIndex({
+    rootDirectory: indexRoot,
+    ledger: restarted,
+  });
   assert.equal(restarted.verify().event_count, 1);
   return {
+    root,
     receiptId: receipt.receipt_id,
-    application: createEvidenceInspectApplication(restarted),
+    idempotencyKey,
+    application: createEvidenceInspectApplication(restarted, restartedReconciliation),
   };
 }
 
@@ -249,10 +287,11 @@ async function rawExchange(
   handler: McpHttpHandler,
   body: Record<string, unknown>,
   name?: string,
+  expectedStatus = 200,
 ): Promise<Record<string, unknown>> {
   const method = body.method as string;
   const response = await handler.fetch(rawRequest(body, method, name));
-  assert.equal(response.status, 200);
+  assert.equal(response.status, expectedStatus);
   return await response.json() as Record<string, unknown>;
 }
 
@@ -489,6 +528,248 @@ test("keeps direct, MCP HTTP, STDIO, resource and plain-text evidence byte-equiv
       (stdioReply.result.content as { readonly text?: string }[])[0]?.text,
       JSON.stringify(directResult),
     );
+  }
+});
+
+test("reconciles a completed data query by key across direct, MCP HTTP and STDIO", async (t) => {
+  const fixture = publicReadEvidenceFixture(t);
+  const reported: Error[] = [];
+  const catalogue = createCatalogueApplication(SNAPSHOT, {
+    software: {
+      name: "gis-ai-go-mcp-gateway",
+      version: "0.1.0",
+      revision: SNAPSHOT.revision,
+    },
+  });
+  const completedRequest = {
+    schema: "gis-ai-go.evidence-inspect-request.v2",
+    source_operation: "data.query",
+    idempotency_key: fixture.idempotencyKey,
+  } as const;
+  const missingRequest = {
+    ...completedRequest,
+    idempotency_key: `gis-ai-go:ik:v1:${"7".repeat(64)}`,
+  } as const;
+  const direct = createGatewayHttpHandler({
+    snapshot: SNAPSHOT,
+    evidenceApplication: fixture.application,
+    enabledApiOperations: ["evidence.inspect"],
+    createTraceId: () => CONTEXT.traceId,
+  });
+  const directCompleted = await direct(directRequest(completedRequest));
+  assert.equal(directCompleted.status, 200);
+  const completed = await directCompleted.json() as Record<string, unknown>;
+  assert.equal(completed.schema, "gis-ai-go.evidence-inspect-result.v2");
+  assert.equal(
+    ((completed.data as { record: { receipt: { receipt_id: string } } }).record.receipt)
+      .receipt_id,
+    fixture.receiptId,
+  );
+  assert.equal(JSON.stringify(completed).includes(fixture.idempotencyKey), false);
+  const directMissing = await direct(directRequest(missingRequest));
+  assert.equal(directMissing.status, 404);
+  const missingProblem = await directMissing.json() as Record<string, unknown>;
+  assert.equal(missingProblem.code, "evidence_not_found");
+  assert.equal(JSON.stringify(missingProblem).includes(missingRequest.idempotency_key), false);
+
+  const mcp = createCatalogueMcpHttpHandler({
+    application: catalogue,
+    evidenceApplication: fixture.application,
+    snapshot: SNAPSHOT,
+    enabledOperations: ["evidence.inspect"],
+    enabledResources: ["evidence.receipt"],
+    createRequestContext: () => CONTEXT,
+    onerror: (error) => reported.push(error),
+  });
+  t.after(() => mcp.close());
+  const templates = await rawExchange(
+    mcp,
+    rawBody(39, "resources/templates/list", {}),
+  );
+  const resourceTemplates = (result(templates).resourceTemplates ?? []) as {
+    readonly uriTemplate: string;
+  }[];
+  assert.deepEqual(
+    resourceTemplates.map(({ uriTemplate }) => uriTemplate),
+    [MCP_EVIDENCE_RECEIPT_URI_TEMPLATE],
+  );
+  assert.equal(JSON.stringify(resourceTemplates).includes("idempotency"), false);
+  assert.equal(JSON.stringify(resourceTemplates).includes(fixture.idempotencyKey), false);
+  const unsafeResourceUri =
+    `gis-ai-go://evidence/receipts/${encodeURIComponent(fixture.idempotencyKey)}`;
+  const unsafeResource = await rawExchange(
+    mcp,
+    rawBody(44, "resources/read", { uri: unsafeResourceUri }),
+    unsafeResourceUri,
+    400,
+  );
+  assert.equal("error" in unsafeResource, true);
+  assert.equal(JSON.stringify(unsafeResource).includes(fixture.idempotencyKey), false);
+  assert.equal(
+    JSON.stringify(unsafeResource).includes(encodeURIComponent(fixture.idempotencyKey)),
+    false,
+  );
+  for (const [id, request, expected, isError] of [
+    [40, completedRequest, completed, false],
+    [41, missingRequest, missingProblem, true],
+  ] as const) {
+    const reply = await rawExchange(
+      mcp,
+      rawBody(id, "tools/call", {
+        name: "evidence.inspect",
+        arguments: request,
+      }),
+      "evidence.inspect",
+    );
+    const called = toolResult(reply);
+    assert.deepEqual(called.structuredContent, expected);
+    assert.equal(called.isError, isError ? true : undefined);
+    assert.equal(JSON.stringify(called).includes(request.idempotency_key), false);
+  }
+
+  const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
+  await clientTransport.start();
+  const stdio = startCatalogueStdio({
+    application: catalogue,
+    evidenceApplication: fixture.application,
+    snapshot: SNAPSHOT,
+    enabledOperations: ["evidence.inspect"],
+    enabledResources: ["evidence.receipt"],
+    createRequestContext: () => CONTEXT,
+    onerror: (error) => reported.push(error),
+    transport: serverTransport,
+  });
+  t.after(async () => {
+    await stdio.close();
+    await clientTransport.close();
+  });
+  for (const [id, request, expected, isError] of [
+    [42, completedRequest, completed, false],
+    [43, missingRequest, missingProblem, true],
+  ] as const) {
+    const reply = await stdioExchange(clientTransport, {
+      jsonrpc: "2.0",
+      id,
+      method: "tools/call",
+      params: {
+        _meta: MODERN_META,
+        name: "evidence.inspect",
+        arguments: request,
+      },
+    });
+    assert.equal("result" in reply, true);
+    if (!("result" in reply)) continue;
+    assert.deepEqual(reply.result.structuredContent, expected);
+    assert.equal(reply.result.isError, isError ? true : undefined);
+    assert.equal(JSON.stringify(reply.result).includes(request.idempotency_key), false);
+  }
+  const stdioUnsafeResource = await stdioExchange(clientTransport, {
+    jsonrpc: "2.0",
+    id: 46,
+    method: "resources/read",
+    params: {
+      _meta: MODERN_META,
+      uri: unsafeResourceUri,
+    },
+  });
+  assert.equal("error" in stdioUnsafeResource, true);
+  assert.equal(JSON.stringify(stdioUnsafeResource).includes(fixture.idempotencyKey), false);
+  assert.equal(
+    JSON.stringify(stdioUnsafeResource).includes(encodeURIComponent(fixture.idempotencyKey)),
+    false,
+  );
+  assert.deepEqual(reported, []);
+});
+
+test("maps v2 linked-ledger corruption to unavailable across every operation face", async (t) => {
+  const fixture = publicReadEvidenceFixture(t);
+  const catalogue = createCatalogueApplication(SNAPSHOT, {
+    software: {
+      name: "gis-ai-go-mcp-gateway",
+      version: "0.1.0",
+      revision: SNAPSHOT.revision,
+    },
+  });
+  const request = {
+    schema: "gis-ai-go.evidence-inspect-request.v2",
+    source_operation: "data.query",
+    idempotency_key: fixture.idempotencyKey,
+  } as const;
+  corruptFirstEvent(fixture.root);
+
+  const direct = createGatewayHttpHandler({
+    snapshot: SNAPSHOT,
+    evidenceApplication: fixture.application,
+    enabledApiOperations: ["evidence.inspect"],
+    createTraceId: () => CONTEXT.traceId,
+  });
+  const directResponse = await direct(directRequest(request));
+  assert.equal(directResponse.status, 503);
+  const directProblem = await directResponse.json() as Record<string, unknown>;
+  assert.equal(directProblem.code, "evidence_unavailable");
+  assert.equal(JSON.stringify(directProblem).includes(fixture.idempotencyKey), false);
+  assert.equal(JSON.stringify(directProblem).includes(fixture.root), false);
+
+  const mcp = createCatalogueMcpHttpHandler({
+    application: catalogue,
+    evidenceApplication: fixture.application,
+    snapshot: SNAPSHOT,
+    enabledOperations: ["evidence.inspect"],
+    createRequestContext: () => CONTEXT,
+  });
+  t.after(() => mcp.close());
+  const mcpReply = await rawExchange(
+    mcp,
+    rawBody(44, "tools/call", {
+      name: "evidence.inspect",
+      arguments: request,
+    }),
+    "evidence.inspect",
+  );
+  const mcpProblem = toolResult(mcpReply);
+  assert.equal(mcpProblem.isError, true);
+  assert.deepEqual(mcpProblem.structuredContent, directProblem);
+  assert.equal(
+    (mcpProblem.content as { readonly text?: string }[])[0]?.text,
+    JSON.stringify(directProblem),
+  );
+  assert.equal(JSON.stringify(mcpProblem).includes(fixture.idempotencyKey), false);
+  assert.equal(JSON.stringify(mcpProblem).includes(fixture.root), false);
+
+  const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
+  await clientTransport.start();
+  const stdio = startCatalogueStdio({
+    application: catalogue,
+    evidenceApplication: fixture.application,
+    snapshot: SNAPSHOT,
+    enabledOperations: ["evidence.inspect"],
+    createRequestContext: () => CONTEXT,
+    transport: serverTransport,
+  });
+  t.after(async () => {
+    await stdio.close();
+    await clientTransport.close();
+  });
+  const stdioReply = await stdioExchange(clientTransport, {
+    jsonrpc: "2.0",
+    id: 45,
+    method: "tools/call",
+    params: {
+      _meta: MODERN_META,
+      name: "evidence.inspect",
+      arguments: request,
+    },
+  });
+  assert.equal("result" in stdioReply, true);
+  if ("result" in stdioReply) {
+    assert.equal(stdioReply.result.isError, true);
+    assert.deepEqual(stdioReply.result.structuredContent, directProblem);
+    assert.equal(
+      (stdioReply.result.content as { readonly text?: string }[])[0]?.text,
+      JSON.stringify(directProblem),
+    );
+    assert.equal(JSON.stringify(stdioReply.result).includes(fixture.idempotencyKey), false);
+    assert.equal(JSON.stringify(stdioReply.result).includes(fixture.root), false);
   }
 });
 

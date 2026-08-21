@@ -1,0 +1,12 @@
+{
+  "claim_id": "gis-ai-go:evidence-reconciliation-claim:sha256:beb5fcd57c54188df508725ed862d59b59dc96be51c1258bb1018167282a6f8e",
+  "idempotency_key_sha256": "a8a46745e37fa6d21f2b7fdfbc251dd5c85dd8af8999a07a9800bfa7db2bafd7",
+  "index_id": "gis-ai-go:evidence-reconciliation-index:sha256:0392da33a8435707ce748d4dde638ae081d85a35647f6661f952dcd5570e75e8",
+  "ledger_id": "gis-ai-go:public-evidence-ledger:sha256:4745a89946829a56c7e8261d661ccbc174f52b8b2d105e2b1111c27101f06200",
+  "receipt_id": "gis-ai-go:evidence-receipt:sha256:6347e79c906d7c4ae6ecf4f645289886995dc8c968c4306ad61496c50f5816c0",
+  "request_fingerprint_sha256": "517e649e9ff36842582a30cb17f0ea3ac7bf4209b395edf6a3816be5aa76e5bc",
+  "resolution_id": "gis-ai-go:evidence-reconciliation-resolution:sha256:8dd80f4e20926dd9c8f3f9add0df7d649a41348b9d6f738f5c9023e334b26ac9",
+  "resolved_at": "2026-08-21T01:00:01.000Z",
+  "retain_until": "2027-08-21T01:00:01.000Z",
+  "schema": "gis-ai-go.evidence-reconciliation-resolution.v1"
+}

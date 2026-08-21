@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:data-query-operation-problem:v1",
+  "title": "GIS AI GO data query operation problem",
+  "description": "The closed, explicitly versioned problem contracts supported by data.query.",
+  "oneOf": [
+    { "$ref": "urn:gis-ai-go:schema:data-query-problem:v1" },
+    { "$ref": "urn:gis-ai-go:schema:data-query-reconciliation-problem:v1" }
+  ]
+}

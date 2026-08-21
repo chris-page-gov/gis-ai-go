@@ -270,6 +270,94 @@ test("serves a raw modern STDIO transcript through the same registered factory",
   assert.equal(resourceContent[0]?.text, JSON.stringify(SNAPSHOT.bundle));
 });
 
+test("rejects raw idempotency keys in registered and unregistered STDIO resource URIs", async (t) => {
+  const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
+  await clientTransport.start();
+  const reported: Error[] = [];
+  const handle = startCatalogueStdio({
+    application: APPLICATION,
+    snapshot: SNAPSHOT,
+    enabledOperations: [],
+    enabledResources: MCP_CATALOGUE_RESOURCES,
+    transport: serverTransport,
+    onerror: (error) => reported.push(error),
+  });
+  t.after(async () => {
+    await handle.close();
+    await clientTransport.close();
+  });
+  const rawKey = `gis-ai-go:ik:v1:${"e".repeat(64)}`;
+  const encodedKey = encodeURIComponent(rawKey);
+  const multiplyEncodedKey = encodeURIComponent(encodedKey);
+  const resourceUris = [
+    `gis-ai-go://catalogue/records/${rawKey}`,
+    `gis-ai-go://catalogue/records/${encodedKey}`,
+    `gis-ai-go://catalogue/records/${multiplyEncodedKey}`,
+    `gis-ai-go://evidence/receipts/${rawKey}`,
+    `gis-ai-go://evidence/receipts/${encodedKey}`,
+    `gis-ai-go://evidence/receipts/${multiplyEncodedKey}`,
+    `gis-ai-go://unregistered/${rawKey}`,
+    `gis-ai-go://unregistered/${encodedKey}`,
+    `gis-ai-go://unregistered/${multiplyEncodedKey}`,
+  ];
+
+  for (const [offset, uri] of resourceUris.entries()) {
+    const reply = await exchange(clientTransport, {
+      jsonrpc: "2.0",
+      id: 50 + offset,
+      method: "resources/read",
+      params: { _meta: META, uri },
+    });
+    assert.equal("error" in reply, true);
+    if (!("error" in reply)) return;
+    assert.equal(reply.error.code, -32_602);
+    assert.equal(reply.error.message, "Invalid params");
+    assert.deepEqual(reply.error.data, {
+      reason: "privacy_sensitive_resource_uri",
+      field: "params.uri",
+    });
+    const serialised = JSON.stringify(reply);
+    assert.equal(serialised.includes(rawKey), false);
+    assert.equal(serialised.includes(encodedKey), false);
+    assert.equal(serialised.includes(multiplyEncodedKey), false);
+  }
+  const overboundUri =
+    `gis-ai-go://unregistered/${"x".repeat(2_048)}/${multiplyEncodedKey}`;
+  const overbound = await exchange(clientTransport, {
+    jsonrpc: "2.0",
+    id: 70,
+    method: "resources/read",
+    params: { _meta: META, uri: overboundUri },
+  });
+  assert.equal("error" in overbound, true);
+  if ("error" in overbound) {
+    assert.deepEqual(overbound.error.data, {
+      reason: "request_field_out_of_bounds",
+      field: "params.uri",
+    });
+    assert.equal(JSON.stringify(overbound).includes(multiplyEncodedKey), false);
+  }
+
+  let unexpectedResponses = 0;
+  clientTransport.onmessage = () => {
+    unexpectedResponses += 1;
+  };
+  for (const uri of [
+    `gis-ai-go://catalogue/records/${rawKey}`,
+    `gis-ai-go://evidence/receipts/${multiplyEncodedKey}`,
+    overboundUri,
+  ]) {
+    await clientTransport.send({
+      jsonrpc: "2.0",
+      method: "resources/read",
+      params: { _meta: META, uri },
+    });
+  }
+  await new Promise<void>((resolve) => setImmediate(resolve));
+  assert.equal(unexpectedResponses, 0);
+  assert.deepEqual(reported, []);
+});
+
 test("returns canonical structured problems for invalid STDIO tool arguments", async (t) => {
   const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
   await clientTransport.start();
@@ -317,6 +405,7 @@ test("returns canonical structured problems for invalid STDIO tool arguments", a
 
 test("rejects every unsafe STDIO request ID before application dispatch", async (t) => {
   let applicationCalls = 0;
+  const reported: Error[] = [];
   const countedApplication = {
     search: (...args: Parameters<typeof APPLICATION.search>) => {
       applicationCalls += 1;
@@ -334,6 +423,7 @@ test("rejects every unsafe STDIO request ID before application dispatch", async 
     snapshot: SNAPSHOT,
     enabledOperations: MCP_CATALOGUE_OPERATIONS,
     transport: serverTransport,
+    onerror: (error) => reported.push(error),
   });
   t.after(async () => {
     await handle.close();
@@ -347,10 +437,17 @@ test("rejects every unsafe STDIO request ID before application dispatch", async 
     params: { _meta: META },
   });
   assert.equal("result" in discovery, true);
+  const rawKey = `gis-ai-go:ik:v1:${"b".repeat(64)}`;
+  const encodedKey = encodeURIComponent(rawKey);
+  const multiplyEncodedKey = encodeURIComponent(encodedKey);
   for (const id of [
     "x".repeat(129),
     "unsafe\nid",
     Number.MAX_SAFE_INTEGER + 1,
+    rawKey,
+    `request-${rawKey}`,
+    encodedKey,
+    multiplyEncodedKey,
   ] as const) {
     const reply = await exchange(clientTransport, {
       jsonrpc: "2.0",
@@ -368,11 +465,142 @@ test("rejects every unsafe STDIO request ID before application dispatch", async 
     assert.equal(reply.error.code, -32_600);
     assert.equal(reply.error.message, "Invalid Request");
     assert.deepEqual(reply.error.data, { reason: "invalid_request_id" });
-    assert.ok(
-      Buffer.byteLength(`${JSON.stringify(reply)}\n`) <= MCP_STDIO_MAX_BUFFER_BYTES,
-    );
+    const wire = `${JSON.stringify(reply)}\n`;
+    assert.ok(Buffer.byteLength(wire) <= MCP_STDIO_MAX_BUFFER_BYTES);
+    assert.equal(wire.includes(rawKey), false);
+    assert.equal(wire.includes(encodedKey), false);
+    assert.equal(wire.includes(multiplyEncodedKey), false);
   }
+  for (const id of ["request-42", 42] as const) {
+    const accepted = await exchange(clientTransport, {
+      jsonrpc: "2.0",
+      id,
+      method: "server/discover",
+      params: { _meta: META },
+    });
+    assert.equal("result" in accepted, true);
+    assert.equal("id" in accepted ? accepted.id : undefined, id);
+  }
+  let unexpectedResponses = 0;
+  clientTransport.onmessage = () => {
+    unexpectedResponses += 1;
+  };
+  await clientTransport.send({
+    jsonrpc: "2.0",
+    method: "notifications/cancelled",
+    params: { _meta: META, requestId: "request-42" },
+  });
+  await new Promise<void>((resolve) => setImmediate(resolve));
+  assert.equal(unexpectedResponses, 0);
   assert.equal(applicationCalls, 0);
+  assert.deepEqual(reported, []);
+});
+
+test("rejects reconciliation keys in STDIO protocol control fields before SDK dispatch", async (t) => {
+  const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
+  await clientTransport.start();
+  const reported: Error[] = [];
+  const handle = startCatalogueStdio({
+    application: APPLICATION,
+    snapshot: SNAPSHOT,
+    enabledOperations: MCP_CATALOGUE_OPERATIONS,
+    transport: serverTransport,
+    onerror: (error) => reported.push(error),
+  });
+  t.after(async () => {
+    await handle.close();
+    await clientTransport.close();
+  });
+  const rawKey = `gis-ai-go:ik:v1:${"d".repeat(64)}`;
+  const prefixedKey = `request-${rawKey}`;
+  const encodedKey = encodeURIComponent(rawKey);
+  const multiplyEncodedKey = encodeURIComponent(encodedKey);
+  const protocolKey = "io.modelcontextprotocol/protocolVersion";
+  let id = 71;
+
+  for (const sensitiveValue of [
+    rawKey,
+    prefixedKey,
+    encodedKey,
+    multiplyEncodedKey,
+  ]) {
+    const requestCases = [
+      {
+        jsonrpc: "2.0",
+        id,
+        method: sensitiveValue,
+        params: { _meta: META },
+      },
+      {
+        jsonrpc: "2.0",
+        id,
+        method: "tools/call",
+        params: { _meta: META, name: sensitiveValue, arguments: {} },
+      },
+      {
+        jsonrpc: "2.0",
+        id,
+        method: "server/discover",
+        params: {
+          _meta: { ...META, [protocolKey]: sensitiveValue },
+        },
+      },
+    ] as const;
+    for (const item of requestCases) {
+      const reply = await exchange(clientTransport, {
+        ...item,
+        id,
+      });
+      id += 1;
+      assert.equal("error" in reply, true);
+      if (!("error" in reply)) return;
+      assert.equal(reply.id, null);
+      assert.equal(reply.error.code, -32_600);
+      assert.equal(reply.error.message, "Invalid Request");
+      assert.deepEqual(reply.error.data, {
+        reason: "privacy_sensitive_protocol_field",
+      });
+      const wire = JSON.stringify(reply);
+      for (const keyForm of [
+        rawKey,
+        prefixedKey,
+        encodedKey,
+        multiplyEncodedKey,
+      ]) {
+        assert.equal(wire.includes(keyForm), false);
+      }
+    }
+
+    let unexpectedResponses = 0;
+    clientTransport.onmessage = () => {
+      unexpectedResponses += 1;
+    };
+    for (const notification of [
+      {
+        jsonrpc: "2.0",
+        method: sensitiveValue,
+        params: { _meta: META },
+      },
+      {
+        jsonrpc: "2.0",
+        method: "tools/call",
+        params: { _meta: META, name: sensitiveValue, arguments: {} },
+      },
+      {
+        jsonrpc: "2.0",
+        method: "notifications/cancelled",
+        params: {
+          _meta: { ...META, [protocolKey]: sensitiveValue },
+          requestId: "request-42",
+        },
+      },
+    ] as const) {
+      await clientTransport.send(notification);
+    }
+    await new Promise<void>((resolve) => setImmediate(resolve));
+    assert.equal(unexpectedResponses, 0);
+  }
+  assert.deepEqual(reported, []);
 });
 
 test("rejects a legacy STDIO opening without pinning the connection to it", async (t) => {
@@ -880,6 +1108,115 @@ test("bounds the reply to an exactly 1 MiB subprocess request with a huge ID", a
   assert.equal(exchangeResult.stdout.trimEnd().split("\n").length, 1);
   assert.equal(exchangeResult.stderr, "");
   assert.equal(exchangeResult.exitCode, 0);
+});
+
+test("keeps raw and encoded reconciliation keys out of actual STDIO request-ID replies", async () => {
+  const executable = fileURLToPath(
+    new URL("../src/mcp-stdio-main.js", import.meta.url),
+  );
+  const rawKey = `gis-ai-go:ik:v1:${"c".repeat(64)}`;
+  const encodedKey = encodeURIComponent(rawKey);
+  const multiplyEncodedKey = encodeURIComponent(encodedKey);
+  const rejectedIds = [
+    rawKey,
+    `request-${rawKey}`,
+    encodedKey,
+    multiplyEncodedKey,
+  ] as const;
+  const request = (id: number | string) => `${JSON.stringify({
+    jsonrpc: "2.0",
+    id,
+    method: "server/discover",
+    params: { _meta: META },
+  })}\n`;
+  const rejected = [];
+  for (const id of rejectedIds) {
+    const result = await subprocessExchange(
+      [executable, SOURCE_CATALOGUE],
+      request(id),
+    );
+    rejected.push(result);
+    assert.equal(result.reply.id, null);
+    const error = result.reply.error as Record<string, unknown>;
+    assert.equal(error.code, -32_600);
+    assert.equal(error.message, "Invalid Request");
+    assert.deepEqual(error.data, { reason: "invalid_request_id" });
+    assert.equal(result.stdout.trimEnd().split("\n").length, 1);
+    assert.equal(result.stderr, "");
+    assert.equal(result.exitCode, 0);
+  }
+  const accepted = [];
+  for (const id of ["request-42", 42] as const) {
+    const result = await subprocessExchange(
+      [executable, SOURCE_CATALOGUE],
+      request(id),
+    );
+    accepted.push(result);
+    assert.equal(result.reply.id, id);
+    assert.equal("result" in result.reply, true);
+    assert.equal(result.stderr, "");
+    assert.equal(result.exitCode, 0);
+  }
+  const stdout = [...rejected, ...accepted].map((result) => result.stdout).join("");
+  assert.equal(stdout.includes(rawKey), false);
+  assert.equal(stdout.includes(encodedKey), false);
+  assert.equal(stdout.includes(multiplyEncodedKey), false);
+});
+
+test("keeps reconciliation keys in protocol controls out of actual STDIO replies", async () => {
+  const rawKey = `gis-ai-go:ik:v1:${"e".repeat(64)}`;
+  const encodedKey = encodeURIComponent(rawKey);
+  const multiplyEncodedKey = encodeURIComponent(encodedKey);
+  const protocolKey = "io.modelcontextprotocol/protocolVersion";
+  const messages = [
+    {
+      jsonrpc: "2.0",
+      id: 81,
+      method: rawKey,
+      params: { _meta: META },
+    },
+    {
+      jsonrpc: "2.0",
+      id: 82,
+      method: "tools/call",
+      params: { _meta: META, name: encodedKey, arguments: {} },
+    },
+    {
+      jsonrpc: "2.0",
+      id: 83,
+      method: "server/discover",
+      params: {
+        _meta: { ...META, [protocolKey]: multiplyEncodedKey },
+      },
+    },
+  ] as const;
+  const results = [];
+  for (const message of messages) {
+    const result = await subprocessExchange(
+      [
+        "--input-type=module",
+        "--eval",
+        enabledSubprocessScript(),
+        SOURCE_CATALOGUE,
+      ],
+      `${JSON.stringify(message)}\n`,
+    );
+    results.push(result);
+    assert.equal(result.reply.id, null);
+    const error = result.reply.error as Record<string, unknown>;
+    assert.equal(error.code, -32_600);
+    assert.equal(error.message, "Invalid Request");
+    assert.deepEqual(error.data, {
+      reason: "privacy_sensitive_protocol_field",
+    });
+    assert.equal(result.stdout.trimEnd().split("\n").length, 1);
+    assert.equal(result.stderr, "");
+    assert.equal(result.exitCode, 0);
+  }
+  const stdout = results.map((result) => result.stdout).join("");
+  assert.equal(stdout.includes(rawKey), false);
+  assert.equal(stdout.includes(encodedKey), false);
+  assert.equal(stdout.includes(multiplyEncodedKey), false);
 });
 
 test("does not reflect an oversized resource URI from an enabled subprocess", async () => {

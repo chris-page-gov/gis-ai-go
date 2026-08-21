@@ -1,4 +1,5 @@
 import {
+  PROTOCOL_VERSION_META_KEY,
   serializeMessage,
   type JSONRPCMessage,
   type RequestId,
@@ -14,7 +15,11 @@ import {
 import {
   createCatalogueLegacyConformanceMcpServerFactory,
   createCatalogueMcpServerFactory,
+  containsRawIdempotencyKeyInMcpResourceUri,
+  containsRawIdempotencyKeyInMcpText,
   isBoundedMcpRequestId,
+  isBoundedMcpResourceUri,
+  MCP_RESOURCE_URI_MAX_CODE_POINTS,
   MCP_LEGACY_CONFORMANCE_ONLY,
   type CatalogueMcpOptions,
 } from "./mcp-server.js";
@@ -23,7 +28,8 @@ export const MCP_STDIO_MAX_FRAME_BYTES = 1_048_576;
 export const MCP_STDIO_MAX_BUFFER_BYTES = MCP_STDIO_MAX_FRAME_BYTES;
 export const MCP_STDIO_MAX_METHOD_CODE_POINTS = 128;
 export const MCP_STDIO_MAX_NAME_CODE_POINTS = 128;
-export const MCP_STDIO_MAX_RESOURCE_URI_CODE_POINTS = 2_048;
+export const MCP_STDIO_MAX_RESOURCE_URI_CODE_POINTS =
+  MCP_RESOURCE_URI_MAX_CODE_POINTS;
 
 const INVALID_REQUEST = -32_600;
 const INVALID_PARAMS = -32_602;
@@ -80,14 +86,35 @@ function requestError(
   return response as unknown as JSONRPCMessage;
 }
 
-function ingressRejection(message: JSONRPCMessage): JSONRPCMessage | undefined {
+function ingressRejection(
+  message: JSONRPCMessage,
+): JSONRPCMessage | null | undefined {
   if (!isPlainObject(message)) return undefined;
   const candidate = message as unknown as Record<string, unknown>;
   if (
     candidate.jsonrpc !== "2.0" ||
-    typeof candidate.method !== "string" ||
-    !Object.hasOwn(candidate, "id")
+    typeof candidate.method !== "string"
   ) {
+    return undefined;
+  }
+  const params = isPlainObject(candidate.params) ? candidate.params : undefined;
+  const meta = isPlainObject(params?._meta) ? params._meta : undefined;
+  const sensitiveProtocolControl = [
+    candidate.method,
+    params?.name,
+    meta?.[PROTOCOL_VERSION_META_KEY],
+  ].some(containsRawIdempotencyKeyInMcpText);
+  if (!Object.hasOwn(candidate, "id")) {
+    if (sensitiveProtocolControl) return null;
+    if (
+      candidate.method === "resources/read" &&
+      params !== undefined &&
+      Object.hasOwn(params, "uri") &&
+      (!isBoundedMcpResourceUri(params.uri) ||
+        containsRawIdempotencyKeyInMcpResourceUri(params.uri))
+    ) {
+      return null;
+    }
     return undefined;
   }
   if (!isBoundedMcpRequestId(candidate.id)) {
@@ -96,6 +123,14 @@ function ingressRejection(message: JSONRPCMessage): JSONRPCMessage | undefined {
       INVALID_REQUEST,
       "Invalid Request",
       "invalid_request_id",
+    );
+  }
+  if (sensitiveProtocolControl) {
+    return requestError(
+      null,
+      INVALID_REQUEST,
+      "Invalid Request",
+      "privacy_sensitive_protocol_field",
     );
   }
   if (!isBoundedField(candidate.method, MCP_STDIO_MAX_METHOD_CODE_POINTS)) {
@@ -107,17 +142,28 @@ function ingressRejection(message: JSONRPCMessage): JSONRPCMessage | undefined {
       "method",
     );
   }
-  if (!isPlainObject(candidate.params)) return undefined;
-  const params = candidate.params;
+  if (params === undefined) return undefined;
   if (
     Object.hasOwn(params, "uri") &&
-    !isBoundedField(params.uri, MCP_STDIO_MAX_RESOURCE_URI_CODE_POINTS)
+    !isBoundedMcpResourceUri(params.uri)
   ) {
     return requestError(
       candidate.id,
       INVALID_PARAMS,
       "Invalid params",
       "request_field_out_of_bounds",
+      "params.uri",
+    );
+  }
+  if (
+    candidate.method === "resources/read" &&
+    containsRawIdempotencyKeyInMcpResourceUri(params.uri)
+  ) {
+    return requestError(
+      candidate.id,
+      INVALID_PARAMS,
+      "Invalid params",
+      "privacy_sensitive_resource_uri",
       "params.uri",
     );
   }
@@ -227,6 +273,7 @@ class BoundedStdioTransport implements Transport {
       this.onmessage?.(message, extra);
       return;
     }
+    if (rejection === null) return;
     void this.send(rejection).catch((error: unknown) => {
       this.onerror?.(
         error instanceof Error ? error : new Error("MCP STDIO rejection write failed"),

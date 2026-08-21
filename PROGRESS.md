@@ -1,6 +1,6 @@
 # Delivery progress
 
-Last updated: 20 August 2026
+Last updated: 21 August 2026
 
 ## Current outcome
 
@@ -11,21 +11,19 @@ The supported target active set is exactly `catalogue.search`,
 
 ## Active workstream
 
-`ADAPT-203 — Implement the first bounded open provider adapter`
+`EVID-204 — Reconcile a persisted receipt after a lost data.query response`
 
-- retain the accepted deterministic fixture adapter and exact EXEC-202 dependency;
-- implement only the fixed version `121` ONS weekly-deaths selection with no caller
-  URL, query, credential, redirect or provider-link traversal;
-- enforce public DNS and pinned TLS, one process-shared call in flight across all
-  adapter instances, 30 process-shared attempts per minute,
-  two attempts, a 20-second complete deadline and separate compressed,
-  decompressed and canonical byte limits;
-- reject invalid media, encoding, UTF-8, duplicate keys, schema/version/native-ID
-  and rights drift without reflecting raw provider errors;
-- preserve native dimension order, exact source/version/OGL rights and
-  domain-separated deterministic result evidence; and
-- keep both ONS lifecycle planes suspended and every gateway, MCP, direct API,
-  Python dispatch, listener, registry and deployment unchanged.
+- add a required non-secret, 256-bit caller idempotency key around the accepted
+  `data.query` parameters without changing their receipt digest;
+- persist only the domain-separated key digest and receipt linkage in a private,
+  fail-closed reconciliation index; never retain the query result for replay;
+- recover only the verified receipt identity through `evidence.inspect` v2 after a
+  completed response is lost, while pending, completed and conflicting retries remain
+  controlled errors with no second provider execution;
+- execute the deterministic `QUAL-206-HOST-015` drop, restart and reconcile fixture;
+  and
+- keep the reviewed, full-gate-passing candidate uncommitted, unactivated, non-live
+  and undeployed while its exact frozen identity is recorded for hand-off.
 
 ## Completed
 
@@ -112,45 +110,64 @@ The supported target active set is exactly `catalogue.search`,
   `af9043955470568c146397d1a25dd8813eb7aa55`; it adds RFC 8785
   canonicalisation, content-addressed anonymous-open authority and policy decisions,
   and independently verified inline receipts to every in-process catalogue success
-  while keeping activation blocked.
+  while keeping activation blocked;
+- protected `main` now also contains the deterministic EXEC-202 service
+  (`6837af6`), durable public ledger (`cb6b817`), bounded adapter preflight
+  (`364c868`), tool registry (`76103c1`), receipt inspection transport (`c4d43f9`),
+  fixed ONS adapter (`ef960f7`), public-read v2 contracts (`5a7e441`), selection
+  resolver (`99426de`), data-query application (`b5f8edc`) and inactive public-read
+  transports (`51147e0`); and
+- those protected-main slices remain explicitly injected and suspended: production
+  operation arrays are empty, readiness is `503`, and there is no public MCP service,
+  live provider capability, deployment or `v0.2.0` release.
 
 ## Next
 
-1. Freeze the ADAPT-203 fixed-endpoint candidate in a reviewed commit, protected
-   pull request and exact-head assurance record; no activation or deployment is
-   part of this change.
-2. Integrate an accepted adapter through the exact EXEC-202 boundary only in a
-   later reviewed slice; do not expand the synthetic allowlist implicitly.
-3. Complete durable EVID-204 storage and `evidence.inspect`, then add the bounded
-   TOOLS-205 registry without activating an unassured tool.
+1. Record the exact frozen manifest and assurance evidence for the independently
+   reviewed, full-gate-passing EVID-204 reconciliation candidate.
+2. After freeze, create one reviewed commit and protected pull request with exact-head
+   assurance; do not activate, deploy, tag or release from that slice.
+3. Complete the remaining security, accessibility, storage-admission and independent
+   host-interoperability assurance, then seek a separate owner decision for any
+   production activation, deployment and `v0.2.0` release.
 
 ## Current blockers
 
-- There is no focused implementation or test blocker for the inactive ADAPT-203B
-  candidate. Complete repository assurance and independent review are pending; no
-  commit, pull request, activation or deployment is part of this worktree task.
+- There is no known implementation or owner-decision blocker for the inactive
+  reconciliation candidate. Independent review reports no remaining P0-P2 and the
+  complete repository gate passes; it remains uncommitted until its frozen identity
+  is recorded, with no activation or deployment.
 - The gateway assertion is a typed private hand-off, not workload authentication or
   a signed policy decision. Any non-loopback deployment remains blocked on explicit
   service identity and network-policy evidence.
-- The inactive transport foundation is accepted on protected `main`; there is no
-  remaining implementation, pull-request, assurance, CodeQL or attestation blocker
-  for that zero-activation slice.
 - Activating or publishing a catalogue service remains hard-blocked. Raw protocol
-  transcripts and the pinned SDK client do not establish independent major-host
-  interoperability, and host-specific non-App fallback and lifecycle evidence is
-  still pending.
+  transcripts, deterministic local host fixtures and the pinned SDK clients do not
+  establish independent live major-host interoperability. Security, accessibility,
+  governed ingress/storage admission, retention/disposal and host-specific lifecycle
+  evidence remain activation gates.
 - Direct routes and MCP transports now exist on protected `main`, but the
   production/default capability arrays are empty, readiness is `503`, and there is
   no public service deployment or activation override.
-- The EXEC-202 service has no live-provider dispatch. The separate ADAPT-203B
-  candidate has a process-local bounded ONS adapter and one opt-in public probe, but
-  no gateway or production activation, durable rate service or evidence store.
+- The accepted ONS adapter and reconciliation storage are local, explicitly injected
+  components. The fixed 4,096-claim pre-publication index ceiling and accepted ledger
+  event ceiling are local safety bounds, not deployment quotas. There is no
+  cluster-wide admission, reclamation, durable shared rate service or operator
+  resolution for permanently pending claims; production provider dispatch remains
+  blocked.
 - Protected PSGA and commercial deployments require separate rights, credentials
   and isolated infrastructure. They remain outside this release and do not block
   the open product.
 
 ## Latest evidence
 
+- current protected-main base: `51147e0c7af438c28bb8dc4c66c8eb7fb27d3ded`;
+  every accepted public-read operation and transport remains inactive by default;
+- current EVID-204 reconciliation candidate: focused evidence-core, gateway,
+  HTTP/MCP/STDIO privacy and deterministic HOST-015 tests pass. The complete local
+  gate passes with 162 gateway, 55 evidence, 16 interoperability, 116 repository
+  Python, 20 execution-service and 27 browser tests; independent full-diff review
+  reports no remaining P0-P2. This is local candidate assurance, not protected-main
+  acceptance, activation or live interoperability evidence;
 - ADAPT-203B local candidate: the complete locked gate passes 409 tests, with one
   deliberately skipped opt-in live-provider test, including 31 provider-adapter,
   99 gateway and 27 real-browser tests;

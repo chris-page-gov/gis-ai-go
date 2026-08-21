@@ -2,10 +2,15 @@ import { types as utilTypes } from "node:util";
 
 import {
   PUBLIC_READ_ONS_RESOURCE,
+  CANONICAL_DOMAINS,
+  EvidenceReconciliationIndexError,
   PublicEvidenceLedger,
+  PublicEvidenceReconciliationIndex,
   buildPublicReadReceipt,
   canonicalJson,
   canonicalJsonClone,
+  domainSeparatedSha256,
+  evidenceReconciliationRequestFingerprint,
   publicReadResultEvidenceBinding,
   verifyPublicReadAuthorityContext,
   verifyPublicReadPolicy,
@@ -41,6 +46,10 @@ import {
   assertCatalogueProblemContext,
   type CatalogueProblemContext,
 } from "./problem.js";
+import {
+  hasReconciledDataQueryApplication,
+  registerReconciledDataQueryApplication,
+} from "./reconciliation-applications.js";
 
 const SEMVER = /^(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)$/u;
 const SHA40 = /^[0-9a-f]{40}$/u;
@@ -62,6 +71,15 @@ export const DATA_QUERY_PROBLEM_CODES = Object.freeze([
 ] as const);
 
 export type DataQueryProblemCode = (typeof DATA_QUERY_PROBLEM_CODES)[number];
+
+export const DATA_QUERY_RECONCILIATION_PROBLEM_CODES = Object.freeze([
+  "idempotency_pending",
+  "idempotency_completed",
+  "idempotency_conflict",
+] as const);
+
+export type DataQueryReconciliationProblemCode =
+  (typeof DATA_QUERY_RECONCILIATION_PROBLEM_CODES)[number];
 
 interface DataQueryProblemDefinition {
   readonly type: string;
@@ -146,9 +164,25 @@ export interface DataQueryProblem {
   readonly instance?: string;
 }
 
+export interface DataQueryReconciliationProblem {
+  readonly schema: "gis-ai-go.data-query-reconciliation-problem.v1";
+  readonly type: string;
+  readonly title: string;
+  readonly status: 409;
+  readonly code: DataQueryReconciliationProblemCode;
+  readonly detail: string;
+  readonly request_id: string;
+  readonly trace_id: string;
+  readonly instance?: string;
+}
+
+export type DataQueryOperationProblem =
+  | DataQueryProblem
+  | DataQueryReconciliationProblem;
+
 /** A closed, receipt-free operational failure for the application-only seam. */
 export class DataQueryApplicationError extends Error {
-  public constructor(public readonly problem: DataQueryProblem) {
+  public constructor(public readonly problem: DataQueryOperationProblem) {
     super(problem.title);
     this.name = "DataQueryApplicationError";
   }
@@ -164,6 +198,12 @@ export interface DataQueryParameters {
   };
   readonly selections: typeof PUBLIC_READ_ONS_RESOURCE.selections;
   readonly limit: 1;
+}
+
+export interface DataQueryRequest {
+  readonly schema: "gis-ai-go.data-query-request.v1";
+  readonly idempotency_key: string;
+  readonly parameters: DataQueryParameters;
 }
 
 export const PUBLIC_ONS_DATA_QUERY_PARAMETERS: DataQueryParameters = canonicalJsonClone({
@@ -207,6 +247,7 @@ export interface DataQueryApplicationOptions {
   readonly software: EvidenceSoftwareIdentity;
   readonly now?: () => Date;
   readonly evidenceLedger?: PublicEvidenceLedger;
+  readonly reconciliationIndex?: PublicEvidenceReconciliationIndex;
 }
 
 export interface DataQueryApplication {
@@ -222,6 +263,7 @@ interface DataQueryRuntime {
   readonly software: EvidenceSoftwareIdentity;
   readonly now: () => Date;
   readonly evidenceLedger?: PublicEvidenceLedger;
+  readonly reconciliationIndex?: PublicEvidenceReconciliationIndex;
 }
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
@@ -274,7 +316,7 @@ function dataProperties(
 function applicationRuntime(options: DataQueryApplicationOptions): DataQueryRuntime {
   const values = dataProperties(
     options,
-    ["adapter", "evidenceLedger", "now", "software"],
+    ["adapter", "evidenceLedger", "now", "reconciliationIndex", "software"],
     ["adapter", "software"],
     "Data query application options",
   );
@@ -310,12 +352,32 @@ function applicationRuntime(options: DataQueryApplicationOptions): DataQueryRunt
     throw new TypeError("Data query application evidence ledger is invalid");
   }
   const evidenceLedger = values.evidenceLedger as PublicEvidenceLedger | undefined;
+  if (
+    values.reconciliationIndex !== undefined &&
+    (!(values.reconciliationIndex instanceof PublicEvidenceReconciliationIndex) ||
+      utilTypes.isProxy(values.reconciliationIndex))
+  ) {
+    throw new TypeError("Data query application reconciliation index is invalid");
+  }
+  const reconciliationIndex = values.reconciliationIndex as
+    | PublicEvidenceReconciliationIndex
+    | undefined;
+  if (
+    reconciliationIndex !== undefined &&
+    (evidenceLedger === undefined || reconciliationIndex.ledger !== evidenceLedger)
+  ) {
+    throw new TypeError(
+      "Data query reconciliation requires the exact explicitly linked evidence ledger",
+    );
+  }
   evidenceLedger?.verify();
+  reconciliationIndex?.verify();
   return Object.freeze({
     adapter: values.adapter,
     software,
     now: (values.now as (() => Date) | undefined) ?? (() => new Date()),
     ...(evidenceLedger === undefined ? {} : { evidenceLedger }),
+    ...(reconciliationIndex === undefined ? {} : { reconciliationIndex }),
   });
 }
 
@@ -338,20 +400,83 @@ function fail(code: DataQueryProblemCode, context: CatalogueProblemContext): nev
   throw new DataQueryApplicationError(createDataQueryProblem(code, context));
 }
 
+function reconciliationProblem(
+  code: DataQueryReconciliationProblemCode,
+  context: CatalogueProblemContext,
+): DataQueryReconciliationProblem {
+  const definitions = {
+    idempotency_pending: {
+      type: "urn:gis-ai-go:problem:data-query-idempotency-pending",
+      title: "Data query reconciliation pending",
+      detail: "This idempotency key is already owned by an unfinished data query.",
+    },
+    idempotency_completed: {
+      type: "urn:gis-ai-go:problem:data-query-idempotency-completed",
+      title: "Data query already completed",
+      detail: "This idempotency key completed previously; inspect its durable evidence.",
+    },
+    idempotency_conflict: {
+      type: "urn:gis-ai-go:problem:data-query-idempotency-conflict",
+      title: "Data query idempotency conflict",
+      detail: "This idempotency key is bound to a different semantic request.",
+    },
+  } as const;
+  return canonicalJsonClone({
+    schema: "gis-ai-go.data-query-reconciliation-problem.v1",
+    ...definitions[code],
+    status: 409,
+    code,
+    request_id: context.requestId,
+    trace_id: context.traceId,
+    ...(context.instance === undefined ? {} : { instance: context.instance }),
+  });
+}
+
+function failReconciliation(
+  code: DataQueryReconciliationProblemCode,
+  context: CatalogueProblemContext,
+): never {
+  throw new DataQueryApplicationError(reconciliationProblem(code, context));
+}
+
+interface NormalisedDataQueryRequest {
+  readonly parameters: DataQueryParameters;
+  readonly idempotencyKey?: string;
+}
+
 function normaliseRequest(
+  runtime: DataQueryRuntime,
   request: unknown,
   context: CatalogueProblemContext,
-): DataQueryParameters {
+): NormalisedDataQueryRequest {
   let snapshot: unknown;
   try {
     snapshot = canonicalJsonClone(request);
   } catch {
     return fail("invalid_request", context);
   }
-  if (canonicalJson(snapshot) !== canonicalJson(PUBLIC_ONS_DATA_QUERY_PARAMETERS)) {
+  if (runtime.reconciliationIndex === undefined) {
+    if (canonicalJson(snapshot) !== canonicalJson(PUBLIC_ONS_DATA_QUERY_PARAMETERS)) {
+      return fail("invalid_request", context);
+    }
+    return Object.freeze({ parameters: snapshot as DataQueryParameters });
+  }
+  if (!isPlainObject(snapshot)) return fail("invalid_request", context);
+  const record = snapshot;
+  if (
+    Object.keys(record).sort().join(",") !== "idempotency_key,parameters,schema" ||
+    record.schema !== "gis-ai-go.data-query-request.v1" ||
+    typeof record.idempotency_key !== "string" ||
+    !/^gis-ai-go:ik:v1:[0-9a-f]{64}$/u.test(record.idempotency_key) ||
+    record.idempotency_key === `gis-ai-go:ik:v1:${"0".repeat(64)}` ||
+    canonicalJson(record.parameters) !== canonicalJson(PUBLIC_ONS_DATA_QUERY_PARAMETERS)
+  ) {
     return fail("invalid_request", context);
   }
-  return snapshot as DataQueryParameters;
+  return Object.freeze({
+    parameters: record.parameters as DataQueryParameters,
+    idempotencyKey: record.idempotency_key,
+  });
 }
 
 function validDeadline(value: string): boolean {
@@ -713,9 +838,40 @@ async function query(
   invocationValue: DataQueryInvocationOptions | undefined,
 ): Promise<DataQueryResult> {
   assertCatalogueProblemContext(context);
-  const request = normaliseRequest(requestValue, context);
+  const request = normaliseRequest(runtime, requestValue, context);
   const invocation = invocationOptions(invocationValue, context);
   assertInvocationControls(runtime, invocation, context);
+  const normalisedParametersSha256 = domainSeparatedSha256(
+    CANONICAL_DOMAINS.dataQueryParameters,
+    request.parameters,
+  );
+  const expectedReconciliationFingerprint = evidenceReconciliationRequestFingerprint({
+    operation: "data.query",
+    resourceId: PUBLIC_READ_ONS_RESOURCE.resource_id,
+    normalisedParametersSha256,
+  });
+
+  if (runtime.reconciliationIndex !== undefined) {
+    let existing: ReturnType<PublicEvidenceReconciliationIndex["lookup"]>;
+    try {
+      existing = runtime.reconciliationIndex.lookup(request.idempotencyKey!);
+    } catch {
+      return fail("evidence_unavailable", context);
+    }
+    if (
+      existing.status !== "not-found" &&
+      existing.claim !== undefined &&
+      existing.claim.request_fingerprint_sha256 !== expectedReconciliationFingerprint
+    ) {
+      return failReconciliation("idempotency_conflict", context);
+    }
+    if (existing.status === "pending") {
+      return failReconciliation("idempotency_pending", context);
+    }
+    if (existing.status === "completed") {
+      return failReconciliation("idempotency_completed", context);
+    }
+  }
 
   let policyEvaluation: ReturnType<typeof evaluatePublicReadPolicy>;
   try {
@@ -741,6 +897,41 @@ async function query(
   assertInvocationControls(runtime, invocation, context);
   const checked = preflightAdapter(runtime.adapter, context);
   assertInvocationControls(runtime, invocation, context);
+  let reconciliationClaim:
+    | Extract<
+        ReturnType<PublicEvidenceReconciliationIndex["claim"]>,
+        { readonly status: "claimed" }
+      >["claim"]
+    | undefined;
+  if (runtime.reconciliationIndex !== undefined) {
+    try {
+      const outcome = runtime.reconciliationIndex.claim({
+        idempotencyKey: request.idempotencyKey!,
+        operation: "data.query",
+        requestId: context.requestId,
+        traceId: context.traceId,
+        resourceId: PUBLIC_READ_ONS_RESOURCE.resource_id,
+        normalisedParametersSha256,
+      });
+      if (outcome.status === "pending") {
+        return failReconciliation("idempotency_pending", context);
+      }
+      if (outcome.status === "completed") {
+        return failReconciliation("idempotency_completed", context);
+      }
+      reconciliationClaim = outcome.claim;
+    } catch (error) {
+      if (
+        error instanceof EvidenceReconciliationIndexError &&
+        error.code === "conflict"
+      ) {
+        return failReconciliation("idempotency_conflict", context);
+      }
+      if (error instanceof DataQueryApplicationError) throw error;
+      return fail("evidence_unavailable", context);
+    }
+  }
+  assertInvocationControls(runtime, invocation, context);
   let adapterResult: ProviderAdapterResult;
   try {
     adapterResult = await runtime.adapter.execute(ONS_ADAPTER_REQUEST, invocation);
@@ -764,7 +955,7 @@ async function query(
   });
 
   const verificationMaterial = {
-    normalisedParameters: request,
+    normalisedParameters: request.parameters,
     resultCore,
     publicPolicy: policyEvaluation.policy,
     expectedAuthorityContext: policyEvaluation.authorityContext,
@@ -780,7 +971,7 @@ async function query(
       requestId: context.requestId,
       traceId: context.traceId,
       operation: "data.query",
-      normalisedParameters: request,
+      normalisedParameters: request.parameters,
       authorityContext: policyEvaluation.authorityContext,
       publicPolicy: policyEvaluation.policy,
       policyDecision: policyEvaluation.decision,
@@ -795,10 +986,35 @@ async function query(
     });
     const verification = verifyPublicReadReceipt(receipt, verificationMaterial);
     if (!verification.valid) return fail("evidence_unavailable", context);
-    evidenceStorage = runtime.evidenceLedger?.persistReceipt(
-      receipt,
-      verificationMaterial,
-    ).reference;
+    if (
+      runtime.reconciliationIndex !== undefined &&
+      runtime.evidenceLedger !== undefined &&
+      reconciliationClaim !== undefined
+    ) {
+      const resolution = runtime.reconciliationIndex.resolve(
+        reconciliationClaim,
+        receipt,
+      );
+      const persisted = runtime.evidenceLedger.persistReceipt(
+        receipt,
+        verificationMaterial,
+      );
+      const completed = runtime.reconciliationIndex.lookup(request.idempotencyKey!);
+      if (
+        completed.status !== "completed" ||
+        completed.resolution.resolution_id !== resolution.resolution_id ||
+        completed.resolution.receipt_id !== receipt.receipt_id ||
+        canonicalJson(completed.stored) !== canonicalJson(persisted)
+      ) {
+        return fail("evidence_unavailable", context);
+      }
+      evidenceStorage = completed.stored.reference;
+    } else {
+      evidenceStorage = runtime.evidenceLedger?.persistReceipt(
+        receipt,
+        verificationMaterial,
+      ).reference;
+    }
   } catch (error) {
     if (error instanceof DataQueryApplicationError) throw error;
     return fail("evidence_unavailable", context);
@@ -822,11 +1038,22 @@ export function createDataQueryApplication(
   options: DataQueryApplicationOptions,
 ): DataQueryApplication {
   const runtime = applicationRuntime(options);
-  return Object.freeze({
+  const application = Object.freeze({
     query: (
       request: unknown,
       context: CatalogueProblemContext,
       invocation?: DataQueryInvocationOptions,
     ) => query(runtime, request, context, invocation),
   });
+  if (runtime.reconciliationIndex !== undefined) {
+    registerReconciledDataQueryApplication(application, runtime.reconciliationIndex);
+  }
+  return application;
+}
+
+/** True only for instances closed over an explicitly linked ledger and index. */
+export function isReconciledDataQueryApplication(
+  application: DataQueryApplication,
+): boolean {
+  return hasReconciledDataQueryApplication(application);
 }

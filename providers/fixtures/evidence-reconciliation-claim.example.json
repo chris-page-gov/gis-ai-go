@@ -1,0 +1,26 @@
+{
+  "claim_id": "gis-ai-go:evidence-reconciliation-claim:sha256:beb5fcd57c54188df508725ed862d59b59dc96be51c1258bb1018167282a6f8e",
+  "claimed_at": "2026-08-21T01:00:01.000Z",
+  "idempotency_key_sha256": "a8a46745e37fa6d21f2b7fdfbc251dd5c85dd8af8999a07a9800bfa7db2bafd7",
+  "index_id": "gis-ai-go:evidence-reconciliation-index:sha256:0392da33a8435707ce748d4dde638ae081d85a35647f6661f952dcd5570e75e8",
+  "ledger_id": "gis-ai-go:public-evidence-ledger:sha256:4745a89946829a56c7e8261d661ccbc174f52b8b2d105e2b1111c27101f06200",
+  "normalised_parameters": {
+    "domain": "gis-ai-go.data-query-parameters.v1",
+    "sha256": "1d4451784db65f8a47978f643b94fe4f6d8f6be95cf9b4327d861249796edc20"
+  },
+  "operation": "data.query",
+  "privacy": {
+    "credentials": false,
+    "machine_path": false,
+    "personal_data": false,
+    "raw_idempotency_key": false,
+    "raw_query": false,
+    "result_material": false
+  },
+  "request_fingerprint_sha256": "517e649e9ff36842582a30cb17f0ea3ac7bf4209b395edf6a3816be5aa76e5bc",
+  "request_id": "request-public-read-fixture-1",
+  "resource_id": "gis-ai-go:public-read-resource:sha256:c7130712a40d75e71bcf0259792404389bea2e549adf6733f34d491f83e99f68",
+  "retain_until": "2027-08-21T01:00:01.000Z",
+  "schema": "gis-ai-go.evidence-reconciliation-claim.v1",
+  "trace_id": "1123456789abcdef0123456789abcdef"
+}

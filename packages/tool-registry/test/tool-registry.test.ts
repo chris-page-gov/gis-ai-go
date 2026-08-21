@@ -71,6 +71,19 @@ test("loads exactly 12 deterministic frozen profiles from the canonical data", (
     state: "accepted",
     ref: "schemas/evidence-inspect-operation-result.schema.json",
   });
+  assert.deepEqual(getToolProfile("evidence.inspect").runtimeSchemas.input, {
+    state: "accepted",
+    ref: "schemas/evidence-inspect-operation-request.schema.json",
+  });
+  assert.deepEqual(getToolProfile("evidence.inspect").runtimeSchemas.problem, {
+    state: "accepted",
+    ref: "schemas/catalogue-problem.schema.json",
+  });
+  assert.deepEqual(getToolProfile("evidence.inspect").fallback, {
+    state: "not-implemented",
+    behaviour:
+      "Fail closed; no alternate receipt, result replay or challenge route is implemented.",
+  });
 });
 
 test("keeps target lifecycle metadata separate from an empty current callable set", () => {
@@ -109,7 +122,8 @@ test("keeps target lifecycle metadata separate from an empty current callable se
   assert.deepEqual(data.crs, { state: "not-applicable", requirements: [] });
   assert.deepEqual(data.fallback, {
     state: "not-implemented",
-    behaviour: "Fail closed; no cache, alternate provider or result fallback is permitted.",
+    behaviour:
+      "Fail closed; no result cache, alternate provider or result fallback is permitted.",
   });
   assert.equal(data.support.providerDependencies.includes("PostGIS"), false);
   assert.equal(data.support.providerDependencies.includes("object storage"), false);
@@ -124,7 +138,18 @@ test("keeps target lifecycle metadata separate from an empty current callable se
     "PROVIDER_UNAVAILABLE",
     "PROVIDER_CONTRACT_FAILED",
     "EVIDENCE_UNAVAILABLE",
+    "IDEMPOTENCY_PENDING",
+    "IDEMPOTENCY_COMPLETED",
+    "IDEMPOTENCY_CONFLICT",
   ]);
+  assert.deepEqual(data.runtimeSchemas.input, {
+    state: "accepted",
+    ref: "schemas/data-query-request.schema.json",
+  });
+  assert.deepEqual(data.runtimeSchemas.problem, {
+    state: "accepted",
+    ref: "schemas/data-query-operation-problem.schema.json",
+  });
   assert.deepEqual(listCurrentCallableTools(), []);
   assert.equal(Object.isFrozen(listCurrentCallableTools()), true);
 
@@ -267,6 +292,13 @@ test("rejects substitutions in the implemented public-read slice metadata", () =
   };
   fallbackSubstitution.tools[3]!.fallback.state = "partial";
   expectInvalidRegistry(fallbackSubstitution);
+
+  const evidenceFallbackSubstitution = structuredClone(profileRecord()) as {
+    tools: { fallback: { state: string; behaviour: string } }[];
+  };
+  evidenceFallbackSubstitution.tools[10]!.fallback.behaviour =
+    "Return a challenge route.";
+  expectInvalidRegistry(evidenceFallbackSubstitution);
 });
 
 test("clones caller data, rejects mutation and ignores environment state", (t) => {

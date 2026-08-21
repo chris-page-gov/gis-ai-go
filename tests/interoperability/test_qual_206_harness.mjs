@@ -637,45 +637,51 @@ test("evaluation expansion preserves the frozen corpus and provenance", async ()
   }
 });
 
-test("evaluation expansion is non-live, unscored and records the known gap", async () => {
+test("evaluation expansion keeps HOST-015 locally passing but non-live and unscored", async () => {
   const expansion = JSON.parse(await readFile(CASES_EXPANSION, "utf8"));
   const statuses = expansion.cases.map((value) => value.status);
   assert.equal(statuses.filter((value) => value === "pending").length, 6);
-  assert.equal(statuses.filter((value) => value === "expected-failing").length, 1);
+  assert.equal(statuses.filter((value) => value === "expected-failing").length, 0);
+  assert.equal(statuses.filter((value) => value === "passing").length, 1);
   for (const evaluationCase of expansion.cases) {
     assert.equal(evaluationCase.execution_mode, "non-live");
     assert.equal(evaluationCase.scoring, "unscored");
     assert.equal(evaluationCase.live_capability_evidence, false);
     assert.equal(
       evaluationCase.activation_boundary,
-      "design-only-no-runtime-wiring",
+      evaluationCase.id === "QUAL-206-HOST-015"
+        ? "local-runtime-wired-production-unactivated"
+        : "design-only-no-runtime-wiring",
     );
     assert.equal(
-      ["pending", "expected-failing"].includes(evaluationCase.status),
+      ["pending", "passing"].includes(evaluationCase.status),
       true,
     );
-    assert.equal(
-      evaluationCase.classification,
-      evaluationCase.status === "expected-failing"
-        ? "pre-activation-known-gap"
-        : "non-live-pre-activation",
-    );
+    assert.equal(evaluationCase.classification, "non-live-pre-activation");
+    assert.equal(evaluationCase.known_gap, undefined);
     assert.equal(evaluationCase.observed_result, undefined);
     assert.equal(evaluationCase.host_result, undefined);
     assert.equal(evaluationCase.telemetry, undefined);
   }
 
-  const expectedFailure = expansion.cases.find(
+  const reconciled = expansion.cases.find(
     (value) => value.id === "QUAL-206-HOST-015",
   );
-  assert.equal(expectedFailure.status, "expected-failing");
-  assert.equal(expectedFailure.classification, "pre-activation-known-gap");
-  assert.match(
-    expectedFailure.known_gap.missing_capability,
-    /no governed idempotency key/u,
+  assert.equal(reconciled.status, "passing");
+  assert.equal(reconciled.classification, "non-live-pre-activation");
+  assert.equal(
+    reconciled.activation_boundary,
+    "local-runtime-wired-production-unactivated",
   );
-  assert.match(expectedFailure.known_gap.missing_capability, /receipt ID/u);
-  assert.match(expectedFailure.known_gap.expected_failure, /cannot reconcile/u);
+  assert.deepEqual(reconciled.provenance.source_refs, ["MCPGEO-SOURCE-05"]);
+  assert.deepEqual(
+    reconciled.assertions.map(({ id }) => id),
+    [
+      "at-most-once-side-effects",
+      "completed-retry-fails-closed",
+      "receipt-only-recovery",
+    ],
+  );
 
   assert.equal(expansion.deferred_cases.length, 1);
   const deferred = expansion.deferred_cases[0];
@@ -697,10 +703,7 @@ test("evaluation expansion is non-live, unscored and records the known gap", asy
     ...expansion.deferred_cases.flatMap((value) => value.source_refs),
   ]);
   assert.deepEqual([...referencedSources].sort(), [...sourceIds].sort());
-  assert.doesNotMatch(
-    JSON.stringify(expansion.cases),
-    /"status":"(?:passed|failed|local-live-candidate-pass)"/u,
-  );
+  assert.doesNotMatch(JSON.stringify(expansion.cases), /"status":"(?:failed|passed)"/u);
 });
 
 test("reviewed ChatGPT evidence is path-free and binds the harness bytes", async () => {

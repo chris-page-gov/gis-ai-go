@@ -21,8 +21,8 @@ provenance.
 | --- | --- | --- | --- | --- | --- | --- |
 | T01 | `catalogue.search` | implemented | suspended | active | `v0.2.0` | read-only |
 | T02 | `catalogue.describe` | implemented | suspended | active | `v0.2.0` | read-only |
-| T03 | `selection.resolve` | not implemented | planned | active | `v0.2.0` | read-only |
-| T04 | `data.query` | not implemented | planned | active | `v0.2.0` | read-only |
+| T03 | `selection.resolve` | implemented | suspended | active | `v0.2.0` | read-only |
+| T04 | `data.query` | implemented | suspended | active | `v0.2.0` | read-only |
 | T05 | `spatial.locate` | not implemented | planned | planned | later reviewed release | read-only |
 | T06 | `spatial.analyse` | not implemented | planned | planned | later reviewed release | read-only |
 | T07 | `statistics.compare` | not implemented | planned | planned | later reviewed release | read-only |
@@ -35,7 +35,8 @@ provenance.
 All current discovery flags and activation gates are false. The v0.2 target is
 explicitly marked as having no runtime authority. In particular,
 `selection.resolve` and `data.query` are target-active governance requirements, not
-implemented or callable tools.
+callable tools. Their inactive implementations do not change discovery or runtime
+authority.
 
 ## Runtime API and fail-closed rules
 
@@ -51,17 +52,16 @@ The package exposes:
 
 The current callable result is an empty frozen array. The helper considers only
 `current` state and accepted runtime input, output and problem schema references;
-it never reads `v02Target`. `evidence.inspect` intentionally has no accepted
-runtime problem schema reference yet, although its transport-neutral application,
-request and result contracts exist. Its accepted output reference is the closed
-`evidence-inspect-operation-result.schema.json` dispatcher. That dispatcher makes
-the supported v1 and v2 result discriminators explicit without widening the
-immutable v1 schema or making the suspended profile callable.
+it never reads `v02Target`. T04 now references the mandatory idempotency wrapper,
+unchanged result and closed old-or-reconciliation problem dispatcher. T11 references
+the closed v1/v2 inspect-request dispatcher, closed v1/v2 result dispatcher and
+accepted catalogue problem schema. These versioned dispatchers preserve the
+immutable v1 schemas without making either suspended profile callable.
 
-`controlledErrors` preserves the governance vocabulary from the research profile;
-it is not by itself a runtime error contract. Runtime error availability is
-declared separately by `runtimeSchemas.problem`, preventing a planned source field
-from being mistaken for an implemented transport guarantee.
+For unimplemented profiles, `controlledErrors` preserves the research vocabulary.
+For implemented T03, T04 and T11 it is the validated current runtime vocabulary and
+is bound to the accepted `runtimeSchemas.problem` contract. This separation prevents
+planned source fields from being mistaken for implemented guarantees.
 
 Registry construction clones caller data, rejects unknown or missing fields,
 wrong order, duplicate or substituted IDs, lifecycle contradictions, inappropriate
@@ -89,16 +89,18 @@ the release-metadata test verifies its product version and exact npm package URL
 
 ## Non-activation and residual boundary
 
-No gateway source, activation array, provider adapter, execution operation, route,
-listener or deployment is changed. The registry never reads environment variables.
-Production activation remains solely in
+The later inactive application and reconciliation slices change gateway source and
+the T03/T04/T11 current metadata, but do not change any production activation array,
+listener, shipped entrypoint or deployment. The registry never reads environment
+variables. Production activation remains solely in
 `apps/mcp-gateway/src/activation.ts`, whose tool and API arrays remain empty.
 
-This slice does not implement `selection.resolve`, `data.query` or any other
-planned operation. It does not complete provider, schema, policy, evidence,
-interoperability or fallback gates, and it does not authorise the mutating
-`workflow.execute` profile. A later activation change must supply its own reviewed
-contracts, threat evidence and lifecycle decision.
+T03, T04 and T11 are implemented-inactive and suspended. Their seven current gates
+remain false, including fallback: T04 has no cache, alternate provider or result
+fallback, while T11 has no alternate receipt, result replay or challenge route.
+This candidate does not authorise the mutating `workflow.execute` profile. A later
+activation change must supply its own reviewed provider, fallback, threat,
+interoperability, release and lifecycle evidence.
 
 ## Verification
 

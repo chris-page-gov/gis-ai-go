@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:evidence-inspect-request:v2",
+  "title": "GIS AI GO evidence reconciliation request",
+  "description": "A receipt-only lookup by a caller-known public idempotency key. The raw key is neither retained nor placed in a resource URI.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "source_operation", "idempotency_key"],
+  "properties": {
+    "schema": { "const": "gis-ai-go.evidence-inspect-request.v2" },
+    "source_operation": { "const": "data.query" },
+    "idempotency_key": {
+      "type": "string",
+      "description": "The same public correlation identity supplied before data.query. It must not encode personal data, credentials, tokens or other secrets.",
+      "pattern": "^gis-ai-go:ik:v1:(?!0{64}$)[0-9a-f]{64}$"
+    }
+  }
+}

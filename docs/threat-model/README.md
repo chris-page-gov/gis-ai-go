@@ -57,6 +57,18 @@ The bounded resource and duplicated tool representations share a narrower result
 ceiling than the direct HTTP response. Oversize evidence therefore fails closed in
 the application rather than creating transport-specific truncation.
 
+## EVID-204D receipt-only reconciliation scope
+
+ADR-0012 adds a ledger-linked index and key lookup for the inactive `data.query`
+application. It does not activate or publish a service.
+
+| Research risk | Control in this slice | Residual boundary |
+| --- | --- | --- |
+| RK03 confused deputy and RK08 policy bypass | Module-private identities require every mounted data-query face to mount `evidence.inspect` over the exact same ledger/index. Legacy, mismatched and proxy-wrapped applications fail construction. | Production identity, entitlement and activation remain separate. The trusted application context and explicit request-context factories must remain server-owned. |
+| RK17 provider and storage exhaustion | A durable exclusive ownership marker prevents the same key from causing a second provider execution. Pending/completed retries return before provider preflight. A new key is refused before publication once the verified index has 4,096 owned claims, bounding local storage growth and linear verification work. The linked ledger likewise refuses a new receipt before either write at its accepted event ceiling while replay and inspection remain available. | Claims are immutable. Cancellation, pre-egress rejection or uncertain post-ownership failure can leave a key permanently pending. The fixed local bounds are not cluster admission, a rate quota, reclamation, operator resolution or disposal, and do not permit activation. |
+| RK20 provenance spoofing and RK21 audit tampering | Domain-separated key and semantic fingerprints, complete-JSON-before-ready publication, resolution-before-ledger ordering and completed re-read bind one key to one verified receipt, record and event. | One writer still owns the ledger. The index coordinates only the same key for processes sharing one filesystem and is not cluster-wide exactly-once execution. |
+| RK25 query-history and identity exposure | The ledger/index reject the complete raw key and result material. Direct data queries ignore `x-request-id` and generate opaque server identities; MCP does the same by default. Shared HTTP and STDIO ingress rejects a raw, prefixed, percent-encoded or multiply encoded complete key in JSON-RPC request IDs, methods, tool names and protocol-version claims before SDK dispatch; HTTP also checks its parity headers. Requests receive a fixed `id: null` error and notifications remain silent. Problems, inspection results and resource URIs contain no key. | The caller-generated key is a public correlation label and must contain no personal or secret material. Host, proxy and operational telemetry must keep the digest-only contract; backups need a separate privacy review. |
+
 ## EXEC-202 private execution scope
 
 [`EXEC-202.md`](EXEC-202.md) records the private synthetic execution trust boundary,
@@ -103,13 +115,14 @@ explicit local-conformance seams. They do not activate or publish a service.
 | --- | --- | --- |
 | RK02 tool poisoning and RK24 model/tool hallucination | Tools are registered only from exact explicit operation arrays. Closed schemas, exact MCP method/name headers and the modern protocol metadata are checked independently. The legacy seam rejects selection, data and evidence registration. | Independent-host discovery, instruction following and repair-hint behaviour remain release evidence gates. |
 | RK08 policy bypass | Direct, MCP HTTP and MCP STDIO faces call the same accepted application instances. Success and problems have byte-equivalent structured/text projections, and every success independently verifies policy and evidence. | Deployment identity, network policy and a production activation decision remain outside this candidate. |
-| RK17 provider exhaustion | The Node ingress propagates direct and MCP disconnects to the adapter, uses 5-second ingress controls and 25-second socket-inactivity headroom around the adapter's lower absolute 20-second complete ceiling, and writes no evidence after cancellation. | The adapter limiter is still process-local; no deployed shared limiter or approved cache fallback exists. |
-| RK20 provenance spoofing and RK21 audit tampering | Selection and data receipts are inspected through the same durable ledger, tool and receipt resource with exact JSON parity. Corruption and problem paths return no partial evidence. | The ledger is not signed, WORM or externally checkpointed. `HOST-015` remains unresolved: a receipt ID lost with the response cannot be recovered or replayed. |
+| RK17 provider exhaustion | The Node ingress propagates direct and MCP disconnects to the adapter and uses 5-second ingress controls with 25-second socket-inactivity headroom around the adapter's lower absolute 20-second complete ceiling. Cancellation produces no receipt, ledger record or event. The local index refuses new ownership before publication at 4,096 claims. | Once key ownership exists, cancellation can leave an immutable pending claim. The adapter limiter and index bound are still local; no deployed shared limiter, governed cluster admission or approved cache fallback exists. |
+| RK20 provenance spoofing and RK21 audit tampering | Selection and data receipts are inspected through the same durable ledger, tool and receipt resource with exact JSON parity. Reconciled data faces structurally require the exact linked inspector; corruption and problem paths return no partial evidence. | The ledger is not signed, WORM or externally checkpointed. Lost-response recovery returns only the receipt; no result replay is implemented. |
 | RK25 query-history exposure | Inputs and bodies are bounded; problems do not reflect hostile values, abort reasons, provider payloads, credentials or ledger paths. Tests use fixed fake transports rather than live ONS traffic. | Production logs, proxy telemetry, retention and backup controls need a separate privacy review. |
 | RK30 operational drift | T03 and T04 are implemented but suspended, undiscoverable, with every activation gate false and no environment override. Registry substitutions, zero-default capabilities and unchanged readiness are tested. | T04 fallback, release, interoperability, accessibility, deployment and rollback evidence remain required before activation. |
 
-`data.query` deliberately advertises `idempotentHint: false`. Repeating a request
-can make another provider attempt and persist another ledger event. There is no
-idempotency key, result store or receipt lookup by request, and `evidence.inspect`
-requires the receipt ID that a lost response would have contained. No exactly-once
-or at-most-once reconciliation claim is made.
+`data.query` advertises `idempotentHint: true` only for the complete arguments,
+including the mandatory caller key. A repeat returns a receipt-free pending,
+completed or conflict `409`; it does not replay success. `evidence.inspect` v2 can
+recover the verified receipt by key after restart. The narrow claim is same-key
+at-most-once provider execution through one governed shared index and a single-writer
+ledger, not general or cluster-wide exactly-once processing.

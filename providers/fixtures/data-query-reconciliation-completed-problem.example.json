@@ -1,0 +1,11 @@
+{
+  "schema": "gis-ai-go.data-query-reconciliation-problem.v1",
+  "type": "urn:gis-ai-go:problem:data-query-idempotency-completed",
+  "title": "Data query already completed",
+  "status": 409,
+  "code": "idempotency_completed",
+  "detail": "This idempotency key completed previously; inspect its durable evidence.",
+  "request_id": "request-data-query-retry-001",
+  "trace_id": "8123456789abcdef0123456789abcdef",
+  "instance": "/data/query"
+}
