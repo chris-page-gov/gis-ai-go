@@ -1,0 +1,17 @@
+{
+  "question": "Weekly deaths for England in week 24 of 2026, all causes",
+  "candidate_record_ids": ["PV-ONS-DATA"],
+  "constraints": {
+    "profile_ids": ["PV-ONS-DATA"],
+    "provider_ids": ["ons-data-api"],
+    "dataset_ids": ["weekly-deaths-region"],
+    "editions": ["time-series"],
+    "versions": ["121"],
+    "dimensions": {
+      "time": ["2026"],
+      "geography": ["E92000001"],
+      "week": ["week-24"],
+      "causeofdeath": ["all-causes"]
+    }
+  }
+}

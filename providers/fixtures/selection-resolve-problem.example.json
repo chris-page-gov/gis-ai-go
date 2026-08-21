@@ -1,0 +1,47 @@
+{
+  "code": "no_compatible_provider",
+  "data": {
+    "choices": [
+      {
+        "accepted_values": ["PV-ONS-DATA"],
+        "field": "constraints.profile_ids"
+      },
+      {
+        "accepted_values": ["ons-data-api"],
+        "field": "constraints.provider_ids"
+      },
+      {
+        "accepted_values": ["weekly-deaths-region"],
+        "field": "constraints.dataset_ids"
+      }
+    ],
+    "conflicting_constraints": [
+      "constraints.profile_ids",
+      "constraints.provider_ids",
+      "constraints.dataset_ids"
+    ],
+    "missing_constraints": [],
+    "plan": null,
+    "ranking": {
+      "algorithm": "weighted-exact-constraints",
+      "considered_candidates": 1,
+      "selection_profile_id": "gis-ai-go:public-selection-profile:sha256:344fe6d8cbec7c355735ee711cd19b067be306f4087b30c341efec6c5e819f8e",
+      "top_score": 20,
+      "top_score_tied": false,
+      "version": "v1"
+    },
+    "status": "unresolved"
+  },
+  "detail": "No reviewed public provider matches the supplied constraints.",
+  "operation": "selection.resolve",
+  "request_id": "request-selection-example",
+  "schema": "gis-ai-go.selection-resolve-problem.v1",
+  "status": 404,
+  "title": "No compatible provider",
+  "trace_id": "0123456789abcdef0123456789abcdef",
+  "type": "urn:gis-ai-go:problem:selection-resolve:no-compatible-provider",
+  "warnings": [
+    "No executable plan was produced and no provider was called.",
+    "Question text is untrusted data and was not interpreted."
+  ]
+}

@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import copy
 import json
 from pathlib import Path
 from typing import Any
@@ -62,6 +63,17 @@ def validate_records(
             )
             raise AssertionError(details)
     return len(records)
+
+
+def assert_invalid_record(schema_name: str, label: str, record: Any) -> None:
+    schema = load_json(ROOT / "schemas" / schema_name)
+    validator = Draft202012Validator(
+        schema,
+        registry=SCHEMA_REGISTRY,
+        format_checker=FormatChecker(),
+    )
+    if not list(validator.iter_errors(record)):
+        raise AssertionError(f"{schema_name} accepted forbidden {label}")
 
 
 def validate_schema_catalogue() -> int:
@@ -212,6 +224,159 @@ def main() -> None:
             "storage": storage_v2_fixture,
         },
     }
+    selection_plan_fixture = load_json(fixture_dir / "selection-plan.example.json")
+    selection_receipt_fixture = copy.deepcopy(receipt_v2_fixture)
+    selection_receipt_fixture["receipt_id"] = (
+        f"gis-ai-go:evidence-receipt:sha256:{'9' * 64}"
+    )
+    selection_receipt_fixture["operation"] = {
+        "name": "selection.resolve",
+        "contract_version": "v1",
+        "normalised_parameters": {
+            "domain": "gis-ai-go.selection-resolve-parameters.v1",
+            "sha256": "6" * 64,
+        },
+    }
+    selection_receipt_fixture["policy_decision"] = {
+        **selection_receipt_fixture["policy_decision"],
+        "decision_id": (
+            f"gis-ai-go:public-policy-decision:sha256:{'8' * 64}"
+        ),
+        "operation": "selection.resolve",
+        "obligations": [
+            "inline-evidence-receipt",
+            "no-provider-execution",
+            "not-attested",
+            "not-persisted",
+            "preserve-attribution",
+            "preserve-provider-identifiers",
+            "preserve-provider-rights",
+            "preserve-provider-version",
+        ],
+    }
+    selection_receipt_fixture["transformations"] = [
+        {"name": "normalise-public-read-parameters", "version": "v1"},
+        {"name": "resolve-fixed-selection-profile", "version": "v1"},
+        {"name": "project-public-read-result-core", "version": "v1"},
+    ]
+    selection_receipt_fixture["result"] = {
+        "domain": "gis-ai-go.selection-resolve-result-core.v1",
+        "sha256": "7" * 64,
+        "media_type": "application/json",
+        "returned_item_count": 1,
+    }
+    selection_result_fixture = {
+        "schema": "gis-ai-go.selection-resolve-result.v1",
+        "operation": "selection.resolve",
+        "request_id": "request-selection-example",
+        "trace_id": "0123456789abcdef0123456789abcdef",
+        "data": {
+            "status": "resolved",
+            "ambiguity": None,
+            "resource_id": selection_plan_fixture["resource_id"],
+            "plan": selection_plan_fixture,
+            "ranking": {
+                "algorithm": "weighted-exact-constraints",
+                "version": "v1",
+                "selection_profile_id": (
+                    "gis-ai-go:public-selection-profile:sha256:"
+                    "344fe6d8cbec7c355735ee711cd19b067be306f4087b30c341efec6c5e819f8e"
+                ),
+                "selected_candidate_id": (
+                    "PV-ONS-DATA:weekly-deaths-region:time-series:121"
+                ),
+                "considered_candidates": 1,
+                "score": 260,
+                "matched_constraints": [
+                    "candidate_record_ids",
+                    "constraints.profile_ids",
+                    "constraints.provider_ids",
+                    "constraints.dataset_ids",
+                    "constraints.editions",
+                    "constraints.versions",
+                    "constraints.dimensions.time",
+                    "constraints.dimensions.geography",
+                    "constraints.dimensions.week",
+                    "constraints.dimensions.causeofdeath",
+                ],
+                "top_score_tied": False,
+            },
+        },
+        "evidence_binding": {
+            "adapter_id": "gis-ai-go.ons-data-api",
+            "dataset_id": "weekly-deaths-region",
+            "edition": "time-series",
+            "profile_sha256": (
+                "535e6eb65fc9af4507e30700d425393a658a085a3a240689f4b37124dc8f8622"
+            ),
+            "provider_id": "ons-data-api",
+            "resource_id": selection_plan_fixture["resource_id"],
+            "returned_item_count": 1,
+            "rights_sha256": selection_plan_fixture["rights_sha256"],
+            "version": "121",
+        },
+        "warnings": [
+            "This plan is non-executable and no provider was called.",
+            "Question text is untrusted data and was not interpreted.",
+        ],
+        "evidence_receipt": selection_receipt_fixture,
+    }
+    selection_problem_fixture = load_json(
+        fixture_dir / "selection-resolve-problem.example.json"
+    )
+    selection_problem_definitions = {
+        "invalid_request": (
+            "Invalid selection request",
+            400,
+            "Use the closed selection constraint grammar.",
+        ),
+        "ambiguous_selection": (
+            "Ambiguous selection",
+            409,
+            "More than one value was supplied for a selection constraint.",
+        ),
+        "missing_dimension": (
+            "Selection dimension missing",
+            422,
+            "Supply one provider anchor and every required provider dimension.",
+        ),
+        "contradictory_constraints": (
+            "Selection constraints contradict",
+            422,
+            "The supplied constraints do not describe one reviewed selection.",
+        ),
+        "no_compatible_provider": (
+            "No compatible provider",
+            404,
+            "No reviewed public provider matches the supplied constraints.",
+        ),
+        "policy_denied": (
+            "Selection policy denied",
+            503,
+            "The public-read policy did not authorise this selection.",
+        ),
+        "evidence_unavailable": (
+            "Selection evidence unavailable",
+            503,
+            "Durable evidence could not be verified for this selection.",
+        ),
+    }
+    selection_problem_fixtures = []
+    for code, (title, status, detail) in selection_problem_definitions.items():
+        candidate = copy.deepcopy(selection_problem_fixture)
+        candidate.update(
+            {
+                "type": (
+                    "urn:gis-ai-go:problem:selection-resolve:"
+                    f"{code.replace('_', '-')}"
+                ),
+                "title": title,
+                "status": status,
+                "code": code,
+                "detail": detail,
+            }
+        )
+        selection_problem_fixtures.append((f"synthetic {code} problem", candidate))
     mappings: list[tuple[str, list[tuple[str, Any]]]] = [
         (
             "authority-context.schema.json",
@@ -257,6 +422,36 @@ def main() -> None:
                     load_json(fixture_dir / "public-read-resource.example.json"),
                 )
             ],
+        ),
+        (
+            "selection-plan.schema.json",
+            [("selection-plan.example.json", selection_plan_fixture)],
+        ),
+        (
+            "public-selection-profile.schema.json",
+            [
+                (
+                    "profiles/public-selection-profile.v1.json",
+                    load_json(ROOT / "profiles" / "public-selection-profile.v1.json"),
+                )
+            ],
+        ),
+        (
+            "selection-resolve-request.schema.json",
+            [
+                (
+                    "selection-resolve-request.example.json",
+                    load_json(fixture_dir / "selection-resolve-request.example.json"),
+                )
+            ],
+        ),
+        (
+            "selection-resolve-result.schema.json",
+            [("synthetic selection resolve success", selection_result_fixture)],
+        ),
+        (
+            "selection-resolve-problem.schema.json",
+            selection_problem_fixtures,
         ),
         (
             "public-policy-v2.schema.json",
@@ -470,13 +665,114 @@ def main() -> None:
     ]
 
     record_count = sum(validate_records(schema, records) for schema, records in mappings)
+
+    invalid_selection_request = load_json(
+        fixture_dir / "selection-resolve-request.example.json"
+    )
+    invalid_selection_request["question"] = "x" * 513
+    assert_invalid_record(
+        "selection-resolve-request.schema.json",
+        "over-limit question",
+        invalid_selection_request,
+    )
+
+    executable_plan = copy.deepcopy(selection_plan_fixture)
+    executable_plan["execution"] = "allowed"
+    assert_invalid_record(
+        "selection-plan.schema.json",
+        "executable plan",
+        executable_plan,
+    )
+
+    hidden_tie_profile = load_json(
+        ROOT / "profiles" / "public-selection-profile.v1.json"
+    )
+    hidden_tie_profile["ranking"]["tie_handling"] = "choose-first"
+    assert_invalid_record(
+        "public-selection-profile.schema.json",
+        "hidden tie-break profile",
+        hidden_tie_profile,
+    )
+
+    problem_with_plan = copy.deepcopy(selection_problem_fixture)
+    problem_with_plan["data"]["plan"] = selection_plan_fixture
+    assert_invalid_record(
+        "selection-resolve-problem.schema.json",
+        "problem carrying a plan",
+        problem_with_plan,
+    )
+
+    mismatched_choice = copy.deepcopy(selection_problem_fixture)
+    mismatched_choice["data"]["choices"][0] = {
+        "field": "constraints.profile_ids",
+        "accepted_values": ["ons-data-api"],
+    }
+    assert_invalid_record(
+        "selection-resolve-problem.schema.json",
+        "field-mismatched reviewed choice",
+        mismatched_choice,
+    )
+
+    tied_success = copy.deepcopy(selection_result_fixture)
+    tied_success["data"]["ranking"]["top_score_tied"] = True
+    assert_invalid_record(
+        "selection-resolve-result.schema.json",
+        "tied success",
+        tied_success,
+    )
+
+    missing_dimension_success = copy.deepcopy(selection_result_fixture)
+    missing_dimension_success["data"]["ranking"]["matched_constraints"].remove(
+        "constraints.dimensions.causeofdeath"
+    )
+    missing_dimension_success["data"]["ranking"]["score"] = 258
+    assert_invalid_record(
+        "selection-resolve-result.schema.json",
+        "success missing one required dimension",
+        missing_dimension_success,
+    )
+
+    no_anchor_success = copy.deepcopy(selection_result_fixture)
+    no_anchor_success["data"]["ranking"]["matched_constraints"] = [
+        "constraints.editions",
+        "constraints.versions",
+        "constraints.dimensions.time",
+        "constraints.dimensions.geography",
+        "constraints.dimensions.week",
+        "constraints.dimensions.causeofdeath",
+    ]
+    no_anchor_success["data"]["ranking"]["score"] = 20
+    assert_invalid_record(
+        "selection-resolve-result.schema.json",
+        "success without a provider anchor",
+        no_anchor_success,
+    )
+
+    reordered_success = copy.deepcopy(selection_result_fixture)
+    reordered_fields = reordered_success["data"]["ranking"]["matched_constraints"]
+    reordered_fields[0], reordered_fields[1] = reordered_fields[1], reordered_fields[0]
+    assert_invalid_record(
+        "selection-resolve-result.schema.json",
+        "success with reordered matched constraints",
+        reordered_success,
+    )
+
+    mismatched_score_success = copy.deepcopy(selection_result_fixture)
+    mismatched_score_success["data"]["ranking"]["score"] = 259
+    assert_invalid_record(
+        "selection-resolve-result.schema.json",
+        "success with a score that does not match the weights",
+        mismatched_score_success,
+    )
+
     assert_unique_ids(ROOT / "evaluation" / "evaluation-cases.json", "cases", 25)
     assert_unique_ids(ROOT / "evaluation" / "threat-risks.json", "risks", 30)
     assert_unique_ids(ROOT / "evaluation" / "stage-0-tests.json", "cases", 6)
 
     print(
-        f"Validated {schema_count} schemas and {record_count} records; checked expected counts and "
-        "unique identifiers in 3 evaluation manifests."
+        f"Validated {schema_count} schemas and {record_count} records, rejected 10 forbidden "
+        "selection mutations, and checked expected counts and unique identifiers in 3 "
+        "evaluation manifests."
     )
 
 

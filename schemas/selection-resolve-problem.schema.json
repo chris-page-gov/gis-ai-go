@@ -1,0 +1,319 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:selection-resolve-problem:v1",
+  "title": "GIS AI GO unresolved public selection",
+  "description": "A closed, non-executing selection problem. Every failure path carries plan null and no success receipt.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "type",
+    "title",
+    "status",
+    "code",
+    "detail",
+    "operation",
+    "request_id",
+    "trace_id",
+    "data",
+    "warnings"
+  ],
+  "properties": {
+    "schema": { "const": "gis-ai-go.selection-resolve-problem.v1" },
+    "type": {
+      "type": "string",
+      "format": "uri",
+      "maxLength": 160,
+      "pattern": "^urn:gis-ai-go:problem:selection-resolve:[a-z-]+$"
+    },
+    "title": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "status": { "enum": [400, 404, 409, 422, 503] },
+    "code": {
+      "enum": [
+        "invalid_request",
+        "ambiguous_selection",
+        "missing_dimension",
+        "contradictory_constraints",
+        "no_compatible_provider",
+        "policy_denied",
+        "evidence_unavailable"
+      ]
+    },
+    "detail": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "operation": { "const": "selection.resolve" },
+    "request_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "trace_id": { "type": "string", "pattern": "^[0-9a-f]{32}$" },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "plan",
+        "missing_constraints",
+        "conflicting_constraints",
+        "choices",
+        "ranking"
+      ],
+      "properties": {
+        "status": { "const": "unresolved" },
+        "plan": { "type": "null" },
+        "missing_constraints": { "$ref": "#/$defs/constraint_fields" },
+        "conflicting_constraints": { "$ref": "#/$defs/constraint_fields" },
+        "choices": {
+          "type": "array",
+          "maxItems": 10,
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["field", "accepted_values"],
+            "properties": {
+              "field": { "$ref": "#/$defs/constraint_field" },
+              "accepted_values": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 1,
+                "uniqueItems": true,
+                "items": {
+                  "enum": [
+                    "PV-ONS-DATA",
+                    "ons-data-api",
+                    "weekly-deaths-region",
+                    "time-series",
+                    "121",
+                    "2026",
+                    "E92000001",
+                    "week-24",
+                    "all-causes"
+                  ]
+                }
+              }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "required": ["field"],
+                  "properties": { "field": { "const": "candidate_record_ids" } }
+                },
+                "then": {
+                  "properties": { "accepted_values": { "const": ["PV-ONS-DATA"] } }
+                }
+              },
+              {
+                "if": {
+                  "required": ["field"],
+                  "properties": { "field": { "const": "constraints.profile_ids" } }
+                },
+                "then": {
+                  "properties": { "accepted_values": { "const": ["PV-ONS-DATA"] } }
+                }
+              },
+              {
+                "if": {
+                  "required": ["field"],
+                  "properties": { "field": { "const": "constraints.provider_ids" } }
+                },
+                "then": {
+                  "properties": { "accepted_values": { "const": ["ons-data-api"] } }
+                }
+              },
+              {
+                "if": {
+                  "required": ["field"],
+                  "properties": { "field": { "const": "constraints.dataset_ids" } }
+                },
+                "then": {
+                  "properties": {
+                    "accepted_values": { "const": ["weekly-deaths-region"] }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "required": ["field"],
+                  "properties": { "field": { "const": "constraints.editions" } }
+                },
+                "then": {
+                  "properties": { "accepted_values": { "const": ["time-series"] } }
+                }
+              },
+              {
+                "if": {
+                  "required": ["field"],
+                  "properties": { "field": { "const": "constraints.versions" } }
+                },
+                "then": {
+                  "properties": { "accepted_values": { "const": ["121"] } }
+                }
+              },
+              {
+                "if": {
+                  "required": ["field"],
+                  "properties": {
+                    "field": { "const": "constraints.dimensions.time" }
+                  }
+                },
+                "then": {
+                  "properties": { "accepted_values": { "const": ["2026"] } }
+                }
+              },
+              {
+                "if": {
+                  "required": ["field"],
+                  "properties": {
+                    "field": { "const": "constraints.dimensions.geography" }
+                  }
+                },
+                "then": {
+                  "properties": { "accepted_values": { "const": ["E92000001"] } }
+                }
+              },
+              {
+                "if": {
+                  "required": ["field"],
+                  "properties": {
+                    "field": { "const": "constraints.dimensions.week" }
+                  }
+                },
+                "then": {
+                  "properties": { "accepted_values": { "const": ["week-24"] } }
+                }
+              },
+              {
+                "if": {
+                  "required": ["field"],
+                  "properties": {
+                    "field": { "const": "constraints.dimensions.causeofdeath" }
+                  }
+                },
+                "then": {
+                  "properties": { "accepted_values": { "const": ["all-causes"] } }
+                }
+              }
+            ]
+          }
+        },
+        "ranking": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "algorithm",
+            "version",
+            "selection_profile_id",
+            "considered_candidates",
+            "top_score",
+            "top_score_tied"
+          ],
+          "properties": {
+            "algorithm": { "const": "weighted-exact-constraints" },
+            "version": { "const": "v1" },
+            "selection_profile_id": {
+              "const": "gis-ai-go:public-selection-profile:sha256:344fe6d8cbec7c355735ee711cd19b067be306f4087b30c341efec6c5e819f8e"
+            },
+            "considered_candidates": { "const": 1 },
+            "top_score": { "type": "integer", "minimum": 0, "maximum": 260 },
+            "top_score_tied": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "warnings": {
+      "const": [
+        "No executable plan was produced and no provider was called.",
+        "Question text is untrusted data and was not interpreted."
+      ]
+    }
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "type": { "const": "urn:gis-ai-go:problem:selection-resolve:invalid-request" },
+        "title": { "const": "Invalid selection request" },
+        "status": { "const": 400 },
+        "code": { "const": "invalid_request" },
+        "detail": { "const": "Use the closed selection constraint grammar." }
+      }
+    },
+    {
+      "properties": {
+        "type": { "const": "urn:gis-ai-go:problem:selection-resolve:ambiguous-selection" },
+        "title": { "const": "Ambiguous selection" },
+        "status": { "const": 409 },
+        "code": { "const": "ambiguous_selection" },
+        "detail": { "const": "More than one value was supplied for a selection constraint." }
+      }
+    },
+    {
+      "properties": {
+        "type": { "const": "urn:gis-ai-go:problem:selection-resolve:missing-dimension" },
+        "title": { "const": "Selection dimension missing" },
+        "status": { "const": 422 },
+        "code": { "const": "missing_dimension" },
+        "detail": { "const": "Supply one provider anchor and every required provider dimension." }
+      }
+    },
+    {
+      "properties": {
+        "type": { "const": "urn:gis-ai-go:problem:selection-resolve:contradictory-constraints" },
+        "title": { "const": "Selection constraints contradict" },
+        "status": { "const": 422 },
+        "code": { "const": "contradictory_constraints" },
+        "detail": { "const": "The supplied constraints do not describe one reviewed selection." }
+      }
+    },
+    {
+      "properties": {
+        "type": { "const": "urn:gis-ai-go:problem:selection-resolve:no-compatible-provider" },
+        "title": { "const": "No compatible provider" },
+        "status": { "const": 404 },
+        "code": { "const": "no_compatible_provider" },
+        "detail": { "const": "No reviewed public provider matches the supplied constraints." }
+      }
+    },
+    {
+      "properties": {
+        "type": { "const": "urn:gis-ai-go:problem:selection-resolve:policy-denied" },
+        "title": { "const": "Selection policy denied" },
+        "status": { "const": 503 },
+        "code": { "const": "policy_denied" },
+        "detail": { "const": "The public-read policy did not authorise this selection." }
+      }
+    },
+    {
+      "properties": {
+        "type": { "const": "urn:gis-ai-go:problem:selection-resolve:evidence-unavailable" },
+        "title": { "const": "Selection evidence unavailable" },
+        "status": { "const": 503 },
+        "code": { "const": "evidence_unavailable" },
+        "detail": { "const": "Durable evidence could not be verified for this selection." }
+      }
+    }
+  ],
+  "$defs": {
+    "constraint_field": {
+      "enum": [
+        "candidate_record_ids",
+        "constraints.profile_ids",
+        "constraints.provider_ids",
+        "constraints.dataset_ids",
+        "constraints.editions",
+        "constraints.versions",
+        "constraints.dimensions.time",
+        "constraints.dimensions.geography",
+        "constraints.dimensions.week",
+        "constraints.dimensions.causeofdeath"
+      ]
+    },
+    "constraint_fields": {
+      "type": "array",
+      "maxItems": 10,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/constraint_field" }
+    }
+  }
+}

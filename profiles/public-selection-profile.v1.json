@@ -1,0 +1,114 @@
+{
+  "candidates": [
+    {
+      "accepted_values": {
+        "dataset_id": "weekly-deaths-region",
+        "dimensions": {
+          "causeofdeath": "all-causes",
+          "geography": "E92000001",
+          "time": "2026",
+          "week": "week-24"
+        },
+        "edition": "time-series",
+        "profile_id": "PV-ONS-DATA",
+        "provider_id": "ons-data-api",
+        "version": "121"
+      },
+      "candidate_id": "PV-ONS-DATA:weekly-deaths-region:time-series:121",
+      "plan": {
+        "controls": {
+          "caller_url": false,
+          "credentials": false,
+          "network": "not-used",
+          "provider_execution": false
+        },
+        "data_query": {
+          "dataset": {
+            "edition": "time-series",
+            "id": "weekly-deaths-region",
+            "version": "121"
+          },
+          "limit": 1,
+          "resource_id": "gis-ai-go:public-read-resource:sha256:c7130712a40d75e71bcf0259792404389bea2e549adf6733f34d491f83e99f68",
+          "schema": "gis-ai-go.data-query-parameters.v1",
+          "selections": [
+            { "dimension": "time", "option": "2026" },
+            { "dimension": "geography", "option": "E92000001" },
+            { "dimension": "week", "option": "week-24" },
+            { "dimension": "causeofdeath", "option": "all-causes" }
+          ]
+        },
+        "execution": "forbidden",
+        "operation": "data.query",
+        "plan_id": "gis-ai-go:selection-plan:sha256:dbae1e78051a3a3bdfd0b49c0318d54df3a500effcb85df8cf34ad4e3cd31d9e",
+        "profile": {
+          "id": "PV-ONS-DATA",
+          "sha256": "535e6eb65fc9af4507e30700d425393a658a085a3a240689f4b37124dc8f8622"
+        },
+        "provider": {
+          "adapter_id": "gis-ai-go.ons-data-api",
+          "adapter_version": "1",
+          "id": "ons-data-api"
+        },
+        "resource_id": "gis-ai-go:public-read-resource:sha256:c7130712a40d75e71bcf0259792404389bea2e549adf6733f34d491f83e99f68",
+        "rights_sha256": "305b49e6d1f55de0109de12b2cbf0b7ec5da1d573e111f5884736c832b2e4b17",
+        "schema": "gis-ai-go.selection-plan.v1"
+      },
+      "record_id": "PV-ONS-DATA",
+      "resource_id": "gis-ai-go:public-read-resource:sha256:c7130712a40d75e71bcf0259792404389bea2e549adf6733f34d491f83e99f68"
+    }
+  ],
+  "execution": "forbidden",
+  "grammar": {
+    "anchor_fields": [
+      "candidate_record_ids",
+      "constraints.profile_ids",
+      "constraints.provider_ids",
+      "constraints.dataset_ids"
+    ],
+    "maximum_question_code_points": 512,
+    "maximum_request_bytes": 16384,
+    "maximum_values_per_field": 4,
+    "required_dimension_fields": [
+      "constraints.dimensions.time",
+      "constraints.dimensions.geography",
+      "constraints.dimensions.week",
+      "constraints.dimensions.causeofdeath"
+    ]
+  },
+  "operation": "selection.resolve",
+  "question_handling": "untrusted-not-interpreted",
+  "ranking": {
+    "algorithm": "weighted-exact-constraints",
+    "field_order": [
+      "candidate_record_ids",
+      "constraints.profile_ids",
+      "constraints.provider_ids",
+      "constraints.dataset_ids",
+      "constraints.editions",
+      "constraints.versions",
+      "constraints.dimensions.time",
+      "constraints.dimensions.geography",
+      "constraints.dimensions.week",
+      "constraints.dimensions.causeofdeath"
+    ],
+    "tie_handling": "ambiguous-no-plan",
+    "version": "v1",
+    "weights": {
+      "candidate_record_ids": 128,
+      "constraints.dataset_ids": 16,
+      "constraints.dimensions.causeofdeath": 2,
+      "constraints.dimensions.geography": 2,
+      "constraints.dimensions.time": 2,
+      "constraints.dimensions.week": 2,
+      "constraints.editions": 8,
+      "constraints.profile_ids": 64,
+      "constraints.provider_ids": 32,
+      "constraints.versions": 4
+    }
+  },
+  "resolution": "closed-constraints-only",
+  "resource_id": "gis-ai-go:public-read-resource:sha256:c7130712a40d75e71bcf0259792404389bea2e549adf6733f34d491f83e99f68",
+  "schema": "gis-ai-go.public-selection-profile.v1",
+  "selection_profile_id": "gis-ai-go:public-selection-profile:sha256:344fe6d8cbec7c355735ee711cd19b067be306f4087b30c341efec6c5e819f8e"
+}

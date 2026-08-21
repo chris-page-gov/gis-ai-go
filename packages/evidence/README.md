@@ -10,6 +10,11 @@ rights evidence, operation-specific parameters and successful result core. A
 denial, ambiguous selection or failed query cannot be passed to the success-receipt
 builder.
 
+The selection contract also exports the exact reviewed selection profile and its
+content-addressed non-executable plan. Successful selection result cores must bind
+that plan and the deterministic ranking which selected it. These additive plan and
+profile domains do not change the accepted receipt, record, event or replay domains.
+
 Canonical JSON follows the JSON Canonicalization Scheme rules used by RFC 8785 for
 the supported JSON data model: object keys are ordered by UTF-16 code units,
 strings and numbers use ECMAScript JSON serialisation, and the resulting text is

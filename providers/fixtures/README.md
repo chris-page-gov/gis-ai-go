@@ -22,6 +22,11 @@ credential, personal data or protected data. They do not show a live call or an
 activated tool. Denied and ambiguous operations deliberately have no success
 receipt fixture.
 
+`selection-plan.example.json`, the selection request and the unresolved problem
+fixture cover the deterministic inactive resolver. The plan is an exact
+non-executable projection; it contains no observation and is not evidence of a
+provider call. Problem fixtures deliberately contain no receipt.
+
 The `@gis-ai-go/provider-adapter-sdk` package supplies a frozen statistics fixture
 with fixture-native dataset, version, dimension and option identifiers. Both its
 discovery and invocation planes are suspended unless a test activates them

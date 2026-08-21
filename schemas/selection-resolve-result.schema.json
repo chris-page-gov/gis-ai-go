@@ -1,0 +1,1496 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:selection-resolve-result:v1",
+  "title": "GIS AI GO resolved public selection",
+  "description": "One deterministic, non-executable reviewed selection with v2 evidence. This inactive schema is not an advertised transport capability.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "operation",
+    "request_id",
+    "trace_id",
+    "data",
+    "evidence_binding",
+    "warnings",
+    "evidence_receipt"
+  ],
+  "properties": {
+    "schema": { "const": "gis-ai-go.selection-resolve-result.v1" },
+    "operation": { "const": "selection.resolve" },
+    "request_id": { "$ref": "#/$defs/request_id" },
+    "trace_id": { "$ref": "#/$defs/trace_id" },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "ambiguity", "resource_id", "plan", "ranking"],
+      "properties": {
+        "status": { "const": "resolved" },
+        "ambiguity": { "type": "null" },
+        "resource_id": { "$ref": "#/$defs/resource_id" },
+        "plan": { "$ref": "urn:gis-ai-go:schema:selection-plan:v1" },
+        "ranking": { "$ref": "#/$defs/success_ranking" }
+      }
+    },
+    "evidence_binding": { "$ref": "#/$defs/evidence_binding" },
+    "warnings": {
+      "const": [
+        "This plan is non-executable and no provider was called.",
+        "Question text is untrusted data and was not interpreted."
+      ]
+    },
+    "evidence_receipt": {
+      "allOf": [
+        { "$ref": "urn:gis-ai-go:schema:evidence-receipt:v2" },
+        {
+          "properties": {
+            "operation": {
+              "properties": {
+                "name": { "const": "selection.resolve" },
+                "normalised_parameters": {
+                  "properties": {
+                    "domain": { "const": "gis-ai-go.selection-resolve-parameters.v1" }
+                  }
+                }
+              }
+            },
+            "policy_decision": {
+              "properties": { "operation": { "const": "selection.resolve" } }
+            },
+            "transformations": {
+              "const": [
+                { "name": "normalise-public-read-parameters", "version": "v1" },
+                { "name": "resolve-fixed-selection-profile", "version": "v1" },
+                { "name": "project-public-read-result-core", "version": "v1" }
+              ]
+            },
+            "result": {
+              "properties": {
+                "domain": { "const": "gis-ai-go.selection-resolve-result-core.v1" }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "evidence_storage": { "$ref": "#/$defs/evidence_storage" }
+  },
+  "$defs": {
+    "request_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "trace_id": { "type": "string", "pattern": "^[0-9a-f]{32}$" },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "resource_id": {
+      "const": "gis-ai-go:public-read-resource:sha256:c7130712a40d75e71bcf0259792404389bea2e549adf6733f34d491f83e99f68"
+    },
+    "constraint_field": {
+      "enum": [
+        "candidate_record_ids",
+        "constraints.profile_ids",
+        "constraints.provider_ids",
+        "constraints.dataset_ids",
+        "constraints.editions",
+        "constraints.versions",
+        "constraints.dimensions.time",
+        "constraints.dimensions.geography",
+        "constraints.dimensions.week",
+        "constraints.dimensions.causeofdeath"
+      ]
+    },
+    "success_ranking": {
+      "$comment": "The 60 oneOf branches are generated from and checked against profiles/public-selection-profile.v1.json by scripts/check_public_read_v2.mjs.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "version",
+        "selection_profile_id",
+        "selected_candidate_id",
+        "considered_candidates",
+        "score",
+        "matched_constraints",
+        "top_score_tied"
+      ],
+      "properties": {
+        "algorithm": { "const": "weighted-exact-constraints" },
+        "version": { "const": "v1" },
+        "selection_profile_id": {
+          "const": "gis-ai-go:public-selection-profile:sha256:344fe6d8cbec7c355735ee711cd19b067be306f4087b30c341efec6c5e819f8e"
+        },
+        "selected_candidate_id": {
+          "const": "PV-ONS-DATA:weekly-deaths-region:time-series:121"
+        },
+        "considered_candidates": { "const": 1 },
+        "score": { "type": "integer", "minimum": 24, "maximum": 260 },
+        "matched_constraints": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 10,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/constraint_field" }
+        },
+        "top_score_tied": { "const": false }
+      },
+      "oneOf": [
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "candidate_record_ids",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 136
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "candidate_record_ids",
+                "constraints.editions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 144
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "candidate_record_ids",
+                "constraints.versions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 140
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "candidate_record_ids",
+                "constraints.editions",
+                "constraints.versions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 148
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "constraints.profile_ids",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 72
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "constraints.profile_ids",
+                "constraints.editions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 80
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "constraints.profile_ids",
+                "constraints.versions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 76
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "constraints.profile_ids",
+                "constraints.editions",
+                "constraints.versions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 84
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "candidate_record_ids",
+                "constraints.profile_ids",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 200
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "candidate_record_ids",
+                "constraints.profile_ids",
+                "constraints.editions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 208
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "candidate_record_ids",
+                "constraints.profile_ids",
+                "constraints.versions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 204
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "candidate_record_ids",
+                "constraints.profile_ids",
+                "constraints.editions",
+                "constraints.versions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 212
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "constraints.provider_ids",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 40
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "constraints.provider_ids",
+                "constraints.editions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 48
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "constraints.provider_ids",
+                "constraints.versions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 44
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "constraints.provider_ids",
+                "constraints.editions",
+                "constraints.versions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 52
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "candidate_record_ids",
+                "constraints.provider_ids",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 168
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "candidate_record_ids",
+                "constraints.provider_ids",
+                "constraints.editions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 176
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "candidate_record_ids",
+                "constraints.provider_ids",
+                "constraints.versions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 172
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "candidate_record_ids",
+                "constraints.provider_ids",
+                "constraints.editions",
+                "constraints.versions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 180
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "constraints.profile_ids",
+                "constraints.provider_ids",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 104
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "constraints.profile_ids",
+                "constraints.provider_ids",
+                "constraints.editions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 112
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "constraints.profile_ids",
+                "constraints.provider_ids",
+                "constraints.versions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 108
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "constraints.profile_ids",
+                "constraints.provider_ids",
+                "constraints.editions",
+                "constraints.versions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 116
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "candidate_record_ids",
+                "constraints.profile_ids",
+                "constraints.provider_ids",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 232
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "candidate_record_ids",
+                "constraints.profile_ids",
+                "constraints.provider_ids",
+                "constraints.editions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 240
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "candidate_record_ids",
+                "constraints.profile_ids",
+                "constraints.provider_ids",
+                "constraints.versions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 236
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "candidate_record_ids",
+                "constraints.profile_ids",
+                "constraints.provider_ids",
+                "constraints.editions",
+                "constraints.versions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 244
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "constraints.dataset_ids",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 24
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "constraints.dataset_ids",
+                "constraints.editions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 32
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "constraints.dataset_ids",
+                "constraints.versions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 28
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "constraints.dataset_ids",
+                "constraints.editions",
+                "constraints.versions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 36
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "candidate_record_ids",
+                "constraints.dataset_ids",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 152
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "candidate_record_ids",
+                "constraints.dataset_ids",
+                "constraints.editions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 160
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "candidate_record_ids",
+                "constraints.dataset_ids",
+                "constraints.versions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 156
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "candidate_record_ids",
+                "constraints.dataset_ids",
+                "constraints.editions",
+                "constraints.versions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 164
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "constraints.profile_ids",
+                "constraints.dataset_ids",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 88
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "constraints.profile_ids",
+                "constraints.dataset_ids",
+                "constraints.editions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 96
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "constraints.profile_ids",
+                "constraints.dataset_ids",
+                "constraints.versions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 92
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "constraints.profile_ids",
+                "constraints.dataset_ids",
+                "constraints.editions",
+                "constraints.versions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 100
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "candidate_record_ids",
+                "constraints.profile_ids",
+                "constraints.dataset_ids",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 216
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "candidate_record_ids",
+                "constraints.profile_ids",
+                "constraints.dataset_ids",
+                "constraints.editions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 224
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "candidate_record_ids",
+                "constraints.profile_ids",
+                "constraints.dataset_ids",
+                "constraints.versions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 220
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "candidate_record_ids",
+                "constraints.profile_ids",
+                "constraints.dataset_ids",
+                "constraints.editions",
+                "constraints.versions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 228
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "constraints.provider_ids",
+                "constraints.dataset_ids",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 56
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "constraints.provider_ids",
+                "constraints.dataset_ids",
+                "constraints.editions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 64
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "constraints.provider_ids",
+                "constraints.dataset_ids",
+                "constraints.versions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 60
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "constraints.provider_ids",
+                "constraints.dataset_ids",
+                "constraints.editions",
+                "constraints.versions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 68
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "candidate_record_ids",
+                "constraints.provider_ids",
+                "constraints.dataset_ids",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 184
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "candidate_record_ids",
+                "constraints.provider_ids",
+                "constraints.dataset_ids",
+                "constraints.editions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 192
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "candidate_record_ids",
+                "constraints.provider_ids",
+                "constraints.dataset_ids",
+                "constraints.versions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 188
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "candidate_record_ids",
+                "constraints.provider_ids",
+                "constraints.dataset_ids",
+                "constraints.editions",
+                "constraints.versions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 196
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "constraints.profile_ids",
+                "constraints.provider_ids",
+                "constraints.dataset_ids",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 120
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "constraints.profile_ids",
+                "constraints.provider_ids",
+                "constraints.dataset_ids",
+                "constraints.editions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 128
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "constraints.profile_ids",
+                "constraints.provider_ids",
+                "constraints.dataset_ids",
+                "constraints.versions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 124
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "constraints.profile_ids",
+                "constraints.provider_ids",
+                "constraints.dataset_ids",
+                "constraints.editions",
+                "constraints.versions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 132
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "candidate_record_ids",
+                "constraints.profile_ids",
+                "constraints.provider_ids",
+                "constraints.dataset_ids",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 248
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "candidate_record_ids",
+                "constraints.profile_ids",
+                "constraints.provider_ids",
+                "constraints.dataset_ids",
+                "constraints.editions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 256
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "candidate_record_ids",
+                "constraints.profile_ids",
+                "constraints.provider_ids",
+                "constraints.dataset_ids",
+                "constraints.versions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 252
+            }
+          }
+        },
+        {
+          "required": [
+            "matched_constraints",
+            "score"
+          ],
+          "properties": {
+            "matched_constraints": {
+              "const": [
+                "candidate_record_ids",
+                "constraints.profile_ids",
+                "constraints.provider_ids",
+                "constraints.dataset_ids",
+                "constraints.editions",
+                "constraints.versions",
+                "constraints.dimensions.time",
+                "constraints.dimensions.geography",
+                "constraints.dimensions.week",
+                "constraints.dimensions.causeofdeath"
+              ]
+            },
+            "score": {
+              "const": 260
+            }
+          }
+        }
+      ]
+    },
+    "evidence_binding": {
+      "const": {
+        "adapter_id": "gis-ai-go.ons-data-api",
+        "dataset_id": "weekly-deaths-region",
+        "edition": "time-series",
+        "profile_sha256": "535e6eb65fc9af4507e30700d425393a658a085a3a240689f4b37124dc8f8622",
+        "provider_id": "ons-data-api",
+        "resource_id": "gis-ai-go:public-read-resource:sha256:c7130712a40d75e71bcf0259792404389bea2e549adf6733f34d491f83e99f68",
+        "returned_item_count": 1,
+        "rights_sha256": "305b49e6d1f55de0109de12b2cbf0b7ec5da1d573e111f5884736c832b2e4b17",
+        "version": "121"
+      }
+    },
+    "evidence_storage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "ledger_id", "record_id", "event_id", "persisted_at", "retain_until"],
+      "properties": {
+        "status": { "const": "persisted" },
+        "ledger_id": { "type": "string", "pattern": "^gis-ai-go:public-evidence-ledger:sha256:[0-9a-f]{64}$" },
+        "record_id": { "type": "string", "pattern": "^gis-ai-go:public-evidence-record:sha256:[0-9a-f]{64}$" },
+        "event_id": { "type": "string", "pattern": "^gis-ai-go:evidence-ledger-event:sha256:[0-9a-f]{64}$" },
+        "persisted_at": { "type": "string", "format": "date-time", "maxLength": 24 },
+        "retain_until": { "type": "string", "format": "date-time", "maxLength": 24 }
+      }
+    }
+  }
+}

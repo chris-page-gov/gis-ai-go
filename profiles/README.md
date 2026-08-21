@@ -9,7 +9,13 @@ candidate, while `v02Target` records a non-runtime release objective. Only the
 gateway activation document can authorise production registration, and the
 registry package has no environment override or gateway integration.
 
-The profile is validated by
+[`public-selection-profile.v1.json`](public-selection-profile.v1.json) contains
+the single reviewed `PV-ONS-DATA` candidate, finite constraint grammar, exact
+ranking weights and content-addressed non-executable plan used by the inactive
+`selection.resolve` application. It does not grant execution authority or call a
+provider.
+
+The profiles are validated by
 [`tool-registry.schema.json`](../schemas/tool-registry.schema.json), the repository
-contract validator, Python source-provenance tests and the private
-`@gis-ai-go/tool-registry` TypeScript package.
+contract validator, operation-specific checkers and their private TypeScript
+packages.
