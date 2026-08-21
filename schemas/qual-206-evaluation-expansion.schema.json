@@ -1,0 +1,480 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:qual-206-evaluation-expansion:1",
+  "$comment": "Closed design-time schema for provenance-addressed, non-live QUAL-206 cases.",
+  "title": "QUAL-206 evaluation expansion",
+  "type": "object",
+  "required": [
+    "schema",
+    "title",
+    "base_corpus",
+    "source_repository",
+    "sources",
+    "deferred_cases",
+    "cases"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gis-ai-go.qual-206-evaluation-expansion.v1"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160
+    },
+    "base_corpus": {
+      "$ref": "#/$defs/base_corpus"
+    },
+    "source_repository": {
+      "$ref": "#/$defs/source_repository"
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/source"
+      }
+    },
+    "deferred_cases": {
+      "type": "array",
+      "maxItems": 8,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/deferred_case"
+      }
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/evaluation_case"
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "git_object": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "relative_path": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 240,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+    },
+    "case_id": {
+      "type": "string",
+      "pattern": "^QUAL-206-HOST-[0-9]{3}$"
+    },
+    "base_corpus": {
+      "type": "object",
+      "required": ["path", "schema", "sha256", "git_blob", "case_ids"],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/relative_path"
+        },
+        "schema": {
+          "const": "gis-ai-go.qual-206-evaluation-corpus.v1"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "git_blob": {
+          "$ref": "#/$defs/git_object"
+        },
+        "case_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/case_id"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "source_repository": {
+      "type": "object",
+      "required": ["repository", "commit", "handling"],
+      "properties": {
+        "repository": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+        },
+        "commit": {
+          "$ref": "#/$defs/git_object"
+        },
+        "handling": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        }
+      },
+      "additionalProperties": false
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "id",
+        "repository",
+        "commit",
+        "path",
+        "sha256",
+        "git_blob",
+        "pointers",
+        "evidence_role"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^MCPGEO-SOURCE-[0-9]{2}$"
+        },
+        "repository": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+        },
+        "commit": {
+          "$ref": "#/$defs/git_object"
+        },
+        "parent_repository_commit": {
+          "$ref": "#/$defs/git_object"
+        },
+        "submodule_path": {
+          "$ref": "#/$defs/relative_path"
+        },
+        "path": {
+          "$ref": "#/$defs/relative_path"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "git_blob": {
+          "$ref": "#/$defs/git_object"
+        },
+        "pointers": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          }
+        },
+        "evidence_role": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        }
+      },
+      "additionalProperties": false
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["kind", "source_refs", "abstraction"],
+      "properties": {
+        "kind": {
+          "const": "historical-derived"
+        },
+        "source_refs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^MCPGEO-SOURCE-[0-9]{2}$"
+          }
+        },
+        "abstraction": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        }
+      },
+      "additionalProperties": false
+    },
+    "fixture_variant": {
+      "type": "object",
+      "required": ["id", "stimulus"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "stimulus": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        }
+      },
+      "additionalProperties": false
+    },
+    "fixture": {
+      "type": "object",
+      "required": ["kind", "setup", "variants"],
+      "properties": {
+        "kind": {
+          "const": "synthetic-deterministic"
+        },
+        "setup": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        },
+        "variants": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "items": {
+            "$ref": "#/$defs/fixture_variant"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "assertion": {
+      "type": "object",
+      "required": ["id", "expected"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "expected": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 700
+        }
+      },
+      "additionalProperties": false
+    },
+    "known_gap": {
+      "type": "object",
+      "required": ["missing_capability", "expected_failure", "activation_condition"],
+      "properties": {
+        "missing_capability": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "expected_failure": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "activation_condition": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        }
+      },
+      "additionalProperties": false
+    },
+    "evaluation_case": {
+      "type": "object",
+      "required": [
+        "id",
+        "title",
+        "status",
+        "classification",
+        "execution_mode",
+        "scoring",
+        "live_capability_evidence",
+        "activation_boundary",
+        "provenance",
+        "capability",
+        "target_tools",
+        "prompt",
+        "fixture",
+        "assertions"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/case_id"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "status": {
+          "enum": ["pending", "expected-failing"]
+        },
+        "classification": {
+          "enum": ["non-live-pre-activation", "pre-activation-known-gap"]
+        },
+        "execution_mode": {
+          "const": "non-live"
+        },
+        "scoring": {
+          "const": "unscored"
+        },
+        "live_capability_evidence": {
+          "const": false
+        },
+        "activation_boundary": {
+          "const": "design-only-no-runtime-wiring"
+        },
+        "extends_cases": {
+          "type": "array",
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/case_id"
+          }
+        },
+        "provenance": {
+          "$ref": "#/$defs/provenance"
+        },
+        "capability": {
+          "enum": [
+            "selection.resolve",
+            "data.query",
+            "evidence.integrity",
+            "tool-registry",
+            "host-fallback"
+          ]
+        },
+        "target_tools": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 5,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "catalogue.search",
+              "catalogue.describe",
+              "evidence.inspect",
+              "selection.resolve",
+              "data.query"
+            ]
+          }
+        },
+        "prompt": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 600
+        },
+        "fixture": {
+          "$ref": "#/$defs/fixture"
+        },
+        "assertions": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "items": {
+            "$ref": "#/$defs/assertion"
+          }
+        },
+        "known_gap": {
+          "$ref": "#/$defs/known_gap"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "expected-failing"
+              }
+            },
+            "required": ["status"]
+          },
+          "then": {
+            "required": ["known_gap"],
+            "properties": {
+              "classification": {
+                "const": "pre-activation-known-gap"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "classification": {
+                "const": "non-live-pre-activation"
+              }
+            },
+            "not": {
+              "required": ["known_gap"]
+            }
+          }
+        }
+      ],
+      "additionalProperties": false
+    },
+    "deferred_case": {
+      "type": "object",
+      "required": [
+        "id",
+        "title",
+        "status",
+        "classification",
+        "live_capability_evidence",
+        "scoring",
+        "source_refs",
+        "rationale",
+        "activation_condition"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/case_id"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "status": {
+          "const": "deferred"
+        },
+        "classification": {
+          "const": "not-runnable-no-governed-cache"
+        },
+        "live_capability_evidence": {
+          "const": false
+        },
+        "scoring": {
+          "const": "unscored"
+        },
+        "source_refs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^MCPGEO-SOURCE-[0-9]{2}$"
+          }
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 700
+        },
+        "activation_condition": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 700
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

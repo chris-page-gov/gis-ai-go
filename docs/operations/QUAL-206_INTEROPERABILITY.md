@@ -602,6 +602,49 @@ data or licensed feature payloads. Changes to a historical case require a fresh
 review against its cited source-hashed material; changes to a candidate-assurance
 case require review against the current named contract or threat boundary.
 
+### Pending deterministic expansion
+
+The ten-case [`qual_206_cases.json`](../../tests/interoperability/qual_206_cases.json)
+remains byte-identical at SHA-256
+`23ac9bc1a76d524bd0e250b11b9ba321b09e66bd5921f1463f50c150001cd389`
+and Git blob `728c9902b98c45f0a123127cb0756e86ba7a1113`. This preserves the exact
+corpus identity recorded by the earlier ChatGPT and Codex sessions.
+
+The separate schema-validated
+[`qual_206_cases_expansion.json`](../../tests/interoperability/qual_206_cases_expansion.json)
+composes seven additional cases with that frozen base. Every new case is
+`non-live`, `unscored` and behind the `design-only-no-runtime-wiring` activation
+boundary. The case definitions are expected assertions for a future deterministic
+harness, not observed host results or evidence of current tool availability.
+
+| Case | Boundary | Expected pre-activation assertion |
+| --- | --- | --- |
+| `HOST-011` | `selection.resolve` ambiguity | Ambiguous or incomplete selection fails before a provider call or evidence write; only the exact reviewed resource can resolve. |
+| `HOST-012` | historical and near-match drift | Historical, workplace and unreviewed `latest` candidates do not replace fixed dataset version `121`; equal scores remain ambiguous. |
+| `HOST-013` | `data.query` validation | Dataset, version, dimension, option, order, unknown-field and limit mutations fail before adapter egress with no receipt or ledger write. |
+| `HOST-014` | partial and drifted output | Empty, duplicate, identity-drifted, count-mismatched or degraded output is never described as complete and cannot gain evidence. |
+| `HOST-015` | response lost after persistence | Explicitly **expected-failing**: at-most-once reconciliation is absent because the caller has neither the lost receipt ID nor a governed idempotency lookup. |
+| `HOST-017` | tool metadata and repair-hint poisoning | Registry drift fails closed; instruction-like metadata remains quoted data and cannot select an unregistered tool or external destination. |
+| `HOST-018` | host fallback provenance | Use a complete same-source structured or text result, or report unsupported; never substitute web search, another plugin, a custom artefact or an external service. |
+
+`HOST-015` must remain expected-failing until one reviewed request or idempotency
+identity can return an already persisted receipt after restart without repeating
+provider execution, evidence storage or a ledger event. `evidence.inspect` alone
+does not close the gap because its input is the receipt ID lost with the response.
+
+`HOST-016` is deliberately not a runnable case. Its source-bound cache incident
+shows why an ingested status cannot prove shard coverage, but GIS AI GO does not
+yet have a governed cache. Add it only after a cache records source version,
+expected and ingested shard counts, checksums, retrieval time, licence, expiry and
+rebuild identity. Until then, a runnable cache claim would misrepresent the product
+boundary.
+
+The expansion extends the retained coverage without changing earlier case objects:
+`HOST-015` adds the lost-response evidence boundary related to `HOST-002`,
+`HOST-017` supplies a concrete registry and repair-hint matrix related to
+`HOST-006`, and `HOST-018` adds the external-substitution prohibition related to
+`HOST-005`. Existing live and readiness results retain their original labels.
+
 ## Earlier ChatGPT-candidate local assurance
 
 The complete locked `pnpm run check` gate passed on the final ChatGPT evidence

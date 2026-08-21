@@ -17,6 +17,12 @@ const LEGACY_SERVER = join(
 );
 const PROXY = join(ROOT, "scripts", "qual_206_telemetry_proxy.mjs");
 const CASES = join(ROOT, "tests", "interoperability", "qual_206_cases.json");
+const CASES_EXPANSION = join(
+  ROOT,
+  "tests",
+  "interoperability",
+  "qual_206_cases_expansion.json",
+);
 const CHATGPT_EVIDENCE = join(
   ROOT,
   "tests",
@@ -78,6 +84,14 @@ function run(command, args, options = {}) {
 
 function sha256(value) {
   return createHash("sha256").update(value).digest("hex");
+}
+
+function gitBlobSha1(value) {
+  const bytes = Buffer.isBuffer(value) ? value : Buffer.from(value);
+  return createHash("sha1")
+    .update(`blob ${bytes.length}\0`)
+    .update(bytes)
+    .digest("hex");
 }
 
 test("conformance server fails closed without the explicit test flag", async () => {
@@ -500,6 +514,163 @@ test("derived evaluation corpus is bounded and provenance-addressed", async () =
       assert.equal(evaluationCase.provenance.source_refs, undefined);
     }
   }
+});
+
+test("evaluation expansion preserves the frozen corpus and provenance", async () => {
+  const corpusBytes = await readFile(CASES);
+  const corpus = JSON.parse(corpusBytes);
+  const expansion = JSON.parse(await readFile(CASES_EXPANSION, "utf8"));
+  assert.equal(
+    sha256(corpusBytes),
+    "23ac9bc1a76d524bd0e250b11b9ba321b09e66bd5921f1463f50c150001cd389",
+  );
+  assert.equal(
+    gitBlobSha1(corpusBytes),
+    "728c9902b98c45f0a123127cb0756e86ba7a1113",
+  );
+  assert.equal(expansion.schema, "gis-ai-go.qual-206-evaluation-expansion.v1");
+  assert.equal(expansion.base_corpus.sha256, sha256(corpusBytes));
+  assert.equal(expansion.base_corpus.git_blob, gitBlobSha1(corpusBytes));
+  assert.deepEqual(
+    expansion.base_corpus.case_ids,
+    corpus.cases.map((value) => value.id),
+  );
+  assert.equal(
+    expansion.source_repository.commit,
+    "56683b33c0cd02842b7f3ee465414c68a1f3f2a6",
+  );
+
+  const expectedExpansionIds = [
+    "QUAL-206-HOST-011",
+    "QUAL-206-HOST-012",
+    "QUAL-206-HOST-013",
+    "QUAL-206-HOST-014",
+    "QUAL-206-HOST-015",
+    "QUAL-206-HOST-017",
+    "QUAL-206-HOST-018",
+  ];
+  assert.deepEqual(expansion.cases.map((value) => value.id), expectedExpansionIds);
+  const combinedIds = [
+    ...corpus.cases.map((value) => value.id),
+    ...expansion.cases.map((value) => value.id),
+  ];
+  assert.equal(combinedIds.length, 17);
+  assert.equal(new Set(combinedIds).size, combinedIds.length);
+  assert.equal(combinedIds.includes("QUAL-206-HOST-016"), false);
+
+  assert.equal(expansion.sources.length, 8);
+  const sourceIds = new Set(expansion.sources.map((source) => source.id));
+  assert.equal(sourceIds.size, expansion.sources.length);
+  for (const source of expansion.sources) {
+    assert.match(source.commit, /^[0-9a-f]{40}$/u);
+    assert.match(source.git_blob, /^[0-9a-f]{40}$/u);
+    assert.match(source.sha256, /^[0-9a-f]{64}$/u);
+    assert.equal(source.path.startsWith("/"), false);
+    assert.equal(source.pointers.length > 0, true);
+    assert.equal(new Set(source.pointers).size, source.pointers.length);
+  }
+  for (const source of expansion.sources.filter(
+    (value) => value.repository === "chris-page-gov/mcp-geo",
+  )) {
+    assert.equal(source.commit, expansion.source_repository.commit);
+  }
+  const submoduleSource = expansion.sources.find(
+    (value) => value.repository === "chris-page-gov/os-mcp",
+  );
+  assert.equal(
+    submoduleSource.commit,
+    "584cb6d0c2ded52b7e5f27b89be5c7a4eb1f2365",
+  );
+  assert.equal(
+    submoduleSource.parent_repository_commit,
+    expansion.source_repository.commit,
+  );
+  assert.equal(submoduleSource.submodule_path, "submodules/os-mcp");
+
+  for (const evaluationCase of expansion.cases) {
+    assert.equal(evaluationCase.provenance.kind, "historical-derived");
+    assert.ok(evaluationCase.provenance.source_refs.length > 0);
+    for (const sourceRef of evaluationCase.provenance.source_refs) {
+      assert.equal(sourceIds.has(sourceRef), true, sourceRef);
+    }
+    for (const extendedCase of evaluationCase.extends_cases ?? []) {
+      assert.equal(expansion.base_corpus.case_ids.includes(extendedCase), true);
+    }
+    assert.equal(
+      new Set(evaluationCase.fixture.variants.map((value) => value.id)).size,
+      evaluationCase.fixture.variants.length,
+    );
+    assert.equal(
+      new Set(evaluationCase.assertions.map((value) => value.id)).size,
+      evaluationCase.assertions.length,
+    );
+  }
+});
+
+test("evaluation expansion is non-live, unscored and records the known gap", async () => {
+  const expansion = JSON.parse(await readFile(CASES_EXPANSION, "utf8"));
+  const statuses = expansion.cases.map((value) => value.status);
+  assert.equal(statuses.filter((value) => value === "pending").length, 6);
+  assert.equal(statuses.filter((value) => value === "expected-failing").length, 1);
+  for (const evaluationCase of expansion.cases) {
+    assert.equal(evaluationCase.execution_mode, "non-live");
+    assert.equal(evaluationCase.scoring, "unscored");
+    assert.equal(evaluationCase.live_capability_evidence, false);
+    assert.equal(
+      evaluationCase.activation_boundary,
+      "design-only-no-runtime-wiring",
+    );
+    assert.equal(
+      ["pending", "expected-failing"].includes(evaluationCase.status),
+      true,
+    );
+    assert.equal(
+      evaluationCase.classification,
+      evaluationCase.status === "expected-failing"
+        ? "pre-activation-known-gap"
+        : "non-live-pre-activation",
+    );
+    assert.equal(evaluationCase.observed_result, undefined);
+    assert.equal(evaluationCase.host_result, undefined);
+    assert.equal(evaluationCase.telemetry, undefined);
+  }
+
+  const expectedFailure = expansion.cases.find(
+    (value) => value.id === "QUAL-206-HOST-015",
+  );
+  assert.equal(expectedFailure.status, "expected-failing");
+  assert.equal(expectedFailure.classification, "pre-activation-known-gap");
+  assert.match(
+    expectedFailure.known_gap.missing_capability,
+    /no governed idempotency key/u,
+  );
+  assert.match(expectedFailure.known_gap.missing_capability, /receipt ID/u);
+  assert.match(expectedFailure.known_gap.expected_failure, /cannot reconcile/u);
+
+  assert.equal(expansion.deferred_cases.length, 1);
+  const deferred = expansion.deferred_cases[0];
+  assert.equal(deferred.id, "QUAL-206-HOST-016");
+  assert.equal(deferred.status, "deferred");
+  assert.equal(deferred.classification, "not-runnable-no-governed-cache");
+  assert.equal(deferred.live_capability_evidence, false);
+  assert.equal(deferred.scoring, "unscored");
+  assert.deepEqual(deferred.source_refs, ["MCPGEO-SOURCE-06"]);
+  assert.match(deferred.rationale, /no governed runtime cache/u);
+  assert.match(deferred.activation_condition, /expected and ingested shard counts/u);
+
+  const sourceIds = new Set(expansion.sources.map((source) => source.id));
+  for (const sourceRef of deferred.source_refs) {
+    assert.equal(sourceIds.has(sourceRef), true, sourceRef);
+  }
+  const referencedSources = new Set([
+    ...expansion.cases.flatMap((value) => value.provenance.source_refs),
+    ...expansion.deferred_cases.flatMap((value) => value.source_refs),
+  ]);
+  assert.deepEqual([...referencedSources].sort(), [...sourceIds].sort());
+  assert.doesNotMatch(
+    JSON.stringify(expansion.cases),
+    /"status":"(?:passed|failed|local-live-candidate-pass)"/u,
+  );
 });
 
 test("reviewed ChatGPT evidence is path-free and binds the harness bytes", async () => {

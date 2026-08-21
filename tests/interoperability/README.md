@@ -19,6 +19,27 @@ derived from the exact source-hashed `mcp-geo` archive from candidate-specific
 assurance cases. Every historical case cites its source paths; current-candidate
 cases state their basis without claiming historical provenance. Raw chats, secrets,
 personal data and licensed payloads are deliberately excluded.
+That ten-case v1 corpus is frozen at SHA-256
+`23ac9bc1a76d524bd0e250b11b9ba321b09e66bd5921f1463f50c150001cd389`
+because retained ChatGPT and Codex records bind those exact bytes.
+
+The schema-validated
+[`qual_206_cases_expansion.json`](qual_206_cases_expansion.json) composes seven
+additional historical-derived cases with that frozen base. Cases `HOST-011` to
+`HOST-015`, `HOST-017` and `HOST-018` are deterministic, non-live, pre-activation
+design cases and remain unscored. `HOST-015` is explicitly expected-failing until
+lost-response reconciliation exists. `HOST-016` is only a deferred entry: it must
+not become runnable until GIS AI GO has a governed cache with coverage and rebuild
+evidence. The closed contract is
+[`qual-206-evaluation-expansion.schema.json`](../../schemas/qual-206-evaluation-expansion.schema.json).
+
+The combined design suite therefore contains 17 unique runnable-case identifiers:
+the ten unchanged v1 cases plus seven expansion cases. It does not turn the new
+cases into observed host results, activate a tool, call a provider or alter any
+historical capability classification. `HOST-017` and `HOST-018` extend the
+assertion coverage of retained `HOST-006` and `HOST-005` respectively; `HOST-015`
+adds an evidence-integrity boundary related to `HOST-002` without rewriting any of
+those historical case objects.
 Reviewed live-host summaries are stored under [`evidence/`](evidence/) and bind
 their claims to exact harness bytes without retaining raw prompt or result content.
 The same directory preserves path-free independent-host readiness summaries without
