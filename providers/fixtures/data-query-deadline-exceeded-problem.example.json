@@ -1,0 +1,11 @@
+{
+  "schema": "gis-ai-go.data-query-problem.v1",
+  "type": "urn:gis-ai-go:problem:data-query-deadline-exceeded",
+  "title": "Data query deadline exceeded",
+  "status": 408,
+  "code": "query_deadline_exceeded",
+  "detail": "The caller deadline elapsed before the data query completed.",
+  "request_id": "request-data-query-example-1",
+  "trace_id": "8123456789abcdef0123456789abcdef",
+  "instance": "/data/query"
+}

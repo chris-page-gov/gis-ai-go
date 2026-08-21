@@ -29,6 +29,9 @@ The deterministic adapter test separately retains the public aggregate scalar
 `10471` needed to reproduce the result digest; the value is not present in the
 live-probe record or its standard output.
 
-Both lifecycle planes remain suspended. Runtime integration must reuse the accepted
-EXEC-202 typed request, result, error, deadline, cancellation and trace boundary;
-this folder and adapter do not invent or activate a substitute gateway envelope.
+Both lifecycle planes remain suspended by default. The accepted public-read v2
+application now integrates this exact resource through mandatory direct
+`OnsDataApiAdapter` injection after policy evaluation, while reusing the accepted
+deadline, cancellation and trace semantics. This supersedes the earlier provisional
+requirement to widen the synthetic-only EXEC-202 allowlist. It does not invent a
+transport envelope, configure a shipped adapter or activate a gateway capability.

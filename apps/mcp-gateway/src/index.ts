@@ -2,6 +2,7 @@ export * from "./activation.js";
 export * from "./catalogue-application.js";
 export * from "./catalogue-snapshot.js";
 export * from "./cursor.js";
+export * from "./data-query-application.js";
 export * from "./evidence-application.js";
 export * from "./execution-envelope.js";
 export * from "./http-app.js";

@@ -539,6 +539,46 @@ def main() -> None:
             ],
         ),
         (
+            "data-query-parameters.schema.json",
+            [
+                (
+                    "data-query-parameters.example.json",
+                    load_json(fixture_dir / "data-query-parameters.example.json"),
+                )
+            ],
+        ),
+        (
+            "data-query-result.schema.json",
+            [
+                (
+                    "data-query-result.example.json",
+                    load_json(fixture_dir / "data-query-result.example.json"),
+                )
+            ],
+        ),
+        (
+            "data-query-problem.schema.json",
+            [
+                (
+                    "data-query-problem.example.json",
+                    load_json(fixture_dir / "data-query-problem.example.json"),
+                ),
+                (
+                    "data-query-cancelled-problem.example.json",
+                    load_json(
+                        fixture_dir / "data-query-cancelled-problem.example.json"
+                    ),
+                ),
+                (
+                    "data-query-deadline-exceeded-problem.example.json",
+                    load_json(
+                        fixture_dir
+                        / "data-query-deadline-exceeded-problem.example.json"
+                    ),
+                ),
+            ],
+        ),
+        (
             "execution-request.schema.json",
             [
                 (

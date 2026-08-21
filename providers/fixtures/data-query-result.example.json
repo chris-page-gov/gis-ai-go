@@ -1,0 +1,194 @@
+{
+  "schema": "gis-ai-go.data-query-result.v1",
+  "operation": "data.query",
+  "request_id": "request-data-query-example-1",
+  "trace_id": "8123456789abcdef0123456789abcdef",
+  "evidence_binding": {
+    "adapter_id": "gis-ai-go.ons-data-api",
+    "dataset_id": "weekly-deaths-region",
+    "edition": "time-series",
+    "profile_sha256": "535e6eb65fc9af4507e30700d425393a658a085a3a240689f4b37124dc8f8622",
+    "provider_id": "ons-data-api",
+    "resource_id": "gis-ai-go:public-read-resource:sha256:c7130712a40d75e71bcf0259792404389bea2e549adf6733f34d491f83e99f68",
+    "returned_item_count": 1,
+    "rights_sha256": "305b49e6d1f55de0109de12b2cbf0b7ec5da1d573e111f5884736c832b2e4b17",
+    "version": "121"
+  },
+  "data": {
+    "status": "succeeded",
+    "observations": [{ "value": "10471", "unit": null }]
+  },
+  "warnings": [],
+  "evidence_receipt": {
+    "authority_context": {
+      "access": {
+        "authentication": "none",
+        "contains_personal_data": false,
+        "contains_protected_data": false,
+        "publication_classification": "public",
+        "read_only": true,
+        "tier": "open"
+      },
+      "canonicalisation": "rfc8785-jcs",
+      "construction": {
+        "product": "gis-ai-go-gateway",
+        "profile": "anonymous-open",
+        "source": "server"
+      },
+      "context_id": "gis-ai-go:public-authority-context:sha256:5d97a93aaa9c8fcbf9f02d2812275cf59b4c0e0e923de89ac975035c741bc1f1",
+      "evidence": {
+        "attestation": "not-attested",
+        "persistence": "not-persisted",
+        "receipt": "inline-required"
+      },
+      "permitted_operations": ["data.query", "selection.resolve"],
+      "schema": "gis-ai-go.public-authority-context.v2"
+    },
+    "created_at": "2026-08-21T01:00:00.000Z",
+    "evidence_handling": {
+      "attestation": "not-attested",
+      "delivery": "inline-only",
+      "persistence": "not-persisted"
+    },
+    "operation": {
+      "contract_version": "v1",
+      "name": "data.query",
+      "normalised_parameters": {
+        "domain": "gis-ai-go.data-query-parameters.v1",
+        "sha256": "1d4451784db65f8a47978f643b94fe4f6d8f6be95cf9b4327d861249796edc20"
+      }
+    },
+    "policy_decision": {
+      "authority_context_id": "gis-ai-go:public-authority-context:sha256:5d97a93aaa9c8fcbf9f02d2812275cf59b4c0e0e923de89ac975035c741bc1f1",
+      "canonicalisation": "rfc8785-jcs",
+      "decision_id": "gis-ai-go:public-policy-decision:sha256:6fc2ce6e35387808e0608602a808b1566f28eed64794bdcc157043d865b45de0",
+      "effect": "allow-with-obligations",
+      "obligations": [
+        "bounded-single-observation",
+        "inline-evidence-receipt",
+        "not-attested",
+        "not-persisted",
+        "preserve-attribution",
+        "preserve-provider-identifiers",
+        "preserve-provider-rights",
+        "preserve-provider-version"
+      ],
+      "operation": "data.query",
+      "policy_default_effect": "deny",
+      "policy_id": "gis-ai-go:public-policy:sha256:b1a37b2ebf6900e2b5d62dfa20bcdaa1232e1c4c9f9630f90ac9d3dde738624a",
+      "policy_version": "2.0.0",
+      "reason_code": "public-read-operation-allowed",
+      "request_id": "request-data-query-example-1",
+      "resource_id": "gis-ai-go:public-read-resource:sha256:c7130712a40d75e71bcf0259792404389bea2e549adf6733f34d491f83e99f68",
+      "schema": "gis-ai-go.public-policy-decision.v2",
+      "trace_id": "8123456789abcdef0123456789abcdef"
+    },
+    "receipt_id": "gis-ai-go:evidence-receipt:sha256:40300996835f5e8af1d8342c0f374b03584ec021500c11bc866f1cc0ff18c592",
+    "request_id": "request-data-query-example-1",
+    "resource": {
+      "dataset": {
+        "dimension_order": ["time", "geography", "week", "causeofdeath"],
+        "edition": "time-series",
+        "id": "weekly-deaths-region",
+        "source_date": "2026-07-01",
+        "version": "121",
+        "version_uri": "https://api.beta.ons.gov.uk/v1/datasets/weekly-deaths-region/editions/time-series/versions/121"
+      },
+      "limits": {
+        "max_attempts": 2,
+        "max_canonical_response_bytes": 262144,
+        "max_compressed_response_bytes": 262144,
+        "max_decompressed_response_bytes": 1048576,
+        "max_observations": 1
+      },
+      "output": {
+        "axis_order": null,
+        "crs": null,
+        "media_type": "application/json",
+        "spatial": false
+      },
+      "profile": {
+        "id": "PV-ONS-DATA",
+        "sha256": "535e6eb65fc9af4507e30700d425393a658a085a3a240689f4b37124dc8f8622",
+        "source_path": "docs/research/2026-08-19/research-pack/data/providers.json",
+        "source_pointer": "/providers/1"
+      },
+      "provider": {
+        "adapter_id": "gis-ai-go.ons-data-api",
+        "adapter_version": "1",
+        "id": "ons-data-api"
+      },
+      "publication": {
+        "access_tier": "open",
+        "authentication": "none",
+        "classification": "public",
+        "contains_personal_data": false,
+        "contains_protected_data": false,
+        "read_only": true
+      },
+      "resource_id": "gis-ai-go:public-read-resource:sha256:c7130712a40d75e71bcf0259792404389bea2e549adf6733f34d491f83e99f68",
+      "rights": {
+        "attribution": "Source: Office for National Statistics licensed under the Open Government Licence v.3.0",
+        "evidence_uris": [
+          "https://www.ons.gov.uk/datasets/weekly-deaths-region/editions/time-series/versions/121",
+          "https://www.ons.gov.uk/help/terms-conditions",
+          "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
+        ],
+        "exceptions": [
+          "The ONS logo is excluded and is not retrieved or redistributed.",
+          "Any record-level third-party exception overrides this general evidence and must fail closed.",
+          "The selected aggregate dataset page stated no additional exception when reviewed."
+        ],
+        "licence": "Open Government Licence v3.0",
+        "licence_uri": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
+        "obligations": [
+          "Acknowledge the source and licence when reproducing the selected ONS content.",
+          "Preserve the selected dataset, edition, version and release date.",
+          "Do not imply that ONS endorses GIS AI GO or its interpretation."
+        ],
+        "reviewed_at": "2026-08-20T17:40:35Z",
+        "state": "open-with-conditions"
+      },
+      "schema": "gis-ai-go.public-read-resource.v1",
+      "selections": [
+        { "dimension": "time", "option": "2026" },
+        { "dimension": "geography", "option": "E92000001" },
+        { "dimension": "week", "option": "week-24" },
+        { "dimension": "causeofdeath", "option": "all-causes" }
+      ]
+    },
+    "result": {
+      "domain": "gis-ai-go.data-query-result-core.v1",
+      "media_type": "application/json",
+      "returned_item_count": 1,
+      "sha256": "af064bfd95484ea5658d4da83dc0ca5a29c418a0962a1b39874a9a56805d83bb"
+    },
+    "schema": "gis-ai-go.evidence-receipt.v2",
+    "software": {
+      "name": "gis-ai-go-mcp-gateway",
+      "revision": "e1fc1cbe69ea72c9aa310607d80f392ef56b0d58",
+      "version": "0.1.0"
+    },
+    "trace_id": "8123456789abcdef0123456789abcdef",
+    "transformations": [
+      { "name": "normalise-public-read-parameters", "version": "v1" },
+      { "name": "execute-fixed-provider-query", "version": "v1" },
+      { "name": "project-public-read-result-core", "version": "v1" }
+    ],
+    "verification": {
+      "canonicalisation": "rfc8785-jcs",
+      "checks": [
+        "authority-context",
+        "normalised-parameters-digest",
+        "profile-binding",
+        "provider-binding",
+        "provider-rights",
+        "public-policy-decision",
+        "result-core-digest",
+        "schema"
+      ],
+      "digest_algorithm": "sha256",
+      "status": "passed"
+    }
+  }
+}

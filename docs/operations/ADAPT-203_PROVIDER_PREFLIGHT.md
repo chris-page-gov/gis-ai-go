@@ -147,11 +147,21 @@ closed privacy-safe evidence shape described above; it never prints the observat
 value or response payload. The checked-in example is
 [`data-api-adapter-live-probe.v1.json`](../../providers/ons/data-api-adapter-live-probe.v1.json).
 
-## Dependency and activation boundary
+## Application integration and activation boundary
 
-The ONS record and both lifecycle planes remain suspended. The implementation adds
-the route-specific parser, DNS/TLS transport, response and decompression limits,
-retry/rate admission and execution-control hooks, but it is not dispatched by
-EXEC-202. A later reviewed integration must join it to that exact boundary and add
-gateway-to-execution round-trip tests. No MCP tool, direct API operation, gateway
-capability list, public listener or deployment is changed by this slice.
+The ONS record and both lifecycle planes remain suspended by default. The
+implementation adds the route-specific parser, DNS/TLS transport, response and
+decompression limits, retry/rate admission and execution-control hooks, but it is
+not dispatched by EXEC-202.
+
+The later accepted public-read v2 contract defines a narrower application seam for
+this exact provider resource. Its application-only `data.query` slice explicitly
+injects `OnsDataApiAdapter` after local public-read policy evaluation and propagates
+the accepted deadline and cancellation controls directly. That reviewed direct
+injection supersedes the earlier provisional wording that integration must join the
+synthetic-only EXEC-202 operation. EXEC-202 remains the separate typed private
+Python boundary and its allowlist is not widened implicitly.
+
+Neither integration changes the default lifecycle: no MCP tool, direct API
+operation, gateway capability list, shipped adapter constructor, public listener or
+deployment is activated.

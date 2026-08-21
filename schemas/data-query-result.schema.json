@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:data-query-result:v1",
+  "title": "GIS AI GO successful public ONS data query result",
+  "description": "One complete successful application result with independently checked provider evidence and a fully verified public-read v2 receipt.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "operation",
+    "request_id",
+    "trace_id",
+    "evidence_binding",
+    "data",
+    "warnings",
+    "evidence_receipt"
+  ],
+  "properties": {
+    "schema": { "const": "gis-ai-go.data-query-result.v1" },
+    "operation": { "const": "data.query" },
+    "request_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "trace_id": { "type": "string", "pattern": "^[0-9a-f]{32}$" },
+    "evidence_binding": {
+      "const": {
+        "resource_id": "gis-ai-go:public-read-resource:sha256:c7130712a40d75e71bcf0259792404389bea2e549adf6733f34d491f83e99f68",
+        "profile_sha256": "535e6eb65fc9af4507e30700d425393a658a085a3a240689f4b37124dc8f8622",
+        "provider_id": "ons-data-api",
+        "adapter_id": "gis-ai-go.ons-data-api",
+        "dataset_id": "weekly-deaths-region",
+        "edition": "time-series",
+        "version": "121",
+        "rights_sha256": "305b49e6d1f55de0109de12b2cbf0b7ec5da1d573e111f5884736c832b2e4b17",
+        "returned_item_count": 1
+      }
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "observations"],
+      "properties": {
+        "status": { "const": "succeeded" },
+        "observations": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["value", "unit"],
+            "properties": {
+              "value": {
+                "type": "string",
+                "pattern": "^(?:0|[1-9][0-9]{0,14})$"
+              },
+              "unit": { "type": "null" }
+            }
+          }
+        }
+      }
+    },
+    "warnings": { "const": [] },
+    "evidence_receipt": {
+      "allOf": [
+        { "$ref": "urn:gis-ai-go:schema:evidence-receipt:v2" },
+        {
+          "properties": {
+            "operation": {
+              "properties": { "name": { "const": "data.query" } }
+            },
+            "result": {
+              "properties": {
+                "domain": { "const": "gis-ai-go.data-query-result-core.v1" },
+                "returned_item_count": { "const": 1 }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "evidence_storage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "ledger_id",
+        "record_id",
+        "event_id",
+        "persisted_at",
+        "retain_until"
+      ],
+      "properties": {
+        "status": { "const": "persisted" },
+        "ledger_id": {
+          "type": "string",
+          "pattern": "^gis-ai-go:public-evidence-ledger:sha256:[0-9a-f]{64}$"
+        },
+        "record_id": {
+          "type": "string",
+          "pattern": "^gis-ai-go:public-evidence-record:sha256:[0-9a-f]{64}$"
+        },
+        "event_id": {
+          "type": "string",
+          "pattern": "^gis-ai-go:evidence-ledger-event:sha256:[0-9a-f]{64}$"
+        },
+        "persisted_at": { "type": "string", "format": "date-time" },
+        "retain_until": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}
