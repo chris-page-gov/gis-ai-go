@@ -27,6 +27,14 @@ fixture cover the deterministic inactive resolver. The plan is an exact
 non-executable projection; it contains no observation and is not evidence of a
 provider call. Problem fixtures deliberately contain no receipt.
 
+The `data-query-parameters`, `data-query-result` and `data-query-problem` examples
+exercise the later inactive application-only seam. The successful fixture retains
+the already documented public aggregate scalar `10471` to reproduce its complete
+result-core and receipt digests; it is not a fresh live query or stored provider
+response. The provider, caller-cancelled and caller-deadline problem fixtures are
+deliberately receipt-free and cannot retain an abort reason, deadline, adapter
+message, provider status, payload, credential, path or stack.
+
 The `@gis-ai-go/provider-adapter-sdk` package supplies a frozen statistics fixture
 with fixture-native dataset, version, dimension and option identifiers. Both its
 discovery and invocation planes are suspended unless a test activates them

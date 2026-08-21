@@ -1,0 +1,196 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:data-query-problem:v1",
+  "title": "GIS AI GO data query problem",
+  "description": "A closed receipt-free problem. Adapter messages, provider status, response content, paths, credentials and evidence receipts cannot be represented.",
+  "oneOf": [
+    { "$ref": "#/$defs/invalidRequest" },
+    { "$ref": "#/$defs/queryCancelled" },
+    { "$ref": "#/$defs/queryDeadlineExceeded" },
+    { "$ref": "#/$defs/policyDenied" },
+    { "$ref": "#/$defs/providerSuspended" },
+    { "$ref": "#/$defs/providerRateLimited" },
+    { "$ref": "#/$defs/providerTimeout" },
+    { "$ref": "#/$defs/providerUnavailable" },
+    { "$ref": "#/$defs/providerContractFailed" },
+    { "$ref": "#/$defs/evidenceUnavailable" }
+  ],
+  "$defs": {
+    "commonProperties": {
+      "schema": { "const": "gis-ai-go.data-query-problem.v1" },
+      "request_id": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+      },
+      "trace_id": { "type": "string", "pattern": "^[0-9a-f]{32}$" },
+      "instance": {
+        "type": "string",
+        "format": "uri-reference",
+        "minLength": 1,
+        "maxLength": 2048
+      }
+    },
+    "invalidRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "type", "title", "status", "code", "detail", "request_id", "trace_id"],
+      "properties": {
+        "schema": { "const": "gis-ai-go.data-query-problem.v1" },
+        "type": { "const": "urn:gis-ai-go:problem:data-query-invalid-request" },
+        "title": { "const": "Invalid data query request" },
+        "status": { "const": 400 },
+        "code": { "const": "invalid_request" },
+        "detail": { "const": "The request must match the reviewed public ONS query." },
+        "request_id": { "$ref": "#/$defs/commonProperties/request_id" },
+        "trace_id": { "$ref": "#/$defs/commonProperties/trace_id" },
+        "instance": { "$ref": "#/$defs/commonProperties/instance" }
+      }
+    },
+    "queryCancelled": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "type", "title", "status", "code", "detail", "request_id", "trace_id"],
+      "properties": {
+        "schema": { "const": "gis-ai-go.data-query-problem.v1" },
+        "type": { "const": "urn:gis-ai-go:problem:data-query-cancelled" },
+        "title": { "const": "Data query cancelled" },
+        "status": { "const": 408 },
+        "code": { "const": "query_cancelled" },
+        "detail": { "const": "The caller cancelled the data query." },
+        "request_id": { "$ref": "#/$defs/commonProperties/request_id" },
+        "trace_id": { "$ref": "#/$defs/commonProperties/trace_id" },
+        "instance": { "$ref": "#/$defs/commonProperties/instance" }
+      }
+    },
+    "queryDeadlineExceeded": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "type", "title", "status", "code", "detail", "request_id", "trace_id"],
+      "properties": {
+        "schema": { "const": "gis-ai-go.data-query-problem.v1" },
+        "type": { "const": "urn:gis-ai-go:problem:data-query-deadline-exceeded" },
+        "title": { "const": "Data query deadline exceeded" },
+        "status": { "const": 408 },
+        "code": { "const": "query_deadline_exceeded" },
+        "detail": { "const": "The caller deadline elapsed before the data query completed." },
+        "request_id": { "$ref": "#/$defs/commonProperties/request_id" },
+        "trace_id": { "$ref": "#/$defs/commonProperties/trace_id" },
+        "instance": { "$ref": "#/$defs/commonProperties/instance" }
+      }
+    },
+    "policyDenied": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "type", "title", "status", "code", "detail", "request_id", "trace_id"],
+      "properties": {
+        "schema": { "const": "gis-ai-go.data-query-problem.v1" },
+        "type": { "const": "urn:gis-ai-go:problem:data-query-policy-denied" },
+        "title": { "const": "Data query denied" },
+        "status": { "const": 403 },
+        "code": { "const": "policy_denied" },
+        "detail": { "const": "The public-read policy did not authorise this data query." },
+        "request_id": { "$ref": "#/$defs/commonProperties/request_id" },
+        "trace_id": { "$ref": "#/$defs/commonProperties/trace_id" },
+        "instance": { "$ref": "#/$defs/commonProperties/instance" }
+      }
+    },
+    "providerSuspended": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "type", "title", "status", "code", "detail", "request_id", "trace_id"],
+      "properties": {
+        "schema": { "const": "gis-ai-go.data-query-problem.v1" },
+        "type": { "const": "urn:gis-ai-go:problem:data-query-provider-suspended" },
+        "title": { "const": "Data provider suspended" },
+        "status": { "const": 503 },
+        "code": { "const": "provider_suspended" },
+        "detail": { "const": "The reviewed provider adapter is suspended for invocation." },
+        "request_id": { "$ref": "#/$defs/commonProperties/request_id" },
+        "trace_id": { "$ref": "#/$defs/commonProperties/trace_id" },
+        "instance": { "$ref": "#/$defs/commonProperties/instance" }
+      }
+    },
+    "providerRateLimited": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "type", "title", "status", "code", "detail", "request_id", "trace_id"],
+      "properties": {
+        "schema": { "const": "gis-ai-go.data-query-problem.v1" },
+        "type": { "const": "urn:gis-ai-go:problem:data-query-provider-rate-limited" },
+        "title": { "const": "Data provider rate limited" },
+        "status": { "const": 429 },
+        "code": { "const": "provider_rate_limited" },
+        "detail": { "const": "The bounded provider admission limit has been reached." },
+        "request_id": { "$ref": "#/$defs/commonProperties/request_id" },
+        "trace_id": { "$ref": "#/$defs/commonProperties/trace_id" },
+        "instance": { "$ref": "#/$defs/commonProperties/instance" }
+      }
+    },
+    "providerTimeout": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "type", "title", "status", "code", "detail", "request_id", "trace_id"],
+      "properties": {
+        "schema": { "const": "gis-ai-go.data-query-problem.v1" },
+        "type": { "const": "urn:gis-ai-go:problem:data-query-provider-timeout" },
+        "title": { "const": "Data provider timed out" },
+        "status": { "const": 504 },
+        "code": { "const": "provider_timeout" },
+        "detail": { "const": "The provider adapter timed out while caller controls remained active." },
+        "request_id": { "$ref": "#/$defs/commonProperties/request_id" },
+        "trace_id": { "$ref": "#/$defs/commonProperties/trace_id" },
+        "instance": { "$ref": "#/$defs/commonProperties/instance" }
+      }
+    },
+    "providerUnavailable": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "type", "title", "status", "code", "detail", "request_id", "trace_id"],
+      "properties": {
+        "schema": { "const": "gis-ai-go.data-query-problem.v1" },
+        "type": { "const": "urn:gis-ai-go:problem:data-query-provider-unavailable" },
+        "title": { "const": "Data provider unavailable" },
+        "status": { "const": 503 },
+        "code": { "const": "provider_unavailable" },
+        "detail": { "const": "The reviewed provider is temporarily unavailable." },
+        "request_id": { "$ref": "#/$defs/commonProperties/request_id" },
+        "trace_id": { "$ref": "#/$defs/commonProperties/trace_id" },
+        "instance": { "$ref": "#/$defs/commonProperties/instance" }
+      }
+    },
+    "providerContractFailed": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "type", "title", "status", "code", "detail", "request_id", "trace_id"],
+      "properties": {
+        "schema": { "const": "gis-ai-go.data-query-problem.v1" },
+        "type": { "const": "urn:gis-ai-go:problem:data-query-provider-contract-failed" },
+        "title": { "const": "Data provider response rejected" },
+        "status": { "const": 502 },
+        "code": { "const": "provider_contract_failed" },
+        "detail": { "const": "Provider evidence did not match the reviewed public-read contract." },
+        "request_id": { "$ref": "#/$defs/commonProperties/request_id" },
+        "trace_id": { "$ref": "#/$defs/commonProperties/trace_id" },
+        "instance": { "$ref": "#/$defs/commonProperties/instance" }
+      }
+    },
+    "evidenceUnavailable": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "type", "title", "status", "code", "detail", "request_id", "trace_id"],
+      "properties": {
+        "schema": { "const": "gis-ai-go.data-query-problem.v1" },
+        "type": { "const": "urn:gis-ai-go:problem:data-query-evidence-unavailable" },
+        "title": { "const": "Data query evidence unavailable" },
+        "status": { "const": 503 },
+        "code": { "const": "evidence_unavailable" },
+        "detail": { "const": "Verified evidence could not be completed for this data query." },
+        "request_id": { "$ref": "#/$defs/commonProperties/request_id" },
+        "trace_id": { "$ref": "#/$defs/commonProperties/trace_id" },
+        "instance": { "$ref": "#/$defs/commonProperties/instance" }
+      }
+    }
+  }
+}

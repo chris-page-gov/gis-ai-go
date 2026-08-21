@@ -35,6 +35,9 @@ importers:
       '@gis-ai-go/policy-client':
         specifier: workspace:*
         version: link:../../packages/policy-client
+      '@gis-ai-go/provider-adapter-sdk':
+        specifier: workspace:*
+        version: link:../../packages/provider-adapter-sdk
       '@modelcontextprotocol/node':
         specifier: 2.0.0
         version: 2.0.0(@modelcontextprotocol/server@2.0.0)(hono@4.13.3)

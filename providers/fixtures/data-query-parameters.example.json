@@ -1,0 +1,16 @@
+{
+  "schema": "gis-ai-go.data-query-parameters.v1",
+  "resource_id": "gis-ai-go:public-read-resource:sha256:c7130712a40d75e71bcf0259792404389bea2e549adf6733f34d491f83e99f68",
+  "dataset": {
+    "id": "weekly-deaths-region",
+    "edition": "time-series",
+    "version": "121"
+  },
+  "selections": [
+    { "dimension": "time", "option": "2026" },
+    { "dimension": "geography", "option": "E92000001" },
+    { "dimension": "week", "option": "week-24" },
+    { "dimension": "causeofdeath", "option": "all-causes" }
+  ],
+  "limit": 1
+}

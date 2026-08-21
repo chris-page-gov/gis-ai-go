@@ -36,6 +36,15 @@ It is an implementation workbench, not a supported or deployed service.
   problem with `plan: null`. Question text is untrusted and is never interpreted,
   reflected, persisted or sent to a provider. The application has no adapter,
   execution or network dependency and is not mounted by any transport.
+- `createDataQueryApplication` is an inactive transport-neutral application seam
+  for the exact reviewed ONS single-observation query. It requires an explicitly
+  injected `OnsDataApiAdapter`, verifies public-read v2 policy plus the adapter's
+  invocation health, estimate, rights, provenance and result independently, then
+  builds and fully verifies one v2 receipt. Discovery may remain suspended; an
+  invocation-suspended adapter cannot execute. There is no default adapter,
+  environment activation or live-provider call in ordinary tests. Caller signal
+  cancellation and caller deadline expiry are checked before and after execution
+  and remain distinct from an adapter-local provider timeout.
 - the HTTP candidate listens only on `127.0.0.1:8787` and exposes `GET /healthz`,
   `GET /readyz` and `GET /openapi.json`. Readiness always returns `503` with zero
   active tools and zero active API operations.
@@ -58,6 +67,8 @@ MCP tool or resource, public deployment, provider call or external policy servic
 The portable evidence store and inspector are inactive embedding components; no
 shipped entry point supplies their configuration or a ledger path.
 There is no environment-variable or command-line activation override.
+The application-only `data.query` constructor is likewise not referenced by any
+shipped entry point, route, MCP registration, OpenAPI operation or capability list.
 The test-only legacy launcher is separately named, requires both the existing
 conformance gate and an exact `--legacy-stdio-conformance-only` argument, and is
 not referenced by a package script or shipped entrypoint.
@@ -89,4 +100,5 @@ pnpm --filter @gis-ai-go/mcp-gateway run start:http
 See the [candidate boundary](../../docs/operations/MCP-201_GATEWAY_CANDIDATE.md),
 the [EVID-204 inspection transport boundary](../../docs/operations/EVID-204_INSPECT_TRANSPORT.md)
 the [QUAL-206 interoperability runbook](../../docs/operations/QUAL-206_INTEROPERABILITY.md)
-and the [inactive selection resolver boundary](../../docs/operations/TOOLS-205_SELECTION_RESOLVE.md).
+and the
+[inactive selection resolver boundary](../../docs/operations/TOOLS-205_SELECTION_RESOLVE.md).

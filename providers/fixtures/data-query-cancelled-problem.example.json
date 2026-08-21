@@ -1,0 +1,11 @@
+{
+  "schema": "gis-ai-go.data-query-problem.v1",
+  "type": "urn:gis-ai-go:problem:data-query-cancelled",
+  "title": "Data query cancelled",
+  "status": 408,
+  "code": "query_cancelled",
+  "detail": "The caller cancelled the data query.",
+  "request_id": "request-data-query-example-1",
+  "trace_id": "8123456789abcdef0123456789abcdef",
+  "instance": "/data/query"
+}
