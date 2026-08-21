@@ -42,7 +42,13 @@ const ERROR_CODE_PATTERN = /^[A-Z][A-Z0-9_]*$/u;
 const RUNTIME_SCHEMA_PATTERN = /^schemas\/[a-z0-9-]+\.schema\.json$/u;
 const TOOL_POINTER_PATTERN = /^\/tools\/(?:[0-9]|1[01])$/u;
 
-const CURRENT_IMPLEMENTED_IDS = Object.freeze(["T01", "T02", "T11"] as const);
+const CURRENT_IMPLEMENTED_IDS = Object.freeze([
+  "T01",
+  "T02",
+  "T03",
+  "T04",
+  "T11",
+] as const);
 
 const RELEASE_TARGET_BY_ID: Readonly<Record<ToolProfileId, ReleaseTarget>> = Object.freeze({
   T01: "v0.2.0",
@@ -79,8 +85,16 @@ const RUNTIME_SCHEMA_REFS_BY_ID: Readonly<
     output: "schemas/catalogue-result.schema.json",
     problem: "schemas/catalogue-problem.schema.json",
   },
-  T03: { input: null, output: null, problem: null },
-  T04: { input: null, output: null, problem: null },
+  T03: {
+    input: "schemas/selection-resolve-request.schema.json",
+    output: "schemas/selection-resolve-result.schema.json",
+    problem: "schemas/selection-resolve-problem.schema.json",
+  },
+  T04: {
+    input: "schemas/data-query-parameters.schema.json",
+    output: "schemas/data-query-result.schema.json",
+    problem: "schemas/data-query-problem.schema.json",
+  },
   T05: { input: null, output: null, problem: null },
   T06: { input: null, output: null, problem: null },
   T07: { input: null, output: null, problem: null },
@@ -94,6 +108,43 @@ const RUNTIME_SCHEMA_REFS_BY_ID: Readonly<
   },
   T12: { input: null, output: null, problem: null },
 });
+
+const CURRENT_PUBLIC_READ_PROVIDER_DEPENDENCIES = Object.freeze({
+  T03: Object.freeze([
+    "reviewed public selection profile",
+    "public-read policy",
+    "public evidence contract",
+  ]),
+  T04: Object.freeze([
+    "explicitly injected ONS Data API adapter",
+    "public-read policy",
+    "public evidence contract",
+  ]),
+} as const);
+
+const CURRENT_PUBLIC_READ_CONTROLLED_ERRORS = Object.freeze({
+  T03: Object.freeze([
+    "INVALID_REQUEST",
+    "AMBIGUOUS_SELECTION",
+    "MISSING_DIMENSION",
+    "CONTRADICTORY_CONSTRAINTS",
+    "NO_COMPATIBLE_PROVIDER",
+    "POLICY_DENIED",
+    "EVIDENCE_UNAVAILABLE",
+  ]),
+  T04: Object.freeze([
+    "INVALID_REQUEST",
+    "QUERY_CANCELLED",
+    "QUERY_DEADLINE_EXCEEDED",
+    "POLICY_DENIED",
+    "PROVIDER_SUSPENDED",
+    "PROVIDER_RATE_LIMITED",
+    "PROVIDER_TIMEOUT",
+    "PROVIDER_UNAVAILABLE",
+    "PROVIDER_CONTRACT_FAILED",
+    "EVIDENCE_UNAVAILABLE",
+  ]),
+} as const);
 
 const PROFILE_KEYS = Object.freeze([
   "id",
@@ -434,6 +485,16 @@ function validateProfile(value: unknown, index: number): ToolProfile {
   validateStringArray(profile.policyAttributes, 1, 32);
   assertString(profile.costPerformance, 1, 256);
   validateStringArray(profile.controlledErrors, 1, 16, ERROR_CODE_PATTERN);
+  if (expectedId === "T03" || expectedId === "T04") {
+    assertExactSequence(
+      support.providerDependencies,
+      CURRENT_PUBLIC_READ_PROVIDER_DEPENDENCIES[expectedId],
+    );
+    assertExactSequence(
+      profile.controlledErrors,
+      CURRENT_PUBLIC_READ_CONTROLLED_ERRORS[expectedId],
+    );
+  }
 
   const cursor = asRecord(profile.cursor);
   assertExactKeys(cursor, ["state", "maxLength", "artefactFallback", "researchStatement"]);
@@ -469,6 +530,29 @@ function validateProfile(value: unknown, index: number): ToolProfile {
   assertExactKeys(fallback, ["state", "behaviour"]);
   assertEnum(fallback.state, ["implemented", "partial", "not-implemented"] as const);
   assertString(fallback.behaviour, 1, 256);
+  if (expectedId === "T03") {
+    if (
+      cursor.state !== "none" ||
+      cursor.maxLength !== null ||
+      crs.state !== "not-applicable" ||
+      fallback.state !== "implemented" ||
+      fallback.behaviour !== "Return required choices and no executable plan."
+    ) {
+      invalidRegistry();
+    }
+  }
+  if (expectedId === "T04") {
+    if (
+      cursor.state !== "none" ||
+      cursor.maxLength !== null ||
+      crs.state !== "not-applicable" ||
+      fallback.state !== "not-implemented" ||
+      fallback.behaviour !==
+        "Fail closed; no cache, alternate provider or result fallback is permitted."
+    ) {
+      invalidRegistry();
+    }
+  }
 
   const threats = asRecord(profile.threats);
   assertExactKeys(threats, ["risks"]);

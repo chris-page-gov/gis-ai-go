@@ -53,6 +53,36 @@ const LEGACY_FALLBACK_EVIDENCE = join(
 );
 const SOURCE_COMMIT = "66507f9a6e6c0da23a8af4682268f9362d93bc06";
 const LEGACY_CANDIDATE_BASE = "b798a40b940e135b933c3b757cb5a9f9ff6aa2ae";
+const LEGACY_FALLBACK_EVIDENCE_SHA256 =
+  "5d2c22c17b7a0c65bd3957f9d23057ab7a5d522d223ed432642250b997823537";
+const LEGACY_RUNTIME_FILES = [
+  {
+    path: "apps/mcp-gateway/src/mcp-server.ts",
+    sha256: "ee39e4cc99c8ed082f790f2eba3df908a8b4bf0830dd5ee7a8cc770206b657d9",
+  },
+  {
+    path: "apps/mcp-gateway/src/mcp-stdio.ts",
+    sha256: "68c229a0252064f630a5c2d5c057e5348b1e4ce6974aecd48b291cd05db6a794",
+  },
+  {
+    path: "scripts/qual_206_legacy_conformance_server.mjs",
+    sha256: "bf87bec24357d5fd6d419bd8b4374642ab46a2f3dfa6d9baebde46f7498edb9c",
+  },
+  {
+    path: "scripts/qual_206_telemetry_proxy.mjs",
+    sha256: "3800e4458932ee1324ad03d64007f23f76f49682a6eabdc191ecf6eaccb501d5",
+  },
+];
+const LEGACY_COMPILED_RUNTIME = [
+  {
+    source_path: "apps/mcp-gateway/dist/src/mcp-server.js",
+    sha256: "860e466d5ab7215cec0dde4e67260fd1bd33f1166b21aa2d092d8e6dcad49018",
+  },
+  {
+    source_path: "apps/mcp-gateway/dist/src/mcp-stdio.js",
+    sha256: "035d8260308479133537ba5fa07a7bbf2affbc4ed6072859a924f01089ce95ef",
+  },
+];
 const META = {
   "io.modelcontextprotocol/protocolVersion": "2026-07-28",
   "io.modelcontextprotocol/clientCapabilities": {},
@@ -855,7 +885,13 @@ test("Codex CLI readiness evidence binds the exact case and remains unscored", a
 });
 
 test("legacy fallback evidence is new, source-bound and explicitly exploratory", async () => {
-  const evidence = JSON.parse(await readFile(LEGACY_FALLBACK_EVIDENCE, "utf8"));
+  const evidenceBytes = await readFile(LEGACY_FALLBACK_EVIDENCE);
+  assert.equal(sha256(evidenceBytes), LEGACY_FALLBACK_EVIDENCE_SHA256);
+  const evidence = JSON.parse(evidenceBytes.toString("utf8"));
+  const runbook = await readFile(
+    join(ROOT, "docs", "operations", "QUAL-206_INTEROPERABILITY.md"),
+    "utf8",
+  );
   assert.equal(
     evidence.schema,
     "gis-ai-go.qual-206-legacy-fallback-exploratory.v1",
@@ -866,17 +902,14 @@ test("legacy fallback evidence is new, source-bound and explicitly exploratory",
   assert.equal(evidence.source.worktree_changes_uncommitted, true);
   assert.equal(evidence.source.production_activation, false);
   assert.equal(evidence.source.public_endpoint_created, false);
-  for (const entry of evidence.source.runtime_files) {
-    assert.equal(entry.path.startsWith("/"), false);
-    assert.equal(sha256(await readFile(join(ROOT, entry.path))), entry.sha256);
-  }
-  for (const entry of evidence.source.compiled_runtime) {
-    assert.equal(entry.source_path.startsWith("/"), false);
-    assert.equal(
-      sha256(await readFile(join(ROOT, entry.source_path))),
-      entry.sha256,
-    );
-  }
+  assert.deepEqual(evidence.source.runtime_files, LEGACY_RUNTIME_FILES);
+  assert.deepEqual(evidence.source.compiled_runtime, LEGACY_COMPILED_RUNTIME);
+  assert.equal(evidence.limitations.accepted_evidence, false);
+  assert.equal(evidence.limitations.candidate_commit_missing, true);
+  assert.match(
+    runbook,
+    /retains base commit `b798a40`, a null\s+candidate commit and its original runtime hashes/u,
+  );
   assert.equal(evidence.claude.version, "2.1.204");
   assert.equal(evidence.claude.model_authentication_supplied, false);
   assert.equal(evidence.claude.model_task_requested, false);

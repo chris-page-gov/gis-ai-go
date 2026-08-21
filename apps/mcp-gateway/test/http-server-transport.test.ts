@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { EventEmitter } from "node:events";
 import { request as nodeRequest, type Server } from "node:http";
 import { createConnection } from "node:net";
 import { fileURLToPath } from "node:url";
@@ -17,6 +18,7 @@ import { loadCatalogueSnapshot } from "../src/catalogue-snapshot.js";
 import { MAX_JSON_BODY_BYTES } from "../src/http-app.js";
 import {
   createGatewayNodeServer,
+  directRequestAbortBridge,
   MAX_MCP_JSON_BODY_BYTES,
   type GatewayNodeServer,
 } from "../src/http-server.js";
@@ -244,6 +246,75 @@ function parityServer(app: CatalogueApplication): GatewayNodeServer {
 async function wait(milliseconds: number): Promise<void> {
   await new Promise<void>((resolve) => setTimeout(resolve, milliseconds));
 }
+
+test("bridges already-destroyed Node state without treating a complete body as cancellation", () => {
+  const request = Object.assign(new EventEmitter(), {
+    aborted: false,
+    complete: true,
+    destroyed: false,
+  });
+  const response = Object.assign(new EventEmitter(), {
+    destroyed: false,
+    writableEnded: false,
+  });
+  const bridge = directRequestAbortBridge(request, response);
+  assert.equal(bridge.signal.aborted, false);
+  request.emit("aborted");
+  assert.equal(bridge.signal.aborted, true);
+  bridge.close();
+  assert.equal(request.listenerCount("aborted"), 0);
+  assert.equal(response.listenerCount("close"), 0);
+
+  const alreadyDestroyedRequest = Object.assign(new EventEmitter(), {
+    aborted: false,
+    complete: true,
+    destroyed: true,
+  });
+  const openResponse = Object.assign(new EventEmitter(), {
+    destroyed: false,
+    writableEnded: false,
+  });
+  const destroyedRequestBridge = directRequestAbortBridge(
+    alreadyDestroyedRequest,
+    openResponse,
+  );
+  assert.equal(destroyedRequestBridge.signal.aborted, true);
+  destroyedRequestBridge.close();
+
+  const healthyRequest = Object.assign(new EventEmitter(), {
+    aborted: false,
+    complete: true,
+    destroyed: false,
+  });
+  const alreadyDestroyedResponse = Object.assign(new EventEmitter(), {
+    destroyed: true,
+    writableEnded: false,
+  });
+  const destroyedResponseBridge = directRequestAbortBridge(
+    healthyRequest,
+    alreadyDestroyedResponse,
+  );
+  assert.equal(destroyedResponseBridge.signal.aborted, true);
+  destroyedResponseBridge.close();
+
+  const completedResponse = Object.assign(new EventEmitter(), {
+    destroyed: false,
+    writableEnded: true,
+  });
+  const completedBridge = directRequestAbortBridge(healthyRequest, completedResponse);
+  completedResponse.emit("close");
+  assert.equal(completedBridge.signal.aborted, false);
+  completedBridge.close();
+
+  const openResponseBeforeClose = Object.assign(new EventEmitter(), {
+    destroyed: false,
+    writableEnded: false,
+  });
+  const openBridge = directRequestAbortBridge(healthyRequest, openResponseBeforeClose);
+  openResponseBeforeClose.emit("close");
+  assert.equal(openBridge.signal.aborted, true);
+  openBridge.close();
+});
 
 test("keeps the mounted Node transport blocked by default", async () => {
   const server = createGatewayNodeServer(snapshot);
@@ -659,7 +730,7 @@ test("provides an idempotent MCP-first gateway shutdown", async () => {
   );
   assert.equal(server.headersTimeout, 5_000);
   assert.equal(server.requestTimeout, 5_000);
-  assert.equal(server.timeout, 5_000);
+  assert.equal(server.timeout, 25_000);
   assert.equal(server.keepAliveTimeout, 5_000);
   await listen(server);
   await server.closeGateway();

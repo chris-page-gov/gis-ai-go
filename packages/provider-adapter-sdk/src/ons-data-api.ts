@@ -46,7 +46,8 @@ export const ONS_OBSERVATION_URI = `${ONS_ORIGIN}${ONS_OBSERVATION_PATH}?${ONS_O
 const MAX_ATTEMPTS_PER_MINUTE = 30;
 const RATE_WINDOW_MS = 60_000;
 const DEFAULT_RETRY_DELAY_MS = 100;
-const CALL_DEADLINE_MS = 20_000;
+/** Maximum wall-clock budget for one fixed ONS adapter call. */
+export const ONS_CALL_DEADLINE_MS = 20_000;
 const MAX_RETRY_DELAY_MS = 5_000;
 const FULL_ATTEMPT_BUDGET_MS = 7_000;
 
@@ -578,7 +579,7 @@ function retryDelay(response: FixedHttpsResponse, now: number): number | null {
 
 function effectiveDeadline(now: number, supplied: string | undefined): number {
   if (!Number.isFinite(now)) throw new ProviderAdapterFault("PROVIDER_OUTAGE");
-  const localDeadline = now + CALL_DEADLINE_MS;
+  const localDeadline = now + ONS_CALL_DEADLINE_MS;
   if (supplied === undefined) return localDeadline;
   const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d{1,9})?(?:Z|([+-])(\d{2}):(\d{2}))$/u.exec(
     supplied,
@@ -737,7 +738,7 @@ export class OnsDataApiAdapter implements AsyncProviderAdapter {
       if (isAborted(options.signal)) controller.abort();
       deadlineTimer = setTimeout(
         () => controller.abort(),
-        Math.max(1, Math.min(CALL_DEADLINE_MS, deadline - startedAt)),
+        Math.max(1, Math.min(ONS_CALL_DEADLINE_MS, deadline - startedAt)),
       );
       for (let attempt = 1; attempt <= ONS_EGRESS_POLICY.maxAttempts; attempt += 1) {
         if (controller.signal.aborted) throw new ProviderAdapterFault("PROVIDER_TIMEOUT");

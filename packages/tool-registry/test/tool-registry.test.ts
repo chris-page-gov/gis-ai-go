@@ -51,7 +51,13 @@ test("loads exactly 12 deterministic frozen profiles from the canonical data", (
     first
       .filter(({ current }) => current.implementationState === "implemented")
       .map(({ name }) => name),
-    ["catalogue.search", "catalogue.describe", "evidence.inspect"],
+    [
+      "catalogue.search",
+      "catalogue.describe",
+      "selection.resolve",
+      "data.query",
+      "evidence.inspect",
+    ],
   );
   assert.deepEqual(
     first
@@ -70,13 +76,60 @@ test("loads exactly 12 deterministic frozen profiles from the canonical data", (
 test("keeps target lifecycle metadata separate from an empty current callable set", () => {
   const target = filterToolProfiles({ v02LifecycleState: "active" });
   assert.deepEqual(target.map(({ name }) => name), V02_TARGET_ACTIVE_TOOL_NAMES);
-  assert.equal(getToolProfile("selection.resolve").current.implementationState, "not-implemented");
-  assert.equal(getToolProfile("data.query").current.implementationState, "not-implemented");
+  for (const name of ["selection.resolve", "data.query"] as const) {
+    const profile = getToolProfile(name);
+    assert.equal(profile.current.implementationState, "implemented");
+    assert.equal(profile.current.lifecycleState, "suspended");
+    assert.equal(profile.current.discoveryEligible, false);
+    assert.equal(Object.values(profile.current.activationGates).some(Boolean), false);
+  }
+  const selection = getToolProfile("selection.resolve");
+  assert.deepEqual(selection.cursor, {
+    state: "none",
+    maxLength: null,
+    artefactFallback: "not-implemented",
+    researchStatement:
+      "Bounded inline response; cursor pagination or immutable artefact when limits are exceeded.",
+  });
+  assert.deepEqual(selection.fallback, {
+    state: "implemented",
+    behaviour: "Return required choices and no executable plan.",
+  });
+  assert.equal(selection.support.providerDependencies.includes("PostGIS"), false);
+  assert.equal(selection.support.providerDependencies.includes("object storage"), false);
+
+  const data = getToolProfile("data.query");
+  assert.deepEqual(data.cursor, {
+    state: "none",
+    maxLength: null,
+    artefactFallback: "not-implemented",
+    researchStatement:
+      "Bounded inline response; cursor pagination or immutable artefact when limits are exceeded.",
+  });
+  assert.deepEqual(data.crs, { state: "not-applicable", requirements: [] });
+  assert.deepEqual(data.fallback, {
+    state: "not-implemented",
+    behaviour: "Fail closed; no cache, alternate provider or result fallback is permitted.",
+  });
+  assert.equal(data.support.providerDependencies.includes("PostGIS"), false);
+  assert.equal(data.support.providerDependencies.includes("object storage"), false);
+  assert.deepEqual(data.controlledErrors, [
+    "INVALID_REQUEST",
+    "QUERY_CANCELLED",
+    "QUERY_DEADLINE_EXCEEDED",
+    "POLICY_DENIED",
+    "PROVIDER_SUSPENDED",
+    "PROVIDER_RATE_LIMITED",
+    "PROVIDER_TIMEOUT",
+    "PROVIDER_UNAVAILABLE",
+    "PROVIDER_CONTRACT_FAILED",
+    "EVIDENCE_UNAVAILABLE",
+  ]);
   assert.deepEqual(listCurrentCallableTools(), []);
   assert.equal(Object.isFrozen(listCurrentCallableTools()), true);
 
   const planned = filterToolProfiles({ implementationState: "not-implemented" });
-  assert.equal(planned.length, 9);
+  assert.equal(planned.length, 7);
   assert.equal(planned.some(({ current }) => current.discoveryEligible), false);
   assert.equal(
     planned.some(({ name }) => listCurrentCallableTools().some((tool) => tool.name === name)),
@@ -179,6 +232,41 @@ test("rejects lifecycle, mutability, schema and target substitutions", () => {
   };
   targetAsRuntime.tools[0]!.v02Target.runtimeAuthority = true;
   expectInvalidRegistry(targetAsRuntime);
+});
+
+test("rejects substitutions in the implemented public-read slice metadata", () => {
+  const providerSubstitution = structuredClone(profileRecord()) as {
+    tools: { support: { providerDependencies: string[] } }[];
+  };
+  providerSubstitution.tools[3]!.support.providerDependencies[0] = "PostGIS";
+  expectInvalidRegistry(providerSubstitution);
+
+  const errorSubstitution = structuredClone(profileRecord()) as {
+    tools: { controlledErrors: string[] }[];
+  };
+  errorSubstitution.tools[2]!.controlledErrors[0] = "NOT_IMPLEMENTED";
+  expectInvalidRegistry(errorSubstitution);
+
+  const cursorSubstitution = structuredClone(profileRecord()) as {
+    tools: { cursor: { state: string; maxLength: number | null } }[];
+  };
+  cursorSubstitution.tools[2]!.cursor.state = "not-implemented";
+  expectInvalidRegistry(cursorSubstitution);
+
+  const crsSubstitution = structuredClone(profileRecord()) as {
+    tools: { crs: { state: string; requirements: string[] } }[];
+  };
+  crsSubstitution.tools[3]!.crs = {
+    state: "required-before-implementation",
+    requirements: ["Define a CRS before implementation."],
+  };
+  expectInvalidRegistry(crsSubstitution);
+
+  const fallbackSubstitution = structuredClone(profileRecord()) as {
+    tools: { fallback: { state: string; behaviour: string } }[];
+  };
+  fallbackSubstitution.tools[3]!.fallback.state = "partial";
+  expectInvalidRegistry(fallbackSubstitution);
 });
 
 test("clones caller data, rejects mutation and ignores environment state", (t) => {

@@ -14,10 +14,11 @@ schema, threat, evidence, interoperability and fallback conditions all pass,
 including accepted input, output and problem schema references. The current
 result is an empty frozen array.
 
-`catalogue.search`, `catalogue.describe` and `evidence.inspect` are implemented
-but suspended. `selection.resolve` and `data.query` are required for the
-`v0.2.0` target but are not implemented. The other profiles remain planned;
-mutating `workflow.execute` is a `v0.3.0` target only.
+`catalogue.search`, `catalogue.describe`, `selection.resolve`, `data.query` and
+`evidence.inspect` are implemented but suspended. T03 and T04 bind their accepted
+request, result and problem schemas and exact current application metadata, but
+discovery and all seven activation gates remain false. The other profiles remain
+planned; mutating `workflow.execute` is a `v0.3.0` target only.
 
 The suspended `evidence.inspect` profile references a closed operation-result
 dispatcher over distinct v1 and v2 result schemas. The original v1 result schema

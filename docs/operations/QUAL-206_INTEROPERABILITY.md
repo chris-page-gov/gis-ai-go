@@ -632,6 +632,14 @@ identity can return an already persisted receipt after restart without repeating
 provider execution, evidence storage or a ledger event. `evidence.inspect` alone
 does not close the gap because its input is the receipt ID lost with the response.
 
+The later inactive public-read transport candidate adds deterministic local
+direct, modern MCP HTTP and modern MCP STDIO coverage for the accepted selection
+and data applications. It does not edit the source-hashed case corpus, turn these
+cases into live host evidence or change any historic result. `data.query` is marked
+non-idempotent because a repeat may make another provider attempt and ledger event.
+The candidate deliberately leaves `HOST-015` unresolved and expected-failing; see
+the [public-read transport boundary](TOOLS-205_PUBLIC_READ_TRANSPORT.md).
+
 `HOST-016` is deliberately not a runnable case. Its source-bound cache incident
 shows why an ingested status cannot prove shard coverage, but GIS AI GO does not
 yet have a governed cache. Add it only after a cache records source version,

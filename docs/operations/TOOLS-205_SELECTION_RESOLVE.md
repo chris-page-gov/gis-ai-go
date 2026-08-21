@@ -1,5 +1,9 @@
 # TOOLS-205 inactive selection resolver
 
+The subsequent explicitly mounted local-conformance transport candidate is recorded
+in [`TOOLS-205_PUBLIC_READ_TRANSPORT.md`](TOOLS-205_PUBLIC_READ_TRANSPORT.md). It
+does not change this application's historical activation or publication boundary.
+
 ## Status and boundary
 
 This candidate implements the transport-neutral `selection.resolve` application

@@ -67,11 +67,11 @@ production deployment.
 
 | Risk | Control in this slice | Residual boundary |
 | --- | --- | --- |
-| Caller-controlled egress or redirect SSRF | Exact HTTPS origin, method, path and query allowlist; credentials, ports, fragments, wildcards, duplicate parameters and redirects fail closed. | The inactive adapter below adds DNS, connection and cancellation controls; later integration must still reuse the accepted EXEC-202 typed identifiers. |
+| Caller-controlled egress or redirect SSRF | Exact HTTPS origin, method, path and query allowlist; credentials, ports, fragments, wildcards, duplicate parameters and redirects fail closed. | The inactive adapter below adds DNS, connection and cancellation controls. The accepted public-read application injects it directly and independently validates the exact data-query contract; the separate synthetic EXEC-202 operation allowlist remains unchanged. |
 | Provider overload and response amplification | Recorded provider limits, a lower local ceiling, bounded attempts, deadlines and compressed/decompressed byte ceilings. | The adapter below implements process-local admission only; no shared durable rate service exists. |
 | Version, dimension or rights drift | Exact dataset, edition, version, native dimension order, source date, official URIs and OGL evidence are schema-locked. Unknown or changed rights must fail closed. | Source and rights need revalidation before activation and after provider change. |
 | Error and payload leakage | Closed safe error vocabulary; fixture tests reject hostile structures and prove raw exception details are not reflected. No raw live response body is committed; one public aggregate scalar is retained only in a deterministic test fixture to reproduce the live result digest. Accepted EXEC-202 supplies the generic safe-error and log boundary. | The adapter below adds closed provider-specific live-response parsing; deployed provider-specific log redaction remains a later integration gate. |
-| Partial provider suspension | Discovery and invocation lifecycle planes are independent and suspended by default. | Gateway registry and execution dispatch must enforce the same state after integration. |
+| Partial provider suspension | Discovery and invocation lifecycle planes are independent and suspended by default. | The accepted public-read application requires an explicitly injected invocation-active adapter, while the gateway registry and every production transport remain suspended and unactivated. |
 
 ## ADAPT-203 inactive live-adapter scope
 
@@ -82,7 +82,7 @@ production deployment.
 | RK17 provider exhaustion | One process-shared call is admitted at a time across all adapter instances, with 30 process-shared actual attempt starts per rolling minute, two attempts, 2-second DNS/connect and 5-second response limits, at most 5 seconds of usable `Retry-After`, and a 20-second absolute call deadline reduced by the EXEC deadline. Cancellation reaches DNS, socket, body, decompressor and backoff. | Rate state is process-local and intentionally not represented as a durable distributed limiter. The adapter is therefore not activated. |
 | RK20 provenance or rights spoofing | Closed validation binds dataset, edition, version, native dimension order/options, exact constructed source URI, release date, empty ONS `Data Marking`, OGL evidence and deterministic transformations. The canonical result uses its own domain-separated digest. | Rights are a dated public review, not a provider-signed assertion. Any changed or non-empty marking fails closed pending review. |
 | RK25 payload or operational leakage | The opt-in evidence record and probe output retain only versions, rights, status, result hash/size and safe timings/TLS/byte counts. They exclude response bodies, observation values, IP addresses, credentials and paths. A deterministic test separately retains the public aggregate scalar needed to reproduce the digest. Controlled errors do not reflect provider content. | A deployed logging and retention policy remains a separate gate. |
-| Lifecycle confusion | Discovery and invocation remain independently suspended by default, and no gateway, MCP, direct API, Python dispatch, listener or deployment imports the adapter. | Later EXEC-202 integration needs explicit registry, policy, round-trip and rollback evidence. |
+| Lifecycle confusion | Discovery and invocation remain independently suspended by default. The accepted public-read application takes an explicitly injected adapter and its local direct/MCP transports are separately explicit and empty by default; no shipped listener, deployment or Python dispatch configures it. | Registry, policy and local round-trip evidence now exist, but activation, independent-host, approved fallback, deployment and rollback evidence remain separate gates. The synthetic EXEC-202 allowlist is unchanged. |
 
 ## TOOLS-205 non-activating registry scope
 
@@ -93,3 +93,23 @@ production deployment.
 | RK11 licence/data exfiltration and RK30 operational drift | Every profile records provider dependencies, access tiers, policy attributes, controlled errors, provenance and fallback requirements. Mutating `workflow.execute` is explicitly deferred to `v0.3.0`. | Provider, entitlement and cross-tier enforcement are metadata only until their operation slices are implemented and tested. |
 | RK20 provenance spoofing and RK21 audit tampering | The profile binds the immutable research path, SHA-256, Git blob and per-tool JSON pointers; Python tests compare every mirrored research field. Runtime documents and helper results are recursively frozen. | The profile is unsigned repository data; release provenance and protected-main controls remain necessary. |
 | RK23 supply-chain compromise | The private package has no dependency and its identity is locked and included in the SBOM. It has no environment override or gateway import. | Existing Node.js, package-manager and CI supply-chain controls remain release gates. |
+
+## TOOLS-205 inactive public-read transport scope
+
+The direct and modern MCP faces for `selection.resolve` and `data.query` are
+explicit local-conformance seams. They do not activate or publish a service.
+
+| Research risk | Control in this slice | Residual boundary |
+| --- | --- | --- |
+| RK02 tool poisoning and RK24 model/tool hallucination | Tools are registered only from exact explicit operation arrays. Closed schemas, exact MCP method/name headers and the modern protocol metadata are checked independently. The legacy seam rejects selection, data and evidence registration. | Independent-host discovery, instruction following and repair-hint behaviour remain release evidence gates. |
+| RK08 policy bypass | Direct, MCP HTTP and MCP STDIO faces call the same accepted application instances. Success and problems have byte-equivalent structured/text projections, and every success independently verifies policy and evidence. | Deployment identity, network policy and a production activation decision remain outside this candidate. |
+| RK17 provider exhaustion | The Node ingress propagates direct and MCP disconnects to the adapter, uses 5-second ingress controls and 25-second socket-inactivity headroom around the adapter's lower absolute 20-second complete ceiling, and writes no evidence after cancellation. | The adapter limiter is still process-local; no deployed shared limiter or approved cache fallback exists. |
+| RK20 provenance spoofing and RK21 audit tampering | Selection and data receipts are inspected through the same durable ledger, tool and receipt resource with exact JSON parity. Corruption and problem paths return no partial evidence. | The ledger is not signed, WORM or externally checkpointed. `HOST-015` remains unresolved: a receipt ID lost with the response cannot be recovered or replayed. |
+| RK25 query-history exposure | Inputs and bodies are bounded; problems do not reflect hostile values, abort reasons, provider payloads, credentials or ledger paths. Tests use fixed fake transports rather than live ONS traffic. | Production logs, proxy telemetry, retention and backup controls need a separate privacy review. |
+| RK30 operational drift | T03 and T04 are implemented but suspended, undiscoverable, with every activation gate false and no environment override. Registry substitutions, zero-default capabilities and unchanged readiness are tested. | T04 fallback, release, interoperability, accessibility, deployment and rollback evidence remain required before activation. |
+
+`data.query` deliberately advertises `idempotentHint: false`. Repeating a request
+can make another provider attempt and persist another ledger event. There is no
+idempotency key, result store or receipt lookup by request, and `evidence.inspect`
+requires the receipt ID that a lost response would have contained. No exactly-once
+or at-most-once reconciliation claim is made.

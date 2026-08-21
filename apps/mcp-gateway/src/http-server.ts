@@ -14,6 +14,7 @@ import {
 } from "./catalogue-application.js";
 import type { CatalogueSnapshot } from "./catalogue-snapshot.js";
 import type { EvidenceInspectApplication } from "./evidence-application.js";
+import type { DataQueryApplication } from "./data-query-application.js";
 import {
   BoundedJsonError,
   createGatewayHttpHandler,
@@ -32,6 +33,7 @@ import {
 import { gatewayMetadata } from "./metadata.js";
 import type { GatewayApiOperation } from "./openapi.js";
 import { createCatalogueProblem } from "./problem.js";
+import type { SelectionResolveApplication } from "./selection-application.js";
 
 const MAX_URL_LENGTH = 4_096;
 const MAX_HEADER_COUNT = 64;
@@ -39,6 +41,8 @@ export {
   MCP_HTTP_MAX_STANDALONE_BODY_BYTES as MAX_MCP_JSON_BODY_BYTES,
 } from "./mcp-http.js";
 export const DEFAULT_MAX_CONCURRENT_REQUESTS = 32;
+export const GATEWAY_HEADER_BODY_TIMEOUT_MS = 5_000;
+export const GATEWAY_PROCESSING_SOCKET_TIMEOUT_MS = 25_000;
 
 const DEFAULT_MCP_ALLOWED_HOSTNAMES = Object.freeze([
   "127.0.0.1",
@@ -79,6 +83,8 @@ export interface GatewayNodeServerOptions {
   readonly enabledMcpResources?: readonly GatewayMcpResource[];
   readonly application?: CatalogueApplication;
   readonly evidenceApplication?: EvidenceInspectApplication;
+  readonly selectionApplication?: SelectionResolveApplication;
+  readonly dataQueryApplication?: DataQueryApplication;
   readonly createTraceId?: () => string;
   readonly createMcpRequestContext?: CatalogueMcpRequestContextFactory;
   readonly directAllowedHosts?: readonly string[];
@@ -97,11 +103,66 @@ export interface GatewayNodeServer extends Server {
 
 type BodyFailure = "malformed" | "too_large";
 
+interface DirectAbortRequest {
+  readonly aborted: boolean;
+  readonly destroyed: boolean;
+  once(event: "aborted", listener: () => void): unknown;
+  removeListener(event: "aborted", listener: () => void): unknown;
+}
+
+interface DirectAbortResponse {
+  readonly destroyed: boolean;
+  readonly writableEnded: boolean;
+  once(event: "close", listener: () => void): unknown;
+  removeListener(event: "close", listener: () => void): unknown;
+}
+
+export interface DirectRequestAbortBridge {
+  readonly signal: AbortSignal;
+  /** Remove both Node listeners after the direct handler has settled. */
+  readonly close: () => void;
+}
+
 class BodyReadError extends Error {
   public constructor(public readonly failure: BodyFailure) {
     super(failure);
     this.name = "BodyReadError";
   }
+}
+
+/**
+ * Bridge a Node request/response disconnect into the direct API Request signal.
+ *
+ * Listener installation comes before the state check so a disconnect cannot
+ * fall into the gap between observing state and subscribing. A fully received
+ * request is not itself a cancellation; only aborted/destroyed state is.
+ *
+ * @internal Exported only for deterministic transport regression tests.
+ */
+export function directRequestAbortBridge(
+  request: DirectAbortRequest,
+  response: DirectAbortResponse,
+): DirectRequestAbortBridge {
+  const controller = new AbortController();
+  const onRequestAborted = (): void => controller.abort();
+  const onResponseClose = (): void => {
+    if (!response.writableEnded) controller.abort();
+  };
+  request.once("aborted", onRequestAborted);
+  response.once("close", onResponseClose);
+  if (request.aborted || request.destroyed || response.destroyed) {
+    controller.abort();
+  }
+  let closed = false;
+  return Object.freeze({
+    signal: controller.signal,
+    close: () => {
+      if (closed) return;
+      closed = true;
+      request.removeListener("aborted", onRequestAborted);
+      response.removeListener("close", onResponseClose);
+    },
+  });
 }
 
 function report(options: GatewayNodeServerOptions, error: unknown): void {
@@ -368,6 +429,7 @@ function directRequest(
   request: IncomingMessage,
   url: URL,
   body: Uint8Array,
+  signal: AbortSignal,
   methodOverride?: string,
 ): Request {
   const requestedMethod = methodOverride ?? request.method ?? "GET";
@@ -381,6 +443,7 @@ function directRequest(
   return new Request(url, {
     method,
     headers: applicationHeaders(request),
+    signal,
     ...(method === "GET" || method === "HEAD" || body.byteLength === 0
       ? {}
       : { body: exactBody }),
@@ -433,6 +496,12 @@ export function createGatewayNodeServer(
     ...(options.evidenceApplication === undefined
       ? {}
       : { evidenceApplication: options.evidenceApplication }),
+    ...(options.selectionApplication === undefined
+      ? {}
+      : { selectionApplication: options.selectionApplication }),
+    ...(options.dataQueryApplication === undefined
+      ? {}
+      : { dataQueryApplication: options.dataQueryApplication }),
     ...(options.enabledApiOperations === undefined
       ? {}
       : { enabledApiOperations: options.enabledApiOperations }),
@@ -450,6 +519,12 @@ export function createGatewayNodeServer(
     ...(options.evidenceApplication === undefined
       ? {}
       : { evidenceApplication: options.evidenceApplication }),
+    ...(options.selectionApplication === undefined
+      ? {}
+      : { selectionApplication: options.selectionApplication }),
+    ...(options.dataQueryApplication === undefined
+      ? {}
+      : { dataQueryApplication: options.dataQueryApplication }),
     snapshot,
     ...(options.enabledMcpOperations === undefined
       ? {}
@@ -492,11 +567,11 @@ export function createGatewayNodeServer(
   const server = createServer(
     {
       connectionsCheckingInterval: 1_000,
-      headersTimeout: 5_000,
-      keepAliveTimeout: 5_000,
+      headersTimeout: GATEWAY_HEADER_BODY_TIMEOUT_MS,
+      keepAliveTimeout: GATEWAY_HEADER_BODY_TIMEOUT_MS,
       maxHeaderSize: 16_384,
       rejectNonStandardBodyWrites: true,
-      requestTimeout: 5_000,
+      requestTimeout: GATEWAY_HEADER_BODY_TIMEOUT_MS,
       requireHostHeader: true,
     },
     (request, response) => {
@@ -541,6 +616,10 @@ export function createGatewayNodeServer(
         return;
       }
       activeRequests += 1;
+      // MCP's pinned Node adapter owns its independent Request.signal bridge.
+      const directCancellation = isMcp
+        ? undefined
+        : directRequestAbortBridge(request, response);
       const maximumBody = isMcp
         ? MCP_HTTP_MAX_STANDALONE_BODY_BYTES
         : MAX_JSON_BODY_BYTES;
@@ -553,7 +632,17 @@ export function createGatewayNodeServer(
             return;
           }
           if (!isMcp) {
-            await writeResponse(response, await directHandler(directRequest(request, url, body)));
+            await writeResponse(
+              response,
+              await directHandler(
+                directRequest(
+                  request,
+                  url,
+                  body,
+                  (directCancellation as DirectRequestAbortBridge).signal,
+                ),
+              ),
+            );
             return;
           }
           let parsedBody: unknown;
@@ -597,7 +686,13 @@ export function createGatewayNodeServer(
                 await writeResponse(
                   response,
                   await directHandler(
-                    directRequest(request, url, failureBody, failureMethod),
+                    directRequest(
+                      request,
+                      url,
+                      failureBody,
+                      (directCancellation as DirectRequestAbortBridge).signal,
+                      failureMethod,
+                    ),
                   ),
                 );
               } catch (nestedError) {
@@ -613,6 +708,7 @@ export function createGatewayNodeServer(
           rejectRequest(response, 500);
         })
         .finally(() => {
+          directCancellation?.close();
           activeRequests -= 1;
         });
     },
@@ -620,7 +716,7 @@ export function createGatewayNodeServer(
   // Retain a detectable sentinel header so 65 or more can be rejected explicitly.
   server.maxHeadersCount = MAX_HEADER_COUNT + 1;
   server.maxRequestsPerSocket = 100;
-  server.setTimeout(5_000, (socket) => socket.destroy());
+  server.setTimeout(GATEWAY_PROCESSING_SOCKET_TIMEOUT_MS, (socket) => socket.destroy());
 
   let handlerClose: Promise<void> | undefined;
   const closeHandler = (): Promise<void> => {

@@ -11,6 +11,7 @@ import {
   isBoundedMcpRequestId,
   type CatalogueMcpOptions,
 } from "./mcp-server.js";
+import { withMcpHttpDataQuerySignal } from "./mcp-request-signal.js";
 import { BoundedJsonError, parseBoundedJsonBytes } from "./http-app.js";
 
 const HEADER_MISMATCH = -32_020;
@@ -225,6 +226,45 @@ function rejectMissingModernProtocolHeader(
   return isModernRequest(body) ? missingVersionResponse(body) : undefined;
 }
 
+function isDataQueryCall(request: Request, body: unknown): boolean {
+  if (
+    request.method.toUpperCase() !== "POST" ||
+    request.headers.get("mcp-protocol-version") !== MCP_PROTOCOL_VERSION ||
+    request.headers.get("mcp-method") !== "tools/call" ||
+    request.headers.get("mcp-name") !== "data.query" ||
+    !isModernRequest(body) ||
+    body.method !== "tools/call"
+  ) {
+    return false;
+  }
+  if (!isPlainObject(body.params) || body.params.name !== "data.query") return false;
+  const meta = body.params._meta;
+  if (!isPlainObject(meta)) return false;
+  const clientCapabilities = meta["io.modelcontextprotocol/clientCapabilities"];
+  const clientInfo = meta["io.modelcontextprotocol/clientInfo"];
+  if (
+    !isPlainObject(clientCapabilities) ||
+    !isPlainObject(body.params.arguments)
+  ) {
+    return false;
+  }
+  if (
+    clientInfo !== undefined &&
+    (
+      !isPlainObject(clientInfo) ||
+      typeof clientInfo.name !== "string" ||
+      clientInfo.name.length < 1 ||
+      clientInfo.name.length > 128 ||
+      typeof clientInfo.version !== "string" ||
+      clientInfo.version.length < 1 ||
+      clientInfo.version.length > 64
+    )
+  ) {
+    return false;
+  }
+  return true;
+}
+
 /**
  * Create the modern-only fetch face. Host, Origin, route, body-size,
  * concurrency and timeout controls belong to the Node ingress that mounts it.
@@ -248,12 +288,24 @@ export function createCatalogueMcpHttpHandler(
       if (invalidId !== undefined) return invalidId;
       const guarded = rejectMissingModernProtocolHeader(request, prepared.body);
       if (guarded !== undefined) return guarded;
-      return handler.fetch(
-        request,
-        prepared.body === undefined
-          ? requestOptions
-          : { ...requestOptions, parsedBody: prepared.body },
-      );
+      const exactRequestOptions = prepared.body === undefined
+        ? requestOptions
+        : { ...requestOptions, parsedBody: prepared.body };
+      if (!isDataQueryCall(request, prepared.body)) {
+        return handler.fetch(request, exactRequestOptions);
+      }
+      /*
+       * SDK 2.0.0 converts an aborted Fetch request into HTTP 499 even after
+       * the tool has produced its closed query_cancelled result. Keep the
+       * original signal for the application but isolate only this response
+       * lifecycle so in-process conformance receives the canonical envelope.
+       */
+      const responseLifetime = new AbortController();
+      const responseRequest = new Request(request, {
+        signal: responseLifetime.signal,
+      });
+      return withMcpHttpDataQuerySignal(request.signal, () =>
+        handler.fetch(responseRequest, exactRequestOptions));
     },
   };
 }
