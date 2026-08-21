@@ -2,6 +2,11 @@
 
 Reviewed on 21 August 2026.
 
+This record preserves the application-only boundary at the time it was accepted.
+The subsequent explicitly mounted local-conformance transport candidate is recorded
+in [`TOOLS-205_PUBLIC_READ_TRANSPORT.md`](TOOLS-205_PUBLIC_READ_TRANSPORT.md); it
+does not change this slice's historical activation or publication claims.
+
 ## Outcome and boundary
 
 This slice implements the transport-neutral application function for the exact

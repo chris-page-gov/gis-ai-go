@@ -26,7 +26,8 @@ fixture reports exact observations and canonical bytes, while the live adapter
 reports conservative upper bounds for observations, attempts and compressed,
 decompressed and canonical response bytes. The live adapter also enforces public
 DNS answers, pinned TLS hostname verification, one process-shared call in flight,
-30 process-shared actual attempt starts per minute, a 20-second total deadline, two
+30 process-shared actual attempt starts per minute, a 20-second total deadline
+exported as `ONS_CALL_DEADLINE_MS`, two
 attempts, at most five seconds of usable `Retry-After`, bounded cancellable gzip,
 strict UTF-8 and JSON, closed response shape and a 256 KiB canonical result ceiling.
 

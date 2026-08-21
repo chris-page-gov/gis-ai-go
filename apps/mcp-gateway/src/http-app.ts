@@ -11,6 +11,10 @@ import {
   EvidenceInspectError,
   type EvidenceInspectApplication,
 } from "./evidence-application.js";
+import {
+  DataQueryApplicationError,
+  type DataQueryApplication,
+} from "./data-query-application.js";
 import { gatewayMetadata } from "./metadata.js";
 import {
   createCatalogueOpenApiDocument,
@@ -22,6 +26,10 @@ import {
   isCatalogueProblemError,
   type CatalogueProblemContext,
 } from "./problem.js";
+import {
+  type SelectionResolveApplication,
+  type SelectionResolveProblem,
+} from "./selection-application.js";
 
 const REQUEST_ID = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/u;
 const TRACE_ID = /^[0-9a-f]{32}$/u;
@@ -53,6 +61,8 @@ export interface GatewayHttpOptions {
   readonly enabledApiOperations?: readonly GatewayApiOperation[];
   readonly application?: CatalogueApplication;
   readonly evidenceApplication?: EvidenceInspectApplication;
+  readonly selectionApplication?: SelectionResolveApplication;
+  readonly dataQueryApplication?: DataQueryApplication;
   readonly catalogueApplicationOptions?: CatalogueApplicationOptions;
   /** Reporting only. Error details are never returned to the caller. */
   readonly onerror?: (error: Error) => void;
@@ -483,6 +493,8 @@ function bodyFailureResponse(error: BoundedJsonError, context: CatalogueProblemC
 interface OperationApplications {
   readonly catalogue?: CatalogueApplication;
   readonly evidence?: EvidenceInspectApplication;
+  readonly selection?: SelectionResolveApplication;
+  readonly dataQuery?: DataQueryApplication;
 }
 
 function operationApplications(
@@ -498,9 +510,21 @@ function operationApplications(
     operation === "catalogue.search" || operation === "catalogue.describe"
   );
   const needsEvidence = enabledApiOperations.includes("evidence.inspect");
+  const needsSelection = enabledApiOperations.includes("selection.resolve");
+  const needsDataQuery = enabledApiOperations.includes("data.query");
   if (needsEvidence && options.evidenceApplication === undefined) {
     throw new TypeError(
       "evidenceApplication is required when evidence.inspect is explicitly mounted",
+    );
+  }
+  if (needsSelection && options.selectionApplication === undefined) {
+    throw new TypeError(
+      "selectionApplication is required when selection.resolve is explicitly mounted",
+    );
+  }
+  if (needsDataQuery && options.dataQueryApplication === undefined) {
+    throw new TypeError(
+      "dataQueryApplication is required when data.query is explicitly mounted",
     );
   }
   return Object.freeze({
@@ -521,7 +545,23 @@ function operationApplications(
     ...(needsEvidence
       ? { evidence: options.evidenceApplication as EvidenceInspectApplication }
       : {}),
+    ...(needsSelection
+      ? { selection: options.selectionApplication as SelectionResolveApplication }
+      : {}),
+    ...(needsDataQuery
+      ? { dataQuery: options.dataQueryApplication as DataQueryApplication }
+      : {}),
   });
+}
+
+function isSelectionProblem(value: unknown): value is SelectionResolveProblem {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    !Array.isArray(value) &&
+    (value as { readonly schema?: unknown }).schema ===
+      "gis-ai-go.selection-resolve-problem.v1"
+  );
 }
 
 export function createGatewayHttpHandler(
@@ -650,6 +690,10 @@ export function createGatewayHttpHandler(
         ? "catalogue.describe"
         : parsedUrl.pathname === "/evidence/inspect"
           ? "evidence.inspect"
+          : parsedUrl.pathname === "/selection/resolve"
+            ? "selection.resolve"
+            : parsedUrl.pathname === "/data/query"
+              ? "data.query"
         : undefined;
     if (operation === undefined || !enabled.has(operation)) {
       return problemResponse(
@@ -683,7 +727,18 @@ export function createGatewayHttpHandler(
         ? (applications.catalogue as CatalogueApplication).search(body, context)
         : operation === "catalogue.describe"
           ? (applications.catalogue as CatalogueApplication).describe(body, context)
-          : (applications.evidence as EvidenceInspectApplication).inspect(body, context);
+          : operation === "evidence.inspect"
+            ? (applications.evidence as EvidenceInspectApplication).inspect(body, context)
+            : operation === "selection.resolve"
+              ? (applications.selection as SelectionResolveApplication).resolve(body, context)
+              : await (applications.dataQuery as DataQueryApplication).query(
+                  body,
+                  context,
+                  { signal: request.signal },
+                );
+      if (operation === "selection.resolve" && isSelectionProblem(result)) {
+        return jsonResponse(result, result.status, "application/problem+json");
+      }
       return catalogueSuccessResponse(result, context, options);
     } catch (error) {
       if (isCatalogueProblemError(error)) {
@@ -691,6 +746,13 @@ export function createGatewayHttpHandler(
       }
       if (error instanceof EvidenceInspectError) {
         return evidenceProblemResponse(error, context);
+      }
+      if (error instanceof DataQueryApplicationError) {
+        return jsonResponse(
+          error.problem,
+          error.problem.status,
+          "application/problem+json",
+        );
       }
       report(options, error);
       return problemResponse("internal_error", context, "The request could not be processed.");

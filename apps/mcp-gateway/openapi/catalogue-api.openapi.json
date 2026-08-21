@@ -2,8 +2,8 @@
   "openapi": "3.1.1",
   "info": {
     "title": "GIS AI GO gateway candidate",
-    "summary": "Local conformance candidate over the governed public catalogue and evidence ledger",
-    "description": "This contract describes only the routes selected for one local candidate. Catalogue and public evidence routes are mounted only through explicit constructor options. This document does not describe a public deployment or supported release.",
+    "summary": "Local conformance candidate over the governed catalogue, inactive public-read operations and evidence ledger",
+    "description": "This contract describes only the routes selected for one local candidate. Catalogue, non-executing selection, bounded data query and public evidence routes are mounted only through explicit constructor options. This document does not describe a public deployment, activated capability or supported release.",
     "version": "0.1.0"
   },
   "servers": [
@@ -22,9 +22,11 @@
   "x-gis-ai-go-mounted-candidate-operations": [
     "catalogue.describe",
     "catalogue.search",
-    "evidence.inspect"
+    "evidence.inspect",
+    "selection.resolve",
+    "data.query"
   ],
-  "x-gis-ai-go-blocked-by": "transport-and-interoperability-unverified",
+  "x-gis-ai-go-blocked-by": "release-activation-and-interoperability-gates-unmet",
   "x-gis-ai-go-public-deployment": false,
   "paths": {
     "/healthz": {
@@ -251,6 +253,180 @@
           }
         }
       }
+    },
+    "/selection/resolve": {
+      "post": {
+        "operationId": "selectionResolve",
+        "summary": "Resolve one reviewed public selection without execution",
+        "description": "An explicitly mounted local-conformance route over the deterministic selection application. It does not call a provider and is not a public deployment.",
+        "x-gis-ai-go-operation": "selection.resolve",
+        "x-gis-ai-go-lifecycle": "candidate-conformance-only",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SelectionResolveRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The exact provider-native selection plan with verified public evidence",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SelectionResolveResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The transport or selection request is invalid",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    { "$ref": "#/components/schemas/CatalogueProblem" },
+                    { "$ref": "#/components/schemas/SelectionResolveProblem" }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No compatible reviewed provider exists",
+            "content": {
+              "application/problem+json": {
+                "schema": { "$ref": "#/components/schemas/SelectionResolveProblem" }
+              }
+            }
+          },
+          "406": { "$ref": "#/components/responses/NotAcceptable" },
+          "409": {
+            "description": "The selection remains ambiguous",
+            "content": {
+              "application/problem+json": {
+                "schema": { "$ref": "#/components/schemas/SelectionResolveProblem" }
+              }
+            }
+          },
+          "422": {
+            "description": "Required dimensions are missing or contradict",
+            "content": {
+              "application/problem+json": {
+                "schema": { "$ref": "#/components/schemas/SelectionResolveProblem" }
+              }
+            }
+          },
+          "429": { "$ref": "#/components/responses/RateLimited" },
+          "500": { "$ref": "#/components/responses/InternalError" },
+          "503": {
+            "description": "Policy or durable evidence is unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": { "$ref": "#/components/schemas/SelectionResolveProblem" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/data/query": {
+      "post": {
+        "operationId": "dataQuery",
+        "summary": "Run the exact reviewed public ONS query",
+        "description": "An explicitly mounted local-conformance route over the bounded data query application and injected adapter. It has no caller-selected URL or query and is not a public deployment.",
+        "x-gis-ai-go-operation": "data.query",
+        "x-gis-ai-go-lifecycle": "candidate-conformance-only",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/DataQueryParameters" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "One bounded aggregate observation with verified public evidence",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/DataQueryResult" }
+              }
+            }
+          },
+          "400": {
+            "description": "The transport or data query request is invalid",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    { "$ref": "#/components/schemas/CatalogueProblem" },
+                    { "$ref": "#/components/schemas/DataQueryProblem" }
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The public-read policy denied the data query",
+            "content": {
+              "application/problem+json": {
+                "schema": { "$ref": "#/components/schemas/DataQueryProblem" }
+              }
+            }
+          },
+          "406": { "$ref": "#/components/responses/NotAcceptable" },
+          "408": {
+            "description": "The caller cancelled the query or its deadline elapsed",
+            "content": {
+              "application/problem+json": {
+                "schema": { "$ref": "#/components/schemas/DataQueryProblem" }
+              }
+            }
+          },
+          "429": {
+            "description": "Listener or provider admission is rate limited",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    { "$ref": "#/components/schemas/CatalogueProblem" },
+                    { "$ref": "#/components/schemas/DataQueryProblem" }
+                  ]
+                }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/InternalError" },
+          "502": {
+            "description": "The provider response failed the reviewed contract",
+            "content": {
+              "application/problem+json": {
+                "schema": { "$ref": "#/components/schemas/DataQueryProblem" }
+              }
+            }
+          },
+          "503": {
+            "description": "The provider, policy or evidence boundary is unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": { "$ref": "#/components/schemas/DataQueryProblem" }
+              }
+            }
+          },
+          "504": {
+            "description": "The provider adapter timed out while caller controls remained active",
+            "content": {
+              "application/problem+json": {
+                "schema": { "$ref": "#/components/schemas/DataQueryProblem" }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -393,6 +569,24 @@
       },
       "EvidenceInspectResult": {
         "$ref": "urn:gis-ai-go:schema:evidence-inspect-operation-result:v1"
+      },
+      "SelectionResolveRequest": {
+        "$ref": "urn:gis-ai-go:schema:selection-resolve-request:v1"
+      },
+      "SelectionResolveResult": {
+        "$ref": "urn:gis-ai-go:schema:selection-resolve-result:v1"
+      },
+      "SelectionResolveProblem": {
+        "$ref": "urn:gis-ai-go:schema:selection-resolve-problem:v1"
+      },
+      "DataQueryParameters": {
+        "$ref": "urn:gis-ai-go:schema:data-query-parameters:v1"
+      },
+      "DataQueryResult": {
+        "$ref": "urn:gis-ai-go:schema:data-query-result:v1"
+      },
+      "DataQueryProblem": {
+        "$ref": "urn:gis-ai-go:schema:data-query-problem:v1"
       },
       "CatalogueProblem": {
         "$ref": "urn:gis-ai-go:schema:catalogue-problem:v1"

@@ -237,7 +237,7 @@ test("OpenAPI exactly follows the explicitly selected local-candidate routes", a
     /must be unique/u,
   );
   assert.throws(
-    () => createCatalogueOpenApiDocument(["data.query" as never]),
+    () => createCatalogueOpenApiDocument(["spatial.locate" as never]),
     /unknown operation/u,
   );
 });

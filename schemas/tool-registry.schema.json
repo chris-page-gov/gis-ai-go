@@ -383,7 +383,7 @@
           "maxLength": 256
         },
         "controlledErrors": {
-          "description": "Governance error-code vocabulary mirrored from the immutable research profile. Runtime error-contract availability is declared separately by runtimeSchemas.problem.",
+          "description": "Governance error-code vocabulary for this profile. Runtime error-contract availability is declared by runtimeSchemas.problem; the immutable research record remains anchored separately by source.",
           "type": "array",
           "minItems": 1,
           "maxItems": 16,

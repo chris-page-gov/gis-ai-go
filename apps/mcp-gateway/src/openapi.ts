@@ -9,13 +9,19 @@ export const CATALOGUE_API_OPERATIONS = Object.freeze([
 export const EVIDENCE_API_OPERATIONS = Object.freeze([
   "evidence.inspect",
 ] as const);
+export const PUBLIC_READ_API_OPERATIONS = Object.freeze([
+  "selection.resolve",
+  "data.query",
+] as const);
 export const GATEWAY_API_OPERATIONS = Object.freeze([
   ...CATALOGUE_API_OPERATIONS,
   ...EVIDENCE_API_OPERATIONS,
+  ...PUBLIC_READ_API_OPERATIONS,
 ] as const);
 
 export type CatalogueApiOperation = (typeof CATALOGUE_API_OPERATIONS)[number];
 export type EvidenceApiOperation = (typeof EVIDENCE_API_OPERATIONS)[number];
+export type PublicReadApiOperation = (typeof PUBLIC_READ_API_OPERATIONS)[number];
 export type GatewayApiOperation = (typeof GATEWAY_API_OPERATIONS)[number];
 
 export interface OpenApiDocument extends Readonly<Record<string, unknown>> {
@@ -28,6 +34,8 @@ const OPERATION_PATHS: Readonly<Record<GatewayApiOperation, string>> = Object.fr
   "catalogue.describe": "/catalogue/describe",
   "catalogue.search": "/catalogue/search",
   "evidence.inspect": "/evidence/inspect",
+  "selection.resolve": "/selection/resolve",
+  "data.query": "/data/query",
 });
 
 const OPERATION_RESULT_SCHEMA_IDS: Readonly<Record<CatalogueApiOperation, string>> =
@@ -105,6 +113,21 @@ const publicPolicyDecisionV2Schema = sharedSchema(
   "public-policy-decision-v2.schema.json",
 );
 const publicReadResourceSchema = sharedSchema("public-read-resource.schema.json");
+const selectionResolveRequestSchema = sharedSchema(
+  "selection-resolve-request.schema.json",
+);
+const selectionResolveResultSchema = sharedSchema(
+  "selection-resolve-result.schema.json",
+);
+const selectionResolveProblemSchema = sharedSchema(
+  "selection-resolve-problem.schema.json",
+);
+const selectionPlanSchema = sharedSchema("selection-plan.schema.json");
+const dataQueryParametersSchema = sharedSchema(
+  "data-query-parameters.schema.json",
+);
+const dataQueryResultSchema = sharedSchema("data-query-result.schema.json");
+const dataQueryProblemSchema = sharedSchema("data-query-problem.schema.json");
 
 function deepFreeze<T>(value: T, seen = new WeakSet<object>()): T {
   if (value === null || typeof value !== "object" || seen.has(value)) return value;
@@ -360,6 +383,72 @@ function evidenceOperationResultSchema(): CatalogueJsonSchema {
   return deepFreeze({ ...dispatcher, $defs: rootDefinitions });
 }
 
+function publicReadOperationResultSchema(
+  schema: unknown,
+  operation: PublicReadApiOperation,
+): CatalogueJsonSchema {
+  const result = cloneJson(schema);
+  const rootDefinitions = result.$defs === undefined
+    ? {}
+    : cloneJson(objectValue(result.$defs, `${operation} result definitions`));
+  delete result.$defs;
+  rewriteReferences(result, "", {
+    "urn:gis-ai-go:schema:evidence-receipt:v2": "#/$defs/evidence_receipt_v2",
+    "urn:gis-ai-go:schema:selection-plan:v1": "#/$defs/selection_plan",
+  });
+  for (const definition of Object.values(rootDefinitions)) {
+    rewriteReferences(definition, "", {
+      "urn:gis-ai-go:schema:evidence-receipt:v2": "#/$defs/evidence_receipt_v2",
+      "urn:gis-ai-go:schema:selection-plan:v1": "#/$defs/selection_plan",
+    });
+  }
+  if (operation === "selection.resolve") {
+    embedSchemaResource(
+      selectionPlanSchema,
+      "selection_plan",
+      "selection_plan",
+      {},
+      rootDefinitions,
+    );
+  }
+  embedSchemaResource(
+    evidenceReceiptV2Schema,
+    "evidence_receipt_v2",
+    "evidence_v2",
+    {
+      "urn:gis-ai-go:schema:public-authority-context:v2":
+        "#/$defs/public_authority_context_v2",
+      "urn:gis-ai-go:schema:public-policy-decision:v2":
+        "#/$defs/public_policy_decision_v2",
+      "urn:gis-ai-go:schema:public-read-resource:v1":
+        "#/$defs/public_read_resource",
+    },
+    rootDefinitions,
+  );
+  embedSchemaResource(
+    publicAuthorityContextV2Schema,
+    "public_authority_context_v2",
+    "authority_v2",
+    {},
+    rootDefinitions,
+  );
+  embedSchemaResource(
+    publicPolicyDecisionV2Schema,
+    "public_policy_decision_v2",
+    "policy_v2",
+    {},
+    rootDefinitions,
+  );
+  embedSchemaResource(
+    publicReadResourceSchema,
+    "public_read_resource",
+    "resource",
+    {},
+    rootDefinitions,
+  );
+  return deepFreeze({ ...result, $defs: rootDefinitions });
+}
+
 /*
  * These canonical per-version exports remain externally referenced schemas.
  * The operation export below is the separately identified, self-contained
@@ -388,6 +477,26 @@ export const evidenceInspectRequestJsonSchema = deepFreeze(
   cloneJson(evidenceInspectRequestSchema),
 );
 export const evidenceInspectResultJsonSchema = evidenceOperationResultSchema();
+export const selectionResolveRequestJsonSchema = deepFreeze(
+  cloneJson(selectionResolveRequestSchema),
+);
+export const selectionResolveResultJsonSchema = publicReadOperationResultSchema(
+  selectionResolveResultSchema,
+  "selection.resolve",
+);
+export const selectionResolveProblemJsonSchema = deepFreeze(
+  cloneJson(selectionResolveProblemSchema),
+);
+export const dataQueryParametersJsonSchema = deepFreeze(
+  cloneJson(dataQueryParametersSchema),
+);
+export const dataQueryResultJsonSchema = publicReadOperationResultSchema(
+  dataQueryResultSchema,
+  "data.query",
+);
+export const dataQueryProblemJsonSchema = deepFreeze(
+  cloneJson(dataQueryProblemSchema),
+);
 export const catalogueProblemJsonSchema = deepFreeze(cloneJson(catalogueProblemSchema));
 
 /** Exact canonical schemas shared by direct API and MCP advertisements. */
@@ -409,9 +518,23 @@ export const EVIDENCE_OPERATION_JSON_SCHEMAS = deepFreeze({
   },
 } as const);
 
+export const PUBLIC_READ_OPERATION_JSON_SCHEMAS = deepFreeze({
+  "selection.resolve": {
+    inputSchema: selectionResolveRequestJsonSchema,
+    outputSchema: selectionResolveResultJsonSchema,
+    problemSchema: selectionResolveProblemJsonSchema,
+  },
+  "data.query": {
+    inputSchema: dataQueryParametersJsonSchema,
+    outputSchema: dataQueryResultJsonSchema,
+    problemSchema: dataQueryProblemJsonSchema,
+  },
+} as const);
+
 export const GATEWAY_OPERATION_JSON_SCHEMAS = deepFreeze({
   ...CATALOGUE_OPERATION_JSON_SCHEMAS,
   ...EVIDENCE_OPERATION_JSON_SCHEMAS,
+  ...PUBLIC_READ_OPERATION_JSON_SCHEMAS,
 } as const);
 
 function normaliseOperations(
@@ -455,6 +578,12 @@ export function createCatalogueOpenApiDocument(
   schemas.CatalogueDescribeResult = cloneJson(catalogueDescribeResultJsonSchema);
   schemas.EvidenceInspectRequest = cloneJson(evidenceInspectRequestJsonSchema);
   schemas.EvidenceInspectResult = cloneJson(evidenceInspectResultJsonSchema);
+  schemas.SelectionResolveRequest = cloneJson(selectionResolveRequestJsonSchema);
+  schemas.SelectionResolveResult = cloneJson(selectionResolveResultJsonSchema);
+  schemas.SelectionResolveProblem = cloneJson(selectionResolveProblemJsonSchema);
+  schemas.DataQueryParameters = cloneJson(dataQueryParametersJsonSchema);
+  schemas.DataQueryResult = cloneJson(dataQueryResultJsonSchema);
+  schemas.DataQueryProblem = cloneJson(dataQueryProblemJsonSchema);
   schemas.CatalogueProblem = cloneJson(catalogueProblemJsonSchema);
   document["x-gis-ai-go-mounted-candidate-catalogue-operations"] =
     CATALOGUE_API_OPERATIONS.filter((operation) => selected.includes(operation));

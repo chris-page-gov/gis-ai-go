@@ -44,6 +44,53 @@ TARGET_ACTIVE = [
     "data.query",
     "evidence.inspect",
 ]
+CURRENT_APPLICATION_METADATA = {
+    "T03": {
+        "providerDependencies": [
+            "reviewed public selection profile",
+            "public-read policy",
+            "public evidence contract",
+        ],
+        "costPerformance": (
+            "Low; deterministic closed constraints and one reviewed selection profile"
+        ),
+        "controlledErrors": [
+            "INVALID_REQUEST",
+            "AMBIGUOUS_SELECTION",
+            "MISSING_DIMENSION",
+            "CONTRADICTORY_CONSTRAINTS",
+            "NO_COMPATIBLE_PROVIDER",
+            "POLICY_DENIED",
+            "EVIDENCE_UNAVAILABLE",
+        ],
+        "fallbackBehaviour": "Return required choices and no executable plan.",
+    },
+    "T04": {
+        "providerDependencies": [
+            "explicitly injected ONS Data API adapter",
+            "public-read policy",
+            "public evidence contract",
+        ],
+        "costPerformance": (
+            "Bounded to one observation, two provider attempts and a 20 second adapter ceiling"
+        ),
+        "controlledErrors": [
+            "INVALID_REQUEST",
+            "QUERY_CANCELLED",
+            "QUERY_DEADLINE_EXCEEDED",
+            "POLICY_DENIED",
+            "PROVIDER_SUSPENDED",
+            "PROVIDER_RATE_LIMITED",
+            "PROVIDER_TIMEOUT",
+            "PROVIDER_UNAVAILABLE",
+            "PROVIDER_CONTRACT_FAILED",
+            "EVIDENCE_UNAVAILABLE",
+        ],
+        "fallbackBehaviour": (
+            "Fail closed; no cache, alternate provider or result fallback is permitted."
+        ),
+    },
+}
 
 
 def load_json(path: Path) -> Any:
@@ -85,7 +132,7 @@ class ToolRegistryContractTests(unittest.TestCase):
             CANONICAL_NAMES,
         )
 
-    def test_research_provenance_and_mirrored_fields_are_exact(self) -> None:
+    def test_research_provenance_and_current_fields_are_exact(self) -> None:
         digest = hashlib.sha256(RESEARCH_PATH.read_bytes()).hexdigest()
         self.assertEqual(digest, RESEARCH_SHA256)
         self.assertEqual(self.profile["source"]["research"]["sha256"], digest)
@@ -101,22 +148,41 @@ class ToolRegistryContractTests(unittest.TestCase):
                 self.assertEqual(profile["purpose"], research["purpose"])
                 self.assertEqual(profile["readOnly"], research["read_only"])
                 self.assertEqual(profile["mutating"], research["mutating"])
-                self.assertEqual(
-                    profile["support"]["providerDependencies"],
-                    research["provider_dependencies"],
-                )
+                current_metadata = CURRENT_APPLICATION_METADATA.get(profile["id"])
+                if current_metadata is None:
+                    self.assertEqual(
+                        profile["support"]["providerDependencies"],
+                        research["provider_dependencies"],
+                    )
+                    self.assertEqual(profile["costPerformance"], research["cost_performance"])
+                    self.assertEqual(profile["controlledErrors"], research["error_codes"])
+                    self.assertEqual(
+                        profile["fallback"]["behaviour"], research["fallback_behaviour"]
+                    )
+                else:
+                    self.assertEqual(
+                        profile["support"]["providerDependencies"],
+                        current_metadata["providerDependencies"],
+                    )
+                    self.assertEqual(
+                        profile["costPerformance"], current_metadata["costPerformance"]
+                    )
+                    self.assertEqual(
+                        profile["controlledErrors"], current_metadata["controlledErrors"]
+                    )
+                    self.assertEqual(
+                        profile["fallback"]["behaviour"],
+                        current_metadata["fallbackBehaviour"],
+                    )
                 self.assertEqual(profile["accessTiers"], research["access_tiers"])
                 self.assertEqual(
                     profile["policyAttributes"],
                     research["policy_relevant_attributes"],
                 )
-                self.assertEqual(profile["costPerformance"], research["cost_performance"])
-                self.assertEqual(profile["controlledErrors"], research["error_codes"])
                 self.assertEqual(
                     profile["provenance"]["requiredFields"],
                     research["provenance_fields"],
                 )
-                self.assertEqual(profile["fallback"]["behaviour"], research["fallback_behaviour"])
                 self.assertEqual(profile["threats"]["risks"], research["risks"])
                 self.assertEqual(
                     profile["cursor"]["researchStatement"],
@@ -147,17 +213,12 @@ class ToolRegistryContractTests(unittest.TestCase):
         ]
         self.assertEqual(
             implemented,
-            ["catalogue.search", "catalogue.describe", "evidence.inspect"],
+            TARGET_ACTIVE,
         )
         self.assertEqual(target_active, TARGET_ACTIVE)
-        self.assertEqual(
-            profiles["selection.resolve"]["current"]["implementationState"],
-            "not-implemented",
-        )
-        self.assertEqual(
-            profiles["data.query"]["current"]["implementationState"],
-            "not-implemented",
-        )
+        for name in ["selection.resolve", "data.query"]:
+            self.assertEqual(profiles[name]["current"]["implementationState"], "implemented")
+            self.assertEqual(profiles[name]["current"]["lifecycleState"], "suspended")
         self.assertTrue(profiles["workflow.execute"]["mutating"])
         self.assertFalse(profiles["workflow.execute"]["readOnly"])
         self.assertEqual(profiles["workflow.execute"]["releaseTarget"], "v0.3.0")
