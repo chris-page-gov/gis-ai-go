@@ -23,3 +23,9 @@ The [`Codex CLI readiness summary`](codex-cli-2026-08-20.json) records the isola
 non-interactive host attempt separately from the earlier three-host readiness summary.
 It binds the exact corpus case and current wrapper bytes, but remains `not_ready` and
 unscored because protocol negotiation stopped before a task-level tool call.
+
+The historical records continue to bind the unchanged ten-case
+[`qual_206_cases.json`](../qual_206_cases.json) bytes. The separate
+[`qual_206_cases_expansion.json`](../qual_206_cases_expansion.json) is design-time,
+non-live and unscored; it is not a runtime input to those sessions and does not
+upgrade, relabel or replace their results.

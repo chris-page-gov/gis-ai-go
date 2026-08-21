@@ -417,6 +417,20 @@ def main() -> None:
             ],
         ),
         (
+            "qual-206-evaluation-expansion.schema.json",
+            [
+                (
+                    "tests/interoperability/qual_206_cases_expansion.json",
+                    load_json(
+                        ROOT
+                        / "tests"
+                        / "interoperability"
+                        / "qual_206_cases_expansion.json"
+                    ),
+                )
+            ],
+        ),
+        (
             "decision.schema.json",
             [
                 (record["id"], record)
