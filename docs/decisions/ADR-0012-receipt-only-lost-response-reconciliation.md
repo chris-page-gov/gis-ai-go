@@ -1,10 +1,11 @@
 # ADR-0012: Receipt-only lost-response reconciliation
 
-- status: proposed candidate; inactive
+- status: accepted; inactive
 - date: 21 August 2026
 - decision owner: Chris Page
 - work item: [EVID-204](https://github.com/chris-page-gov/gis-ai-go/issues/22)
-- base: protected `main` commit `51147e0c7af438c28bb8dc4c66c8eb7fb27d3ded`
+- accepted implementation: [pull request 46](https://github.com/chris-page-gov/gis-ai-go/pull/46),
+  protected `main` commit `525304145088bda558687438c87440bde1f642a4`
 
 ## Context
 

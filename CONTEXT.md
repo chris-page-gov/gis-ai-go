@@ -42,11 +42,12 @@ whose accepted implementation commit is
 `a0e826384cf50d9d81b87489dbf3580e8e3602f7`. The Explorer is deployed and verified
 at <https://chris-page-gov.github.io/gis-ai-go/> from the later release commit
 recorded below. Protected `main` is now at
-`51147e0c7af438c28bb8dc4c66c8eb7fb27d3ded` and contains inactive catalogue,
-evidence, selection and fixed-data-query applications plus direct and MCP transport
-seams. Production operation arrays remain empty, readiness remains `503`, and there
-is no public MCP service, live provider capability, external policy or identity
-service, deployment or `v0.2.0` release.
+`525304145088bda558687438c87440bde1f642a4` and contains inactive catalogue,
+evidence, selection and fixed-data-query applications, direct and MCP transport
+seams, and receipt-only lost-response reconciliation. Production operation arrays
+remain empty, readiness remains `503`, and there is no public MCP service, live
+provider capability, external policy or identity service, deployment or `v0.2.0`
+release.
 
 The owner has authorised autonomous implementation in the open under
 [`ADR-0004`](docs/decisions/ADR-0004-public-autonomous-delivery.md). The repository
@@ -142,18 +143,19 @@ preflight (`364c868`), tool registry (`76103c1`), receipt inspection transport
 (`c4d43f9`), fixed no-credential ONS adapter (`ef960f7`), public-read v2 contracts
 (`5a7e441`), selection resolver (`99426de`), data-query application (`b5f8edc`) and
 inactive public-read transports (`51147e0`). These are explicit injection and local
-conformance seams, not an activated or deployed service. The production registry and
-API arrays remain empty and the accepted ONS lifecycle planes remain suspended.
-
-The current uncommitted EVID-204 candidate adds receipt-only lost-response
-reconciliation: a required non-secret data-query idempotency key, a private digest
-index, completed-retry blocking and `evidence.inspect` v2 key lookup. It does not
-cache or replay query results. Its deterministic `QUAL-206-HOST-015` fixture drops a
-success after verified persistence, reopens fresh instances and recovers the receipt
-without another provider execution. The complete local repository gate passes and
-independent full-diff review reports no remaining P0-P2. There is no commit, pull
-request, protected-main acceptance, activation, deployment, live host evidence or
-release claim for this candidate.
+conformance seams, not an activated or deployed service. EVID-204 receipt-only
+lost-response reconciliation subsequently merged through
+[pull request 46](https://github.com/chris-page-gov/gis-ai-go/pull/46) as
+`525304145088bda558687438c87440bde1f642a4`. It adds the required non-secret
+data-query idempotency key, private digest index, completed-retry blocking and
+`evidence.inspect` v2 key lookup without caching or replaying query results. The
+deterministic `QUAL-206-HOST-015` fixture drops a success after verified persistence,
+reopens fresh instances and recovers the receipt without another provider execution.
+Protected-main assurance, provenance and CodeQL passed, and attestation
+[42067801](https://github.com/chris-page-gov/gis-ai-go/attestations/42067801)
+binds the exact source archive to that commit. The production registry and API arrays
+remain empty, the accepted ONS lifecycle planes remain suspended, and this acceptance
+is not activation, deployment, live host evidence or a release claim.
 
 ## Non-negotiable boundaries
 
