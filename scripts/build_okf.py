@@ -1528,7 +1528,7 @@ def main() -> None:
     revision = args.revision or git_revision(root)
     receipt = build(root, output, revision)
     print(
-        f"Built {receipt['recordCount']} OKF records into {output}; "
+        f"Built {receipt['recordCount']} OKF records; "
         f"content root {receipt['contentRootSha256']}."
     )
 

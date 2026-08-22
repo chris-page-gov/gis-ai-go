@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:gateway-image-evidence-manifest:v1",
+  "title": "GIS AI GO blocked gateway evidence manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "classification",
+    "source",
+    "image",
+    "subjects",
+    "tool_versions",
+    "phases",
+    "passed",
+    "claims"
+  ],
+  "properties": {
+    "schema": {"const": "gis-ai-go.gateway-image-evidence-manifest.v1"},
+    "classification": {
+      "enum": ["repository-only-blocked-candidate", "non-publishable-development-build"]
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["revision", "version", "clean"],
+      "properties": {
+        "revision": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "version": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+        },
+        "clean": {"type": "boolean"}
+      }
+    },
+    "image": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["manifest_digest", "platform"],
+      "properties": {
+        "manifest_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+        "platform": {"enum": ["linux/amd64", "linux/arm64"]}
+      }
+    },
+    "subjects": {
+      "type": "array",
+      "minItems": 11,
+      "maxItems": 11,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/subject"}
+    },
+    "tool_versions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "docker_client",
+        "docker_server",
+        "compose",
+        "buildx",
+        "buildkit",
+        "syft",
+        "trivy"
+      ],
+      "properties": {
+        "docker_client": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+[-+A-Za-z0-9.]*$"},
+        "docker_server": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+[-+A-Za-z0-9.]*$"},
+        "compose": {"type": "string", "pattern": "^v?[0-9]+\\.[0-9]+\\.[0-9]+[-+A-Za-z0-9.]*$"},
+        "buildx": {"type": "string", "pattern": "^v?[0-9]+\\.[0-9]+\\.[0-9]+[-+A-Za-z0-9.]*$"},
+        "buildkit": {"const": "v0.32.2"},
+        "syft": {"const": "1.42.2"},
+        "trivy": {"const": "0.74.0"}
+      }
+    },
+    "phases": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 8,
+      "items": {"$ref": "#/$defs/phase"}
+    },
+    "passed": {"const": true},
+    "claims": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "public_deployment",
+        "production_activation",
+        "live_provider_call",
+        "production_rollback"
+      ],
+      "properties": {
+        "public_deployment": {"const": false},
+        "production_activation": {"const": false},
+        "live_provider_call": {"const": false},
+        "production_rollback": {"const": false}
+      }
+    }
+  },
+  "$defs": {
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "file", "sha256", "bytes"],
+      "properties": {
+        "role": {
+          "enum": [
+            "build-context",
+            "oci-archive",
+            "oci-checksum",
+            "image-receipt",
+            "image-sbom",
+            "image-sbom-checksum",
+            "trivy-database",
+            "trivy-database-checksum",
+            "trivy-report",
+            "vulnerability-scan",
+            "container-acceptance"
+          ]
+        },
+        "file": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "bytes": {"type": "integer", "minimum": 1, "maximum": 2147483648}
+      }
+    },
+    "phase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "started_at", "completed_at", "duration_ms", "passed"],
+      "properties": {
+        "name": {
+          "enum": [
+            "okf",
+            "package",
+            "verify",
+            "reproducibility",
+            "sbom",
+            "vulnerability-scan",
+            "container-acceptance",
+            "evidence-package"
+          ]
+        },
+        "started_at": {"type": "string", "format": "date-time", "maxLength": 20},
+        "completed_at": {"type": "string", "format": "date-time", "maxLength": 20},
+        "duration_ms": {"type": "integer", "minimum": 0, "maximum": 7200000},
+        "passed": {"const": true}
+      }
+    }
+  }
+}

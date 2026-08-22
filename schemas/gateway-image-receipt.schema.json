@@ -1,0 +1,322 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:gateway-image-receipt:v1",
+  "title": "GIS AI GO blocked gateway image receipt",
+  "description": "The exact-source construction receipt for one repository-only, zero-capability gateway OCI archive.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "classification",
+    "source",
+    "build",
+    "image",
+    "runtime_boundary",
+    "assurance_tools"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gis-ai-go.gateway-image-receipt.v1"
+    },
+    "classification": {
+      "enum": [
+        "repository-only-blocked-candidate",
+        "non-publishable-development-build"
+      ]
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository",
+        "revision",
+        "version",
+        "created",
+        "source_date_epoch",
+        "clean"
+      ],
+      "properties": {
+        "repository": {
+          "const": "chris-page-gov/gis-ai-go"
+        },
+        "revision": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+        },
+        "created": {
+          "type": "string",
+          "format": "date-time",
+          "maxLength": 20
+        },
+        "source_date_epoch": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "clean": {
+          "type": "boolean"
+        }
+      }
+    },
+    "build": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "platform",
+        "node_base",
+        "package_manager",
+        "buildkit",
+        "buildkit_version",
+        "buildx_version",
+        "context"
+      ],
+      "properties": {
+        "platform": {
+          "enum": [
+            "linux/amd64",
+            "linux/arm64"
+          ]
+        },
+        "node_base": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "reference",
+            "digest"
+          ],
+          "properties": {
+            "reference": {
+              "const": "node:24.19.0-bookworm-slim@sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03"
+            },
+            "digest": {
+              "const": "sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03"
+            }
+          }
+        },
+        "package_manager": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "name",
+            "version",
+            "sha512"
+          ],
+          "properties": {
+            "name": {
+              "const": "pnpm"
+            },
+            "version": {
+              "const": "10.33.2"
+            },
+            "sha512": {
+              "const": "a90faf6feeab71ad6c6e57f94e0fe1a12f5dcc22cd754db40ae9593eb6a3e0b6b12e3540218bb37ae083404b1f2ce6db2a4121e979829b4aff94b99f49da1cf8"
+            }
+          }
+        },
+        "buildkit": {
+          "const": "moby/buildkit:buildx-stable-1@sha256:28a898719c18a33f4e8000685287fa36fd0dd9560c6440227d3a732d79bb41d8"
+        },
+        "buildkit_version": {
+          "const": "v0.32.2"
+        },
+        "buildx_version": {
+          "type": "string",
+          "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+[-+A-Za-z0-9.]*$",
+          "maxLength": 128
+        },
+        "context": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "manifest",
+            "manifest_sha256",
+            "file_count",
+            "bytes"
+          ],
+          "properties": {
+            "manifest": {
+              "const": "build-context.sha256"
+            },
+            "manifest_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "file_count": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20000
+            },
+            "bytes": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 268435456
+            }
+          }
+        }
+      }
+    },
+    "image": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "archive",
+        "archive_sha256",
+        "archive_bytes",
+        "index_sha256",
+        "manifest_digest",
+        "config_digest",
+        "layer_digests",
+        "rootfs_diff_ids",
+        "entrypoint",
+        "user"
+      ],
+      "properties": {
+        "archive": {
+          "const": "gateway-image.oci.tar"
+        },
+        "archive_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "archive_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 805306368
+        },
+        "index_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "manifest_digest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "config_digest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "layer_digests": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          }
+        },
+        "rootfs_diff_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          }
+        },
+        "entrypoint": {
+          "const": [
+            "node",
+            "dist/src/container-main.js"
+          ]
+        },
+        "user": {
+          "const": "65532:65532"
+        }
+      }
+    },
+    "runtime_boundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lifecycle",
+        "readiness_status",
+        "active_tools",
+        "active_api_operations",
+        "active_resources",
+        "live_provider_calls",
+        "public_deployment",
+        "ledger_root",
+        "reconciliation_root"
+      ],
+      "properties": {
+        "lifecycle": {
+          "const": "candidate-blocked"
+        },
+        "readiness_status": {
+          "const": 503
+        },
+        "active_tools": {
+          "const": []
+        },
+        "active_api_operations": {
+          "const": []
+        },
+        "active_resources": {
+          "const": []
+        },
+        "live_provider_calls": {
+          "const": false
+        },
+        "public_deployment": {
+          "const": false
+        },
+        "ledger_root": {
+          "const": "/var/lib/gis-ai-go/ledger"
+        },
+        "reconciliation_root": {
+          "const": "/var/lib/gis-ai-go/reconciliation"
+        }
+      }
+    },
+    "assurance_tools": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sbom",
+        "vulnerability_scan"
+      ],
+      "properties": {
+        "sbom": {
+          "const": "anchore/syft:v1.42.2@sha256:15952b4306fd990724afaaf7f1c71fcd03546b89fbf6f2d32b0be5f81e3ef431"
+        },
+        "vulnerability_scan": {
+          "const": "aquasec/trivy:0.74.0@sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969"
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "source": {
+            "properties": {
+              "clean": {
+                "const": true
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "classification": {
+            "const": "repository-only-blocked-candidate"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "classification": {
+            "const": "non-publishable-development-build"
+          }
+        }
+      }
+    }
+  ]
+}

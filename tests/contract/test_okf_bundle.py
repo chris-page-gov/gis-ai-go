@@ -1,15 +1,18 @@
 from __future__ import annotations
 
+import contextlib
 import copy
 import hashlib
 import importlib.util
+import io
 import json
 import shutil
 import tempfile
 import unittest
 from pathlib import Path
-from types import ModuleType
+from types import ModuleType, SimpleNamespace
 from typing import Any
+from unittest import mock
 
 from jsonschema import Draft202012Validator, FormatChecker
 
@@ -79,6 +82,36 @@ class OkfBundleTests(unittest.TestCase):
     @classmethod
     def tearDownClass(cls) -> None:
         cls.temporary_directory.cleanup()
+
+    def test_cli_status_is_fixed_and_does_not_publish_the_output_path(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary) / "private-output"
+            stdout = io.StringIO()
+            receipt = {
+                "recordCount": 36,
+                "contentRootSha256": "a" * 64,
+            }
+            with (
+                mock.patch.object(
+                    BUILDER,
+                    "parse_args",
+                    return_value=SimpleNamespace(
+                        root=ROOT,
+                        output=output,
+                        revision=FIXED_REVISION,
+                    ),
+                ),
+                mock.patch.object(BUILDER, "build", return_value=receipt),
+                contextlib.redirect_stdout(stdout),
+            ):
+                BUILDER.main()
+
+            rendered = stdout.getvalue()
+            self.assertEqual(
+                rendered,
+                f"Built 36 OKF records; content root {'a' * 64}.\n",
+            )
+            self.assertNotIn(str(output), rendered)
 
     def test_build_is_byte_for_byte_deterministic(self) -> None:
         with (

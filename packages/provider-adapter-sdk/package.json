@@ -5,6 +5,9 @@
   "description": "Reviewed provider-adapter contract and deterministic fixture for GIS AI GO",
   "license": "MIT",
   "type": "module",
+  "files": [
+    "dist"
+  ],
   "exports": {
     ".": {
       "types": "./src/index.ts",

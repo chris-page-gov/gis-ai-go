@@ -1,0 +1,767 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:gateway-container-acceptance:v1",
+  "title": "GIS AI GO blocked gateway container acceptance receipt",
+  "description": "A closed, path-safe record of one local blocked-candidate Compose rehearsal.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "classification",
+    "source",
+    "image",
+    "compose",
+    "engine",
+    "phases",
+    "runtime",
+    "transport",
+    "storage",
+    "boundary",
+    "checks",
+    "claims"
+  ],
+  "properties": {
+    "schema": { "const": "gis-ai-go.gateway-container-acceptance.v1" },
+    "classification": { "const": "local-mechanism-rehearsal" },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository",
+        "revision",
+        "version",
+        "created",
+        "source_date_epoch",
+        "tree_clean"
+      ],
+      "properties": {
+        "repository": { "const": "chris-page-gov/gis-ai-go" },
+        "revision": { "$ref": "#/$defs/revision" },
+        "version": { "$ref": "#/$defs/version" },
+        "created": { "type": "string", "format": "date-time", "maxLength": 20 },
+        "source_date_epoch": { "type": "integer", "minimum": 0 },
+        "tree_clean": { "type": "boolean" }
+      }
+    },
+    "image": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "archive_sha256",
+        "manifest_digest",
+        "config_digest",
+        "platform",
+        "tag",
+        "loaded_image_descriptor",
+        "loaded_image_id",
+        "restored_image_id",
+        "saved_archive_sha256"
+      ],
+      "properties": {
+        "archive_sha256": { "$ref": "#/$defs/sha256" },
+        "manifest_digest": { "$ref": "#/$defs/digest" },
+        "config_digest": { "$ref": "#/$defs/digest" },
+        "platform": { "enum": ["linux/amd64", "linux/arm64"] },
+        "tag": {
+          "type": "string",
+          "pattern": "^gis-ai-go-gateway:deploy-207-[0-9a-f]{12}$"
+        },
+        "loaded_image_descriptor": {
+          "oneOf": [
+            {"type": "null"},
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["media_type", "digest", "bytes"],
+              "properties": {
+                "media_type": {"const": "application/vnd.oci.image.manifest.v1+json"},
+                "digest": {"$ref": "#/$defs/digest"},
+                "bytes": {"type": "integer", "minimum": 1, "maximum": 4194304}
+              }
+            }
+          ]
+        },
+        "loaded_image_id": { "$ref": "#/$defs/digest" },
+        "restored_image_id": { "$ref": "#/$defs/digest" },
+        "saved_archive_sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "compose": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file", "file_sha256", "rendered_sha256"],
+      "properties": {
+        "file": { "const": "deploy/gateway/compose.candidate.yaml" },
+        "file_sha256": { "$ref": "#/$defs/sha256" },
+        "rendered_sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "engine": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["client", "server", "compose"],
+      "properties": {
+        "client": { "$ref": "#/$defs/dockerEndpoint" },
+        "server": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "version",
+            "api_version",
+            "os",
+            "architecture",
+            "platform_name"
+          ],
+          "properties": {
+            "version": { "$ref": "#/$defs/toolVersion" },
+            "api_version": { "$ref": "#/$defs/apiVersion" },
+            "os": { "const": "linux" },
+            "architecture": { "enum": ["amd64", "arm64"] },
+            "platform_name": { "type": "string", "minLength": 1, "maxLength": 128 }
+          }
+        },
+        "compose": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["version"],
+          "properties": {
+            "version": { "$ref": "#/$defs/toolVersion" }
+          }
+        }
+      }
+    },
+    "phases": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "prefixItems": [
+        { "$ref": "#/$defs/phaseEngine" },
+        { "$ref": "#/$defs/phaseLoad" },
+        { "$ref": "#/$defs/phaseRender" },
+        { "$ref": "#/$defs/phaseStart" },
+        { "$ref": "#/$defs/phaseRestart" },
+        { "$ref": "#/$defs/phaseSuspend" },
+        { "$ref": "#/$defs/phaseRestore" }
+      ],
+      "items": false
+    },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["container", "network", "volumes", "suspended_state"],
+      "properties": {
+        "container": { "$ref": "#/$defs/container" },
+        "network": { "$ref": "#/$defs/network" },
+        "volumes": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "prefixItems": [
+            { "$ref": "#/$defs/ledgerVolume" },
+            { "$ref": "#/$defs/reconciliationVolume" }
+          ],
+          "items": false
+        },
+        "suspended_state": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "running", "exit_code", "exec_rejected"],
+          "properties": {
+            "status": { "const": "exited" },
+            "running": { "const": false },
+            "exit_code": { "const": 0 },
+            "exec_rejected": { "const": true }
+          }
+        }
+      }
+    },
+    "transport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "declared",
+        "realised",
+        "probe_origin",
+        "host_reachable",
+        "network_internal"
+      ],
+      "properties": {
+        "mode": {
+          "enum": [
+            "host-loopback",
+            "container-loopback-internal-engine-fallback"
+          ]
+        },
+        "declared": {
+          "const": [
+            {
+              "container_port": 8787,
+              "protocol": "tcp",
+              "host_ip": "127.0.0.1",
+              "host_port": 8787
+            }
+          ]
+        },
+        "realised": {
+          "description": "Semantic realised host bindings. Docker may represent the verified internal-bridge no-binding state as an omitted entry, null or an empty list; these are normalised to an empty list only after the exact exposed port and loopback host binding are validated.",
+          "type": "array",
+          "maxItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["host_ip", "host_port"],
+            "properties": {
+              "host_ip": { "const": "127.0.0.1" },
+              "host_port": { "const": 8787 }
+            }
+          }
+        },
+        "probe_origin": { "enum": ["host-loopback", "container-loopback"] },
+        "host_reachable": { "type": "boolean" },
+        "network_internal": { "const": true }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "mode": { "const": "host-loopback" },
+            "realised": {
+              "const": [{ "host_ip": "127.0.0.1", "host_port": 8787 }]
+            },
+            "probe_origin": { "const": "host-loopback" },
+            "host_reachable": { "const": true }
+          }
+        },
+        {
+          "properties": {
+            "mode": { "const": "container-loopback-internal-engine-fallback" },
+            "realised": { "const": [] },
+            "probe_origin": { "const": "container-loopback" },
+            "host_reachable": { "const": false }
+          }
+        }
+      ]
+    },
+    "storage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ledger",
+        "ledger_root",
+        "reconciliation",
+        "reconciliation_root",
+        "distinct_volumes"
+      ],
+      "properties": {
+        "ledger": { "$ref": "#/$defs/privateDescriptor" },
+        "ledger_root": { "$ref": "#/$defs/privateRoot" },
+        "reconciliation": { "$ref": "#/$defs/privateDescriptor" },
+        "reconciliation_root": { "$ref": "#/$defs/privateRoot" },
+        "distinct_volumes": { "const": true }
+      }
+    },
+    "boundary": { "$ref": "#/$defs/boundary" },
+    "checks": {
+      "const": [
+        "exact-oci-load",
+        "closed-compose-topology",
+        "exact-image-runtime-identity",
+        "closed-compose-labels",
+        "non-root-read-only-runtime",
+        "loopback-only-internal-network",
+        "blocked-health-readiness",
+        "zero-tools-routes-resources",
+        "private-disjoint-storage",
+        "runtime-resource-bounds",
+        "restart-persistence",
+        "log-minimisation",
+        "service-suspension",
+        "exact-image-restore",
+        "closed-acceptance-receipt"
+      ]
+    },
+    "claims": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "public_deployment",
+        "production_activation",
+        "live_provider_call",
+        "production_rollback",
+        "static_explorer_dependency"
+      ],
+      "properties": {
+        "public_deployment": { "const": false },
+        "production_activation": { "const": false },
+        "live_provider_call": { "const": false },
+        "production_rollback": { "const": false },
+        "static_explorer_dependency": { "const": false }
+      }
+    }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "revision": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "version": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+    },
+    "toolVersion": {
+      "type": "string",
+      "pattern": "^v?[0-9]+\\.[0-9]+\\.[0-9]+(?:[-+.][0-9A-Za-z.-]+)?$",
+      "maxLength": 128
+    },
+    "apiVersion": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+$",
+      "maxLength": 16
+    },
+    "dockerEndpoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "api_version", "os", "architecture"],
+      "properties": {
+        "version": { "$ref": "#/$defs/toolVersion" },
+        "api_version": { "$ref": "#/$defs/apiVersion" },
+        "os": { "enum": ["darwin", "linux", "windows"] },
+        "architecture": { "enum": ["amd64", "arm64"] }
+      }
+    },
+    "phaseBase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "started_at", "ended_at", "duration_ms", "status"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "started_at": { "type": "string", "format": "date-time", "maxLength": 24 },
+        "ended_at": { "type": "string", "format": "date-time", "maxLength": 24 },
+        "duration_ms": { "type": "integer", "minimum": 0, "maximum": 1800000 },
+        "status": { "const": "passed" }
+      }
+    },
+    "phaseEngine": {
+      "allOf": [
+        { "$ref": "#/$defs/phaseBase" },
+        { "properties": { "name": { "const": "engine-identity" } } }
+      ]
+    },
+    "phaseLoad": {
+      "allOf": [
+        { "$ref": "#/$defs/phaseBase" },
+        { "properties": { "name": { "const": "exact-oci-load" } } }
+      ]
+    },
+    "phaseRender": {
+      "allOf": [
+        { "$ref": "#/$defs/phaseBase" },
+        { "properties": { "name": { "const": "compose-render" } } }
+      ]
+    },
+    "phaseStart": {
+      "allOf": [
+        { "$ref": "#/$defs/phaseBase" },
+        { "properties": { "name": { "const": "compose-start-and-probe" } } }
+      ]
+    },
+    "phaseRestart": {
+      "allOf": [
+        { "$ref": "#/$defs/phaseBase" },
+        { "properties": { "name": { "const": "restart-and-persistence" } } }
+      ]
+    },
+    "phaseSuspend": {
+      "allOf": [
+        { "$ref": "#/$defs/phaseBase" },
+        { "properties": { "name": { "const": "service-suspension" } } }
+      ]
+    },
+    "phaseRestore": {
+      "allOf": [
+        { "$ref": "#/$defs/phaseBase" },
+        { "properties": { "name": { "const": "exact-image-restore" } } }
+      ]
+    },
+    "containerLabels": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "config_hash",
+        "container_number",
+        "depends_on",
+        "image",
+        "oneoff",
+        "project",
+        "project_config_file",
+        "project_working_directory",
+        "service",
+        "version"
+      ],
+      "properties": {
+        "config_hash": { "$ref": "#/$defs/sha256" },
+        "container_number": { "const": "1" },
+        "depends_on": { "const": "" },
+        "image": { "$ref": "#/$defs/digest" },
+        "oneoff": { "const": "False" },
+        "project": { "const": "ephemeral-project" },
+        "project_config_file": { "const": "deploy/gateway/compose.candidate.yaml" },
+        "project_working_directory": { "const": "deploy/gateway" },
+        "service": { "const": "gateway" },
+        "version": { "$ref": "#/$defs/toolVersion" }
+      }
+    },
+    "networkLabels": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["config_hash", "project", "version", "network"],
+      "properties": {
+        "config_hash": { "$ref": "#/$defs/sha256" },
+        "project": { "const": "ephemeral-project" },
+        "version": { "$ref": "#/$defs/toolVersion" },
+        "network": { "const": "offline" }
+      }
+    },
+    "container": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "container_id",
+        "name",
+        "image_id",
+        "user",
+        "entrypoint",
+        "cmd",
+        "environment",
+        "working_directory",
+        "exposed_ports",
+        "stop_signal",
+        "stop_timeout_seconds",
+        "healthcheck",
+        "labels",
+        "read_only_root",
+        "cap_add",
+        "cap_drop",
+        "security_options",
+        "privileged",
+        "publish_all_ports",
+        "auto_remove",
+        "tmpfs",
+        "nofile",
+        "restart",
+        "logging",
+        "resources",
+        "state"
+      ],
+      "properties": {
+        "container_id": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "name": { "const": "gateway-1" },
+        "image_id": { "$ref": "#/$defs/digest" },
+        "user": { "const": "65532:65532" },
+        "entrypoint": { "const": ["node", "dist/src/container-main.js"] },
+        "cmd": { "type": "null" },
+        "environment": {
+          "const": [
+            "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+            "NODE_VERSION=24.19.0",
+            "YARN_VERSION=1.22.22",
+            "HOME=/nonexistent",
+            "NODE_ENV=production",
+            "TZ=UTC"
+          ]
+        },
+        "working_directory": { "const": "/app/apps/mcp-gateway" },
+        "exposed_ports": { "const": ["8787/tcp"] },
+        "stop_signal": { "const": "SIGTERM" },
+        "stop_timeout_seconds": { "const": 35 },
+        "healthcheck": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["test", "interval_ns", "timeout_ns", "start_period_ns", "retries"],
+          "properties": {
+            "test": { "const": ["CMD", "node", "dist/src/container-healthcheck.js"] },
+            "interval_ns": { "const": 10000000000 },
+            "timeout_ns": { "const": 3000000000 },
+            "start_period_ns": { "const": 5000000000 },
+            "retries": { "const": 3 }
+          }
+        },
+        "labels": { "$ref": "#/$defs/containerLabels" },
+        "read_only_root": { "const": true },
+        "cap_add": { "const": [] },
+        "cap_drop": { "const": ["ALL"] },
+        "security_options": { "const": ["no-new-privileges:true"] },
+        "privileged": { "const": false },
+        "publish_all_ports": { "const": false },
+        "auto_remove": { "const": false },
+        "tmpfs": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["/tmp"],
+          "properties": {
+            "/tmp": {
+              "const": "rw,noexec,nosuid,nodev,size=1m,mode=0700,uid=65532,gid=65532"
+            }
+          }
+        },
+        "nofile": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["soft", "hard"],
+          "properties": { "soft": { "const": 1024 }, "hard": { "const": 1024 } }
+        },
+        "restart": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["name", "maximum_retry_count"],
+          "properties": {
+            "name": { "const": "no" },
+            "maximum_retry_count": { "const": 0 }
+          }
+        },
+        "logging": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["driver", "options"],
+          "properties": {
+            "driver": { "const": "json-file" },
+            "options": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["max-file", "max-size"],
+              "properties": {
+                "max-file": { "const": "1" },
+                "max-size": { "const": "1m" }
+              }
+            }
+          }
+        },
+        "resources": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "cpus",
+            "memory_bytes",
+            "memory_swap_bytes",
+            "memory_reservation_bytes",
+            "pids"
+          ],
+          "properties": {
+            "cpus": { "const": 0.5 },
+            "memory_bytes": { "const": 268435456 },
+            "memory_swap_bytes": { "const": 268435456 },
+            "memory_reservation_bytes": { "const": 0 },
+            "pids": { "const": 64 }
+          }
+        },
+        "state": { "$ref": "#/$defs/runningState" }
+      }
+    },
+    "runningState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "running",
+        "paused",
+        "restarting",
+        "oom_killed",
+        "dead",
+        "exit_code",
+        "error",
+        "health",
+        "health_failing_streak"
+      ],
+      "properties": {
+        "status": { "const": "running" },
+        "running": { "const": true },
+        "paused": { "const": false },
+        "restarting": { "const": false },
+        "oom_killed": { "const": false },
+        "dead": { "const": false },
+        "exit_code": { "const": 0 },
+        "error": { "const": "" },
+        "health": { "const": "healthy" },
+        "health_failing_streak": { "const": 0 }
+      }
+    },
+    "network": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "logical_name",
+        "driver",
+        "scope",
+        "internal",
+        "attachable",
+        "ingress",
+        "config_only",
+        "member_count",
+        "labels"
+      ],
+      "properties": {
+        "logical_name": { "const": "offline" },
+        "driver": { "const": "bridge" },
+        "scope": { "const": "local" },
+        "internal": { "const": true },
+        "attachable": { "const": false },
+        "ingress": { "const": false },
+        "config_only": { "const": false },
+        "member_count": { "const": 1 },
+        "labels": { "$ref": "#/$defs/networkLabels" }
+      }
+    },
+    "ledgerVolume": { "$ref": "#/$defs/ledgerVolumeShape" },
+    "reconciliationVolume": { "$ref": "#/$defs/reconciliationVolumeShape" },
+    "ledgerVolumeShape": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["logical_name", "destination", "driver", "scope", "mount_read_write", "labels"],
+      "properties": {
+        "logical_name": { "const": "evidence-ledger" },
+        "destination": { "const": "/var/lib/gis-ai-go/ledger" },
+        "driver": { "const": "local" },
+        "scope": { "const": "local" },
+        "mount_read_write": { "const": true },
+        "labels": { "$ref": "#/$defs/ledgerVolumeLabels" }
+      }
+    },
+    "reconciliationVolumeShape": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["logical_name", "destination", "driver", "scope", "mount_read_write", "labels"],
+      "properties": {
+        "logical_name": { "const": "reconciliation-index" },
+        "destination": { "const": "/var/lib/gis-ai-go/reconciliation" },
+        "driver": { "const": "local" },
+        "scope": { "const": "local" },
+        "mount_read_write": { "const": true },
+        "labels": { "$ref": "#/$defs/reconciliationVolumeLabels" }
+      }
+    },
+    "ledgerVolumeLabels": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["config_hash", "project", "version", "volume"],
+      "properties": {
+        "config_hash": { "$ref": "#/$defs/sha256" },
+        "project": { "const": "ephemeral-project" },
+        "version": { "$ref": "#/$defs/toolVersion" },
+        "volume": { "const": "evidence-ledger" }
+      }
+    },
+    "reconciliationVolumeLabels": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["config_hash", "project", "version", "volume"],
+      "properties": {
+        "config_hash": { "$ref": "#/$defs/sha256" },
+        "project": { "const": "ephemeral-project" },
+        "version": { "$ref": "#/$defs/toolVersion" },
+        "volume": { "const": "reconciliation-index" }
+      }
+    },
+    "privateDescriptor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sha256", "mode"],
+      "properties": {
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "mode": { "const": 384 }
+      }
+    },
+    "privateRoot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode"],
+      "properties": { "mode": { "const": 448 } }
+    },
+    "boundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "health",
+        "readiness",
+        "openapi_paths",
+        "direct_operation",
+        "mcp_discovery",
+        "host_filter"
+      ],
+      "properties": {
+        "health": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "product", "lifecycle", "catalogue"],
+          "properties": {
+            "status": { "const": "ok" },
+            "product": { "const": "GIS AI GO" },
+            "lifecycle": { "const": "candidate-blocked" },
+            "catalogue": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "revision",
+                "version",
+                "content_root_sha256",
+                "record_count",
+                "stale",
+                "warnings"
+              ],
+              "properties": {
+                "revision": { "$ref": "#/$defs/revision" },
+                "version": { "$ref": "#/$defs/version" },
+                "content_root_sha256": { "$ref": "#/$defs/sha256" },
+                "record_count": { "type": "integer", "minimum": 1, "maximum": 100000 },
+                "stale": { "const": false },
+                "warnings": { "const": [] }
+              }
+            }
+          }
+        },
+        "readiness": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["http_status", "status", "reason", "active_tools", "active_api_operations"],
+          "properties": {
+            "http_status": { "const": 503 },
+            "status": { "const": "blocked" },
+            "reason": { "const": "transport-and-interoperability-unverified" },
+            "active_tools": { "const": [] },
+            "active_api_operations": { "const": [] }
+          }
+        },
+        "openapi_paths": { "const": ["/healthz", "/openapi.json", "/readyz"] },
+        "direct_operation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["http_status", "code"],
+          "properties": {
+            "http_status": { "const": 400 },
+            "code": { "const": "invalid_request" }
+          }
+        },
+        "mcp_discovery": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["http_status", "capabilities"],
+          "properties": {
+            "http_status": { "const": 200 },
+            "capabilities": {
+              "type": "object",
+              "additionalProperties": false,
+              "maxProperties": 0
+            }
+          }
+        },
+        "host_filter": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["direct_http_status", "mcp_http_status"],
+          "properties": {
+            "direct_http_status": { "const": 400 },
+            "mcp_http_status": { "const": 403 }
+          }
+        }
+      }
+    }
+  }
+}

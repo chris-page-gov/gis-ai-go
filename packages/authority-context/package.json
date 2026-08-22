@@ -5,6 +5,9 @@
   "description": "Server-owned anonymous-open authority context for the GIS AI GO public catalogue",
   "license": "MIT",
   "type": "module",
+  "files": [
+    "dist"
+  ],
   "exports": {
     ".": {
       "types": "./src/index.ts",
