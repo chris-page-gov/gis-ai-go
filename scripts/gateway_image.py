@@ -391,6 +391,9 @@ PRIVACY_JSON_BACKSLASH_ESCAPE = re.compile(r"\\\\(?!:)")
 PRIVACY_LINE_FOLD = re.compile(
     r"\\?(?:\r\n|[\t\r\n\v\f\x85\u2028\u2029])[ \t]*"
 )
+UNSAFE_ASCII_PRIVACY_CONTROL_TEXT = re.compile(
+    r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]"
+)
 PRIVACY_LINE_TERMINATORS = "\r\n\u2028\u2029"
 MAX_PRIVACY_DECODE_PASSES = 3
 MAX_PRIVACY_BACKSLASH_RUN = 64
@@ -664,10 +667,15 @@ def _fold_privacy_lines(value: str) -> str:
 
 def _contains_unsafe_privacy_control(value: str) -> bool:
     """Reject invisible/control text except ordinary tab and line endings."""
+    if UNSAFE_ASCII_PRIVACY_CONTROL_TEXT.search(value):
+        return True
+    if value.isascii():
+        return False
     return any(
         unicodedata.category(character).startswith("C")
         and character not in "\t\n\r"
         for character in value
+        if not character.isascii()
     )
 
 
@@ -2691,6 +2699,8 @@ def _jose_header_is_json_object(value: str, start: int, end: int) -> bool:
 
 def _contains_compact_jose_token(value: str) -> bool:
     """Recognise compact JOSE tokens with a JSON object header in linear time."""
+    if "." not in value:
+        return False
     position = 0
     while position < len(value):
         while position < len(value) and value[position] not in _JOSE_CHARS:
@@ -2759,17 +2769,15 @@ def _assignment_is_folded_uri_metadata(match: re.Match[str]) -> bool:
 
 
 SENSITIVE_SYNTAX_HINT_TEXT = re.compile(
-    r"[_=:/?&\[\]{}@.+\-]|Basic\s|Bearer\s|AKIA|ASIA|AIza|eyJ|PRIVATE",
-    re.IGNORECASE,
+    r"[=:/?&\[\]{}@.+\-]|Authorization", re.IGNORECASE
 )
 
 
-def _contains_sensitive_text(candidate: str, *, complete_json: bool) -> bool:
+def _contains_sensitive_structured_text(
+    candidate: str, *, complete_json: bool
+) -> bool:
     return bool(
-        SENSITIVE_TOKEN_TEXT.search(candidate)
-        or _contains_basic_credential(candidate)
-        or _contains_compact_jose_token(candidate)
-        or _lexical_json_reason(candidate)
+        _lexical_json_reason(candidate)
         or (not complete_json and _embedded_json_reason(candidate))
         or _malformed_json_reason(candidate)
         or OVERLONG_ASSIGNMENT_KEY_TEXT.search(candidate)
@@ -2830,11 +2838,12 @@ def prohibited_text_reason(value: str) -> str | None:
     ):
         return "sensitive"
     candidate = value
-    for _ in range(MAX_PRIVACY_DECODE_PASSES + 1):
-        candidate_trusted_cpe_tokens = _trusted_complete_cpe_path_tokens(candidate)
-        if candidate_trusted_cpe_tokens is None:
-            return "sensitive"
-        trusted_cpe_tokens.update(candidate_trusted_cpe_tokens)
+    for pass_index in range(MAX_PRIVACY_DECODE_PASSES + 1):
+        if pass_index:
+            candidate_trusted_cpe_tokens = _trusted_complete_cpe_path_tokens(candidate)
+            if candidate_trusted_cpe_tokens is None:
+                return "sensitive"
+            trusted_cpe_tokens.update(candidate_trusted_cpe_tokens)
         decoded = _decode_privacy_escapes_once(candidate)
         if decoded == candidate:
             break
@@ -2842,17 +2851,22 @@ def prohibited_text_reason(value: str) -> str | None:
     else:
         if _decode_privacy_escapes_once(candidate) != candidate:
             return "sensitive"
-    if _contains_unsafe_privacy_control(candidate):
-        return "sensitive"
-    if _contains_private_path(
-        candidate, trusted_cpe_tokens=frozenset(trusted_cpe_tokens)
-    ) or _contains_absolute_parent_traversal(candidate):
-        return "private-path"
-    if _contains_basic_credential(candidate):
-        return "sensitive"
-    if SENSITIVE_SYNTAX_HINT_TEXT.search(candidate) and _contains_sensitive_text(
-        candidate, complete_json=complete_json
+    if candidate != value:
+        if _contains_unsafe_privacy_control(candidate):
+            return "sensitive"
+        if _contains_private_path(
+            candidate, trusted_cpe_tokens=frozenset(trusted_cpe_tokens)
+        ) or _contains_absolute_parent_traversal(candidate):
+            return "private-path"
+    if (
+        SENSITIVE_TOKEN_TEXT.search(candidate)
+        or _contains_basic_credential(candidate)
+        or _contains_compact_jose_token(candidate)
     ):
+        return "sensitive"
+    if SENSITIVE_SYNTAX_HINT_TEXT.search(
+        candidate
+    ) and _contains_sensitive_structured_text(candidate, complete_json=complete_json):
         return "sensitive"
     unfolded = _fold_privacy_lines(candidate)
     if unfolded != candidate:
@@ -2874,7 +2888,9 @@ def prohibited_text_reason(value: str) -> str | None:
         if (
             preserved == candidate
             and SENSITIVE_SYNTAX_HINT_TEXT.search(unfolded)
-            and _contains_sensitive_text(unfolded, complete_json=complete_json)
+            and _contains_sensitive_structured_text(
+                unfolded, complete_json=complete_json
+            )
         ):
             return "sensitive"
         if (

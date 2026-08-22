@@ -2584,6 +2584,7 @@ class GatewayImageContractTests(unittest.TestCase):
             "registry_" + "token=secret",
             "gitlab_" + "token=hunter2",
             "A" * 160 + "_PASS" + "WORD=hunter2",
+            "A" * 161 + "_Authorization",
             "namespace_" * 18 + "se" + "cret=hunter2",
             "A" * 160 + "_TOKEN=x",
             '"' + "A" * 160 + '_PASS' + 'WORD":"hunter2"',
