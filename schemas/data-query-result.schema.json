@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "urn:gis-ai-go:schema:data-query-result:v1",
   "title": "GIS AI GO successful public ONS data query result",
-  "description": "One complete successful application result with independently checked provider evidence and a fully verified public-read v2 receipt.",
+  "description": "One complete successful application result with independently checked provider evidence or an exact current approved-cache fallback and a fully verified public-read v2 receipt.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -60,10 +60,47 @@
               "unit": { "type": "null" }
             }
           }
+        },
+        "cache": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "cache_id",
+            "source_uri",
+            "provider_result_sha256",
+            "retrieved_at",
+            "stale_after",
+            "checked_at"
+          ],
+          "properties": {
+            "status": { "const": "approved-current" },
+            "cache_id": {
+              "const": "gis-ai-go:approved-provider-cache:sha256:06dd19673c2f9d605dbad2c64a21903f6448fb4965838098bd16df40f6db4961"
+            },
+            "source_uri": {
+              "const": "https://api.beta.ons.gov.uk/v1/datasets/weekly-deaths-region/editions/time-series/versions/121/observations?time=2026&geography=E92000001&week=week-24&causeofdeath=all-causes"
+            },
+            "provider_result_sha256": {
+              "const": "309a7c0a374f93f20d4b4cc8aaa4530c4a828ea27e4e26e266b367e59b7da3bd"
+            },
+            "retrieved_at": { "const": "2026-08-20T20:21:08.947Z" },
+            "stale_after": { "const": "2027-02-20T20:21:08.947Z" },
+            "checked_at": { "type": "string", "format": "date-time" }
+          }
         }
       }
     },
-    "warnings": { "const": [] },
+    "warnings": {
+      "oneOf": [
+        { "const": [] },
+        {
+          "const": [
+            "The ONS request failed with an internally classified network failure or HTTP 500 to 599 response. This result uses the exact approved cache; check its freshness before use."
+          ]
+        }
+      ]
+    },
     "evidence_receipt": {
       "allOf": [
         { "$ref": "urn:gis-ai-go:schema:evidence-receipt:v2" },
@@ -111,5 +148,52 @@
         "retain_until": { "type": "string", "format": "date-time" }
       }
     }
-  }
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "data": { "not": { "required": ["cache"] } },
+        "warnings": { "const": [] },
+        "evidence_receipt": {
+          "properties": {
+            "transformations": {
+              "const": [
+                { "name": "normalise-public-read-parameters", "version": "v1" },
+                { "name": "execute-fixed-provider-query", "version": "v1" },
+                { "name": "project-public-read-result-core", "version": "v1" }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "properties": {
+        "data": {
+          "required": ["cache"],
+          "properties": {
+            "observations": {
+              "const": [{ "value": "10471", "unit": null }]
+            }
+          }
+        },
+        "warnings": {
+          "const": [
+            "The ONS request failed with an internally classified network failure or HTTP 500 to 599 response. This result uses the exact approved cache; check its freshness before use."
+          ]
+        },
+        "evidence_receipt": {
+          "properties": {
+            "transformations": {
+              "const": [
+                { "name": "normalise-public-read-parameters", "version": "v1" },
+                { "name": "read-approved-provider-cache", "version": "v1" },
+                { "name": "project-public-read-result-core", "version": "v1" }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
 }

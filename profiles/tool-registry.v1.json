@@ -446,6 +446,7 @@
         "providerState": "candidate-partial",
         "providerDependencies": [
           "explicitly injected ONS Data API adapter",
+          "explicitly injected approved ONS cache",
           "public-read policy",
           "durable public evidence ledger",
           "receipt-only idempotency reconciliation index"
@@ -466,7 +467,7 @@
         "output_destination",
         "feature_count"
       ],
-      "costPerformance": "Bounded to one observation, two provider attempts and a 20 second adapter ceiling",
+      "costPerformance": "Bounded to one observation, two provider attempts and one exact approved-cache read only after an internally classified network failure or HTTP 500 to 599 response; the adapter ceiling is 20 seconds",
       "controlledErrors": [
         "INVALID_REQUEST",
         "QUERY_CANCELLED",
@@ -509,8 +510,8 @@
         ]
       },
       "fallback": {
-        "state": "not-implemented",
-        "behaviour": "Fail closed; no result cache, alternate provider or result fallback is permitted."
+        "state": "implemented",
+        "behaviour": "Use the exact approved cache only after an internally classified network failure or HTTP 500 to 599 response; reject 3xx/4xx, local-timeout, unsafe-address, malformed-response, opaque or unbranded failures; expose retrieval and stale-after times."
       },
       "threats": {
         "risks": [

@@ -5,7 +5,9 @@ import { canonicalJsonBytes, canonicalJsonClone } from "@gis-ai-go/evidence";
 import { ProviderAdapterFault, assertFixedEgressTarget, normaliseAdapterError } from "./contract.js";
 import {
   FixedHttpsTransportError,
+  fixedHttpsTransportErrorKind,
   fixedHttpsGet,
+  isExactFixedHttpsTransportError,
   type FixedHttpsResponse,
   type FixedHttpsTelemetry,
   type FixedHttpsTransport,
@@ -50,6 +52,96 @@ const DEFAULT_RETRY_DELAY_MS = 100;
 export const ONS_CALL_DEADLINE_MS = 20_000;
 const MAX_RETRY_DELAY_MS = 5_000;
 const FULL_ATTEMPT_BUDGET_MS = 7_000;
+
+export type OnsApprovedCacheOutage = Readonly<
+  | { source: "network"; providerStatus: null; retryable: true }
+  | { source: "http-5xx"; providerStatus: number; retryable: boolean }
+>;
+
+interface OnsApprovedCacheOutageProof {
+  readonly adapter: OnsDataApiAdapter;
+  readonly execution: object;
+  readonly outage: OnsApprovedCacheOutage;
+}
+
+interface OnsApprovedCacheExecutionReservation {
+  readonly execution: object;
+  readonly claimed: boolean;
+}
+
+// Cache eligibility is provenance, not an inference from the public error code.
+// Only faults created at the two reviewed provider-failure sites are branded,
+// and each proof can be consumed once.
+const ONS_APPROVED_CACHE_OUTAGES = new WeakMap<object, OnsApprovedCacheOutageProof>();
+const ACTIVE_APPROVED_CACHE_EXECUTIONS = new WeakMap<
+  object,
+  OnsApprovedCacheExecutionReservation
+>();
+
+// Base instances are admitted only after their constructor has validated and
+// stored every option. Subclasses, prototype forgeries and proxies are never
+// added to this set.
+const EXACT_ONS_DATA_API_ADAPTERS = new WeakSet<object>();
+
+function approvedCacheOutage(
+  adapter: OnsDataApiAdapter,
+  execution: object | undefined,
+  fault: ProviderAdapterFault,
+  outage: OnsApprovedCacheOutage,
+): ProviderAdapterFault {
+  if (execution === undefined) return fault;
+  ONS_APPROVED_CACHE_OUTAGES.set(
+    fault,
+    Object.freeze({ adapter, execution, outage: Object.freeze(outage) }),
+  );
+  return fault;
+}
+
+function claimApprovedCacheExecution(adapter: OnsDataApiAdapter): object | undefined {
+  const reservation = ACTIVE_APPROVED_CACHE_EXECUTIONS.get(adapter);
+  if (reservation === undefined || reservation.claimed) return undefined;
+  ACTIVE_APPROVED_CACHE_EXECUTIONS.set(
+    adapter,
+    Object.freeze({ execution: reservation.execution, claimed: true }),
+  );
+  return reservation.execution;
+}
+
+function takeApprovedCacheEligibleOnsOutage(
+  adapter: OnsDataApiAdapter,
+  execution: object,
+  error: unknown,
+  normalised: NormalisedAdapterError,
+): OnsApprovedCacheOutage | null {
+  if (typeof error !== "object" || error === null) return null;
+  const proof = ONS_APPROVED_CACHE_OUTAGES.get(error);
+  // A rejected or accepted check exhausts the proof. This prevents the same
+  // provider fault from authorising more than one cache decision.
+  ONS_APPROVED_CACHE_OUTAGES.delete(error);
+  if (
+    proof === undefined ||
+    proof.adapter !== adapter ||
+    proof.execution !== execution ||
+    !isPristineOnsDataApiAdapter(adapter) ||
+    normalised.code !== "PROVIDER_OUTAGE"
+  ) {
+    return null;
+  }
+  const { outage } = proof;
+  if (outage.source === "network") {
+    return normalised.providerStatus === null &&
+      normalised.retryable === outage.retryable
+      ? outage
+      : null;
+  }
+  return normalised.providerStatus === outage.providerStatus &&
+    normalised.retryable === outage.retryable &&
+    Number.isInteger(outage.providerStatus) &&
+    outage.providerStatus >= 500 &&
+    outage.providerStatus <= 599
+    ? outage
+    : null;
+}
 
 interface OnsProcessAdmissionState {
   inFlight: boolean;
@@ -529,7 +621,11 @@ async function parseSuccessfulResponse(
   return { result, decompressedBytes: body.byteLength };
 }
 
-function statusFault(status: number): ProviderAdapterFault {
+function statusFault(
+  adapter: OnsDataApiAdapter,
+  execution: object | undefined,
+  status: number,
+): ProviderAdapterFault {
   if (status === 429) {
     return new ProviderAdapterFault("PROVIDER_RATE_LIMITED", {
       providerStatus: status,
@@ -539,27 +635,56 @@ function statusFault(status: number): ProviderAdapterFault {
   if (status === 400 || status === 404 || status === 410) {
     return new ProviderAdapterFault("STALE_PROVIDER_VERSION", { providerStatus: status });
   }
-  return new ProviderAdapterFault("PROVIDER_OUTAGE", {
+  const fault = new ProviderAdapterFault("PROVIDER_OUTAGE", {
     providerStatus: status,
     retryable: ONS_EGRESS_POLICY.retryableStatuses.includes(status),
   });
+  return Number.isInteger(status) && status >= 500 && status <= 599
+    ? approvedCacheOutage(adapter, execution, fault, {
+      source: "http-5xx",
+      providerStatus: status,
+      retryable: fault.retryable,
+    })
+    : fault;
 }
 
-function transportFault(error: unknown, aborted: boolean): ProviderAdapterFault {
-  if (!(error instanceof FixedHttpsTransportError)) {
+function transportFault(
+  adapter: OnsDataApiAdapter,
+  execution: object | undefined,
+  error: unknown,
+  aborted: boolean,
+  approvedNetworkTransport: boolean,
+): ProviderAdapterFault {
+  const kind = fixedHttpsTransportErrorKind(error);
+  if (kind === null) {
     return new ProviderAdapterFault("PROVIDER_OUTAGE", { retryable: true });
   }
   if (
-    error.kind === "aborted" ||
-    error.kind === "connect-timeout" ||
-    error.kind === "response-timeout"
+    kind === "aborted" ||
+    kind === "connect-timeout" ||
+    kind === "response-timeout"
   ) {
     return new ProviderAdapterFault("PROVIDER_TIMEOUT", { retryable: !aborted });
   }
-  if (error.kind === "response-too-large") {
+  if (
+    kind === "invalid-response-framing" ||
+    kind === "invalid-response-headers" ||
+    kind === "response-too-large"
+  ) {
     return new ProviderAdapterFault("MALFORMED_PROVIDER_RESPONSE");
   }
-  return new ProviderAdapterFault("PROVIDER_OUTAGE", { retryable: error.kind === "network" });
+  const fault = new ProviderAdapterFault("PROVIDER_OUTAGE", {
+    retryable: kind === "network",
+  });
+  return kind === "network" &&
+    approvedNetworkTransport &&
+    isExactFixedHttpsTransportError(error)
+    ? approvedCacheOutage(adapter, execution, fault, {
+      source: "network",
+      providerStatus: null,
+      retryable: true,
+    })
+    : fault;
 }
 
 function retryDelay(response: FixedHttpsResponse, now: number): number | null {
@@ -659,6 +784,9 @@ export class OnsDataApiAdapter implements AsyncProviderAdapter {
   readonly #onAttempt: ((telemetry: OnsAttemptTelemetry) => void) | undefined;
 
   public constructor(options: OnsDataApiAdapterOptions = {}) {
+    if (new.target !== OnsDataApiAdapter) {
+      throw new TypeError("ONS adapter subclassing is not supported");
+    }
     validateOptions(options);
     this.#lifecycle = parseLifecycle(options.lifecycle ?? DEFAULT_LIFECYCLE);
     this.#transport = options.transport ?? fixedHttpsGet;
@@ -670,6 +798,7 @@ export class OnsDataApiAdapter implements AsyncProviderAdapter {
       url: ONS_OBSERVATION_URI,
       redirectCount: 0,
     });
+    EXACT_ONS_DATA_API_ADAPTERS.add(this);
   }
 
   public describe(): AdapterDescription {
@@ -713,6 +842,10 @@ export class OnsDataApiAdapter implements AsyncProviderAdapter {
     request: unknown,
     options: ProviderAdapterExecutionOptions = {},
   ): Promise<ProviderAdapterResult> {
+    // Only the canonical call started by executePristineOnsDataApiAdapter can
+    // claim its reserved token. Re-entrant or concurrent direct calls receive
+    // no approved-cache provenance even while that reservation is active.
+    const approvedCacheExecution = claimApprovedCacheExecution(this);
     this.#assertInvocation();
     if (Object.keys(options).some((key) => !["signal", "deadline"].includes(key))) {
       throw new ProviderAdapterFault("INVALID_REQUEST");
@@ -751,7 +884,13 @@ export class OnsDataApiAdapter implements AsyncProviderAdapter {
             signal: controller.signal,
           });
         } catch (error) {
-          const fault = transportFault(error, controller.signal.aborted);
+          const fault = transportFault(
+            this,
+            approvedCacheExecution,
+            error,
+            controller.signal.aborted,
+            this.#transport === fixedHttpsGet,
+          );
           this.#emit({
             attempt,
             outcome: "transport-failure",
@@ -763,7 +902,7 @@ export class OnsDataApiAdapter implements AsyncProviderAdapter {
         }
 
         if (response.status !== 200) {
-          const fault = statusFault(response.status);
+          const fault = statusFault(this, approvedCacheExecution, response.status);
           this.#emitResponse(attempt, response, null);
           if (fault.retryable && attempt < ONS_EGRESS_POLICY.maxAttempts) {
             const now = this.#now();
@@ -832,6 +971,201 @@ export class OnsDataApiAdapter implements AsyncProviderAdapter {
       decompressedBytes,
     });
   }
+}
+
+const ONS_DATA_API_ADAPTER_PROTOTYPE = OnsDataApiAdapter.prototype;
+const ONS_DATA_API_ADAPTER_PROTOTYPE_PARENT = Object.getPrototypeOf(
+  ONS_DATA_API_ADAPTER_PROTOTYPE,
+) as object | null;
+const ONS_DATA_API_ADAPTER_PROTOTYPE_DESCRIPTORS = Reflect.ownKeys(
+  ONS_DATA_API_ADAPTER_PROTOTYPE,
+).map((key) => {
+  const descriptor = Object.getOwnPropertyDescriptor(
+    ONS_DATA_API_ADAPTER_PROTOTYPE,
+    key,
+  );
+  if (descriptor === undefined) throw new TypeError("ONS adapter prototype is invalid");
+  return Object.freeze({ key, descriptor: Object.freeze({ ...descriptor }) });
+});
+const EXACT_ONS_DATA_API_ADAPTER_EXECUTE = OnsDataApiAdapter.prototype.execute;
+const EXACT_ONS_DATA_API_ADAPTER_NORMALISE_ERROR =
+  OnsDataApiAdapter.prototype.normalise_error;
+
+function sameDescriptor(
+  left: PropertyDescriptor,
+  right: PropertyDescriptor | undefined,
+): boolean {
+  if (right === undefined) return false;
+  if (
+    left.configurable !== right.configurable ||
+    left.enumerable !== right.enumerable
+  ) {
+    return false;
+  }
+  if ("value" in left) {
+    return (
+      "value" in right &&
+      left.value === right.value &&
+      left.writable === right.writable
+    );
+  }
+  return (
+    !("value" in right) &&
+    left.get === right.get &&
+    left.set === right.set
+  );
+}
+
+function hasPristineOnsDataApiAdapterPrototype(): boolean {
+  try {
+    const keys = Reflect.ownKeys(ONS_DATA_API_ADAPTER_PROTOTYPE);
+    if (
+      keys.length !== ONS_DATA_API_ADAPTER_PROTOTYPE_DESCRIPTORS.length ||
+      Object.getPrototypeOf(ONS_DATA_API_ADAPTER_PROTOTYPE) !==
+        ONS_DATA_API_ADAPTER_PROTOTYPE_PARENT
+    ) {
+      return false;
+    }
+    return ONS_DATA_API_ADAPTER_PROTOTYPE_DESCRIPTORS.every(({ key, descriptor }) =>
+      keys.includes(key) &&
+      sameDescriptor(
+        descriptor,
+        Object.getOwnPropertyDescriptor(ONS_DATA_API_ADAPTER_PROTOTYPE, key),
+      ));
+  } catch {
+    return false;
+  }
+}
+
+/** True only for a fully constructed base adapter, without proxy traversal. */
+function isExactOnsDataApiAdapter(value: unknown): value is OnsDataApiAdapter {
+  if (
+    typeof value !== "object" ||
+    value === null ||
+    !EXACT_ONS_DATA_API_ADAPTERS.has(value)
+  ) {
+    return false;
+  }
+  try {
+    return Object.getPrototypeOf(value) === OnsDataApiAdapter.prototype;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * True only while an exact adapter has no instance-level method or state
+ * substitution. Cache-enabled applications recheck this at every trust
+ * boundary around provider execution.
+ */
+function isPristineOnsDataApiAdapter(value: unknown): value is OnsDataApiAdapter {
+  if (
+    !isExactOnsDataApiAdapter(value) ||
+    !hasPristineOnsDataApiAdapterPrototype()
+  ) {
+    return false;
+  }
+  try {
+    const keys = Reflect.ownKeys(value);
+    if (keys.length !== 1 || keys[0] !== "operations") return false;
+    const descriptor = Object.getOwnPropertyDescriptor(value, "operations");
+    return (
+      descriptor !== undefined &&
+      "value" in descriptor &&
+      descriptor.value === ADAPTER_OPERATIONS &&
+      descriptor.enumerable === true &&
+      descriptor.configurable === true &&
+      descriptor.writable === true
+    );
+  } catch {
+    return false;
+  }
+}
+
+/** Admit only a fully constructed base adapter at an application boundary. */
+export function requireExactOnsDataApiAdapter(value: unknown): OnsDataApiAdapter {
+  if (!isExactOnsDataApiAdapter(value)) {
+    throw new TypeError("ONS adapter is not exact");
+  }
+  return value;
+}
+
+/** Admit only an exact adapter without method, state or prototype substitution. */
+export function requirePristineOnsDataApiAdapter(value: unknown): OnsDataApiAdapter {
+  if (!isPristineOnsDataApiAdapter(value)) {
+    throw new TypeError("ONS adapter is not pristine");
+  }
+  return value;
+}
+
+export interface OnsDataApiAdapterExecution {
+  readonly result: Promise<ProviderAdapterResult>;
+  readonly approvedCacheOutage: (
+    error: unknown,
+    normalised: NormalisedAdapterError,
+  ) => OnsApprovedCacheOutage | null;
+}
+
+/**
+ * Execute through the captured implementation and return a one-call outage
+ * capability bound to this exact invocation.
+ */
+export function executePristineOnsDataApiAdapter(
+  adapter: OnsDataApiAdapter,
+  request: unknown,
+  options: ProviderAdapterExecutionOptions,
+): OnsDataApiAdapterExecution {
+  if (!isPristineOnsDataApiAdapter(adapter)) {
+    throw new TypeError("ONS adapter is not pristine");
+  }
+  if (ACTIVE_APPROVED_CACHE_EXECUTIONS.has(adapter)) {
+    throw new TypeError("ONS adapter already has an active cache-eligible execution");
+  }
+  const execution = Object.freeze({});
+  ACTIVE_APPROVED_CACHE_EXECUTIONS.set(
+    adapter,
+    Object.freeze({ execution, claimed: false }),
+  );
+  let pending: Promise<ProviderAdapterResult>;
+  try {
+    pending = EXACT_ONS_DATA_API_ADAPTER_EXECUTE.call(adapter, request, options);
+  } catch (error) {
+    ACTIVE_APPROVED_CACHE_EXECUTIONS.delete(adapter);
+    throw error;
+  }
+  const result = pending.finally(() => {
+    if (ACTIVE_APPROVED_CACHE_EXECUTIONS.get(adapter)?.execution === execution) {
+      ACTIVE_APPROVED_CACHE_EXECUTIONS.delete(adapter);
+    }
+  });
+  let consumed = false;
+  return Object.freeze({
+    result,
+    approvedCacheOutage: (
+      error: unknown,
+      normalised: NormalisedAdapterError,
+    ): OnsApprovedCacheOutage | null => {
+      if (consumed) return null;
+      consumed = true;
+      return takeApprovedCacheEligibleOnsOutage(
+        adapter,
+        execution,
+        error,
+        normalised,
+      );
+    },
+  });
+}
+
+/** Normalise through the captured implementation after an integrity check. */
+export function normalisePristineOnsDataApiAdapterError(
+  adapter: OnsDataApiAdapter,
+  error: unknown,
+): NormalisedAdapterError {
+  if (!isPristineOnsDataApiAdapter(adapter)) {
+    throw new TypeError("ONS adapter is not pristine");
+  }
+  return EXACT_ONS_DATA_API_ADAPTER_NORMALISE_ERROR.call(adapter, error);
 }
 
 export function createOnsDataApiAdapter(

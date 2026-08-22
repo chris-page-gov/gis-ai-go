@@ -2,6 +2,7 @@ import { types as utilTypes } from "node:util";
 
 import {
   PUBLIC_READ_ONS_RESOURCE,
+  PUBLIC_DATA_QUERY_APPROVED_CACHE_WARNING,
   CANONICAL_DOMAINS,
   EvidenceReconciliationIndexError,
   PublicEvidenceLedger,
@@ -28,10 +29,18 @@ import {
   ONS_ADAPTER_VERSION,
   ONS_OBSERVATION_URI,
   OnsDataApiAdapter,
+  executePristineOnsDataApiAdapter,
+  isExactApprovedOnsDataQueryCache,
   normaliseAdapterError,
+  normalisePristineOnsDataApiAdapterError,
+  requireExactOnsDataApiAdapter,
+  requirePristineOnsDataApiAdapter,
   type AdapterErrorCode,
   type AdapterHealth,
+  type ApprovedOnsDataQueryCache,
+  type ApprovedOnsDataQueryCacheHit,
   type NormalisedAdapterError,
+  type OnsDataApiAdapterExecution,
   type ProviderAdapterEstimate,
   type ProviderAdapterProvenance,
   type ProviderAdapterResult,
@@ -227,9 +236,22 @@ export interface DataQueryResultCore {
   readonly data: {
     readonly status: "succeeded";
     readonly observations: readonly [{ readonly value: string; readonly unit: null }];
+    readonly cache?: {
+      readonly status: "approved-current";
+      readonly cache_id: string;
+      readonly source_uri: typeof ONS_OBSERVATION_URI;
+      readonly provider_result_sha256: string;
+      readonly retrieved_at: string;
+      readonly stale_after: string;
+      readonly checked_at: string;
+    };
   };
-  readonly warnings: readonly [];
+  readonly warnings:
+    | readonly []
+    | readonly [typeof APPROVED_CACHE_WARNING];
 }
+
+export const APPROVED_CACHE_WARNING = PUBLIC_DATA_QUERY_APPROVED_CACHE_WARNING;
 
 export interface DataQueryResult extends DataQueryResultCore {
   readonly evidence_receipt: PublicReadEvidenceReceipt;
@@ -244,6 +266,11 @@ export interface DataQueryInvocationOptions {
 export interface DataQueryApplicationOptions {
   /** Mandatory explicit injection; omission never constructs or activates an adapter. */
   readonly adapter: OnsDataApiAdapter;
+  /**
+   * Optional explicit exact-cache injection; omission preserves provider-only
+   * fail-closed behaviour.
+   */
+  readonly approvedCache?: ApprovedOnsDataQueryCache;
   readonly software: EvidenceSoftwareIdentity;
   readonly now?: () => Date;
   readonly evidenceLedger?: PublicEvidenceLedger;
@@ -260,6 +287,7 @@ export interface DataQueryApplication {
 
 interface DataQueryRuntime {
   readonly adapter: OnsDataApiAdapter;
+  readonly approvedCache?: ApprovedOnsDataQueryCache;
   readonly software: EvidenceSoftwareIdentity;
   readonly now: () => Date;
   readonly evidenceLedger?: PublicEvidenceLedger;
@@ -316,15 +344,37 @@ function dataProperties(
 function applicationRuntime(options: DataQueryApplicationOptions): DataQueryRuntime {
   const values = dataProperties(
     options,
-    ["adapter", "evidenceLedger", "now", "reconciliationIndex", "software"],
+    [
+      "adapter",
+      "approvedCache",
+      "evidenceLedger",
+      "now",
+      "reconciliationIndex",
+      "software",
+    ],
     ["adapter", "software"],
     "Data query application options",
   );
-  if (
-    !(values.adapter instanceof OnsDataApiAdapter) ||
-    utilTypes.isProxy(values.adapter)
-  ) {
+  let adapter: OnsDataApiAdapter;
+  try {
+    adapter = requireExactOnsDataApiAdapter(values.adapter);
+  } catch {
     throw new TypeError("Data query application requires an explicitly injected ONS adapter");
+  }
+  if (
+    values.approvedCache !== undefined &&
+    !isExactApprovedOnsDataQueryCache(values.approvedCache)
+  ) {
+    throw new TypeError("Data query application approved cache is invalid");
+  }
+  if (values.approvedCache !== undefined) {
+    try {
+      requirePristineOnsDataApiAdapter(adapter);
+    } catch {
+      throw new TypeError(
+        "Data query application approved cache requires an unmodified ONS adapter",
+      );
+    }
   }
   let software: EvidenceSoftwareIdentity;
   try {
@@ -373,7 +423,10 @@ function applicationRuntime(options: DataQueryApplicationOptions): DataQueryRunt
   evidenceLedger?.verify();
   reconciliationIndex?.verify();
   return Object.freeze({
-    adapter: values.adapter,
+    adapter,
+    ...(values.approvedCache === undefined
+      ? {}
+      : { approvedCache: values.approvedCache as ApprovedOnsDataQueryCache }),
     software,
     now: (values.now as (() => Date) | undefined) ?? (() => new Date()),
     ...(evidenceLedger === undefined ? {} : { evidenceLedger }),
@@ -398,6 +451,19 @@ function createDataQueryProblem(
 
 function fail(code: DataQueryProblemCode, context: CatalogueProblemContext): never {
   throw new DataQueryApplicationError(createDataQueryProblem(code, context));
+}
+
+function assertApprovedCacheAdapter(
+  runtime: DataQueryRuntime,
+  context: CatalogueProblemContext,
+): void {
+  if (runtime.approvedCache !== undefined) {
+    try {
+      requirePristineOnsDataApiAdapter(runtime.adapter);
+    } catch {
+      fail("provider_contract_failed", context);
+    }
+  }
 }
 
 function reconciliationProblem(
@@ -673,10 +739,23 @@ function failAdapter(
   error: unknown,
   context: CatalogueProblemContext,
 ): never {
+  return fail(mapAdapterCode(trustedAdapterError(adapter, error, context).code), context);
+}
+
+function trustedAdapterError(
+  adapter: OnsDataApiAdapter,
+  error: unknown,
+  context: CatalogueProblemContext,
+  requirePristine = false,
+): NormalisedAdapterError {
   const trusted = normaliseAdapterError(error);
   let candidateValue: unknown;
   try {
-    candidateValue = canonicalJsonClone(adapter.normalise_error(error));
+    candidateValue = canonicalJsonClone(
+      requirePristine
+        ? normalisePristineOnsDataApiAdapterError(adapter, error)
+        : adapter.normalise_error(error),
+    );
   } catch {
     return fail("provider_contract_failed", context);
   }
@@ -694,7 +773,7 @@ function failAdapter(
   ) {
     return fail("provider_contract_failed", context);
   }
-  return fail(mapAdapterCode(trusted.code), context);
+  return trusted;
 }
 
 function assertHealth(
@@ -827,6 +906,37 @@ function validateAdapterResult(
   return result;
 }
 
+function cachedAdapterResult(
+  hit: ApprovedOnsDataQueryCacheHit,
+  checked: { readonly rights: ProviderRights; readonly provenance: ProviderAdapterProvenance },
+  context: CatalogueProblemContext,
+): ProviderAdapterResult {
+  const candidate: ProviderAdapterResult = canonicalJsonClone({
+    schema: "gis-ai-go.provider-adapter-result.v1",
+    provider: {
+      id: PUBLIC_READ_ONS_RESOURCE.provider.id,
+      adapterId: PUBLIC_READ_ONS_RESOURCE.provider.adapter_id,
+    },
+    dataset: {
+      id: PUBLIC_READ_ONS_RESOURCE.dataset.id,
+      edition: PUBLIC_READ_ONS_RESOURCE.dataset.edition,
+      version: PUBLIC_READ_ONS_RESOURCE.dataset.version,
+      versionUri: PUBLIC_READ_ONS_RESOURCE.dataset.version_uri,
+    },
+    dimensions: PUBLIC_READ_ONS_RESOURCE.selections,
+    observations: [hit.observation],
+    rights: checked.rights,
+    provenance: checked.provenance,
+  });
+  if (
+    domainSeparatedSha256(CANONICAL_DOMAINS.providerAdapterResult, candidate) !==
+    hit.provider_result_sha256
+  ) {
+    return fail("provider_contract_failed", context);
+  }
+  return candidate;
+}
+
 function receiptTimestamp(runtime: DataQueryRuntime, context: CatalogueProblemContext): string {
   return new Date(trustedNowMilliseconds(runtime, context)).toISOString();
 }
@@ -838,6 +948,7 @@ async function query(
   invocationValue: DataQueryInvocationOptions | undefined,
 ): Promise<DataQueryResult> {
   assertCatalogueProblemContext(context);
+  assertApprovedCacheAdapter(runtime, context);
   const request = normaliseRequest(runtime, requestValue, context);
   const invocation = invocationOptions(invocationValue, context);
   assertInvocationControls(runtime, invocation, context);
@@ -895,7 +1006,9 @@ async function query(
   }
 
   assertInvocationControls(runtime, invocation, context);
+  assertApprovedCacheAdapter(runtime, context);
   const checked = preflightAdapter(runtime.adapter, context);
+  assertApprovedCacheAdapter(runtime, context);
   assertInvocationControls(runtime, invocation, context);
   let reconciliationClaim:
     | Extract<
@@ -932,12 +1045,60 @@ async function query(
     }
   }
   assertInvocationControls(runtime, invocation, context);
+  assertApprovedCacheAdapter(runtime, context);
   let adapterResult: ProviderAdapterResult;
+  let cacheHit: ApprovedOnsDataQueryCacheHit | undefined;
+  let cacheCheckedAt: string | undefined;
+  let approvedCacheExecution: OnsDataApiAdapterExecution | undefined;
+  if (runtime.approvedCache !== undefined) {
+    try {
+      approvedCacheExecution = executePristineOnsDataApiAdapter(
+        runtime.adapter,
+        ONS_ADAPTER_REQUEST,
+        invocation,
+      );
+    } catch {
+      return fail("provider_contract_failed", context);
+    }
+  }
   try {
-    adapterResult = await runtime.adapter.execute(ONS_ADAPTER_REQUEST, invocation);
+    adapterResult = await (
+      approvedCacheExecution?.result ??
+      runtime.adapter.execute(ONS_ADAPTER_REQUEST, invocation)
+    );
+    assertApprovedCacheAdapter(runtime, context);
   } catch (error) {
     assertInvocationControls(runtime, invocation, context);
-    return failAdapter(runtime.adapter, error, context);
+    assertApprovedCacheAdapter(runtime, context);
+    const adapterError = trustedAdapterError(
+      runtime.adapter,
+      error,
+      context,
+      runtime.approvedCache !== undefined,
+    );
+    const approvedOutage =
+      approvedCacheExecution?.approvedCacheOutage(error, adapterError) ?? null;
+    if (approvedOutage === null || runtime.approvedCache === undefined) {
+      return fail(mapAdapterCode(adapterError.code), context);
+    }
+    cacheCheckedAt = new Date(trustedNowMilliseconds(runtime, context)).toISOString();
+    assertApprovedCacheAdapter(runtime, context);
+    try {
+      cacheHit = runtime.approvedCache.read(ONS_ADAPTER_REQUEST, {
+        checked_at: cacheCheckedAt,
+        policy_id: policyEvaluation.decision.policy_id,
+        policy_effect: policyEvaluation.decision.effect,
+        operation: policyEvaluation.decision.operation,
+        resource_id: policyEvaluation.decision.resource_id,
+        provider_failure: adapterError.code,
+        provider_outage_source: approvedOutage.source,
+        provider_status: approvedOutage.providerStatus,
+      }) ?? undefined;
+    } catch {
+      return fail("provider_contract_failed", context);
+    }
+    if (cacheHit === undefined) return fail("provider_unavailable", context);
+    adapterResult = cachedAdapterResult(cacheHit, checked, context);
   }
   assertInvocationControls(runtime, invocation, context);
   const result = validateAdapterResult(adapterResult, checked, context);
@@ -950,8 +1111,21 @@ async function query(
     data: {
       status: "succeeded",
       observations: [{ value: result.observations[0]!.value, unit: null }],
+      ...(cacheHit === undefined
+        ? {}
+        : {
+            cache: {
+              status: "approved-current",
+              cache_id: cacheHit.cache_id,
+              source_uri: cacheHit.source_uri,
+              provider_result_sha256: cacheHit.provider_result_sha256,
+              retrieved_at: cacheHit.freshness.retrieved_at,
+              stale_after: cacheHit.freshness.stale_after,
+              checked_at: cacheHit.freshness.checked_at,
+            },
+          }),
     },
-    warnings: [],
+    warnings: cacheHit === undefined ? [] : [APPROVED_CACHE_WARNING],
   });
 
   const verificationMaterial = {
@@ -967,7 +1141,7 @@ async function query(
   let evidenceStorage: PublicEvidenceStorageReference | undefined;
   try {
     receipt = buildPublicReadReceipt({
-      createdAt: receiptTimestamp(runtime, context),
+      createdAt: cacheCheckedAt ?? receiptTimestamp(runtime, context),
       requestId: context.requestId,
       traceId: context.traceId,
       operation: "data.query",
@@ -978,7 +1152,13 @@ async function query(
       resource: PUBLIC_READ_ONS_RESOURCE,
       transformations: [
         { name: "normalise-public-read-parameters", version: "v1" },
-        { name: "execute-fixed-provider-query", version: "v1" },
+        {
+          name:
+            cacheHit === undefined
+              ? "execute-fixed-provider-query"
+              : "read-approved-provider-cache",
+          version: "v1",
+        },
         { name: "project-public-read-result-core", version: "v1" },
       ],
       software: runtime.software,

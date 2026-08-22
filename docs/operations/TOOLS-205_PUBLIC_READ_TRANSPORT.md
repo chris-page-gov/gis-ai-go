@@ -120,13 +120,15 @@ can leave the reconciliation key pending.
 Registry profiles T03, T04 and T11 describe implemented but suspended candidates.
 Discovery is false, all seven activation gates are false and the current callable
 list remains empty. T04 uses the wrapper and closed operation-problem dispatcher;
-T11 uses the closed v1/v2 inspect-request dispatcher and accepted catalogue problem
-schema. Their current provider dependencies,
-controlled errors, non-spatial CRS state and bounded inline cursor state are
-validated against substitution. T03's non-executing required-choice fallback is
-implemented. T04's approved-cache or alternate-provider fallback remains
-`not-implemented`; T11 likewise has no alternate receipt, result replay or challenge
-route. Their fallback activation gates remain false.
+its exact content-addressed approved-cache fallback is implemented for explicitly
+injected use after an internally classified network failure or HTTP 500 to 599
+response. It has no default loader or environment seam and remains inactive. T11
+uses the closed v1/v2 inspect-request dispatcher and accepted catalogue problem
+schema. Their current provider dependencies, controlled errors, non-spatial CRS
+state and bounded inline cursor state are validated against substitution. T03's
+non-executing required-choice fallback is implemented. T11 has no alternate
+receipt, result replay or challenge route. Every fallback activation gate remains
+false.
 
 `data.query` has `readOnlyHint: true`, `openWorldHint: true` and
 `idempotentHint: true`. The key is part of the arguments and cannot repeat provider
@@ -162,7 +164,8 @@ operator resolution, retention disposal or general unrelated-key multi-writer
 coordination.
 
 Public activation still requires a separately reviewed release and activation
-decision, independent-host interoperability, T04 fallback, deployment security,
+decision, independent-host interoperability, reviewed production wiring and live
+eligible-outage and forbidden-class evidence for T04, deployment security,
 accessibility and operational rollback evidence. The OpenAPI description records
 those remaining gates rather than claiming a public service.
 

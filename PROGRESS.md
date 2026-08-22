@@ -1,6 +1,6 @@
 # Delivery progress
 
-Last updated: 21 August 2026
+Last updated: 22 August 2026
 
 ## Current outcome
 
@@ -11,16 +11,15 @@ The supported target active set is exactly `catalogue.search`,
 
 ## Active workstream
 
-`DEPLOY-207 — Prepare an unregistered v0.2.0 service candidate`
+`QUAL-206 — Complete the repository-only v0.2.0 release preflight`
 
-- package a pinned, minimal, non-root gateway image and an offline local Compose
-  harness without changing production activation;
-- prove exact-source image construction, repeat-build identity, SBOM, vulnerability
-  scanning, health, blocked-readiness, storage and rollback boundaries;
-- define deployment-neutral HTTPS ingress, workload identity, private persistent
-  storage, admission and log-minimisation requirements; and
-- stop before any public runtime, provider call, registry publication, activation,
-  tag or release that requires separate operational authority.
+- execute and retain the applicable deterministic local evaluation receipts;
+- integrate the Stage-2 release threat record and explicitly disposition retained
+  container findings;
+- implement or precisely block the required `data.query` fallback without weakening
+  source, policy, rights, freshness or evidence semantics; and
+- stop before any public runtime, live provider call, host credential, registry
+  publication, activation, tag or release that requires separate authority.
 
 ## Completed
 
@@ -122,88 +121,59 @@ The supported target active set is exactly `catalogue.search`,
   [run 32456796369](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32456796369)
   and strict SLSA
   [attestation 42067801](https://github.com/chris-page-gov/gis-ai-go/attestations/42067801);
-  and
 - those protected-main slices remain explicitly injected and suspended: production
   operation arrays are empty, readiness is `503`, and there is no public MCP service,
-  live provider capability, deployment or `v0.2.0` release; and
-- the repository-only DEPLOY-207 implementation now has a pinned, non-root blocked
-  gateway image, materialised checksum-bound source context, strict local Compose
-  topology, canonical OCI/source/runtime verification, repeat-build identity, a full
-  image SBOM, retained offline-replayable vulnerability evidence, persistence,
-  suspension, exact-image restore acceptance and a closed evidence manifest. This
-  has passed the full local exact-source aggregator and two independent exact-commit
-  reviews. Draft [pull request 48](https://github.com/chris-page-gov/gis-ai-go/pull/48)
-  remains blocked. Its latest remote run proved the independently reviewed
-  Docker-engine identity repair, repeat-build OCI identity, full SBOM, native-Linux
-  scanner ownership repair and retained no-network replay. It then exposed a separate
-  classic-Docker import boundary: the valid OCI-only layout had no Docker-save
-  `manifest.json`, so Docker 28's classic store rejected it after all scan gates had
-  passed. The committed branch repair derives and strictly verifies that one
-  compatibility envelope inside the same canonical OCI archive, without duplicating
-  or changing image blobs, and incrementally counts bounded binary load-failure
-  streams only to enforce the limit while disclosing fixed status and reason metadata.
-  Hostile fixture tests cover archive aliasing, links and exact
-  tag/layer closure; an exact Docker Desktop/containerd import passes. A fresh remote
-  run proved that hybrid load, both builds, SBOM and retained scan/replay, then failed
-  closed because Docker 28 omitted the deliberately unrealised internal-network port
-  from `NetworkSettings.Ports`. An exact Docker 28 reproduction retained the declared
-  exposed port and loopback host binding and completed the whole acceptance after
-  normalising that explicit empty object. The current branch validates those exact
-  declarations, normalises only the reviewed omitted, `null` and empty-list
-  no-binding forms, brackets container-local probes with bounded host-closed checks
-  and rechecks both declarations and transport after restart. Uncaptured Compose
-  actions and exact-image save/removal discard both streams without buffering. The
-  branch also applies one bounded privacy boundary to generated textual evidence and
-  captured phase output, builds candidate evidence
-  in an owner-private quarantine, and promotes or uploads it only after complete
-  verification. Those controls are source-bound: only clean evidence and independent
-  reviews naming the exact commit are valid, and any later source change supersedes
-  the older bundle. Fresh exact-head remote assurance remains mandatory before merge.
-  This is not a published image or deployment.
+  live provider capability, deployment or `v0.2.0` release;
+- DEPLOY-207 repository assurance merged through
+  [pull request 48](https://github.com/chris-page-gov/gis-ai-go/pull/48) as protected-main
+  commit `e65071dc1f1bb0baab852bbf8218f9b5f953ad02`. Protected-main
+  [run 32553285859](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32553285859)
+  passed repository, exact gateway-image, aggregate and provenance assurance, while
+  [run 32553285746](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32553285746)
+  passed CodeQL for Actions, JavaScript/TypeScript and Python. CI rebuilt and verified
+  the pinned non-root blocked image, canonical repeat-build identity, full SBOM,
+  retained offline-replayable vulnerability evidence, internal Compose boundary,
+  persistence, suspension and exact-image restore. Strict protected-main attestations
+  bind the OCI archive, SBOM and closed evidence manifest to that exact source. The
+  accepted Docker 28 empty-port representation remains a zero-realisation form only:
+  the declared loopback binding, internal network and host-closed probes remain exact.
+  Generated text and bounded phase output share the privacy gate; incomplete evidence
+  remains private and is never uploaded. This is not a published image or deployment;
+- the repository-only QUAL-206 preflight candidate now retains deterministic local
+  receipts for E01, E02, E09, E13, E15, E17 and E20 across 13 source-bound suites and
+  58 exact selected tests. Every receipt remains non-live, unscored and explicitly
+  incomplete as release evidence;
+- the candidate integrates all 30 Stage-2 threat-record risks, with a hold outcome for
+  activation and release, and records the three retained unfixed High image
+  vulnerabilities as unresolved rather than accepting them;
+- T04 has one exact, content-addressed ONS cache fallback that must be injected
+  explicitly and can run only when the current execution of an exact, pristine ONS
+  adapter returns an internally classified network failure or HTTP 500 to 599
+  response. Its owner-bound outage proof is consumed once in that invocation, and
+  its source, result, rights, observation, approval and freshness identities are
+  fixed;
+  all other failures remain closed, production registration remains empty and
+  readiness remains `503`; and
+- the complete local repository gate passes on the combined candidate, including all
+  TypeScript and Python tests, 27 real-browser tests, deterministic release builds,
+  contract, link and secret validation, the execution container, diagrams and the
+  repository SBOM.
 
 ## Next
 
-1. Require the exact privacy-hardened branch head to pass complete clean-source local
-   evidence and independent review, then repository, gateway-image, final-assurance
-   and CodeQL checks on that same head in draft pull request 48.
-2. If the reviewed head remains exact, merge it through the protected branch and
-   verify the protected-main image artefact, evidence bundle and SLSA attestations.
-3. Complete the repository-only QUAL-206 release preflight, including required local
-   evaluation receipts, the integrated release threat record, T04 fallback and a
-   disposition for retained High vulnerabilities.
-4. Only after a separately authorised public runtime exists, deploy an unregistered
+1. Submit the exact repository-only QUAL-206 candidate through protected pull-request
+   assurance and CodeQL, merge only the unchanged reviewed head, and verify the
+   protected-main result.
+2. Only after a separately authorised public runtime exists, deploy an unregistered
    candidate and complete live QUAL-206 evidence before any activation, registry
    publication, tag or `v0.2.0` release.
 
 ## Current blockers
 
-- There is no known external blocker for completing repository assurance of the
-  image and Compose candidate. The first draft-PR image run rejected a legitimate
-  classic-Docker image identity; the second proved that repair and reached the
-  online Trivy scan, whose captured failure output was not surfaced. The third run's
-  bounded diagnostic exposed the native-Linux scanner/cache ownership mismatch. The
-  next run proved that UID/GID repair and the complete online/offline scan, then failed
-  closed when Docker 28's classic store could not import an OCI-only layout. That
-  loader incompatibility is exactly reproduced and its compatibility repair passed
-  exact local review, clean evidence regeneration and the complete local aggregator.
-  The following remote run proved that repair, then exposed Docker 28's reviewed
-  `null` representation for a published loopback port suppressed by an internal
-  bridge. That closed-map normalisation repair passed the complete exact-clean local
-  image gate and independent evidence review. Subsequent adversarial review found a
-  wider generated-text privacy and partial-evidence publication boundary; the branch
-  now centralises bounded path and credential checks, separates captured output into
-  reserved boundary-terminated phase frames, applies the 8 MiB privacy limit
-  cumulatively to parsed JSON, and makes the evidence directory publish-only after
-  complete verification. A later remote run proved that complete privacy-hardened
-  path through repository assurance and scan replay, then exposed Docker 28's empty
-  `NetworkSettings.Ports` representation. The exact engine/version reproduction and
-  complete local rehearsal confirm the bounded third-form normalisation, without
-  weakening the declared loopback binding or host-closure controls. Every
-  accepted source change still requires matching clean evidence, independent review
-  and fresh exact-head remote assurance. Local evidence remains candidate-only and
-  protected CI must regenerate it before any attestation.
-  There is still no public runtime, workload identity, admitted persistent volume or
-  service deployment workflow.
+- The repository-only image and Compose candidate are accepted on protected `main`.
+  There is still no authorised public runtime, hostname/TLS boundary, workload
+  identity, admitted persistent volume, backup/disposal/operator model, service
+  deployment workflow or previous deployed image for a real rollback.
 - The gateway assertion is a typed private hand-off, not workload authentication or
   a signed policy decision. Any non-loopback deployment remains blocked on explicit
   service identity and network-policy evidence.
@@ -215,6 +185,9 @@ The supported target active set is exactly `catalogue.search`,
 - Direct routes and MCP transports now exist on protected `main`, but the
   production/default capability arrays are empty, readiness is `503`, and there is
   no public service deployment or activation override.
+- The three retained High image vulnerabilities have no Bookworm fix in the current
+  evidence. Activation and release require either a patched base or an explicit owner
+  risk decision; repository containment is not remediation or acceptance.
 - The accepted ONS adapter and reconciliation storage are local, explicitly injected
   components. The fixed 4,096-claim pre-publication index ceiling and accepted ledger
   event ceiling are local safety bounds, not deployment quotas. There is no
@@ -227,17 +200,35 @@ The supported target active set is exactly `catalogue.search`,
 
 ## Latest evidence
 
-- DEPLOY-207 assurance design: the final aggregator rebuilds the OKF projection,
+- QUAL-206 repository-preflight candidate: the
+  [content-addressed local receipt set](evaluation/qual-206-local-evaluation-receipts.v1.json)
+  binds 7 applicable cases, 13 suites and 58 exact tests to their current source and
+  fixtures. The approved T04 cache, rebuild and provider-result identities
+  independently reproduce. Earlier exact-diff reviews found forged-cache, broad-outage,
+  HTTP-parser, stale-control-record, proxy-minted transport, discarded DNS-failure,
+  replayable-outage and truncated-response P2s. The current replacement uses private
+  instance, transport and outage brands; binds network eligibility to the module-owned
+  fixed transport and the exact pristine adapter that performed the current call;
+  consumes each owner-bound proof once; preserves recognised DNS failures; rejects
+  proxies, method substitution and HTTP parser framing; and treats premature response
+  closure, including a truncated redirect, as malformed while retaining pre-response
+  connection resets as network failures. Only unchanged exact bytes with a terminal
+  no-P2 review and protected pull-request checks may progress. This is local, non-live
+  and unscored evidence, not host interoperability or release acceptance;
+- DEPLOY-207 protected-main evidence: the final aggregator rebuilds the OKF projection,
   materialises only Git-tracked allowlisted source plus checksummed OKF outputs,
   proves canonical repeat-build OCI identity, generates an unfiltered full Syft
   SBOM, retains all High and Critical Trivy evidence with a fixable-only block and
   deterministic offline database replay, and exercises the strict local Compose
   boundary. Its exact directory is closed to 11 subjects plus one evidence manifest;
-  protected-main provenance will attest the OCI archive, SBOM and manifest only
-  after a clean-source run. Dynamic tool versions and timings stay outside the
+  protected-main provenance attests the OCI archive, SBOM and manifest only after a
+  clean-source run. Dynamic tool versions and timings stay outside the
   reproducible OCI. Compose declares only host loopback, while acceptance records
   either the realised loopback or a no-port internal fallback. This makes no
-  host-ingress, public deployment, provider, activation or production-rollback claim;
+  host-ingress, public deployment, provider, activation or production-rollback claim.
+  [Run 32553285859](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32553285859)
+  passed on protected-main commit `e65071dc1f1bb0baab852bbf8218f9b5f953ad02`;
+  strict attestations bind the OCI archive, SBOM and evidence manifest to that source;
 - every accepted public-read operation and transport remains inactive by default;
 - EVID-204 reconciliation acceptance: protected-main assurance and provenance pass
   in [run 32456796186](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32456796186),

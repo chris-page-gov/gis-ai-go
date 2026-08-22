@@ -7,6 +7,8 @@ adapter can make one fixed-selection bounded public call only when explicitly
 activated in a test; no shipped runtime registers it.
 
 The ONS folder includes the version-bound source and rights preflight plus a
-privacy-safe successful live-probe record. It does not activate the adapter; later
+privacy-safe successful live-probe record and the one exact content-addressed T04
+cache fallback derived from that accepted result identity. Neither record activates
+the adapter or configures a runtime; later
 gateway-to-execution integration must reuse the accepted EXEC-202 service envelope
 rather than define another.

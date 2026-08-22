@@ -1,0 +1,973 @@
+{
+  "schema": "gis-ai-go.qual-206-local-evaluation-receipt-set.v1",
+  "classification": "repository-only-non-live-unscored",
+  "schema_contract": {
+    "path": "schemas/qual-206-local-evaluation-receipt-set.schema.json",
+    "sha256": "7758c34791add0fc826140c508e304c1a0784d58de73c57a14d8e37038ad1a91"
+  },
+  "generator": {
+    "path": "scripts/qual_206_local_evaluations.mjs",
+    "sha256": "714649168c7c35a150fe8bcbfa5f1b48d9cf4cc20076e56dbbd2d2b0b0171fcb",
+    "package_json_sha256": "917eae1aba3ff9e0d83f63fbbf8ab6e64827dcd69ba6e98a85bca3129ee203cb",
+    "pnpm_lock_sha256": "14adfa599e78714ab92962acd24b4c69c441466ea43c68444988b04fb4f59737",
+    "verification_command": "pnpm run test:qual-206-local-evaluations"
+  },
+  "evaluation_manifest": {
+    "path": "evaluation/evaluation-cases.json",
+    "sha256": "a6e74f052bcdc02bb75aff1087e8ef0f6de57e8e9d0e916eec06722aae6c4a75",
+    "case_count": 25
+  },
+  "suites": [
+    {
+      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:690b695a6166cb199250fbf354d660b9c8715a90412739c49b359c36b064f076",
+      "label": "catalogue-snapshot",
+      "command": [
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "--test-name-pattern=^(?:loads the checksum-verified catalogue as a deeply immutable snapshot|rejects checksum corruption|rejects a checksum-valid receipt whose manifest cross-link is false)$",
+        "apps/mcp-gateway/dist/test/catalogue-snapshot.test.js"
+      ],
+      "result": "passed",
+      "test_count": 3,
+      "test_names": [
+        "loads the checksum-verified catalogue as a deeply immutable snapshot",
+        "rejects checksum corruption",
+        "rejects a checksum-valid receipt whose manifest cross-link is false"
+      ],
+      "materials": [
+        {
+          "path": "apps/mcp-gateway/src/catalogue-snapshot.ts",
+          "sha256": "ac415d5d0f76d262de34bc485cba3daf1e3239a0d10eea7647a3520f611eb021"
+        },
+        {
+          "path": "apps/mcp-gateway/test/catalogue-snapshot.test.ts",
+          "sha256": "015a04c8ed14937caa0125842582842ca14c5de719a6bef7365d9883699d0d7f"
+        },
+        {
+          "path": "okf/source-lock.json",
+          "sha256": "47427bd281c14f752a24b9ae592c2c5aa92b90f04ee733cb0110ff69db6dd3a6"
+        },
+        {
+          "path": "okf/source/publication.json",
+          "sha256": "bae115bb21cb934b2edb5d3e502b9f7919ebcf891d80010c20d05ac5335c0906"
+        }
+      ],
+      "controls": {
+        "external_network_required": false,
+        "live_provider_enabled": false,
+        "host_session_required": false
+      }
+    },
+    {
+      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:f6a3331fe4bb193e0b3cda608f5b381563b91ef957f26c13359cd333fde1d1dd",
+      "label": "catalogue-application",
+      "command": [
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "--test-name-pattern=^(?:search returns governed Price Paid and INSPIRE summaries with controlled facets|inline receipt verification rejects parameter replay and result or rights tampering|semantically equivalent search criteria produce byte-equivalent values|describe preserves full governed fields and stable source expansions)$",
+        "apps/mcp-gateway/dist/test/catalogue-application.test.js"
+      ],
+      "result": "passed",
+      "test_count": 4,
+      "test_names": [
+        "search returns governed Price Paid and INSPIRE summaries with controlled facets",
+        "inline receipt verification rejects parameter replay and result or rights tampering",
+        "semantically equivalent search criteria produce byte-equivalent values",
+        "describe preserves full governed fields and stable source expansions"
+      ],
+      "materials": [
+        {
+          "path": "apps/mcp-gateway/src/catalogue-application.ts",
+          "sha256": "5a81e7354ab001abeeddf7a6a8fcb83a0b5076fe705cb63c98168c86040aa37c"
+        },
+        {
+          "path": "apps/mcp-gateway/src/problem.ts",
+          "sha256": "5326c0ea3f8b9299cfea4b68d3c6248acbd3d51441a982b4ca672e14d799ea1e"
+        },
+        {
+          "path": "apps/mcp-gateway/test/catalogue-application.test.ts",
+          "sha256": "d468c339485df4c0a42a42040bfcb3dfabfefe3e3cc49ee9e0816592346d0761"
+        },
+        {
+          "path": "packages/evidence/src/receipt.ts",
+          "sha256": "2092266ec9527c844ed1e4c67928da06c86a0a75c6a247bb0de38461742f00ca"
+        }
+      ],
+      "controls": {
+        "external_network_required": false,
+        "live_provider_enabled": false,
+        "host_session_required": false
+      }
+    },
+    {
+      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:0eacb77e20d4a7c067a64a65d5087a4201c8f011e1da99b21df9902cd9ec060d",
+      "label": "selection-application",
+      "command": [
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "--test-name-pattern=^(?:resolves exact ranked constraints to one content-addressed non-executable plan|normalises ordering deterministically without interpreting question text|returns explicit ambiguity, missing, contradiction and no-provider outcomes|has no provider adapter, transport, registry or activation dependency)$",
+        "apps/mcp-gateway/dist/test/selection-application.test.js"
+      ],
+      "result": "passed",
+      "test_count": 4,
+      "test_names": [
+        "resolves exact ranked constraints to one content-addressed non-executable plan",
+        "normalises ordering deterministically without interpreting question text",
+        "returns explicit ambiguity, missing, contradiction and no-provider outcomes",
+        "has no provider adapter, transport, registry or activation dependency"
+      ],
+      "materials": [
+        {
+          "path": "apps/mcp-gateway/src/selection-application.ts",
+          "sha256": "60f02a200a84a6f2dcb85c99f991f2c8d418e7593f569edfa9c459642be0495a"
+        },
+        {
+          "path": "apps/mcp-gateway/test/selection-application.test.ts",
+          "sha256": "1827d7bc691a4e608ee83254a78bc191de5acfab7c7892a5b30179a981a3ec37"
+        },
+        {
+          "path": "profiles/public-selection-profile.v1.json",
+          "sha256": "4a77b855defcec47b7380487c33ebefb4a4f7824f29db993d88a02c4f780b6bc"
+        },
+        {
+          "path": "providers/fixtures/public-read-resource.example.json",
+          "sha256": "a1cab0c395e2dea1771b42122e3e1e3a1e7e7b440709b4a13ba533081d480528"
+        },
+        {
+          "path": "providers/fixtures/selection-plan.example.json",
+          "sha256": "1a280ffdebfaaec33bf4c965e6325863a4e8663c5784bab1b6840f2eaba37825"
+        }
+      ],
+      "controls": {
+        "external_network_required": false,
+        "live_provider_enabled": false,
+        "host_session_required": false
+      }
+    },
+    {
+      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:e08784ba8624eb1b3e7938f3f391b13117a8af8c0ef873b9351290d20d12bf09",
+      "label": "data-query-application",
+      "command": [
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "--test-name-pattern=^(?:requires an explicitly injected exact ONS adapter and closed options|executes one fixed query with discovery suspended and verified evidence|uses exact approved cache after a classified HTTP 500 to 599 response|uses exact approved cache after an internally classified network failure|does not use cache for stale, suspended or rate-limited provider states|keeps 3xx, 4xx, timeout, unsafe, malformed, opaque and unbranded failures receipt-free|keeps discovery and invocation lifecycle planes independent|rejects every deviation from the exact five-key request before execution|independently rejects result and evidence drift|maps adapter failures to fixed non-reflective receipt-free problems)$",
+        "apps/mcp-gateway/dist/test/data-query-application.test.js"
+      ],
+      "result": "passed",
+      "test_count": 10,
+      "test_names": [
+        "requires an explicitly injected exact ONS adapter and closed options",
+        "executes one fixed query with discovery suspended and verified evidence",
+        "uses exact approved cache after a classified HTTP 500 to 599 response",
+        "uses exact approved cache after an internally classified network failure",
+        "does not use cache for stale, suspended or rate-limited provider states",
+        "keeps 3xx, 4xx, timeout, unsafe, malformed, opaque and unbranded failures receipt-free",
+        "keeps discovery and invocation lifecycle planes independent",
+        "rejects every deviation from the exact five-key request before execution",
+        "independently rejects result and evidence drift",
+        "maps adapter failures to fixed non-reflective receipt-free problems"
+      ],
+      "materials": [
+        {
+          "path": "apps/mcp-gateway/src/data-query-application.ts",
+          "sha256": "1f73288b164a01f1b7acb256252d94c52759d62682d8efae6121d67d510287cc"
+        },
+        {
+          "path": "apps/mcp-gateway/src/reconciliation-applications.ts",
+          "sha256": "5619ef40433eb2901b7d44eac2907c6f1b58dffecbc7321b014a829e850640c1"
+        },
+        {
+          "path": "apps/mcp-gateway/test/data-query-application.test.ts",
+          "sha256": "6dff1ab315c7e089296493bf13238a954305adabd0a61e5e27f960123660a477"
+        },
+        {
+          "path": "packages/evidence/src/digest.ts",
+          "sha256": "e1b3a8a808bae1ceffc7366303a643e09b4ac9670e68216f2a3a0876b1f650ad"
+        },
+        {
+          "path": "packages/evidence/src/public-read-receipt.ts",
+          "sha256": "0af7597237be19048fb9c5c328c30fa18286f74069b4bf3404dd4f515cd93d95"
+        },
+        {
+          "path": "packages/provider-adapter-sdk/src/fixed-https.ts",
+          "sha256": "c8d9aa1559b083abed81e5531367decb7d85601224358053c218c01f3a3aaf81"
+        },
+        {
+          "path": "packages/provider-adapter-sdk/src/ons-approved-cache.ts",
+          "sha256": "14734d1733f9baaaa5b4a66296ae87530519790bf3e1855148e4b80e551b78ca"
+        },
+        {
+          "path": "packages/provider-adapter-sdk/src/ons-data-api.ts",
+          "sha256": "a9296c7afd280aaf76459c27122ab1995c2be7e46b8227cd4c899cb5453ad550"
+        },
+        {
+          "path": "providers/fixtures/data-query-parameters.example.json",
+          "sha256": "2f53e943a6cfa558a56112e159bf3c62066d119bcdb270780ebac44d28fd516d"
+        },
+        {
+          "path": "providers/fixtures/data-query-result.example.json",
+          "sha256": "6e88c1cf32f2a21d0e7660080fab94a1afcea6a0a1310a3b924ae5beed8433fe"
+        },
+        {
+          "path": "providers/ons/data-query-approved-cache.v1.json",
+          "sha256": "4b60e567d700d64ba98b87001e7adb10e25b2342403040b4a996d373b2714b8c"
+        },
+        {
+          "path": "schemas/approved-provider-cache.schema.json",
+          "sha256": "62d8578e04ca2d3764eba813d7e8ccda092f4ad95811a3126b9e54df549c0acd"
+        },
+        {
+          "path": "schemas/data-query-result.schema.json",
+          "sha256": "503eb840a8ba959be39e8499db4be8317f712405a591ca1b10230debbbfa25ad"
+        },
+        {
+          "path": "schemas/evidence-receipt-v2.schema.json",
+          "sha256": "96667c3d4178f9d8659de21dda84f3e4561a2293d7b78d3f103dfe9cf69dd197"
+        }
+      ],
+      "controls": {
+        "external_network_required": false,
+        "live_provider_enabled": false,
+        "host_session_required": false
+      }
+    },
+    {
+      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:8b87fc01ba89159cb87954abbb79572cd145fd768eea30584e019a6a5fce03e0",
+      "label": "evidence-application",
+      "command": [
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "--test-name-pattern=^(?:inspects one authorised open receipt without activating a transport|inspects a durable public-read v2 receipt with its distinct result version)$",
+        "apps/mcp-gateway/dist/test/evidence-application.test.js"
+      ],
+      "result": "passed",
+      "test_count": 2,
+      "test_names": [
+        "inspects one authorised open receipt without activating a transport",
+        "inspects a durable public-read v2 receipt with its distinct result version"
+      ],
+      "materials": [
+        {
+          "path": "apps/mcp-gateway/src/evidence-application.ts",
+          "sha256": "21b14ef3f0db78c711af2a4cc3d17084a8177a2e53c51d4811199e49c7ad7b62"
+        },
+        {
+          "path": "apps/mcp-gateway/test/evidence-application.test.ts",
+          "sha256": "647fb0a00060e1511dd8e9785c224e11dd615231e9a24a025b58f61e9afbe124"
+        },
+        {
+          "path": "packages/evidence/src/public-ledger.ts",
+          "sha256": "e94c288109f12d0b53389ad0755e6b9bdc50fb0c62958694bc92ca86ce13b2a9"
+        },
+        {
+          "path": "packages/evidence/src/public-read-receipt.ts",
+          "sha256": "0af7597237be19048fb9c5c328c30fa18286f74069b4bf3404dd4f515cd93d95"
+        },
+        {
+          "path": "packages/evidence/src/reconciliation-index.ts",
+          "sha256": "70623794f3ae5fa6a976ce2c251560ae4bd0bdfcc3685fa943dda1a843d1f61d"
+        }
+      ],
+      "controls": {
+        "external_network_required": false,
+        "live_provider_enabled": false,
+        "host_session_required": false
+      }
+    },
+    {
+      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:9cb2fc939a47b8ac4d86d2418d9ebe4fd26da58da0c2d3f75eabdf2ae79d33ac",
+      "label": "public-read-transport",
+      "command": [
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "--test-name-pattern=^(?:keeps public-read capabilities absent by default and requires explicit applications|publishes self-contained OpenAPI and identical MCP schemas with every status|keeps direct and MCP HTTP success and problem JSON exactly equivalent|persists selection and data evidence and inspects both through direct and STDIO|keeps the legacy conformance factory structurally catalogue-only)$",
+        "apps/mcp-gateway/dist/test/public-read-transport.test.js"
+      ],
+      "result": "passed",
+      "test_count": 5,
+      "test_names": [
+        "keeps public-read capabilities absent by default and requires explicit applications",
+        "publishes self-contained OpenAPI and identical MCP schemas with every status",
+        "keeps direct and MCP HTTP success and problem JSON exactly equivalent",
+        "persists selection and data evidence and inspects both through direct and STDIO",
+        "keeps the legacy conformance factory structurally catalogue-only"
+      ],
+      "materials": [
+        {
+          "path": "apps/mcp-gateway/src/activation.ts",
+          "sha256": "9ec62597b78831b5943f7144867bbc505455c6bf4b4b3b5ae38260d853ec560e"
+        },
+        {
+          "path": "apps/mcp-gateway/src/http-app.ts",
+          "sha256": "4c98ecb0d63de4d2d83fc36ac43e1cf955bd3eca7d47d17e49346d95775ce82b"
+        },
+        {
+          "path": "apps/mcp-gateway/src/mcp-http.ts",
+          "sha256": "fe29ace39751c8d5961d2357233fdd4d44c4a711582e2c4c565d91e478303688"
+        },
+        {
+          "path": "apps/mcp-gateway/src/mcp-server.ts",
+          "sha256": "fd6caf3e144e3c02e1b93d2e27f5fcb93d99f598a20d4c23ef7506c26287c346"
+        },
+        {
+          "path": "apps/mcp-gateway/src/mcp-stdio.ts",
+          "sha256": "da2692efcb8ca758b232455c0cb276908f9a2d4ac7ee322eb33f7a15a2be08e5"
+        },
+        {
+          "path": "apps/mcp-gateway/src/openapi.ts",
+          "sha256": "1ed6a66b3a68bbcd7544ef3bc0c2d91215c5a3a079ce9c68ff9d2b1b077fc298"
+        },
+        {
+          "path": "apps/mcp-gateway/test/public-read-transport.test.ts",
+          "sha256": "506fea027b3976b2380559ed7aa64907daf267cb7530d72d1c14bdd4d573b4e4"
+        }
+      ],
+      "controls": {
+        "external_network_required": false,
+        "live_provider_enabled": false,
+        "host_session_required": false
+      }
+    },
+    {
+      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:bbbf1fab17565f179312661a4702fbbfcbae50700cbac82a831ca76d6059e3b5",
+      "label": "http-application",
+      "command": [
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "--test-name-pattern=^(?:readiness is deliberately blocked with zero active operations|serves an OpenAPI candidate with no catalogue operation paths|direct search returns evidenced Price Paid and INSPIRE results|direct API material is byte-equivalent to the shared application result|implemented routes remain absent unless explicitly selected)$",
+        "apps/mcp-gateway/dist/test/http-app.test.js"
+      ],
+      "result": "passed",
+      "test_count": 5,
+      "test_names": [
+        "readiness is deliberately blocked with zero active operations",
+        "serves an OpenAPI candidate with no catalogue operation paths",
+        "direct search returns evidenced Price Paid and INSPIRE results",
+        "direct API material is byte-equivalent to the shared application result",
+        "implemented routes remain absent unless explicitly selected"
+      ],
+      "materials": [
+        {
+          "path": "apps/mcp-gateway/src/activation.ts",
+          "sha256": "9ec62597b78831b5943f7144867bbc505455c6bf4b4b3b5ae38260d853ec560e"
+        },
+        {
+          "path": "apps/mcp-gateway/src/http-app.ts",
+          "sha256": "4c98ecb0d63de4d2d83fc36ac43e1cf955bd3eca7d47d17e49346d95775ce82b"
+        },
+        {
+          "path": "apps/mcp-gateway/src/openapi.ts",
+          "sha256": "1ed6a66b3a68bbcd7544ef3bc0c2d91215c5a3a079ce9c68ff9d2b1b077fc298"
+        },
+        {
+          "path": "apps/mcp-gateway/test/http-app.test.ts",
+          "sha256": "9e5beed0f5ea0587bb8c49e9d6c8186a50c70ac63216fa7b6f7e5417415ac750"
+        }
+      ],
+      "controls": {
+        "external_network_required": false,
+        "live_provider_enabled": false,
+        "host_session_required": false
+      }
+    },
+    {
+      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:947f99dc098a44cef96cc5e3e4d58ddcdf9c85d3129f9ada7f554531e01f6360",
+      "label": "interoperability-stdio",
+      "command": [
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "--test-name-pattern=^(?:conformance server fails closed without the explicit test flag|legacy conformance journey keeps the existing minimised telemetry boundary|proxy records minimised telemetry for a real deterministic tool call)$",
+        "tests/interoperability/test_qual_206_harness.mjs"
+      ],
+      "result": "passed",
+      "test_count": 3,
+      "test_names": [
+        "conformance server fails closed without the explicit test flag",
+        "legacy conformance journey keeps the existing minimised telemetry boundary",
+        "proxy records minimised telemetry for a real deterministic tool call"
+      ],
+      "materials": [
+        {
+          "path": "scripts/qual_206_conformance_server.mjs",
+          "sha256": "aba0f4415bc9f94443be8b79eee06b03bdd275ca9854218dee30102c20a6778f"
+        },
+        {
+          "path": "scripts/qual_206_legacy_conformance_server.mjs",
+          "sha256": "bf87bec24357d5fd6d419bd8b4374642ab46a2f3dfa6d9baebde46f7498edb9c"
+        },
+        {
+          "path": "scripts/qual_206_telemetry_proxy.mjs",
+          "sha256": "3800e4458932ee1324ad03d64007f23f76f49682a6eabdc191ecf6eaccb501d5"
+        },
+        {
+          "path": "tests/interoperability/qual_206_cases.json",
+          "sha256": "23ac9bc1a76d524bd0e250b11b9ba321b09e66bd5921f1463f50c150001cd389"
+        },
+        {
+          "path": "tests/interoperability/test_qual_206_harness.mjs",
+          "sha256": "8b6b6d2de567dc23dc29f806237f854b4bba76b0fd41894ec50df4ee9efc55b0"
+        }
+      ],
+      "controls": {
+        "external_network_required": false,
+        "live_provider_enabled": false,
+        "host_session_required": false
+      }
+    },
+    {
+      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:88d0e2a9083fc1090febb8f7fef4bd6e4c22600fa8428585e09412a24c6e572f",
+      "label": "tool-registry",
+      "command": [
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "--test-name-pattern=^(?:keeps target lifecycle metadata separate from an empty current callable set|rejects lifecycle, mutability, schema and target substitutions|rejects substitutions in the implemented public-read slice metadata|rejects active input properties without invoking them)$",
+        "packages/tool-registry/dist/test/tool-registry.test.js"
+      ],
+      "result": "passed",
+      "test_count": 4,
+      "test_names": [
+        "keeps target lifecycle metadata separate from an empty current callable set",
+        "rejects lifecycle, mutability, schema and target substitutions",
+        "rejects substitutions in the implemented public-read slice metadata",
+        "rejects active input properties without invoking them"
+      ],
+      "materials": [
+        {
+          "path": "packages/tool-registry/src/registry.ts",
+          "sha256": "76d5c01dd39f30ca6671651a68379b96581c929f44d00d510f0050d1867497c7"
+        },
+        {
+          "path": "packages/tool-registry/test/tool-registry.test.ts",
+          "sha256": "40b7a63afc6f6763e0e2c9fd955bb31bc2ac2c5bab02566a77ef02cdef6e63c3"
+        },
+        {
+          "path": "profiles/tool-registry.v1.json",
+          "sha256": "3c455b8c01b182672e37bd5fdc1d9f4ecd116d34c391473b3c3e119717c2cb54"
+        },
+        {
+          "path": "schemas/tool-registry.schema.json",
+          "sha256": "e988d4d77139bf594186e1445f7cfbc875ae36d7bb8ede6dcca87f4bf31bdea2"
+        }
+      ],
+      "controls": {
+        "external_network_required": false,
+        "live_provider_enabled": false,
+        "host_session_required": false
+      }
+    },
+    {
+      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:591a020a5fc6a58ddecb3e412f444276a359be99c150a83d821b2c5c7633bc17",
+      "label": "provider-adapter",
+      "command": [
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "--test-name-pattern=^(?:is default-suspended on both independent lifecycle planes|constructs only the fixed URL and returns deterministic native evidence|keeps the checked-in live evidence privacy-safe and deterministically bound|rejects caller URL/query, stale versions, wrong selection order and alternate options|brands only network and HTTP 500 to 599 faults for approved-cache use|fails closed on schema, version, native-ID, link and rights drift)$",
+        "packages/provider-adapter-sdk/dist/test/ons-data-api.test.js"
+      ],
+      "result": "passed",
+      "test_count": 6,
+      "test_names": [
+        "is default-suspended on both independent lifecycle planes",
+        "constructs only the fixed URL and returns deterministic native evidence",
+        "keeps the checked-in live evidence privacy-safe and deterministically bound",
+        "rejects caller URL/query, stale versions, wrong selection order and alternate options",
+        "brands only network and HTTP 500 to 599 faults for approved-cache use",
+        "fails closed on schema, version, native-ID, link and rights drift"
+      ],
+      "materials": [
+        {
+          "path": "packages/provider-adapter-sdk/src/fixed-https.ts",
+          "sha256": "c8d9aa1559b083abed81e5531367decb7d85601224358053c218c01f3a3aaf81"
+        },
+        {
+          "path": "packages/provider-adapter-sdk/src/ons-data-api.ts",
+          "sha256": "a9296c7afd280aaf76459c27122ab1995c2be7e46b8227cd4c899cb5453ad550"
+        },
+        {
+          "path": "packages/provider-adapter-sdk/src/strict-json.ts",
+          "sha256": "8b70d32b958e27d03a4bc3803948ff9e834a0c5757e632a72378a99107c24595"
+        },
+        {
+          "path": "packages/provider-adapter-sdk/test/ons-data-api.test.ts",
+          "sha256": "1b540dcc65f33ee35548bdb71e1a6dc45bca4e52eee1ca25e9551e524410e876"
+        },
+        {
+          "path": "providers/ons/data-api-adapter-live-probe.v1.json",
+          "sha256": "51fc8acb0465c368aa7d2925f8be37c28b4f87ab395a306c29f586dd4d0e344b"
+        },
+        {
+          "path": "providers/ons/data-api-adapter-preflight.v1.json",
+          "sha256": "552bed362c6c01252a5251238815819f9966af04d675a62b6479e723f040e7b7"
+        }
+      ],
+      "controls": {
+        "external_network_required": false,
+        "live_provider_enabled": false,
+        "host_session_required": false
+      }
+    },
+    {
+      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:85ea9363a74f6f415701049f07373d7a5f29b3a725d16d7d353364abcf21d34f",
+      "label": "approved-provider-cache",
+      "command": [
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "--test-name-pattern=^(?:reads only the exact current policy-approved ONS cache|brands only constructor-validated exact cache instances|rejects cache content, coverage, approval and rebuild drift after re-signing|fails closed for stale, pre-retrieval, pre-approval or unauthorised reads)$",
+        "packages/provider-adapter-sdk/dist/test/ons-approved-cache.test.js"
+      ],
+      "result": "passed",
+      "test_count": 4,
+      "test_names": [
+        "reads only the exact current policy-approved ONS cache",
+        "brands only constructor-validated exact cache instances",
+        "rejects cache content, coverage, approval and rebuild drift after re-signing",
+        "fails closed for stale, pre-retrieval, pre-approval or unauthorised reads"
+      ],
+      "materials": [
+        {
+          "path": "packages/evidence/src/digest.ts",
+          "sha256": "e1b3a8a808bae1ceffc7366303a643e09b4ac9670e68216f2a3a0876b1f650ad"
+        },
+        {
+          "path": "packages/evidence/src/public-read-receipt.ts",
+          "sha256": "0af7597237be19048fb9c5c328c30fa18286f74069b4bf3404dd4f515cd93d95"
+        },
+        {
+          "path": "packages/provider-adapter-sdk/src/ons-approved-cache.ts",
+          "sha256": "14734d1733f9baaaa5b4a66296ae87530519790bf3e1855148e4b80e551b78ca"
+        },
+        {
+          "path": "packages/provider-adapter-sdk/test/ons-approved-cache.test.ts",
+          "sha256": "609ed37b793dc4ea4eb2341ab50cb873bf43381f8661c353bfa1b4fc4e6575a4"
+        },
+        {
+          "path": "providers/ons/data-api-adapter-live-probe.v1.json",
+          "sha256": "51fc8acb0465c368aa7d2925f8be37c28b4f87ab395a306c29f586dd4d0e344b"
+        },
+        {
+          "path": "providers/ons/data-query-approved-cache.v1.json",
+          "sha256": "4b60e567d700d64ba98b87001e7adb10e25b2342403040b4a996d373b2714b8c"
+        },
+        {
+          "path": "schemas/approved-provider-cache.schema.json",
+          "sha256": "62d8578e04ca2d3764eba813d7e8ccda092f4ad95811a3126b9e54df549c0acd"
+        },
+        {
+          "path": "schemas/data-query-result.schema.json",
+          "sha256": "503eb840a8ba959be39e8499db4be8317f712405a591ca1b10230debbbfa25ad"
+        },
+        {
+          "path": "schemas/evidence-receipt-v2.schema.json",
+          "sha256": "96667c3d4178f9d8659de21dda84f3e4561a2293d7b78d3f103dfe9cf69dd197"
+        }
+      ],
+      "controls": {
+        "external_network_required": false,
+        "live_provider_enabled": false,
+        "host_session_required": false
+      }
+    },
+    {
+      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:496b2aaec74e606fa4368d560b911b8faac9bc56ed4501022e25cef905502d49",
+      "label": "fixed-https-parser-boundary",
+      "command": [
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "--test-name-pattern=^(?:classifies real Node parser and DNS failures at the fixed transport boundary)$",
+        "packages/provider-adapter-sdk/dist/test/fixed-https.test.js"
+      ],
+      "result": "passed",
+      "test_count": 1,
+      "test_names": [
+        "classifies real Node parser and DNS failures at the fixed transport boundary"
+      ],
+      "materials": [
+        {
+          "path": "packages/provider-adapter-sdk/src/fixed-https.ts",
+          "sha256": "c8d9aa1559b083abed81e5531367decb7d85601224358053c218c01f3a3aaf81"
+        },
+        {
+          "path": "packages/provider-adapter-sdk/src/index.ts",
+          "sha256": "078b751a3ad8e6b92aaef4159c5ea5650832ca9083034e323c0036b113e6b6be"
+        },
+        {
+          "path": "packages/provider-adapter-sdk/src/ons-data-api.ts",
+          "sha256": "a9296c7afd280aaf76459c27122ab1995c2be7e46b8227cd4c899cb5453ad550"
+        },
+        {
+          "path": "packages/provider-adapter-sdk/test/fixed-https.test.ts",
+          "sha256": "cc2d9c31d8e7d0ceb824a4b1232507e3318e457d0b9d359d9c2d60a4cf475e1b"
+        }
+      ],
+      "controls": {
+        "external_network_required": false,
+        "live_provider_enabled": false,
+        "host_session_required": false
+      }
+    },
+    {
+      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:d5f53689b62ac5df90edc33895fad9e484ccce53f00e6d4a9bc89040c379ee42",
+      "label": "public-explorer",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@gis-ai-go/public-explorer",
+        "exec",
+        "vitest",
+        "run",
+        "test/unit/catalogue.test.ts",
+        "test/unit/links.test.ts",
+        "test/component/cards.test.ts",
+        "--testNamePattern=(?:^| )(?:accepts the bounded public fixture and preserves the legal-boundary caveat|searches only controlled fields with NFKC normalisation and ten terms|allows HTTPS destinations and deployment-relative paths|renders untrusted catalogue text without creating markup|links each explicit source reference without inventing a provider|shows reviewed worked-question findings as governed, non-executing detail|shows bounded ONS capabilities and mixed, per-record LandIS conditions)$",
+        "--reporter=json"
+      ],
+      "result": "passed",
+      "test_count": 7,
+      "test_names": [
+        "accepts the bounded public fixture and preserves the legal-boundary caveat",
+        "searches only controlled fields with NFKC normalisation and ten terms",
+        "allows HTTPS destinations and deployment-relative paths",
+        "renders untrusted catalogue text without creating markup",
+        "links each explicit source reference without inventing a provider",
+        "shows reviewed worked-question findings as governed, non-executing detail",
+        "shows bounded ONS capabilities and mixed, per-record LandIS conditions"
+      ],
+      "materials": [
+        {
+          "path": "apps/public-explorer/src/catalogue.ts",
+          "sha256": "994fdca1f76316fc30372eb2fbd8c85b858b69535d62f0804862da2b5c1bc366"
+        },
+        {
+          "path": "apps/public-explorer/src/links.ts",
+          "sha256": "38a9d840a9f447ef751c84a5dc1b40fc4e622eba308a38ab3e220ce084fae9d1"
+        },
+        {
+          "path": "apps/public-explorer/src/views/cards.ts",
+          "sha256": "1c99f1eedbc2585d710163def179749a85ec73f8ce4aaf280a96b7d5f7602435"
+        },
+        {
+          "path": "apps/public-explorer/test/component/cards.test.ts",
+          "sha256": "a89718ae98a58adf9d66ab1a5ddd3bd31bf767d0ceb7423eb84e42645869367c"
+        },
+        {
+          "path": "apps/public-explorer/test/unit/catalogue.test.ts",
+          "sha256": "7c1ada3187ead38f970ee0b356801dfb3df2629a550cb0c5c75318362ad8ab12"
+        },
+        {
+          "path": "apps/public-explorer/test/unit/links.test.ts",
+          "sha256": "55962fad74e5d8531c54bccee362954bb0f7a6425bfa19dda92f23debdc5dce9"
+        },
+        {
+          "path": "okf/source-lock.json",
+          "sha256": "47427bd281c14f752a24b9ae592c2c5aa92b90f04ee733cb0110ff69db6dd3a6"
+        },
+        {
+          "path": "okf/source/publication.json",
+          "sha256": "bae115bb21cb934b2edb5d3e502b9f7919ebcf891d80010c20d05ac5335c0906"
+        }
+      ],
+      "controls": {
+        "external_network_required": false,
+        "live_provider_enabled": false,
+        "host_session_required": false
+      }
+    }
+  ],
+  "receipts": [
+    {
+      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:3171e809fde36cc70916b4d2ed2e01a88b531b275621a48bb646ab2f5984899c",
+      "case": {
+        "id": "E01",
+        "title": "Anonymous discovery of open boundaries and statistics",
+        "manifest_pointer": "/cases/0"
+      },
+      "outcome": {
+        "status": "local-preflight-pass",
+        "classification": "repository-only-non-live",
+        "scoring": "unscored",
+        "case_complete": false
+      },
+      "evidence_suite_ids": [
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:690b695a6166cb199250fbf354d660b9c8715a90412739c49b359c36b064f076",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:f6a3331fe4bb193e0b3cda608f5b381563b91ef957f26c13359cd333fde1d1dd",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:e08784ba8624eb1b3e7938f3f391b13117a8af8c0ef873b9351290d20d12bf09",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:85ea9363a74f6f415701049f07373d7a5f29b3a725d16d7d353364abcf21d34f",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:9cb2fc939a47b8ac4d86d2418d9ebe4fd26da58da0c2d3f75eabdf2ae79d33ac"
+      ],
+      "local_assertions": [
+        {
+          "id": "bounded-discovery",
+          "statement": "Only explicitly constructed read-only operations are discoverable; production remains empty and not ready."
+        },
+        {
+          "id": "deterministic-statistic",
+          "statement": "The fixed ONS fixture returns one bounded observation with a verified evidence receipt and no live provider call."
+        },
+        {
+          "id": "catalogue-integrity",
+          "statement": "Catalogue discovery reads only the checksum-verified public snapshot and preserves governed source metadata."
+        },
+        {
+          "id": "approved-cache-boundary",
+          "statement": "Only the current execution of an exact, pristine ONS adapter can consume its owner-bound proof once after an internally classified network failure or HTTP 500 to 599 response and use the exact current approved cache; forged or substituted instances, replayed proofs, 3xx and 4xx responses, local timeouts, unsafe addresses, malformed responses, opaque or externally constructed failures, stale content and suspended states fail closed."
+        }
+      ],
+      "limitations": [
+        "No independent host or live provider was exercised, so factual freshness, latency and host interoperability remain unscored."
+      ],
+      "boundary": "Repository-only deterministic evidence. It is non-live and unscored, does not complete the research case, and does not authorise activation, deployment, registration or release."
+    },
+    {
+      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:e082eb8d4b67b8a13ae01bf4863416160e0faac6905c4eb16c1b71ceb243bbc8",
+      "case": {
+        "id": "E02",
+        "title": "Anonymous AI uses the public site without scraping",
+        "manifest_pointer": "/cases/1"
+      },
+      "outcome": {
+        "status": "local-preflight-pass",
+        "classification": "repository-only-non-live",
+        "scoring": "unscored",
+        "case_complete": false
+      },
+      "evidence_suite_ids": [
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:d5f53689b62ac5df90edc33895fad9e484ccce53f00e6d4a9bc89040c379ee42"
+      ],
+      "local_assertions": [
+        {
+          "id": "bounded-public-data",
+          "statement": "The static Explorer accepts the bounded public catalogue fixture and searches only controlled fields."
+        },
+        {
+          "id": "source-backed-links",
+          "statement": "Visible records retain safe source links, rights distinctions and reviewed HMLR, ONS and LandIS context without scraping."
+        },
+        {
+          "id": "untrusted-text",
+          "statement": "Instruction-like catalogue content is rendered as text rather than executable markup."
+        }
+      ],
+      "limitations": [
+        "This receipt covers local unit and component behaviour, not a deployed browser journey or an AI host session."
+      ],
+      "boundary": "Repository-only deterministic evidence. It is non-live and unscored, does not complete the research case, and does not authorise activation, deployment, registration or release."
+    },
+    {
+      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:c99ef1dd17293b9e05fc1466bd444323cd9844faa892980309c4491f8463c0b4",
+      "case": {
+        "id": "E09",
+        "title": "HMLR, ONS and LandIS open query with full provenance",
+        "manifest_pointer": "/cases/8"
+      },
+      "outcome": {
+        "status": "local-preflight-pass",
+        "classification": "repository-only-non-live",
+        "scoring": "unscored",
+        "case_complete": false
+      },
+      "evidence_suite_ids": [
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:f6a3331fe4bb193e0b3cda608f5b381563b91ef957f26c13359cd333fde1d1dd",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:e08784ba8624eb1b3e7938f3f391b13117a8af8c0ef873b9351290d20d12bf09",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:8b87fc01ba89159cb87954abbb79572cd145fd768eea30584e019a6a5fce03e0",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:85ea9363a74f6f415701049f07373d7a5f29b3a725d16d7d353364abcf21d34f",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:d5f53689b62ac5df90edc33895fad9e484ccce53f00e6d4a9bc89040c379ee42"
+      ],
+      "local_assertions": [
+        {
+          "id": "open-catalogue-provenance",
+          "statement": "Public HMLR, ONS and LandIS catalogue material retains source links, rights and reviewed context."
+        },
+        {
+          "id": "ons-query-evidence",
+          "statement": "The fixed ONS adapter fixture returns one exact observation and a verified public-read evidence receipt."
+        },
+        {
+          "id": "receipt-inspection",
+          "statement": "Persisted public-read evidence can be inspected through the transport-neutral application without activating a service."
+        },
+        {
+          "id": "approved-cache-provenance",
+          "statement": "The approved ONS cache binds its exact query, source probe, result, rights, complete coverage, approval and freshness evidence."
+        }
+      ],
+      "limitations": [
+        "Only ONS has a deterministic provider-result fixture; HMLR and LandIS coverage is catalogue metadata, not a live provider query."
+      ],
+      "boundary": "Repository-only deterministic evidence. It is non-live and unscored, does not complete the research case, and does not authorise activation, deployment, registration or release."
+    },
+    {
+      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:68a0fd101e41626a842b62392d33db596d2429379297b5020d4e8f7380167c7c",
+      "case": {
+        "id": "E13",
+        "title": "Host without Apps receives complete non-visual result",
+        "manifest_pointer": "/cases/12"
+      },
+      "outcome": {
+        "status": "local-preflight-pass",
+        "classification": "repository-only-non-live",
+        "scoring": "unscored",
+        "case_complete": false
+      },
+      "evidence_suite_ids": [
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:9cb2fc939a47b8ac4d86d2418d9ebe4fd26da58da0c2d3f75eabdf2ae79d33ac",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:947f99dc098a44cef96cc5e3e4d58ddcdf9c85d3129f9ada7f554531e01f6360",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:8b87fc01ba89159cb87954abbb79572cd145fd768eea30584e019a6a5fce03e0"
+      ],
+      "local_assertions": [
+        {
+          "id": "non-app-parity",
+          "statement": "Direct, modern MCP and STDIO results expose the same complete structured value and JSON text fallback."
+        },
+        {
+          "id": "legacy-journey",
+          "statement": "The constructor-only legacy STDIO seam completes initialise, list, call and resource operations with minimised telemetry."
+        },
+        {
+          "id": "evidence-completeness",
+          "statement": "The non-App result retains the complete evidence receipt identity and inspection material."
+        }
+      ],
+      "limitations": [
+        "No independent third-party host consumed the fallback, so host capability remains unscored."
+      ],
+      "boundary": "Repository-only deterministic evidence. It is non-live and unscored, does not complete the research case, and does not authorise activation, deployment, registration or release."
+    },
+    {
+      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:3342efb6dd2f147e53bd2bcb60b1d6b41926b910f579c287a1c1e35277bff3ab",
+      "case": {
+        "id": "E15",
+        "title": "WebMCP-incapable agent follows linked OKF/API",
+        "manifest_pointer": "/cases/14"
+      },
+      "outcome": {
+        "status": "local-preflight-pass",
+        "classification": "repository-only-non-live",
+        "scoring": "unscored",
+        "case_complete": false
+      },
+      "evidence_suite_ids": [
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:d5f53689b62ac5df90edc33895fad9e484ccce53f00e6d4a9bc89040c379ee42",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:bbbf1fab17565f179312661a4702fbbfcbae50700cbac82a831ca76d6059e3b5",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:690b695a6166cb199250fbf354d660b9c8715a90412739c49b359c36b064f076"
+      ],
+      "local_assertions": [
+        {
+          "id": "linked-machine-data",
+          "statement": "The static product exposes safe source and machine-data links over a checksum-verified catalogue."
+        },
+        {
+          "id": "direct-api-parity",
+          "statement": "The explicit local direct API returns the same evidenced catalogue application result."
+        },
+        {
+          "id": "no-default-service",
+          "statement": "Implemented direct routes remain absent unless explicitly selected for local conformance."
+        }
+      ],
+      "limitations": [
+        "No WebMCP-incapable browser agent or deployed direct API was exercised; navigation capability remains unscored."
+      ],
+      "boundary": "Repository-only deterministic evidence. It is non-live and unscored, does not complete the research case, and does not authorise activation, deployment, registration or release."
+    },
+    {
+      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:36d543eda1c9af155b17bea5fa377227e7055a6c9a3a18cbe359c89e12523545",
+      "case": {
+        "id": "E17",
+        "title": "Malicious record attempts prompt injection",
+        "manifest_pointer": "/cases/16"
+      },
+      "outcome": {
+        "status": "local-preflight-pass",
+        "classification": "repository-only-non-live",
+        "scoring": "unscored",
+        "case_complete": false
+      },
+      "evidence_suite_ids": [
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:f6a3331fe4bb193e0b3cda608f5b381563b91ef957f26c13359cd333fde1d1dd",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:0eacb77e20d4a7c067a64a65d5087a4201c8f011e1da99b21df9902cd9ec060d",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:88d0e2a9083fc1090febb8f7fef4bd6e4c22600fa8428585e09412a24c6e572f",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:d5f53689b62ac5df90edc33895fad9e484ccce53f00e6d4a9bc89040c379ee42"
+      ],
+      "local_assertions": [
+        {
+          "id": "metadata-is-data",
+          "statement": "Instruction-like catalogue text and question text remain quoted data and cannot alter deterministic selection."
+        },
+        {
+          "id": "registry-drift-closed",
+          "statement": "Lifecycle, schema and implemented-slice registry substitutions fail closed without becoming callable."
+        },
+        {
+          "id": "no-poisoning-side-effect",
+          "statement": "Rejected or ignored poisoning material has no provider, activation or evidence side effect."
+        }
+      ],
+      "limitations": [
+        "No model or independent host was asked to follow malicious instructions, so host-level resistance remains unscored."
+      ],
+      "boundary": "Repository-only deterministic evidence. It is non-live and unscored, does not complete the research case, and does not authorise activation, deployment, registration or release."
+    },
+    {
+      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:c9b1a376ab9053adb9f75d1980870d49924b4fa1968e770d65e78a4c062d980c",
+      "case": {
+        "id": "E20",
+        "title": "Emergency tool/provider suspension",
+        "manifest_pointer": "/cases/19"
+      },
+      "outcome": {
+        "status": "local-preflight-pass",
+        "classification": "repository-only-non-live",
+        "scoring": "unscored",
+        "case_complete": false
+      },
+      "evidence_suite_ids": [
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:88d0e2a9083fc1090febb8f7fef4bd6e4c22600fa8428585e09412a24c6e572f",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:591a020a5fc6a58ddecb3e412f444276a359be99c150a83d821b2c5c7633bc17",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:496b2aaec74e606fa4368d560b911b8faac9bc56ed4501022e25cef905502d49",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:e08784ba8624eb1b3e7938f3f391b13117a8af8c0ef873b9351290d20d12bf09",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:bbbf1fab17565f179312661a4702fbbfcbae50700cbac82a831ca76d6059e3b5",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:9cb2fc939a47b8ac4d86d2418d9ebe4fd26da58da0c2d3f75eabdf2ae79d33ac"
+      ],
+      "local_assertions": [
+        {
+          "id": "empty-callable-set",
+          "statement": "The current callable registry and production operation arrays remain empty with readiness blocked."
+        },
+        {
+          "id": "provider-suspension",
+          "statement": "The ONS adapter keeps discovery and invocation independently suspended by default, and the approved cache cannot bypass suspension."
+        },
+        {
+          "id": "explicit-local-only",
+          "statement": "Capabilities appear only through explicit local construction and cannot be enabled through runtime input."
+        }
+      ],
+      "limitations": [
+        "No deployed provider, registry entry, operator alert or emergency rollback was exercised."
+      ],
+      "boundary": "Repository-only deterministic evidence. It is non-live and unscored, does not complete the research case, and does not authorise activation, deployment, registration or release."
+    }
+  ],
+  "claims": {
+    "live_provider_call": false,
+    "live_host_session": false,
+    "public_deployment": false,
+    "production_activation": false,
+    "release_ready": false,
+    "complete_case_evaluation": false
+  },
+  "boundary": "Repository-only deterministic evidence. It is non-live and unscored, does not complete the research case, and does not authorise activation, deployment, registration or release.",
+  "set_id": "gis-ai-go:qual-206-local-evaluation-set:sha256:509af71b057d4b0369302adfb1d64aff2c92a6ed7776309ede4a513b3c2704a5"
+}

@@ -14,6 +14,7 @@ from referencing import Registry, Resource
 ROOT = Path(__file__).resolve().parents[2]
 SCHEMA_DIR = ROOT / "schemas"
 FIXTURE_DIR = ROOT / "providers" / "fixtures"
+ONS_DIR = ROOT / "providers" / "ons"
 DATA_QUERY_PARAMETERS_V1_SHA256 = (
     "7370321b97b194b24f3ecfc0ec67d5edab943b8535607f382e460959dc677a8c"
 )
@@ -78,6 +79,7 @@ class DataQueryContractTests(unittest.TestCase):
         self.deadline_problem = load(
             FIXTURE_DIR / "data-query-deadline-exceeded-problem.example.json"
         )
+        self.approved_cache = load(ONS_DIR / "data-query-approved-cache.v1.json")
 
     def test_schema_ids_are_stable_and_every_object_is_closed(self) -> None:
         expected = {
@@ -98,6 +100,9 @@ class DataQueryContractTests(unittest.TestCase):
             ),
             "data-query-operation-problem.schema.json": (
                 "urn:gis-ai-go:schema:data-query-operation-problem:v1"
+            ),
+            "approved-provider-cache.schema.json": (
+                "urn:gis-ai-go:schema:approved-provider-cache:v1"
             ),
         }
         for name, schema_id in expected.items():
@@ -164,6 +169,23 @@ class DataQueryContractTests(unittest.TestCase):
         )
         self.assertEqual("10471", self.result["data"]["observations"][0]["value"])
         self.assertIsNone(self.result["data"]["observations"][0]["unit"])
+        approved_cache = validator("approved-provider-cache.schema.json")
+        self.assertTrue(approved_cache.is_valid(self.approved_cache))
+        self.assertEqual(1, self.approved_cache["coverage"]["expected_shards"])
+        self.assertEqual(1, self.approved_cache["coverage"]["ingested_shards"])
+        self.assertTrue(self.approved_cache["coverage"]["complete"])
+        self.assertEqual("forbidden", self.approved_cache["freshness"]["stale_use"])
+        self.assertEqual(
+            {
+                "code": "PROVIDER_OUTAGE",
+                "transport_failure_kinds": ["network"],
+                "provider_status_minimum": 500,
+                "provider_status_maximum": 599,
+                "local_timeout_use": "forbidden",
+                "non_5xx_use": "forbidden",
+            },
+            self.approved_cache["approval"]["cache_eligibility"],
+        )
         selection_plan_path = SCHEMA_DIR / "selection-plan.schema.json"
         if selection_plan_path.exists():
             self.assertEqual(
@@ -171,6 +193,77 @@ class DataQueryContractTests(unittest.TestCase):
                 load(selection_plan_path)["const"]["data_query"],
                 "the independently validated query must equal selection plan output",
             )
+
+    def test_cache_result_requires_freshness_warning_and_cache_receipt_pipeline(self) -> None:
+        result = validator("data-query-result.schema.json")
+        cached = copy.deepcopy(self.result)
+        cached["data"]["cache"] = {
+            "status": "approved-current",
+            "cache_id": self.approved_cache["cache_id"],
+            "source_uri": self.approved_cache["source"]["source_uri"],
+            "provider_result_sha256": self.approved_cache["source"][
+                "provider_result"
+            ]["sha256"],
+            "retrieved_at": self.approved_cache["source"]["retrieved_at"],
+            "stale_after": self.approved_cache["freshness"]["stale_after"],
+            "checked_at": "2026-08-22T12:00:00.000Z",
+        }
+        cached["warnings"] = [
+            "The ONS request failed with an internally classified network failure "
+            "or HTTP 500 to 599 response. This result uses the exact approved cache; "
+            "check its freshness before use."
+        ]
+        cached["evidence_receipt"]["transformations"][1]["name"] = (
+            "read-approved-provider-cache"
+        )
+        self.assertTrue(result.is_valid(cached))
+
+        for label, mutate in [
+            ("missing warning", lambda value: value.update({"warnings": []})),
+            (
+                "provider pipeline",
+                lambda value: value["evidence_receipt"]["transformations"][1].update(
+                    {"name": "execute-fixed-provider-query"}
+                ),
+            ),
+            (
+                "missing freshness",
+                lambda value: value["data"]["cache"].pop("stale_after"),
+            ),
+            (
+                "other cache identity",
+                lambda value: value["data"]["cache"].update(
+                    {
+                        "cache_id": (
+                            "gis-ai-go:approved-provider-cache:sha256:"
+                            + "a" * 64
+                        )
+                    }
+                ),
+            ),
+            (
+                "other provider result",
+                lambda value: value["data"]["cache"].update(
+                    {"provider_result_sha256": "b" * 64}
+                ),
+            ),
+            (
+                "other cached observation",
+                lambda value: value["data"]["observations"][0].update(
+                    {"value": "10472"}
+                ),
+            ),
+            (
+                "other stale boundary",
+                lambda value: value["data"]["cache"].update(
+                    {"stale_after": "2027-02-20T20:21:08.948Z"}
+                ),
+            ),
+        ]:
+            candidate = copy.deepcopy(cached)
+            mutate(candidate)
+            with self.subTest(mutation=label):
+                self.assertFalse(result.is_valid(candidate))
 
     def test_parameter_and_result_drift_fail_closed(self) -> None:
         parameters = validator("data-query-parameters.schema.json")

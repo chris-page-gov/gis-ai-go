@@ -160,12 +160,16 @@ data-query problem v1 remains unchanged.
 The later inactive slices now implement deterministic selection, the fixed injected
 ONS adapter call, direct/MCP/STDIO parity, receipt-only reconciliation and suspended
 registry metadata. They retain zero-default activation and do not alter the original
-contract-only acceptance claim.
+contract-only acceptance claim. T04's exact content-addressed approved-cache fallback
+is also implemented for explicit injection, with no default loader or environment
+seam, and remains inactive.
 
-Public use still requires approved T04 fallback, independent live-host evidence,
-accessibility and security assurance, a reviewed release and activation decision,
-deployment and rollback evidence, and governed admission, reclamation and retention
-for the reconciliation store.
+Public use still requires reviewed production wiring and live evidence for T04's
+eligible network and HTTP 500 to 599 failures and its forbidden 3xx, 4xx, timeout,
+unsafe-address, malformed, opaque and unbranded classes. It also requires independent
+live-host evidence, accessibility and security assurance, a reviewed release and
+activation decision, deployment and rollback evidence, and governed admission,
+reclamation and retention for the reconciliation store.
 
 Owner approval, credentials and deployment are not required for this contract-only
 candidate. A later public ONS live query still needs explicit activation and
