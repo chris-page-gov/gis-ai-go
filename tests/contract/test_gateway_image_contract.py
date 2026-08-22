@@ -35,6 +35,7 @@ from gateway_image import (  # noqa: E402
     EXPECTED_HEALTH_CONFIGURATION,
     EXPECTED_REGISTRY_ID,
     FORBIDDEN_PACKAGE_LIFECYCLE_SCRIPTS,
+    MAX_PRIVACY_MALFORMED_CHARS,
     MAX_PRIVACY_TEXT_BYTES,
     NODE_BASE_DIGEST,
     NODE_BASE_REFERENCE,
@@ -3426,6 +3427,9 @@ class GatewayImageContractTests(unittest.TestCase):
         self.assertIsNone(prohibited_text_reason(line_folds))
         self.assertLess(time.monotonic() - started, 10.0)
 
+        self.assertEqual(prohibited_text_reason("/\n/:!@"), "sensitive")
+        self.assertEqual(prohibited_text_reason("/\n/!!/@@"), "private-path")
+
         spaces = " " * (8 * 1024 * 1024)
         started = time.monotonic()
         self.assertIsNone(prohibited_text_reason(spaces))
@@ -3447,6 +3451,15 @@ class GatewayImageContractTests(unittest.TestCase):
         started = time.monotonic()
         self.assertEqual(prohibited_text_reason(unclosed_comments), "sensitive")
         self.assertLess(time.monotonic() - started, 10.0)
+
+        for comment in ("/*", "//"):
+            comment_only = (comment * (MAX_PRIVACY_MALFORMED_CHARS // 2 + 1))[
+                : MAX_PRIVACY_MALFORMED_CHARS + 1
+            ]
+            started = time.monotonic()
+            with self.subTest(comment=comment):
+                self.assertEqual(prohibited_text_reason(comment_only), "sensitive")
+                self.assertLess(time.monotonic() - started, 10.0)
 
         dense_malformed_tokens = "{" + ("a " * (4 * 1024 * 1024 - 1)) + "}"
         started = time.monotonic()

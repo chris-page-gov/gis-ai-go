@@ -1200,6 +1200,8 @@ def _has_unexempted_path_match(
 def _contains_private_path(
     value: str, *, trusted_cpe_tokens: frozenset[str] = frozenset()
 ) -> bool:
+    if not trusted_cpe_tokens and CPE_PATH_PREFIX_TEXT.search(value) is None:
+        return PRIVATE_PATH_TEXT.search(value) is not None
     valid_cpe_spans = _valid_cpe_path_spans(
         value, trusted_cpe_tokens=trusted_cpe_tokens
     )
@@ -2771,6 +2773,9 @@ def _assignment_is_folded_uri_metadata(match: re.Match[str]) -> bool:
 SENSITIVE_SYNTAX_HINT_TEXT = re.compile(
     r"[=:/?&\[\]{}@.+\-]|Authorization", re.IGNORECASE
 )
+PRIVACY_SEMANTIC_CUE_TEXT = re.compile(
+    r"[\w\[\]{}\x27\"\\\t\r\n\u2028\u2029]|//|/\*"
+)
 
 
 def _contains_sensitive_structured_text(
@@ -2833,6 +2838,8 @@ def prohibited_text_reason(value: str) -> str | None:
         value, trusted_cpe_tokens=frozenset(trusted_cpe_tokens)
     ) or _contains_absolute_parent_traversal(value):
         return "private-path"
+    if PRIVACY_SEMANTIC_CUE_TEXT.search(value) is None:
+        return None
     if _lexical_json_reason(value) or (
         not complete_json and _embedded_json_reason(value)
     ):
