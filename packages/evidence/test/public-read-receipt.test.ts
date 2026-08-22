@@ -3,6 +3,7 @@ import test from "node:test";
 
 import {
   CANONICALISATION,
+  PUBLIC_DATA_QUERY_APPROVED_CACHE_WARNING,
   PUBLIC_READ_ONS_RESOURCE,
   PUBLIC_READ_ONS_SELECTION_PLAN,
   PUBLIC_READ_SELECTION_PROFILE,
@@ -53,6 +54,101 @@ test("builds deterministic operation-specific v2 receipts without raw material",
   assert.equal(stored.includes("raw-observation-value-should-not-appear"), false);
   assert.equal(stored.includes("data-query-parameters"), true);
   assert.equal(stored.includes(PUBLIC_READ_ONS_RESOURCE.rights.attribution), true);
+});
+
+test("binds an approved-cache result to its distinct pipeline and freshness check", () => {
+  const input = makePublicReadReceiptBuildInput("data.query");
+  const checkedAt = "2026-08-22T12:00:00.000Z";
+  const resultCore = structuredClone(input.resultCore) as {
+    data: {
+      cache?: Record<string, unknown>;
+      observations: unknown[];
+      status: string;
+    };
+    warnings: string[];
+  };
+  resultCore.data.observations = [{ value: "10471", unit: null }];
+  resultCore.data.cache = {
+    cache_id:
+      "gis-ai-go:approved-provider-cache:sha256:06dd19673c2f9d605dbad2c64a21903f6448fb4965838098bd16df40f6db4961",
+    checked_at: checkedAt,
+    provider_result_sha256:
+      "309a7c0a374f93f20d4b4cc8aaa4530c4a828ea27e4e26e266b367e59b7da3bd",
+    retrieved_at: "2026-08-20T20:21:08.947Z",
+    source_uri:
+      "https://api.beta.ons.gov.uk/v1/datasets/weekly-deaths-region/editions/time-series/versions/121/observations?time=2026&geography=E92000001&week=week-24&causeofdeath=all-causes",
+    stale_after: "2027-02-20T20:21:08.947Z",
+    status: "approved-current",
+  };
+  resultCore.warnings = [PUBLIC_DATA_QUERY_APPROVED_CACHE_WARNING];
+  const transformations = [
+    { name: "normalise-public-read-parameters", version: "v1" },
+    { name: "read-approved-provider-cache", version: "v1" },
+    { name: "project-public-read-result-core", version: "v1" },
+  ] as const;
+  const cachedInput = {
+    ...input,
+    createdAt: checkedAt,
+    transformations,
+    resultCore,
+  };
+  const receipt = buildPublicReadReceipt(cachedInput);
+
+  assert.equal(verifyPublicReadReceiptStructure(receipt), true);
+  assert.equal(
+    verifyPublicReadReceipt(receipt, {
+      normalisedParameters: cachedInput.normalisedParameters,
+      resultCore,
+      publicPolicy: cachedInput.publicPolicy,
+      expectedAuthorityContext: cachedInput.authorityContext,
+      expectedPolicyDecision: cachedInput.policyDecision,
+      expectedResource: cachedInput.resource,
+      expectedSoftware: cachedInput.software,
+    }).valid,
+    true,
+  );
+  assert.deepEqual(receipt.transformations, transformations);
+  assert.throws(
+    () => buildPublicReadReceipt({ ...cachedInput, transformations: input.transformations }),
+    PublicReadReceiptError,
+  );
+  assert.throws(
+    () => buildPublicReadReceipt({ ...cachedInput, createdAt: "2026-08-22T12:00:01.000Z" }),
+    PublicReadReceiptError,
+  );
+  for (const [field, value] of [
+    [
+      "cache_id",
+      `gis-ai-go:approved-provider-cache:sha256:${"a".repeat(64)}`,
+    ],
+    ["provider_result_sha256", "b".repeat(64)],
+    ["retrieved_at", "2026-08-20T20:21:08.948Z"],
+    ["stale_after", "2027-02-20T20:21:08.948Z"],
+  ] as const) {
+    const candidate = structuredClone(resultCore);
+    candidate.data.cache![field] = value;
+    assert.throws(
+      () => buildPublicReadReceipt({ ...cachedInput, resultCore: candidate }),
+      PublicReadReceiptError,
+    );
+  }
+  const wrongObservation = structuredClone(resultCore);
+  wrongObservation.data.observations = [{ value: "10472", unit: null }];
+  assert.throws(
+    () => buildPublicReadReceipt({ ...cachedInput, resultCore: wrongObservation }),
+    PublicReadReceiptError,
+  );
+  const beforeApproval = structuredClone(resultCore);
+  beforeApproval.data.cache!.checked_at = "2026-08-21T12:00:00.000Z";
+  assert.throws(
+    () =>
+      buildPublicReadReceipt({
+        ...cachedInput,
+        createdAt: "2026-08-21T12:00:00.000Z",
+        resultCore: beforeApproval,
+      }),
+    PublicReadReceiptError,
+  );
 });
 
 test("binds the exact profile, provider, dataset, version and rights evidence", () => {

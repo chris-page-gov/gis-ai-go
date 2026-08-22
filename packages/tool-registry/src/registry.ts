@@ -117,6 +117,7 @@ const CURRENT_PUBLIC_READ_PROVIDER_DEPENDENCIES = Object.freeze({
   ]),
   T04: Object.freeze([
     "explicitly injected ONS Data API adapter",
+    "explicitly injected approved ONS cache",
     "public-read policy",
     "durable public evidence ledger",
     "receipt-only idempotency reconciliation index",
@@ -555,9 +556,12 @@ function validateProfile(value: unknown, index: number): ToolProfile {
       cursor.state !== "none" ||
       cursor.maxLength !== null ||
       crs.state !== "not-applicable" ||
-      fallback.state !== "not-implemented" ||
+      fallback.state !== "implemented" ||
       fallback.behaviour !==
-        "Fail closed; no result cache, alternate provider or result fallback is permitted."
+        "Use the exact approved cache only after an internally classified network failure or " +
+          "HTTP 500 to 599 response; reject 3xx/4xx, local-timeout, unsafe-address, " +
+          "malformed-response, opaque or unbranded failures; expose retrieval and " +
+          "stale-after times."
     ) {
       invalidRegistry();
     }

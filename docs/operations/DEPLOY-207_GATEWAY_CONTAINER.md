@@ -316,6 +316,14 @@ The retained database, full report, scanner and engine versions, and phase times
 dynamic assurance evidence. A later scan may change without changing the image and
 must be treated as newer evidence, not an OCI reproducibility failure.
 
+The protected-main candidate retains three unfixed High findings. Their exact
+package status, constrained current exposure and non-accepting release decision are
+recorded in the
+[QUAL-206 gateway image vulnerability disposition](QUAL-206_IMAGE_VULNERABILITY_DISPOSITION.md).
+A passing fixable-only policy is not owner risk acceptance or release readiness;
+a patched base rebuilt into new candidate bytes or a separately recorded explicit
+owner risk acceptance remains mandatory before release.
+
 ## Deployment and rollback blockers
 
 Repository assurance does not resolve these external requirements:

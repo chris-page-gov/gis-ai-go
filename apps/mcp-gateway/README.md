@@ -55,7 +55,16 @@ It is an implementation workbench, not a supported or deployed service.
   new key. There is no default adapter, environment activation or live-provider call
   in ordinary tests. Caller signal cancellation and caller deadline expiry are
   checked before and after execution and remain distinct from an adapter-local
-  provider timeout. Explicit local-conformance options mount only a reconciliation-
+  provider timeout. An optional explicit `ApprovedOnsDataQueryCache` may serve the
+  one fixed ONS result only after the allowed policy decision and the current
+  execution of an exact, pristine ONS adapter returns an internally classified
+  network failure or HTTP 500 to 599 response. The owner-bound outage proof is
+  consumed once in the same invocation. A replayed proof, substituted adapter, 3xx
+  or 4xx response, local timeout, unsafe address, malformed response, opaque error
+  or externally constructed fault remains closed.
+  It exposes retrieval, stale-after and check times in the receipt-bound result,
+  forbids stale use, and has no default loader or environment
+  switch. Explicit local-conformance options mount only a reconciliation-
   branded instance on the direct API, modern MCP HTTP and modern MCP STDIO. Every
   data face must also mount the inspector branded with the exact same index. Direct
   data requests ignore caller request-ID headers and use a server-generated
@@ -116,8 +125,8 @@ not referenced by a package script or shipped entrypoint.
 
 Protocol-conformant direct and MCP transport candidates now cover catalogue,
 evidence inspection, selection and the bounded data query. Activation remains
-hard-blocked until independent-host interoperability, T04 fallback, release,
-deployment and full lifecycle evidence receive their own review. A later reviewed
+hard-blocked until independent-host interoperability, release, deployment and full
+lifecycle evidence receive their own review. A later reviewed
 change must satisfy that activation policy before a shipped entrypoint may mount or
 advertise any operation. The compiled public document is not OPA, authentication,
 identity or an enterprise entitlement service.
@@ -141,7 +150,8 @@ pnpm --filter @gis-ai-go/mcp-gateway run start:http
 
 See the [candidate boundary](../../docs/operations/MCP-201_GATEWAY_CANDIDATE.md),
 the [EVID-204 inspection transport boundary](../../docs/operations/EVID-204_INSPECT_TRANSPORT.md),
-the [inactive public-read transport boundary](../../docs/operations/TOOLS-205_PUBLIC_READ_TRANSPORT.md),
+the
+[inactive public-read transport boundary](../../docs/operations/TOOLS-205_PUBLIC_READ_TRANSPORT.md),
 the [QUAL-206 interoperability runbook](../../docs/operations/QUAL-206_INTEROPERABILITY.md),
 the [inactive selection resolver boundary](../../docs/operations/TOOLS-205_SELECTION_RESOLVE.md),
 and the [blocked container runbook](../../docs/operations/DEPLOY-207_GATEWAY_CONTAINER.md).

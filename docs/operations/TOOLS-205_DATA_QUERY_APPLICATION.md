@@ -1,6 +1,6 @@
 # TOOLS-205 inactive data query application
 
-Reviewed on 21 August 2026.
+Reviewed on 22 August 2026.
 
 This record preserves the application-only boundary at the time it was accepted and
 documents the later inactive lost-response reconciliation extension. The explicitly
@@ -22,6 +22,12 @@ exact gateway software identity. The adapter's invocation lifecycle plane must b
 active. Its discovery plane may remain suspended because this application neither
 lists providers nor changes capability advertising. Discovery-active with
 invocation-suspended still fails before provider transport.
+
+The optional T04 fallback is also explicit. A caller may inject only an
+`ApprovedOnsDataQueryCache` built from the exact content-addressed
+[`data-query-approved-cache.v1.json`](../../providers/ons/data-query-approved-cache.v1.json)
+record. Omission preserves the original provider-only failure. No shipped entrypoint
+loads the file, and there is no path, URL, environment or command-line cache option.
 
 The legacy unmounted application-only seam accepts the closed five-key
 `gis-ai-go.data-query-parameters.v1` object. A transport-mountable reconciled
@@ -75,11 +81,20 @@ Every new reconciled call follows one fixed order:
 5. require an invocation-active health record, independently compare the adapter's
    upper-bound estimate, OGL rights and provenance with the accepted resource;
 6. recheck caller controls, publish exclusive key ownership and a complete canonical
-   claim, recheck controls again, then call the explicitly injected adapter's
-   `execute()` exactly once with the shared
-   cancellation signal and absolute RFC 3339 deadline;
-7. recheck caller controls in the execution rejection path before mapping an adapter
-   error, and immediately after a resolved execution before validating its result;
+   claim, recheck controls again, verify that any cache-enabled adapter is the exact,
+   pristine base instance, then call its captured provider-owned `execute()`
+   implementation exactly once with the shared cancellation signal and absolute RFC
+   3339 deadline;
+7. recheck caller controls in the execution rejection path and independently verify
+   the adapter's normalised error through the captured provider implementation. Only
+   an owner-bound, module-private outage proof created in that exact execution for a
+   network failure or HTTP 500 to 599 response may continue to the explicitly
+   injected cache. The proof is consumed once before validation and cannot be
+   replayed. The already verified policy decision, operation and resource must equal
+   the cache approval. Reject pre-retrieval, pre-approval or stale cache content;
+   substituted adapters, 3xx and 4xx responses, local timeouts, rate limits, unsafe
+   addresses, malformed responses, opaque or externally constructed failures, and
+   suspension never fall back;
 8. independently detach and check the returned provider, adapter, dataset, edition,
    version URI, native dimension order, one 15-digit-or-smaller integer string,
    `unit: null`, empty ONS Data Marking, OGL rights, provenance and 256 KiB
@@ -111,6 +126,16 @@ rights, attribution and byte/attempt limits. Durable storage remains optional on
 for the unmounted legacy application seam. A transport-mountable reconciled instance
 requires the exact ledger and index, and every successful response includes verified
 `evidence_storage`.
+
+A cache success adds a closed `data.cache` object containing the cache identity,
+original source URI and result hash, `retrieved_at`, `stale_after` and the exact
+`checked_at` time. The same check time is the receipt issue time. A fixed warning
+states that the request failed with an internally classified network failure or HTTP
+500 to 599 response and directs the caller to those freshness fields. The receipt
+uses `read-approved-provider-cache`, rather than claiming a live
+provider execution, and its result digest binds all cache metadata and the warning.
+The provider path retains the unchanged empty warning array and
+`execute-fixed-provider-query` transformation.
 
 Ordinary failures retain the byte-identical `gis-ai-go.data-query-problem.v1` and
 exactly one of ten codes:
@@ -177,7 +202,10 @@ The promoted schemas and examples are:
   [`data-query-request.example.json`](../../providers/fixtures/data-query-request.example.json);
 - [`data-query-result.schema.json`](../../schemas/data-query-result.schema.json) and
   [`data-query-result.example.json`](../../providers/fixtures/data-query-result.example.json);
-  and
+- [`approved-provider-cache.schema.json`](../../schemas/approved-provider-cache.schema.json)
+  and the exact
+  [`data-query-approved-cache.v1.json`](../../providers/ons/data-query-approved-cache.v1.json)
+  record; and
 - [`data-query-problem.schema.json`](../../schemas/data-query-problem.schema.json)
   and
   [`data-query-problem.example.json`](../../providers/fixtures/data-query-problem.example.json),
@@ -201,12 +229,14 @@ a stored provider response, fresh live observation or activation claim.
 This application still cannot be called through a shipped product. Local direct API
 and modern MCP HTTP/STDIO parity, receipt-only restart recovery and the suspended
 registry profile are implemented, but every production/default registration and
-activation gate remains empty or false. Approved fallback, live independent-host
-evidence, accessibility, release assurance, deployment security and rollback still
-require separate review before activation. No live ONS call is used or required for
-this inactive reconciliation assurance.
+activation gate remains empty or false. The approved-cache fallback is implemented
+and tested locally, but live independent-host evidence, accessibility, release
+assurance, deployment security and rollback still require separate review before
+activation. No live ONS call is used or required for this inactive fallback or
+reconciliation assurance.
 
 The guarantee is deliberately narrow: one caller key cannot repeat provider work
 when all contenders share one governed index, and the linked ledger has one writer.
-There is no result cache, result replay, unrelated-key multi-writer coordination or
-cluster-wide exactly-once claim.
+There is no general result cache, result replay, unrelated-key multi-writer
+coordination or cluster-wide exactly-once claim. The only fallback is the exact
+checked-in public ONS record, and stale use is forbidden.

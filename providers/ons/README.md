@@ -29,6 +29,26 @@ The deterministic adapter test separately retains the public aggregate scalar
 `10471` needed to reproduce the result digest; the value is not present in the
 live-probe record or its standard output.
 
+[`data-query-approved-cache.v1.json`](data-query-approved-cache.v1.json) is the one
+content-addressed T04 fallback record. It reconstructs only the already retained
+public scalar whose exact provider-result digest passed that probe. The record binds
+the fixed query and resource, source and rights hashes, one expected and ingested
+shard, one expected and ingested observation, retrieval and stale-after times, the
+compiled public policy rule and a content-addressed rebuild identity. Stale use is
+forbidden. The runtime can read this record only through explicit object injection
+after an invocation-active adapter returns an internally classified network failure or
+HTTP 500 to 599 response; there is no default loader, environment switch or
+general-purpose cache, and the cache read itself makes no provider call. A 3xx or
+4xx response, local timeout, unsafe address, malformed response, opaque error or
+externally constructed fault cannot use it.
+Cache-eligible network provenance is available only from the module-owned fixed HTTPS
+transport. It privately classifies recognised socket, DNS and TLS failures as
+`network`; proxies, accessors and unknown resolver failures are `unclassified`, while
+caller-constructed transport errors can describe injected failures but cannot
+authorise cache use. The gateway accepts only an exact, pristine module-created ONS
+adapter and consumes the exact outage proof once in the same application invocation
+that caught it. Replayed or substituted errors remain receipt-free.
+
 Both lifecycle planes remain suspended by default. The accepted public-read v2
 application now integrates this exact resource through mandatory direct
 `OnsDataApiAdapter` injection after policy evaluation, while reusing the accepted

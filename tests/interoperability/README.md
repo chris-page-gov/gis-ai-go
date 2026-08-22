@@ -32,9 +32,10 @@ cases and remain unscored. `HOST-015` alone is locally passing at the
 a success after verified persistence, reopens fresh instances, returns a receipt-free
 completed retry and recovers the receipt through `evidence.inspect` v2 without result
 replay. This is not live host or production-activation evidence. `HOST-016` is only a
-deferred entry: it must
-not become runnable until GIS AI GO has a governed cache with coverage and rebuild
-evidence. The closed contract is
+deferred entry. The implemented-inactive T04 fallback is one exact content-addressed
+ONS observation cache, not evidence of multi-shard coverage. `HOST-016` must not
+become runnable until GIS AI GO has a governed coverage cache with source, shard,
+checksum, retrieval, licence, expiry and rebuild evidence. The closed contract is
 [`qual-206-evaluation-expansion.schema.json`](../../schemas/qual-206-evaluation-expansion.schema.json).
 
 The combined design suite therefore contains 17 unique runnable-case identifiers:

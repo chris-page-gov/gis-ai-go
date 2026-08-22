@@ -32,6 +32,8 @@ blocked, and no public MCP service or API is deployed.
 - [ADAPT-203 provider contract and inactive ONS adapter](ADAPT-203_PROVIDER_PREFLIGHT.md)
 - [TOOLS-205 non-activating tool registry candidate](TOOLS-205_TOOL_REGISTRY.md)
 - [QUAL-206 host interoperability and secure-tunnel runbook](QUAL-206_INTEROPERABILITY.md)
+- [QUAL-206 Stage 2 release threat record](../threat-model/QUAL-206_STAGE_2_RELEASE.md)
+- [QUAL-206 gateway image vulnerability disposition](QUAL-206_IMAGE_VULNERABILITY_DISPOSITION.md)
 - [TOOLS-205 inactive public-read v2 contracts](TOOLS-205_PUBLIC_READ_V2_CONTRACTS.md)
 - [TOOLS-205 inactive selection resolver](TOOLS-205_SELECTION_RESOLVE.md)
 - [TOOLS-205 inactive data query application](TOOLS-205_DATA_QUERY_APPLICATION.md)

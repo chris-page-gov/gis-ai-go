@@ -666,11 +666,12 @@ use the digest-only proxy described above, with frame sizes, hashes, timings and
 bounded outcomes rather than raw keys, arguments or responses.
 
 `HOST-016` is deliberately not a runnable case. Its source-bound cache incident
-shows why an ingested status cannot prove shard coverage, but GIS AI GO does not
-yet have a governed cache. Add it only after a cache records source version,
-expected and ingested shard counts, checksums, retrieval time, licence, expiry and
-rebuild identity. Until then, a runnable cache claim would misrepresent the product
-boundary.
+shows why an ingested status cannot prove shard coverage. The implemented-inactive
+T04 fallback is one exact content-addressed ONS observation cache; it does not prove
+multi-shard coverage. Make `HOST-016` runnable only after a governed coverage cache
+records source version, expected and ingested shard counts, checksums, retrieval
+time, licence, expiry and rebuild identity. Until then, a runnable coverage claim
+would misrepresent the product boundary.
 
 The expansion extends the retained coverage without changing earlier case objects:
 `HOST-015` adds the lost-response evidence boundary related to `HOST-002`,

@@ -121,10 +121,17 @@ test("keeps target lifecycle metadata separate from an empty current callable se
   });
   assert.deepEqual(data.crs, { state: "not-applicable", requirements: [] });
   assert.deepEqual(data.fallback, {
-    state: "not-implemented",
+    state: "implemented",
     behaviour:
-      "Fail closed; no result cache, alternate provider or result fallback is permitted.",
+      "Use the exact approved cache only after an internally classified network failure or " +
+      "HTTP 500 to 599 response; reject 3xx/4xx, local-timeout, unsafe-address, " +
+      "malformed-response, opaque or unbranded failures; expose retrieval and " +
+      "stale-after times.",
   });
+  assert.equal(
+    data.support.providerDependencies.includes("explicitly injected approved ONS cache"),
+    true,
+  );
   assert.equal(data.support.providerDependencies.includes("PostGIS"), false);
   assert.equal(data.support.providerDependencies.includes("object storage"), false);
   assert.deepEqual(data.controlledErrors, [

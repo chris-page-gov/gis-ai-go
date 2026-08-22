@@ -87,6 +87,7 @@
               "execute-fixed-provider-query",
               "normalise-public-read-parameters",
               "project-public-read-result-core",
+              "read-approved-provider-cache",
               "resolve-fixed-selection-profile"
             ]
           },
@@ -160,11 +161,20 @@
           }
         },
         "policy_decision": { "properties": { "operation": { "const": "data.query" } } },
-        "transformations": { "const": [
-          { "name": "normalise-public-read-parameters", "version": "v1" },
-          { "name": "execute-fixed-provider-query", "version": "v1" },
-          { "name": "project-public-read-result-core", "version": "v1" }
-        ] },
+        "transformations": {
+          "oneOf": [
+            { "const": [
+              { "name": "normalise-public-read-parameters", "version": "v1" },
+              { "name": "execute-fixed-provider-query", "version": "v1" },
+              { "name": "project-public-read-result-core", "version": "v1" }
+            ] },
+            { "const": [
+              { "name": "normalise-public-read-parameters", "version": "v1" },
+              { "name": "read-approved-provider-cache", "version": "v1" },
+              { "name": "project-public-read-result-core", "version": "v1" }
+            ] }
+          ]
+        },
         "result": {
           "properties": { "domain": { "const": "gis-ai-go.data-query-result-core.v1" } }
         }

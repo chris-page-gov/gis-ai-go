@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
+import { Resolver } from "node:dns/promises";
 import { mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -15,10 +17,14 @@ import {
   verifyPublicReadReceipt,
 } from "@gis-ai-go/evidence";
 import {
+  ApprovedOnsDataQueryCache,
+  FixedHttpsTransportError,
   ONS_ADAPTER_REQUEST,
   ONS_EGRESS_POLICY,
   OnsDataApiAdapter,
   ProviderAdapterFault,
+  createApprovedOnsDataQueryCache,
+  executePristineOnsDataApiAdapter,
   type AdapterLifecycle,
   type FixedHttpsResponse,
   type FixedHttpsTransport,
@@ -29,6 +35,7 @@ import {
 import { PUBLIC_READ_POLICY } from "@gis-ai-go/policy-client";
 
 import {
+  APPROVED_CACHE_WARNING,
   DataQueryApplicationError,
   PUBLIC_ONS_DATA_QUERY_PARAMETERS,
   createDataQueryApplication,
@@ -122,10 +129,10 @@ function mutable<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
 }
 
-function response(payload: unknown = VALID_PAYLOAD): FixedHttpsResponse {
+function response(payload: unknown = VALID_PAYLOAD, status = 200): FixedHttpsResponse {
   const body = Buffer.from(JSON.stringify(payload), "utf8");
   return {
-    status: 200,
+    status,
     headers: Object.freeze({ "content-type": "application/json" }),
     body,
     telemetry: Object.freeze({
@@ -175,6 +182,149 @@ function application(
     now: () => new Date("2026-08-21T01:00:00.000Z"),
     ...options,
   });
+}
+
+function approvedCache() {
+  const record = JSON.parse(
+    readFileSync(
+      new URL(
+        "../../../../providers/ons/data-query-approved-cache.v1.json",
+        import.meta.url,
+      ),
+      "utf8",
+    ),
+  );
+  return createApprovedOnsDataQueryCache(record);
+}
+
+function malformedFixedHttpsGatewayProbe(): unknown {
+  const gatewayModuleUrl = new URL("../src/data-query-application.js", import.meta.url).href;
+  const providerModuleUrl = new URL(
+    "../../../../packages/provider-adapter-sdk/dist/src/index.js",
+    import.meta.url,
+  ).href;
+  const cacheUrl = new URL(
+    "../../../../providers/ons/data-query-approved-cache.v1.json",
+    import.meta.url,
+  ).href;
+  const probe = spawnSync(
+    process.execPath,
+    [
+      "--input-type=module",
+      "-e",
+      `
+        import https from "node:https";
+        import http from "node:http";
+        import dns from "node:dns/promises";
+        import { readFileSync } from "node:fs";
+        import { syncBuiltinESMExports } from "node:module";
+        import { Duplex } from "node:stream";
+
+        class ResponseSocket extends Duplex {
+          sent = false;
+          authorized = true;
+          connecting = false;
+          constructor(response) {
+            super();
+            this.response = response;
+            Object.defineProperty(this, "remoteAddress", { value: "93.184.216.34" });
+          }
+          _read() {
+            if (this.sent) return;
+            this.sent = true;
+            queueMicrotask(() => {
+              this.push(Buffer.from(this.response, "latin1"));
+              this.push(null);
+            });
+          }
+          _write(_chunk, _encoding, callback) { callback(); }
+          setTimeout() { return this; }
+          setNoDelay() { return this; }
+          setKeepAlive() { return this; }
+          getProtocol() { return "TLSv1.3"; }
+          getCipher() { return { name: "TLS_AES_256_GCM_SHA384" }; }
+        }
+
+        dns.Resolver.prototype.resolve4 = async function () { return ["93.184.216.34"]; };
+        dns.Resolver.prototype.resolve6 = async function () { throw new Error("no IPv6"); };
+        let wireResponse = "";
+        let requestCount = 0;
+        https.request = function (options, callback) {
+          requestCount += 1;
+          const socket = new ResponseSocket(wireResponse);
+          const agent = new http.Agent();
+          agent.createConnection = () => socket;
+          const request = http.request({ ...options, protocol: "http:", agent }, callback);
+          request.once("socket", () => queueMicrotask(() => socket.emit("secureConnect")));
+          return request;
+        };
+        syncBuiltinESMExports();
+
+        const gateway = await import(${JSON.stringify(gatewayModuleUrl)});
+        const sdk = await import(${JSON.stringify(providerModuleUrl)});
+        const cacheRecord = JSON.parse(readFileSync(new URL(${JSON.stringify(cacheUrl)}), "utf8"));
+        const results = {};
+        let index = 0;
+        for (const [name, response] of [
+          ["short-content-length", "HTTP/1.1 200 OK\\r\\nContent-Length: 10\\r\\n\\r\\nabc"],
+          ["short-chunked", "HTTP/1.1 200 OK\\r\\nTransfer-Encoding: chunked\\r\\n\\r\\n3\\r\\nabc\\r\\n"],
+          ["short-redirect", "HTTP/1.1 302 Found\\r\\nLocation: https://evil.invalid/\\r\\nContent-Length: 10\\r\\n\\r\\nabc"],
+        ]) {
+          index += 1;
+          wireResponse = response;
+          const before = requestCount;
+          const adapter = new sdk.OnsDataApiAdapter({
+            lifecycle: {
+              discovery: "suspended",
+              invocation: "active",
+              reason: "Offline incomplete-response gateway probe.",
+            },
+            transport: sdk.fixedHttpsGet,
+            sleep: async () => undefined,
+          });
+          const application = gateway.createDataQueryApplication({
+            adapter,
+            approvedCache: sdk.createApprovedOnsDataQueryCache(cacheRecord),
+            software: {
+              name: "gis-ai-go-mcp-gateway",
+              version: "0.1.0",
+              revision: "e1fc1cbe69ea72c9aa310607d80f392ef56b0d58",
+            },
+            now: () => new Date("2026-08-22T12:00:00.000Z"),
+          });
+          try {
+            const result = await application.query(
+              gateway.PUBLIC_ONS_DATA_QUERY_PARAMETERS,
+              {
+                requestId: "request-incomplete-response-" + index,
+                traceId: String(index).repeat(32),
+                instance: "/data/query",
+              },
+            );
+            results[name] = {
+              outcome: "result",
+              cache: result.data.cache?.status ?? null,
+              receipt: "evidence_receipt" in result,
+              requests: requestCount - before,
+            };
+          } catch (error) {
+            const serialised = JSON.stringify(error?.problem ?? null);
+            results[name] = {
+              outcome: "problem",
+              code: error?.problem?.code ?? null,
+              receipt: serialised.includes("receipt"),
+              reflectedLocation: serialised.includes("evil.invalid"),
+              requests: requestCount - before,
+            };
+          }
+        }
+        process.stdout.write(JSON.stringify(results));
+      `,
+    ],
+    { encoding: "utf8", timeout: 5_000 },
+  );
+  assert.equal(probe.status, 0, probe.stderr);
+  return JSON.parse(probe.stdout) as unknown;
 }
 
 async function expectProblem(
@@ -269,6 +419,67 @@ test("requires an explicitly injected exact ONS adapter and closed options", () 
       } as unknown as DataQueryApplicationOptions),
     /unexpected shape/u,
   );
+  let getterCalls = 0;
+  const exactPrototypeForgery = Object.create(
+    ApprovedOnsDataQueryCache.prototype,
+  ) as object;
+  Object.defineProperty(exactPrototypeForgery, "read", {
+    get: () => {
+      getterCalls += 1;
+      return () => null;
+    },
+  });
+  Object.freeze(exactPrototypeForgery);
+  const ownMethodForgery = Object.create(
+    ApprovedOnsDataQueryCache.prototype,
+  ) as object;
+  Object.defineProperty(ownMethodForgery, "read", {
+    configurable: true,
+    value: () => null,
+  });
+  Object.freeze(ownMethodForgery);
+  let proxyTraps = 0;
+  const proxiedCache = new Proxy(approvedCache(), {
+    getPrototypeOf: () => {
+      proxyTraps += 1;
+      throw new Error("cache proxy must not be traversed");
+    },
+    isExtensible: () => {
+      proxyTraps += 1;
+      throw new Error("cache proxy must not be traversed");
+    },
+  });
+  class SubstitutedCache extends ApprovedOnsDataQueryCache {}
+  for (const substitutedCache of [
+    Object.freeze(Object.create(approvedCache())),
+    Object.freeze(Object.create(ApprovedOnsDataQueryCache.prototype)),
+    exactPrototypeForgery,
+    ownMethodForgery,
+    proxiedCache,
+    new SubstitutedCache(
+      JSON.parse(
+        readFileSync(
+          new URL(
+            "../../../../providers/ons/data-query-approved-cache.v1.json",
+            import.meta.url,
+          ),
+          "utf8",
+        ),
+      ),
+    ),
+  ] as unknown[]) {
+    assert.throws(
+      () =>
+        createDataQueryApplication({
+          adapter: adapter(),
+          approvedCache: substitutedCache as ApprovedOnsDataQueryCache,
+          software: SOFTWARE,
+        }),
+      /approved cache is invalid/u,
+    );
+  }
+  assert.equal(getterCalls, 0);
+  assert.equal(proxyTraps, 0);
 });
 
 test("executes one fixed query with discovery suspended and verified evidence", async () => {
@@ -316,6 +527,366 @@ test("executes one fixed query with discovery suspended and verified evidence", 
   );
   assert.equal(Object.isFrozen(result), true);
 });
+
+test("uses exact approved cache after a classified HTTP 500 to 599 response", async () => {
+  const calls = { count: 0, urls: [] as string[] };
+  const injected = new OnsDataApiAdapter({
+    lifecycle: ACTIVE_INVOCATION,
+    transport: async ({ url }) => {
+      calls.count += 1;
+      calls.urls.push(url);
+      return response(null, 503);
+    },
+    sleep: async () => undefined,
+    now: () => Date.parse("2030-01-01T00:00:00Z"),
+  });
+  const result = await application(injected, {
+    approvedCache: approvedCache(),
+    now: () => new Date("2026-08-22T12:00:00.000Z"),
+  }).query(PUBLIC_ONS_DATA_QUERY_PARAMETERS, CONTEXT);
+
+  assert.equal(calls.count, 2);
+  assert.deepEqual(result.data, {
+    status: "succeeded",
+    observations: [{ value: "10471", unit: null }],
+    cache: {
+      status: "approved-current",
+      cache_id:
+        "gis-ai-go:approved-provider-cache:sha256:06dd19673c2f9d605dbad2c64a21903f6448fb4965838098bd16df40f6db4961",
+      source_uri:
+        "https://api.beta.ons.gov.uk/v1/datasets/weekly-deaths-region/editions/time-series/versions/121/observations?time=2026&geography=E92000001&week=week-24&causeofdeath=all-causes",
+      provider_result_sha256:
+        "309a7c0a374f93f20d4b4cc8aaa4530c4a828ea27e4e26e266b367e59b7da3bd",
+      retrieved_at: "2026-08-20T20:21:08.947Z",
+      stale_after: "2027-02-20T20:21:08.947Z",
+      checked_at: "2026-08-22T12:00:00.000Z",
+    },
+  });
+  assert.deepEqual(result.warnings, [APPROVED_CACHE_WARNING]);
+  assert.deepEqual(result.evidence_receipt.transformations, [
+    { name: "normalise-public-read-parameters", version: "v1" },
+    { name: "read-approved-provider-cache", version: "v1" },
+    { name: "project-public-read-result-core", version: "v1" },
+  ]);
+  assert.equal(result.evidence_receipt.created_at, result.data.cache?.checked_at);
+  const core = {
+    schema: result.schema,
+    operation: result.operation,
+    request_id: result.request_id,
+    trace_id: result.trace_id,
+    evidence_binding: result.evidence_binding,
+    data: result.data,
+    warnings: result.warnings,
+  };
+  assert.equal(
+    verifyPublicReadReceipt(result.evidence_receipt, {
+      normalisedParameters: PUBLIC_ONS_DATA_QUERY_PARAMETERS,
+      resultCore: core,
+      publicPolicy: PUBLIC_READ_POLICY,
+      expectedAuthorityContext: result.evidence_receipt.authority_context,
+      expectedPolicyDecision: result.evidence_receipt.policy_decision,
+      expectedResource: PUBLIC_READ_ONS_RESOURCE,
+      expectedSoftware: SOFTWARE,
+    }).valid,
+    true,
+  );
+
+  const wrongPipeline = mutable(result.evidence_receipt) as unknown as {
+    transformations: Array<{ name: string; version: string }>;
+  };
+  wrongPipeline.transformations[1] = {
+    name: "execute-fixed-provider-query",
+    version: "v1",
+  };
+  assert.equal(
+    verifyPublicReadReceipt(wrongPipeline, {
+      normalisedParameters: PUBLIC_ONS_DATA_QUERY_PARAMETERS,
+      resultCore: core,
+      publicPolicy: PUBLIC_READ_POLICY,
+    }).valid,
+    false,
+  );
+});
+
+test("uses exact approved cache after an internally classified network failure", async (t) => {
+  const admissionNow = Date.now() + 60_001;
+  let resolve4Calls = 0;
+  let resolve6Calls = 0;
+  t.mock.method(Date, "now", () => admissionNow);
+  t.mock.method(Resolver.prototype, "resolve4", async () => {
+    resolve4Calls += 1;
+    throw Object.assign(new Error("offline DNS failure"), { code: "ENOTFOUND" });
+  });
+  t.mock.method(Resolver.prototype, "resolve6", async () => {
+    resolve6Calls += 1;
+    throw Object.assign(new Error("offline DNS failure"), { code: "EAI_AGAIN" });
+  });
+  const injected = new OnsDataApiAdapter({
+    lifecycle: ACTIVE_INVOCATION,
+    sleep: async () => undefined,
+    now: () => Date.parse("2030-01-01T00:00:00Z"),
+  });
+  const result = await application(injected, {
+    approvedCache: approvedCache(),
+    now: () => new Date("2026-08-22T12:00:00.000Z"),
+  }).query(PUBLIC_ONS_DATA_QUERY_PARAMETERS, CONTEXT);
+  assert.equal(resolve4Calls, 2);
+  assert.equal(resolve6Calls, 2);
+  assert.equal(result.data.cache?.status, "approved-current");
+  assert.deepEqual(result.warnings, [APPROVED_CACHE_WARNING]);
+  assert.deepEqual(result.evidence_receipt.transformations, [
+    { name: "normalise-public-read-parameters", version: "v1" },
+    { name: "read-approved-provider-cache", version: "v1" },
+    { name: "project-public-read-result-core", version: "v1" },
+  ]);
+  const core = {
+    schema: result.schema,
+    operation: result.operation,
+    request_id: result.request_id,
+    trace_id: result.trace_id,
+    evidence_binding: result.evidence_binding,
+    data: result.data,
+    warnings: result.warnings,
+  };
+  assert.equal(
+    verifyPublicReadReceipt(result.evidence_receipt, {
+      normalisedParameters: PUBLIC_ONS_DATA_QUERY_PARAMETERS,
+      resultCore: core,
+      publicPolicy: PUBLIC_READ_POLICY,
+      expectedAuthorityContext: result.evidence_receipt.authority_context,
+      expectedPolicyDecision: result.evidence_receipt.policy_decision,
+      expectedResource: PUBLIC_READ_ONS_RESOURCE,
+      expectedSoftware: SOFTWARE,
+    }).valid,
+    true,
+  );
+});
+
+test("does not use cache for stale, suspended or rate-limited provider states", async () => {
+  const stale = new OnsDataApiAdapter({
+    lifecycle: ACTIVE_INVOCATION,
+    transport: async () => response(null, 599),
+    sleep: async () => undefined,
+    now: () => Date.parse("2030-01-01T00:00:00Z"),
+  });
+  await expectProblem(
+    () =>
+      application(stale, {
+        approvedCache: approvedCache(),
+        now: () => new Date("2027-02-20T20:21:08.947Z"),
+      }).query(PUBLIC_ONS_DATA_QUERY_PARAMETERS, CONTEXT),
+    "provider_unavailable",
+  );
+
+  const rateLimited = new OnsDataApiAdapter({
+    lifecycle: ACTIVE_INVOCATION,
+    now: () => {
+      throw new ProviderAdapterFault("PROVIDER_RATE_LIMITED", { retryable: true });
+    },
+  });
+  await expectProblem(
+    () =>
+      application(rateLimited, {
+        approvedCache: approvedCache(),
+        now: () => new Date("2026-08-22T12:00:00.000Z"),
+      }).query(PUBLIC_ONS_DATA_QUERY_PARAMETERS, CONTEXT),
+    "provider_rate_limited",
+  );
+
+  const suspended = adapter(undefined, {
+    discovery: "suspended",
+    invocation: "suspended",
+    reason: "The cache cannot authorise a suspended provider.",
+  });
+  await expectProblem(
+    () =>
+      application(suspended, {
+        approvedCache: approvedCache(),
+        now: () => new Date("2026-08-22T12:00:00.000Z"),
+      }).query(PUBLIC_ONS_DATA_QUERY_PARAMETERS, CONTEXT),
+    "provider_suspended",
+  );
+});
+
+test(
+  "keeps 3xx, 4xx, timeout, unsafe, malformed, opaque and unbranded failures receipt-free",
+  async () => {
+  for (const [status, expected] of [
+    [302, "provider_unavailable"],
+    [401, "provider_unavailable"],
+    [403, "provider_unavailable"],
+    [429, "provider_rate_limited"],
+    [451, "provider_unavailable"],
+    [499, "provider_unavailable"],
+  ] as const) {
+    const injected = new OnsDataApiAdapter({
+      lifecycle: ACTIVE_INVOCATION,
+      transport: async () => response(null, status),
+      sleep: async () => undefined,
+      now: () => Date.parse("2030-01-01T00:00:00Z"),
+    });
+    await expectProblem(
+      () => application(injected, {
+        approvedCache: approvedCache(),
+        now: () => new Date("2026-08-22T12:00:00.000Z"),
+      }).query(PUBLIC_ONS_DATA_QUERY_PARAMETERS, CONTEXT),
+      expected,
+    );
+  }
+
+  for (const [kind, expected] of [
+    ["network", "provider_unavailable"],
+    ["unsafe-address", "provider_unavailable"],
+    ["connect-timeout", "provider_timeout"],
+    ["response-timeout", "provider_timeout"],
+    ["response-too-large", "provider_contract_failed"],
+    ["invalid-response-framing", "provider_contract_failed"],
+    ["invalid-response-headers", "provider_contract_failed"],
+  ] as const) {
+    const injected = new OnsDataApiAdapter({
+      lifecycle: ACTIVE_INVOCATION,
+      transport: async () => {
+        throw new FixedHttpsTransportError(kind);
+      },
+      now: () => Date.parse("2030-01-01T00:00:00Z"),
+    });
+    await expectProblem(
+      () => application(injected, {
+        approvedCache: approvedCache(),
+        now: () => new Date("2026-08-22T12:00:00.000Z"),
+      }).query(PUBLIC_ONS_DATA_QUERY_PARAMETERS, CONTEXT),
+      expected,
+    );
+  }
+
+  for (const thrown of [
+    new Error("opaque provider failure"),
+    new ProviderAdapterFault("PROVIDER_OUTAGE", {
+      providerStatus: 503,
+      retryable: true,
+    }),
+  ]) {
+    const injected = new OnsDataApiAdapter({
+      lifecycle: ACTIVE_INVOCATION,
+      now: () => {
+        throw thrown;
+      },
+    });
+    await expectProblem(
+      () => application(injected, {
+        approvedCache: approvedCache(),
+        now: () => new Date("2026-08-22T12:00:00.000Z"),
+      }).query(PUBLIC_ONS_DATA_QUERY_PARAMETERS, CONTEXT),
+      "provider_unavailable",
+    );
+  }
+
+  let capturedOutage: unknown;
+  let replayCapturedOutage = false;
+  const replaySource = new OnsDataApiAdapter({
+    lifecycle: ACTIVE_INVOCATION,
+    transport: async () => response(null, 599),
+    sleep: async () => undefined,
+    now: () => {
+      if (replayCapturedOutage) throw capturedOutage;
+      return Date.parse("2030-01-01T00:00:00Z");
+    },
+  });
+  const priorExecution = executePristineOnsDataApiAdapter(
+    replaySource,
+    ONS_ADAPTER_REQUEST,
+    {},
+  );
+  try {
+    await priorExecution.result;
+    assert.fail("expected a classified provider outage");
+  } catch (error) {
+    capturedOutage = error;
+  }
+  replayCapturedOutage = true;
+  await expectProblem(
+    () => application(replaySource, {
+      approvedCache: approvedCache(),
+      now: () => new Date("2026-08-22T12:00:00.000Z"),
+    }).query(PUBLIC_ONS_DATA_QUERY_PARAMETERS, {
+      ...CONTEXT,
+      requestId: "request-data-query-prior-execution-outage-1",
+    }),
+    "provider_unavailable",
+  );
+  assert.equal(
+    priorExecution.approvedCacheOutage(
+      capturedOutage,
+      replaySource.normalise_error(capturedOutage),
+    ),
+    null,
+  );
+
+  let replayCalls = 0;
+  const preSubstituted = adapter();
+  Object.defineProperty(preSubstituted, "execute", {
+    configurable: true,
+    value: async () => {
+      replayCalls += 1;
+      throw capturedOutage;
+    },
+  });
+  assert.throws(
+    () => application(preSubstituted, {
+      approvedCache: approvedCache(),
+      now: () => new Date("2026-08-22T12:00:00.000Z"),
+    }),
+    /requires an unmodified ONS adapter/u,
+  );
+
+  const postSubstituted = adapter();
+  const replayApplication = application(postSubstituted, {
+    approvedCache: approvedCache(),
+    now: () => new Date("2026-08-22T12:00:00.000Z"),
+  });
+  Object.defineProperty(postSubstituted, "execute", {
+    configurable: true,
+    value: async () => {
+      replayCalls += 1;
+      throw capturedOutage;
+    },
+  });
+  await expectProblem(
+    () => replayApplication.query(PUBLIC_ONS_DATA_QUERY_PARAMETERS, {
+      ...CONTEXT,
+      requestId: "request-data-query-replayed-outage-1",
+    }),
+    "provider_contract_failed",
+  );
+
+  class SubstitutedAdapter extends OnsDataApiAdapter {
+    public override async execute(): Promise<ProviderAdapterResult> {
+      replayCalls += 1;
+      throw capturedOutage;
+    }
+  }
+  assert.throws(
+    () => application(new SubstitutedAdapter({ lifecycle: ACTIVE_INVOCATION }), {
+      approvedCache: approvedCache(),
+      now: () => new Date("2026-08-22T12:00:00.000Z"),
+    }),
+    /subclassing is not supported/u,
+  );
+  assert.equal(replayCalls, 0);
+  const malformedProblem = {
+    outcome: "problem",
+    code: "provider_contract_failed",
+    receipt: false,
+    reflectedLocation: false,
+    requests: 1,
+  };
+  assert.deepEqual(malformedFixedHttpsGatewayProbe(), {
+    "short-content-length": malformedProblem,
+    "short-chunked": malformedProblem,
+    "short-redirect": malformedProblem,
+  });
+  },
+);
 
 test("reproduces the promoted successful application fixture", async () => {
   const fixture = JSON.parse(

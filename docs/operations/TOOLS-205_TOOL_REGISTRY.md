@@ -95,12 +95,15 @@ listener, shipped entrypoint or deployment. The registry never reads environment
 variables. Production activation remains solely in
 `apps/mcp-gateway/src/activation.ts`, whose tool and API arrays remain empty.
 
-T03, T04 and T11 are implemented-inactive and suspended. Their seven current gates
-remain false, including fallback: T04 has no cache, alternate provider or result
-fallback, while T11 has no alternate receipt, result replay or challenge route.
-This candidate does not authorise the mutating `workflow.execute` profile. A later
-activation change must supply its own reviewed provider, fallback, threat,
-interoperability, release and lifecycle evidence.
+T03, T04 and T11 are implemented-inactive and suspended. Their seven activation
+gates remain false. T04's implementation metadata now records the one explicitly
+injected, current-only approved ONS cache fallback, but
+`current.activationGates.fallback` remains false and no shipped entrypoint loads it.
+T11 has no alternate receipt, result
+replay or challenge route. This candidate does not authorise the mutating
+`workflow.execute` profile. A later activation change must supply its own reviewed
+provider and fallback wiring, threat, interoperability, release and lifecycle
+evidence.
 
 ## Verification
 

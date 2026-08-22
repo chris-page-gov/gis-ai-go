@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:approved-provider-cache:v1",
+  "title": "GIS AI GO approved ONS provider cache",
+  "description": "The one inactive, content-addressed ONS v121 cache that may be explicitly injected only after an internally classified network failure or HTTP 500 to 599 response. 3xx and 4xx responses, local timeouts, unsafe addresses, malformed responses and opaque or externally constructed failures are forbidden. It is not a general result cache or activation configuration.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "cache_id",
+    "operation",
+    "resource_id",
+    "query",
+    "observation",
+    "rights_sha256",
+    "source",
+    "coverage",
+    "freshness",
+    "approval",
+    "rebuild"
+  ],
+  "properties": {
+    "schema": { "const": "gis-ai-go.approved-provider-cache.v1" },
+    "cache_id": {
+      "const": "gis-ai-go:approved-provider-cache:sha256:06dd19673c2f9d605dbad2c64a21903f6448fb4965838098bd16df40f6db4961"
+    },
+    "operation": { "const": "data.query" },
+    "resource_id": {
+      "const": "gis-ai-go:public-read-resource:sha256:c7130712a40d75e71bcf0259792404389bea2e549adf6733f34d491f83e99f68"
+    },
+    "query": {
+      "const": {
+        "dataset": {
+          "id": "weekly-deaths-region",
+          "edition": "time-series",
+          "version": "121"
+        },
+        "selections": [
+          { "dimension": "time", "option": "2026" },
+          { "dimension": "geography", "option": "E92000001" },
+          { "dimension": "week", "option": "week-24" },
+          { "dimension": "causeofdeath", "option": "all-causes" }
+        ]
+      }
+    },
+    "observation": {
+      "const": {
+        "value": "10471",
+        "unit": null,
+        "metadata": [{ "name": "Data Marking", "value": "" }]
+      }
+    },
+    "rights_sha256": {
+      "const": "305b49e6d1f55de0109de12b2cbf0b7ec5da1d573e111f5884736c832b2e4b17"
+    },
+    "source": {
+      "const": {
+        "source_uri": "https://api.beta.ons.gov.uk/v1/datasets/weekly-deaths-region/editions/time-series/versions/121/observations?time=2026&geography=E92000001&week=week-24&causeofdeath=all-causes",
+        "retrieved_at": "2026-08-20T20:21:08.947Z",
+        "provider_result": {
+          "domain": "gis-ai-go.provider-adapter-result.v1",
+          "sha256": "309a7c0a374f93f20d4b4cc8aaa4530c4a828ea27e4e26e266b367e59b7da3bd"
+        },
+        "probe": {
+          "path": "providers/ons/data-api-adapter-live-probe.v1.json",
+          "sha256": "51fc8acb0465c368aa7d2925f8be37c28b4f87ab395a306c29f586dd4d0e344b",
+          "git_blob": "80aefe6ec0acd54f0510ab92715db55ad1ab2143"
+        }
+      }
+    },
+    "coverage": {
+      "const": {
+        "expected_shards": 1,
+        "ingested_shards": 1,
+        "expected_observations": 1,
+        "ingested_observations": 1,
+        "complete": true
+      }
+    },
+    "freshness": {
+      "const": {
+        "stale_after": "2027-02-20T20:21:08.947Z",
+        "stale_use": "forbidden"
+      }
+    },
+    "approval": {
+      "const": {
+        "kind": "compiled-repository-policy",
+        "policy_id": "gis-ai-go:public-policy:sha256:b1a37b2ebf6900e2b5d62dfa20bcdaa1232e1c4c9f9630f90ac9d3dde738624a",
+        "rule_id": "public-data-query-ons-v121",
+        "effect": "allow-with-obligations",
+        "operation": "data.query",
+        "resource_id": "gis-ai-go:public-read-resource:sha256:c7130712a40d75e71bcf0259792404389bea2e549adf6733f34d491f83e99f68",
+        "permitted_provider_failures": ["PROVIDER_OUTAGE"],
+        "cache_eligibility": {
+          "code": "PROVIDER_OUTAGE",
+          "transport_failure_kinds": ["network"],
+          "provider_status_minimum": 500,
+          "provider_status_maximum": 599,
+          "local_timeout_use": "forbidden",
+          "non_5xx_use": "forbidden"
+        },
+        "freshness": "current-only",
+        "approved_at": "2026-08-22T00:00:00.000Z"
+      }
+    },
+    "rebuild": {
+      "const": {
+        "rebuild_id": "gis-ai-go:approved-cache-rebuild:sha256:45f3bc66f88e9ab018d6666d63a77c8df1eba731531fc09decd242b85c018f16",
+        "algorithm": "verified-single-observation-cache-projection.v1",
+        "source_probe_sha256": "51fc8acb0465c368aa7d2925f8be37c28b4f87ab395a306c29f586dd4d0e344b",
+        "provider_result_sha256": "309a7c0a374f93f20d4b4cc8aaa4530c4a828ea27e4e26e266b367e59b7da3bd"
+      }
+    }
+  }
+}

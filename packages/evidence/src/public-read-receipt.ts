@@ -243,6 +243,7 @@ export type PublicReadTransformationName =
   | "execute-fixed-provider-query"
   | "normalise-public-read-parameters"
   | "project-public-read-result-core"
+  | "read-approved-provider-cache"
   | "resolve-fixed-selection-profile";
 
 export interface PublicReadTransformation {
@@ -319,6 +320,19 @@ export const PUBLIC_SELECTION_WARNINGS = Object.freeze([
   "This plan is non-executable and no provider was called.",
   "Question text is untrusted data and was not interpreted.",
 ] as const);
+
+export const PUBLIC_DATA_QUERY_APPROVED_CACHE_WARNING =
+  "The ONS request failed with an internally classified network failure or HTTP 500 to 599 response. This result uses the exact approved cache; check its freshness before use.";
+export const PUBLIC_DATA_QUERY_APPROVED_CACHE_ID =
+  "gis-ai-go:approved-provider-cache:sha256:06dd19673c2f9d605dbad2c64a21903f6448fb4965838098bd16df40f6db4961";
+export const PUBLIC_DATA_QUERY_APPROVED_CACHE_PROVIDER_RESULT_SHA256 =
+  "309a7c0a374f93f20d4b4cc8aaa4530c4a828ea27e4e26e266b367e59b7da3bd";
+export const PUBLIC_DATA_QUERY_APPROVED_CACHE_RETRIEVED_AT =
+  "2026-08-20T20:21:08.947Z";
+export const PUBLIC_DATA_QUERY_APPROVED_CACHE_APPROVED_AT =
+  "2026-08-22T00:00:00.000Z";
+export const PUBLIC_DATA_QUERY_APPROVED_CACHE_STALE_AFTER =
+  "2027-02-20T20:21:08.947Z";
 
 export interface PublicSelectionProfileCore {
   readonly schema: "gis-ai-go.public-selection-profile.v1";
@@ -1221,11 +1235,18 @@ function assertSoftware(value: unknown): asserts value is EvidenceSoftwareIdenti
 
 function expectedTransformations(
   operation: PublicReadOperation,
+  dataQuerySource: "provider" | "approved-cache" = "provider",
 ): readonly PublicReadTransformation[] {
   return operation === "data.query"
     ? [
         { name: "normalise-public-read-parameters", version: "v1" },
-        { name: "execute-fixed-provider-query", version: "v1" },
+        {
+          name:
+            dataQuerySource === "provider"
+              ? "execute-fixed-provider-query"
+              : "read-approved-provider-cache",
+          version: "v1",
+        },
         { name: "project-public-read-result-core", version: "v1" },
       ]
     : [
@@ -1235,8 +1256,20 @@ function expectedTransformations(
       ];
 }
 
-function assertTransformations(value: unknown, operation: PublicReadOperation): void {
-  if (!Array.isArray(value) || !sameCanonical(value, expectedTransformations(operation))) {
+function assertTransformations(
+  value: unknown,
+  operation: PublicReadOperation,
+  dataQuerySource?: "provider" | "approved-cache",
+): void {
+  const valid = operation === "data.query" && dataQuerySource === undefined
+    ? ["provider", "approved-cache"].some((source) =>
+        sameCanonical(
+          value,
+          expectedTransformations(operation, source as "provider" | "approved-cache"),
+        ),
+      )
+    : sameCanonical(value, expectedTransformations(operation, dataQuerySource));
+  if (!Array.isArray(value) || !valid) {
     fail("$.transformations", `must use the exact ordered ${operation} transformation pipeline`);
   }
 }
@@ -1402,13 +1435,19 @@ function assertObservation(value: unknown, path: string): void {
   }
 }
 
+interface InspectedResultCore {
+  readonly returnedItemCount: 1;
+  readonly dataQuerySource?: "provider" | "approved-cache";
+  readonly cacheCheckedAt?: string;
+}
+
 function inspectResultCore(
   resultCore: unknown,
   operation: PublicReadOperation,
   requestId: string,
   traceId: string,
   resource: PublicReadResource,
-): 1 {
+): InspectedResultCore {
   const canonical = canonicalJson(resultCore);
   if (new TextEncoder().encode(canonical).length > MAX_RESULT_CORE_BYTES) {
     fail("$.result_core", "exceeds the 262144-byte canonical result bound");
@@ -1431,15 +1470,68 @@ function inspectResultCore(
     fail("$.result_core", "schema, operation, request and trace must match the receipt");
   }
   const data = recordAt(result.data, "$.result_core.data");
+  let dataQuerySource: "provider" | "approved-cache" | undefined;
+  let cacheCheckedAt: string | undefined;
   if (operation === "data.query") {
-    assertExactKeys(data, ["observations", "status"], "$.result_core.data");
+    const hasCache = Object.hasOwn(data, "cache");
+    assertExactKeys(
+      data,
+      hasCache ? ["cache", "observations", "status"] : ["observations", "status"],
+      "$.result_core.data",
+    );
     if (data.status !== "succeeded") {
       fail("$.result_core.data.status", "must identify a successful data query");
     }
     if (!Array.isArray(data.observations) || data.observations.length !== 1) {
       fail("$.result_core.data.observations", "must contain exactly one observation");
     }
-    assertObservation(data.observations[0], "$.result_core.data.observations[0]");
+    const observation = recordAt(
+      data.observations[0],
+      "$.result_core.data.observations[0]",
+    );
+    assertObservation(observation, "$.result_core.data.observations[0]");
+    dataQuerySource = hasCache ? "approved-cache" : "provider";
+    if (hasCache) {
+      const cache = recordAt(data.cache, "$.result_core.data.cache");
+      assertExactKeys(
+        cache,
+        [
+          "cache_id",
+          "checked_at",
+          "provider_result_sha256",
+          "retrieved_at",
+          "source_uri",
+          "stale_after",
+          "status",
+        ],
+        "$.result_core.data.cache",
+      );
+      assertDateTime(cache.retrieved_at, "$.result_core.data.cache.retrieved_at");
+      assertDateTime(cache.stale_after, "$.result_core.data.cache.stale_after");
+      assertDateTime(cache.checked_at, "$.result_core.data.cache.checked_at");
+      if (
+        cache.status !== "approved-current" ||
+        observation.value !== "10471" ||
+        observation.unit !== null ||
+        cache.cache_id !== PUBLIC_DATA_QUERY_APPROVED_CACHE_ID ||
+        cache.source_uri !==
+          "https://api.beta.ons.gov.uk/v1/datasets/weekly-deaths-region/editions/time-series/versions/121/observations?time=2026&geography=E92000001&week=week-24&causeofdeath=all-causes" ||
+        cache.provider_result_sha256 !==
+          PUBLIC_DATA_QUERY_APPROVED_CACHE_PROVIDER_RESULT_SHA256 ||
+        cache.retrieved_at !== PUBLIC_DATA_QUERY_APPROVED_CACHE_RETRIEVED_AT ||
+        cache.stale_after !== PUBLIC_DATA_QUERY_APPROVED_CACHE_STALE_AFTER ||
+        Date.parse(cache.checked_at as string) < Date.parse(cache.retrieved_at as string) ||
+        Date.parse(cache.checked_at as string) <
+          Date.parse(PUBLIC_DATA_QUERY_APPROVED_CACHE_APPROVED_AT) ||
+        Date.parse(cache.checked_at as string) >= Date.parse(cache.stale_after as string)
+      ) {
+        fail(
+          "$.result_core.data.cache",
+          "must identify a current exact approved ONS cache read",
+        );
+      }
+      cacheCheckedAt = cache.checked_at as string;
+    }
   } else {
     assertExactKeys(
       data,
@@ -1506,7 +1598,22 @@ function inspectResultCore(
   ) {
     fail("$.result_core.warnings", "must state the exact non-execution and trust boundary");
   }
-  return 1;
+  if (
+    operation === "data.query" &&
+    !sameCanonical(
+      result.warnings,
+      dataQuerySource === "approved-cache"
+        ? [PUBLIC_DATA_QUERY_APPROVED_CACHE_WARNING]
+        : [],
+    )
+  ) {
+    fail("$.result_core.warnings", "must state the exact data-query source boundary");
+  }
+  return Object.freeze({
+    returnedItemCount: 1,
+    ...(dataQuerySource === undefined ? {} : { dataQuerySource }),
+    ...(cacheCheckedAt === undefined ? {} : { cacheCheckedAt }),
+  });
 }
 
 function assertIdentityLinkage(
@@ -1713,13 +1820,24 @@ export function buildPublicReadReceipt(
     snapshot.requestId,
     snapshot.traceId,
   );
-  const returnedItemCount = inspectResultCore(
+  const inspectedResult = inspectResultCore(
     snapshot.resultCore,
     snapshot.operation,
     snapshot.requestId,
     snapshot.traceId,
     snapshot.resource,
   );
+  assertTransformations(
+    snapshot.transformations,
+    snapshot.operation,
+    inspectedResult.dataQuerySource,
+  );
+  if (
+    inspectedResult.cacheCheckedAt !== undefined &&
+    inspectedResult.cacheCheckedAt !== snapshot.createdAt
+  ) {
+    fail("$.result_core.data.cache.checked_at", "must equal the evidence issue time");
+  }
   assertNormalisedParameters(
     snapshot.normalisedParameters,
     snapshot.operation,
@@ -1747,7 +1865,7 @@ export function buildPublicReadReceipt(
       domain: resultDomain(snapshot.operation),
       sha256: canonicalDigest(resultDomain(snapshot.operation), snapshot.resultCore).sha256,
       media_type: "application/json",
-      returned_item_count: returnedItemCount,
+      returned_item_count: inspectedResult.returnedItemCount,
     },
     verification: {
       status: "passed",
@@ -1843,19 +1961,30 @@ export function verifyPublicReadReceipt(
       candidate.request_id,
       candidate.trace_id,
     );
-    const returnedItemCount = inspectResultCore(
+    const inspectedResult = inspectResultCore(
       snapshot.resultCore,
       candidate.operation.name,
       candidate.request_id,
       candidate.trace_id,
       candidate.resource,
     );
+    assertTransformations(
+      candidate.transformations,
+      candidate.operation.name,
+      inspectedResult.dataQuerySource,
+    );
+    if (
+      inspectedResult.cacheCheckedAt !== undefined &&
+      inspectedResult.cacheCheckedAt !== candidate.created_at
+    ) {
+      fail("$.result_core.data.cache.checked_at", "must equal the evidence issue time");
+    }
     assertNormalisedParameters(
       snapshot.normalisedParameters,
       candidate.operation.name,
       candidate.resource,
     );
-    if (candidate.result.returned_item_count !== returnedItemCount) {
+    if (candidate.result.returned_item_count !== inspectedResult.returnedItemCount) {
       fail("$.result.returned_item_count", "does not match the validated result material");
     }
     if (

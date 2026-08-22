@@ -1,0 +1,805 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:qual-206-local-evaluation-receipt-set:1",
+  "$comment": "Closed repository-only, non-live and unscored QUAL-206 preflight evidence.",
+  "title": "GIS AI GO QUAL-206 local evaluation receipt set",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "classification",
+    "schema_contract",
+    "generator",
+    "evaluation_manifest",
+    "suites",
+    "receipts",
+    "claims",
+    "boundary",
+    "set_id"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gis-ai-go.qual-206-local-evaluation-receipt-set.v1"
+    },
+    "classification": {
+      "const": "repository-only-non-live-unscored"
+    },
+    "schema_contract": {
+      "$ref": "#/$defs/schemaContract"
+    },
+    "generator": {
+      "$ref": "#/$defs/generator"
+    },
+    "evaluation_manifest": {
+      "$ref": "#/$defs/evaluationManifest"
+    },
+    "suites": {
+      "type": "array",
+      "minItems": 13,
+      "maxItems": 13,
+      "uniqueItems": true,
+      "prefixItems": [
+        {
+          "$ref": "#/$defs/catalogueSnapshotSuite"
+        },
+        {
+          "$ref": "#/$defs/catalogueApplicationSuite"
+        },
+        {
+          "$ref": "#/$defs/selectionApplicationSuite"
+        },
+        {
+          "$ref": "#/$defs/dataQueryApplicationSuite"
+        },
+        {
+          "$ref": "#/$defs/evidenceApplicationSuite"
+        },
+        {
+          "$ref": "#/$defs/publicReadTransportSuite"
+        },
+        {
+          "$ref": "#/$defs/httpApplicationSuite"
+        },
+        {
+          "$ref": "#/$defs/interoperabilityStdioSuite"
+        },
+        {
+          "$ref": "#/$defs/toolRegistrySuite"
+        },
+        {
+          "$ref": "#/$defs/providerAdapterSuite"
+        },
+        {
+          "$ref": "#/$defs/approvedProviderCacheSuite"
+        },
+        {
+          "$ref": "#/$defs/fixedHttpsParserBoundarySuite"
+        },
+        {
+          "$ref": "#/$defs/publicExplorerSuite"
+        }
+      ],
+      "items": false
+    },
+    "receipts": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "uniqueItems": true,
+      "prefixItems": [
+        {
+          "$ref": "#/$defs/e01Receipt"
+        },
+        {
+          "$ref": "#/$defs/e02Receipt"
+        },
+        {
+          "$ref": "#/$defs/e09Receipt"
+        },
+        {
+          "$ref": "#/$defs/e13Receipt"
+        },
+        {
+          "$ref": "#/$defs/e15Receipt"
+        },
+        {
+          "$ref": "#/$defs/e17Receipt"
+        },
+        {
+          "$ref": "#/$defs/e20Receipt"
+        }
+      ],
+      "items": false
+    },
+    "claims": {
+      "$ref": "#/$defs/claims"
+    },
+    "boundary": {
+      "$ref": "#/$defs/boundary"
+    },
+    "set_id": {
+      "type": "string",
+      "pattern": "^gis-ai-go:qual-206-local-evaluation-set:sha256:[0-9a-f]{64}$"
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "relativePath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\)[A-Za-z0-9._@+/-]+$"
+    },
+    "safeText": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2048,
+      "pattern": "^[^\\u0000-\\u001f\\u007f]*$"
+    },
+    "boundary": {
+      "const": "Repository-only deterministic evidence. It is non-live and unscored, does not complete the research case, and does not authorise activation, deployment, registration or release."
+    },
+    "schemaContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {
+          "const": "schemas/qual-206-local-evaluation-receipt-set.schema.json"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "generator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "package_json_sha256",
+        "pnpm_lock_sha256",
+        "verification_command"
+      ],
+      "properties": {
+        "path": {
+          "const": "scripts/qual_206_local_evaluations.mjs"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "package_json_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "pnpm_lock_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "verification_command": {
+          "const": "pnpm run test:qual-206-local-evaluations"
+        }
+      }
+    },
+    "evaluationManifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "case_count"],
+      "properties": {
+        "path": {
+          "const": "evaluation/evaluation-cases.json"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "case_count": {
+          "const": 25
+        }
+      }
+    },
+    "material": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/relativePath"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "suiteControls": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "external_network_required",
+        "live_provider_enabled",
+        "host_session_required"
+      ],
+      "properties": {
+        "external_network_required": {
+          "const": false
+        },
+        "live_provider_enabled": {
+          "const": false
+        },
+        "host_session_required": {
+          "const": false
+        }
+      }
+    },
+    "suite": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "suite_id",
+        "label",
+        "command",
+        "result",
+        "test_count",
+        "test_names",
+        "materials",
+        "controls"
+      ],
+      "properties": {
+        "suite_id": {
+          "type": "string",
+          "pattern": "^gis-ai-go:qual-206-local-suite-evidence:sha256:[0-9a-f]{64}$"
+        },
+        "label": {
+          "enum": [
+            "catalogue-snapshot",
+            "catalogue-application",
+            "selection-application",
+            "data-query-application",
+            "evidence-application",
+            "public-read-transport",
+            "http-application",
+            "interoperability-stdio",
+            "tool-registry",
+            "provider-adapter",
+            "approved-provider-cache",
+            "fixed-https-parser-boundary",
+            "public-explorer"
+          ]
+        },
+        "command": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 16,
+          "items": {
+            "$ref": "#/$defs/safeText"
+          }
+        },
+        "result": {
+          "const": "passed"
+        },
+        "test_count": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32
+        },
+        "test_names": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/safeText"
+          }
+        },
+        "materials": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 32,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/material"
+          }
+        },
+        "controls": {
+          "$ref": "#/$defs/suiteControls"
+        }
+      }
+    },
+    "catalogueSnapshotSuite": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/suite"
+        },
+        {
+          "properties": {
+            "label": {
+              "const": "catalogue-snapshot"
+            }
+          }
+        }
+      ]
+    },
+    "catalogueApplicationSuite": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/suite"
+        },
+        {
+          "properties": {
+            "label": {
+              "const": "catalogue-application"
+            }
+          }
+        }
+      ]
+    },
+    "selectionApplicationSuite": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/suite"
+        },
+        {
+          "properties": {
+            "label": {
+              "const": "selection-application"
+            }
+          }
+        }
+      ]
+    },
+    "dataQueryApplicationSuite": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/suite"
+        },
+        {
+          "properties": {
+            "label": {
+              "const": "data-query-application"
+            }
+          }
+        }
+      ]
+    },
+    "evidenceApplicationSuite": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/suite"
+        },
+        {
+          "properties": {
+            "label": {
+              "const": "evidence-application"
+            }
+          }
+        }
+      ]
+    },
+    "publicReadTransportSuite": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/suite"
+        },
+        {
+          "properties": {
+            "label": {
+              "const": "public-read-transport"
+            }
+          }
+        }
+      ]
+    },
+    "httpApplicationSuite": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/suite"
+        },
+        {
+          "properties": {
+            "label": {
+              "const": "http-application"
+            }
+          }
+        }
+      ]
+    },
+    "interoperabilityStdioSuite": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/suite"
+        },
+        {
+          "properties": {
+            "label": {
+              "const": "interoperability-stdio"
+            }
+          }
+        }
+      ]
+    },
+    "toolRegistrySuite": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/suite"
+        },
+        {
+          "properties": {
+            "label": {
+              "const": "tool-registry"
+            }
+          }
+        }
+      ]
+    },
+    "providerAdapterSuite": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/suite"
+        },
+        {
+          "properties": {
+            "label": {
+              "const": "provider-adapter"
+            }
+          }
+        }
+      ]
+    },
+    "approvedProviderCacheSuite": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/suite"
+        },
+        {
+          "properties": {
+            "label": {
+              "const": "approved-provider-cache"
+            }
+          }
+        }
+      ]
+    },
+    "fixedHttpsParserBoundarySuite": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/suite"
+        },
+        {
+          "properties": {
+            "label": {
+              "const": "fixed-https-parser-boundary"
+            }
+          }
+        }
+      ]
+    },
+    "publicExplorerSuite": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/suite"
+        },
+        {
+          "properties": {
+            "label": {
+              "const": "public-explorer"
+            }
+          }
+        }
+      ]
+    },
+    "case": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "manifest_pointer"],
+      "properties": {
+        "id": {
+          "enum": ["E01", "E02", "E09", "E13", "E15", "E17", "E20"]
+        },
+        "title": {
+          "$ref": "#/$defs/safeText"
+        },
+        "manifest_pointer": {
+          "enum": [
+            "/cases/0",
+            "/cases/1",
+            "/cases/8",
+            "/cases/12",
+            "/cases/14",
+            "/cases/16",
+            "/cases/19"
+          ]
+        }
+      }
+    },
+    "outcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "classification", "scoring", "case_complete"],
+      "properties": {
+        "status": {
+          "const": "local-preflight-pass"
+        },
+        "classification": {
+          "const": "repository-only-non-live"
+        },
+        "scoring": {
+          "const": "unscored"
+        },
+        "case_complete": {
+          "const": false
+        }
+      }
+    },
+    "localAssertion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "statement"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]{0,63}$"
+        },
+        "statement": {
+          "$ref": "#/$defs/safeText"
+        }
+      }
+    },
+    "receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "receipt_id",
+        "case",
+        "outcome",
+        "evidence_suite_ids",
+        "local_assertions",
+        "limitations",
+        "boundary"
+      ],
+      "properties": {
+        "receipt_id": {
+          "type": "string",
+          "pattern": "^gis-ai-go:qual-206-local-evaluation-receipt:sha256:[0-9a-f]{64}$"
+        },
+        "case": {
+          "$ref": "#/$defs/case"
+        },
+        "outcome": {
+          "$ref": "#/$defs/outcome"
+        },
+        "evidence_suite_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 11,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^gis-ai-go:qual-206-local-suite-evidence:sha256:[0-9a-f]{64}$"
+          }
+        },
+        "local_assertions": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/localAssertion"
+          }
+        },
+        "limitations": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/safeText"
+          }
+        },
+        "boundary": {
+          "$ref": "#/$defs/boundary"
+        }
+      }
+    },
+    "e01Receipt": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/receipt"
+        },
+        {
+          "properties": {
+            "case": {
+              "properties": {
+                "id": {
+                  "const": "E01"
+                },
+                "title": {
+                  "const": "Anonymous discovery of open boundaries and statistics"
+                },
+                "manifest_pointer": {
+                  "const": "/cases/0"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "e02Receipt": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/receipt"
+        },
+        {
+          "properties": {
+            "case": {
+              "properties": {
+                "id": {
+                  "const": "E02"
+                },
+                "title": {
+                  "const": "Anonymous AI uses the public site without scraping"
+                },
+                "manifest_pointer": {
+                  "const": "/cases/1"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "e09Receipt": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/receipt"
+        },
+        {
+          "properties": {
+            "case": {
+              "properties": {
+                "id": {
+                  "const": "E09"
+                },
+                "title": {
+                  "const": "HMLR, ONS and LandIS open query with full provenance"
+                },
+                "manifest_pointer": {
+                  "const": "/cases/8"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "e13Receipt": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/receipt"
+        },
+        {
+          "properties": {
+            "case": {
+              "properties": {
+                "id": {
+                  "const": "E13"
+                },
+                "title": {
+                  "const": "Host without Apps receives complete non-visual result"
+                },
+                "manifest_pointer": {
+                  "const": "/cases/12"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "e15Receipt": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/receipt"
+        },
+        {
+          "properties": {
+            "case": {
+              "properties": {
+                "id": {
+                  "const": "E15"
+                },
+                "title": {
+                  "const": "WebMCP-incapable agent follows linked OKF/API"
+                },
+                "manifest_pointer": {
+                  "const": "/cases/14"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "e17Receipt": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/receipt"
+        },
+        {
+          "properties": {
+            "case": {
+              "properties": {
+                "id": {
+                  "const": "E17"
+                },
+                "title": {
+                  "const": "Malicious record attempts prompt injection"
+                },
+                "manifest_pointer": {
+                  "const": "/cases/16"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "e20Receipt": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/receipt"
+        },
+        {
+          "properties": {
+            "case": {
+              "properties": {
+                "id": {
+                  "const": "E20"
+                },
+                "title": {
+                  "const": "Emergency tool/provider suspension"
+                },
+                "manifest_pointer": {
+                  "const": "/cases/19"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "claims": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "live_provider_call",
+        "live_host_session",
+        "public_deployment",
+        "production_activation",
+        "release_ready",
+        "complete_case_evaluation"
+      ],
+      "properties": {
+        "live_provider_call": {
+          "const": false
+        },
+        "live_host_session": {
+          "const": false
+        },
+        "public_deployment": {
+          "const": false
+        },
+        "production_activation": {
+          "const": false
+        },
+        "release_ready": {
+          "const": false
+        },
+        "complete_case_evaluation": {
+          "const": false
+        }
+      }
+    }
+  }
+}

@@ -15,11 +15,19 @@ import {
   buildOnsLiveProbeRecord,
   createOnsDataApiAdapter,
   digestProviderAdapterResult,
+  executePristineOnsDataApiAdapter,
+  requireExactOnsDataApiAdapter,
+  requirePristineOnsDataApiAdapter,
   serialiseProviderAdapterResult,
   type FixedHttpsResponse,
   type FixedHttpsTransport,
   type OnsAttemptTelemetry,
+  type ProviderAdapterResult,
 } from "../src/index.js";
+import {
+  isExactFixedHttpsTransportError,
+  normaliseFixedHttpsRequestError,
+} from "../src/fixed-https.js";
 
 const ACTIVE = Object.freeze({
   discovery: "active",
@@ -434,6 +442,330 @@ test("retries only the closed status set and bounded Retry-After", async () => {
   assert.equal(outage.providerStatus, 302);
   assert.equal(outage.retryable, false);
   assert.equal(redirectCalls, 1);
+});
+
+test("brands only network and HTTP 500 to 599 faults for approved-cache use", async () => {
+  const exactAdapter = createOnsDataApiAdapter({ lifecycle: ACTIVE });
+  assert.equal(requireExactOnsDataApiAdapter(exactAdapter), exactAdapter);
+  assert.equal(requirePristineOnsDataApiAdapter(exactAdapter), exactAdapter);
+  const substitutedAdapter = createOnsDataApiAdapter({ lifecycle: ACTIVE });
+  Object.defineProperty(substitutedAdapter, "execute", {
+    configurable: true,
+    value: async () => {
+      throw new Error("substituted adapter execution must not run");
+    },
+  });
+  assert.equal(requireExactOnsDataApiAdapter(substitutedAdapter), substitutedAdapter);
+  assert.throws(
+    () => requirePristineOnsDataApiAdapter(substitutedAdapter),
+    /not pristine/u,
+  );
+  let adapterProxyTraps = 0;
+  const proxiedAdapter = new Proxy(exactAdapter, {
+    getPrototypeOf: () => {
+      adapterProxyTraps += 1;
+      throw new Error("adapter proxy must not be traversed");
+    },
+    ownKeys: () => {
+      adapterProxyTraps += 1;
+      throw new Error("adapter proxy must not be traversed");
+    },
+  });
+  assert.throws(() => requireExactOnsDataApiAdapter(proxiedAdapter), /not exact/u);
+  assert.throws(() => requirePristineOnsDataApiAdapter(proxiedAdapter), /not pristine/u);
+  assert.equal(adapterProxyTraps, 0);
+  class SubclassedAdapter extends OnsDataApiAdapter {}
+  assert.throws(
+    () => new SubclassedAdapter({ lifecycle: ACTIVE }),
+    /subclassing is not supported/u,
+  );
+
+  for (const code of [
+    "HPE_INVALID_HEADER_TOKEN",
+    "HPE_HEADER_OVERFLOW",
+    "HPE_INVALID_CHUNK_SIZE",
+    "HPE_STRICT",
+  ]) {
+    const parserError = Object.assign(new Error("provider response parse failure"), { code });
+    assert.equal(
+      normaliseFixedHttpsRequestError(parserError).kind,
+      "invalid-response-framing",
+    );
+  }
+  for (const code of [
+    "EAI_AGAIN",
+    "ENOTFOUND",
+    "ECONNREFUSED",
+    "ECONNRESET",
+    "ERR_TLS_CERT_ALTNAME_INVALID",
+    "CERT_HAS_EXPIRED",
+    "UNABLE_TO_VERIFY_LEAF_SIGNATURE",
+  ]) {
+    const networkError = Object.assign(new Error("network failure"), { code });
+    assert.equal(normaliseFixedHttpsRequestError(networkError).kind, "network");
+  }
+  let codeReads = 0;
+  const accessorError = new Error("opaque accessor failure");
+  Object.defineProperty(accessorError, "code", {
+    get: () => {
+      codeReads += 1;
+      return "ECONNRESET";
+    },
+  });
+  assert.equal(normaliseFixedHttpsRequestError(accessorError).kind, "unclassified");
+  assert.equal(codeReads, 0);
+  let descriptorTraps = 0;
+  const errorProxy = new Proxy(new Error("opaque proxy failure"), {
+    getOwnPropertyDescriptor: () => {
+      descriptorTraps += 1;
+      throw new Error("request-error proxy must not escape closed classification");
+    },
+  });
+  assert.equal(normaliseFixedHttpsRequestError(errorProxy).kind, "unclassified");
+  assert.equal(descriptorTraps, 0);
+  const transparentProxy = new Proxy(
+    Object.assign(new Error("transparent proxy failure"), { code: "ECONNRESET" }),
+    {},
+  );
+  assert.equal(normaliseFixedHttpsRequestError(transparentProxy).kind, "unclassified");
+  const directTransportError = new FixedHttpsTransportError("network");
+  assert.equal(isExactFixedHttpsTransportError(directTransportError), false);
+  assert.equal(normaliseFixedHttpsRequestError(directTransportError).kind, "unclassified");
+  const publicSdk = await import("../src/index.js");
+  assert.equal("normaliseFixedHttpsRequestError" in publicSdk, false);
+  assert.equal("isExactFixedHttpsTransportError" in publicSdk, false);
+  class SubclassedTransportError extends FixedHttpsTransportError {}
+  assert.equal(
+    normaliseFixedHttpsRequestError(new SubclassedTransportError("network")).kind,
+    "unclassified",
+  );
+  const prototypeForgery = Object.assign(
+    Object.create(FixedHttpsTransportError.prototype) as object,
+    { kind: "network" },
+  );
+  assert.equal(normaliseFixedHttpsRequestError(prototypeForgery).kind, "unclassified");
+
+  for (const status of [500, 503, 504, 599]) {
+    const candidate = createOnsDataApiAdapter({
+      lifecycle: ACTIVE,
+      transport: async () => responseFor(null, {
+        status,
+        headers: { "retry-after": "0" },
+      }),
+      sleep: async () => undefined,
+    });
+    const execution = executePristineOnsDataApiAdapter(
+      candidate,
+      ONS_ADAPTER_REQUEST,
+      {},
+    );
+    const fault = await expectFault(
+      () => execution.result,
+      "PROVIDER_OUTAGE",
+    );
+    const normalised = candidate.normalise_error(fault);
+    assert.deepEqual(
+      execution.approvedCacheOutage(fault, normalised),
+      {
+        source: "http-5xx",
+        providerStatus: status,
+        retryable: ONS_EGRESS_POLICY.retryableStatuses.includes(status),
+      },
+    );
+    assert.equal(execution.approvedCacheOutage(fault, normalised), null);
+  }
+
+  const tamperedCandidate = createOnsDataApiAdapter({
+    lifecycle: ACTIVE,
+    transport: async () => responseFor(null, { status: 599 }),
+  });
+  const tamperedExecution = executePristineOnsDataApiAdapter(
+    tamperedCandidate,
+    ONS_ADAPTER_REQUEST,
+    {},
+  );
+  const tamperedFault = await expectFault(
+    () => tamperedExecution.result,
+    "PROVIDER_OUTAGE",
+  );
+  const correctTamperedNormalisation = tamperedCandidate.normalise_error(tamperedFault);
+  assert.equal(
+    tamperedExecution.approvedCacheOutage(tamperedFault, {
+      ...correctTamperedNormalisation,
+      providerStatus: 500,
+    }),
+    null,
+  );
+  assert.equal(
+    tamperedExecution.approvedCacheOutage(
+      tamperedFault,
+      correctTamperedNormalisation,
+    ),
+    null,
+  );
+
+  const outerClockFailure = new Error("outer execution clock failed");
+  let nestedResult: Promise<ProviderAdapterResult> | undefined;
+  let startNestedExecution = true;
+  const executionCandidate = createOnsDataApiAdapter({
+    lifecycle: ACTIVE,
+    transport: async () => responseFor(null, { status: 599 }),
+    now: () => {
+      if (startNestedExecution) {
+        startNestedExecution = false;
+        nestedResult = executionCandidate.execute(ONS_ADAPTER_REQUEST);
+        throw outerClockFailure;
+      }
+      return Date.parse("2026-08-22T12:00:00Z");
+    },
+  });
+  const outerExecution = executePristineOnsDataApiAdapter(
+    executionCandidate,
+    ONS_ADAPTER_REQUEST,
+    {},
+  );
+  await assert.rejects(
+    outerExecution.result,
+    (error: unknown) => error === outerClockFailure,
+  );
+  assert.ok(nestedResult);
+  const capturedNestedResult = nestedResult;
+  const nestedFault = await expectFault(
+    () => capturedNestedResult,
+    "PROVIDER_OUTAGE",
+  );
+  assert.equal(
+    outerExecution.approvedCacheOutage(
+      nestedFault,
+      executionCandidate.normalise_error(nestedFault),
+    ),
+    null,
+  );
+
+  for (const status of [302, 401, 403, 451, 499, 600]) {
+    const candidate = createOnsDataApiAdapter({
+      lifecycle: ACTIVE,
+      transport: async () => responseFor(null, { status }),
+    });
+    const execution = executePristineOnsDataApiAdapter(
+      candidate,
+      ONS_ADAPTER_REQUEST,
+      {},
+    );
+    const fault = await expectFault(
+      () => execution.result,
+      "PROVIDER_OUTAGE",
+    );
+    assert.equal(
+      execution.approvedCacheOutage(
+        fault,
+        candidate.normalise_error(fault),
+      ),
+      null,
+    );
+  }
+
+  const rateLimited = createOnsDataApiAdapter({
+    lifecycle: ACTIVE,
+    transport: async () => responseFor(null, {
+      status: 429,
+      headers: { "retry-after": "61" },
+    }),
+  });
+  const rateExecution = executePristineOnsDataApiAdapter(
+    rateLimited,
+    ONS_ADAPTER_REQUEST,
+    {},
+  );
+  const rateFault = await expectFault(
+    () => rateExecution.result,
+    "PROVIDER_RATE_LIMITED",
+  );
+  assert.equal(
+    rateExecution.approvedCacheOutage(
+      rateFault,
+      rateLimited.normalise_error(rateFault),
+    ),
+    null,
+  );
+
+  for (const [kind, expected] of [
+    ["network", "PROVIDER_OUTAGE"],
+    ["unsafe-address", "PROVIDER_OUTAGE"],
+    ["aborted", "PROVIDER_TIMEOUT"],
+    ["connect-timeout", "PROVIDER_TIMEOUT"],
+    ["response-timeout", "PROVIDER_TIMEOUT"],
+    ["response-too-large", "MALFORMED_PROVIDER_RESPONSE"],
+    ["invalid-response-framing", "MALFORMED_PROVIDER_RESPONSE"],
+    ["invalid-response-headers", "MALFORMED_PROVIDER_RESPONSE"],
+    ["unclassified", "PROVIDER_OUTAGE"],
+  ] as const) {
+    const candidate = createOnsDataApiAdapter({
+      lifecycle: ACTIVE,
+      transport: async () => {
+        throw new FixedHttpsTransportError(kind);
+      },
+    });
+    const execution = executePristineOnsDataApiAdapter(
+      candidate,
+      ONS_ADAPTER_REQUEST,
+      {},
+    );
+    const fault = await expectFault(() => execution.result, expected);
+    const normalised = candidate.normalise_error(fault);
+    assert.deepEqual(
+      execution.approvedCacheOutage(fault, normalised),
+      null,
+    );
+  }
+
+  const opaque = createOnsDataApiAdapter({
+    lifecycle: ACTIVE,
+    transport: async () => {
+      throw new Error("opaque transport failure");
+    },
+  });
+  const opaqueExecution = executePristineOnsDataApiAdapter(
+    opaque,
+    ONS_ADAPTER_REQUEST,
+    {},
+  );
+  const opaqueFault = await expectFault(
+    () => opaqueExecution.result,
+    "PROVIDER_OUTAGE",
+  );
+  assert.equal(
+    opaqueExecution.approvedCacheOutage(
+      opaqueFault,
+      opaque.normalise_error(opaqueFault),
+    ),
+    null,
+  );
+
+  const manual = new ProviderAdapterFault("PROVIDER_OUTAGE", {
+    providerStatus: 503,
+    retryable: true,
+  });
+  const manualAdapter = createOnsDataApiAdapter({
+    lifecycle: ACTIVE,
+    now: () => {
+      throw manual;
+    },
+  });
+  const manualExecution = executePristineOnsDataApiAdapter(
+    manualAdapter,
+    ONS_ADAPTER_REQUEST,
+    {},
+  );
+  const manualFault = await expectFault(() => manualExecution.result, "PROVIDER_OUTAGE");
+  assert.equal(manualFault, manual);
+  assert.equal(
+    manualExecution.approvedCacheOutage(
+      manualFault,
+      manualAdapter.normalise_error(manualFault),
+    ),
+    null,
+  );
 });
 
 test("builds schema-valid passed evidence from actual 503 to 200 telemetry", async () => {

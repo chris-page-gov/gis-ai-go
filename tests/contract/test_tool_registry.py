@@ -69,12 +69,15 @@ CURRENT_APPLICATION_METADATA = {
     "T04": {
         "providerDependencies": [
             "explicitly injected ONS Data API adapter",
+            "explicitly injected approved ONS cache",
             "public-read policy",
             "durable public evidence ledger",
             "receipt-only idempotency reconciliation index",
         ],
         "costPerformance": (
-            "Bounded to one observation, two provider attempts and a 20 second adapter ceiling"
+            "Bounded to one observation, two provider attempts and one exact "
+            "approved-cache read only after an internally classified network "
+            "failure or HTTP 500 to 599 response; the adapter ceiling is 20 seconds"
         ),
         "controlledErrors": [
             "INVALID_REQUEST",
@@ -92,9 +95,12 @@ CURRENT_APPLICATION_METADATA = {
             "IDEMPOTENCY_CONFLICT",
         ],
         "fallbackBehaviour": (
-            "Fail closed; no result cache, alternate provider or result fallback is permitted."
+            "Use the exact approved cache only after an internally classified "
+            "network failure or HTTP 500 to 599 response; reject 3xx/4xx, local-"
+            "timeout, unsafe-address, malformed-response, opaque or unbranded "
+            "failures; expose retrieval and stale-after times."
         ),
-        "fallbackState": "not-implemented",
+        "fallbackState": "implemented",
     },
     "T11": {
         "providerDependencies": [

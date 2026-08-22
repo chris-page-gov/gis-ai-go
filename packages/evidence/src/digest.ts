@@ -9,6 +9,8 @@ const CONTENT_ID_PREFIX_PATTERN = /^gis-ai-go:[a-z0-9]+(?:-[a-z0-9]+)*$/u;
 const SHA256_PATTERN = /^[0-9a-f]{64}$/u;
 
 export const CANONICAL_DOMAINS = Object.freeze({
+  approvedProviderCache: "gis-ai-go.approved-provider-cache.v1",
+  approvedProviderCacheRebuild: "gis-ai-go.approved-provider-cache-rebuild.v1",
   authorityContext: "gis-ai-go.public-authority-context.v1",
   authorityContextV2: "gis-ai-go.public-authority-context.v2",
   catalogueParameters: "gis-ai-go.catalogue-parameters.v1",
