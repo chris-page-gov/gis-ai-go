@@ -1200,6 +1200,8 @@ def _has_unexempted_path_match(
 def _contains_private_path(
     value: str, *, trusted_cpe_tokens: frozenset[str] = frozenset()
 ) -> bool:
+    if "/" not in value and "\\" not in value and "=" not in value:
+        return False
     if not trusted_cpe_tokens and CPE_PATH_PREFIX_TEXT.search(value) is None:
         return PRIVATE_PATH_TEXT.search(value) is not None
     valid_cpe_spans = _valid_cpe_path_spans(
