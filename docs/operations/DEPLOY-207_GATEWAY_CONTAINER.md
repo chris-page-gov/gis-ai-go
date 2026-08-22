@@ -141,11 +141,13 @@ candidate.
 Engine behaviour is recorded rather than inferred. The checker accepts exactly one
 of two semantic ingress states: `127.0.0.1:8787`, or no realised host port while the
 single inspected bridge remains internal. Classic Docker serialises a suppressed
-internal-network binding as an exact `null` value; containerd-backed Docker Desktop
-can serialise it as an empty list. The checker first requires the complete Docker
-port map to contain only `8787/tcp`, then normalises either no-binding form to an
-empty semantic `realised` list. Missing, extra, wildcard, IPv6 or otherwise different
-mappings fail. In the no-binding state the host port must remain unreachable around
+internal-network binding as an exact `null` value; Docker 28 can omit the unrealised
+entry from an empty `NetworkSettings.Ports` object; and containerd-backed Docker
+Desktop can serialise it as an empty list. The checker first requires the exact
+`Config.ExposedPorts` and loopback `HostConfig.PortBindings`, then normalises only
+those three reviewed no-binding forms to an empty semantic `realised` list. Missing
+declarations, extra ports, wildcard, IPv6 or otherwise different mappings fail. In
+the no-binding state the host port must remain unreachable around
 the complete HTTP, Host and MCP matrix on `127.0.0.1:8787` inside the container, and
 the same transport is rechecked after restart and exact-image restore. The receipt
 records declared and realised mappings separately; this Compose file must not be
@@ -198,6 +200,12 @@ nor command arguments. Their raised errors are fixed and detached from the under
 process exception. Each phase has an isolated process group;
 timeout and completion terminate any surviving descendants before quarantine cleanup
 or promotion.
+
+Within container acceptance, uncaptured Compose actions and exact-image save or
+removal redirect both output streams to the null device because their output is not
+evidence. Structured Compose and Docker queries remain explicitly captured for
+validation. This prevents incidental progress or compatibility warnings from
+forwarding absolute runner paths into the parent phase transcript.
 
 The image gate performs this fixed sequence:
 

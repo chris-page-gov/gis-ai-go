@@ -3729,10 +3729,12 @@ class GatewayComposeAcceptanceTests(unittest.TestCase):
         self.assertEqual(host["mode"], "host-loopback")
         self.assertTrue(host["host_reachable"])
         fallbacks = (
+            classify_transport({}),
             classify_transport({"8787/tcp": []}),
             classify_transport({"8787/tcp": None}),
         )
         self.assertEqual(fallbacks[0], fallbacks[1])
+        self.assertEqual(fallbacks[1], fallbacks[2])
         transport_schema = json.loads(
             (ROOT / "schemas" / "gateway-container-acceptance.schema.json").read_bytes()
         )["properties"]["transport"]
@@ -3747,7 +3749,6 @@ class GatewayComposeAcceptanceTests(unittest.TestCase):
             transport_validator.validate(fallback)
         for port_map in (
             None,
-            {},
             {"9999/tcp": None},
             {"8787/tcp": None, "9999/tcp": None},
             {"8787/udp": []},
@@ -3825,12 +3826,19 @@ class GatewayComposeAcceptanceTests(unittest.TestCase):
 
     def test_restart_transport_must_remain_semantically_identical(self) -> None:
         fallback = classify_transport({"8787/tcp": []})
+        restart_inspection = {
+            "Config": {"ExposedPorts": {"8787/tcp": {}}},
+            "HostConfig": {
+                "PortBindings": {
+                    "8787/tcp": [{"HostIp": "127.0.0.1", "HostPort": "8787"}]
+                }
+            },
+            "NetworkSettings": {"Ports": {}},
+        }
         with mock.patch(
             "check_gateway_container.assert_host_unreachable"
         ) as host_probe:
-            actual = assert_transport_unchanged(
-                {"NetworkSettings": {"Ports": {"8787/tcp": None}}}, fallback
-            )
+            actual = assert_transport_unchanged(restart_inspection, fallback)
         self.assertEqual(actual, fallback)
         host_probe.assert_called_once_with()
 
@@ -3838,12 +3846,21 @@ class GatewayComposeAcceptanceTests(unittest.TestCase):
             "8787/tcp": [{"HostIp": "127.0.0.1", "HostPort": "8787"}]
         })
         with self.assertRaisesRegex(AssertionError, "changed after restart"):
-            assert_transport_unchanged(
-                {"NetworkSettings": {"Ports": {"8787/tcp": None}}}, host
-            )
-        for inspection in (None, {}, {"NetworkSettings": {}}, {"NetworkSettings": {
-            "Ports": {"8787/tcp": None, "9999/tcp": None}
-        }}):
+            assert_transport_unchanged(restart_inspection, host)
+        invalid_inspections = (
+            None,
+            {},
+            {"NetworkSettings": {}},
+            {
+                **restart_inspection,
+                "NetworkSettings": {
+                    "Ports": {"8787/tcp": None, "9999/tcp": None}
+                },
+            },
+            {**restart_inspection, "Config": {"ExposedPorts": {}}},
+            {**restart_inspection, "HostConfig": {"PortBindings": {}}},
+        )
+        for inspection in invalid_inspections:
             with self.subTest(inspection=inspection):
                 with self.assertRaises(AssertionError):
                     assert_transport_unchanged(inspection, fallback)

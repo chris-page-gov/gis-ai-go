@@ -75,9 +75,10 @@ It is an implementation workbench, not a supported or deployed service.
   disjoint ledger and reconciliation volumes, but supplies no operation, resource,
   application or provider seam. Compose declares only `127.0.0.1:8787`. Acceptance
   separately records whether the engine realised that host-loopback mapping or the
-  permitted no-port internal-network fallback. The checker validates the complete
-  port inventory and normalises only the reviewed Docker `null` and empty-list
-  serialisations to that fallback; it is not host-ingress evidence.
+  permitted no-port internal-network fallback. The checker validates the exact
+  exposed port and loopback host binding, then normalises only the reviewed Docker
+  omitted, `null` and empty-list serialisations to that fallback; it is not
+  host-ingress evidence.
 - `startCatalogueStdio` and the shipped STDIO entrypoint remain modern-only at
   MCP `2026-07-28` and reject every legacy opening. A separately named
   `startCatalogueLegacyConformanceStdio` constructor can negotiate the bounded

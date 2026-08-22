@@ -20,9 +20,10 @@
   around each trusted phase, each textual subject has an 8 MiB fail-closed privacy
   bound, parsed JSON shares that bound cumulatively, and reserved
   boundary-terminated phase frames prevent separately safe child streams from
-  composing in logs. Failed runs upload no partial candidate bytes. Compose
-  acceptance also validates
-  the complete port inventory and treats only Docker's reviewed `null` or empty-list
+  composing in logs. Uncaptured Compose actions and exact-image save or removal
+  discard unused process output without buffering. Failed runs upload no partial
+  candidate bytes. Compose acceptance also validates the exact exposed port and
+  loopback binding and treats only Docker's reviewed omitted, `null` or empty-list
   internal-network states as zero realised host bindings, with bounded host-closed
   probes around the container-local route matrix. No service, provider or production
   rollback is activated or deployed.

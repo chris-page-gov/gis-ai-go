@@ -129,14 +129,19 @@ def run(
     arguments: Iterable[str],
     *,
     capture: bool = False,
+    discard_output: bool = False,
     check: bool = True,
     environment: dict[str, str] | None = None,
     input_text: str | None = None,
     timeout: int = 10 * 60,
 ) -> subprocess.CompletedProcess[str]:
+    if capture and discard_output:
+        raise ValueError("command output cannot be captured and discarded")
     return subprocess.run(
-        tuple(arguments), cwd=ROOT, check=check, capture_output=capture, text=True,
-        env=environment, input=input_text, timeout=timeout,
+        tuple(arguments), cwd=ROOT, check=check, capture_output=capture,
+        stdout=subprocess.DEVNULL if discard_output else None,
+        stderr=subprocess.DEVNULL if discard_output else None,
+        text=True, env=environment, input=input_text, timeout=timeout,
     )
 
 
@@ -379,7 +384,8 @@ def compose(
     return run(
         ("docker", "compose", "--project-name", project, "--file", str(COMPOSE_FILE),
          *arguments),
-        capture=capture, check=check, environment=environment,
+        capture=capture, discard_output=not capture, check=check,
+        environment=environment,
     )
 
 
@@ -528,9 +534,14 @@ def classify_transport(port_map: Any) -> dict[str, Any]:
         "container_port": PORT, "protocol": "tcp", "host_ip": HOST,
         "host_port": PORT,
     }]
-    if not isinstance(port_map, dict) or set(port_map) != {EXPECTED_PORT}:
+    if not isinstance(port_map, dict):
         raise AssertionError("gateway engine port inventory differs from its closed shape")
-    realised = port_map[EXPECTED_PORT]
+    if port_map == {}:
+        realised = None
+    elif set(port_map) == {EXPECTED_PORT}:
+        realised = port_map[EXPECTED_PORT]
+    else:
+        raise AssertionError("gateway engine port inventory differs from its closed shape")
     if realised == [{"HostIp": HOST, "HostPort": str(PORT)}]:
         return {
             "mode": "host-loopback", "declared": declared,
@@ -555,6 +566,17 @@ def assert_transport_unchanged(
     network_settings = inspection.get("NetworkSettings")
     if not isinstance(network_settings, dict):
         raise AssertionError("gateway restart network settings are incomplete")
+    config = inspection.get("Config")
+    host = inspection.get("HostConfig")
+    if (
+        not isinstance(config, dict)
+        or config.get("ExposedPorts") != {EXPECTED_PORT: {}}
+        or not isinstance(host, dict)
+        or host.get("PortBindings") != {
+            EXPECTED_PORT: [{"HostIp": HOST, "HostPort": str(PORT)}]
+        }
+    ):
+        raise AssertionError("gateway restart port declaration changed")
     transport = classify_transport(network_settings.get("Ports"))
     if transport != expected_transport:
         raise AssertionError("gateway transport changed after restart")
@@ -1248,9 +1270,12 @@ def main() -> None:
                 compose(project, environment, "down", "--remove-orphans")
 
             with record_phase(phases, "exact-image-restore"):
-                run(("docker", "image", "save", "--output", str(saved), tag))
+                run(
+                    ("docker", "image", "save", "--output", str(saved), tag),
+                    discard_output=True,
+                )
                 saved_sha256 = sha256_file(saved)
-                run(("docker", "image", "rm", tag))
+                run(("docker", "image", "rm", tag), discard_output=True)
                 restored = load_docker_archive(saved)
                 if tag not in restored.stdout and tag not in restored.stderr:
                     raise AssertionError("saved image did not restore its exact local tag")

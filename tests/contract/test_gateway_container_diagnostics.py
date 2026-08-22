@@ -12,11 +12,14 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from check_gateway_container import (  # noqa: E402
+    COMPOSE_FILE,
     DOCKER_LOAD_TIMEOUT_SECONDS,
     MAX_DOCKER_LOAD_DIAGNOSTIC_BYTES,
     ROOT as PROJECT_ROOT,
     _DockerLoadStream,
+    compose,
     load_docker_archive,
+    run,
 )
 
 
@@ -64,6 +67,70 @@ class DockerLoadDiagnosticsTests(unittest.TestCase):
     def assert_detached(self, error: ValueError) -> None:
         self.assertIsNone(error.__cause__)
         self.assertIsNone(error.__context__)
+
+    def test_discarded_command_output_is_not_buffered_or_reflected(self) -> None:
+        command = (
+            "import os;"
+            "os.write(1,b'x'*(2*1024*1024));"
+            "os.write(2,b'y'*(2*1024*1024))"
+        )
+        completed = run(
+            (sys.executable, "-c", command), discard_output=True, timeout=10
+        )
+        self.assertEqual(completed.returncode, 0)
+        self.assertIsNone(completed.stdout)
+        self.assertIsNone(completed.stderr)
+
+        with self.assertRaises(subprocess.CalledProcessError) as raised:
+            run(
+                (sys.executable, "-c", "raise SystemExit(17)"),
+                discard_output=True,
+                timeout=10,
+            )
+        self.assertEqual(raised.exception.returncode, 17)
+        self.assertIsNone(raised.exception.stdout)
+        self.assertIsNone(raised.exception.stderr)
+
+    def test_command_output_cannot_be_captured_and_discarded(self) -> None:
+        with (
+            mock.patch("check_gateway_container.subprocess.run") as subprocess_run,
+            self.assertRaisesRegex(ValueError, "captured and discarded"),
+        ):
+            run(("unused",), capture=True, discard_output=True)
+        subprocess_run.assert_not_called()
+
+    def test_compose_discards_unused_output_and_captures_queries(self) -> None:
+        environment = {"GIS_AI_GO_GATEWAY_IMAGE": "fixture"}
+        with mock.patch("check_gateway_container.run") as command:
+            compose("fixture", environment, "up", "--detach")
+            compose("fixture", environment, "config", capture=True)
+
+        prefix = (
+            "docker", "compose", "--project-name", "fixture", "--file",
+            str(COMPOSE_FILE),
+        )
+        self.assertEqual(
+            command.call_args_list,
+            [
+                mock.call(
+                    (*prefix, "up", "--detach"), capture=False,
+                    discard_output=True, check=True, environment=environment,
+                ),
+                mock.call(
+                    (*prefix, "config"), capture=True, discard_output=False,
+                    check=True, environment=environment,
+                ),
+            ],
+        )
+
+    def test_runner_compose_path_remains_private(self) -> None:
+        warning = (
+            "warning: /" + "home/runner/work/gis-ai-go/gis-ai-go/"
+            "deploy/gateway/compose.candidate.yaml is obsolete"
+        )
+        output = _DockerLoadStream("stderr")
+        output.consume(io.BytesIO(warning.encode()))
+        self.assertEqual(output._classification()[:2], ("withheld", "private-path"))
 
     def test_success_preserves_exact_command_and_result(self) -> None:
         process = FakeProcess(stdout=b"Loaded image: exact\n")

@@ -204,7 +204,7 @@
           ]
         },
         "realised": {
-          "description": "Semantic realised host bindings. An exact Docker Ports value of null or an empty list on the verified internal bridge is normalised to an empty list only after the complete port map is validated.",
+          "description": "Semantic realised host bindings. Docker may represent the verified internal-bridge no-binding state as an omitted entry, null or an empty list; these are normalised to an empty list only after the exact exposed port and loopback host binding are validated.",
           "type": "array",
           "maxItems": 1,
           "items": {

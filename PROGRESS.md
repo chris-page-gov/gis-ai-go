@@ -145,12 +145,16 @@ The supported target active set is exactly `catalogue.search`,
   Hostile fixture tests cover archive aliasing, links and exact
   tag/layer closure; an exact Docker Desktop/containerd import passes. A fresh remote
   run proved that hybrid load, both builds, SBOM and retained scan/replay, then failed
-  closed because Docker 28 serialised the deliberately suppressed internal-network
-  port as `null` rather than Docker Desktop's empty list. The current branch repair
-  validates the complete one-port map, normalises only those two reviewed no-binding
-  forms, brackets container-local probes with bounded host-closed checks and rechecks
-  transport after restart. The branch now also applies one bounded privacy boundary
-  to generated textual evidence and captured phase output, builds candidate evidence
+  closed because Docker 28 omitted the deliberately unrealised internal-network port
+  from `NetworkSettings.Ports`. An exact Docker 28 reproduction retained the declared
+  exposed port and loopback host binding and completed the whole acceptance after
+  normalising that explicit empty object. The current branch validates those exact
+  declarations, normalises only the reviewed omitted, `null` and empty-list
+  no-binding forms, brackets container-local probes with bounded host-closed checks
+  and rechecks both declarations and transport after restart. Uncaptured Compose
+  actions and exact-image save/removal discard both streams without buffering. The
+  branch also applies one bounded privacy boundary to generated textual evidence and
+  captured phase output, builds candidate evidence
   in an owner-private quarantine, and promotes or uploads it only after complete
   verification. Those controls are source-bound: only clean evidence and independent
   reviews naming the exact commit are valid, and any later source change supersedes
@@ -190,7 +194,11 @@ The supported target active set is exactly `catalogue.search`,
   now centralises bounded path and credential checks, separates captured output into
   reserved boundary-terminated phase frames, applies the 8 MiB privacy limit
   cumulatively to parsed JSON, and makes the evidence directory publish-only after
-  complete verification. Every
+  complete verification. A later remote run proved that complete privacy-hardened
+  path through repository assurance and scan replay, then exposed Docker 28's empty
+  `NetworkSettings.Ports` representation. The exact engine/version reproduction and
+  complete local rehearsal confirm the bounded third-form normalisation, without
+  weakening the declared loopback binding or host-closure controls. Every
   accepted source change still requires matching clean evidence, independent review
   and fresh exact-head remote assurance. Local evidence remains candidate-only and
   protected CI must regenerate it before any attestation.

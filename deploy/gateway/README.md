@@ -15,12 +15,13 @@ reconciliation-index descriptors across restart.
 Docker engines do not all realise a published port on an internal bridge. Acceptance
 therefore records the declared and realised mappings separately. It permits only the
 exact loopback mapping or no realised mapping on the verified internal bridge.
-Classic Docker serialises that second state as a `null` port value, while
-containerd-backed Docker Desktop can use an empty list; the checker validates the
-complete one-port inventory before normalising either form to zero realised
-bindings. For that fallback, the host port must remain closed before and after the
-full route matrix, which runs over container-local loopback. A receipt with that
-fallback is not evidence of a usable host socket.
+Classic Docker can serialise that second state as a `null` port value, Docker 28
+can omit the unrealised entry from an empty port inventory, and containerd-backed
+Docker Desktop can use an empty list. The checker first verifies the exact exposed
+port and loopback host binding, then normalises only those three reviewed engine
+forms to zero realised bindings. For that fallback, the host port must remain closed
+before and after the full route matrix, which runs over container-local loopback. A
+receipt with that fallback is not evidence of a usable host socket.
 
 Run the complete image gate from the repository root:
 
