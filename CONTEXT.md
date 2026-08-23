@@ -41,14 +41,16 @@ through [pull request 14](https://github.com/chris-page-gov/gis-ai-go/pull/14),
 whose accepted implementation commit is
 `a0e826384cf50d9d81b87489dbf3580e8e3602f7`. The Explorer is deployed and verified
 at <https://chris-page-gov.github.io/gis-ai-go/> from the later release commit
-recorded below. The current protected-main hand-off is
-`37a71cdcc55bf3708527596d47ea9839d150fed5`. It contains the repository-only
+recorded below. The latest protected-main runtime hand-off is
+`7fa8b720d3cbaa3e0a1ebfadf0fb355a7330a04c`. It contains the repository-only
 QUAL-206 preflight, completed trace and readiness integrity, one compile-time
-`candidate-unregistered` exact-five assembly and the bounded 23 August research
-intake described below. The shipped production and default operation arrays remain
-empty and their readiness remains `503`. There is no public MCP service, activated
-live provider capability, external policy or identity service, deployment or
-`v0.2.0` release.
+`candidate-unregistered` exact-five assembly, the bounded 23 August research intake
+and a dedicated inline-only receipt for each successful current `evidence.inspect`
+call. The repository-local protocol matrix in this tree is bound to that runtime
+baseline.
+The shipped production and default operation arrays remain empty and their
+readiness remains `503`. There is no public MCP service, activated live provider
+capability, external policy or identity service, deployment or `v0.2.0` release.
 
 The owner has authorised autonomous implementation in the open under
 [`ADR-0004`](docs/decisions/ADR-0004-public-autonomous-delivery.md). The repository
@@ -214,14 +216,14 @@ STDIO, OpenAPI and plain-text fallbacks. Registry, policy, provider lifecycle an
 explicit suspension can only subtract operations; per-operation guards fail closed.
 The assembly remains unregistered, with `productionRegistration: false`, no shipped
 activation override and no live provider call. Issue
-[#23](https://github.com/chris-page-gov/gis-ai-go/issues/23) remains open because
-`evidence.inspect` identifies the current inspection call but verifies only the
-earlier operation's policy decision and receipt; it does not yet create a verifiable
-receipt for the inspection call itself.
+[#23](https://github.com/chris-page-gov/gis-ai-go/issues/23) remains open pending
+policy-filtered discovery for the activated surface, complete evidence and
+plain-text results for every activated call, independent-host evidence and the
+later deployment and release gates.
 
 The advisory governance research intake merged through
-[pull request 52](https://github.com/chris-page-gov/gis-ai-go/pull/52) as the current
-protected-main commit `37a71cdcc55bf3708527596d47ea9839d150fed5`. Protected-main
+[pull request 52](https://github.com/chris-page-gov/gis-ai-go/pull/52) as
+`37a71cdcc55bf3708527596d47ea9839d150fed5`. Protected-main
 [run 32658667714](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32658667714)
 passed repository, exact gateway-image, aggregate and provenance assurance, and
 [run 32658667650](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32658667650)
@@ -235,6 +237,34 @@ unmerged pull-request object containing the original DOCX is absent from the bra
 and protected `main`; removal from GitHub's unreachable-object and cached-view
 storage requires a separate owner authorisation for a GitHub Support request and
 does not block the technical `v0.2.0` workstream.
+
+EVID-204 current-call inspection receipts merged through
+[pull request 54](https://github.com/chris-page-gov/gis-ai-go/pull/54) as the latest
+protected-main runtime commit
+`7fa8b720d3cbaa3e0a1ebfadf0fb355a7330a04c`. Protected-main
+[run 32664382129](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32664382129)
+passed repository, exact gateway-image, aggregate and provenance assurance, and
+[run 32664382047](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32664382047)
+passed CodeQL for Actions, JavaScript/TypeScript and Python. Source
+[attestation 42456194](https://github.com/chris-page-gov/gis-ai-go/attestations/42456194)
+and gateway [OCI attestation 42456249](https://github.com/chris-page-gov/gis-ai-go/attestations/42456249),
+[SBOM attestation 42456257](https://github.com/chris-page-gov/gis-ai-go/attestations/42456257)
+and [manifest attestation 42456259](https://github.com/chris-page-gov/gis-ai-go/attestations/42456259)
+bind the accepted source and image evidence. The current v3 result carries a
+distinct, independently verifiable receipt for the inspection call across direct
+HTTP, MCP HTTP, MCP STDIO, resource and complete plain-text paths while preserving
+the inspected stored receipt. The new receipt is not persisted or attested and
+creates no ledger record or event; historical v1 and v2 contracts remain unchanged.
+This does not activate, register, deploy or release the candidate.
+
+The repository-local QUAL-206 protocol matrix in this tree binds four
+official-client and raw-transcript HTTP and STDIO source-coverage rows to exact Git
+blobs from that protected-main runtime. Its in-process STDIO regression covers seven
+suspension scenarios, nine resulting suspensions, reduced tool and resource
+discovery, rejected suspended calls and zero provider calls. The JSON records no
+test-runner outcome; current execution is established separately by repository
+assurance. It remains repository-only, non-live and unscored; it is not desktop
+STDIO, remote HTTP, live-provider, activation, deployment or release evidence.
 
 ## Non-negotiable boundaries
 

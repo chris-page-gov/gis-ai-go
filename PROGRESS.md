@@ -11,13 +11,11 @@ The supported target active set is exactly `catalogue.search`,
 
 ## Active workstream
 
-`EVID-204 / QUAL-206 — Close the remaining repository-local exact-five evidence gaps`
+`QUAL-206 — Progress from repository preflight to independent-host evidence`
 
-- add a verifiable current-call receipt to `evidence.inspect` while retaining the
-  earlier operation receipt as inspected evidence;
-- complete the repository-local STDIO and client/version interoperability matrix;
-- monitor immutable official supported glibc base releases and re-probe only when
-  upstream bytes or package fix status changes; and
+- retain the repository-local STDIO and client/version matrix bound to the
+  protected-main v3 inspection-receipt runtime as preflight only;
+- complete independent desktop-STDIO and remote-HTTP host evidence separately; and
 - stop before any public runtime, live provider call, host credential, registry
   publication, activation, tag or release that requires separate authority.
 
@@ -182,12 +180,10 @@ The supported target active set is exactly `catalogue.search`,
   passed CodeQL for Actions, JavaScript/TypeScript and Python. The immutable
   `candidate-unregistered` assembly is shared across direct HTTP, MCP HTTP, MCP
   STDIO, OpenAPI and plain text. Production registration remains false, shipped
-  activation arrays remain empty and issue
-  [#23](https://github.com/chris-page-gov/gis-ai-go/issues/23) remains open because
-  the current `evidence.inspect` call does not create its own receipt;
+  activation arrays remain empty;
 - the bounded governance research intake merged through
-  [pull request 52](https://github.com/chris-page-gov/gis-ai-go/pull/52) as the current
-  protected-main commit `37a71cdcc55bf3708527596d47ea9839d150fed5`. Protected-main
+  [pull request 52](https://github.com/chris-page-gov/gis-ai-go/pull/52) as
+  `37a71cdcc55bf3708527596d47ea9839d150fed5`. Protected-main
   [run 32658667714](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32658667714)
   passed repository, exact gateway-image, aggregate and provenance assurance, while
   [run 32658667650](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32658667650)
@@ -196,29 +192,41 @@ The supported target active set is exactly `catalogue.search`,
   ignored; protected `main` contains the supplied advisory Markdown, a
   privacy-scrubbed DOCX derivative, the source-by-source findings matrix and only
   the supported threat-evidence crosswalk. It changes no runtime, activation or
-  release state; and
-- the complete local repository gate and protected pull-request checks pass on the
-  accepted tree, including all
-  TypeScript and Python tests, 27 real-browser tests, deterministic release builds,
-  contract, link and secret validation, the execution container, diagrams and the
-  repository SBOM.
+  release state;
+- EVID-204 current-call inspection receipts merged through
+  [pull request 54](https://github.com/chris-page-gov/gis-ai-go/pull/54) as protected-main
+  runtime commit `7fa8b720d3cbaa3e0a1ebfadf0fb355a7330a04c`. Protected-main
+  [run 32664382129](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32664382129)
+  passed repository, exact gateway-image, aggregate and provenance assurance, while
+  [run 32664382047](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32664382047)
+  passed CodeQL for Actions, JavaScript/TypeScript and Python. Every current v3
+  inspection result carries a distinct verifiable inline receipt without persisting
+  or attesting it or creating a ledger record or event. Historical v1 and v2
+  contracts remain unchanged, and production registration remains false; and
+- the repository-local QUAL-206 protocol matrix in this tree binds four pinned
+  official-client and raw-transcript HTTP and STDIO source-coverage rows to exact
+  Git blobs from the protected-main v3 runtime. Seven in-process suspension
+  scenarios produce nine suspensions, reduced discovery, rejected calls and zero
+  provider calls. The JSON records no test-runner outcome; it remains non-live and
+  unscored and does not complete independent-host evidence; and
+- acceptance requires both the complete local repository gate, which passes on this
+  matrix tree, and the protected pull-request and protected-main checks. The local
+  gate includes all TypeScript and Python tests, 27 real-browser tests,
+  deterministic release builds, contract, link and secret validation, the execution
+  container, diagrams and the repository SBOM.
 
 ## Next
 
-1. Add and verify an inline current-call receipt for `evidence.inspect`, while
-   preserving the inspected earlier-operation policy decision and receipt. Keep
-   issue #23 open until the literal acceptance criterion and protected integration
-   pass.
-2. Complete the repository-local STDIO and client/version interoperability matrix.
-   Keep it explicitly non-live; it does not complete issue #24's independent-host
-   evidence.
-3. Monitor official supported glibc base releases. Re-probe Bookworm and Trixie
+1. Complete independent desktop-STDIO and remote-HTTP host evidence. The local
+   protocol matrix remains repository-only preflight and does not complete issue
+   #24's live-host criteria.
+2. Monitor official supported glibc base releases. Re-probe Bookworm and Trixie
    only when immutable upstream bytes or package fix status changes; accept a
    replacement only if complete repository and image assurance, reproducible OCI
    builds, SBOM, current scanning and compatibility review pass.
-4. Keep DEPLOY-207 at `status: decision needed` until an authorised public runtime,
+3. Keep DEPLOY-207 at `status: decision needed` until an authorised public runtime,
    hostname/TLS, identity, egress, storage and operator boundary exists.
-5. Only after that separate authority exists, deploy an unregistered
+4. Only after that separate authority exists, deploy an unregistered
    candidate and complete live QUAL-206 evidence before any activation, registry
    publication, tag or `v0.2.0` release.
 
@@ -239,11 +247,10 @@ The supported target active set is exactly `catalogue.search`,
 - Direct routes and MCP transports now exist on protected `main`, but the
   exact-five assembly is `candidate-unregistered`, production registration is
   false, the production/default capability arrays are empty, shipped readiness is
-  `503`, and there is no public service deployment or activation override.
-- `evidence.inspect` returns the current call's request and trace identities while
-  verifying the earlier operation's policy decision and receipt, but does not yet
-  create a verifiable receipt for the current inspection call. Issue #23 remains
-  open.
+  `503`, and there is no public service deployment or activation override. The
+  repository-local matrix is non-live and cannot close issue #23 or issue #24;
+  independent hosts, a live provider, authorised deployment and release evidence
+  remain outstanding.
 - The 23 August Bookworm and Trixie probe found no supported official glibc
   replacement that both resolves all three retained High image vulnerabilities and
   satisfies the current compatibility boundary. Re-probe only after immutable
@@ -262,7 +269,34 @@ The supported target active set is exactly `catalogue.search`,
 
 ## Latest evidence
 
-- current protected-main hand-off: advisory research
+- current protected-main runtime hand-off: EVID-204 inspection receipts
+  [pull request 54](https://github.com/chris-page-gov/gis-ai-go/pull/54) merged as
+  `7fa8b720d3cbaa3e0a1ebfadf0fb355a7330a04c`; protected-main assurance and
+  provenance passed in
+  [run 32664382129](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32664382129)
+  and CodeQL passed in
+  [run 32664382047](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32664382047).
+  The [source attestation is 42456194](https://github.com/chris-page-gov/gis-ai-go/attestations/42456194),
+  and the gateway [OCI](https://github.com/chris-page-gov/gis-ai-go/attestations/42456249),
+  [SBOM](https://github.com/chris-page-gov/gis-ai-go/attestations/42456257) and
+  [manifest](https://github.com/chris-page-gov/gis-ai-go/attestations/42456259)
+  attestations bind the same commit. The current local QUAL receipt set retains 7
+  receipts, 17 suites and 82 exact tests at set ID
+  `gis-ai-go:qual-206-local-evaluation-set:sha256:160298c85fb3db5394c5c27d4905e1e5cf086bad60aae3b7512f2890dcbeb43d`
+  and file SHA-256
+  `f93e0988a966e0387cde1bdb89261fe40308e733f1ac7725e8735818094e1dea`;
+- QUAL-206 local protocol-matrix candidate: the matrix in this tree binds the
+  official MCP client 2.0.0 and MCP 2026-07-28 source coverage across four
+  semantically fixed HTTP and STDIO rows to exact Git blobs from protected-main
+  runtime `7fa8b720d3cbaa3e0a1ebfadf0fb355a7330a04c`. Seven in-process suspension
+  scenarios produce nine suspensions with zero provider calls. The JSON records no
+  test-runner outcome; current execution is established separately by the complete
+  local gate. Matrix ID
+  `gis-ai-go:qual-206-local-protocol-evidence-matrix:sha256:472798d1207dcdd7fc9c001f3ae67e733b4fb7bbbae1514ec1d81dea2182e3f7`
+  has file SHA-256
+  `c74f1433605cd783d14933a8ce18efed4d1ddcb9843b4b8dc380eccb47921a58`.
+  It remains repository-only, non-live and unscored;
+- advisory research
   [pull request 52](https://github.com/chris-page-gov/gis-ai-go/pull/52) merged as
   `37a71cdcc55bf3708527596d47ea9839d150fed5`; protected-main assurance and
   provenance passed in

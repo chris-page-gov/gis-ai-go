@@ -4,6 +4,7 @@ import copy
 import hashlib
 import json
 import re
+import subprocess
 import unittest
 from pathlib import Path
 from typing import Any
@@ -22,10 +23,11 @@ GATEWAY_MANIFEST_PATH = ROOT / "apps" / "mcp-gateway" / "package.json"
 LOCKFILE_PATH = ROOT / "pnpm-lock.yaml"
 RUNTIME_BASE_COMMIT = "7fa8b720d3cbaa3e0a1ebfadf0fb355a7330a04c"
 BOUNDARY = (
-    "Repository-material-bound deterministic evidence. It is repository-only, "
-    "non-live and unscored; the suspension regression uses in-process STDIO server "
-    "wiring, and the matrix does not complete host interoperability or authorise "
-    "activation, deployment, registration or release."
+    "Repository-material-bound deterministic source matrix. It is repository-only, "
+    "non-live and unscored; coverage rows bind source declarations but do not record "
+    "test execution, the suspension regression uses in-process STDIO server wiring, "
+    "and the matrix does not complete host interoperability or authorise activation, "
+    "deployment, registration or release."
 )
 EXPECTED_RUNTIME_PATHS = [
     "apps/mcp-gateway/src/governed-assembly.ts",
@@ -80,6 +82,66 @@ EXPECTED_COVERAGE = [
         },
     ),
 ]
+EXPECTED_SOURCE_TEST_NAMES = {
+    "official-http": [
+        (
+            "apps/mcp-gateway/test/mcp-transport.test.ts",
+            (
+                "interoperates with the pinned v2 SDK client for tools and resources",
+                "interoperates through the real bounded loopback Node ingress",
+            ),
+        )
+    ],
+    "official-stdio": [
+        (
+            "apps/mcp-gateway/test/mcp-stdio.test.ts",
+            (
+                "interoperates with the pinned official STDIO client in an enabled "
+                "subprocess",
+            ),
+        )
+    ],
+    "raw-http": [
+        (
+            "apps/mcp-gateway/test/mcp-transport.test.ts",
+            (
+                "requires both HTTP Accept media types before entering the SDK",
+                "rejects every unsafe JSON-RPC request ID before SDK dispatch",
+                "guards the SDK 2.0.0 missing protocol-version header defect narrowly",
+                "leaves unsupported revisions and cross-header mismatches to the pinned "
+                "SDK",
+            ),
+        ),
+        (
+            "apps/mcp-gateway/test/public-read-transport.test.ts",
+            (
+                "propagates modern MCP HTTP cancellation with no receipt or ledger event",
+            ),
+        ),
+    ],
+    "raw-stdio": [
+        (
+            "apps/mcp-gateway/test/mcp-stdio.test.ts",
+            (
+                "serves a raw modern STDIO transcript through the same registered factory",
+                "rejects every unsafe STDIO request ID before application dispatch",
+                "rejects a legacy STDIO opening without pinning the connection to it",
+                "bounds the reply to an exactly 1 MiB subprocess request with a huge ID",
+                "keeps the executable stdout protocol-clean with frozen zero activation",
+            ),
+        ),
+        (
+            "apps/mcp-gateway/test/public-read-transport.test.ts",
+            (
+                "honours STDIO cancellation without a response, receipt or ledger event",
+            ),
+        ),
+    ],
+}
+EXPECTED_SUSPENSION_SOURCE = (
+    "apps/mcp-gateway/test/qual-206-local-protocol-matrix.test.ts",
+    ("keeps every governed suspension absent and uncallable over in-process STDIO",),
+)
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -88,6 +150,24 @@ def load_json(path: Path) -> dict[str, Any]:
 
 def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def sha256_bytes(value: bytes) -> str:
+    return hashlib.sha256(value).hexdigest()
+
+
+def git_blob(commit: str, path: str) -> bytes:
+    result = subprocess.run(
+        ["git", "show", f"{commit}:{path}"],
+        cwd=ROOT,
+        check=False,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    if result.returncode != 0:
+        message = result.stderr.decode("utf-8", errors="replace").strip()
+        raise AssertionError(f"Unable to read {path} from {commit}: {message}")
+    return result.stdout
 
 
 def canonical(value: Any) -> str:
@@ -162,7 +242,7 @@ class Qual206LocalProtocolEvidenceMatrixTests(unittest.TestCase):
         ).encode()
         self.assertEqual(MATRIX_PATH.read_bytes(), expected_bytes)
 
-    def test_matrix_binds_exact_repository_materials_and_test_names(self) -> None:
+    def test_matrix_binds_exact_base_git_materials_and_source_labels(self) -> None:
         self.assertEqual(
             self.document["schema_contract"],
             {
@@ -179,33 +259,57 @@ class Qual206LocalProtocolEvidenceMatrixTests(unittest.TestCase):
             EXPECTED_RUNTIME_PATHS,
         )
 
-        materials = [
+        base_materials = [
             *binding["runtime_materials"],
             self.document["official_client"]["manifest"],
             self.document["official_client"]["lockfile"],
         ]
-        test_evidence = [
-            *(
-                evidence
-                for row in self.document["coverage"]
-                for evidence in row["evidence"]
-            ),
-            self.document["suspension_stdio"]["test"],
+        coverage_sources = [
+            source
+            for row in self.document["coverage"]
+            for source in row["test_sources"]
         ]
-        for material in [*materials, *test_evidence]:
+        base_scoped = [*base_materials, *coverage_sources]
+        for material in base_scoped:
             with self.subTest(path=material["path"]):
                 path = (ROOT / material["path"]).resolve()
                 self.assertTrue(path.is_relative_to(ROOT.resolve()))
                 self.assertTrue(path.is_file())
                 self.assertEqual(material["sha256"], sha256(path))
+                self.assertEqual(
+                    material["sha256"],
+                    sha256_bytes(git_blob(RUNTIME_BASE_COMMIT, material["path"])),
+                )
 
-        for evidence in test_evidence:
-            source = (ROOT / evidence["path"]).read_text(encoding="utf-8")
-            for name in evidence["test_names"]:
-                with self.subTest(path=evidence["path"], test=name):
+        actual_source_names = {
+            row["id"]: [
+                (source["path"], tuple(source["source_test_names"]))
+                for source in row["test_sources"]
+            ]
+            for row in self.document["coverage"]
+        }
+        self.assertEqual(actual_source_names, EXPECTED_SOURCE_TEST_NAMES)
+
+        suspension_source = self.document["suspension_stdio"]["test_source"]
+        self.assertEqual(
+            (
+                suspension_source["path"],
+                tuple(suspension_source["source_test_names"]),
+            ),
+            EXPECTED_SUSPENSION_SOURCE,
+        )
+        suspension_path = (ROOT / suspension_source["path"]).resolve()
+        self.assertTrue(suspension_path.is_relative_to(ROOT.resolve()))
+        self.assertTrue(suspension_path.is_file())
+        self.assertEqual(suspension_source["sha256"], sha256(suspension_path))
+
+        for source_entry in [*coverage_sources, suspension_source]:
+            source = (ROOT / source_entry["path"]).read_text(encoding="utf-8")
+            for name in source_entry["source_test_names"]:
+                with self.subTest(path=source_entry["path"], source_test=name):
                     self.assertRegex(
                         source,
-                        rf"test\(\s*{re.escape(json.dumps(name))}",
+                        rf"(?m)^[ \t]*test\([ \t]*{re.escape(json.dumps(name))}[ \t]*,",
                     )
 
         core = {
@@ -288,7 +392,9 @@ class Qual206LocalProtocolEvidenceMatrixTests(unittest.TestCase):
         self.assertFalse(suspension["production_registration"])
         self.assertEqual(suspension["provider_network_calls"], 0)
         self.assertFalse(suspension["operating_system_pipe_framing"])
-        source = (ROOT / suspension["test"]["path"]).read_text(encoding="utf-8")
+        source = (ROOT / suspension["test_source"]["path"]).read_text(
+            encoding="utf-8"
+        )
         self.assertIn("startGovernedCandidateStdio", source)
         self.assertIn("InMemoryTransport.createLinkedPair", source)
         self.assertNotIn("spawn(", source)
@@ -323,6 +429,24 @@ class Qual206LocalProtocolEvidenceMatrixTests(unittest.TestCase):
         rebased = copy.deepcopy(self.document)
         rebased["repository_binding"]["runtime_base_commit"] = "a" * 40
         self.assert_invalid(rebased)
+
+        executed = copy.deepcopy(self.document)
+        executed["claims"]["test_execution_recorded"] = True
+        self.assert_invalid(executed)
+
+        duplicate = copy.deepcopy(self.document)
+        duplicate["coverage"][1] = copy.deepcopy(duplicate["coverage"][0])
+        self.assert_invalid(duplicate)
+
+        contradictory = copy.deepcopy(self.document)
+        contradictory["coverage"][0]["driver"] = "raw-transcript"
+        contradictory["coverage"][0]["transport"] = "stdio"
+        contradictory["coverage"][0]["wiring"] = "real-process-stdio"
+        self.assert_invalid(contradictory)
+
+        inflated = copy.deepcopy(self.document)
+        inflated["coverage"][0]["covers"]["cancellation"] = True
+        self.assert_invalid(inflated)
 
 
 if __name__ == "__main__":

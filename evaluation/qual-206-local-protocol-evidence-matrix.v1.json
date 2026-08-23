@@ -3,7 +3,7 @@
   "classification": "repository-only-non-live-unscored",
   "schema_contract": {
     "path": "schemas/qual-206-local-protocol-evidence-matrix.schema.json",
-    "sha256": "5eeca8207603b32e628fb1eee64042e05e82165b705250a78cda9fa2acbc06af"
+    "sha256": "af7ca810e01290d670a10501da8f7306958266bab1b68a02a48d2a06c95a791f"
   },
   "repository_binding": {
     "kind": "repository-material-bound",
@@ -54,11 +54,11 @@
       "driver": "official-client",
       "transport": "http",
       "wiring": "in-process-fetch-and-loopback",
-      "evidence": [
+      "test_sources": [
         {
           "path": "apps/mcp-gateway/test/mcp-transport.test.ts",
           "sha256": "8826d5f6bdd96e9bdd9d5c4e9175e7a3da8d3ff957e4caa2f92d3d28437e7688",
-          "test_names": [
+          "source_test_names": [
             "interoperates with the pinned v2 SDK client for tools and resources",
             "interoperates through the real bounded loopback Node ingress"
           ]
@@ -75,11 +75,11 @@
       "driver": "official-client",
       "transport": "stdio",
       "wiring": "real-process-stdio",
-      "evidence": [
+      "test_sources": [
         {
           "path": "apps/mcp-gateway/test/mcp-stdio.test.ts",
           "sha256": "1b866688485bf242821aab37a8130b6d31d3a118a48908e3092fce754ed4d383",
-          "test_names": [
+          "source_test_names": [
             "interoperates with the pinned official STDIO client in an enabled subprocess"
           ]
         }
@@ -95,11 +95,11 @@
       "driver": "raw-transcript",
       "transport": "http",
       "wiring": "in-process-fetch",
-      "evidence": [
+      "test_sources": [
         {
           "path": "apps/mcp-gateway/test/mcp-transport.test.ts",
           "sha256": "8826d5f6bdd96e9bdd9d5c4e9175e7a3da8d3ff957e4caa2f92d3d28437e7688",
-          "test_names": [
+          "source_test_names": [
             "requires both HTTP Accept media types before entering the SDK",
             "rejects every unsafe JSON-RPC request ID before SDK dispatch",
             "guards the SDK 2.0.0 missing protocol-version header defect narrowly",
@@ -109,7 +109,7 @@
         {
           "path": "apps/mcp-gateway/test/public-read-transport.test.ts",
           "sha256": "d45ea2e7702de3c6e5535894f42553d1698369ccf6c31e33b2906b33bc23a26b",
-          "test_names": [
+          "source_test_names": [
             "propagates modern MCP HTTP cancellation with no receipt or ledger event"
           ]
         }
@@ -125,11 +125,11 @@
       "driver": "raw-transcript",
       "transport": "stdio",
       "wiring": "in-process-and-real-process-stdio",
-      "evidence": [
+      "test_sources": [
         {
           "path": "apps/mcp-gateway/test/mcp-stdio.test.ts",
           "sha256": "1b866688485bf242821aab37a8130b6d31d3a118a48908e3092fce754ed4d383",
-          "test_names": [
+          "source_test_names": [
             "serves a raw modern STDIO transcript through the same registered factory",
             "rejects every unsafe STDIO request ID before application dispatch",
             "rejects a legacy STDIO opening without pinning the connection to it",
@@ -140,7 +140,7 @@
         {
           "path": "apps/mcp-gateway/test/public-read-transport.test.ts",
           "sha256": "d45ea2e7702de3c6e5535894f42553d1698369ccf6c31e33b2906b33bc23a26b",
-          "test_names": [
+          "source_test_names": [
             "honours STDIO cancellation without a response, receipt or ledger event"
           ]
         }
@@ -156,10 +156,10 @@
     "transport": "stdio",
     "driver": "raw-transcript",
     "wiring": "in-process-stdio-server",
-    "test": {
+    "test_source": {
       "path": "apps/mcp-gateway/test/qual-206-local-protocol-matrix.test.ts",
       "sha256": "cfdd1191b6afa41d6b5c4b0b29d638b6feaca4c6ca8aed794ad96520cd53e123",
-      "test_names": [
+      "source_test_names": [
         "keeps every governed suspension absent and uncallable over in-process STDIO"
       ]
     },
@@ -180,6 +180,7 @@
   "claims": {
     "complete_qual_206": false,
     "scored_evaluation": false,
+    "test_execution_recorded": false,
     "live_host_session": false,
     "desktop_host_acceptance": false,
     "remote_host_acceptance": false,
@@ -189,6 +190,6 @@
     "public_registration": false,
     "release_acceptance": false
   },
-  "boundary": "Repository-material-bound deterministic evidence. It is repository-only, non-live and unscored; the suspension regression uses in-process STDIO server wiring, and the matrix does not complete host interoperability or authorise activation, deployment, registration or release.",
-  "matrix_id": "gis-ai-go:qual-206-local-protocol-evidence-matrix:sha256:e67fedce815b6b9d05123db35368c62b70fc51ea08f196cb9251e4fc0ba13043"
+  "boundary": "Repository-material-bound deterministic source matrix. It is repository-only, non-live and unscored; coverage rows bind source declarations but do not record test execution, the suspension regression uses in-process STDIO server wiring, and the matrix does not complete host interoperability or authorise activation, deployment, registration or release.",
+  "matrix_id": "gis-ai-go:qual-206-local-protocol-evidence-matrix:sha256:472798d1207dcdd7fc9c001f3ae67e733b4fb7bbbae1514ec1d81dea2182e3f7"
 }

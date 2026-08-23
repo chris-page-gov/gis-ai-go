@@ -1,5 +1,5 @@
-- Add a closed repository-local MCP 2026-07-28 protocol evidence matrix for the
+- Add a closed repository-local MCP 2026-07-28 protocol source matrix for the
   pinned official client and independent HTTP/STDIO transcripts, plus explicit
-  in-process STDIO suspension coverage. The evidence remains non-live, unscored
-  and does not claim desktop-host, remote-host, activation, deployment or release
-  acceptance.
+  in-process STDIO suspension coverage. Assurance verifies the exact runtime-base
+  Git blobs; the matrix records no test-runner, live-host, activation, deployment
+  or release outcome.

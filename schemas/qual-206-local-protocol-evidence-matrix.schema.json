@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "urn:gis-ai-go:schema:qual-206-local-protocol-evidence-matrix:1",
-  "$comment": "Closed repository-material-bound, non-live and unscored QUAL-206 protocol evidence.",
-  "title": "GIS AI GO QUAL-206 local protocol evidence matrix",
+  "$comment": "Closed repository-material-bound, non-live and unscored QUAL-206 protocol source matrix.",
+  "title": "GIS AI GO QUAL-206 local protocol source matrix",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -42,9 +42,89 @@
       "minItems": 4,
       "maxItems": 4,
       "uniqueItems": true,
-      "items": {
-        "$ref": "#/$defs/coverageRow"
-      }
+      "prefixItems": [
+        {
+          "allOf": [
+            { "$ref": "#/$defs/coverageRow" },
+            {
+              "properties": {
+                "id": { "const": "official-http" },
+                "driver": { "const": "official-client" },
+                "transport": { "const": "http" },
+                "wiring": { "const": "in-process-fetch-and-loopback" },
+                "covers": {
+                  "const": {
+                    "protocol_2026_07_28": true,
+                    "cancellation": false,
+                    "unsupported_traffic": false
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            { "$ref": "#/$defs/coverageRow" },
+            {
+              "properties": {
+                "id": { "const": "official-stdio" },
+                "driver": { "const": "official-client" },
+                "transport": { "const": "stdio" },
+                "wiring": { "const": "real-process-stdio" },
+                "covers": {
+                  "const": {
+                    "protocol_2026_07_28": true,
+                    "cancellation": false,
+                    "unsupported_traffic": false
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            { "$ref": "#/$defs/coverageRow" },
+            {
+              "properties": {
+                "id": { "const": "raw-http" },
+                "driver": { "const": "raw-transcript" },
+                "transport": { "const": "http" },
+                "wiring": { "const": "in-process-fetch" },
+                "covers": {
+                  "const": {
+                    "protocol_2026_07_28": true,
+                    "cancellation": true,
+                    "unsupported_traffic": true
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            { "$ref": "#/$defs/coverageRow" },
+            {
+              "properties": {
+                "id": { "const": "raw-stdio" },
+                "driver": { "const": "raw-transcript" },
+                "transport": { "const": "stdio" },
+                "wiring": { "const": "in-process-and-real-process-stdio" },
+                "covers": {
+                  "const": {
+                    "protocol_2026_07_28": true,
+                    "cancellation": true,
+                    "unsupported_traffic": true
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "items": false
     },
     "suspension_stdio": {
       "$ref": "#/$defs/suspensionStdio"
@@ -53,7 +133,7 @@
       "$ref": "#/$defs/claims"
     },
     "boundary": {
-      "const": "Repository-material-bound deterministic evidence. It is repository-only, non-live and unscored; the suspension regression uses in-process STDIO server wiring, and the matrix does not complete host interoperability or authorise activation, deployment, registration or release."
+      "const": "Repository-material-bound deterministic source matrix. It is repository-only, non-live and unscored; coverage rows bind source declarations but do not record test execution, the suspension regression uses in-process STDIO server wiring, and the matrix does not complete host interoperability or authorise activation, deployment, registration or release."
     },
     "matrix_id": {
       "type": "string",
@@ -84,10 +164,10 @@
         }
       }
     },
-    "testEvidence": {
+    "testSource": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["path", "sha256", "test_names"],
+      "required": ["path", "sha256", "source_test_names"],
       "properties": {
         "path": {
           "$ref": "#/$defs/relativePath"
@@ -95,7 +175,7 @@
         "sha256": {
           "$ref": "#/$defs/sha256"
         },
-        "test_names": {
+        "source_test_names": {
           "type": "array",
           "minItems": 1,
           "maxItems": 8,
@@ -212,7 +292,7 @@
         "driver",
         "transport",
         "wiring",
-        "evidence",
+        "test_sources",
         "covers"
       ],
       "properties": {
@@ -238,12 +318,12 @@
             "in-process-and-real-process-stdio"
           ]
         },
-        "evidence": {
+        "test_sources": {
           "type": "array",
           "minItems": 1,
           "maxItems": 2,
           "items": {
-            "$ref": "#/$defs/testEvidence"
+            "$ref": "#/$defs/testSource"
           }
         },
         "covers": {
@@ -258,7 +338,7 @@
         "transport",
         "driver",
         "wiring",
-        "test",
+        "test_source",
         "scenario_count",
         "resulting_suspension_count",
         "checks",
@@ -276,8 +356,8 @@
         "wiring": {
           "const": "in-process-stdio-server"
         },
-        "test": {
-          "$ref": "#/$defs/testEvidence"
+        "test_source": {
+          "$ref": "#/$defs/testSource"
         },
         "scenario_count": {
           "const": 7
@@ -316,6 +396,7 @@
       "required": [
         "complete_qual_206",
         "scored_evaluation",
+        "test_execution_recorded",
         "live_host_session",
         "desktop_host_acceptance",
         "remote_host_acceptance",
@@ -328,6 +409,7 @@
       "properties": {
         "complete_qual_206": { "const": false },
         "scored_evaluation": { "const": false },
+        "test_execution_recorded": { "const": false },
         "live_host_session": { "const": false },
         "desktop_host_acceptance": { "const": false },
         "remote_host_acceptance": { "const": false },
