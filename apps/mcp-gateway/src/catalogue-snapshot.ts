@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { constants, type Stats } from "node:fs";
 import { lstat, open, opendir, realpath } from "node:fs/promises";
 import { dirname, isAbsolute, join, posix, relative, resolve, sep } from "node:path";
+import { types as utilTypes } from "node:util";
 
 import {
   parseCatalogueJson,
@@ -30,6 +31,7 @@ const SHA256 = /^[0-9a-f]{64}$/u;
 const SHA40 = /^[0-9a-f]{40}$/u;
 const SEMVER = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/u;
 const SAFE_PATH_SEGMENT = /^[A-Za-z0-9][A-Za-z0-9._-]*$/u;
+const VERIFIED_CATALOGUE_SNAPSHOTS = new WeakSet<object>();
 
 interface ScannedFile {
   readonly absolutePath: string;
@@ -144,6 +146,10 @@ class FrozenRecordMap implements ReadonlyMap<string, CatalogueRecord> {
     return this.entries();
   }
 }
+
+// Calls read through this map after asynchronous transport boundaries. Keep its
+// private dispatch surface immutable before any verified instance is exposed.
+Object.freeze(FrozenRecordMap.prototype);
 
 function sha256(bytes: Uint8Array): string {
   return createHash("sha256").update(bytes).digest("hex");
@@ -801,7 +807,7 @@ export async function loadCatalogueSnapshot(
     : null;
   const warnings = deepFreeze(stalenessWarning === null ? [] : [stalenessWarning]);
 
-  return Object.freeze({
+  const snapshot = Object.freeze({
     root,
     bundle: frozenBundle,
     recordsById,
@@ -814,4 +820,19 @@ export async function loadCatalogueSnapshot(
     stalenessWarning,
     warnings,
   });
+  VERIFIED_CATALOGUE_SNAPSHOTS.add(snapshot);
+  return snapshot;
+}
+
+/** Admit only the exact immutable value returned by the checksum-verifying loader. */
+export function requireExactCatalogueSnapshot(value: unknown): CatalogueSnapshot {
+  if (
+    typeof value !== "object" ||
+    value === null ||
+    utilTypes.isProxy(value) ||
+    !VERIFIED_CATALOGUE_SNAPSHOTS.has(value)
+  ) {
+    throw new TypeError("Catalogue snapshot is not an exact verified snapshot");
+  }
+  return value as CatalogueSnapshot;
 }

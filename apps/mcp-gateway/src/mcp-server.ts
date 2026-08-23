@@ -38,6 +38,12 @@ import {
   type DataQueryResult,
 } from "./data-query-application.js";
 import { gatewayMetadata } from "./metadata.js";
+import {
+  governedCandidateAssemblyBindings,
+  snapshotGovernedCandidateOptions,
+  verifyGovernedCandidateOperation,
+  type GovernedCandidateAssembly,
+} from "./governed-assembly.js";
 import { dataQueryRequestSignal } from "./mcp-request-signal.js";
 import {
   CATALOGUE_OPERATION_JSON_SCHEMAS,
@@ -207,7 +213,14 @@ export interface CatalogueMcpOptions {
   readonly createRequestContext?: CatalogueMcpRequestContextFactory;
   /** Reporting only. No error detail supplied here is returned to a client. */
   readonly onerror?: (error: Error) => void;
+  /** Private fail-closed guard used only by the branded candidate assembly. */
+  readonly readinessGuard?: (operation: GatewayMcpOperation) => void;
 }
+
+export type GovernedCandidateMcpOptions = Pick<
+  CatalogueMcpOptions,
+  "createRequestContext" | "onerror"
+>;
 
 export const MCP_CATALOGUE_INPUT_SCHEMAS = Object.freeze({
   "catalogue.describe": CATALOGUE_OPERATION_JSON_SCHEMAS["catalogue.describe"].inputSchema,
@@ -437,6 +450,13 @@ function failedResult(
   return problemResult(createCatalogueProblem("internal_error", context));
 }
 
+function verifyCandidateReadiness(
+  options: CatalogueMcpOptions,
+  operation: GatewayMcpOperation,
+): void {
+  options.readinessGuard?.(operation);
+}
+
 function registerSearch(server: McpServer, options: CatalogueMcpOptions): void {
   server.registerTool(
     "catalogue.search",
@@ -456,6 +476,7 @@ function registerSearch(server: McpServer, options: CatalogueMcpOptions): void {
     async (request) => {
       const context = catalogueContext(options, "catalogue.search");
       try {
+        verifyCandidateReadiness(options, "catalogue.search");
         return await completeResult(
           "catalogue.search",
           options.application.search(request, context),
@@ -486,6 +507,7 @@ function registerDescribe(server: McpServer, options: CatalogueMcpOptions): void
     async (request) => {
       const context = catalogueContext(options, "catalogue.describe");
       try {
+        verifyCandidateReadiness(options, "catalogue.describe");
         return await completeResult(
           "catalogue.describe",
           options.application.describe(request, context),
@@ -516,6 +538,7 @@ function registerEvidenceInspect(server: McpServer, options: CatalogueMcpOptions
     async (request) => {
       const context = catalogueContext(options, "evidence.inspect");
       try {
+        verifyCandidateReadiness(options, "evidence.inspect");
         return await completeResult(
           "evidence.inspect",
           (options.evidenceApplication as EvidenceInspectApplication).inspect(
@@ -555,6 +578,7 @@ function registerSelectionResolve(server: McpServer, options: CatalogueMcpOption
     async (request) => {
       const context = catalogueContext(options, "selection.resolve");
       try {
+        verifyCandidateReadiness(options, "selection.resolve");
         const result = (options.selectionApplication as SelectionResolveApplication)
           .resolve(request, context);
         return isSelectionProblem(result)
@@ -587,6 +611,7 @@ function registerDataQuery(server: McpServer, options: CatalogueMcpOptions): voi
       const context = catalogueContext(options, "data.query");
       const requestSignal = dataQueryRequestSignal(handlerContext.mcpReq.signal);
       try {
+        verifyCandidateReadiness(options, "data.query");
         return await completeResult(
           "data.query",
           await (options.dataQueryApplication as DataQueryApplication).query(
@@ -752,6 +777,7 @@ function registerEvidenceReceiptResource(
       }
       const context = catalogueContext(options, "evidence.inspect");
       try {
+        verifyCandidateReadiness(options, "evidence.inspect");
         const result = (options.evidenceApplication as EvidenceInspectApplication).inspect(
           { receipt_id: receiptId },
           context,
@@ -834,6 +860,12 @@ function createCatalogueMcpServerFactoryForPolicy(
   }
   if (options.onerror !== undefined && typeof options.onerror !== "function") {
     throw new TypeError("onerror must be a function");
+  }
+  if (
+    options.readinessGuard !== undefined &&
+    typeof options.readinessGuard !== "function"
+  ) {
+    throw new TypeError("readinessGuard must be a function");
   }
   const operations = enabledOperations(options);
   const resources = enabledResources(options);
@@ -989,6 +1021,31 @@ export function createCatalogueMcpServerFactory(
   options: CatalogueMcpOptions,
 ): McpServerFactory {
   return createCatalogueMcpServerFactoryForPolicy(options, "modern-only");
+}
+
+/** Build modern MCP discovery and calls from the same branded candidate assembly. */
+export function createGovernedCandidateMcpServerFactory(
+  assembly: GovernedCandidateAssembly,
+  options: GovernedCandidateMcpOptions = {},
+): McpServerFactory {
+  const exactOptions = snapshotGovernedCandidateOptions(
+    options,
+    ["createRequestContext", "onerror"],
+    "Governed candidate MCP options",
+  ) as GovernedCandidateMcpOptions;
+  const bindings = governedCandidateAssemblyBindings(assembly);
+  return createCatalogueMcpServerFactory({
+    ...exactOptions,
+    application: bindings.catalogueApplication,
+    evidenceApplication: bindings.evidenceApplication,
+    selectionApplication: bindings.selectionApplication,
+    dataQueryApplication: bindings.dataQueryApplication,
+    snapshot: bindings.snapshot,
+    enabledOperations: assembly.mcpOperations,
+    enabledResources: assembly.mcpResources,
+    readinessGuard: (operation) =>
+      verifyGovernedCandidateOperation(assembly, operation),
+  });
 }
 
 /**

@@ -38,6 +38,9 @@ importers:
       '@gis-ai-go/provider-adapter-sdk':
         specifier: workspace:*
         version: link:../../packages/provider-adapter-sdk
+      '@gis-ai-go/tool-registry':
+        specifier: workspace:*
+        version: link:../../packages/tool-registry
       '@modelcontextprotocol/node':
         specifier: 2.0.0
         version: 2.0.0(@modelcontextprotocol/server@2.0.0)(hono@4.13.3)

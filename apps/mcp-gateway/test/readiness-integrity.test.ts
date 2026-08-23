@@ -123,43 +123,24 @@ test("accepts only the branded exact linked evidence pair", (t) => {
     /exact linked evidence ledger/u,
   );
 
-  Object.defineProperty(firstLedger, "verify", {
-    configurable: true,
-    value: () => {
-      throw new Error("substituted ledger verifier must not run");
-    },
-  });
-  Object.defineProperty(index, "verify", {
-    configurable: true,
-    value: () => {
-      throw new Error("substituted index verifier must not run");
-    },
-  });
+  assert.throws(() => Object.defineProperty(firstLedger, "verify", { value: () => [] }));
+  assert.throws(() => Object.defineProperty(index, "verify", { value: () => [] }));
   verifyEvidenceReadinessIntegrity(integrity);
 
   let substitutedInspectionCalls = 0;
-  Object.defineProperty(firstLedger, "inspectReceipts", {
-    configurable: true,
-    value: () => {
-      substitutedInspectionCalls += 1;
-      return [];
-    },
-  });
   assert.throws(
-    () => verifyEvidenceReadinessIntegrity(integrity),
-    /exact linked evidence ledger/u,
+    () => Object.defineProperty(firstLedger, "inspectReceipts", {
+      value: () => {
+        substitutedInspectionCalls += 1;
+        return [];
+      },
+    }),
   );
   assert.equal(substitutedInspectionCalls, 0);
-  assert.equal(Reflect.deleteProperty(firstLedger, "inspectReceipts"), true);
   verifyEvidenceReadinessIntegrity(integrity);
 
-  Object.defineProperty(index, "ledger", {
-    configurable: true,
-    value: secondLedger,
-  });
   assert.throws(
-    () => verifyEvidenceReadinessIntegrity(integrity),
-    /exact linked evidence ledger/u,
+    () => Object.defineProperty(index, "ledger", { value: secondLedger }),
   );
 
   for (const invalid of [

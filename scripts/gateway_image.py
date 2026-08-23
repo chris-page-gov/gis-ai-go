@@ -2940,6 +2940,7 @@ CONTEXT_FILES = (
     "tsconfig.base.json",
     "apps/mcp-gateway/Containerfile",
     "apps/mcp-gateway/Containerfile.dockerignore",
+    "profiles/tool-registry.v1.json",
     "packages/tool-registry/package.json",
 )
 CONTEXT_ROOTS = (
@@ -2949,6 +2950,7 @@ CONTEXT_ROOTS = (
     "packages/evidence",
     "packages/policy-client",
     "packages/provider-adapter-sdk",
+    "packages/tool-registry",
     "schemas",
 )
 ADMITTED_PACKAGE_MANIFESTS = (
@@ -2998,6 +3000,8 @@ BUILDER_SOURCE_COPY_INSTRUCTIONS = (
     "COPY packages/evidence/ packages/evidence/",
     "COPY packages/policy-client/ packages/policy-client/",
     "COPY packages/provider-adapter-sdk/ packages/provider-adapter-sdk/",
+    "COPY packages/tool-registry/ packages/tool-registry/",
+    "COPY profiles/tool-registry.v1.json profiles/tool-registry.v1.json",
     "COPY schemas/ schemas/",
     "COPY artifacts/okf/ artifacts/okf/",
 )
@@ -3457,6 +3461,8 @@ def parse_gateway_containerfile_pins(text: str) -> dict[str, str]:
         "node_modules/@gis-ai-go/policy-client/dist",
         "cp -a packages/provider-adapter-sdk/dist /runtime/apps/mcp-gateway/"
         "node_modules/@gis-ai-go/provider-adapter-sdk/dist",
+        "cp -a packages/tool-registry/dist /runtime/apps/mcp-gateway/"
+        "node_modules/@gis-ai-go/tool-registry/dist",
     )
     if any(value not in build_runs[0] for value in required_workspace_copies):
         raise ValueError("gateway runtime lacks a reviewed workspace build output")

@@ -686,5 +686,84 @@ export function createCatalogueOpenApiDocument(
   return deepFreeze(document as OpenApiDocument);
 }
 
+/** Describe one branded candidate assembly without claiming production registration. */
+export function createGovernedCandidateOpenApiDocument(
+  enabledApiOperations: readonly GatewayApiOperation[],
+): OpenApiDocument {
+  const selected = normaliseOperations(enabledApiOperations);
+  const candidateOperations = Object.freeze([...enabledApiOperations]);
+  const document = cloneJson(createCatalogueOpenApiDocument(selected));
+  document["x-gis-ai-go-lifecycle"] = "candidate-unregistered";
+  document["x-gis-ai-go-production-registration"] = false;
+  document["x-gis-ai-go-candidate-operations"] = [...candidateOperations];
+
+  const paths = objectValue(document.paths, "OpenAPI paths");
+  const readinessPath = objectValue(paths["/readyz"], "OpenAPI readiness path");
+  const readinessGet = objectValue(readinessPath.get, "OpenAPI readiness operation");
+  const readinessResponses = objectValue(
+    readinessGet.responses,
+    "OpenAPI readiness responses",
+  );
+  readinessResponses["200"] = cloneJson(readinessResponses["503"]);
+  objectValue(readinessResponses["200"], "OpenAPI ready response").description =
+    "The exact candidate assembly and its evidence and provider dependencies are verified";
+
+  const components = objectValue(document.components, "OpenAPI components");
+  const schemas = objectValue(components.schemas, "OpenAPI component schemas");
+  const health = objectValue(schemas.Health, "OpenAPI health schema");
+  health.required = [
+    "status",
+    "product",
+    "lifecycle",
+    "production_registration",
+    "catalogue",
+  ];
+  const healthProperties = objectValue(
+    health.properties,
+    "OpenAPI health properties",
+  );
+  healthProperties.lifecycle = { const: "candidate-unregistered" };
+  healthProperties.production_registration = { const: false };
+  const activeOperationItems = candidateOperations.length === 0
+    ? false
+    : { enum: [...candidateOperations] };
+
+  schemas.Readiness = {
+    type: "object",
+    additionalProperties: false,
+    required: [
+      "status",
+      "reason",
+      "production_registration",
+      "active_tools",
+      "active_api_operations",
+    ],
+    properties: {
+      status: { enum: ["ready", "blocked"] },
+      reason: {
+        enum: [
+          "candidate-assembly-verified",
+          "evidence-integrity-failed",
+          "relevant-capability-suspended",
+        ],
+      },
+      production_registration: { const: false },
+      active_tools: {
+        type: "array",
+        uniqueItems: true,
+        maxItems: selected.length,
+        items: activeOperationItems,
+      },
+      active_api_operations: {
+        type: "array",
+        uniqueItems: true,
+        maxItems: selected.length,
+        items: activeOperationItems,
+      },
+    },
+  };
+  return deepFreeze(document as OpenApiDocument);
+}
+
 /** The production default remains blocked and mounts no catalogue API operation. */
 export const catalogueOpenApiDocument = createCatalogueOpenApiDocument([]);

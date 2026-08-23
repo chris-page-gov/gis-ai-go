@@ -3,6 +3,7 @@ import {
   createMcpHandler,
   type JSONRPCRequest,
   type McpHttpHandler,
+  type McpServerFactory,
 } from "@modelcontextprotocol/server";
 
 import {
@@ -10,10 +11,14 @@ import {
   containsRawIdempotencyKeyInMcpResourceUri,
   containsRawIdempotencyKeyInMcpText,
   createCatalogueMcpServerFactory,
+  createGovernedCandidateMcpServerFactory,
   isBoundedMcpRequestId,
   isBoundedMcpResourceUri,
   type CatalogueMcpOptions,
+  type GovernedCandidateMcpOptions,
 } from "./mcp-server.js";
+import type { GovernedCandidateAssembly } from "./governed-assembly.js";
+import { snapshotGovernedCandidateOptions } from "./governed-assembly.js";
 import { withMcpHttpDataQuerySignal } from "./mcp-request-signal.js";
 import { BoundedJsonError, parseBoundedJsonBytes } from "./http-app.js";
 
@@ -338,10 +343,36 @@ function isDataQueryCall(request: Request, body: unknown): boolean {
 export function createCatalogueMcpHttpHandler(
   options: CatalogueMcpOptions,
 ): McpHttpHandler {
-  const handler = createMcpHandler(createCatalogueMcpServerFactory(options), {
+  return createBoundedMcpHttpHandler(
+    createCatalogueMcpServerFactory(options),
+    options.onerror,
+  );
+}
+
+/** Create modern MCP HTTP from the same candidate-unregistered assembly. */
+export function createGovernedCandidateMcpHttpHandler(
+  assembly: GovernedCandidateAssembly,
+  options: GovernedCandidateMcpOptions = {},
+): McpHttpHandler {
+  const exactOptions = snapshotGovernedCandidateOptions(
+    options,
+    ["createRequestContext", "onerror"],
+    "Governed candidate MCP HTTP options",
+  ) as GovernedCandidateMcpOptions;
+  return createBoundedMcpHttpHandler(
+    createGovernedCandidateMcpServerFactory(assembly, exactOptions),
+    exactOptions.onerror,
+  );
+}
+
+function createBoundedMcpHttpHandler(
+  factory: McpServerFactory,
+  onerror: ((error: Error) => void) | undefined,
+): McpHttpHandler {
+  const handler = createMcpHandler(factory, {
     legacy: "reject",
     responseMode: "auto",
-    ...(options.onerror === undefined ? {} : { onerror: options.onerror }),
+    ...(onerror === undefined ? {} : { onerror }),
   });
   return {
     ...handler,

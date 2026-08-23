@@ -8,6 +8,9 @@ tool profiles accepted by ADR-0009. Its `current` fields describe the repository
 candidate, while `v02Target` records a non-runtime release objective. Only the
 gateway activation document can authorise production registration, and the
 registry package has no environment override or gateway integration.
+The root `candidateAssembly` field separately identifies the exact five-operation
+compile-time assembly, its source module and `productionRegistration: false`; it
+does not alter the suspended `current` fields or grant runtime registration.
 
 [`public-selection-profile.v1.json`](public-selection-profile.v1.json) contains
 the single reviewed `PV-ONS-DATA` candidate, finite constraint grammar, exact

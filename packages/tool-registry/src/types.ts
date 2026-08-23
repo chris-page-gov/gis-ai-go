@@ -183,9 +183,15 @@ export interface ToolRegistrySource {
 
 export interface ToolRegistryDocument {
   readonly schema: "gis-ai-go.tool-registry.v1";
-  readonly version: "1.0.0";
+  readonly version: "1.1.0";
   readonly canonicalOrder: readonly ToolProfileName[];
   readonly activationRequirements: readonly ActivationRequirement[];
+  readonly candidateAssembly: {
+    readonly state: "candidate-unregistered";
+    readonly source: "apps/mcp-gateway/src/governed-assembly.ts";
+    readonly operations: readonly V02TargetActiveToolName[];
+    readonly productionRegistration: false;
+  };
   readonly runtimeAuthority: {
     readonly source: "apps/mcp-gateway/src/activation.ts";
     readonly registryCanActivate: false;
@@ -213,5 +219,6 @@ export interface ToolRegistry {
   list(): readonly ToolProfile[];
   get(name: string): ToolProfile;
   filter(filter: ToolRegistryFilter): readonly ToolProfile[];
+  listCandidateAssemblyTools(): readonly ToolProfile[];
   listCurrentCallable(): readonly ToolProfile[];
 }

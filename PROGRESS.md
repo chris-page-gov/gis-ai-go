@@ -11,12 +11,13 @@ The supported target active set is exactly `catalogue.search`,
 
 ## Active workstream
 
-`EVID-204 — Close the remaining repository trace and readiness gaps`
+`TOOLS-205 — Assemble the exact-five governed candidate without production registration`
 
-- record the accepted QUAL-206 repository preflight and current issue state;
-- carry validated W3C Trace Context through the fixed provider-adapter invocation;
-- re-verify configured evidence storage through an inactive readiness-integrity seam
-  while production readiness remains `503` and capability arrays remain empty; and
+- derive direct and MCP discovery from one immutable registry, policy, provider and
+  application assembly;
+- prove identical suspension, trace, evidence and plain-text behaviour while the
+  shipped production capability arrays remain empty;
+- retain the open `evidence.inspect` receipt-semantics acceptance boundary; and
 - stop before any public runtime, live provider call, host credential, registry
   publication, activation, tag or release that requires separate authority.
 
@@ -173,8 +174,8 @@ The supported target active set is exactly `catalogue.search`,
 
 ## Next
 
-1. Complete the remaining EVID-204 trace-context and readiness-integrity contracts,
-   tests and acceptance evidence without activating a production operation.
+1. Review and integrate the exact-five candidate assembly without activating a
+   production operation or closing the open inspection-receipt acceptance boundary.
 2. Evaluate a pinned official base that omits or fixes the three retained High
    findings; accept it only if complete repository and image assurance, reproducible
    OCI builds, SBOM, current scanning and compatibility review pass.

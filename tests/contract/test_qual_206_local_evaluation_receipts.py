@@ -26,6 +26,7 @@ EXPECTED_SUITE_LABELS = [
     "http-application",
     "readiness-integrity",
     "blocked-container",
+    "governed-candidate-assembly",
     "interoperability-stdio",
     "tool-registry",
     "trace-context",

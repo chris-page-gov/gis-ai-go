@@ -100,6 +100,15 @@ authority.
 
 ## Deliberate activation block
 
+`createGovernedCandidateAssembly` and its direct, MCP HTTP, MCP STDIO and combined
+Node wrappers provide one compile-time exact-five integration candidate. Registry,
+policy, provider lifecycle, verified snapshot and linked evidence dependencies can
+only reduce its discovery set; every wrapper reports production registration as
+false. The shipped entrypoints do not call these constructors. The evidence
+inspector's top-level identity belongs to the current inspection, while its nested
+receipt and policy decision belong to the earlier inspected call; inspection
+creates no replacement receipt or ledger event.
+
 The shipped entrypoints do not mount application functions on HTTP routes. Explicit
 constructor options exist for local conformance tests, including `evidence.inspect`,
 `selection.resolve` and `data.query`, but there is no default catalogue, evidence,

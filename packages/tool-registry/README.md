@@ -14,6 +14,12 @@ schema, threat, evidence, interoperability and fallback conditions all pass,
 including accepted input, output and problem schema references. The current
 result is an empty frozen array.
 
+`listCandidateAssemblyTools()` is a separate compile-time projection for the exact
+five implemented read-only v0.2 candidate operations. Its root registry authority
+is explicitly `candidate-unregistered` with `productionRegistration: false`. It is
+consumed only by the governed gateway assembly; it does not change current profile
+lifecycle, discovery or `listCurrentCallableTools()`.
+
 `catalogue.search`, `catalogue.describe`, `selection.resolve`, `data.query` and
 `evidence.inspect` are implemented but suspended. T03 and T04 bind their accepted
 request, result and problem schemas and exact current application metadata, but

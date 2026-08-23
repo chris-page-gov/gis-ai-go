@@ -670,7 +670,11 @@ class GatewayImageContractTests(unittest.TestCase):
         self.assertIn('USER 65532:65532', containerfile)
         self.assertIn('ENTRYPOINT ["node", "dist/src/container-main.js"]', containerfile)
         self.assertNotRegex(containerfile, r"(?:ONS|API_KEY|ACTIVE_TOOLS|ACTIVE_OPERATIONS)")
-        self.assertNotIn("COPY packages/tool-registry/ packages/tool-registry/", containerfile)
+        self.assertIn("COPY packages/tool-registry/ packages/tool-registry/", containerfile)
+        self.assertIn(
+            "COPY profiles/tool-registry.v1.json profiles/tool-registry.v1.json",
+            containerfile,
+        )
         self.assertIn("node_modules/.modules.yaml", containerfile)
         self.assertIn("-path '*/dist/test'", containerfile)
         self.assertIn("/usr/local/lib/node_modules/npm", containerfile)
