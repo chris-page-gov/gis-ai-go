@@ -2,16 +2,22 @@
 
 - status: local conformance and four ChatGPT secure-tunnel probes passed, including
   the current final telemetry wrapper;
-  four independent-host readiness attempts are documented but not ready;
+  four 20 August independent-host readiness attempts remain documented as not
+  ready; a separate 23 August Claude Code legacy STDIO observation from exact
+  protected-main bytes passed initialisation and tool listing, with capability
+  unscored;
   deterministic `HOST-015` application recovery passes locally but remains non-live
   and unscored; capability scoring and activation remain pending
 - reviewed source base: `66507f9a6e6c0da23a8af4682268f9362d93bc06`
+- Claude transport-readiness source: protected `main` commit
+  `30b575beb27ff805745a2864c1acf44392774046`
 - legacy fallback integration base: protected `main` commit
   `5a7e441bfc754af2bf95ec49a5ec113951c7c0bf`
 - legacy fallback status: accepted through
   [pull request 40](https://github.com/chris-page-gov/gis-ai-go/pull/40) at
   protected `main` commit `e1fc1cbe69ea72c9aa310607d80f392ef56b0d58`;
-  it has not been deployed or retested through a live host
+  it has not been deployed; its constructor-only launcher has since been exercised
+  by isolated Claude Code transport from later protected-main bytes
 - supported public product: immutable
   [`v0.1.0`](https://github.com/chris-page-gov/gis-ai-go/releases/tag/v0.1.0)
 - production MCP activation: empty
@@ -200,7 +206,8 @@ MCP registry for a conformance run.
 | ChatGPT | Secure tunnel, discovery, search, receipt and text fallback | Four probes passed; latest run binds the final wrapper and current receipt |
 | Codex CLI 0.146.1 | Isolated non-interactive STDIO search and inline evidence | `not_ready`: legacy `2025-06-18` initialisation rejected `-32022`; capability unscored |
 | Antigravity IDE 1.107.0 | Temporary profile, STDIO discovery, search, resource and fallback | `not_ready`: isolated profile signed out and server directory unavailable; zero MCP traffic |
-| Claude Code 2.1.204 | Strict temporary MCP configuration and non-persistent session | `not_ready`: legacy `initialize` rejected `-32022`; capability unscored |
+| Claude Code 2.1.204, modern-only seam, 20 August | Strict temporary MCP configuration and non-persistent session | `not_ready`: legacy `initialize` rejected `-32022`; capability unscored |
+| Claude Code 2.1.204, protected-main legacy seam, 23 August | Isolated `mcp list` transport check against the protected-main source named below | `ready`: legacy initialisation and `tools/list` passed; capability unscored |
 | VS Code 1.134.0 | Temporary workspace and MCP registry; prove correct window attachment | `not_ready`: no GitHub token and no proved chat attachment; zero MCP traffic |
 | Official SDK client | HTTP and STDIO discovery, calls, resources and shutdown | Accepted on protected `main` |
 
@@ -582,6 +589,33 @@ That exploratory summary deliberately retains base commit `b798a40`, a null
 candidate commit and its original runtime hashes because those are the bytes that
 were observed. The rebase did not rerun a host, use a credential, touch the
 ChatGPT tunnel or upgrade that exploratory observation into accepted evidence.
+
+### Protected-main Claude Code transport readiness
+
+A later isolated `claude mcp list` observation repeated the transport check from a
+clean, detached checkout of exact protected-main commit
+`30b575beb27ff805745a2864c1acf44392774046`, tree
+`bb84c13d618984304d5db300be775275b8037ea8`. The current telemetry wrapper and
+the protected-main source blobs are bound in the separate
+[`Claude Code legacy STDIO readiness summary`](../../tests/interoperability/evidence/claude-code-legacy-stdio-readiness-2026-08-23.json).
+The temporary profile removed both supported OpenAI key variables from the parent
+and MCP child environments, supplied no model authentication and left no scoped
+process running after the check.
+
+Claude Code `2.1.204` returned `Connected`. Its `2025-06-18` legacy STDIO session
+completed initialisation, the initialised notification and `tools/list`, then exited
+cleanly with no malformed, truncated or pending request. This makes the tested
+transport `ready`; it does not score host capability. The launcher was the
+constructor-only two-tool conformance seam, not the exact-five unregistered
+production assembly. No model task, tool call, resource read, live provider,
+remote HTTP host, registration, activation, deployment or release was exercised.
+
+This new record does not change either historical result. The 20 August
+modern-only attempt remains `not_ready` because it received `-32022`, and the
+uncommitted fallback observation remains exploratory. Complete a separately
+authorised, bounded model task before scoring Claude capability, and complete the
+remaining independent desktop and remote HTTP evidence before claiming the full
+independent-host gate.
 
 This fallback is local-only. Do not attach it to the existing ChatGPT tunnel,
 change that tunnel's profile, publish its address, activate a production tool or

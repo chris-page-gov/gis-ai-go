@@ -24,6 +24,18 @@ non-interactive host attempt separately from the earlier three-host readiness su
 It binds the exact corpus case and current wrapper bytes, but remains `not_ready` and
 unscored because protocol negotiation stopped before a task-level tool call.
 
+The
+[`Claude Code protected-main legacy STDIO readiness summary`](claude-code-legacy-stdio-readiness-2026-08-23.json)
+is a later, separately source-bound record. It captures a clean, detached checkout
+of protected-main commit `30b575beb27ff805745a2864c1acf44392774046` and the
+current telemetry wrapper. Claude Code `2.1.204` completed legacy STDIO
+initialisation and `tools/list` through the constructor-only two-tool conformance
+launcher. The result is transport `ready` and capability `unscored`: no
+model authentication, model task, tool call, resource read, live provider, remote HTTP
+host, exact-five production assembly, registration, activation, deployment or
+release was exercised. It does not alter the earlier modern-only `not_ready` record
+or upgrade the uncommitted exploratory fallback record.
+
 The historical records continue to bind the unchanged ten-case
 [`qual_206_cases.json`](../qual_206_cases.json) bytes. The separate
 [`qual_206_cases_expansion.json`](../qual_206_cases_expansion.json) is design-time,
