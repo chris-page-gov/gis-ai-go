@@ -820,6 +820,19 @@ def main() -> None:
             ],
         ),
         (
+            "qual-206-local-protocol-evidence-matrix.schema.json",
+            [
+                (
+                    "evaluation/qual-206-local-protocol-evidence-matrix.v1.json",
+                    load_json(
+                        ROOT
+                        / "evaluation"
+                        / "qual-206-local-protocol-evidence-matrix.v1.json"
+                    ),
+                )
+            ],
+        ),
+        (
             "decision.schema.json",
             [
                 (record["id"], record)
