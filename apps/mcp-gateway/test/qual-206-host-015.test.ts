@@ -231,7 +231,10 @@ test("QUAL-206-HOST-015 drops a persisted response then reconciles after restart
   assert.deepEqual(providerPreflight, []);
   assert.equal(providerExecutions, 1);
 
-  const inspector = createEvidenceInspectApplication(restartedLedger, restartedIndex);
+  const inspector = createEvidenceInspectApplication(restartedLedger, restartedIndex, {
+    software: SOFTWARE,
+    now: () => new Date("2026-08-23T10:00:00.000Z"),
+  });
   const inspection = inspector.inspect(
     {
       schema: "gis-ai-go.evidence-inspect-request.v2",
@@ -240,7 +243,7 @@ test("QUAL-206-HOST-015 drops a persisted response then reconciles after restart
     },
     INSPECT_CONTEXT,
   );
-  assert.equal(inspection.schema, "gis-ai-go.evidence-inspect-result.v2");
+  assert.equal(inspection.schema, "gis-ai-go.evidence-inspect-result.v3");
   assert.equal(inspection.data.record.receipt.operation.name, "data.query");
   assert.match(
     inspection.data.record.receipt.receipt_id,

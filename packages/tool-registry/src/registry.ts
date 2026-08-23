@@ -103,7 +103,7 @@ const RUNTIME_SCHEMA_REFS_BY_ID: Readonly<
   T10: { input: null, output: null, problem: null },
   T11: {
     input: "schemas/evidence-inspect-operation-request.schema.json",
-    output: "schemas/evidence-inspect-operation-result.schema.json",
+    output: "schemas/evidence-inspect-operation-result-v3.schema.json",
     problem: "schemas/catalogue-problem.schema.json",
   },
   T12: { input: null, output: null, problem: null },
@@ -125,6 +125,7 @@ const CURRENT_PUBLIC_READ_PROVIDER_DEPENDENCIES = Object.freeze({
   T11: Object.freeze([
     "durable public evidence ledger",
     "receipt-only idempotency reconciliation index",
+    "anonymous-open evidence inspection policy",
   ]),
 } as const);
 
@@ -622,7 +623,7 @@ function validateDocument(value: unknown): ToolRegistryDocument {
     "source",
     "tools",
   ]);
-  if (document.schema !== "gis-ai-go.tool-registry.v1" || document.version !== "1.1.0") {
+  if (document.schema !== "gis-ai-go.tool-registry.v1" || document.version !== "1.2.0") {
     invalidRegistry();
   }
   assertExactSequence(document.canonicalOrder, TOOL_PROFILE_NAMES);

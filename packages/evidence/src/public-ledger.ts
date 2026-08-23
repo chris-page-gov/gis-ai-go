@@ -24,6 +24,7 @@ import {
   verifyContentAddress,
 } from "./digest.js";
 import {
+  isStrictEvidenceDateTime,
   verifyInlineReceipt,
   verifyInlineReceiptStructure,
   type InlineEvidenceReceipt,
@@ -56,6 +57,8 @@ const MAX_RECORD_BYTES = 4_194_304;
 const MAX_EVENTS = PUBLIC_EVIDENCE_LEDGER_MAX_EVENTS;
 const MIN_RETENTION_DAYS = 1;
 const MAX_RETENTION_DAYS = 3_650;
+const MILLISECONDS_PER_DAY = 86_400_000;
+const RESTART_VERIFIED_STORED_EVIDENCE = new WeakSet<object>();
 const LEDGER_HEALTH_CHECKS = Object.freeze([
   "descriptor",
   "canonical-files",
@@ -83,7 +86,7 @@ const FORBIDDEN_PRIVATE_KEYS = new Set([
   "token",
 ]);
 const FORBIDDEN_PRIVATE_TEXT =
-  /(?:^\/(?:Users|home)\/|^[A-Za-z]:\\Users\\|\bBearer\s+|-----BEGIN [^-]*PRIVATE KEY-----|gis-ai-go:ik:v1:[0-9a-f]{64})/u;
+  /(?:^\/(?:Users|home)\/|^[A-Za-z]:\\Users\\|\bBearer\s+|-----BEGIN [^-]*PRIVATE KEY-----|gis-ai-go(?::|%3a)ik(?::|%3a)v1(?::|%3a)[0-9a-f]{64})/iu;
 
 export type PublicEvidenceLedgerErrorCode =
   | "capacity"
@@ -326,10 +329,13 @@ function currentTimestamp(now: () => Date): string {
 }
 
 function assertTimestamp(value: unknown, label: string): asserts value is string {
+  const milliseconds = typeof value === "string" ? Date.parse(value) : Number.NaN;
   if (
     typeof value !== "string" ||
     !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/u.test(value) ||
-    !Number.isFinite(Date.parse(value))
+    !isStrictEvidenceDateTime(value) ||
+    !Number.isFinite(milliseconds) ||
+    new Date(milliseconds).toISOString() !== value
   ) {
     fail("corruption", `${label} must be a canonical UTC timestamp`);
   }
@@ -923,6 +929,120 @@ function assertEvent(
   }
 }
 
+/**
+ * Verify the portable projection returned by evidence inspection without
+ * relying on the originating ledger instance. This validates the complete
+ * stored record, event and reference tuple, including both content identities
+ * and every cross-link that can be established from the projection itself.
+ */
+export function verifyStoredPublicEvidenceProjection(
+  value: unknown,
+): value is StoredPublicEvidence {
+  try {
+    const snapshot = canonicalJsonClone(value);
+    const stored = asRecord(snapshot);
+    assertExactKeys(stored, ["event", "record", "reference"], "Stored public evidence");
+
+    const record = asRecord(stored.record);
+    assertTimestamp(record.persisted_at, "Evidence persistence time");
+    assertTimestamp(record.retain_until, "Evidence retention time");
+    if (typeof record.ledger_id !== "string" || !LEDGER_ID.test(record.ledger_id)) {
+      fail("corruption", "Public evidence record has an invalid ledger identity");
+    }
+    const retentionMilliseconds =
+      Date.parse(record.retain_until) - Date.parse(record.persisted_at);
+    if (
+      !Number.isSafeInteger(retentionMilliseconds) ||
+      retentionMilliseconds % MILLISECONDS_PER_DAY !== 0
+    ) {
+      fail("corruption", "Public evidence retention is not an exact whole-day interval");
+    }
+    const retentionDays = retentionMilliseconds / MILLISECONDS_PER_DAY;
+    if (retentionDays < MIN_RETENTION_DAYS || retentionDays > MAX_RETENTION_DAYS) {
+      fail("corruption", "Public evidence retention is outside its accepted bounds");
+    }
+    const descriptor = {
+      ledger_id: record.ledger_id,
+      retention_days: retentionDays,
+    } as PublicEvidenceLedgerDescriptor;
+    assertRecord(record, descriptor);
+
+    const event = asRecord(stored.event);
+    const sequence = event.sequence;
+    const previousEventId = event.previous_event_id;
+    if (
+      !Number.isSafeInteger(sequence) ||
+      (sequence as number) < 1 ||
+      (sequence as number) > MAX_EVENTS ||
+      (previousEventId !== null &&
+        (typeof previousEventId !== "string" || !EVENT_ID.test(previousEventId))) ||
+      ((sequence === 1) !== (previousEventId === null)) ||
+      typeof event.ledger_id !== "string" ||
+      !LEDGER_ID.test(event.ledger_id)
+    ) {
+      fail("corruption", "Evidence ledger event sequence or chain identity is invalid");
+    }
+    assertEvent(
+      event,
+      descriptor,
+      record as unknown as PublicEvidenceRecord,
+      sequence as number,
+      previousEventId as string | null,
+    );
+
+    const reference = asRecord(stored.reference);
+    assertExactKeys(
+      reference,
+      ["event_id", "ledger_id", "persisted_at", "record_id", "retain_until", "status"],
+      "Public evidence storage reference",
+    );
+    assertTimestamp(reference.persisted_at, "Evidence reference persistence time");
+    assertTimestamp(reference.retain_until, "Evidence reference retention time");
+    const verifiedRecord = record as unknown as PublicEvidenceRecord;
+    const verifiedEvent = event as unknown as PublicEvidenceLedgerEvent;
+    if (
+      reference.status !== "persisted" ||
+      reference.ledger_id !== verifiedRecord.ledger_id ||
+      reference.record_id !== verifiedRecord.record_id ||
+      reference.event_id !== verifiedEvent.event_id ||
+      reference.persisted_at !== verifiedRecord.persisted_at ||
+      reference.persisted_at !== verifiedEvent.recorded_at ||
+      reference.retain_until !== verifiedRecord.retain_until ||
+      reference.retain_until !== verifiedEvent.retain_until
+    ) {
+      fail("corruption", "Public evidence storage reference does not match its record and event");
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function markRestartVerifiedStoredPublicEvidence(
+  value: StoredPublicEvidence,
+): StoredPublicEvidence {
+  const snapshot = canonicalJsonClone(value);
+  if (!verifyStoredPublicEvidenceProjection(snapshot)) {
+    fail("corruption", "Restart-verified evidence projection failed its portable boundary");
+  }
+  RESTART_VERIFIED_STORED_EVIDENCE.add(snapshot);
+  return snapshot;
+}
+
+/**
+ * Check the non-forgeable in-process mark placed only on a deeply frozen tuple
+ * returned by a successful ledger inspection. No member is read by this seam.
+ */
+export function isRestartVerifiedStoredPublicEvidence(
+  value: unknown,
+): value is StoredPublicEvidence {
+  return (
+    value !== null &&
+    typeof value === "object" &&
+    RESTART_VERIFIED_STORED_EVIDENCE.has(value)
+  );
+}
+
 export class PublicEvidenceLedger {
   public readonly descriptor: PublicEvidenceLedgerDescriptor;
   readonly #root: string;
@@ -1237,7 +1357,7 @@ export class PublicEvidenceLedger {
     if (record === undefined) {
       fail("corruption", "Evidence inspection found a missing immutable record");
     }
-    return canonicalJsonClone({
+    return markRestartVerifiedStoredPublicEvidence({
       record,
       event,
       reference: {
@@ -1269,7 +1389,7 @@ export class PublicEvidenceLedger {
         if (record === undefined) {
           fail("corruption", "Evidence bulk inspection found a missing immutable record");
         }
-        return canonicalJsonClone({
+        return markRestartVerifiedStoredPublicEvidence({
           record,
           event,
           reference: {
@@ -1280,7 +1400,7 @@ export class PublicEvidenceLedger {
             persisted_at: record.persisted_at,
             retain_until: record.retain_until,
           },
-        }) as StoredPublicEvidence;
+        });
       }),
     );
   }

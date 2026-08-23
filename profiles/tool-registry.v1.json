@@ -1,6 +1,6 @@
 {
   "schema": "gis-ai-go.tool-registry.v1",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "canonicalOrder": [
     "catalogue.search",
     "catalogue.describe",
@@ -1271,7 +1271,7 @@
         },
         "output": {
           "state": "accepted",
-          "ref": "schemas/evidence-inspect-operation-result.schema.json"
+          "ref": "schemas/evidence-inspect-operation-result-v3.schema.json"
         },
         "problem": {
           "state": "accepted",
@@ -1284,7 +1284,8 @@
         "providerState": "candidate-partial",
         "providerDependencies": [
           "durable public evidence ledger",
-          "receipt-only idempotency reconciliation index"
+          "receipt-only idempotency reconciliation index",
+          "anonymous-open evidence inspection policy"
         ]
       },
       "accessTiers": [

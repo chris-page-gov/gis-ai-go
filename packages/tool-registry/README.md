@@ -26,9 +26,12 @@ request, result and problem schemas and exact current application metadata, but
 discovery and all seven activation gates remain false. The other profiles remain
 planned; mutating `workflow.execute` is a `v0.3.0` target only.
 
-The suspended `evidence.inspect` profile references a closed operation-result
-dispatcher over distinct v1 and v2 result schemas. The original v1 result schema
-is not widened, and this governance reference does not make the profile callable.
+The suspended `evidence.inspect` profile references the current-call receipted v3
+operation result and its dedicated anonymous-open inspection policy. The unchanged
+v1 and v2 lookup requests still resolve existing v1 or v2 stored records, but every
+successful candidate call returns a distinct inline-only v3 receipt and creates no
+new ledger event. The historical result and stored-record schemas are not widened,
+and this governance reference does not make the profile callable.
 
 The package does not import the gateway, register a tool, inspect environment
 variables or provide an activation override. Production activation remains

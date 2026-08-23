@@ -68,6 +68,14 @@ const MODERN_META = Object.freeze({
     version: "1.0.0",
   }),
 });
+const INSPECTION_OPTIONS = Object.freeze({
+  software: Object.freeze({
+    name: "gis-ai-go-mcp-gateway" as const,
+    version: "0.1.0",
+    revision: SNAPSHOT.revision,
+  }),
+  now: () => new Date("2026-08-23T10:00:00.000Z"),
+});
 
 interface EvidenceFixture {
   readonly root: string;
@@ -125,7 +133,11 @@ function evidenceFixture(t: TestContext): EvidenceFixture {
   return {
     root,
     receiptId: persisted.evidence_receipt.receipt_id,
-    application: createEvidenceInspectApplication(restarted, reconciliation),
+    application: createEvidenceInspectApplication(
+      restarted,
+      reconciliation,
+      INSPECTION_OPTIONS,
+    ),
     catalogueApplication,
   };
 }
@@ -236,7 +248,11 @@ function publicReadEvidenceFixture(t: TestContext): PublicReadEvidenceFixture {
     root,
     receiptId: receipt.receipt_id,
     idempotencyKey,
-    application: createEvidenceInspectApplication(restarted, restartedReconciliation),
+    application: createEvidenceInspectApplication(
+      restarted,
+      restartedReconciliation,
+      INSPECTION_OPTIONS,
+    ),
   };
 }
 
@@ -406,15 +422,18 @@ test("publishes self-contained exact evidence schemas only on the explicit route
   const outputSchema = EVIDENCE_OPERATION_JSON_SCHEMAS["evidence.inspect"].outputSchema;
   assert.equal(
     outputSchema.$id,
-    "urn:gis-ai-go:schema:evidence-inspect-operation-result:v1",
+    "urn:gis-ai-go:schema:evidence-inspect-operation-result:v3",
   );
-  assert.equal(Array.isArray(outputSchema.oneOf), true);
+  assert.equal(
+    outputSchema.$ref,
+    "#/$defs/evidence_inspect_result_v3",
+  );
   const outputValidator = fromJsonSchema(
     EVIDENCE_OPERATION_JSON_SCHEMAS["evidence.inspect"].outputSchema as JsonSchemaType,
   );
   for (const [fixture, expectedSchema] of [
-    [fixtureV1, "gis-ai-go.evidence-inspect-result.v1"],
-    [fixtureV2, "gis-ai-go.evidence-inspect-result.v2"],
+    [fixtureV1, "gis-ai-go.evidence-inspect-result.v3"],
+    [fixtureV2, "gis-ai-go.evidence-inspect-result.v3"],
   ] as const) {
     const result = fixture.application.inspect(
       { receipt_id: fixture.receiptId },
@@ -559,7 +578,7 @@ test("reconciles a completed data query by key across direct, MCP HTTP and STDIO
   const directCompleted = await direct(directRequest(completedRequest));
   assert.equal(directCompleted.status, 200);
   const completed = await directCompleted.json() as Record<string, unknown>;
-  assert.equal(completed.schema, "gis-ai-go.evidence-inspect-result.v2");
+  assert.equal(completed.schema, "gis-ai-go.evidence-inspect-result.v3");
   assert.equal(
     ((completed.data as { record: { receipt: { receipt_id: string } } }).record.receipt)
       .receipt_id,

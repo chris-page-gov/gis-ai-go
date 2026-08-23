@@ -67,6 +67,9 @@ The v1 receipt, inspection request, durable-record and event content-address dom
 are unchanged.
 V2 receipts use `gis-ai-go.public-evidence-record.v2` and a separate record domain;
 the descriptor, event chain and replay key remain compatible.
-The gateway returns the unchanged v1 inspection-result discriminator for v1
-records and a separate v2 discriminator for v2 records; its operation contract is
-an explicit closed dispatcher rather than a widening of the v1 result schema.
+The historical v1 and v2 inspection-result schemas remain unchanged. The gateway's
+current operation contract returns `gis-ai-go.evidence-inspect-result.v3` for either
+lookup with a dedicated current-call receipt. That receipt binds a safe normalised
+lookup digest, exact stored evidence identities and the receipt-free result core.
+It is inline-only, not persisted or attested and creates no ledger event. V1 and v2
+request, receipt, durable-record and event bytes remain unchanged.

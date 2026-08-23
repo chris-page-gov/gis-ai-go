@@ -291,7 +291,10 @@ function dataApplication(
   });
   EVIDENCE_BY_DATA_APPLICATION.set(
     application,
-    createEvidenceInspectApplication(ledger, reconciliationIndex),
+    createEvidenceInspectApplication(ledger, reconciliationIndex, {
+      software: SOFTWARE,
+      now: () => new Date("2026-08-23T10:00:00.000Z"),
+    }),
   );
   return application;
 }
@@ -309,7 +312,10 @@ function evidenceApplication(ledger: PublicEvidenceLedger) {
       ledger,
     });
   RECONCILIATION_INDEXES.set(ledger, reconciliationIndex);
-  return createEvidenceInspectApplication(ledger, reconciliationIndex);
+  return createEvidenceInspectApplication(ledger, reconciliationIndex, {
+    software: SOFTWARE,
+    now: () => new Date("2026-08-23T10:00:00.000Z"),
+  });
 }
 
 function directRequest(
@@ -2006,7 +2012,10 @@ test("keeps the legacy conformance factory structurally catalogue-only", (t) => 
     ),
     /structurally limited to catalogue operations and resources/u,
   );
-  const evidenceApplication = createEvidenceInspectApplication(ledger);
+  const evidenceApplication = createEvidenceInspectApplication(ledger, undefined, {
+    software: SOFTWARE,
+    now: () => new Date("2026-08-23T10:00:00.000Z"),
+  });
   for (const options of [
     { enabledOperations: ["evidence.inspect"] as const, enabledResources: [] },
     { enabledOperations: [] as const, enabledResources: ["evidence.receipt"] as const },

@@ -73,31 +73,37 @@ ordinary production document remains `candidate-blocked` with no operation path.
 
 ## Results, trace and receipt semantics
 
-The server owns every request and W3C trace identity. Successful
-`catalogue.search`, `catalogue.describe`, `selection.resolve` and `data.query`
-results carry the current call's request and trace identifiers, allowed policy
+The server owns every request and W3C trace identity. Every successful exact-five
+result carries the current call's request and trace identifiers, allowed policy
 decision and independently verifiable receipt. MCP `structuredContent`, compact
 plain-text JSON and the direct JSON result are equivalent. STDIO uses the same MCP
 factory and result boundary.
 
-`evidence.inspect` has deliberately different attestation semantics and does not
-invent a new receipt:
+`evidence.inspect` now returns `gis-ai-go.evidence-inspect-result.v3` with a
+dedicated current-call `gis-ai-go.evidence-receipt.v3`:
 
-- its top-level `request_id` and `trace_id` identify the current inspection call;
-- `data.record.receipt`, its policy decision and its request and trace identities
-  belong to the earlier operation being inspected;
-- verification proves the stored receipt and ledger binding, not the inspection
-  call or the unavailable original result material; and
-- receipt-ID and idempotency-key inspection add no ledger record or event.
+- the top-level result, inline receipt and receipt policy decision bind the current
+  inspection request and trace;
+- policy permits inspection only after the server has resolved and independently
+  restart-verified an anonymous-open stored target;
+- the receipt binds the exact stored ledger, receipt, record and event identities,
+  software and transformations, and a digest of the receipt-free result core;
+- receipt-ID and v2 idempotency lookup parameters are represented only by a digest
+  of safe normalised material; the raw key and its public key hash are not returned;
+- `data.record.receipt` and its request, trace and policy decision remain the
+  distinct earlier operation being inspected; and
+- the current receipt is inline-only, not persisted, not attested and creates no
+  ledger record or event, including when the ledger is already at capacity.
 
-Regression tests make the two trace scopes unequal and explicit for both v1
-receipt-ID and v2 `data.query` recovery over direct and MCP HTTP. No result schema
-was widened or versioned for this clarification.
+The unchanged v1 and v2 lookup requests still resolve existing v1 or v2 durable
+records. Their request and stored-record bytes are unchanged; the new v3 operation
+result dispatcher returns only v3. Regression tests make the two trace scopes
+unequal and explicit across direct JSON, MCP HTTP, MCP STDIO, receipt resource and
+plain-text projections.
 
-Issue 23's acceptance statement that every active call has a verifiable receipt
-remains open pending owner acceptance of this inspection-without-new-receipt
-interpretation and protected integration assurance. This candidate must not be
-used to close the issue by itself.
+This implements issue 23's literal current-call receipt condition in the repository
+candidate. Issue closure still requires protected integration assurance; this
+candidate does not close or activate it by itself.
 
 ## Remaining QUAL-206 and release gates
 

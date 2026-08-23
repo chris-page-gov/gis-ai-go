@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:public-policy-decision:v3",
+  "title": "GIS AI GO public evidence inspection policy decision",
+  "description": "A current-call decision made only after a stored anonymous-open target has been resolved and restart verified.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "canonicalisation",
+    "decision_id",
+    "request_id",
+    "trace_id",
+    "authority_context_id",
+    "policy_id",
+    "policy_version",
+    "policy_default_effect",
+    "operation",
+    "inspected_receipt_id",
+    "effect",
+    "reason_code",
+    "obligations"
+  ],
+  "properties": {
+    "schema": { "const": "gis-ai-go.public-policy-decision.v3" },
+    "canonicalisation": { "const": "rfc8785-jcs" },
+    "decision_id": {
+      "type": "string",
+      "pattern": "^gis-ai-go:public-policy-decision:sha256:[0-9a-f]{64}$"
+    },
+    "request_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "trace_id": { "type": "string", "pattern": "^[0-9a-f]{32}$" },
+    "authority_context_id": {
+      "const": "gis-ai-go:public-authority-context:sha256:7ac3cbebd4fe33aa634683620c732409c4b3069e5469534d62b057301e9f7846"
+    },
+    "policy_id": {
+      "const": "gis-ai-go:public-policy:sha256:fb394e84b427864ba0f7e978aadab0fc7594ea2dcfa8fa0a1ad5463b2400c484"
+    },
+    "policy_version": { "const": "3.0.0" },
+    "policy_default_effect": { "const": "deny" },
+    "operation": { "const": "evidence.inspect" },
+    "inspected_receipt_id": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "string",
+          "pattern": "^gis-ai-go:evidence-receipt:sha256:[0-9a-f]{64}$"
+        }
+      ]
+    },
+    "effect": { "enum": ["allow-with-obligations", "deny"] },
+    "reason_code": {
+      "enum": [
+        "anonymous-open-evidence-inspection-allowed",
+        "operation-not-allowed",
+        "stored-evidence-not-public"
+      ]
+    },
+    "obligations": {
+      "type": "array",
+      "uniqueItems": true,
+      "maxItems": 6,
+      "items": {
+        "enum": [
+          "bind-inspected-evidence-identities",
+          "inline-evidence-receipt",
+          "no-evidence-write",
+          "no-result-replay",
+          "not-attested",
+          "not-persisted"
+        ]
+      }
+    }
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "inspected_receipt_id": {
+          "type": "string",
+          "pattern": "^gis-ai-go:evidence-receipt:sha256:[0-9a-f]{64}$"
+        },
+        "effect": { "const": "allow-with-obligations" },
+        "reason_code": { "const": "anonymous-open-evidence-inspection-allowed" },
+        "obligations": {
+          "const": [
+            "bind-inspected-evidence-identities",
+            "inline-evidence-receipt",
+            "no-evidence-write",
+            "no-result-replay",
+            "not-attested",
+            "not-persisted"
+          ]
+        }
+      }
+    },
+    {
+      "properties": {
+        "inspected_receipt_id": { "type": "null" },
+        "effect": { "const": "deny" },
+        "reason_code": {
+          "enum": ["operation-not-allowed", "stored-evidence-not-public"]
+        },
+        "obligations": { "const": [] }
+      }
+    }
+  ]
+}

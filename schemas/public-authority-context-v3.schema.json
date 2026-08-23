@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:public-authority-context:v3",
+  "title": "GIS AI GO public evidence inspection authority context",
+  "description": "The exact server-owned anonymous-open authority context for restart-verified evidence inspection with an inline-only current-call receipt.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "access": {},
+    "canonicalisation": {},
+    "construction": {},
+    "context_id": {},
+    "evidence": {},
+    "permitted_operations": {},
+    "schema": {}
+  },
+  "const": {
+    "access": {
+      "authentication": "none",
+      "contains_personal_data": false,
+      "contains_protected_data": false,
+      "publication_classification": "public",
+      "read_only": true,
+      "tier": "open"
+    },
+    "canonicalisation": "rfc8785-jcs",
+    "construction": {
+      "product": "gis-ai-go-gateway",
+      "profile": "anonymous-open",
+      "source": "server"
+    },
+    "context_id": "gis-ai-go:public-authority-context:sha256:7ac3cbebd4fe33aa634683620c732409c4b3069e5469534d62b057301e9f7846",
+    "evidence": {
+      "attestation": "not-attested",
+      "ledger_event": "not-created",
+      "persistence": "not-persisted",
+      "receipt": "inline-required"
+    },
+    "permitted_operations": ["evidence.inspect"],
+    "schema": "gis-ai-go.public-authority-context.v3"
+  }
+}

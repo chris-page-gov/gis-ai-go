@@ -7,6 +7,7 @@ import {
 } from "@gis-ai-go/evidence";
 import {
   PUBLIC_CATALOGUE_POLICY,
+  PUBLIC_EVIDENCE_INSPECTION_POLICY,
   PUBLIC_READ_POLICY,
 } from "@gis-ai-go/policy-client";
 import {
@@ -125,9 +126,9 @@ export interface GovernedCandidateAssembly {
   readonly bindings: {
     readonly registry: {
       readonly schema: "gis-ai-go.tool-registry.v1";
-      readonly version: "1.1.0";
+      readonly version: "1.2.0";
     };
-    readonly policies: readonly [string, string];
+    readonly policies: readonly [string, string, string];
     readonly provider: {
       readonly adapterId: typeof ONS_ADAPTER_ID;
       readonly adapterVersion: typeof ONS_ADAPTER_VERSION;
@@ -313,8 +314,8 @@ function exactProviderHealth(adapter: OnsDataApiAdapter): AdapterHealth {
 function publicPolicyOperations(ledger: PublicEvidenceLedger): ReadonlySet<string> {
   return new Set([
     ...PUBLIC_CATALOGUE_POLICY.rules.map(({ operation }) => operation),
+    ...PUBLIC_EVIDENCE_INSPECTION_POLICY.rules.map(({ operation }) => operation),
     ...PUBLIC_READ_POLICY.rules.map(({ operation }) => operation),
-    ...ledger.descriptor.scope.permitted_operations,
   ]);
 }
 
@@ -426,6 +427,10 @@ export function createGovernedCandidateAssembly(
   const evidenceApplication = createEvidenceInspectApplication(
     evidenceLedger,
     reconciliationIndex,
+    {
+      software,
+      ...(now === undefined ? {} : { now }),
+    },
   );
 
   const suspended = suspensionMap(
@@ -460,8 +465,9 @@ export function createGovernedCandidateAssembly(
       }),
       policies: Object.freeze([
         PUBLIC_CATALOGUE_POLICY.policy_id,
+        PUBLIC_EVIDENCE_INSPECTION_POLICY.policy_id,
         PUBLIC_READ_POLICY.policy_id,
-      ]) as readonly [string, string],
+      ]) as readonly [string, string, string],
       provider: Object.freeze({
         adapterId: ONS_ADAPTER_ID,
         adapterVersion: ONS_ADAPTER_VERSION,
