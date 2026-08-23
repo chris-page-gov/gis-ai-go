@@ -4,7 +4,7 @@ Status: accepted on protected `main` through
 [pull request 44](https://github.com/chris-page-gov/gis-ai-go/pull/44) as
 `b5f8edc78b011f3d4ccb4c6be60bbd49cdc4fc47`; not activated or deployed.
 
-Reviewed on 22 August 2026.
+Reviewed on 23 August 2026.
 
 This record preserves the application-only boundary at the time it was accepted and
 documents the later inactive lost-response reconciliation extension. The explicitly
@@ -67,6 +67,24 @@ identity factories are trusted test seams. The application context is therefore 
 server-owned input, while the public key contract requires callers not to encode
 personal or secret material in the key.
 
+The gateway now constructs a `traceparent` for each direct and MCP request against
+the
+[W3C Trace Context Level 2 Candidate Recommendation Draft of 28 March 2024](https://www.w3.org/TR/trace-context-2/).
+Server-generated random trace IDs set the random-ID flag and leave sampling unset.
+An optional `tracestate` is accepted only on a trusted internal context after that
+draft's list grammar, the repository input ceiling, member-count, duplicate-key and
+trace-ID correlation checks. `data.query` passes an immutable copy of that context
+in the typed `ProviderAdapterExecutionOptions` object. The adapter validates it
+again before execution. The result and receipt retain the exact correlated 32-hex
+trace ID. The Level 2 document remains work in progress rather than a final W3C
+Recommendation.
+
+This is an internal invocation contract, not a caller-supplied provider-header map.
+The fixed ONS HTTPS transport still constructs only its reviewed `Accept`,
+`Accept-Encoding`, `Connection` and `User-Agent` headers. It accepts no header bag,
+credential, baggage or authorisation value from the caller, and trace context is not
+sent to ONS in this candidate.
+
 ## Execution order
 
 Every new reconciled call follows one fixed order:
@@ -87,8 +105,8 @@ Every new reconciled call follows one fixed order:
 6. recheck caller controls, publish exclusive key ownership and a complete canonical
    claim, recheck controls again, verify that any cache-enabled adapter is the exact,
    pristine base instance, then call its captured provider-owned `execute()`
-   implementation exactly once with the shared cancellation signal and absolute RFC
-   3339 deadline;
+   implementation exactly once with the validated W3C Trace Context, shared
+   cancellation signal and absolute RFC 3339 deadline;
 7. recheck caller controls in the execution rejection path and independently verify
    the adapter's normalised error through the captured provider implementation. Only
    an owner-bound, module-private outage proof created in that exact execution for a

@@ -1,10 +1,11 @@
 # EVID-204 evidence inspection transport candidate
 
-- status: local conformance candidate; not activated or deployed
+- status: accepted inactive transport on protected `main`; not activated or deployed
 - work item: [EVID-204](https://github.com/chris-page-gov/gis-ai-go/issues/22)
 - decisions: [ADR-0011](../decisions/ADR-0011-durable-public-evidence-ledger.md)
   and [ADR-0012](../decisions/ADR-0012-receipt-only-lost-response-reconciliation.md)
-- protected-main base: `364c8680ad11399e0547a843be2a04da7a737301`
+- accepted implementation: [pull request 37](https://github.com/chris-page-gov/gis-ai-go/pull/37),
+  protected `main` commit `c4d43f9d0f7af143e01eb3381e5adc4625fac2f0`
 
 ## Outcome boundary
 
@@ -28,10 +29,12 @@ Any face that mounts `data.query` must mount this tool on the same transport and
 must supply the application branded with the exact same index as the data
 application. Mismatched, legacy and proxy-wrapped pairs fail construction.
 
-The production activation arrays remain empty. The shipped HTTP and STDIO entry
-points supply no ledger path, inspection application or activation override.
-Readiness remains `503` with zero active tools and API operations. No listener is
-published and no registry entry or deployment is created.
+The production activation arrays remain empty. The blocked HTTP container opens the
+fixed ledger and reconciliation roots only for inactive readiness-integrity checks;
+it supplies no inspection application or activation override. The STDIO entry point
+also supplies no inspection application or activation override. Readiness remains
+`503` with zero active tools and API operations. No listener is published and no
+registry entry or deployment is created.
 
 ## Contract and parity
 
@@ -104,5 +107,6 @@ affected operation faces return only the controlled unavailable problem. Tempora
 machine paths and raw keys are assertions against leakage and are not placed in
 fixtures, logs or durable repository evidence.
 
-No live provider, external identity, OPA service, public deployment or original
-query/result replay is part of this procedure.
+The transport was accepted through protected pull-request assurance and remains
+inactive. No live provider, external identity, OPA service, public deployment or
+original query/result replay is part of this procedure.

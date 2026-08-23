@@ -33,6 +33,7 @@ import {
 import { gatewayMetadata } from "./metadata.js";
 import type { GatewayApiOperation } from "./openapi.js";
 import { createCatalogueProblem } from "./problem.js";
+import type { EvidenceReadinessIntegrity } from "./readiness-integrity.js";
 import type { SelectionResolveApplication } from "./selection-application.js";
 
 const MAX_URL_LENGTH = 4_096;
@@ -87,7 +88,9 @@ export interface GatewayNodeServerOptions {
   readonly dataQueryApplication?: DataQueryApplication;
   readonly createRequestId?: () => string;
   readonly createTraceId?: () => string;
+  readonly createTraceParentId?: () => string;
   readonly createMcpRequestContext?: CatalogueMcpRequestContextFactory;
+  readonly evidenceReadinessIntegrity?: EvidenceReadinessIntegrity;
   readonly directAllowedHosts?: readonly string[];
   readonly directAllowedOrigins?: readonly string[];
   readonly mcpAllowedHostnames?: readonly string[];
@@ -516,6 +519,12 @@ export function createGatewayNodeServer(
       ? {}
       : { createRequestId: options.createRequestId }),
     ...(options.createTraceId === undefined ? {} : { createTraceId: options.createTraceId }),
+    ...(options.createTraceParentId === undefined
+      ? {}
+      : { createTraceParentId: options.createTraceParentId }),
+    ...(options.evidenceReadinessIntegrity === undefined
+      ? {}
+      : { evidenceReadinessIntegrity: options.evidenceReadinessIntegrity }),
     ...(options.directAllowedHosts === undefined
       ? {}
       : { allowedHosts: options.directAllowedHosts }),

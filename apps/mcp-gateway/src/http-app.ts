@@ -1,5 +1,7 @@
 import { randomBytes } from "node:crypto";
 
+import { normaliseW3CTraceContext } from "@gis-ai-go/provider-adapter-sdk";
+
 import { catalogueActivation } from "./activation.js";
 import {
   createCatalogueApplication,
@@ -28,6 +30,11 @@ import {
   isCatalogueProblemError,
   type CatalogueProblemContext,
 } from "./problem.js";
+import {
+  EVIDENCE_READINESS_INTEGRITY_FAILURE_MESSAGE,
+  verifyEvidenceReadinessIntegrity,
+  type EvidenceReadinessIntegrity,
+} from "./readiness-integrity.js";
 import { haveExactlyLinkedReconciliationApplications } from "./reconciliation-applications.js";
 import {
   type SelectionResolveApplication,
@@ -64,12 +71,16 @@ export interface GatewayHttpOptions {
   /** Trusted test seam. Reconciled data.query always ignores caller request IDs. */
   readonly createRequestId?: () => string;
   readonly createTraceId?: () => string;
+  /** Trusted test seam; callers cannot supply the provider-bound parent identifier. */
+  readonly createTraceParentId?: () => string;
   readonly enabledApiOperations?: readonly GatewayApiOperation[];
   readonly application?: CatalogueApplication;
   readonly evidenceApplication?: EvidenceInspectApplication;
   readonly selectionApplication?: SelectionResolveApplication;
   readonly dataQueryApplication?: DataQueryApplication;
   readonly catalogueApplicationOptions?: CatalogueApplicationOptions;
+  /** Branded inactive seam; verification can block readiness but never enable it. */
+  readonly evidenceReadinessIntegrity?: EvidenceReadinessIntegrity;
   /** Reporting only. Error details are never returned to the caller. */
   readonly onerror?: (error: Error) => void;
 }
@@ -182,10 +193,10 @@ function evidenceProblemResponse(
   return jsonResponse(problem, problem.status, "application/problem+json");
 }
 
-function report(options: GatewayHttpOptions, error: unknown): void {
+function report(onerror: GatewayHttpOptions["onerror"], error: unknown): void {
   const reported = error instanceof Error ? error : new Error("Non-Error direct API failure");
   try {
-    options.onerror?.(reported);
+    onerror?.(reported);
   } catch {
     // Reporting must never change or disclose the client result.
   }
@@ -194,7 +205,7 @@ function report(options: GatewayHttpOptions, error: unknown): void {
 function catalogueSuccessResponse(
   value: unknown,
   context: CatalogueProblemContext,
-  options: GatewayHttpOptions,
+  onerror: GatewayHttpOptions["onerror"],
 ): Response {
   let serialised: string;
   try {
@@ -202,11 +213,11 @@ function catalogueSuccessResponse(
     if (candidate === undefined) throw new TypeError("Catalogue result is not JSON serialisable");
     serialised = candidate;
   } catch (error) {
-    report(options, error);
+    report(onerror, error);
     return problemResponse("internal_error", context, "The request could not be processed.");
   }
   if (new TextEncoder().encode(serialised).byteLength > MAX_JSON_RESPONSE_BYTES) {
-    report(options, new Error("Catalogue application result exceeded the direct API byte limit"));
+    report(onerror, new Error("Catalogue application result exceeded the direct API byte limit"));
     return problemResponse(
       "complexity_limit_exceeded",
       context,
@@ -611,6 +622,7 @@ function isSelectionProblem(value: unknown): value is SelectionResolveProblem {
 export function createGatewayHttpHandler(
   options: GatewayHttpOptions,
 ): (request: Request) => Promise<Response> {
+  const snapshot = options.snapshot;
   const allowedHosts = new Set(
     (options.allowedHosts ?? DEFAULT_ALLOWED_HOSTS).map((host) => host.toLowerCase()),
   );
@@ -622,6 +634,10 @@ export function createGatewayHttpHandler(
   const enabled = new Set(enabledApiOperations);
   const createRequestId = options.createRequestId ?? (() => randomBytes(16).toString("hex"));
   const createTraceId = options.createTraceId ?? (() => randomBytes(16).toString("hex"));
+  const createTraceParentId = options.createTraceParentId ??
+    (() => randomBytes(8).toString("hex"));
+  const evidenceReadinessIntegrity = options.evidenceReadinessIntegrity;
+  const onerror = options.onerror;
 
   if (allowedHosts.size === 0 || allowedOrigins.size === 0) {
     throw new TypeError("The gateway requires explicit allowed hosts and origins");
@@ -632,8 +648,15 @@ export function createGatewayHttpHandler(
   ) {
     throw new TypeError("Allowed hosts and origins must not contain empty values");
   }
-  if (options.onerror !== undefined && typeof options.onerror !== "function") {
+  if (onerror !== undefined && typeof onerror !== "function") {
     throw new TypeError("onerror must be a function");
+  }
+  if (evidenceReadinessIntegrity !== undefined) {
+    try {
+      verifyEvidenceReadinessIntegrity(evidenceReadinessIntegrity);
+    } catch {
+      throw new TypeError("evidenceReadinessIntegrity must be a verified evidence pair");
+    }
   }
   if (
     options.createRequestId !== undefined &&
@@ -641,12 +664,26 @@ export function createGatewayHttpHandler(
   ) {
     throw new TypeError("createRequestId must be a function");
   }
+  for (const [name, value] of [
+    ["createTraceId", options.createTraceId],
+    ["createTraceParentId", options.createTraceParentId],
+  ] as const) {
+    if (value !== undefined && typeof value !== "function") {
+      throw new TypeError(`${name} must be a function`);
+    }
+  }
 
   return async (request: Request): Promise<Response> => {
     const traceId = createTraceId();
     if (!TRACE_ID.test(traceId)) {
       throw new TypeError("Trace identifiers must be 16-byte lowercase hexadecimal values");
     }
+    const trace = normaliseW3CTraceContext(
+      {
+        traceparent: `00-${traceId}-${createTraceParentId()}-02`,
+      },
+      traceId,
+    );
     const parsedUrl = new URL(request.url);
     const generatedRequestId = parsedUrl.pathname === "/data/query"
       ? createRequestId()
@@ -662,6 +699,7 @@ export function createGatewayHttpHandler(
     const context: CatalogueProblemContext = {
       requestId: generatedRequestId,
       traceId,
+      trace,
       ...(isCanonicalCatalogueProblemInstance(parsedUrl.pathname)
         ? { instance: parsedUrl.pathname }
         : {}),
@@ -727,11 +765,21 @@ export function createGatewayHttpHandler(
               status: "ok",
               product: gatewayMetadata.product,
               lifecycle: gatewayMetadata.lifecycle,
-              catalogue: catalogueIdentity(options.snapshot),
+              catalogue: catalogueIdentity(snapshot),
             },
             200,
           );
         case "/readyz":
+          if (evidenceReadinessIntegrity !== undefined) {
+            try {
+              verifyEvidenceReadinessIntegrity(evidenceReadinessIntegrity);
+            } catch {
+              report(
+                onerror,
+                new Error(EVIDENCE_READINESS_INTEGRITY_FAILURE_MESSAGE),
+              );
+            }
+          }
           return jsonResponse(
             {
               status: catalogueActivation.state,
@@ -780,7 +828,7 @@ export function createGatewayHttpHandler(
       body = await readBoundedJson(request);
     } catch (error) {
       if (error instanceof BoundedJsonError) return bodyFailureResponse(error, context);
-      report(options, error);
+      report(onerror, error);
       return problemResponse("internal_error", context, "The request could not be processed.");
     }
 
@@ -801,7 +849,7 @@ export function createGatewayHttpHandler(
       if (operation === "selection.resolve" && isSelectionProblem(result)) {
         return jsonResponse(result, result.status, "application/problem+json");
       }
-      return catalogueSuccessResponse(result, context, options);
+      return catalogueSuccessResponse(result, context, onerror);
     } catch (error) {
       if (isCatalogueProblemError(error)) {
         return jsonResponse(error.problem, error.problem.status, "application/problem+json");
@@ -816,7 +864,7 @@ export function createGatewayHttpHandler(
           "application/problem+json",
         );
       }
-      report(options, error);
+      report(onerror, error);
       return problemResponse("internal_error", context, "The request could not be processed.");
     }
   };

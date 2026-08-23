@@ -1,10 +1,11 @@
 # EVID-204 durable public evidence candidate
 
-- status: accepted storage candidate on protected `main`; not activated or deployed
+- status: accepted inactive storage on protected `main`; not activated or deployed
 - work item: [EVID-204](https://github.com/chris-page-gov/gis-ai-go/issues/22)
 - decisions: [ADR-0011](../decisions/ADR-0011-durable-public-evidence-ledger.md)
   and [ADR-0012](../decisions/ADR-0012-receipt-only-lost-response-reconciliation.md)
-- base: protected `main` commit `66507f9a6e6c0da23a8af4682268f9362d93bc06`
+- accepted implementation: [pull request 33](https://github.com/chris-page-gov/gis-ai-go/pull/33),
+  protected `main` commit `cb6b817ea7a2e025b3fe9a42c085d117467ced04`
 
 ## Implemented boundary
 
@@ -96,9 +97,23 @@ Opening or verifying the ledger checks:
 9. the declared privacy exclusions.
 
 Any failure throws a controlled `PublicEvidenceLedgerError`. A configured catalogue
-application does not convert that failure into an inline-only success. Future
-readiness may depend on this verification, but the current production readiness
-contract remains deliberately blocked for the wider `v0.2.0` lifecycle gate.
+application does not convert that failure into an inline-only success.
+
+The later EVID-204 completion slice adds a branded, inactive readiness-integrity
+seam over one exact linked ledger and reconciliation index. Construction verifies
+both roots. Every `GET /readyz` evaluation repeats both complete checks through
+captured base-class methods and rechecks the exact ledger/index link. Method
+substitution, proxying, relinking, corruption or I/O failure cannot make readiness
+pass. The response remains the existing path-free `503` blocked document with empty
+tool and API-operation arrays; a failed integrity check produces only a controlled
+path-free `gateway_readiness_integrity_failed` lifecycle event. It does not add an
+activation state or a readiness override.
+
+Both checks are linear in the accepted event and claim counts. Running them on an
+unauthenticated public readiness route would therefore require governed ingress,
+request admission and operational capacity evidence. The current candidate remains
+blocked and undeployed, so this seam is repository evidence rather than a public
+availability claim.
 
 ## Corruption response
 
@@ -171,12 +186,18 @@ The accepted storage slice includes regressions for restart, canonical bytes,
 corruption, truncation, sequence gaps, identity collision, orphan records, replay,
 retention, private material, inspection and catalogue persistence failure. Its
 pull-request, CodeQL, protected-main and attestation evidence are complete. The
-inspection transport candidate and any activation still require their own review.
+inspection transport was separately accepted through
+[pull request 37](https://github.com/chris-page-gov/gis-ai-go/pull/37) as protected
+`main` commit `c4d43f9d0f7af143e01eb3381e5adc4625fac2f0` and remains inactive. Any
+activation still requires its own review.
 
-The inactive reconciliation extension additionally tests atomic same-key ownership,
+The reconciliation extension was accepted through
+[pull request 46](https://github.com/chris-page-gov/gis-ai-go/pull/46) as protected
+`main` commit `525304145088bda558687438c87440bde1f642a4`. It additionally tests
+atomic same-key ownership,
 competing and reopened instances, incomplete publication and restart states, exact
 private modes, symbolic-link and overlapping-root rejection,
 resolution-before-ledger ordering, linear bulk linkage verification, raw-key
 exclusion, pre-publication index and ledger capacity refusal, at-cap recovery,
-conflict and retention handling. It has local review evidence only and changes no
-accepted protected-main or activation claim.
+conflict and retention handling. This acceptance changes no activation, deployment
+or release claim.

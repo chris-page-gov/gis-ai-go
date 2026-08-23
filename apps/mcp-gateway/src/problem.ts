@@ -1,3 +1,8 @@
+import {
+  normaliseW3CTraceContext,
+  type W3CTraceContext,
+} from "@gis-ai-go/provider-adapter-sdk";
+
 export const CATALOGUE_PROBLEM_CODES = [
   "invalid_request",
   "invalid_cursor",
@@ -47,6 +52,8 @@ export interface CatalogueProblem {
 export interface CatalogueProblemContext {
   readonly requestId: string;
   readonly traceId: string;
+  /** Trusted server-constructed correlation context for downstream boundaries. */
+  readonly trace?: W3CTraceContext;
   readonly instance?: string;
 }
 
@@ -183,6 +190,9 @@ export function assertCatalogueProblemContext(context: CatalogueProblemContext):
   }
   if (typeof context.traceId !== "string" || !TRACE_ID.test(context.traceId)) {
     throw new TypeError("traceId must contain exactly 32 lowercase hexadecimal characters");
+  }
+  if (context.trace !== undefined) {
+    normaliseW3CTraceContext(context.trace, context.traceId);
   }
   if (
     context.instance !== undefined &&

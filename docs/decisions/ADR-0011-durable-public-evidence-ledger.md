@@ -1,9 +1,11 @@
 # ADR-0011: Durable public evidence ledger
 
-- status: proposed candidate; inactive
+- status: accepted; inactive
 - date: 20 August 2026
 - decision owner: Chris Page
 - work item: [EVID-204](https://github.com/chris-page-gov/gis-ai-go/issues/22)
+- accepted implementation: [pull request 33](https://github.com/chris-page-gov/gis-ai-go/pull/33),
+  protected `main` commit `cb6b817ea7a2e025b3fe9a42c085d117467ced04`
 
 ## Context
 

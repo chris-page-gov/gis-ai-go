@@ -30,6 +30,7 @@ import {
   type ProviderSelection,
   type ProviderVersionIdentity,
 } from "./types.js";
+import { normaliseW3CTraceContext } from "./trace-context.js";
 
 export const ONS_ADAPTER_ID = "gis-ai-go.ons-data-api";
 export const ONS_ADAPTER_VERSION = "1";
@@ -847,7 +848,7 @@ export class OnsDataApiAdapter implements AsyncProviderAdapter {
     // no approved-cache provenance even while that reservation is active.
     const approvedCacheExecution = claimApprovedCacheExecution(this);
     this.#assertInvocation();
-    if (Object.keys(options).some((key) => !["signal", "deadline"].includes(key))) {
+    if (Object.keys(options).some((key) => !["signal", "deadline", "trace"].includes(key))) {
       throw new ProviderAdapterFault("INVALID_REQUEST");
     }
     if (options.signal !== undefined && !(options.signal instanceof AbortSignal)) {
@@ -855,6 +856,13 @@ export class OnsDataApiAdapter implements AsyncProviderAdapter {
     }
     if (options.deadline !== undefined && typeof options.deadline !== "string") {
       throw new ProviderAdapterFault("INVALID_REQUEST");
+    }
+    if (options.trace !== undefined) {
+      try {
+        normaliseW3CTraceContext(options.trace);
+      } catch {
+        throw new ProviderAdapterFault("INVALID_REQUEST");
+      }
     }
     const query = parseQuery(request);
     const startedAt = this.#now();

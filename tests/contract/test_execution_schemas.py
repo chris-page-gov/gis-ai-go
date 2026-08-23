@@ -4,6 +4,7 @@ import copy
 import json
 import unittest
 from pathlib import Path
+from time import monotonic
 from typing import Any
 
 from jsonschema import Draft202012Validator, FormatChecker
@@ -111,6 +112,69 @@ class ExecutionSchemaTests(unittest.TestCase):
         for mutation in mutations:
             with self.subTest(mutation=mutation):
                 self.assertTrue(list(request_validator.iter_errors(mutation)))
+
+    def test_trace_context_level_2_schema_vectors_and_validation_are_bounded(self) -> None:
+        request_validator = validator("execution-request.schema.json")
+        trace_id = "4bf92f3577b34da6a3ce929d0e0e4736"
+        parent_id = "00f067aa0ba902b7"
+        traceparent = f"00-{trace_id}-{parent_id}-ff"
+
+        valid = (
+            {"traceparent": traceparent},
+            {"traceparent": traceparent, "tracestate": ""},
+            {
+                "traceparent": traceparent,
+                "tracestate": "\t, 1vendor/@_*= leading value \t,,",
+            },
+            {
+                "traceparent": traceparent,
+                "tracestate": ",".join(
+                    f"vendor{index}=value" for index in range(32)
+                ),
+            },
+            {"traceparent": traceparent, "tracestate": " " * 512},
+        )
+        invalid = (
+            {"traceparent": f"00-{'0' * 32}-{parent_id}-01"},
+            {"traceparent": f"00-{trace_id}-{'0' * 16}-01"},
+            {"traceparent": f"00-{trace_id}-{parent_id}-0A"},
+            {"traceparent": f"{traceparent}\n"},
+            {"traceparent": traceparent, "tracestate": "," * 32},
+            {"traceparent": traceparent, "tracestate": "Vendor=value"},
+            {
+                "traceparent": traceparent,
+                "tracestate": "vendor=first,\t vendor=second",
+            },
+            {"traceparent": traceparent, "tracestate": "vendor=value\n"},
+            {"traceparent": traceparent, "tracestate": " " * 513},
+        )
+
+        for trace in valid:
+            request = copy.deepcopy(self.request)
+            request["trace"] = trace
+            with self.subTest(valid=trace):
+                self.assertEqual([], list(request_validator.iter_errors(request)))
+        for trace in invalid:
+            request = copy.deepcopy(self.request)
+            request["trace"] = trace
+            with self.subTest(invalid=trace):
+                self.assertTrue(list(request_validator.iter_errors(request)))
+
+        for name, tracestate in (
+            ("near-bound", f"{' ' * 511}\u007f"),
+            ("clearly over-ceiling", f"{' ' * 65_535}\u007f"),
+        ):
+            adversarial = copy.deepcopy(self.request)
+            adversarial["trace"] = {
+                "traceparent": traceparent,
+                "tracestate": tracestate,
+            }
+            started = monotonic()
+            errors = list(request_validator.iter_errors(adversarial))
+            elapsed = monotonic() - started
+            with self.subTest(adversarial=name):
+                self.assertTrue(errors)
+                self.assertLess(elapsed, 5.0)
 
     def test_problem_contract_cannot_return_stack_path_or_provider_error(self) -> None:
         problem_validator = validator("execution-problem.schema.json")

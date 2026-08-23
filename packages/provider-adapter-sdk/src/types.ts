@@ -159,6 +159,12 @@ export interface ProviderAdapterResult {
   readonly provenance: ProviderAdapterProvenance;
 }
 
+/** Validated W3C Trace Context carried only across trusted internal boundaries. */
+export interface W3CTraceContext {
+  readonly traceparent: string;
+  readonly tracestate?: string;
+}
+
 export const ADAPTER_ERROR_CODES = Object.freeze([
   "ADAPTER_DISCOVERY_SUSPENDED",
   "ADAPTER_INVOCATION_SUSPENDED",
@@ -196,6 +202,11 @@ export interface ProviderAdapterExecutionOptions {
   readonly signal?: AbortSignal;
   /** Accepted EXEC-202 absolute RFC 3339 deadline; the adapter also applies its lower local ceiling. */
   readonly deadline?: string;
+  /**
+   * Gateway-owned correlation context. This is not an arbitrary provider-header
+   * map and the fixed HTTPS transport does not expose it as caller-set headers.
+   */
+  readonly trace?: W3CTraceContext;
 }
 
 /** Live adapters have the same seven operations but execute asynchronously. */

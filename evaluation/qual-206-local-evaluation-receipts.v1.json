@@ -3,11 +3,11 @@
   "classification": "repository-only-non-live-unscored",
   "schema_contract": {
     "path": "schemas/qual-206-local-evaluation-receipt-set.schema.json",
-    "sha256": "7758c34791add0fc826140c508e304c1a0784d58de73c57a14d8e37038ad1a91"
+    "sha256": "0b0691232ed09ea4600fd812f43e77af7bb12af6ac49c15cde9f2dc768ecc3a8"
   },
   "generator": {
     "path": "scripts/qual_206_local_evaluations.mjs",
-    "sha256": "714649168c7c35a150fe8bcbfa5f1b48d9cf4cc20076e56dbbd2d2b0b0171fcb",
+    "sha256": "7ac55f13a72d0451396a0880478931a867311e253467ad3aeda2c0903e63b317",
     "package_json_sha256": "917eae1aba3ff9e0d83f63fbbf8ab6e64827dcd69ba6e98a85bca3129ee203cb",
     "pnpm_lock_sha256": "14adfa599e78714ab92962acd24b4c69c441466ea43c68444988b04fb4f59737",
     "verification_command": "pnpm run test:qual-206-local-evaluations"
@@ -60,7 +60,7 @@
       }
     },
     {
-      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:f6a3331fe4bb193e0b3cda608f5b381563b91ef957f26c13359cd333fde1d1dd",
+      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:5ea10748eeeecba2ea9898ed4b4e003606392c157a74e819451fffd3abdf1dd1",
       "label": "catalogue-application",
       "command": [
         "node",
@@ -84,7 +84,7 @@
         },
         {
           "path": "apps/mcp-gateway/src/problem.ts",
-          "sha256": "5326c0ea3f8b9299cfea4b68d3c6248acbd3d51441a982b4ca672e14d799ea1e"
+          "sha256": "43401f5e5342adb3d63003311aa4709de2ea75575113100bc415ba5669541410"
         },
         {
           "path": "apps/mcp-gateway/test/catalogue-application.test.ts",
@@ -148,20 +148,23 @@
       }
     },
     {
-      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:e08784ba8624eb1b3e7938f3f391b13117a8af8c0ef873b9351290d20d12bf09",
+      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:bb1f7dcaa9e79e5373ee94c84f22f1d2f0e385c179b178512a5cb8d0108b6404",
       "label": "data-query-application",
       "command": [
         "node",
         "--test",
         "--test-reporter=tap",
-        "--test-name-pattern=^(?:requires an explicitly injected exact ONS adapter and closed options|executes one fixed query with discovery suspended and verified evidence|uses exact approved cache after a classified HTTP 500 to 599 response|uses exact approved cache after an internally classified network failure|does not use cache for stale, suspended or rate-limited provider states|keeps 3xx, 4xx, timeout, unsafe, malformed, opaque and unbranded failures receipt-free|keeps discovery and invocation lifecycle planes independent|rejects every deviation from the exact five-key request before execution|independently rejects result and evidence drift|maps adapter failures to fixed non-reflective receipt-free problems)$",
+        "--test-name-pattern=^(?:requires an explicitly injected exact ONS adapter and closed options|executes one fixed query with discovery suspended and verified evidence|propagates exact validated Trace Context to the adapter without provider headers|creates a random-ID-flagged provider trace for a trusted legacy context|rejects a mismatched provider trace before egress|uses exact approved cache after a classified HTTP 500 to 599 response|uses exact approved cache after an internally classified network failure|does not use cache for stale, suspended or rate-limited provider states|keeps 3xx, 4xx, timeout, unsafe, malformed, opaque and unbranded failures receipt-free|keeps discovery and invocation lifecycle planes independent|rejects every deviation from the exact five-key request before execution|independently rejects result and evidence drift|maps adapter failures to fixed non-reflective receipt-free problems)$",
         "apps/mcp-gateway/dist/test/data-query-application.test.js"
       ],
       "result": "passed",
-      "test_count": 10,
+      "test_count": 13,
       "test_names": [
         "requires an explicitly injected exact ONS adapter and closed options",
         "executes one fixed query with discovery suspended and verified evidence",
+        "propagates exact validated Trace Context to the adapter without provider headers",
+        "creates a random-ID-flagged provider trace for a trusted legacy context",
+        "rejects a mismatched provider trace before egress",
         "uses exact approved cache after a classified HTTP 500 to 599 response",
         "uses exact approved cache after an internally classified network failure",
         "does not use cache for stale, suspended or rate-limited provider states",
@@ -174,7 +177,11 @@
       "materials": [
         {
           "path": "apps/mcp-gateway/src/data-query-application.ts",
-          "sha256": "1f73288b164a01f1b7acb256252d94c52759d62682d8efae6121d67d510287cc"
+          "sha256": "f2119d0d316c6ed5ff0504bf988bcc1e1e348339a0f2ab97af1db0fde06f487e"
+        },
+        {
+          "path": "apps/mcp-gateway/src/problem.ts",
+          "sha256": "43401f5e5342adb3d63003311aa4709de2ea75575113100bc415ba5669541410"
         },
         {
           "path": "apps/mcp-gateway/src/reconciliation-applications.ts",
@@ -182,7 +189,7 @@
         },
         {
           "path": "apps/mcp-gateway/test/data-query-application.test.ts",
-          "sha256": "6dff1ab315c7e089296493bf13238a954305adabd0a61e5e27f960123660a477"
+          "sha256": "f0b7a986ba9fe0ed7ef48ed92291761676f3437d604454e8bfbbbbb21f801078"
         },
         {
           "path": "packages/evidence/src/digest.ts",
@@ -202,7 +209,15 @@
         },
         {
           "path": "packages/provider-adapter-sdk/src/ons-data-api.ts",
-          "sha256": "a9296c7afd280aaf76459c27122ab1995c2be7e46b8227cd4c899cb5453ad550"
+          "sha256": "761681138c57062971eb33ad4d195bbd0d0641b65182022ee7e17e1621409bf3"
+        },
+        {
+          "path": "packages/provider-adapter-sdk/src/trace-context.ts",
+          "sha256": "7660226f88fb7fe10251c649a7d833bd751a2c422ab57a1beabf0359753e8e6d"
+        },
+        {
+          "path": "packages/provider-adapter-sdk/src/types.ts",
+          "sha256": "cf79dbdd5ec2d4901db3da6e00dde72d888bb50d04702cd21c0ef16dc0c052a4"
         },
         {
           "path": "providers/fixtures/data-query-parameters.example.json",
@@ -280,19 +295,20 @@
       }
     },
     {
-      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:9cb2fc939a47b8ac4d86d2418d9ebe4fd26da58da0c2d3f75eabdf2ae79d33ac",
+      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:e2520a7ba6c3b9244fbd1fe835b9d1ab292bee293429d48a9dfecd1648037492",
       "label": "public-read-transport",
       "command": [
         "node",
         "--test",
         "--test-reporter=tap",
-        "--test-name-pattern=^(?:keeps public-read capabilities absent by default and requires explicit applications|publishes self-contained OpenAPI and identical MCP schemas with every status|keeps direct and MCP HTTP success and problem JSON exactly equivalent|persists selection and data evidence and inspects both through direct and STDIO|keeps the legacy conformance factory structurally catalogue-only)$",
+        "--test-name-pattern=^(?:keeps public-read capabilities absent by default and requires explicit applications|propagates exact Trace Context across direct, MCP HTTP and STDIO boundaries|publishes self-contained OpenAPI and identical MCP schemas with every status|keeps direct and MCP HTTP success and problem JSON exactly equivalent|persists selection and data evidence and inspects both through direct and STDIO|keeps the legacy conformance factory structurally catalogue-only)$",
         "apps/mcp-gateway/dist/test/public-read-transport.test.js"
       ],
       "result": "passed",
-      "test_count": 5,
+      "test_count": 6,
       "test_names": [
         "keeps public-read capabilities absent by default and requires explicit applications",
+        "propagates exact Trace Context across direct, MCP HTTP and STDIO boundaries",
         "publishes self-contained OpenAPI and identical MCP schemas with every status",
         "keeps direct and MCP HTTP success and problem JSON exactly equivalent",
         "persists selection and data evidence and inspects both through direct and STDIO",
@@ -304,8 +320,12 @@
           "sha256": "9ec62597b78831b5943f7144867bbc505455c6bf4b4b3b5ae38260d853ec560e"
         },
         {
+          "path": "apps/mcp-gateway/src/data-query-application.ts",
+          "sha256": "f2119d0d316c6ed5ff0504bf988bcc1e1e348339a0f2ab97af1db0fde06f487e"
+        },
+        {
           "path": "apps/mcp-gateway/src/http-app.ts",
-          "sha256": "4c98ecb0d63de4d2d83fc36ac43e1cf955bd3eca7d47d17e49346d95775ce82b"
+          "sha256": "977f9c5b59492e3a388eaff916f1633e0b25ea18ed273e600993a87c7bb9b521"
         },
         {
           "path": "apps/mcp-gateway/src/mcp-http.ts",
@@ -313,7 +333,7 @@
         },
         {
           "path": "apps/mcp-gateway/src/mcp-server.ts",
-          "sha256": "fd6caf3e144e3c02e1b93d2e27f5fcb93d99f598a20d4c23ef7506c26287c346"
+          "sha256": "ad707166c97d08eb4248e1c7e4a71d2384cd213ed3eaadca9ea27ea925f94edb"
         },
         {
           "path": "apps/mcp-gateway/src/mcp-stdio.ts",
@@ -324,8 +344,28 @@
           "sha256": "1ed6a66b3a68bbcd7544ef3bc0c2d91215c5a3a079ce9c68ff9d2b1b077fc298"
         },
         {
+          "path": "apps/mcp-gateway/src/problem.ts",
+          "sha256": "43401f5e5342adb3d63003311aa4709de2ea75575113100bc415ba5669541410"
+        },
+        {
           "path": "apps/mcp-gateway/test/public-read-transport.test.ts",
-          "sha256": "506fea027b3976b2380559ed7aa64907daf267cb7530d72d1c14bdd4d573b4e4"
+          "sha256": "8849f72e6062871bcf39c5f3b0966209b8d5932a4ef050c426a8e3f6e419652c"
+        },
+        {
+          "path": "packages/provider-adapter-sdk/src/fixed-https.ts",
+          "sha256": "c8d9aa1559b083abed81e5531367decb7d85601224358053c218c01f3a3aaf81"
+        },
+        {
+          "path": "packages/provider-adapter-sdk/src/ons-data-api.ts",
+          "sha256": "761681138c57062971eb33ad4d195bbd0d0641b65182022ee7e17e1621409bf3"
+        },
+        {
+          "path": "packages/provider-adapter-sdk/src/trace-context.ts",
+          "sha256": "7660226f88fb7fe10251c649a7d833bd751a2c422ab57a1beabf0359753e8e6d"
+        },
+        {
+          "path": "packages/provider-adapter-sdk/src/types.ts",
+          "sha256": "cf79dbdd5ec2d4901db3da6e00dde72d888bb50d04702cd21c0ef16dc0c052a4"
         }
       ],
       "controls": {
@@ -335,7 +375,7 @@
       }
     },
     {
-      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:bbbf1fab17565f179312661a4702fbbfcbae50700cbac82a831ca76d6059e3b5",
+      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:5681b6b73d9febafdb636f906c3d3d46a13f6cfcd3ed9cc60c7e8aedd84e15d5",
       "label": "http-application",
       "command": [
         "node",
@@ -360,7 +400,7 @@
         },
         {
           "path": "apps/mcp-gateway/src/http-app.ts",
-          "sha256": "4c98ecb0d63de4d2d83fc36ac43e1cf955bd3eca7d47d17e49346d95775ce82b"
+          "sha256": "977f9c5b59492e3a388eaff916f1633e0b25ea18ed273e600993a87c7bb9b521"
         },
         {
           "path": "apps/mcp-gateway/src/openapi.ts",
@@ -369,6 +409,107 @@
         {
           "path": "apps/mcp-gateway/test/http-app.test.ts",
           "sha256": "9e5beed0f5ea0587bb8c49e9d6c8186a50c70ac63216fa7b6f7e5417415ac750"
+        }
+      ],
+      "controls": {
+        "external_network_required": false,
+        "live_provider_enabled": false,
+        "host_session_required": false
+      }
+    },
+    {
+      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:81a2d51dd01e5ca2a2b247aa2d085289229dbfe556ab682fb365285b9daf54a8",
+      "label": "readiness-integrity",
+      "command": [
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "--test-name-pattern=^(?:re-verifies configured evidence storage on every readiness evaluation|accepts only the branded exact linked evidence pair)$",
+        "apps/mcp-gateway/dist/test/readiness-integrity.test.js"
+      ],
+      "result": "passed",
+      "test_count": 2,
+      "test_names": [
+        "re-verifies configured evidence storage on every readiness evaluation",
+        "accepts only the branded exact linked evidence pair"
+      ],
+      "materials": [
+        {
+          "path": "apps/mcp-gateway/src/http-app.ts",
+          "sha256": "977f9c5b59492e3a388eaff916f1633e0b25ea18ed273e600993a87c7bb9b521"
+        },
+        {
+          "path": "apps/mcp-gateway/src/readiness-integrity.ts",
+          "sha256": "8dec085e8db8606db41f7c9c41f1efe6c9dd237913a37c7446c3af2daca30c10"
+        },
+        {
+          "path": "apps/mcp-gateway/test/readiness-integrity.test.ts",
+          "sha256": "0996a4bda017c2da951518cfdb5237510fefa3539fe25f143dbac8f9a0fea081"
+        },
+        {
+          "path": "packages/evidence/src/public-ledger.ts",
+          "sha256": "e94c288109f12d0b53389ad0755e6b9bdc50fb0c62958694bc92ca86ce13b2a9"
+        },
+        {
+          "path": "packages/evidence/src/reconciliation-index.ts",
+          "sha256": "70623794f3ae5fa6a976ce2c251560ae4bd0bdfcc3685fa943dda1a843d1f61d"
+        }
+      ],
+      "controls": {
+        "external_network_required": false,
+        "live_provider_enabled": false,
+        "host_session_required": false
+      }
+    },
+    {
+      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:2a2ff3d9276b2757cf18e94fdf6166003f41d99d04ade6a2dd7c00845cdd4d85",
+      "label": "blocked-container",
+      "command": [
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "--test-name-pattern=^(?:keeps the container entry point fixed and production authority blocked|rejects command-line configuration for the server and health check|maps readiness corruption and hostile errors to fixed path-free events)$",
+        "apps/mcp-gateway/dist/test/container-main.test.js"
+      ],
+      "result": "passed",
+      "test_count": 3,
+      "test_names": [
+        "keeps the container entry point fixed and production authority blocked",
+        "rejects command-line configuration for the server and health check",
+        "maps readiness corruption and hostile errors to fixed path-free events"
+      ],
+      "materials": [
+        {
+          "path": "apps/mcp-gateway/src/activation.ts",
+          "sha256": "9ec62597b78831b5943f7144867bbc505455c6bf4b4b3b5ae38260d853ec560e"
+        },
+        {
+          "path": "apps/mcp-gateway/src/container-healthcheck.ts",
+          "sha256": "58147e0e5e149aff2cf6ca6da4091f89a13792fa40bd66c71e4a5593efc5750b"
+        },
+        {
+          "path": "apps/mcp-gateway/src/container-main.ts",
+          "sha256": "ea0769b6936afb08f8e3a7f852914ca0ac151ec70d53c9aa7f034de80bfe9d84"
+        },
+        {
+          "path": "apps/mcp-gateway/src/http-app.ts",
+          "sha256": "977f9c5b59492e3a388eaff916f1633e0b25ea18ed273e600993a87c7bb9b521"
+        },
+        {
+          "path": "apps/mcp-gateway/src/http-server.ts",
+          "sha256": "c58592bc9d9cfc828155a960b65f52be877f098eace7bbd31e55124b4410601f"
+        },
+        {
+          "path": "apps/mcp-gateway/src/metadata.ts",
+          "sha256": "6ec446436997f8938f3053396c6efc4b499e3c124afdff5b308c499338a2fd67"
+        },
+        {
+          "path": "apps/mcp-gateway/src/readiness-integrity.ts",
+          "sha256": "8dec085e8db8606db41f7c9c41f1efe6c9dd237913a37c7446c3af2daca30c10"
+        },
+        {
+          "path": "apps/mcp-gateway/test/container-main.test.ts",
+          "sha256": "53381cba7de84b53a79b1fdde8df60c03a2203c336976cb992564305a710dd2d"
         }
       ],
       "controls": {
@@ -465,22 +606,63 @@
       }
     },
     {
-      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:591a020a5fc6a58ddecb3e412f444276a359be99c150a83d821b2c5c7633bc17",
+      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:990a4a73338ee371abb9366a22fa75519bef5c7f4431a3db6236464b8a3b4df1",
+      "label": "trace-context",
+      "command": [
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "--test-name-pattern=^(?:validates and copies bounded W3C Trace Context Level 2|rejects invalid, ambiguous and hostile Trace Context)$",
+        "packages/provider-adapter-sdk/dist/test/trace-context.test.js"
+      ],
+      "result": "passed",
+      "test_count": 2,
+      "test_names": [
+        "validates and copies bounded W3C Trace Context Level 2",
+        "rejects invalid, ambiguous and hostile Trace Context"
+      ],
+      "materials": [
+        {
+          "path": "packages/provider-adapter-sdk/src/index.ts",
+          "sha256": "3c9e1dbcf302b265f99c5a9adbaa5cd42102440f1f18d146334d12fc1c9813c5"
+        },
+        {
+          "path": "packages/provider-adapter-sdk/src/trace-context.ts",
+          "sha256": "7660226f88fb7fe10251c649a7d833bd751a2c422ab57a1beabf0359753e8e6d"
+        },
+        {
+          "path": "packages/provider-adapter-sdk/src/types.ts",
+          "sha256": "cf79dbdd5ec2d4901db3da6e00dde72d888bb50d04702cd21c0ef16dc0c052a4"
+        },
+        {
+          "path": "packages/provider-adapter-sdk/test/trace-context.test.ts",
+          "sha256": "0543b64af5e93196e13bc026ea4f382fbc7d644507af2540dc572961055e3904"
+        }
+      ],
+      "controls": {
+        "external_network_required": false,
+        "live_provider_enabled": false,
+        "host_session_required": false
+      }
+    },
+    {
+      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:ae2dab10f753903ed8ec2f7d41c4899700314c54a60fef61bec58153902789a2",
       "label": "provider-adapter",
       "command": [
         "node",
         "--test",
         "--test-reporter=tap",
-        "--test-name-pattern=^(?:is default-suspended on both independent lifecycle planes|constructs only the fixed URL and returns deterministic native evidence|keeps the checked-in live evidence privacy-safe and deterministically bound|rejects caller URL/query, stale versions, wrong selection order and alternate options|brands only network and HTTP 500 to 599 faults for approved-cache use|fails closed on schema, version, native-ID, link and rights drift)$",
+        "--test-name-pattern=^(?:is default-suspended on both independent lifecycle planes|constructs only the fixed URL and returns deterministic native evidence|keeps the checked-in live evidence privacy-safe and deterministically bound|rejects caller URL/query, stale versions, wrong selection order and alternate options|rejects malformed trace and arbitrary headers before provider transport|brands only network and HTTP 500 to 599 faults for approved-cache use|fails closed on schema, version, native-ID, link and rights drift)$",
         "packages/provider-adapter-sdk/dist/test/ons-data-api.test.js"
       ],
       "result": "passed",
-      "test_count": 6,
+      "test_count": 7,
       "test_names": [
         "is default-suspended on both independent lifecycle planes",
         "constructs only the fixed URL and returns deterministic native evidence",
         "keeps the checked-in live evidence privacy-safe and deterministically bound",
         "rejects caller URL/query, stale versions, wrong selection order and alternate options",
+        "rejects malformed trace and arbitrary headers before provider transport",
         "brands only network and HTTP 500 to 599 faults for approved-cache use",
         "fails closed on schema, version, native-ID, link and rights drift"
       ],
@@ -491,15 +673,23 @@
         },
         {
           "path": "packages/provider-adapter-sdk/src/ons-data-api.ts",
-          "sha256": "a9296c7afd280aaf76459c27122ab1995c2be7e46b8227cd4c899cb5453ad550"
+          "sha256": "761681138c57062971eb33ad4d195bbd0d0641b65182022ee7e17e1621409bf3"
         },
         {
           "path": "packages/provider-adapter-sdk/src/strict-json.ts",
           "sha256": "8b70d32b958e27d03a4bc3803948ff9e834a0c5757e632a72378a99107c24595"
         },
         {
+          "path": "packages/provider-adapter-sdk/src/trace-context.ts",
+          "sha256": "7660226f88fb7fe10251c649a7d833bd751a2c422ab57a1beabf0359753e8e6d"
+        },
+        {
+          "path": "packages/provider-adapter-sdk/src/types.ts",
+          "sha256": "cf79dbdd5ec2d4901db3da6e00dde72d888bb50d04702cd21c0ef16dc0c052a4"
+        },
+        {
           "path": "packages/provider-adapter-sdk/test/ons-data-api.test.ts",
-          "sha256": "1b540dcc65f33ee35548bdb71e1a6dc45bca4e52eee1ca25e9551e524410e876"
+          "sha256": "cb178ac1348280024d46e83175bebc8850f4b5f4581241d2e43185d810d7b58f"
         },
         {
           "path": "providers/ons/data-api-adapter-live-probe.v1.json",
@@ -579,7 +769,7 @@
       }
     },
     {
-      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:496b2aaec74e606fa4368d560b911b8faac9bc56ed4501022e25cef905502d49",
+      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:cf3f70a8c7be0d0d520eaf4795dcf4b5298ddb099cd3fcc3e46fc118e9b7754c",
       "label": "fixed-https-parser-boundary",
       "command": [
         "node",
@@ -600,11 +790,11 @@
         },
         {
           "path": "packages/provider-adapter-sdk/src/index.ts",
-          "sha256": "078b751a3ad8e6b92aaef4159c5ea5650832ca9083034e323c0036b113e6b6be"
+          "sha256": "3c9e1dbcf302b265f99c5a9adbaa5cd42102440f1f18d146334d12fc1c9813c5"
         },
         {
           "path": "packages/provider-adapter-sdk/src/ons-data-api.ts",
-          "sha256": "a9296c7afd280aaf76459c27122ab1995c2be7e46b8227cd4c899cb5453ad550"
+          "sha256": "761681138c57062971eb33ad4d195bbd0d0641b65182022ee7e17e1621409bf3"
         },
         {
           "path": "packages/provider-adapter-sdk/test/fixed-https.test.ts",
@@ -687,7 +877,7 @@
   ],
   "receipts": [
     {
-      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:3171e809fde36cc70916b4d2ed2e01a88b531b275621a48bb646ab2f5984899c",
+      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:049f6cf678a2a3548a0044848c7db0b33f47fd8e50d82857603d5cf6222738fc",
       "case": {
         "id": "E01",
         "title": "Anonymous discovery of open boundaries and statistics",
@@ -701,10 +891,10 @@
       },
       "evidence_suite_ids": [
         "gis-ai-go:qual-206-local-suite-evidence:sha256:690b695a6166cb199250fbf354d660b9c8715a90412739c49b359c36b064f076",
-        "gis-ai-go:qual-206-local-suite-evidence:sha256:f6a3331fe4bb193e0b3cda608f5b381563b91ef957f26c13359cd333fde1d1dd",
-        "gis-ai-go:qual-206-local-suite-evidence:sha256:e08784ba8624eb1b3e7938f3f391b13117a8af8c0ef873b9351290d20d12bf09",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:5ea10748eeeecba2ea9898ed4b4e003606392c157a74e819451fffd3abdf1dd1",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:bb1f7dcaa9e79e5373ee94c84f22f1d2f0e385c179b178512a5cb8d0108b6404",
         "gis-ai-go:qual-206-local-suite-evidence:sha256:85ea9363a74f6f415701049f07373d7a5f29b3a725d16d7d353364abcf21d34f",
-        "gis-ai-go:qual-206-local-suite-evidence:sha256:9cb2fc939a47b8ac4d86d2418d9ebe4fd26da58da0c2d3f75eabdf2ae79d33ac"
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:e2520a7ba6c3b9244fbd1fe835b9d1ab292bee293429d48a9dfecd1648037492"
       ],
       "local_assertions": [
         {
@@ -765,7 +955,7 @@
       "boundary": "Repository-only deterministic evidence. It is non-live and unscored, does not complete the research case, and does not authorise activation, deployment, registration or release."
     },
     {
-      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:c99ef1dd17293b9e05fc1466bd444323cd9844faa892980309c4491f8463c0b4",
+      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:420df40aee2b1e68ba2fc7c6d197b6f169797266eb2d7fa2baf305a0ca2aa160",
       "case": {
         "id": "E09",
         "title": "HMLR, ONS and LandIS open query with full provenance",
@@ -778,8 +968,8 @@
         "case_complete": false
       },
       "evidence_suite_ids": [
-        "gis-ai-go:qual-206-local-suite-evidence:sha256:f6a3331fe4bb193e0b3cda608f5b381563b91ef957f26c13359cd333fde1d1dd",
-        "gis-ai-go:qual-206-local-suite-evidence:sha256:e08784ba8624eb1b3e7938f3f391b13117a8af8c0ef873b9351290d20d12bf09",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:5ea10748eeeecba2ea9898ed4b4e003606392c157a74e819451fffd3abdf1dd1",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:bb1f7dcaa9e79e5373ee94c84f22f1d2f0e385c179b178512a5cb8d0108b6404",
         "gis-ai-go:qual-206-local-suite-evidence:sha256:8b87fc01ba89159cb87954abbb79572cd145fd768eea30584e019a6a5fce03e0",
         "gis-ai-go:qual-206-local-suite-evidence:sha256:85ea9363a74f6f415701049f07373d7a5f29b3a725d16d7d353364abcf21d34f",
         "gis-ai-go:qual-206-local-suite-evidence:sha256:d5f53689b62ac5df90edc33895fad9e484ccce53f00e6d4a9bc89040c379ee42"
@@ -808,7 +998,7 @@
       "boundary": "Repository-only deterministic evidence. It is non-live and unscored, does not complete the research case, and does not authorise activation, deployment, registration or release."
     },
     {
-      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:68a0fd101e41626a842b62392d33db596d2429379297b5020d4e8f7380167c7c",
+      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:854a437469ede665abfe7805c6069aebc80417dd08ceafcc3db7c08b451f9f05",
       "case": {
         "id": "E13",
         "title": "Host without Apps receives complete non-visual result",
@@ -821,7 +1011,7 @@
         "case_complete": false
       },
       "evidence_suite_ids": [
-        "gis-ai-go:qual-206-local-suite-evidence:sha256:9cb2fc939a47b8ac4d86d2418d9ebe4fd26da58da0c2d3f75eabdf2ae79d33ac",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:e2520a7ba6c3b9244fbd1fe835b9d1ab292bee293429d48a9dfecd1648037492",
         "gis-ai-go:qual-206-local-suite-evidence:sha256:947f99dc098a44cef96cc5e3e4d58ddcdf9c85d3129f9ada7f554531e01f6360",
         "gis-ai-go:qual-206-local-suite-evidence:sha256:8b87fc01ba89159cb87954abbb79572cd145fd768eea30584e019a6a5fce03e0"
       ],
@@ -845,7 +1035,7 @@
       "boundary": "Repository-only deterministic evidence. It is non-live and unscored, does not complete the research case, and does not authorise activation, deployment, registration or release."
     },
     {
-      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:3342efb6dd2f147e53bd2bcb60b1d6b41926b910f579c287a1c1e35277bff3ab",
+      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:59ba08319728265bb99a47f86bf47c1c530d9180779baa4ae0675661a4844317",
       "case": {
         "id": "E15",
         "title": "WebMCP-incapable agent follows linked OKF/API",
@@ -859,7 +1049,7 @@
       },
       "evidence_suite_ids": [
         "gis-ai-go:qual-206-local-suite-evidence:sha256:d5f53689b62ac5df90edc33895fad9e484ccce53f00e6d4a9bc89040c379ee42",
-        "gis-ai-go:qual-206-local-suite-evidence:sha256:bbbf1fab17565f179312661a4702fbbfcbae50700cbac82a831ca76d6059e3b5",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:5681b6b73d9febafdb636f906c3d3d46a13f6cfcd3ed9cc60c7e8aedd84e15d5",
         "gis-ai-go:qual-206-local-suite-evidence:sha256:690b695a6166cb199250fbf354d660b9c8715a90412739c49b359c36b064f076"
       ],
       "local_assertions": [
@@ -882,7 +1072,7 @@
       "boundary": "Repository-only deterministic evidence. It is non-live and unscored, does not complete the research case, and does not authorise activation, deployment, registration or release."
     },
     {
-      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:36d543eda1c9af155b17bea5fa377227e7055a6c9a3a18cbe359c89e12523545",
+      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:5b8c333cd4ec7c46a18f2ddcf1ec74426d8af787857a04c7474f26e617b6244b",
       "case": {
         "id": "E17",
         "title": "Malicious record attempts prompt injection",
@@ -895,7 +1085,7 @@
         "case_complete": false
       },
       "evidence_suite_ids": [
-        "gis-ai-go:qual-206-local-suite-evidence:sha256:f6a3331fe4bb193e0b3cda608f5b381563b91ef957f26c13359cd333fde1d1dd",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:5ea10748eeeecba2ea9898ed4b4e003606392c157a74e819451fffd3abdf1dd1",
         "gis-ai-go:qual-206-local-suite-evidence:sha256:0eacb77e20d4a7c067a64a65d5087a4201c8f011e1da99b21df9902cd9ec060d",
         "gis-ai-go:qual-206-local-suite-evidence:sha256:88d0e2a9083fc1090febb8f7fef4bd6e4c22600fa8428585e09412a24c6e572f",
         "gis-ai-go:qual-206-local-suite-evidence:sha256:d5f53689b62ac5df90edc33895fad9e484ccce53f00e6d4a9bc89040c379ee42"
@@ -920,7 +1110,7 @@
       "boundary": "Repository-only deterministic evidence. It is non-live and unscored, does not complete the research case, and does not authorise activation, deployment, registration or release."
     },
     {
-      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:c9b1a376ab9053adb9f75d1980870d49924b4fa1968e770d65e78a4c062d980c",
+      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:9f109adf0b9f939ca19a015dc6ffe860345931c4eb2d4c2b0d578ca970594c35",
       "case": {
         "id": "E20",
         "title": "Emergency tool/provider suspension",
@@ -934,11 +1124,14 @@
       },
       "evidence_suite_ids": [
         "gis-ai-go:qual-206-local-suite-evidence:sha256:88d0e2a9083fc1090febb8f7fef4bd6e4c22600fa8428585e09412a24c6e572f",
-        "gis-ai-go:qual-206-local-suite-evidence:sha256:591a020a5fc6a58ddecb3e412f444276a359be99c150a83d821b2c5c7633bc17",
-        "gis-ai-go:qual-206-local-suite-evidence:sha256:496b2aaec74e606fa4368d560b911b8faac9bc56ed4501022e25cef905502d49",
-        "gis-ai-go:qual-206-local-suite-evidence:sha256:e08784ba8624eb1b3e7938f3f391b13117a8af8c0ef873b9351290d20d12bf09",
-        "gis-ai-go:qual-206-local-suite-evidence:sha256:bbbf1fab17565f179312661a4702fbbfcbae50700cbac82a831ca76d6059e3b5",
-        "gis-ai-go:qual-206-local-suite-evidence:sha256:9cb2fc939a47b8ac4d86d2418d9ebe4fd26da58da0c2d3f75eabdf2ae79d33ac"
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:990a4a73338ee371abb9366a22fa75519bef5c7f4431a3db6236464b8a3b4df1",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:ae2dab10f753903ed8ec2f7d41c4899700314c54a60fef61bec58153902789a2",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:cf3f70a8c7be0d0d520eaf4795dcf4b5298ddb099cd3fcc3e46fc118e9b7754c",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:bb1f7dcaa9e79e5373ee94c84f22f1d2f0e385c179b178512a5cb8d0108b6404",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:5681b6b73d9febafdb636f906c3d3d46a13f6cfcd3ed9cc60c7e8aedd84e15d5",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:e2520a7ba6c3b9244fbd1fe835b9d1ab292bee293429d48a9dfecd1648037492",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:81a2d51dd01e5ca2a2b247aa2d085289229dbfe556ab682fb365285b9daf54a8",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:2a2ff3d9276b2757cf18e94fdf6166003f41d99d04ade6a2dd7c00845cdd4d85"
       ],
       "local_assertions": [
         {
@@ -952,6 +1145,14 @@
         {
           "id": "explicit-local-only",
           "statement": "Capabilities appear only through explicit local construction and cannot be enabled through runtime input."
+        },
+        {
+          "id": "trace-context-boundary",
+          "statement": "Trusted W3C Trace Context is correlated exactly across the application and adapter boundaries without widening the fixed ONS egress request."
+        },
+        {
+          "id": "readiness-integrity",
+          "statement": "An explicitly configured readiness ledger and reconciliation pair is re-verified on each readiness evaluation and reports only a fixed path-free event while production remains blocked."
         }
       ],
       "limitations": [
@@ -969,5 +1170,5 @@
     "complete_case_evaluation": false
   },
   "boundary": "Repository-only deterministic evidence. It is non-live and unscored, does not complete the research case, and does not authorise activation, deployment, registration or release.",
-  "set_id": "gis-ai-go:qual-206-local-evaluation-set:sha256:509af71b057d4b0369302adfb1d64aff2c92a6ed7776309ede4a513b3c2704a5"
+  "set_id": "gis-ai-go:qual-206-local-evaluation-set:sha256:9e5adc782a85537080e6904cf605d6e0d8c8eca6d6ee3ea03b4801c80c909313"
 }

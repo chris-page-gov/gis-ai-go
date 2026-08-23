@@ -35,8 +35,8 @@
     },
     "suites": {
       "type": "array",
-      "minItems": 13,
-      "maxItems": 13,
+      "minItems": 16,
+      "maxItems": 16,
       "uniqueItems": true,
       "prefixItems": [
         {
@@ -61,10 +61,19 @@
           "$ref": "#/$defs/httpApplicationSuite"
         },
         {
+          "$ref": "#/$defs/readinessIntegritySuite"
+        },
+        {
+          "$ref": "#/$defs/blockedContainerSuite"
+        },
+        {
           "$ref": "#/$defs/interoperabilityStdioSuite"
         },
         {
           "$ref": "#/$defs/toolRegistrySuite"
+        },
+        {
+          "$ref": "#/$defs/traceContextSuite"
         },
         {
           "$ref": "#/$defs/providerAdapterSuite"
@@ -259,8 +268,11 @@
             "evidence-application",
             "public-read-transport",
             "http-application",
+            "readiness-integrity",
+            "blocked-container",
             "interoperability-stdio",
             "tool-registry",
+            "trace-context",
             "provider-adapter",
             "approved-provider-cache",
             "fixed-https-parser-boundary",
@@ -404,6 +416,34 @@
         }
       ]
     },
+    "readinessIntegritySuite": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/suite"
+        },
+        {
+          "properties": {
+            "label": {
+              "const": "readiness-integrity"
+            }
+          }
+        }
+      ]
+    },
+    "blockedContainerSuite": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/suite"
+        },
+        {
+          "properties": {
+            "label": {
+              "const": "blocked-container"
+            }
+          }
+        }
+      ]
+    },
     "interoperabilityStdioSuite": {
       "allOf": [
         {
@@ -427,6 +467,20 @@
           "properties": {
             "label": {
               "const": "tool-registry"
+            }
+          }
+        }
+      ]
+    },
+    "traceContextSuite": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/suite"
+        },
+        {
+          "properties": {
+            "label": {
+              "const": "trace-context"
             }
           }
         }

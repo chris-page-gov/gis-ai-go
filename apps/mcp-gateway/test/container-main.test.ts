@@ -9,8 +9,12 @@ import {
   GATEWAY_CONTAINER_HOST,
   GATEWAY_CONTAINER_LEDGER_ROOT,
   GATEWAY_CONTAINER_PORT,
+  GATEWAY_CONTAINER_READINESS_INTEGRITY_FAILURE_EVENT,
   GATEWAY_CONTAINER_RECONCILIATION_ROOT,
+  GATEWAY_CONTAINER_REQUEST_FAILURE_EVENT,
+  gatewayContainerErrorEvent,
 } from "../src/container-main.js";
+import { EVIDENCE_READINESS_INTEGRITY_FAILURE_MESSAGE } from "../src/readiness-integrity.js";
 import { assertFixedHealthcheckArguments } from "../src/container-healthcheck.js";
 
 test("keeps the container entry point fixed and production authority blocked", () => {
@@ -39,4 +43,19 @@ test("rejects command-line configuration for the server and health check", () =>
     () => assertFixedHealthcheckArguments(["node", "container-healthcheck.js", "--url"]),
     /does not accept arguments/u,
   );
+});
+
+test("maps readiness corruption and hostile errors to fixed path-free events", () => {
+  assert.equal(
+    gatewayContainerErrorEvent(
+      new Error(EVIDENCE_READINESS_INTEGRITY_FAILURE_MESSAGE),
+    ),
+    GATEWAY_CONTAINER_READINESS_INTEGRITY_FAILURE_EVENT,
+  );
+  const hostile = "/var/lib/private/ledger Bearer secret raw-idempotency-key";
+  const event = gatewayContainerErrorEvent(new Error(hostile));
+  assert.equal(event, GATEWAY_CONTAINER_REQUEST_FAILURE_EVENT);
+  assert.equal(event.includes(hostile), false);
+  assert.equal(event.includes("/var/"), false);
+  assert.equal(event.includes("Bearer"), false);
 });

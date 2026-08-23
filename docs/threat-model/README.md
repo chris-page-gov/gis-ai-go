@@ -78,6 +78,18 @@ application. It does not activate or publish a service.
 | RK20 provenance spoofing and RK21 audit tampering | Domain-separated key and semantic fingerprints, complete-JSON-before-ready publication, resolution-before-ledger ordering and completed re-read bind one key to one verified receipt, record and event. | One writer still owns the ledger. The index coordinates only the same key for processes sharing one filesystem and is not cluster-wide exactly-once execution. |
 | RK25 query-history and identity exposure | The ledger/index reject the complete raw key and result material. Direct data queries ignore `x-request-id` and generate opaque server identities; MCP does the same by default. Shared HTTP and STDIO ingress rejects a raw, prefixed, percent-encoded or multiply encoded complete key in JSON-RPC request IDs, methods, tool names and protocol-version claims before SDK dispatch; HTTP also checks its parity headers. Requests receive a fixed `id: null` error and notifications remain silent. Problems, inspection results and resource URIs contain no key. | The caller-generated key is a public correlation label and must contain no personal or secret material. Host, proxy and operational telemetry must keep the digest-only contract; backups need a separate privacy review. |
 
+## EVID-204E trace and readiness completion scope
+
+The final repository-only slice adds internal trace correlation and repeated storage
+integrity checks. It does not activate or publish a service.
+
+| Research risk | Control in this slice | Residual boundary |
+| --- | --- | --- |
+| RK03 confused deputy and RK08 policy bypass | Direct and MCP request contexts construct server-owned values against the W3C Trace Context Level 2 Candidate Recommendation Draft within a 512-character `tracestate` ceiling. `data.query` passes only that closed typed value to the exact adapter, which validates it again. Caller `traceparent`, `tracestate`, baggage, authorisation and arbitrary header maps are ignored; the fixed ONS request still has only its four reviewed headers. | Level 2 remains work in progress. No provider trace header or telemetry exporter is activated. Any future cross-service propagation needs a separate standards-refresh, trust, sampling, privacy and egress review. |
+| RK17 provider and storage exhaustion | The blocked container re-verifies the complete linked ledger and reconciliation index on every `/readyz` evaluation while readiness stays `503`. | Both checks are linear in retained events and claims. Before any public readiness ingress or activation, governed request admission, rate limiting, capacity evidence and monitoring are required. |
+| RK21 audit tampering | A privately branded seam accepts one exact linked pair, uses captured verification methods, rejects nested receipt-inspection substitution and rechecks the link around reconciliation verification. Post-start corruption cannot make readiness pass and emits the fixed `gateway_readiness_integrity_failed` lifecycle event. | The event needs integration with an authorised operator response. Existing single-writer, non-WORM, checkpoint, backup and disaster-recovery residuals remain. |
+| RK25 query-history and identity exposure | Full Trace Context and caller baggage are absent from results, receipts and ONS egress. Readiness failures return the unchanged path-free blocked document and the container sink maps errors to fixed event names without paths, credentials or raw identifiers. | Future tracing backends, proxies, logs and retention need a separate privacy review before trace state or span material is exported. |
+
 ## EXEC-202 private execution scope
 
 [`EXEC-202.md`](EXEC-202.md) records the private synthetic execution trust boundary,

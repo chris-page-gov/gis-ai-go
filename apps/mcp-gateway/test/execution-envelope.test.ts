@@ -29,6 +29,78 @@ const DIGEST_PARITY_INPUT =
   "4afb2bfe5ee293d98a8525f34418c79011251e30f94a8dfecac0fb93e3841a48";
 const DIGEST_PARITY_OUTPUT =
   "f89af91ec033f5d1c6e04dfbf66ac8af8624b7dcc43c33290ef48ef040b70502";
+const TRACE_ID = "4bf92f3577b34da6a3ce929d0e0e4736";
+const PARENT_ID = "00f067aa0ba902b7";
+
+function traceparent(flags = "01"): string {
+  return `00-${TRACE_ID}-${PARENT_ID}-${flags}`;
+}
+
+const VALID_LEVEL_2_TRACE_VECTORS = [
+  ["all lower-case hexadecimal flags", { traceparent: traceparent("ff") }],
+  ["empty tracestate header", { traceparent: traceparent(), tracestate: "" }],
+  [
+    "OWS and empty members",
+    { traceparent: traceparent(), tracestate: "\t, 1vendor/@_*= leading value \t,," },
+  ],
+  [
+    "32 members",
+    {
+      traceparent: traceparent(),
+      tracestate: Array.from({ length: 32 }, (_, index) => `vendor${index}=value`).join(","),
+    },
+  ],
+  [
+    "256-character key",
+    { traceparent: traceparent(), tracestate: `${"a".repeat(256)}=value` },
+  ],
+  [
+    "256-character value",
+    { traceparent: traceparent(), tracestate: `vendor=${" ".repeat(255)}x` },
+  ],
+  [
+    "repository input ceiling",
+    { traceparent: traceparent(), tracestate: " ".repeat(512) },
+  ],
+] as const;
+
+const INVALID_LEVEL_2_TRACE_VECTORS = [
+  ["upper-case flag", { traceparent: `00-${TRACE_ID}-${PARENT_ID}-0A` }],
+  ["traceparent terminal newline", { traceparent: `${traceparent()}\n` }],
+  ["zero trace identifier", { traceparent: `00-${"0".repeat(32)}-${PARENT_ID}-01` }],
+  ["zero parent identifier", { traceparent: `00-${TRACE_ID}-${"0".repeat(16)}-01` }],
+  ["33 empty members", { traceparent: traceparent(), tracestate: ",".repeat(32) }],
+  ["upper-case key", { traceparent: traceparent(), tracestate: "Vendor=value" }],
+  ["invalid initial key character", { traceparent: traceparent(), tracestate: "_vendor=value" }],
+  [
+    "257-character key",
+    { traceparent: traceparent(), tracestate: `${"a".repeat(257)}=value` },
+  ],
+  ["empty value", { traceparent: traceparent(), tracestate: "vendor=" }],
+  [
+    "257-character value",
+    { traceparent: traceparent(), tracestate: `vendor=${"x".repeat(257)}` },
+  ],
+  [
+    "duplicate key",
+    { traceparent: traceparent(), tracestate: "vendor=first,\t vendor=second" },
+  ],
+  ["equals sign in value", { traceparent: traceparent(), tracestate: "vendor=one=two" }],
+  ["tab in value", { traceparent: traceparent(), tracestate: "vendor=one\ttwo" }],
+  ["non-printable value", { traceparent: traceparent(), tracestate: "vendor=one\u007ftwo" }],
+  [
+    "tracestate terminal newline",
+    { traceparent: traceparent(), tracestate: "vendor=value\n" },
+  ],
+  [
+    "near-bound non-printable value",
+    { traceparent: traceparent(), tracestate: `${" ".repeat(511)}\u007f` },
+  ],
+  [
+    "repository input ceiling exceeded",
+    { traceparent: traceparent(), tracestate: " ".repeat(513) },
+  ],
+] as const;
 
 function builderInput(): Record<string, unknown> {
   const request = fixture("execution-request.example.json") as Record<string, unknown>;
@@ -51,6 +123,22 @@ test("builds the exact closed gateway-to-Python fixture envelope", () => {
     buildSyntheticExecutionRequest(builderInput(), NOW),
     fixture("execution-request.example.json"),
   );
+});
+
+test("accepts the W3C Trace Context Level 2 parity vectors", () => {
+  for (const [name, trace] of VALID_LEVEL_2_TRACE_VECTORS) {
+    const input = builderInput();
+    input.trace = trace;
+    assert.deepEqual(buildSyntheticExecutionRequest(input, NOW).trace, trace, name);
+  }
+});
+
+test("rejects the invalid W3C Trace Context Level 2 parity vectors", () => {
+  for (const [name, trace] of INVALID_LEVEL_2_TRACE_VECTORS) {
+    const input = builderInput();
+    input.trace = trace;
+    assert.throws(() => buildSyntheticExecutionRequest(input, NOW), name);
+  }
 });
 
 test("rejects extra fields, unsafe traces, excessive limits and stale deadlines", () => {

@@ -1,3 +1,4 @@
+import { randomBytes } from "node:crypto";
 import { types as utilTypes } from "node:util";
 
 import {
@@ -33,6 +34,7 @@ import {
   isExactApprovedOnsDataQueryCache,
   normaliseAdapterError,
   normalisePristineOnsDataApiAdapterError,
+  normaliseW3CTraceContext,
   requireExactOnsDataApiAdapter,
   requirePristineOnsDataApiAdapter,
   type AdapterErrorCode,
@@ -42,6 +44,7 @@ import {
   type NormalisedAdapterError,
   type OnsDataApiAdapterExecution,
   type ProviderAdapterEstimate,
+  type ProviderAdapterExecutionOptions,
   type ProviderAdapterProvenance,
   type ProviderAdapterResult,
   type ProviderRights,
@@ -603,6 +606,22 @@ function invocationOptions(
   });
 }
 
+function providerInvocationOptions(
+  invocation: DataQueryInvocationOptions,
+  context: CatalogueProblemContext,
+): ProviderAdapterExecutionOptions {
+  const candidate = context.trace ?? {
+    traceparent: `00-${context.traceId}-${randomBytes(8).toString("hex")}-02`,
+  };
+  let trace: ReturnType<typeof normaliseW3CTraceContext>;
+  try {
+    trace = normaliseW3CTraceContext(candidate, context.traceId);
+  } catch {
+    return fail("invalid_request", context);
+  }
+  return Object.freeze({ ...invocation, trace });
+}
+
 function trustedNowMilliseconds(
   runtime: DataQueryRuntime,
   context: CatalogueProblemContext,
@@ -951,6 +970,7 @@ async function query(
   assertApprovedCacheAdapter(runtime, context);
   const request = normaliseRequest(runtime, requestValue, context);
   const invocation = invocationOptions(invocationValue, context);
+  const providerInvocation = providerInvocationOptions(invocation, context);
   assertInvocationControls(runtime, invocation, context);
   const normalisedParametersSha256 = domainSeparatedSha256(
     CANONICAL_DOMAINS.dataQueryParameters,
@@ -1055,7 +1075,7 @@ async function query(
       approvedCacheExecution = executePristineOnsDataApiAdapter(
         runtime.adapter,
         ONS_ADAPTER_REQUEST,
-        invocation,
+        providerInvocation,
       );
     } catch {
       return fail("provider_contract_failed", context);
@@ -1064,7 +1084,7 @@ async function query(
   try {
     adapterResult = await (
       approvedCacheExecution?.result ??
-      runtime.adapter.execute(ONS_ADAPTER_REQUEST, invocation)
+      runtime.adapter.execute(ONS_ADAPTER_REQUEST, providerInvocation)
     );
     assertApprovedCacheAdapter(runtime, context);
   } catch (error) {
