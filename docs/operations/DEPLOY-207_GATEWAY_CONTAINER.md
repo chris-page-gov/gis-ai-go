@@ -16,9 +16,9 @@ QUAL-206 preflight changed admitted provider and assurance source, then merged
 through [pull request 49](https://github.com/chris-page-gov/gis-ai-go/pull/49) as
 protected-main commit `f0e3ccc1dceeba6b3f7d0ecd56c5dd083dee405a`.
 [Run 32567301935](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32567301935)
-rebuilt and verified the exact current image, two-build identity, full SBOM, retained
-vulnerability evidence, Compose boundary, storage restart, suspension and exact-image
-restore. The canonical OCI archive has SHA-256
+rebuilt and verified the exact image for that source, two-build identity, full SBOM,
+retained vulnerability evidence, Compose boundary, storage restart, suspension and
+exact-image restore. The canonical OCI archive has SHA-256
 `1c6976c1242782d13b14fd826c64fec28b81513b1258f6359a6cce3f9dfb397a` and image
 manifest digest
 `sha256:c191f23ef6ceb16c324992075592a91a2171cc9b8b7f668fd153de5d0b549690`.

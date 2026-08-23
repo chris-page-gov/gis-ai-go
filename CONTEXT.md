@@ -41,11 +41,12 @@ through [pull request 14](https://github.com/chris-page-gov/gis-ai-go/pull/14),
 whose accepted implementation commit is
 `a0e826384cf50d9d81b87489dbf3580e8e3602f7`. The Explorer is deployed and verified
 at <https://chris-page-gov.github.io/gis-ai-go/> from the later release commit
-recorded below. Protected `main` is now at
-`f0e3ccc1dceeba6b3f7d0ecd56c5dd083dee405a` and contains inactive catalogue,
-evidence, selection and fixed-data-query applications, direct and MCP transport
-seams, receipt-only lost-response reconciliation and the repository-only blocked
-gateway image plus the accepted repository-only QUAL-206 preflight. Production
+recorded below. The accepted implementation baseline for this hand-off is
+protected-main commit `f0e3ccc1dceeba6b3f7d0ecd56c5dd083dee405a`; it contains
+inactive catalogue, evidence, selection and fixed-data-query applications, direct
+and MCP transport seams, receipt-only lost-response reconciliation and the
+repository-only blocked gateway image plus the accepted repository-only QUAL-206
+preflight. Production
 operation arrays remain empty, readiness remains `503`, and there is no public MCP
 service, live provider capability, external policy or identity service, deployment
 or `v0.2.0` release.
