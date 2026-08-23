@@ -41,15 +41,14 @@ through [pull request 14](https://github.com/chris-page-gov/gis-ai-go/pull/14),
 whose accepted implementation commit is
 `a0e826384cf50d9d81b87489dbf3580e8e3602f7`. The Explorer is deployed and verified
 at <https://chris-page-gov.github.io/gis-ai-go/> from the later release commit
-recorded below. The accepted implementation baseline for this hand-off is
-protected-main commit `f0e3ccc1dceeba6b3f7d0ecd56c5dd083dee405a`; it contains
-inactive catalogue, evidence, selection and fixed-data-query applications, direct
-and MCP transport seams, receipt-only lost-response reconciliation and the
-repository-only blocked gateway image plus the accepted repository-only QUAL-206
-preflight. Production
-operation arrays remain empty, readiness remains `503`, and there is no public MCP
-service, live provider capability, external policy or identity service, deployment
-or `v0.2.0` release.
+recorded below. The current protected-main hand-off is
+`37a71cdcc55bf3708527596d47ea9839d150fed5`. It contains the repository-only
+QUAL-206 preflight, completed trace and readiness integrity, one compile-time
+`candidate-unregistered` exact-five assembly and the bounded 23 August research
+intake described below. The shipped production and default operation arrays remain
+empty and their readiness remains `503`. There is no public MCP service, activated
+live provider capability, external policy or identity service, deployment or
+`v0.2.0` release.
 
 The owner has authorised autonomous implementation in the open under
 [`ADR-0004`](docs/decisions/ADR-0004-public-autonomous-delivery.md). The repository
@@ -101,8 +100,8 @@ Protected-main assurance and provenance passed in
 CodeQL passed in
 [run 32357427549](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32357427549),
 and [attestation 41836254](https://github.com/chris-page-gov/gis-ai-go/attestations/41836254)
-binds the exact source archive to that commit. There is still no live provider
-adapter, external policy service, identity integration or evidence store.
+binds the exact source archive to that commit. That slice introduced no live
+provider adapter, external policy service, identity integration or evidence store.
 
 The third MCP-201 slice merged through
 [pull request 31](https://github.com/chris-page-gov/gis-ai-go/pull/31) as
@@ -188,6 +187,54 @@ unscored and incomplete for release. Public hosting, independent-host acceptance
 workload identity, governed ingress and storage, a real deployed rollback and
 patched image bytes or explicit owner disposition of the retained vulnerabilities
 remain gates.
+
+EVID-204 trace and readiness integrity merged through
+[pull request 51](https://github.com/chris-page-gov/gis-ai-go/pull/51) as
+`d2e8bb8b6d0f6ee9c693d117b4a238861a5129c3`. Protected-main
+[run 32650741280](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32650741280)
+passed repository, exact gateway-image, aggregate and provenance assurance, and
+[run 32650741234](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32650741234)
+passed CodeQL for Actions, JavaScript/TypeScript and Python. The accepted slice
+validates server-owned W3C trace context across direct HTTP, MCP HTTP, MCP STDIO and
+the execution boundary, without forwarding caller baggage, arbitrary headers or
+authorisation material to the provider. It also re-verifies the exact configured
+ledger and reconciliation-index pair before candidate readiness. It does not change
+the production registration or deployment boundary.
+
+The TOOLS-205 exact-five candidate merged through
+[pull request 53](https://github.com/chris-page-gov/gis-ai-go/pull/53) as
+`27d76e1149ce1711e1af98fe0bb52a3666471a58`. Protected-main
+[run 32656337673](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32656337673)
+passed repository, exact gateway-image, aggregate and provenance assurance, and
+[run 32656337308](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32656337308)
+passed CodeQL for Actions, JavaScript/TypeScript and Python. One immutable assembly
+now supplies `catalogue.search`, `catalogue.describe`, `evidence.inspect`,
+`selection.resolve` and `data.query` consistently to direct HTTP, MCP HTTP, MCP
+STDIO, OpenAPI and plain-text fallbacks. Registry, policy, provider lifecycle and
+explicit suspension can only subtract operations; per-operation guards fail closed.
+The assembly remains unregistered, with `productionRegistration: false`, no shipped
+activation override and no live provider call. Issue
+[#23](https://github.com/chris-page-gov/gis-ai-go/issues/23) remains open because
+`evidence.inspect` identifies the current inspection call but verifies only the
+earlier operation's policy decision and receipt; it does not yet create a verifiable
+receipt for the inspection call itself.
+
+The advisory governance research intake merged through
+[pull request 52](https://github.com/chris-page-gov/gis-ai-go/pull/52) as the current
+protected-main commit `37a71cdcc55bf3708527596d47ea9839d150fed5`. Protected-main
+[run 32658667714](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32658667714)
+passed repository, exact gateway-image, aggregate and provenance assurance, and
+[run 32658667650](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32658667650)
+passed CodeQL for Actions, JavaScript/TypeScript and Python. The intake preserves a
+source-by-source findings matrix and a qualified threat-evidence crosswalk without
+changing runtime behaviour. The non-redistributable PDF and privacy-sensitive
+byte-exact DOCX are local-only and ignored; protected `main` contains the supplied
+Markdown and a distinctly named privacy-scrubbed DOCX derivative. All source
+content remains untrusted evidence rather than operational authority. An earlier
+unmerged pull-request object containing the original DOCX is absent from the branch
+and protected `main`; removal from GitHub's unreachable-object and cached-view
+storage requires a separate owner authorisation for a GitHub Support request and
+does not block the technical `v0.2.0` workstream.
 
 ## Non-negotiable boundaries
 
