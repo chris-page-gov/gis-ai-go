@@ -44,10 +44,12 @@ MAX_FEATURES = 100
 MAX_COORDINATES = 128
 MAX_COMPLEXITY = 20_000
 MAX_DEADLINE = timedelta(seconds=30)
+MAX_TRACESTATE_CHARACTERS = 512
 
 IDENTIFIER = re.compile(r"^[a-z0-9][a-z0-9._:-]{0,127}$")
 SHA256 = re.compile(r"^sha256:[0-9a-f]{64}$")
-TRACEPARENT = re.compile(r"^00-([0-9a-f]{32})-([0-9a-f]{16})-(00|01)$")
+TRACEPARENT = re.compile(r"^00-([0-9a-f]{32})-([0-9a-f]{16})-[0-9a-f]{2}$")
+TRACESTATE_KEY = re.compile(r"^[a-z0-9][a-z0-9_\-*/@]{0,255}$")
 RFC3339 = re.compile(
     r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$"
 )
@@ -97,10 +99,36 @@ def _trace(value: Any) -> dict[str, str]:
         tracestate = value["tracestate"]
         if (
             not isinstance(tracestate, str)
-            or not 1 <= len(tracestate) <= 256
-            or any(not 0x20 <= ord(character) <= 0x7E for character in tracestate)
+            or len(tracestate) > MAX_TRACESTATE_CHARACTERS
         ):
             raise INVALID_REQUEST
+        members = tracestate.split(",")
+        if len(members) > 32:
+            raise INVALID_REQUEST
+        keys: set[str] = set()
+        for raw_member in members:
+            member = raw_member.strip(" \t")
+            if member == "":
+                continue
+            if member.count("=") != 1:
+                raise INVALID_REQUEST
+            key, member_value = member.split("=", maxsplit=1)
+            if (
+                TRACESTATE_KEY.fullmatch(key) is None
+                or key in keys
+                or not 1 <= len(member_value) <= 256
+                or member_value.endswith(" ")
+                or any(
+                    not (
+                        0x20 <= ord(character) <= 0x2B
+                        or 0x2D <= ord(character) <= 0x3C
+                        or 0x3E <= ord(character) <= 0x7E
+                    )
+                    for character in member_value
+                )
+            ):
+                raise INVALID_REQUEST
+            keys.add(key)
         result["tracestate"] = tracestate
     return result
 

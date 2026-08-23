@@ -13,6 +13,7 @@ import {
   type RequestId,
   type StandardSchemaWithJSON,
 } from "@modelcontextprotocol/server";
+import { normaliseW3CTraceContext } from "@gis-ai-go/provider-adapter-sdk";
 
 import { catalogueActivation } from "./activation.js";
 import {
@@ -325,9 +326,14 @@ function enabledResources(options: CatalogueMcpOptions): readonly GatewayMcpReso
 }
 
 function freshCatalogueContext(): CatalogueProblemContext {
+  const traceId = randomBytes(16).toString("hex");
   return Object.freeze({
     requestId: `mcp-${randomUUID()}`,
-    traceId: randomBytes(16).toString("hex"),
+    traceId,
+    trace: normaliseW3CTraceContext(
+      { traceparent: `00-${traceId}-${randomBytes(8).toString("hex")}-02` },
+      traceId,
+    ),
   });
 }
 
@@ -340,6 +346,7 @@ function catalogueContext(
   return Object.freeze({
     requestId: generated.requestId,
     traceId: generated.traceId,
+    ...(generated.trace === undefined ? {} : { trace: generated.trace }),
     ...(generated.instance === undefined ? {} : { instance: generated.instance }),
   });
 }

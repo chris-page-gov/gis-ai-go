@@ -53,6 +53,11 @@ const SOFTWARE = Object.freeze({
 const CONTEXT = Object.freeze({
   requestId: "request-data-query-application-1",
   traceId: "7123456789abcdef0123456789abcdef",
+  trace: Object.freeze({
+    traceparent:
+      "00-7123456789abcdef0123456789abcdef-89abcdef01234567-01",
+    tracestate: "govuk=public-read,ons=weekly-deaths",
+  }),
   instance: "/data/query",
 } as const);
 
@@ -526,6 +531,96 @@ test("executes one fixed query with discovery suspended and verified evidence", 
     true,
   );
   assert.equal(Object.isFrozen(result), true);
+});
+
+test(
+  "propagates exact validated Trace Context to the adapter without provider headers",
+  async (t) => {
+    let transportRequestKeys: readonly PropertyKey[] = [];
+    const injected = new OnsDataApiAdapter({
+      lifecycle: ACTIVE_INVOCATION,
+      transport: async (request) => {
+        transportRequestKeys = Reflect.ownKeys(request).sort();
+        return response();
+      },
+      now: () => Date.parse("2030-01-01T00:00:00Z"),
+    });
+    const originalExecute = injected.execute.bind(injected);
+    let observed: ProviderAdapterExecutionOptions | undefined;
+    t.mock.method(injected, "execute", async (
+      request: unknown,
+      options: ProviderAdapterExecutionOptions = {},
+    ) => {
+      observed = options;
+      return await originalExecute(request, options);
+    });
+
+    const result = await application(injected).query(
+      PUBLIC_ONS_DATA_QUERY_PARAMETERS,
+      CONTEXT,
+    );
+
+    assert.deepEqual(observed?.trace, CONTEXT.trace);
+    assert.equal(observed?.signal, undefined);
+    assert.equal(observed?.deadline, undefined);
+    assert.deepEqual(transportRequestKeys, ["policy", "signal", "url"]);
+    assert.equal(result.trace_id, CONTEXT.traceId);
+    assert.equal(result.evidence_receipt.trace_id, CONTEXT.traceId);
+    assert.equal(JSON.stringify(result).includes(CONTEXT.trace.traceparent), false);
+    assert.equal(JSON.stringify(result).includes(CONTEXT.trace.tracestate), false);
+  },
+);
+
+test("creates a random-ID-flagged provider trace for a trusted legacy context", async (t) => {
+  const injected = adapter();
+  const originalExecute = injected.execute.bind(injected);
+  let observed: ProviderAdapterExecutionOptions | undefined;
+  t.mock.method(injected, "execute", async (
+    request: unknown,
+    options: ProviderAdapterExecutionOptions = {},
+  ) => {
+    observed = options;
+    return await originalExecute(request, options);
+  });
+  const legacyContext = {
+    requestId: "request-data-query-legacy-trace",
+    traceId: CONTEXT.traceId,
+    instance: "/data/query",
+  };
+
+  const result = await application(injected).query(
+    PUBLIC_ONS_DATA_QUERY_PARAMETERS,
+    legacyContext,
+  );
+
+  assert.ok(observed?.trace !== undefined);
+  assert.match(
+    observed.trace.traceparent,
+    new RegExp(`^00-${CONTEXT.traceId}-[0-9a-f]{16}-02$`, "u"),
+  );
+  assert.equal(observed.trace.tracestate, undefined);
+  assert.equal(Object.isFrozen(observed.trace), true);
+  assert.equal(result.trace_id, CONTEXT.traceId);
+  assert.equal(result.evidence_receipt.trace_id, CONTEXT.traceId);
+});
+
+test("rejects a mismatched provider trace before egress", async () => {
+  const calls = { count: 0, urls: [] as string[] };
+  const mismatched = {
+    ...CONTEXT,
+    trace: {
+      traceparent:
+        "00-8123456789abcdef0123456789abcdef-89abcdef01234567-00",
+    },
+  };
+  await assert.rejects(
+    application(adapter(calls)).query(
+      PUBLIC_ONS_DATA_QUERY_PARAMETERS,
+      mismatched,
+    ),
+    /traceparent/u,
+  );
+  assert.equal(calls.count, 0);
 });
 
 test("uses exact approved cache after a classified HTTP 500 to 599 response", async () => {
@@ -1180,7 +1275,7 @@ test("propagates live controls and keeps an adapter-local timeout at 504", async
   assert.equal(timeout.problem.status, 504);
   assert.equal(executions, 1);
   assert.equal(observedRequest, ONS_ADAPTER_REQUEST);
-  assert.deepEqual(observedOptions, { signal, deadline });
+  assert.deepEqual(observedOptions, { signal, deadline, trace: CONTEXT.trace });
   assert.equal(signal.aborted, false);
 });
 

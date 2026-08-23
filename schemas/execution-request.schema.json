@@ -52,13 +52,22 @@
       "properties": {
         "traceparent": {
           "type": "string",
-          "pattern": "^00-[0-9a-f]{32}-[0-9a-f]{16}-(?:00|01)$"
+          "pattern": "^00-(?!0{32})[0-9a-f]{32}-(?!0{16})[0-9a-f]{16}-[0-9a-f]{2}(?![\\s\\S])"
         },
         "tracestate": {
           "type": "string",
-          "minLength": 1,
-          "maxLength": 256,
-          "pattern": "^[\\x20-\\x7E]+$"
+          "description": "W3C Trace Context Level 2 list syntax, bounded to 512 repository-input characters. Empty and OWS-only members count towards the 32-member limit; duplicate keys are forbidden.",
+          "maxLength": 512,
+          "allOf": [
+            {
+              "pattern": "^(?:[\\t ]*|[\\t ]*[a-z0-9][a-z0-9_\\-*/@]{0,255}=[\\x20-\\x2B\\x2D-\\x3C\\x3E-\\x7E]{0,255}[\\x21-\\x2B\\x2D-\\x3C\\x3E-\\x7E][\\t ]*)(?:,(?:[\\t ]*|[\\t ]*[a-z0-9][a-z0-9_\\-*/@]{0,255}=[\\x20-\\x2B\\x2D-\\x3C\\x3E-\\x7E]{0,255}[\\x21-\\x2B\\x2D-\\x3C\\x3E-\\x7E][\\t ]*)){0,31}(?![\\s\\S])"
+            },
+            {
+              "not": {
+                "pattern": "(?:^|,)[\\t ]*([a-z0-9][a-z0-9_\\-*/@]{0,255})=[^,]*(?:,[^,]*)*,[\\t ]*\\1="
+              }
+            }
+          ]
         }
       }
     },

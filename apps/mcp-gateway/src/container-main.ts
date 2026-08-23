@@ -10,6 +10,10 @@ import { catalogueActivation } from "./activation.js";
 import { loadCatalogueSnapshot } from "./catalogue-snapshot.js";
 import { createGatewayNodeServer, type GatewayNodeServer } from "./http-server.js";
 import { gatewayMetadata } from "./metadata.js";
+import {
+  EVIDENCE_READINESS_INTEGRITY_FAILURE_MESSAGE,
+  createEvidenceReadinessIntegrity,
+} from "./readiness-integrity.js";
 
 export const GATEWAY_CONTAINER_HOST = "0.0.0.0" as const;
 export const GATEWAY_CONTAINER_PORT = 8_787 as const;
@@ -21,6 +25,21 @@ export const GATEWAY_CONTAINER_RECONCILIATION_ROOT =
 const START_EVENT = "gateway_started";
 const STOP_EVENT = "gateway_stopped";
 const START_FAILURE_EVENT = "gateway_start_failed";
+export const GATEWAY_CONTAINER_READINESS_INTEGRITY_FAILURE_EVENT =
+  "gateway_readiness_integrity_failed" as const;
+export const GATEWAY_CONTAINER_REQUEST_FAILURE_EVENT =
+  "gateway_request_failed" as const;
+
+/** Map every operational error to a fixed path-free lifecycle event name. */
+export function gatewayContainerErrorEvent(
+  error: Error,
+):
+  | typeof GATEWAY_CONTAINER_READINESS_INTEGRITY_FAILURE_EVENT
+  | typeof GATEWAY_CONTAINER_REQUEST_FAILURE_EVENT {
+  return error.message === EVIDENCE_READINESS_INTEGRITY_FAILURE_MESSAGE
+    ? GATEWAY_CONTAINER_READINESS_INTEGRITY_FAILURE_EVENT
+    : GATEWAY_CONTAINER_REQUEST_FAILURE_EVENT;
+}
 
 function writeLifecycleEvent(event: string, revision?: string): void {
   process.stdout.write(
@@ -86,9 +105,20 @@ export async function runGatewayContainerMain(): Promise<void> {
     ledger,
   });
   reconciliationIndex.verify();
+  const evidenceReadinessIntegrity = createEvidenceReadinessIntegrity(
+    ledger,
+    reconciliationIndex,
+  );
 
-  // Omission of every explicit seam is the reviewed zero-capability production path.
-  const server = createGatewayNodeServer(snapshot);
+  // Only the inactive verifier is carried; every capability, application and
+  // provider seam remains omitted from the reviewed zero-capability production path.
+  const server = createGatewayNodeServer(snapshot, {
+    evidenceReadinessIntegrity,
+    onerror: (error) => writeLifecycleEvent(
+      gatewayContainerErrorEvent(error),
+      snapshot.revision,
+    ),
+  });
   await listen(server);
   writeLifecycleEvent(START_EVENT, snapshot.revision);
 

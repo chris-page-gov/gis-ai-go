@@ -22,6 +22,7 @@ import {
   type FixedHttpsResponse,
   type FixedHttpsTransport,
   type OnsAttemptTelemetry,
+  type ProviderAdapterExecutionOptions,
   type ProviderAdapterResult,
 } from "../src/index.js";
 import {
@@ -400,6 +401,43 @@ test("rejects caller URL/query, stale versions, wrong selection order and altern
   assert.equal(calls, 0);
   const stale = await expectFault(() => adapter.execute(invalid[2]), "STALE_PROVIDER_VERSION");
   assert.equal(stale.retryable, false);
+});
+
+test("rejects malformed trace and arbitrary headers before provider transport", async () => {
+  let calls = 0;
+  const adapter = createOnsDataApiAdapter({
+    lifecycle: ACTIVE,
+    transport: async () => {
+      calls += 1;
+      return responseFor();
+    },
+  });
+  const traceId = "7123456789abcdef0123456789abcdef";
+  for (const options of [
+    {
+      trace: {
+        traceparent: `00-${traceId}-89abcdef01234567-0F`,
+      },
+    },
+    {
+      trace: {
+        traceparent: `00-${traceId}-89abcdef01234567-03`,
+        tracestate: "govuk=one, govuk=two",
+      },
+    },
+    {
+      headers: {
+        authorization: "Bearer caller-controlled",
+        traceparent: `00-${traceId}-89abcdef01234567-03`,
+      },
+    },
+  ] as unknown as ProviderAdapterExecutionOptions[]) {
+    await expectFault(
+      () => adapter.execute(ONS_ADAPTER_REQUEST, options),
+      "INVALID_REQUEST",
+    );
+  }
+  assert.equal(calls, 0);
 });
 
 test("retries only the closed status set and bounded Retry-After", async () => {

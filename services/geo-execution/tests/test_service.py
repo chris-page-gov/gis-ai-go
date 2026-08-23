@@ -28,6 +28,98 @@ from gis_ai_go_execution import (  # noqa: E402
 
 from fixtures import FIXED_NOW, expected_result, valid_request  # noqa: E402
 
+TRACE_ID = "4bf92f3577b34da6a3ce929d0e0e4736"
+PARENT_ID = "00f067aa0ba902b7"
+
+
+def traceparent(flags: str = "01") -> str:
+    return f"00-{TRACE_ID}-{PARENT_ID}-{flags}"
+
+
+VALID_LEVEL_2_TRACE_VECTORS: tuple[tuple[str, dict[str, str]], ...] = (
+    ("all lower-case hexadecimal flags", {"traceparent": traceparent("ff")}),
+    ("empty tracestate header", {"traceparent": traceparent(), "tracestate": ""}),
+    (
+        "OWS and empty members",
+        {
+            "traceparent": traceparent(),
+            "tracestate": "\t, 1vendor/@_*= leading value \t,,",
+        },
+    ),
+    (
+        "32 members",
+        {
+            "traceparent": traceparent(),
+            "tracestate": ",".join(f"vendor{index}=value" for index in range(32)),
+        },
+    ),
+    (
+        "256-character key",
+        {"traceparent": traceparent(), "tracestate": f"{'a' * 256}=value"},
+    ),
+    (
+        "256-character value",
+        {"traceparent": traceparent(), "tracestate": f"vendor={' ' * 255}x"},
+    ),
+    (
+        "repository input ceiling",
+        {"traceparent": traceparent(), "tracestate": " " * 512},
+    ),
+)
+
+INVALID_LEVEL_2_TRACE_VECTORS: tuple[tuple[str, dict[str, str]], ...] = (
+    ("upper-case flag", {"traceparent": f"00-{TRACE_ID}-{PARENT_ID}-0A"}),
+    ("traceparent terminal newline", {"traceparent": f"{traceparent()}\n"}),
+    (
+        "zero trace identifier",
+        {"traceparent": f"00-{'0' * 32}-{PARENT_ID}-01"},
+    ),
+    (
+        "zero parent identifier",
+        {"traceparent": f"00-{TRACE_ID}-{'0' * 16}-01"},
+    ),
+    ("33 empty members", {"traceparent": traceparent(), "tracestate": "," * 32}),
+    ("upper-case key", {"traceparent": traceparent(), "tracestate": "Vendor=value"}),
+    (
+        "invalid initial key character",
+        {"traceparent": traceparent(), "tracestate": "_vendor=value"},
+    ),
+    (
+        "257-character key",
+        {"traceparent": traceparent(), "tracestate": f"{'a' * 257}=value"},
+    ),
+    ("empty value", {"traceparent": traceparent(), "tracestate": "vendor="}),
+    (
+        "257-character value",
+        {"traceparent": traceparent(), "tracestate": f"vendor={'x' * 257}"},
+    ),
+    (
+        "duplicate key",
+        {"traceparent": traceparent(), "tracestate": "vendor=first,\t vendor=second"},
+    ),
+    (
+        "equals sign in value",
+        {"traceparent": traceparent(), "tracestate": "vendor=one=two"},
+    ),
+    ("tab in value", {"traceparent": traceparent(), "tracestate": "vendor=one\ttwo"}),
+    (
+        "non-printable value",
+        {"traceparent": traceparent(), "tracestate": "vendor=one\u007ftwo"},
+    ),
+    (
+        "tracestate terminal newline",
+        {"traceparent": traceparent(), "tracestate": "vendor=value\n"},
+    ),
+    (
+        "near-bound non-printable value",
+        {"traceparent": traceparent(), "tracestate": f"{' ' * 511}\u007f"},
+    ),
+    (
+        "repository input ceiling exceeded",
+        {"traceparent": traceparent(), "tracestate": " " * 513},
+    ),
+)
+
 
 class ExecutionServiceTests(unittest.TestCase):
     def service(self, **options: object) -> ExecutionService:
@@ -84,6 +176,20 @@ class ExecutionServiceTests(unittest.TestCase):
             "none",
             result["evidence"]["transformation"]["geometry_simplification"],
         )
+
+    def test_accepts_the_w3c_trace_context_level_2_parity_vectors(self) -> None:
+        for name, trace in VALID_LEVEL_2_TRACE_VECTORS:
+            request = valid_request()
+            request["trace"] = trace
+            with self.subTest(name=name):
+                self.assertEqual(trace, self.service().execute(request)["trace"])
+
+    def test_rejects_the_invalid_w3c_trace_context_level_2_parity_vectors(self) -> None:
+        for name, trace in INVALID_LEVEL_2_TRACE_VECTORS:
+            request = valid_request()
+            request["trace"] = trace
+            with self.subTest(name=name):
+                self.assert_failure(request, "INVALID_REQUEST")
 
     def test_unknown_operations_parameters_and_fields_fail_closed_without_reflection(self) -> None:
         malicious = "provider.execute /tmp/private.db SELECT secret FROM users"

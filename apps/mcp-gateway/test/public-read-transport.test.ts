@@ -27,6 +27,8 @@ import {
   OnsDataApiAdapter,
   type FixedHttpsResponse,
   type FixedHttpsTransport,
+  type ProviderAdapterExecutionOptions,
+  type W3CTraceContext,
 } from "@gis-ai-go/provider-adapter-sdk";
 
 import { createCatalogueApplication } from "../src/catalogue-application.js";
@@ -246,6 +248,7 @@ function selectionApplication(evidenceLedger?: ReturnType<typeof openPublicEvide
 function dataApplication(
   transport: FixedHttpsTransport = successTransport(),
   evidenceLedger?: ReturnType<typeof openPublicEvidenceLedger>,
+  observeExecutionOptions?: (options: ProviderAdapterExecutionOptions) => void,
 ): DataQueryApplication {
   let ledger = evidenceLedger;
   if (ledger === undefined) {
@@ -265,8 +268,22 @@ function dataApplication(
     });
     RECONCILIATION_INDEXES.set(ledger, reconciliationIndex);
   }
+  const providerAdapter = adapter(transport);
+  if (observeExecutionOptions !== undefined) {
+    const execute = providerAdapter.execute.bind(providerAdapter);
+    Object.defineProperty(providerAdapter, "execute", {
+      configurable: true,
+      value: async (
+        request: unknown,
+        options: ProviderAdapterExecutionOptions = {},
+      ) => {
+        observeExecutionOptions(options);
+        return await execute(request, options);
+      },
+    });
+  }
   const application = createDataQueryApplication({
-    adapter: adapter(transport),
+    adapter: providerAdapter,
     software: SOFTWARE,
     now: () => new Date("2026-08-21T01:00:00.000Z"),
     evidenceLedger: ledger,
@@ -600,6 +617,143 @@ test("keeps public-read capabilities absent by default and requires explicit app
       enabledOperations: ["data.query", "evidence.inspect"],
     }),
     /ledger-linked reconciliation application/u,
+  );
+});
+
+test("propagates exact Trace Context across direct, MCP HTTP and STDIO boundaries", async (t) => {
+  const observedTrace: W3CTraceContext[] = [];
+  const transportKeys: (readonly PropertyKey[])[] = [];
+  const transportSerialisations: string[] = [];
+  const transport: FixedHttpsTransport = async (request) => {
+    transportKeys.push(Reflect.ownKeys(request).sort());
+    transportSerialisations.push(JSON.stringify(request));
+    return await successTransport()(request);
+  };
+  const application = dataApplication(transport, undefined, (options) => {
+    assert.ok(options.trace !== undefined);
+    observedTrace.push(options.trace);
+  });
+  const evidenceApplication = evidenceForData(application);
+  const query = (seed: string) => ({
+    ...DATA_QUERY_REQUEST,
+    idempotency_key: `gis-ai-go:ik:v1:${seed.repeat(64)}`,
+  });
+
+  const directParentId = "1".repeat(16);
+  const directTrace = Object.freeze({
+    traceparent: `00-${TRACE_ID}-${directParentId}-02`,
+  });
+  const direct = createGatewayHttpHandler({
+    snapshot: SNAPSHOT,
+    dataQueryApplication: application,
+    evidenceApplication,
+    enabledApiOperations: ["data.query", "evidence.inspect"],
+    createRequestId: () => `${REQUEST_ID}-direct`,
+    createTraceId: () => TRACE_ID,
+    createTraceParentId: () => directParentId,
+  });
+  const callerTrace = `00-${"c".repeat(32)}-${"d".repeat(16)}-ff`;
+  const directResponse = await direct(
+    new Request("http://127.0.0.1:8787/data/query", {
+      method: "POST",
+      headers: {
+        accept: "application/json",
+        authorization: "Bearer caller-controlled-secret",
+        baggage: "private-path=/tmp/caller-controlled",
+        "content-type": "application/json",
+        host: "127.0.0.1:8787",
+        traceparent: callerTrace,
+        tracestate: "caller=controlled",
+      },
+      body: JSON.stringify(query("1")),
+    }),
+  );
+  assert.equal(directResponse.status, 200);
+  const directText = await directResponse.text();
+  assert.equal(directText.includes(callerTrace), false);
+  assert.equal(directText.includes("caller-controlled"), false);
+
+  const mcpTraceId = "9".repeat(32);
+  const mcpTrace = Object.freeze({
+    traceparent: `00-${mcpTraceId}-${"a".repeat(16)}-ff`,
+    tracestate: "\t,0gov@uk=public-read ,ons=weekly-deaths, ",
+  });
+  const mcp = createCatalogueMcpHttpHandler({
+    application: catalogueApplication(),
+    dataQueryApplication: application,
+    evidenceApplication,
+    snapshot: SNAPSHOT,
+    enabledOperations: ["data.query", "evidence.inspect"],
+    createRequestContext: () => ({
+      requestId: `${REQUEST_ID}-mcp`,
+      traceId: mcpTraceId,
+      trace: mcpTrace,
+      instance: "/data/query",
+    }),
+  });
+  t.after(() => mcp.close());
+  const mcpResponse = await rawExchange(
+    mcp,
+    rawBody(81, "tools/call", {
+      name: "data.query",
+      arguments: query("2"),
+    }),
+    "data.query",
+  );
+  assert.equal(toolResult(mcpResponse).isError, undefined);
+
+  const stdioTraceId = "a".repeat(32);
+  const stdioTrace = Object.freeze({
+    traceparent: `00-${stdioTraceId}-${"b".repeat(16)}-03`,
+    tracestate: "",
+  });
+  const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
+  await clientTransport.start();
+  const stdio = startCatalogueStdio({
+    application: catalogueApplication(),
+    dataQueryApplication: application,
+    evidenceApplication,
+    snapshot: SNAPSHOT,
+    enabledOperations: ["data.query", "evidence.inspect"],
+    createRequestContext: () => ({
+      requestId: `${REQUEST_ID}-stdio`,
+      traceId: stdioTraceId,
+      trace: stdioTrace,
+      instance: "/data/query",
+    }),
+    transport: serverTransport,
+  });
+  t.after(async () => {
+    await stdio.close();
+    await clientTransport.close();
+  });
+  const stdioResponse = await stdioExchange(clientTransport, {
+    jsonrpc: "2.0",
+    id: 82,
+    method: "tools/call",
+    params: {
+      _meta: MODERN_META,
+      name: "data.query",
+      arguments: query("3"),
+    },
+  });
+  assert.equal("result" in stdioResponse, true);
+
+  assert.deepEqual(observedTrace, [directTrace, mcpTrace, stdioTrace]);
+  assert.equal(observedTrace.every((trace) => Object.isFrozen(trace)), true);
+  assert.deepEqual(transportKeys, [
+    ["policy", "signal", "url"],
+    ["policy", "signal", "url"],
+    ["policy", "signal", "url"],
+  ]);
+  assert.equal(
+    transportSerialisations.some((request) =>
+      request.includes("traceparent") ||
+      request.includes("tracestate") ||
+      request.includes("authorization") ||
+      request.includes("caller-controlled")
+    ),
+    false,
   );
 });
 

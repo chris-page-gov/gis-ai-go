@@ -8,10 +8,10 @@ import {
   type SyntheticSource,
 } from "@gis-ai-go/contracts";
 import { CANONICAL_DOMAINS, domainSeparatedSha256 } from "@gis-ai-go/evidence";
+import { normaliseW3CTraceContext } from "@gis-ai-go/provider-adapter-sdk";
 
 const IDENTIFIER = /^[a-z0-9][a-z0-9._:-]{0,127}$/u;
 const SHA256 = /^sha256:[0-9a-f]{64}$/u;
-const TRACEPARENT = /^00-([0-9a-f]{32})-([0-9a-f]{16})-(?:00|01)$/u;
 const FEATURE_ID = /^SYN-[0-9]{3}$/u;
 const RFC3339 = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/u;
 
@@ -77,31 +77,11 @@ function identifierAt(value: unknown, label: string): string {
 }
 
 function traceAt(value: unknown): ExecutionTrace {
-  const trace = objectAt(
-    value,
-    Object.prototype.hasOwnProperty.call(value, "tracestate")
-      ? ["traceparent", "tracestate"]
-      : ["traceparent"],
-    "trace",
-  );
-  if (typeof trace.traceparent !== "string") fail("traceparent is invalid");
-  const match = TRACEPARENT.exec(trace.traceparent);
-  if (match === null || match[1] === "0".repeat(32) || match[2] === "0".repeat(16)) {
-    fail("traceparent is invalid");
+  try {
+    return normaliseW3CTraceContext(value);
+  } catch (error) {
+    fail(error instanceof Error ? error.message : "trace is invalid");
   }
-  if (trace.tracestate === undefined) return { traceparent: trace.traceparent };
-  if (
-    typeof trace.tracestate !== "string" ||
-    trace.tracestate.length < 1 ||
-    trace.tracestate.length > 256 ||
-    [...trace.tracestate].some((character) => {
-      const code = character.codePointAt(0) ?? 0;
-      return code < 0x20 || code > 0x7e;
-    })
-  ) {
-    fail("tracestate is invalid");
-  }
-  return { traceparent: trace.traceparent, tracestate: trace.tracestate };
 }
 
 function limitsAt(value: unknown): ExecutionLimits {
