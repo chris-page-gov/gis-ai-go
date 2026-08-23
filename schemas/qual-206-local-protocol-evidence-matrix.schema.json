@@ -1,0 +1,424 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:qual-206-local-protocol-evidence-matrix:1",
+  "$comment": "Closed repository-material-bound, non-live and unscored QUAL-206 protocol source matrix.",
+  "title": "GIS AI GO QUAL-206 local protocol source matrix",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "classification",
+    "schema_contract",
+    "repository_binding",
+    "protocol",
+    "official_client",
+    "coverage",
+    "suspension_stdio",
+    "claims",
+    "boundary",
+    "matrix_id"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gis-ai-go.qual-206-local-protocol-evidence-matrix.v1"
+    },
+    "classification": {
+      "const": "repository-only-non-live-unscored"
+    },
+    "schema_contract": {
+      "$ref": "#/$defs/schemaContract"
+    },
+    "repository_binding": {
+      "$ref": "#/$defs/repositoryBinding"
+    },
+    "protocol": {
+      "$ref": "#/$defs/protocol"
+    },
+    "official_client": {
+      "$ref": "#/$defs/officialClient"
+    },
+    "coverage": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "uniqueItems": true,
+      "prefixItems": [
+        {
+          "allOf": [
+            { "$ref": "#/$defs/coverageRow" },
+            {
+              "properties": {
+                "id": { "const": "official-http" },
+                "driver": { "const": "official-client" },
+                "transport": { "const": "http" },
+                "wiring": { "const": "in-process-fetch-and-loopback" },
+                "covers": {
+                  "const": {
+                    "protocol_2026_07_28": true,
+                    "cancellation": false,
+                    "unsupported_traffic": false
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            { "$ref": "#/$defs/coverageRow" },
+            {
+              "properties": {
+                "id": { "const": "official-stdio" },
+                "driver": { "const": "official-client" },
+                "transport": { "const": "stdio" },
+                "wiring": { "const": "real-process-stdio" },
+                "covers": {
+                  "const": {
+                    "protocol_2026_07_28": true,
+                    "cancellation": false,
+                    "unsupported_traffic": false
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            { "$ref": "#/$defs/coverageRow" },
+            {
+              "properties": {
+                "id": { "const": "raw-http" },
+                "driver": { "const": "raw-transcript" },
+                "transport": { "const": "http" },
+                "wiring": { "const": "in-process-fetch" },
+                "covers": {
+                  "const": {
+                    "protocol_2026_07_28": true,
+                    "cancellation": true,
+                    "unsupported_traffic": true
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            { "$ref": "#/$defs/coverageRow" },
+            {
+              "properties": {
+                "id": { "const": "raw-stdio" },
+                "driver": { "const": "raw-transcript" },
+                "transport": { "const": "stdio" },
+                "wiring": { "const": "in-process-and-real-process-stdio" },
+                "covers": {
+                  "const": {
+                    "protocol_2026_07_28": true,
+                    "cancellation": true,
+                    "unsupported_traffic": true
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "items": false
+    },
+    "suspension_stdio": {
+      "$ref": "#/$defs/suspensionStdio"
+    },
+    "claims": {
+      "$ref": "#/$defs/claims"
+    },
+    "boundary": {
+      "const": "Repository-material-bound deterministic source matrix. It is repository-only, non-live and unscored; coverage rows bind source declarations but do not record test execution, the suspension regression uses in-process STDIO server wiring, and the matrix does not complete host interoperability or authorise activation, deployment, registration or release."
+    },
+    "matrix_id": {
+      "type": "string",
+      "pattern": "^gis-ai-go:qual-206-local-protocol-evidence-matrix:sha256:[0-9a-f]{64}$"
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "relativePath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\)[A-Za-z0-9._@+/-]+$"
+    },
+    "material": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/relativePath"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "testSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "source_test_names"],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/relativePath"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "source_test_names": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160,
+            "pattern": "^[^\\u0000-\\u001f\\u007f]+$"
+          }
+        }
+      }
+    },
+    "schemaContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {
+          "const": "schemas/qual-206-local-protocol-evidence-matrix.schema.json"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "repositoryBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "runtime_base_commit",
+        "material_integrity",
+        "runtime_materials"
+      ],
+      "properties": {
+        "kind": {
+          "const": "repository-material-bound"
+        },
+        "runtime_base_commit": {
+          "const": "7fa8b720d3cbaa3e0a1ebfadf0fb355a7330a04c"
+        },
+        "material_integrity": {
+          "const": "sha256"
+        },
+        "runtime_materials": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/material"
+          }
+        }
+      }
+    },
+    "protocol": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {
+        "name": {
+          "const": "Model Context Protocol"
+        },
+        "version": {
+          "const": "2026-07-28"
+        }
+      }
+    },
+    "officialClient": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["package", "version", "manifest", "lockfile"],
+      "properties": {
+        "package": {
+          "const": "@modelcontextprotocol/client"
+        },
+        "version": {
+          "const": "2.0.0"
+        },
+        "manifest": {
+          "$ref": "#/$defs/material"
+        },
+        "lockfile": {
+          "$ref": "#/$defs/material"
+        }
+      }
+    },
+    "coverageFlags": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_2026_07_28",
+        "cancellation",
+        "unsupported_traffic"
+      ],
+      "properties": {
+        "protocol_2026_07_28": {
+          "type": "boolean"
+        },
+        "cancellation": {
+          "type": "boolean"
+        },
+        "unsupported_traffic": {
+          "type": "boolean"
+        }
+      }
+    },
+    "coverageRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "driver",
+        "transport",
+        "wiring",
+        "test_sources",
+        "covers"
+      ],
+      "properties": {
+        "id": {
+          "enum": [
+            "official-http",
+            "official-stdio",
+            "raw-http",
+            "raw-stdio"
+          ]
+        },
+        "driver": {
+          "enum": ["official-client", "raw-transcript"]
+        },
+        "transport": {
+          "enum": ["http", "stdio"]
+        },
+        "wiring": {
+          "enum": [
+            "in-process-fetch-and-loopback",
+            "real-process-stdio",
+            "in-process-fetch",
+            "in-process-and-real-process-stdio"
+          ]
+        },
+        "test_sources": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 2,
+          "items": {
+            "$ref": "#/$defs/testSource"
+          }
+        },
+        "covers": {
+          "$ref": "#/$defs/coverageFlags"
+        }
+      }
+    },
+    "suspensionStdio": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "transport",
+        "driver",
+        "wiring",
+        "test_source",
+        "scenario_count",
+        "resulting_suspension_count",
+        "checks",
+        "production_registration",
+        "provider_network_calls",
+        "operating_system_pipe_framing"
+      ],
+      "properties": {
+        "transport": {
+          "const": "stdio"
+        },
+        "driver": {
+          "const": "raw-transcript"
+        },
+        "wiring": {
+          "const": "in-process-stdio-server"
+        },
+        "test_source": {
+          "$ref": "#/$defs/testSource"
+        },
+        "scenario_count": {
+          "const": 7
+        },
+        "resulting_suspension_count": {
+          "const": 9
+        },
+        "checks": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 6,
+          "prefixItems": [
+            { "const": "server/discover" },
+            { "const": "tools/list" },
+            { "const": "resources/list" },
+            { "const": "resources/templates/list" },
+            { "const": "tools/call-advertised" },
+            { "const": "tools/call-suspended" }
+          ],
+          "items": false
+        },
+        "production_registration": {
+          "const": false
+        },
+        "provider_network_calls": {
+          "const": 0
+        },
+        "operating_system_pipe_framing": {
+          "const": false
+        }
+      }
+    },
+    "claims": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "complete_qual_206",
+        "scored_evaluation",
+        "test_execution_recorded",
+        "live_host_session",
+        "desktop_host_acceptance",
+        "remote_host_acceptance",
+        "live_provider_call",
+        "production_activation",
+        "public_deployment",
+        "public_registration",
+        "release_acceptance"
+      ],
+      "properties": {
+        "complete_qual_206": { "const": false },
+        "scored_evaluation": { "const": false },
+        "test_execution_recorded": { "const": false },
+        "live_host_session": { "const": false },
+        "desktop_host_acceptance": { "const": false },
+        "remote_host_acceptance": { "const": false },
+        "live_provider_call": { "const": false },
+        "production_activation": { "const": false },
+        "public_deployment": { "const": false },
+        "public_registration": { "const": false },
+        "release_acceptance": { "const": false }
+      }
+    }
+  }
+}

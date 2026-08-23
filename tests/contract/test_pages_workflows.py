@@ -29,7 +29,8 @@ class PagesWorkflowTests(unittest.TestCase):
         checkout = CI_WORKFLOW.split("- name: Check out repository", 1)[1].split(
             "\n\n      - name:", 1
         )[0]
-        self.assertIn("fetch-depth: 2", checkout)
+        self.assertIn("fetch-depth: 0", checkout)
+        self.assertIn("verifies immutable QUAL runtime-base Git blobs", checkout)
 
         assurance_name = "- name: Run assurance"
         transition_name = "- name: Enforce release readiness on a version transition"

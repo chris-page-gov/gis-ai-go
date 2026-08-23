@@ -1,0 +1,195 @@
+{
+  "schema": "gis-ai-go.qual-206-local-protocol-evidence-matrix.v1",
+  "classification": "repository-only-non-live-unscored",
+  "schema_contract": {
+    "path": "schemas/qual-206-local-protocol-evidence-matrix.schema.json",
+    "sha256": "af7ca810e01290d670a10501da8f7306958266bab1b68a02a48d2a06c95a791f"
+  },
+  "repository_binding": {
+    "kind": "repository-material-bound",
+    "runtime_base_commit": "7fa8b720d3cbaa3e0a1ebfadf0fb355a7330a04c",
+    "material_integrity": "sha256",
+    "runtime_materials": [
+      {
+        "path": "apps/mcp-gateway/src/governed-assembly.ts",
+        "sha256": "546ab4af43024192995b1b26c59a23b030a8c83fa5222bf813d9fadbcd4b018c"
+      },
+      {
+        "path": "apps/mcp-gateway/src/mcp-http.ts",
+        "sha256": "bcbebca4c5a0b86ee9c6a3c191cbc683b65e94fef2294835acbd792f869b0ad9"
+      },
+      {
+        "path": "apps/mcp-gateway/src/mcp-request-signal.ts",
+        "sha256": "5c766fdff14044e1f261f4a688517ca2688c5a9fcb15f7c35294c073c99e6726"
+      },
+      {
+        "path": "apps/mcp-gateway/src/mcp-server.ts",
+        "sha256": "e2c5cec027f3049d0a501b885a0ab6336d7e6059690df54ac7b257945807b454"
+      },
+      {
+        "path": "apps/mcp-gateway/src/mcp-stdio.ts",
+        "sha256": "5e8d87020d1efe34b2b83940f60d2df5926f466c12473fffc156463c9a6cef30"
+      }
+    ]
+  },
+  "protocol": {
+    "name": "Model Context Protocol",
+    "version": "2026-07-28"
+  },
+  "official_client": {
+    "package": "@modelcontextprotocol/client",
+    "version": "2.0.0",
+    "manifest": {
+      "path": "apps/mcp-gateway/package.json",
+      "sha256": "fd7fc20b11df26f2b3c4eef13eee2ae3f3f08b1fa00cd83abcf7f73ab7f432d1"
+    },
+    "lockfile": {
+      "path": "pnpm-lock.yaml",
+      "sha256": "640208aa66d26241514025b33dbde50bc14be7bbd33641eec9977e87699bb4ec"
+    }
+  },
+  "coverage": [
+    {
+      "id": "official-http",
+      "driver": "official-client",
+      "transport": "http",
+      "wiring": "in-process-fetch-and-loopback",
+      "test_sources": [
+        {
+          "path": "apps/mcp-gateway/test/mcp-transport.test.ts",
+          "sha256": "8826d5f6bdd96e9bdd9d5c4e9175e7a3da8d3ff957e4caa2f92d3d28437e7688",
+          "source_test_names": [
+            "interoperates with the pinned v2 SDK client for tools and resources",
+            "interoperates through the real bounded loopback Node ingress"
+          ]
+        }
+      ],
+      "covers": {
+        "protocol_2026_07_28": true,
+        "cancellation": false,
+        "unsupported_traffic": false
+      }
+    },
+    {
+      "id": "official-stdio",
+      "driver": "official-client",
+      "transport": "stdio",
+      "wiring": "real-process-stdio",
+      "test_sources": [
+        {
+          "path": "apps/mcp-gateway/test/mcp-stdio.test.ts",
+          "sha256": "1b866688485bf242821aab37a8130b6d31d3a118a48908e3092fce754ed4d383",
+          "source_test_names": [
+            "interoperates with the pinned official STDIO client in an enabled subprocess"
+          ]
+        }
+      ],
+      "covers": {
+        "protocol_2026_07_28": true,
+        "cancellation": false,
+        "unsupported_traffic": false
+      }
+    },
+    {
+      "id": "raw-http",
+      "driver": "raw-transcript",
+      "transport": "http",
+      "wiring": "in-process-fetch",
+      "test_sources": [
+        {
+          "path": "apps/mcp-gateway/test/mcp-transport.test.ts",
+          "sha256": "8826d5f6bdd96e9bdd9d5c4e9175e7a3da8d3ff957e4caa2f92d3d28437e7688",
+          "source_test_names": [
+            "requires both HTTP Accept media types before entering the SDK",
+            "rejects every unsafe JSON-RPC request ID before SDK dispatch",
+            "guards the SDK 2.0.0 missing protocol-version header defect narrowly",
+            "leaves unsupported revisions and cross-header mismatches to the pinned SDK"
+          ]
+        },
+        {
+          "path": "apps/mcp-gateway/test/public-read-transport.test.ts",
+          "sha256": "d45ea2e7702de3c6e5535894f42553d1698369ccf6c31e33b2906b33bc23a26b",
+          "source_test_names": [
+            "propagates modern MCP HTTP cancellation with no receipt or ledger event"
+          ]
+        }
+      ],
+      "covers": {
+        "protocol_2026_07_28": true,
+        "cancellation": true,
+        "unsupported_traffic": true
+      }
+    },
+    {
+      "id": "raw-stdio",
+      "driver": "raw-transcript",
+      "transport": "stdio",
+      "wiring": "in-process-and-real-process-stdio",
+      "test_sources": [
+        {
+          "path": "apps/mcp-gateway/test/mcp-stdio.test.ts",
+          "sha256": "1b866688485bf242821aab37a8130b6d31d3a118a48908e3092fce754ed4d383",
+          "source_test_names": [
+            "serves a raw modern STDIO transcript through the same registered factory",
+            "rejects every unsafe STDIO request ID before application dispatch",
+            "rejects a legacy STDIO opening without pinning the connection to it",
+            "bounds the reply to an exactly 1 MiB subprocess request with a huge ID",
+            "keeps the executable stdout protocol-clean with frozen zero activation"
+          ]
+        },
+        {
+          "path": "apps/mcp-gateway/test/public-read-transport.test.ts",
+          "sha256": "d45ea2e7702de3c6e5535894f42553d1698369ccf6c31e33b2906b33bc23a26b",
+          "source_test_names": [
+            "honours STDIO cancellation without a response, receipt or ledger event"
+          ]
+        }
+      ],
+      "covers": {
+        "protocol_2026_07_28": true,
+        "cancellation": true,
+        "unsupported_traffic": true
+      }
+    }
+  ],
+  "suspension_stdio": {
+    "transport": "stdio",
+    "driver": "raw-transcript",
+    "wiring": "in-process-stdio-server",
+    "test_source": {
+      "path": "apps/mcp-gateway/test/qual-206-local-protocol-matrix.test.ts",
+      "sha256": "cfdd1191b6afa41d6b5c4b0b29d638b6feaca4c6ca8aed794ad96520cd53e123",
+      "source_test_names": [
+        "keeps every governed suspension absent and uncallable over in-process STDIO"
+      ]
+    },
+    "scenario_count": 7,
+    "resulting_suspension_count": 9,
+    "checks": [
+      "server/discover",
+      "tools/list",
+      "resources/list",
+      "resources/templates/list",
+      "tools/call-advertised",
+      "tools/call-suspended"
+    ],
+    "production_registration": false,
+    "provider_network_calls": 0,
+    "operating_system_pipe_framing": false
+  },
+  "claims": {
+    "complete_qual_206": false,
+    "scored_evaluation": false,
+    "test_execution_recorded": false,
+    "live_host_session": false,
+    "desktop_host_acceptance": false,
+    "remote_host_acceptance": false,
+    "live_provider_call": false,
+    "production_activation": false,
+    "public_deployment": false,
+    "public_registration": false,
+    "release_acceptance": false
+  },
+  "boundary": "Repository-material-bound deterministic source matrix. It is repository-only, non-live and unscored; coverage rows bind source declarations but do not record test execution, the suspension regression uses in-process STDIO server wiring, and the matrix does not complete host interoperability or authorise activation, deployment, registration or release.",
+  "matrix_id": "gis-ai-go:qual-206-local-protocol-evidence-matrix:sha256:472798d1207dcdd7fc9c001f3ae67e733b4fb7bbbae1514ec1d81dea2182e3f7"
+}

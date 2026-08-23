@@ -30,3 +30,44 @@ These receipts do not complete the research cases or authorise a provider call,
 host session, activation, deployment, registration or release.
 
 [qual-206-receipt-schema]: ../schemas/qual-206-local-evaluation-receipt-set.schema.json
+
+## QUAL-206 local protocol matrix
+
+[`qual-206-local-protocol-evidence-matrix.v1.json`][protocol-matrix] is a
+separate, compact source-coverage record for runtime base commit
+`7fa8b720d3cbaa3e0a1ebfadf0fb355a7330a04c`. Repository assurance reads the exact
+gateway, transport-test, gateway-manifest and lockfile blobs from that Git commit
+and compares their SHA-256 values with the matrix. Its four semantically fixed rows
+distinguish the pinned official MCP client 2.0.0 from independent raw JSON-RPC
+source coverage over HTTP and STDIO, including the 2026-07-28 protocol,
+cancellation and unsupported traffic.
+
+The JSON matrix binds source declarations; it deliberately records no test-runner
+outcome. Current execution is established separately by the focused commands below
+and by the complete repository gate. A source label is not a historical pass
+receipt, host result or scored evaluation.
+
+The accompanying assembly regression checks every provider or explicit tool
+suspension through `startGovernedCandidateStdio` and raw JSON-RPC over an in-memory
+transport. It verifies reduced tool and resource discovery, a valid call to a
+remaining advertised catalogue operation, rejected calls to all suspended
+operations and zero provider calls. This is in-process STDIO server wiring, not
+operating-system pipe framing or desktop, remote-host or live-provider evidence.
+
+Run the focused checks with:
+
+```bash
+pnpm --filter @gis-ai-go/mcp-gateway run prepare:test
+pnpm --filter @gis-ai-go/mcp-gateway run build
+node --test apps/mcp-gateway/dist/test/qual-206-local-protocol-matrix.test.js
+uv run --locked --cache-dir .uv-cache python -m unittest \
+  tests.contract.test_qual_206_local_protocol_evidence_matrix
+```
+
+The [matrix schema][protocol-matrix-schema] fixes test-execution, live, host,
+activation, deployment, registration, scoring and release claims to `false`. This
+record does not alter or supersede the frozen interoperability corpus or earlier
+evaluation receipts.
+
+[protocol-matrix]: qual-206-local-protocol-evidence-matrix.v1.json
+[protocol-matrix-schema]: ../schemas/qual-206-local-protocol-evidence-matrix.schema.json
