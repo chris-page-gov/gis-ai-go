@@ -32,8 +32,8 @@ tracked evidence bytes.
 
 S2-P was produced from byte-exact S2 through these bounded transformations:
 
-1. replace the single visible `jane.okafor@hmrc.gov.uk` example with the
-   same-length reserved-domain address `jane.okafor@example.com`;
+1. replace a single visible plausible government-domain mailbox with the
+   reserved-domain address `jane.okafor@example.com`;
 2. run the document privacy scrub to clear core creator and last-modifier values,
    remove 2,064 story-part revision-session attributes, and remove
    `docProps/custom.xml` plus its package relationship and content-type override;
