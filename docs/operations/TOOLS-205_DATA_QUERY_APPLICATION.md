@@ -1,5 +1,9 @@
 # TOOLS-205 inactive data query application
 
+Status: accepted on protected `main` through
+[pull request 44](https://github.com/chris-page-gov/gis-ai-go/pull/44) as
+`b5f8edc78b011f3d4ccb4c6be60bbd49cdc4fc47`; not activated or deployed.
+
 Reviewed on 22 August 2026.
 
 This record preserves the application-only boundary at the time it was accepted and

@@ -1,6 +1,6 @@
 # Delivery progress
 
-Last updated: 22 August 2026
+Last updated: 23 August 2026
 
 ## Current outcome
 
@@ -11,13 +11,12 @@ The supported target active set is exactly `catalogue.search`,
 
 ## Active workstream
 
-`QUAL-206 — Complete the repository-only v0.2.0 release preflight`
+`EVID-204 — Close the remaining repository trace and readiness gaps`
 
-- execute and retain the applicable deterministic local evaluation receipts;
-- integrate the Stage-2 release threat record and explicitly disposition retained
-  container findings;
-- implement or precisely block the required `data.query` fallback without weakening
-  source, policy, rights, freshness or evidence semantics; and
+- record the accepted QUAL-206 repository preflight and current issue state;
+- carry validated W3C Trace Context through the fixed provider-adapter invocation;
+- re-verify configured evidence storage through an inactive readiness-integrity seam
+  while production readiness remains `503` and capability arrays remain empty; and
 - stop before any public runtime, live provider call, host credential, registry
   publication, activation, tag or release that requires separate authority.
 
@@ -124,6 +123,11 @@ The supported target active set is exactly `catalogue.search`,
 - those protected-main slices remain explicitly injected and suspended: production
   operation arrays are empty, readiness is `503`, and there is no public MCP service,
   live provider capability, deployment or `v0.2.0` release;
+- the completed repository/private boundaries for
+  [MCP-201](https://github.com/chris-page-gov/gis-ai-go/issues/19) and
+  [EXEC-202](https://github.com/chris-page-gov/gis-ai-go/issues/20) were reconciled
+  and closed on 23 August 2026. Their successor activation, live-host and deployment
+  gates remain open under TOOLS-205, QUAL-206 and DEPLOY-207;
 - DEPLOY-207 repository assurance merged through
   [pull request 48](https://github.com/chris-page-gov/gis-ai-go/pull/48) as protected-main
   commit `e65071dc1f1bb0baab852bbf8218f9b5f953ad02`. Protected-main
@@ -139,11 +143,18 @@ The supported target active set is exactly `catalogue.search`,
   the declared loopback binding, internal network and host-closed probes remain exact.
   Generated text and bounded phase output share the privacy gate; incomplete evidence
   remains private and is never uploaded. This is not a published image or deployment;
-- the repository-only QUAL-206 preflight candidate now retains deterministic local
+- QUAL-206 repository preflight merged through
+  [pull request 49](https://github.com/chris-page-gov/gis-ai-go/pull/49) as protected-main
+  commit `f0e3ccc1dceeba6b3f7d0ecd56c5dd083dee405a`. Protected-main
+  [run 32567301935](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32567301935)
+  passed repository, exact gateway-image, aggregate and provenance assurance, while
+  [run 32567301734](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32567301734)
+  passed CodeQL for Actions, JavaScript/TypeScript and Python;
+- the accepted repository-only preflight retains deterministic local
   receipts for E01, E02, E09, E13, E15, E17 and E20 across 13 source-bound suites and
   58 exact selected tests. Every receipt remains non-live, unscored and explicitly
   incomplete as release evidence;
-- the candidate integrates all 30 Stage-2 threat-record risks, with a hold outcome for
+- the accepted tree integrates all 30 Stage-2 threat-record risks, with a hold outcome for
   activation and release, and records the three retained unfixed High image
   vulnerabilities as unresolved rather than accepting them;
 - T04 has one exact, content-addressed ONS cache fallback that must be injected
@@ -154,17 +165,22 @@ The supported target active set is exactly `catalogue.search`,
   fixed;
   all other failures remain closed, production registration remains empty and
   readiness remains `503`; and
-- the complete local repository gate passes on the combined candidate, including all
+- the complete local repository gate and protected pull-request checks pass on the
+  accepted tree, including all
   TypeScript and Python tests, 27 real-browser tests, deterministic release builds,
   contract, link and secret validation, the execution container, diagrams and the
   repository SBOM.
 
 ## Next
 
-1. Submit the exact repository-only QUAL-206 candidate through protected pull-request
-   assurance and CodeQL, merge only the unchanged reviewed head, and verify the
-   protected-main result.
-2. Only after a separately authorised public runtime exists, deploy an unregistered
+1. Complete the remaining EVID-204 trace-context and readiness-integrity contracts,
+   tests and acceptance evidence without activating a production operation.
+2. Evaluate a pinned official base that omits or fixes the three retained High
+   findings; accept it only if complete repository and image assurance, reproducible
+   OCI builds, SBOM, current scanning and compatibility review pass.
+3. Keep DEPLOY-207 at `status: decision needed` until an authorised public runtime,
+   hostname/TLS, identity, egress, storage and operator boundary exists.
+4. Only after that separate authority exists, deploy an unregistered
    candidate and complete live QUAL-206 evidence before any activation, registry
    publication, tag or `v0.2.0` release.
 
@@ -200,7 +216,7 @@ The supported target active set is exactly `catalogue.search`,
 
 ## Latest evidence
 
-- QUAL-206 repository-preflight candidate: the
+- QUAL-206 repository-preflight acceptance: the
   [content-addressed local receipt set](evaluation/qual-206-local-evaluation-receipts.v1.json)
   binds 7 applicable cases, 13 suites and 58 exact tests to their current source and
   fixtures. The approved T04 cache, rebuild and provider-result identities
@@ -213,8 +229,11 @@ The supported target active set is exactly `catalogue.search`,
   proxies, method substitution and HTTP parser framing; and treats premature response
   closure, including a truncated redirect, as malformed while retaining pre-response
   connection resets as network failures. Only unchanged exact bytes with a terminal
-  no-P2 review and protected pull-request checks may progress. This is local, non-live
-  and unscored evidence, not host interoperability or release acceptance;
+  no-P2 review and protected pull-request checks progressed through
+  [pull request 49](https://github.com/chris-page-gov/gis-ai-go/pull/49) as
+  `f0e3ccc1dceeba6b3f7d0ecd56c5dd083dee405a`. Protected-main CI and CodeQL passed.
+  This is accepted local, non-live and unscored evidence, not host interoperability or
+  release acceptance;
 - DEPLOY-207 protected-main evidence: the final aggregator rebuilds the OKF projection,
   materialises only Git-tracked allowlisted source plus checksummed OKF outputs,
   proves canonical repeat-build OCI identity, generates an unfiltered full Syft
@@ -226,9 +245,12 @@ The supported target active set is exactly `catalogue.search`,
   reproducible OCI. Compose declares only host loopback, while acceptance records
   either the realised loopback or a no-port internal fallback. This makes no
   host-ingress, public deployment, provider, activation or production-rollback claim.
-  [Run 32553285859](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32553285859)
-  passed on protected-main commit `e65071dc1f1bb0baab852bbf8218f9b5f953ad02`;
-  strict attestations bind the OCI archive, SBOM and evidence manifest to that source;
+  [Run 32567301935](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32567301935)
+  passed on protected-main commit `f0e3ccc1dceeba6b3f7d0ecd56c5dd083dee405a`;
+  strict [OCI archive](https://github.com/chris-page-gov/gis-ai-go/attestations/42310989),
+  [SBOM](https://github.com/chris-page-gov/gis-ai-go/attestations/42310990) and
+  [evidence manifest](https://github.com/chris-page-gov/gis-ai-go/attestations/42310993)
+  attestations bind the exact subjects to that source;
 - every accepted public-read operation and transport remains inactive by default;
 - EVID-204 reconciliation acceptance: protected-main assurance and provenance pass
   in [run 32456796186](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32456796186),

@@ -1,11 +1,33 @@
 # DEPLOY-207 blocked gateway container
 
-Status: repository-only candidate; inactive and undeployed.
+Status: accepted repository-only candidate on protected `main`; inactive and
+undeployed.
 
 This runbook covers the image, local Compose and assurance slice that can proceed
 without selecting a public runtime. It does not activate GIS AI GO, contact ONS,
 publish an image, create an HTTPS endpoint, register an MCP service or change the
 supported `v0.1.0` release.
+
+## Protected-main acceptance
+
+The repository-only container foundation merged through
+[pull request 48](https://github.com/chris-page-gov/gis-ai-go/pull/48). The later
+QUAL-206 preflight changed admitted provider and assurance source, then merged
+through [pull request 49](https://github.com/chris-page-gov/gis-ai-go/pull/49) as
+protected-main commit `f0e3ccc1dceeba6b3f7d0ecd56c5dd083dee405a`.
+[Run 32567301935](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32567301935)
+rebuilt and verified the exact current image, two-build identity, full SBOM, retained
+vulnerability evidence, Compose boundary, storage restart, suspension and exact-image
+restore. The canonical OCI archive has SHA-256
+`1c6976c1242782d13b14fd826c64fec28b81513b1258f6359a6cce3f9dfb397a` and image
+manifest digest
+`sha256:c191f23ef6ceb16c324992075592a91a2171cc9b8b7f668fd153de5d0b549690`.
+Strict attestations bind the
+[OCI archive](https://github.com/chris-page-gov/gis-ai-go/attestations/42310989),
+[full image SBOM](https://github.com/chris-page-gov/gis-ai-go/attestations/42310990)
+and [closed evidence manifest](https://github.com/chris-page-gov/gis-ai-go/attestations/42310993)
+to that exact source. This acceptance publishes no image or service and changes no
+activation state.
 
 ## Exact boundary
 

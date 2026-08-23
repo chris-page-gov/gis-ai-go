@@ -1,6 +1,6 @@
 # Current context
 
-Last updated: 22 August 2026
+Last updated: 23 August 2026
 
 ## Authority and reading order
 
@@ -42,12 +42,13 @@ whose accepted implementation commit is
 `a0e826384cf50d9d81b87489dbf3580e8e3602f7`. The Explorer is deployed and verified
 at <https://chris-page-gov.github.io/gis-ai-go/> from the later release commit
 recorded below. Protected `main` is now at
-`e65071dc1f1bb0baab852bbf8218f9b5f953ad02` and contains inactive catalogue,
+`f0e3ccc1dceeba6b3f7d0ecd56c5dd083dee405a` and contains inactive catalogue,
 evidence, selection and fixed-data-query applications, direct and MCP transport
 seams, receipt-only lost-response reconciliation and the repository-only blocked
-gateway image candidate. Production operation arrays remain empty, readiness
-remains `503`, and there is no public MCP service, live provider capability,
-external policy or identity service, deployment or `v0.2.0` release.
+gateway image plus the accepted repository-only QUAL-206 preflight. Production
+operation arrays remain empty, readiness remains `503`, and there is no public MCP
+service, live provider capability, external policy or identity service, deployment
+or `v0.2.0` release.
 
 The owner has authorised autonomous implementation in the open under
 [`ADR-0004`](docs/decisions/ADR-0004-public-autonomous-delivery.md). The repository
@@ -169,16 +170,23 @@ evidence manifest. Protected-main
 passed for Actions, JavaScript/TypeScript and Python. This is a verified
 repository-only container candidate, not a registry publication or deployment.
 
-The current QUAL-206 repository-preflight candidate adds deterministic local receipts
-for E01, E02, E09, E13, E15, E17 and E20, an integrated 30-risk Stage-2 threat record,
-an explicit unresolved disposition for the three retained High image vulnerabilities,
-and one exact injection-only approved ONS cache fallback for T04. The fallback is
-available only after an internally classified network failure or HTTP 500 to 599
-response; it does not add a default loader, environment override, production
-registration or live call. All local receipts remain non-live, unscored and
-incomplete for release. Public hosting, independent-host acceptance, workload
-identity, governed ingress and storage, a real
-deployed rollback and owner disposition of the retained vulnerabilities remain gates.
+QUAL-206 repository preflight merged through
+[pull request 49](https://github.com/chris-page-gov/gis-ai-go/pull/49) as
+`f0e3ccc1dceeba6b3f7d0ecd56c5dd083dee405a`. Protected-main
+[run 32567301935](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32567301935)
+passed repository, gateway-image, aggregate and provenance assurance, and
+[run 32567301734](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32567301734)
+passed CodeQL for Actions, JavaScript/TypeScript and Python. The accepted tree adds
+deterministic local receipts for E01, E02, E09, E13, E15, E17 and E20, an integrated
+30-risk Stage-2 threat record, an explicit unresolved disposition for the three
+retained High image vulnerabilities, and one exact injection-only approved ONS cache
+fallback for T04. The fallback is available only after an internally classified
+network failure or HTTP 500 to 599 response; it adds no default loader, environment
+override, production registration or live call. All local receipts remain non-live,
+unscored and incomplete for release. Public hosting, independent-host acceptance,
+workload identity, governed ingress and storage, a real deployed rollback and
+patched image bytes or explicit owner disposition of the retained vulnerabilities
+remain gates.
 
 ## Non-negotiable boundaries
 
