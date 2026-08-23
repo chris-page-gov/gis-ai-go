@@ -63,7 +63,17 @@ being added to an older evidence record.
 The current [legacy fallback exploratory summary](evidence/legacy-fallback-exploratory-2026-08-20.json)
 records a credential-stripped Claude health connection and a Codex
 configuration-only check against exact uncommitted runtime hashes. It is explicitly
-not accepted host evidence and requires repetition from a reviewed commit.
+not accepted host evidence and is not relabelled by later observations.
+
+The separate
+[protected-main Claude Code readiness summary](evidence/claude-code-legacy-stdio-readiness-2026-08-23.json)
+records that repetition from a clean, detached checkout of exact protected-main
+commit `30b575beb27ff805745a2864c1acf44392774046`. Claude Code `2.1.204`
+completed legacy STDIO initialisation and `tools/list` through the
+constructor-only two-tool conformance launcher. This establishes transport
+readiness only. No model authentication, model task, tool call, resource read, live
+provider, remote HTTP host, exact-five production assembly, registration,
+activation, deployment or release was exercised, so capability remains unscored.
 
 See the [QUAL-206 interoperability runbook](../../docs/operations/QUAL-206_INTEROPERABILITY.md)
 for repeatable ChatGPT secure-tunnel and independent-host procedures.

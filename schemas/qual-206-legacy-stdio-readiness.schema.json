@@ -1,0 +1,647 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:qual-206-legacy-stdio-readiness:v1",
+  "title": "QUAL-206 protected-main legacy STDIO readiness evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "schema_contract",
+    "status",
+    "observed_at",
+    "source",
+    "host",
+    "telemetry",
+    "isolation",
+    "limitations",
+    "boundary"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gis-ai-go.qual-206-legacy-stdio-readiness.v1"
+    },
+    "schema_contract": {
+      "$ref": "#/$defs/schemaContract"
+    },
+    "status": {
+      "const": "readiness-pass-capability-unscored"
+    },
+    "observed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository",
+        "commit",
+        "tree",
+        "protected_main",
+        "version",
+        "detached_checkout",
+        "worktree_changes_uncommitted",
+        "production_registration",
+        "production_activation",
+        "public_endpoint_created",
+        "runtime_files",
+        "build"
+      ],
+      "properties": {
+        "repository": {
+          "const": "chris-page-gov/gis-ai-go"
+        },
+        "commit": {
+          "const": "30b575beb27ff805745a2864c1acf44392774046"
+        },
+        "tree": {
+          "const": "bb84c13d618984304d5db300be775275b8037ea8"
+        },
+        "protected_main": {
+          "const": true
+        },
+        "version": {
+          "const": "0.1.0"
+        },
+        "detached_checkout": {
+          "const": true
+        },
+        "worktree_changes_uncommitted": {
+          "const": false
+        },
+        "production_registration": {
+          "const": false
+        },
+        "production_activation": {
+          "const": false
+        },
+        "public_endpoint_created": {
+          "const": false
+        },
+        "runtime_files": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "prefixItems": [
+            {
+              "$ref": "#/$defs/runtimeMcpServer"
+            },
+            {
+              "$ref": "#/$defs/runtimeMcpStdio"
+            },
+            {
+              "$ref": "#/$defs/runtimeLegacyLauncher"
+            },
+            {
+              "$ref": "#/$defs/runtimeTelemetryProxy"
+            }
+          ],
+          "items": false
+        },
+        "build": {
+          "$ref": "#/$defs/buildObservation"
+        }
+      }
+    },
+    "host": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "version",
+        "platform",
+        "architecture",
+        "binary_sha256",
+        "command",
+        "transport",
+        "model_authentication_supplied",
+        "model_task_requested",
+        "transport_readiness",
+        "capability",
+        "classification",
+        "host_result",
+        "requested_protocol_version",
+        "requested_protocol_version_evidence",
+        "initialize_success",
+        "tools_list_success",
+        "tool_call_observed",
+        "resource_read_observed"
+      ],
+      "properties": {
+        "name": {
+          "const": "Claude Code"
+        },
+        "version": {
+          "const": "2.1.204"
+        },
+        "platform": {
+          "const": "darwin"
+        },
+        "architecture": {
+          "const": "arm64"
+        },
+        "binary_sha256": {
+          "const": "1677b67595b6251156d62600dc85d4070ec385b72dd0b07e73742a56030952c3"
+        },
+        "command": {
+          "const": "mcp list"
+        },
+        "transport": {
+          "const": "legacy-stdio"
+        },
+        "model_authentication_supplied": {
+          "const": false
+        },
+        "model_task_requested": {
+          "const": false
+        },
+        "transport_readiness": {
+          "const": "ready"
+        },
+        "capability": {
+          "const": "unscored"
+        },
+        "classification": {
+          "const": "legacy-handshake-and-tool-list-pass"
+        },
+        "host_result": {
+          "const": "Connected"
+        },
+        "requested_protocol_version": {
+          "const": "2025-06-18"
+        },
+        "requested_protocol_version_evidence": {
+          "const": "exact-initialise-frame-digest-matches-reviewed-2025-06-18-observation"
+        },
+        "initialize_success": {
+          "const": true
+        },
+        "tools_list_success": {
+          "const": true
+        },
+        "tool_call_observed": {
+          "const": false
+        },
+        "resource_read_observed": {
+          "const": false
+        }
+      }
+    },
+    "telemetry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "current_wrapper_exercised",
+        "session_id_sha256",
+        "command_sha256",
+        "node_version",
+        "source_commit",
+        "retained_private_bytes",
+        "retained_private_sha256",
+        "retained_private_mode",
+        "event_count",
+        "event_counts",
+        "initialize_request",
+        "initialize_response",
+        "initialized_notification",
+        "tools_list_request",
+        "tools_list_response",
+        "invalid_frame_count",
+        "non_json_frame_count",
+        "truncated_frame_count",
+        "server_stderr_event_count",
+        "exit_code",
+        "pending_request_count",
+        "raw_content_published"
+      ],
+      "properties": {
+        "schema": {
+          "const": "gis-ai-go.qual-206-host-telemetry.v1"
+        },
+        "current_wrapper_exercised": {
+          "const": true
+        },
+        "session_id_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "command_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "node_version": {
+          "const": "v26.7.0"
+        },
+        "source_commit": {
+          "const": "30b575beb27ff805745a2864c1acf44392774046"
+        },
+        "retained_private_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000
+        },
+        "retained_private_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "retained_private_mode": {
+          "const": "0600"
+        },
+        "event_count": {
+          "const": 7
+        },
+        "event_counts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "session_start",
+            "request",
+            "response",
+            "session_end"
+          ],
+          "properties": {
+            "session_start": {
+              "const": 1
+            },
+            "request": {
+              "const": 3
+            },
+            "response": {
+              "const": 2
+            },
+            "session_end": {
+              "const": 1
+            }
+          }
+        },
+        "initialize_request": {
+          "$ref": "#/$defs/requestFrameOther"
+        },
+        "initialize_response": {
+          "$ref": "#/$defs/successResponse"
+        },
+        "initialized_notification": {
+          "$ref": "#/$defs/requestFrameOther"
+        },
+        "tools_list_request": {
+          "$ref": "#/$defs/requestFrameToolsList"
+        },
+        "tools_list_response": {
+          "$ref": "#/$defs/successResponse"
+        },
+        "invalid_frame_count": {
+          "const": 0
+        },
+        "non_json_frame_count": {
+          "const": 0
+        },
+        "truncated_frame_count": {
+          "const": 0
+        },
+        "server_stderr_event_count": {
+          "const": 0
+        },
+        "exit_code": {
+          "const": 0
+        },
+        "pending_request_count": {
+          "const": 0
+        },
+        "raw_content_published": {
+          "const": false
+        }
+      }
+    },
+    "isolation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "temporary_profile",
+        "directory_mode",
+        "claude_config_mode",
+        "proxy_log_mode",
+        "normal_profile_mutation_observed",
+        "parent_openai_key_variables_removed",
+        "mcp_child_environment_allowlisted",
+        "mcp_child_openai_key_variables_removed",
+        "files_scanned_for_token_patterns",
+        "token_pattern_matches",
+        "remaining_isolated_processes_after_cleanup",
+        "raw_host_logs_published"
+      ],
+      "properties": {
+        "temporary_profile": {
+          "const": true
+        },
+        "directory_mode": {
+          "const": "0700"
+        },
+        "claude_config_mode": {
+          "const": "0600"
+        },
+        "proxy_log_mode": {
+          "const": "0600"
+        },
+        "normal_profile_mutation_observed": {
+          "const": false
+        },
+        "parent_openai_key_variables_removed": {
+          "const": true
+        },
+        "mcp_child_environment_allowlisted": {
+          "const": true
+        },
+        "mcp_child_openai_key_variables_removed": {
+          "const": true
+        },
+        "files_scanned_for_token_patterns": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000
+        },
+        "token_pattern_matches": {
+          "const": 0
+        },
+        "remaining_isolated_processes_after_cleanup": {
+          "const": 0
+        },
+        "raw_host_logs_published": {
+          "const": false
+        }
+      }
+    },
+    "limitations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "capability_result_claimed",
+        "independent_host_gate_completed",
+        "exact_five_assembly_exercised",
+        "live_provider_called",
+        "remote_http_observed",
+        "chatgpt_tunnel_touched",
+        "activation_or_release_claimed"
+      ],
+      "properties": {
+        "capability_result_claimed": {
+          "const": false
+        },
+        "independent_host_gate_completed": {
+          "const": false
+        },
+        "exact_five_assembly_exercised": {
+          "const": false
+        },
+        "live_provider_called": {
+          "const": false
+        },
+        "remote_http_observed": {
+          "const": false
+        },
+        "chatgpt_tunnel_touched": {
+          "const": false
+        },
+        "activation_or_release_claimed": {
+          "const": false
+        }
+      }
+    },
+    "boundary": {
+      "const": "Accepted protected-main Claude Code transport-readiness evidence only. The constructor-only local conformance launcher passed legacy STDIO initialisation and tools/list; no tool, resource, exact-five production assembly, model, provider, remote HTTP host, registration, activation, deployment or release was exercised. Capability remains unscored."
+    }
+  },
+  "$defs": {
+    "schemaContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {
+          "const": "schemas/qual-206-legacy-stdio-readiness.schema.json"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "runtimeMcpServer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {
+          "const": "apps/mcp-gateway/src/mcp-server.ts"
+        },
+        "sha256": {
+          "const": "e2c5cec027f3049d0a501b885a0ab6336d7e6059690df54ac7b257945807b454"
+        }
+      }
+    },
+    "runtimeMcpStdio": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {
+          "const": "apps/mcp-gateway/src/mcp-stdio.ts"
+        },
+        "sha256": {
+          "const": "5e8d87020d1efe34b2b83940f60d2df5926f466c12473fffc156463c9a6cef30"
+        }
+      }
+    },
+    "runtimeLegacyLauncher": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {
+          "const": "scripts/qual_206_legacy_conformance_server.mjs"
+        },
+        "sha256": {
+          "const": "bf87bec24357d5fd6d419bd8b4374642ab46a2f3dfa6d9baebde46f7498edb9c"
+        }
+      }
+    },
+    "runtimeTelemetryProxy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {
+          "const": "scripts/qual_206_telemetry_proxy.mjs"
+        },
+        "sha256": {
+          "const": "3800e4458932ee1324ad03d64007f23f76f49682a6eabdc191ecf6eaccb501d5"
+        }
+      }
+    },
+    "buildObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "command",
+        "dependencies_installed_with_frozen_lockfile",
+        "preflight_passed",
+        "lockfile",
+        "compiled_entrypoints"
+      ],
+      "properties": {
+        "command": {
+          "const": "pnpm run test:interoperability"
+        },
+        "dependencies_installed_with_frozen_lockfile": {
+          "const": true
+        },
+        "preflight_passed": {
+          "const": true
+        },
+        "lockfile": {
+          "$ref": "#/$defs/lockfile"
+        },
+        "compiled_entrypoints": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "prefixItems": [
+            {
+              "$ref": "#/$defs/compiledMcpServer"
+            },
+            {
+              "$ref": "#/$defs/compiledMcpStdio"
+            }
+          ],
+          "items": false
+        }
+      }
+    },
+    "lockfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {
+          "const": "pnpm-lock.yaml"
+        },
+        "sha256": {
+          "const": "640208aa66d26241514025b33dbde50bc14be7bbd33641eec9977e87699bb4ec"
+        }
+      }
+    },
+    "compiledMcpServer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_path", "sha256"],
+      "properties": {
+        "source_path": {
+          "const": "apps/mcp-gateway/dist/src/mcp-server.js"
+        },
+        "sha256": {
+          "const": "71fdde3b45363d366b62e7c4219c2cc77efbfbfe9d9e5d110f656e76ee9d2ab1"
+        }
+      }
+    },
+    "compiledMcpStdio": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_path", "sha256"],
+      "properties": {
+        "source_path": {
+          "const": "apps/mcp-gateway/dist/src/mcp-stdio.js"
+        },
+        "sha256": {
+          "const": "17a04b0b1f0a5549157c8e07119ac1d7a895b86d9a73312aaaa2561fd1e092e3"
+        }
+      }
+    },
+    "requestFrameOther": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "method_label",
+        "frame_bytes",
+        "frame_sha256",
+        "parameters_bytes",
+        "parameters_sha256"
+      ],
+      "properties": {
+        "method_label": {
+          "const": "other"
+        },
+        "frame_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000
+        },
+        "frame_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "parameters_bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "parameters_sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "requestFrameToolsList": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "method_label",
+        "frame_bytes",
+        "frame_sha256",
+        "parameters_bytes",
+        "parameters_sha256"
+      ],
+      "properties": {
+        "method_label": {
+          "const": "tools/list"
+        },
+        "frame_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000
+        },
+        "frame_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "parameters_bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "parameters_sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "successResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["outcome", "duration_ms", "frame_bytes", "frame_sha256"],
+      "properties": {
+        "outcome": {
+          "const": "success"
+        },
+        "duration_ms": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 60000
+        },
+        "frame_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000
+        },
+        "frame_sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    }
+  }
+}

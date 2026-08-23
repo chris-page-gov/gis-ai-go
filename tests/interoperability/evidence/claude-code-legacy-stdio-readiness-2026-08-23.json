@@ -1,0 +1,161 @@
+{
+  "schema": "gis-ai-go.qual-206-legacy-stdio-readiness.v1",
+  "schema_contract": {
+    "path": "schemas/qual-206-legacy-stdio-readiness.schema.json",
+    "sha256": "5ce73d3d45c762112ac932407000b4379d07d92a9e54808227cd72e6050fd02a"
+  },
+  "status": "readiness-pass-capability-unscored",
+  "observed_at": "2026-08-23T21:41:20.640Z",
+  "source": {
+    "repository": "chris-page-gov/gis-ai-go",
+    "commit": "30b575beb27ff805745a2864c1acf44392774046",
+    "tree": "bb84c13d618984304d5db300be775275b8037ea8",
+    "protected_main": true,
+    "version": "0.1.0",
+    "detached_checkout": true,
+    "worktree_changes_uncommitted": false,
+    "production_registration": false,
+    "production_activation": false,
+    "public_endpoint_created": false,
+    "runtime_files": [
+      {
+        "path": "apps/mcp-gateway/src/mcp-server.ts",
+        "sha256": "e2c5cec027f3049d0a501b885a0ab6336d7e6059690df54ac7b257945807b454"
+      },
+      {
+        "path": "apps/mcp-gateway/src/mcp-stdio.ts",
+        "sha256": "5e8d87020d1efe34b2b83940f60d2df5926f466c12473fffc156463c9a6cef30"
+      },
+      {
+        "path": "scripts/qual_206_legacy_conformance_server.mjs",
+        "sha256": "bf87bec24357d5fd6d419bd8b4374642ab46a2f3dfa6d9baebde46f7498edb9c"
+      },
+      {
+        "path": "scripts/qual_206_telemetry_proxy.mjs",
+        "sha256": "3800e4458932ee1324ad03d64007f23f76f49682a6eabdc191ecf6eaccb501d5"
+      }
+    ],
+    "build": {
+      "command": "pnpm run test:interoperability",
+      "dependencies_installed_with_frozen_lockfile": true,
+      "preflight_passed": true,
+      "lockfile": {
+        "path": "pnpm-lock.yaml",
+        "sha256": "640208aa66d26241514025b33dbde50bc14be7bbd33641eec9977e87699bb4ec"
+      },
+      "compiled_entrypoints": [
+        {
+          "source_path": "apps/mcp-gateway/dist/src/mcp-server.js",
+          "sha256": "71fdde3b45363d366b62e7c4219c2cc77efbfbfe9d9e5d110f656e76ee9d2ab1"
+        },
+        {
+          "source_path": "apps/mcp-gateway/dist/src/mcp-stdio.js",
+          "sha256": "17a04b0b1f0a5549157c8e07119ac1d7a895b86d9a73312aaaa2561fd1e092e3"
+        }
+      ]
+    }
+  },
+  "host": {
+    "name": "Claude Code",
+    "version": "2.1.204",
+    "platform": "darwin",
+    "architecture": "arm64",
+    "binary_sha256": "1677b67595b6251156d62600dc85d4070ec385b72dd0b07e73742a56030952c3",
+    "command": "mcp list",
+    "transport": "legacy-stdio",
+    "model_authentication_supplied": false,
+    "model_task_requested": false,
+    "transport_readiness": "ready",
+    "capability": "unscored",
+    "classification": "legacy-handshake-and-tool-list-pass",
+    "host_result": "Connected",
+    "requested_protocol_version": "2025-06-18",
+    "requested_protocol_version_evidence": "exact-initialise-frame-digest-matches-reviewed-2025-06-18-observation",
+    "initialize_success": true,
+    "tools_list_success": true,
+    "tool_call_observed": false,
+    "resource_read_observed": false
+  },
+  "telemetry": {
+    "schema": "gis-ai-go.qual-206-host-telemetry.v1",
+    "current_wrapper_exercised": true,
+    "session_id_sha256": "f81e07a0743e9135e02a12a923545dea5d353d17afbbcfa36470ecaef113664b",
+    "command_sha256": "3eefb15165317484303baede203a40831bd108a9c6453be1b367f9b4597f123a",
+    "node_version": "v26.7.0",
+    "source_commit": "30b575beb27ff805745a2864c1acf44392774046",
+    "retained_private_bytes": 2882,
+    "retained_private_sha256": "84a3d22e9024a800a1b095ccf108f5fd76613ab0e55e5791e4ca43e175f66c9b",
+    "retained_private_mode": "0600",
+    "event_count": 7,
+    "event_counts": {
+      "session_start": 1,
+      "request": 3,
+      "response": 2,
+      "session_end": 1
+    },
+    "initialize_request": {
+      "method_label": "other",
+      "frame_bytes": 323,
+      "frame_sha256": "e4be5810197faf2a09f6ffcf87a35a270bd35df9c5a6d1115d7253bfb1358299",
+      "parameters_bytes": 267,
+      "parameters_sha256": "df19797912d3d069ec097cb62af844c49e8ffabb28231cf508952deb2c47f2eb"
+    },
+    "initialize_response": {
+      "outcome": "success",
+      "duration_ms": 200.313208,
+      "frame_bytes": 391,
+      "frame_sha256": "a4f84e28cb3cacdbc16c13c870aa0797e2ca7c09bf43ad72947bcfbdb7b9a279"
+    },
+    "initialized_notification": {
+      "method_label": "other",
+      "frame_bytes": 54,
+      "frame_sha256": "1991440c743375cc3f711ec3788c732cfff71984933a8bf73701ff563427860d",
+      "parameters_bytes": 4,
+      "parameters_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+    },
+    "tools_list_request": {
+      "method_label": "tools/list",
+      "frame_bytes": 46,
+      "frame_sha256": "75f0c7627a35c7e96a0a88482622a0d1ec7e81c0eb5414a88ba7aab9450cf73b",
+      "parameters_bytes": 4,
+      "parameters_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+    },
+    "tools_list_response": {
+      "outcome": "success",
+      "duration_ms": 1.620875,
+      "frame_bytes": 47304,
+      "frame_sha256": "30b56ca69a8767fe393ceaf3c86d29ca91d3026f73255c56bff7616fd7ea7cb5"
+    },
+    "invalid_frame_count": 0,
+    "non_json_frame_count": 0,
+    "truncated_frame_count": 0,
+    "server_stderr_event_count": 0,
+    "exit_code": 0,
+    "pending_request_count": 0,
+    "raw_content_published": false
+  },
+  "isolation": {
+    "temporary_profile": true,
+    "directory_mode": "0700",
+    "claude_config_mode": "0600",
+    "proxy_log_mode": "0600",
+    "normal_profile_mutation_observed": false,
+    "parent_openai_key_variables_removed": true,
+    "mcp_child_environment_allowlisted": true,
+    "mcp_child_openai_key_variables_removed": true,
+    "files_scanned_for_token_patterns": 4,
+    "token_pattern_matches": 0,
+    "remaining_isolated_processes_after_cleanup": 0,
+    "raw_host_logs_published": false
+  },
+  "limitations": {
+    "capability_result_claimed": false,
+    "independent_host_gate_completed": false,
+    "exact_five_assembly_exercised": false,
+    "live_provider_called": false,
+    "remote_http_observed": false,
+    "chatgpt_tunnel_touched": false,
+    "activation_or_release_claimed": false
+  },
+  "boundary": "Accepted protected-main Claude Code transport-readiness evidence only. The constructor-only local conformance launcher passed legacy STDIO initialisation and tools/list; no tool, resource, exact-five production assembly, model, provider, remote HTTP host, registration, activation, deployment or release was exercised. Capability remains unscored."
+}

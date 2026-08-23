@@ -41,13 +41,13 @@ through [pull request 14](https://github.com/chris-page-gov/gis-ai-go/pull/14),
 whose accepted implementation commit is
 `a0e826384cf50d9d81b87489dbf3580e8e3602f7`. The Explorer is deployed and verified
 at <https://chris-page-gov.github.io/gis-ai-go/> from the later release commit
-recorded below. The latest protected-main runtime hand-off is
+recorded below. The latest protected-main repository hand-off is
+`30b575beb27ff805745a2864c1acf44392774046`; its unchanged runtime baseline is
 `7fa8b720d3cbaa3e0a1ebfadf0fb355a7330a04c`. It contains the repository-only
 QUAL-206 preflight, completed trace and readiness integrity, one compile-time
-`candidate-unregistered` exact-five assembly, the bounded 23 August research intake
-and a dedicated inline-only receipt for each successful current `evidence.inspect`
-call. The repository-local protocol matrix in this tree is bound to that runtime
-baseline.
+`candidate-unregistered` exact-five assembly, the bounded 23 August research intake,
+a dedicated inline-only receipt for each successful current `evidence.inspect` call
+and the source-bound repository-local protocol matrix.
 The shipped production and default operation arrays remain empty and their
 readiness remains `503`. There is no public MCP service, activated live provider
 capability, external policy or identity service, deployment or `v0.2.0` release.
@@ -257,14 +257,29 @@ the inspected stored receipt. The new receipt is not persisted or attested and
 creates no ledger record or event; historical v1 and v2 contracts remain unchanged.
 This does not activate, register, deploy or release the candidate.
 
-The repository-local QUAL-206 protocol matrix in this tree binds four
+The repository-local QUAL-206 protocol matrix merged through
+[pull request 55](https://github.com/chris-page-gov/gis-ai-go/pull/55) as
+protected-main commit `30b575beb27ff805745a2864c1acf44392774046`.
+Protected-main
+[run 32667087755](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32667087755)
+passed repository, exact gateway-image, aggregate and provenance assurance, and
+[run 32667087601](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32667087601)
+passed CodeQL for Actions, JavaScript/TypeScript and Python. The matrix binds four
 official-client and raw-transcript HTTP and STDIO source-coverage rows to exact Git
-blobs from that protected-main runtime. Its in-process STDIO regression covers seven
+blobs from the protected-main runtime. Its in-process STDIO regression covers seven
 suspension scenarios, nine resulting suspensions, reduced tool and resource
 discovery, rejected suspended calls and zero provider calls. The JSON records no
 test-runner outcome; current execution is established separately by repository
 assurance. It remains repository-only, non-live and unscored; it is not desktop
 STDIO, remote HTTP, live-provider, activation, deployment or release evidence.
+
+A separate source-bound Claude Code `2.1.204` observation now records protected-main
+legacy STDIO transport readiness from a clean, detached checkout of that exact
+commit. The constructor-only two-tool launcher completed initialisation and
+`tools/list`; capability remains unscored. The earlier modern-only `not_ready`
+record and uncommitted exploratory record remain unchanged. No model authentication,
+model task, tool call, resource read, exact-five production assembly, live provider,
+remote HTTP host, registration, activation, deployment or release was exercised.
 
 ## Non-negotiable boundaries
 

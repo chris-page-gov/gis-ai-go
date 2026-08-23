@@ -15,7 +15,9 @@ The supported target active set is exactly `catalogue.search`,
 
 - retain the repository-local STDIO and client/version matrix bound to the
   protected-main v3 inspection-receipt runtime as preflight only;
-- complete independent desktop-STDIO and remote-HTTP host evidence separately; and
+- retain the source-bound Claude Code `2.1.204` legacy STDIO transport-readiness
+  result separately from capability scoring, then complete the remaining
+  independent desktop-STDIO and remote-HTTP host evidence; and
 - stop before any public runtime, live provider call, host credential, registry
   publication, activation, tag or release that requires separate authority.
 
@@ -203,12 +205,27 @@ The supported target active set is exactly `catalogue.search`,
   inspection result carries a distinct verifiable inline receipt without persisting
   or attesting it or creating a ledger record or event. Historical v1 and v2
   contracts remain unchanged, and production registration remains false; and
-- the repository-local QUAL-206 protocol matrix in this tree binds four pinned
+- the repository-local QUAL-206 protocol matrix merged through
+  [pull request 55](https://github.com/chris-page-gov/gis-ai-go/pull/55) as
+  protected-main commit `30b575beb27ff805745a2864c1acf44392774046` with
+  passing protected-main assurance and provenance in
+  [run 32667087755](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32667087755)
+  and passing CodeQL in
+  [run 32667087601](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32667087601).
+  It binds four pinned
   official-client and raw-transcript HTTP and STDIO source-coverage rows to exact
   Git blobs from the protected-main v3 runtime. Seven in-process suspension
   scenarios produce nine suspensions, reduced discovery, rejected calls and zero
   provider calls. The JSON records no test-runner outcome; it remains non-live and
   unscored and does not complete independent-host evidence; and
+- Claude Code `2.1.204` subsequently completed legacy STDIO initialisation and
+  `tools/list` through the constructor-only two-tool conformance launcher from a
+  clean, detached checkout of exact protected-main commit
+  `30b575beb27ff805745a2864c1acf44392774046`. This is source-bound transport
+  readiness with capability unscored. It does not alter the earlier modern-only
+  `not_ready` or exploratory records and exercised no model authentication, model task,
+  tool call, resource read, exact-five production assembly, live provider, remote
+  HTTP host, registration, activation, deployment or release; and
 - acceptance requires both the complete local repository gate, which passes on this
   matrix tree, and the protected pull-request and protected-main checks. The local
   gate includes all TypeScript and Python tests, 27 real-browser tests,
@@ -217,9 +234,9 @@ The supported target active set is exactly `catalogue.search`,
 
 ## Next
 
-1. Complete independent desktop-STDIO and remote-HTTP host evidence. The local
-   protocol matrix remains repository-only preflight and does not complete issue
-   #24's live-host criteria.
+1. Complete bounded Claude capability evidence and the remaining independent
+   desktop-STDIO and remote-HTTP host evidence. The local protocol matrix and
+   Claude transport-only result do not complete issue #24's live-host criteria.
 2. Monitor official supported glibc base releases. Re-probe Bookworm and Trixie
    only when immutable upstream bytes or package fix status changes; accept a
    replacement only if complete repository and image assurance, reproducible OCI
@@ -241,9 +258,10 @@ The supported target active set is exactly `catalogue.search`,
   service identity and network-policy evidence.
 - Activating or publishing a catalogue service remains hard-blocked. Raw protocol
   transcripts, deterministic local host fixtures and the pinned SDK clients do not
-  establish independent live major-host interoperability. Security, accessibility,
-  governed ingress/storage admission, retention/disposal and host-specific lifecycle
-  evidence remain activation gates.
+  establish independent live major-host interoperability. The source-bound Claude
+  transport check establishes initialisation and listing only, not capability.
+  Security, accessibility, governed ingress/storage admission, retention/disposal
+  and host-specific lifecycle evidence remain activation gates.
 - Direct routes and MCP transports now exist on protected `main`, but the
   exact-five assembly is `candidate-unregistered`, production registration is
   false, the production/default capability arrays are empty, shipped readiness is
@@ -269,6 +287,17 @@ The supported target active set is exactly `catalogue.search`,
 
 ## Latest evidence
 
+- Claude Code `2.1.204` protected-main legacy STDIO readiness: the
+  [source-bound summary](tests/interoperability/evidence/claude-code-legacy-stdio-readiness-2026-08-23.json)
+  records a clean, detached checkout of exact protected-main commit
+  `30b575beb27ff805745a2864c1acf44392774046`, current-wrapper telemetry and a
+  successful `mcp list` transport check. Initialisation and `tools/list` passed
+  through the constructor-only two-tool conformance launcher. Capability remains
+  unscored; no model authentication, model task, tool call, resource read, exact-five
+  production assembly, live provider, remote HTTP host, registration, activation,
+  deployment or release was exercised. The historical modern-only `not_ready` and
+  uncommitted exploratory records remain unchanged;
+
 - current protected-main runtime hand-off: EVID-204 inspection receipts
   [pull request 54](https://github.com/chris-page-gov/gis-ai-go/pull/54) merged as
   `7fa8b720d3cbaa3e0a1ebfadf0fb355a7330a04c`; protected-main assurance and
@@ -285,7 +314,14 @@ The supported target active set is exactly `catalogue.search`,
   `gis-ai-go:qual-206-local-evaluation-set:sha256:160298c85fb3db5394c5c27d4905e1e5cf086bad60aae3b7512f2890dcbeb43d`
   and file SHA-256
   `f93e0988a966e0387cde1bdb89261fe40308e733f1ac7725e8735818094e1dea`;
-- QUAL-206 local protocol-matrix candidate: the matrix in this tree binds the
+- QUAL-206 local protocol-matrix acceptance: protected
+  [pull request 55](https://github.com/chris-page-gov/gis-ai-go/pull/55) merged as
+  `30b575beb27ff805745a2864c1acf44392774046`; protected-main assurance and
+  provenance passed in
+  [run 32667087755](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32667087755)
+  and CodeQL passed in
+  [run 32667087601](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32667087601).
+  The matrix binds the
   official MCP client 2.0.0 and MCP 2026-07-28 source coverage across four
   semantically fixed HTTP and STDIO rows to exact Git blobs from protected-main
   runtime `7fa8b720d3cbaa3e0a1ebfadf0fb355a7330a04c`. Seven in-process suspension

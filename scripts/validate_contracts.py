@@ -833,6 +833,22 @@ def main() -> None:
             ],
         ),
         (
+            "qual-206-legacy-stdio-readiness.schema.json",
+            [
+                (
+                    "tests/interoperability/evidence/"
+                    "claude-code-legacy-stdio-readiness-2026-08-23.json",
+                    load_json(
+                        ROOT
+                        / "tests"
+                        / "interoperability"
+                        / "evidence"
+                        / "claude-code-legacy-stdio-readiness-2026-08-23.json"
+                    ),
+                )
+            ],
+        ),
+        (
             "decision.schema.json",
             [
                 (record["id"], record)
