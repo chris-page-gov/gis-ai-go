@@ -1,6 +1,9 @@
 # TOOLS-205 non-activating tool registry candidate
 
-- status: local candidate; not activated, advertised or deployed
+- status: accepted on protected `main` through
+  [pull request 36](https://github.com/chris-page-gov/gis-ai-go/pull/36) as
+  `76103c1b10d57abb1e3dce4b6fe793faecf81dc8`; not activated, advertised or
+  deployed
 - work item: `TOOLS-205`
 - decision: [ADR-0009](../decisions/ADR-0009-read-only-mcp-tool-lifecycle.md)
 - base: protected `main` commit `364c8680ad11399e0547a843be2a04da7a737301`

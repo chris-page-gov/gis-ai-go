@@ -1,5 +1,9 @@
 # TOOLS-205 inactive public-read transport candidate
 
+Status: accepted on protected `main` through
+[pull request 45](https://github.com/chris-page-gov/gis-ai-go/pull/45) as
+`51147e0c7af438c28bb8dc4c66c8eb7fb27d3ded`; not activated or deployed.
+
 Reviewed on 21 August 2026.
 
 ## Outcome and publication boundary

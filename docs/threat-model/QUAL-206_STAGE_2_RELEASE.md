@@ -1,12 +1,19 @@
 # QUAL-206 Stage 2 release threat record
 
-Status: repository preflight only; activation and release are not accepted.
+Status: repository preflight accepted on protected `main`; activation and release
+are not accepted.
 
-Review date: 22 August 2026.
+Threat review date: 22 August 2026. Protected-main acceptance recorded on
+23 August 2026.
 
-Protected-main starting point: commit
+Protected-main review starting point: commit
 [`e65071dc1f1bb0baab852bbf8218f9b5f953ad02`](https://github.com/chris-page-gov/gis-ai-go/commit/e65071dc1f1bb0baab852bbf8218f9b5f953ad02),
 merged through [pull request 48](https://github.com/chris-page-gov/gis-ai-go/pull/48).
+The completed record and exact reviewed implementation merged through
+[pull request 49](https://github.com/chris-page-gov/gis-ai-go/pull/49) as protected-main
+commit
+[`f0e3ccc1dceeba6b3f7d0ecd56c5dd083dee405a`](https://github.com/chris-page-gov/gis-ai-go/commit/f0e3ccc1dceeba6b3f7d0ecd56c5dd083dee405a),
+with passing protected-main CI, provenance and CodeQL.
 
 ## Decision boundary
 

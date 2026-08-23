@@ -11,8 +11,10 @@ implementations. Accepted inactive slices add explicitly constructed direct and 
 `evidence.inspect`, `selection.resolve` and `data.query` faces over the applications
 and durable ledger, plus a digest-only reconciliation index and receipt-only inspect
 v2 recovery. Its deterministic, non-live and unscored `QUAL-206-HOST-015` case passes
-locally. Default capability lists remain empty, activation and publication remain
-blocked, and no public MCP service or API is deployed.
+locally. The repository-only QUAL-206 preflight is accepted on protected `main`, but
+its evaluation receipts remain non-live, unscored and incomplete for release.
+Default capability lists remain empty, activation and publication remain blocked,
+and no public MCP service or API is deployed.
 
 - [Stage 0 boundary](STAGE_0_BOUNDARY.md)
 - [Dependency baseline](DEPENDENCIES.md)

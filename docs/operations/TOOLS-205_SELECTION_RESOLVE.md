@@ -1,5 +1,9 @@
 # TOOLS-205 inactive selection resolver
 
+Status: accepted on protected `main` through
+[pull request 43](https://github.com/chris-page-gov/gis-ai-go/pull/43) as
+`99426ded11f69ca25cf694649deac7ce818e2a29`; not activated or deployed.
+
 The subsequent explicitly mounted local-conformance transport candidate is recorded
 in [`TOOLS-205_PUBLIC_READ_TRANSPORT.md`](TOOLS-205_PUBLIC_READ_TRANSPORT.md). It
 does not change this application's historical activation or publication boundary.

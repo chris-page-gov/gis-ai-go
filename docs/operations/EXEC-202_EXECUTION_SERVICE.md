@@ -1,6 +1,9 @@
 # EXEC-202 private execution service
 
-Status: local merge candidate; not deployed, activated or registered.
+Status: accepted private implementation on protected `main` through
+[pull request 34](https://github.com/chris-page-gov/gis-ai-go/pull/34) as
+`6837af6eaa01ffb45e7da08d6a9131cedd1b1a0b`; not deployed, activated or
+registered.
 
 ## Delivered boundary
 

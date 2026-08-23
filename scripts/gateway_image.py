@@ -1200,7 +1200,18 @@ def _has_unexempted_path_match(
 def _contains_private_path(
     value: str, *, trusted_cpe_tokens: frozenset[str] = frozenset()
 ) -> bool:
-    if "/" not in value and "\\" not in value and "=" not in value:
+    has_forward_slash = "/" in value
+    has_backslash = "\\" in value
+    has_assignment = "=" in value
+    if not has_forward_slash and not has_backslash and not has_assignment:
+        return False
+    if (
+        not has_forward_slash
+        and not has_assignment
+        and ":" not in value
+        and "\\\\" not in value
+    ):
+        # A backslash-only match requires either a drive prefix or a UNC/device root.
         return False
     if not trusted_cpe_tokens and CPE_PATH_PREFIX_TEXT.search(value) is None:
         return PRIVATE_PATH_TEXT.search(value) is not None
