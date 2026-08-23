@@ -6,6 +6,12 @@ context in the immutable research report. Stage 0 exercises repository, dependen
 secret, malformed-contract and live-execution boundaries only. It does not claim that
 future identity, policy, provider or hosting risks are controlled.
 
+The qualified
+[23 August 2026 external incident crosswalk](../research/2026-08-23/agentic-ai-governance-review/THREAT_EVIDENCE_CROSSWALK.md)
+maps respondent-reported industry categories to the existing register and current
+negative-assurance evidence. It does not re-rate risks or turn survey findings into
+control evidence.
+
 ## QUAL-206 integrated Stage 2 release record
 
 The
