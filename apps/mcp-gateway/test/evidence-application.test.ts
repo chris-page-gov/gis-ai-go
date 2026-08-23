@@ -14,10 +14,13 @@ import { fileURLToPath } from "node:url";
 import { getPublicReadAuthorityContext } from "@gis-ai-go/authority-context";
 import {
   PUBLIC_READ_ONS_RESOURCE,
+  PublicEvidenceLedgerError,
   buildPublicReadReceipt,
   openEvidenceReconciliationIndex,
   openPublicEvidenceLedger,
+  publicIdempotencyKeySha256,
   publicReadResultEvidenceBinding,
+  verifyEvidenceInspectionReceiptStructure,
 } from "@gis-ai-go/evidence";
 import {
   PUBLIC_READ_POLICY,
@@ -40,6 +43,14 @@ const SNAPSHOT = await loadCatalogueSnapshot(SOURCE_CATALOGUE, {
 const CONTEXT = Object.freeze({
   requestId: "request-evidence-inspect-001",
   traceId: "2123456789abcdef0123456789abcdef",
+});
+const INSPECTION_OPTIONS = Object.freeze({
+  software: Object.freeze({
+    name: "gis-ai-go-mcp-gateway" as const,
+    version: "0.1.0",
+    revision: "e".repeat(40),
+  }),
+  now: () => new Date("2026-08-23T10:00:00.000Z"),
 });
 
 function expectInspectError(
@@ -75,13 +86,18 @@ test("inspects one authorised open receipt without activating a transport", () =
       traceId: "3123456789abcdef0123456789abcdef",
     });
     assert.ok(catalogueResult.evidence_storage);
+    const eventCount = ledger.verify().event_count;
 
-    const application = createEvidenceInspectApplication(ledger);
+    const application = createEvidenceInspectApplication(
+      ledger,
+      undefined,
+      INSPECTION_OPTIONS,
+    );
     const result = application.inspect(
       { receipt_id: catalogueResult.evidence_receipt.receipt_id },
       CONTEXT,
     );
-    assert.equal(result.schema, "gis-ai-go.evidence-inspect-result.v1");
+    assert.equal(result.schema, "gis-ai-go.evidence-inspect-result.v3");
     assert.equal(result.operation, "evidence.inspect");
     assert.equal(result.data.record.schema, "gis-ai-go.public-evidence-record.v1");
     assert.equal(
@@ -92,6 +108,23 @@ test("inspects one authorised open receipt without activating a transport", () =
     assert.equal(result.verification.status, "passed");
     assert.equal(result.verification.ingest_material, "verified-at-ingest-not-retained");
     assert.equal(result.verification.attestation, "not-attested");
+    assert.equal(verifyEvidenceInspectionReceiptStructure(result.evidence_receipt), true);
+    assert.equal(result.evidence_receipt.request_id, CONTEXT.requestId);
+    assert.equal(result.evidence_receipt.trace_id, CONTEXT.traceId);
+    assert.equal(
+      result.evidence_receipt.policy_decision.inspected_receipt_id,
+      catalogueResult.evidence_receipt.receipt_id,
+    );
+    assert.equal(
+      result.data.record.receipt.request_id,
+      "request-persist-before-inspect-001",
+    );
+    assert.notEqual(
+      result.evidence_receipt.trace_id,
+      result.data.record.receipt.trace_id,
+    );
+    assert.equal(result.evidence_receipt.evidence_handling.ledger_event, "not-created");
+    assert.equal(ledger.verify().event_count, eventCount);
     assert.equal(Object.isFrozen(result), true);
 
     for (const request of [
@@ -127,7 +160,7 @@ test("inspects one authorised open receipt without activating a transport", () =
   }
 });
 
-test("inspects a durable public-read v2 receipt with its distinct result version", () => {
+test("inspects a durable public-read v2 receipt through the current v3 result", () => {
   const root = mkdtempSync(join(tmpdir(), "gis-ai-go-public-read-inspect-"));
   const indexRoot = `${root}-reconciliation`;
   try {
@@ -217,12 +250,16 @@ test("inspects a durable public-read v2 receipt with its distinct result version
       expectedSoftware: software,
     });
 
-    const application = createEvidenceInspectApplication(ledger, reconciliation);
+    const application = createEvidenceInspectApplication(
+      ledger,
+      reconciliation,
+      INSPECTION_OPTIONS,
+    );
     const inspected = application.inspect(
       { receipt_id: receipt.receipt_id },
       CONTEXT,
     );
-    assert.equal(inspected.schema, "gis-ai-go.evidence-inspect-result.v2");
+    assert.equal(inspected.schema, "gis-ai-go.evidence-inspect-result.v3");
     assert.equal(inspected.data.record.schema, "gis-ai-go.public-evidence-record.v2");
     assert.equal(inspected.data.record.receipt.receipt_id, receipt.receipt_id);
     assert.equal(inspected.verification.status, "passed");
@@ -238,9 +275,18 @@ test("inspects a durable public-read v2 receipt with its distinct result version
         traceId: "6123456789abcdef0123456789abcdef",
       },
     );
-    assert.equal(recovered.schema, "gis-ai-go.evidence-inspect-result.v2");
+    assert.equal(recovered.schema, "gis-ai-go.evidence-inspect-result.v3");
     assert.equal(recovered.data.record.receipt.receipt_id, receipt.receipt_id);
     assert.equal(JSON.stringify(recovered).includes(key), false);
+    assert.equal(
+      JSON.stringify(recovered).includes(publicIdempotencyKeySha256(key)),
+      false,
+    );
+    assert.deepEqual(recovered.evidence_receipt.transformations.slice(0, 2), [
+      { name: "hash-public-idempotency-key", version: "v1" },
+      { name: "resolve-evidence-reconciliation-index", version: "v1" },
+    ]);
+    assert.equal(ledger.verify().event_count, 1);
 
     expectInspectError(
       () =>
@@ -304,19 +350,82 @@ test("rejects proxy-wrapped and non-exact evidence reconciliation dependencies",
       },
     });
     assert.throws(
-      () => createEvidenceInspectApplication(proxyLedger, reconciliation),
+      () => createEvidenceInspectApplication(proxyLedger, reconciliation, INSPECTION_OPTIONS),
       /requires a public evidence ledger/u,
     );
     assert.throws(
-      () => createEvidenceInspectApplication(ledger, proxyIndex),
+      () => createEvidenceInspectApplication(ledger, proxyIndex, INSPECTION_OPTIONS),
       /exact linked ledger and index/u,
     );
     assert.equal(indexGets, 0);
     assert.throws(
-      () => createEvidenceInspectApplication(otherLedger, reconciliation),
+      () => createEvidenceInspectApplication(otherLedger, reconciliation, INSPECTION_OPTIONS),
       /exact linked ledger and index/u,
     );
   } finally {
     rmSync(parent, { recursive: true, force: true });
+  }
+});
+
+test("returns an inline receipt when the durable ledger is already at capacity", async () => {
+  const root = mkdtempSync(join(tmpdir(), "gis-ai-go-evidence-inspect-capacity-"));
+  try {
+    const testSupportPath = new URL(
+      "../../../../packages/evidence/dist/src/public-ledger-capacity.js",
+      import.meta.url,
+    ).href;
+    const support = await import(testSupportPath) as {
+      withLowerPublicEvidenceLedgerEventLimitForTest<T extends object>(
+        options: T,
+        maximumEvents: number,
+      ): T;
+    };
+    const ledger = openPublicEvidenceLedger(
+      support.withLowerPublicEvidenceLedgerEventLimitForTest(
+        {
+          rootDirectory: root,
+          retentionDays: 365,
+          now: () => new Date("2026-08-23T10:00:00.000Z"),
+        },
+        1,
+      ),
+    );
+    const catalogue = createCatalogueApplication(SNAPSHOT, {
+      software: INSPECTION_OPTIONS.software,
+      now: () => new Date("2026-08-23T09:59:59.000Z"),
+      evidenceLedger: ledger,
+    });
+    const persisted = catalogue.search({ query: "INSPIRE", limit: 1 }, {
+      requestId: "request-fill-inspection-ledger-001",
+      traceId: "9123456789abcdef0123456789abcdef",
+    });
+    assert.ok(persisted.evidence_storage);
+    assert.throws(
+      () => catalogue.search({ query: "INSPIRE", limit: 1 }, {
+        requestId: "request-over-inspection-ledger-capacity",
+        traceId: "a123456789abcdef0123456789abcdef",
+      }),
+      (error: unknown) => {
+        assert.ok(error instanceof PublicEvidenceLedgerError);
+        assert.equal(error.code, "capacity");
+        return true;
+      },
+    );
+    assert.equal(ledger.verify().event_count, 1);
+
+    const inspector = createEvidenceInspectApplication(
+      ledger,
+      undefined,
+      INSPECTION_OPTIONS,
+    );
+    const inspected = inspector.inspect(
+      { receipt_id: persisted.evidence_receipt.receipt_id },
+      CONTEXT,
+    );
+    assert.equal(inspected.schema, "gis-ai-go.evidence-inspect-result.v3");
+    assert.equal(inspected.evidence_receipt.evidence_handling.ledger_event, "not-created");
+    assert.equal(ledger.verify().event_count, 1);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
   }
 });

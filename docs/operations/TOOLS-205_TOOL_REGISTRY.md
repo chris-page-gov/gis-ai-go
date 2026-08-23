@@ -59,9 +59,10 @@ The current callable result is an empty frozen array. The helper considers only
 `current` state and accepted runtime input, output and problem schema references;
 it never reads `v02Target`. T04 now references the mandatory idempotency wrapper,
 unchanged result and closed old-or-reconciliation problem dispatcher. T11 references
-the closed v1/v2 inspect-request dispatcher, closed v1/v2 result dispatcher and
-accepted catalogue problem schema. These versioned dispatchers preserve the
-immutable v1 schemas without making either suspended profile callable.
+the unchanged v1/v2 inspect-request dispatcher, current-call receipted v3 result,
+dedicated anonymous-open inspection policy and accepted catalogue problem schema.
+The v1/v2 request and stored-record schemas remain immutable without making the
+suspended profile callable.
 
 For unimplemented profiles, `controlledErrors` preserves the research vocabulary.
 For implemented T03, T04 and T11 it is the validated current runtime vocabulary and
@@ -109,8 +110,8 @@ T03, T04 and T11 are implemented-inactive and suspended. Their seven activation
 gates remain false. T04's implementation metadata now records the one explicitly
 injected, current-only approved ONS cache fallback, but
 `current.activationGates.fallback` remains false and no shipped entrypoint loads it.
-T11 has no alternate receipt, result
-replay or challenge route. This candidate does not authorise the mutating
+T11 has one dedicated inline-only current-call receipt, no result replay or
+challenge route and no inspection ledger write. This candidate does not authorise the mutating
 `workflow.execute` profile. A later activation change must supply its own reviewed
 provider and fallback wiring, threat, interoperability, release and lifecycle
 evidence.

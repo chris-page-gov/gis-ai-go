@@ -106,6 +106,7 @@ CURRENT_APPLICATION_METADATA = {
         "providerDependencies": [
             "durable public evidence ledger",
             "receipt-only idempotency reconciliation index",
+            "anonymous-open evidence inspection policy",
         ],
         "costPerformance": "Low",
         "controlledErrors": [

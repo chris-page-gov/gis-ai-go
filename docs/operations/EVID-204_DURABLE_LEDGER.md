@@ -165,11 +165,14 @@ content domain prevents an identity collision with v1. Mixed ledgers pass restar
 tamper, replay and privacy tests. The accepted
 `evidence-inspect-result.schema.json` v1 contract remains byte-identical at
 SHA-256 `ab6973053b58bdb59c94cd8c5db9c354e1954cb84a188d5d7db579442e6f7b61`
-and accepts only v1 records. A v2 record returns the separate
-`gis-ai-go.evidence-inspect-result.v2` discriminator and v2 result schema. The
-inactive operation contract advertises a separately identified closed dispatcher
-over those two unchanged per-version meanings. This compatibility change does not
-activate `selection.resolve`, `data.query` or `evidence.inspect`; see
+and accepts only v1 records. At that compatibility slice, a v2 record returned the
+separate `gis-ai-go.evidence-inspect-result.v2` discriminator and v2 result schema.
+Both historical schemas, the accepted v1/v2 operation dispatcher and every v1/v2
+stored-record byte remain unchanged. The later inspection-receipt extension adds a
+new v3 operation dispatcher returning `gis-ai-go.evidence-inspect-result.v3` for
+either lookup. Its dedicated receipt is inline-only and creates no durable ledger
+record or event. This compatibility change does not activate `selection.resolve`,
+`data.query` or `evidence.inspect`; see
 [TOOLS-205 public-read v2 contracts](TOOLS-205_PUBLIC_READ_V2_CONTRACTS.md).
 
 ## Verification

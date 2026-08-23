@@ -183,7 +183,7 @@ export interface ToolRegistrySource {
 
 export interface ToolRegistryDocument {
   readonly schema: "gis-ai-go.tool-registry.v1";
-  readonly version: "1.1.0";
+  readonly version: "1.2.0";
   readonly canonicalOrder: readonly ToolProfileName[];
   readonly activationRequirements: readonly ActivationRequirement[];
   readonly candidateAssembly: {

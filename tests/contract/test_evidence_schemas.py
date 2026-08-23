@@ -35,6 +35,14 @@ SCHEMA_IDS = {
         "urn:gis-ai-go:schema:public-policy-decision:v2"
     ),
     "evidence-receipt-v2.schema.json": "urn:gis-ai-go:schema:evidence-receipt:v2",
+    "public-authority-context-v3.schema.json": (
+        "urn:gis-ai-go:schema:public-authority-context:v3"
+    ),
+    "public-policy-v3.schema.json": "urn:gis-ai-go:schema:public-policy:v3",
+    "public-policy-decision-v3.schema.json": (
+        "urn:gis-ai-go:schema:public-policy-decision:v3"
+    ),
+    "evidence-receipt-v3.schema.json": "urn:gis-ai-go:schema:evidence-receipt:v3",
     "public-evidence-record-v2.schema.json": (
         "urn:gis-ai-go:schema:public-evidence-record:v2"
     ),
@@ -43,6 +51,9 @@ SCHEMA_IDS = {
     ),
     "evidence-inspect-result-v2.schema.json": (
         "urn:gis-ai-go:schema:evidence-inspect-result:v2"
+    ),
+    "evidence-inspect-result-v3.schema.json": (
+        "urn:gis-ai-go:schema:evidence-inspect-result:v3"
     ),
     "evidence-inspect-request.schema.json": (
         "urn:gis-ai-go:schema:evidence-inspect-request:v1"
@@ -55,6 +66,9 @@ SCHEMA_IDS = {
     ),
     "evidence-inspect-operation-result.schema.json": (
         "urn:gis-ai-go:schema:evidence-inspect-operation-result:v1"
+    ),
+    "evidence-inspect-operation-result-v3.schema.json": (
+        "urn:gis-ai-go:schema:evidence-inspect-operation-result:v3"
     ),
     "evidence-reconciliation-index.schema.json": (
         "urn:gis-ai-go:schema:evidence-reconciliation-index:v1"
@@ -73,6 +87,23 @@ V1_INSPECT_SCHEMA_SHA256 = (
 V1_INSPECT_REQUEST_SCHEMA_SHA256 = (
     "879e1eab287910a998254ca18832d9789631a2aeec9d0124e27f381020c97806"
 )
+UNCHANGED_INSPECTION_SCHEMA_SHA256 = {
+    "evidence-inspect-operation-result.schema.json": (
+        "f1764a32b5f559df6f36e550788aabd8024dfc16f2d2c0a1f78d13f15bb68fb8"
+    ),
+    "evidence-inspect-result-v2.schema.json": (
+        "527d10dd5c7e1447beeceebbf7d21cf15da0337fc60bd3520191faa62eb62997"
+    ),
+    "evidence-inspect-operation-request.schema.json": (
+        "ecbd4cc025db438dc194cd3ab178fe3c10c086f4c7df02196e563ea8eed54896"
+    ),
+    "public-evidence-record.schema.json": (
+        "9bd8534e492a257c77f589108564ea22af3adafdc8aee1eeb8b3b5fa5384305c"
+    ),
+    "public-evidence-record-v2.schema.json": (
+        "cdfbfbadb8c012bfe92f3f8c69081023aff21bce4d281ea313e9279a807afa2e"
+    ),
+}
 ACCEPTED_PROVIDER_PROFILE_ID = "PV-ONS-DATA"
 ACCEPTED_PROVIDER_PROFILE_POINTER = "/providers/1"
 ACCEPTED_PROVIDER_PROFILE_SHA256 = (
@@ -96,6 +127,16 @@ PUBLIC_POLICY = load_json(
 PUBLIC_READ_POLICY = load_json(
     ROOT / "packages" / "policy-client" / "src" / "public-read-v2.json"
 )
+PUBLIC_INSPECTION_POLICY = load_json(
+    ROOT
+    / "packages"
+    / "policy-client"
+    / "src"
+    / "public-evidence-inspect-v3.json"
+)
+PUBLIC_INSPECTION_AUTHORITY = load_json(
+    SCHEMA_DIR / "public-authority-context-v3.schema.json"
+)["const"]
 
 
 def build_schema_registry() -> Registry:
@@ -247,6 +288,101 @@ def inspection_result(
     }
 
 
+def receipted_inspection_result(
+    prior_result: dict[str, Any],
+) -> dict[str, Any]:
+    result = copy.deepcopy(prior_result)
+    result["schema"] = "gis-ai-go.evidence-inspect-result.v3"
+    result["request_id"] = "request-evidence-inspect-v3"
+    target = {
+        "ledger_id": result["data"]["storage"]["ledger_id"],
+        "receipt_id": result["data"]["record"]["receipt"]["receipt_id"],
+        "record_id": result["data"]["storage"]["record_id"],
+        "event_id": result["data"]["storage"]["event_id"],
+    }
+    result["evidence_receipt"] = {
+        "schema": "gis-ai-go.evidence-receipt.v3",
+        "receipt_id": f"gis-ai-go:evidence-receipt:sha256:{'f' * 64}",
+        "created_at": "2026-08-23T10:00:00.000Z",
+        "request_id": result["request_id"],
+        "trace_id": result["trace_id"],
+        "operation": {
+            "name": "evidence.inspect",
+            "contract_version": "v3",
+            "normalised_parameters": {
+                "domain": "gis-ai-go.evidence-inspect-parameters.v3",
+                "sha256": "1" * 64,
+            },
+        },
+        "authority_context": PUBLIC_INSPECTION_AUTHORITY,
+        "policy_decision": {
+            "schema": "gis-ai-go.public-policy-decision.v3",
+            "canonicalisation": "rfc8785-jcs",
+            "decision_id": (
+                "gis-ai-go:public-policy-decision:sha256:" + "2" * 64
+            ),
+            "request_id": result["request_id"],
+            "trace_id": result["trace_id"],
+            "authority_context_id": PUBLIC_INSPECTION_AUTHORITY["context_id"],
+            "policy_id": PUBLIC_INSPECTION_POLICY["policy_id"],
+            "policy_version": "3.0.0",
+            "policy_default_effect": "deny",
+            "operation": "evidence.inspect",
+            "inspected_receipt_id": target["receipt_id"],
+            "effect": "allow-with-obligations",
+            "reason_code": "anonymous-open-evidence-inspection-allowed",
+            "obligations": [
+                "bind-inspected-evidence-identities",
+                "inline-evidence-receipt",
+                "no-evidence-write",
+                "no-result-replay",
+                "not-attested",
+                "not-persisted",
+            ],
+        },
+        "inspected_evidence": target,
+        "transformations": [
+            {"name": "normalise-evidence-inspect-lookup", "version": "v1"},
+            {"name": "read-restart-verified-evidence", "version": "v1"},
+            {"name": "verify-anonymous-open-evidence", "version": "v1"},
+            {"name": "project-evidence-inspect-result-core", "version": "v1"},
+        ],
+        "software": {
+            "name": "gis-ai-go-mcp-gateway",
+            "version": "0.1.0",
+            "revision": "3" * 40,
+        },
+        "result": {
+            "domain": "gis-ai-go.evidence-inspect-result-core.v3",
+            "sha256": "4" * 64,
+            "media_type": "application/json",
+            "returned_item_count": 1,
+        },
+        "verification": {
+            "status": "passed",
+            "canonicalisation": "rfc8785-jcs",
+            "digest_algorithm": "sha256",
+            "checks": [
+                "authority-context",
+                "inspected-evidence-identities",
+                "normalised-lookup-digest",
+                "public-policy-decision",
+                "result-core-digest",
+                "schema",
+                "software-identity",
+                "transformations",
+            ],
+        },
+        "evidence_handling": {
+            "delivery": "inline-only",
+            "persistence": "not-persisted",
+            "attestation": "not-attested",
+            "ledger_event": "not-created",
+        },
+    }
+    return result
+
+
 class EvidenceSchemaTests(unittest.TestCase):
     def setUp(self) -> None:
         self.authority_context = load_json(
@@ -292,6 +428,7 @@ class EvidenceSchemaTests(unittest.TestCase):
             record_version="v2",
             identity_character="c",
         )
+        self.inspect_v3 = receipted_inspection_result(self.inspect_v2)
 
     def test_schema_ids_are_stable_and_contract_objects_are_closed(self) -> None:
         for name, expected_id in SCHEMA_IDS.items():
@@ -456,7 +593,7 @@ class EvidenceSchemaTests(unittest.TestCase):
             with self.subTest(field=field):
                 assert_invalid(self, decision_validator, fake_identity)
 
-    def test_evidence_inspect_versions_are_explicit_without_widening_v1(self) -> None:
+    def test_evidence_inspect_v3_is_current_without_widening_historical_results(self) -> None:
         v1_schema_path = SCHEMA_DIR / "evidence-inspect-result.schema.json"
         self.assertEqual(
             V1_INSPECT_SCHEMA_SHA256,
@@ -464,24 +601,103 @@ class EvidenceSchemaTests(unittest.TestCase):
         )
         v1_validator = validator("evidence-inspect-result.schema.json")
         v2_validator = validator("evidence-inspect-result-v2.schema.json")
-        operation_validator = validator(
+        v3_validator = validator("evidence-inspect-result-v3.schema.json")
+        historical_operation_validator = validator(
             "evidence-inspect-operation-result.schema.json"
+        )
+        current_operation_validator = validator(
+            "evidence-inspect-operation-result-v3.schema.json"
         )
 
         assert_valid(self, v1_validator, self.inspect_v1)
         assert_invalid(self, v1_validator, self.inspect_v2)
         assert_valid(self, v2_validator, self.inspect_v2)
         assert_invalid(self, v2_validator, self.inspect_v1)
-        assert_valid(self, operation_validator, self.inspect_v1)
-        assert_valid(self, operation_validator, self.inspect_v2)
+        assert_valid(self, v3_validator, self.inspect_v3)
+        assert_invalid(self, v3_validator, self.inspect_v1)
+        assert_invalid(self, v3_validator, self.inspect_v2)
+        assert_valid(self, historical_operation_validator, self.inspect_v1)
+        assert_valid(self, historical_operation_validator, self.inspect_v2)
+        assert_invalid(self, historical_operation_validator, self.inspect_v3)
+        assert_invalid(self, current_operation_validator, self.inspect_v1)
+        assert_invalid(self, current_operation_validator, self.inspect_v2)
+        assert_valid(self, current_operation_validator, self.inspect_v3)
 
         v2_record_with_v1_result = copy.deepcopy(self.inspect_v2)
         v2_record_with_v1_result["schema"] = "gis-ai-go.evidence-inspect-result.v1"
-        assert_invalid(self, operation_validator, v2_record_with_v1_result)
+        assert_invalid(
+            self,
+            historical_operation_validator,
+            v2_record_with_v1_result,
+        )
 
         v1_record_with_v2_result = copy.deepcopy(self.inspect_v1)
         v1_record_with_v2_result["schema"] = "gis-ai-go.evidence-inspect-result.v2"
-        assert_invalid(self, operation_validator, v1_record_with_v2_result)
+        assert_invalid(
+            self,
+            historical_operation_validator,
+            v1_record_with_v2_result,
+        )
+
+        without_current_receipt = copy.deepcopy(self.inspect_v3)
+        del without_current_receipt["evidence_receipt"]
+        assert_invalid(self, current_operation_validator, without_current_receipt)
+
+    def test_evidence_inspect_v3_timestamps_are_canonical_utc_milliseconds(self) -> None:
+        receipt_validator = validator("evidence-receipt-v3.schema.json")
+        result_validator = validator("evidence-inspect-result-v3.schema.json")
+
+        leap_day = copy.deepcopy(self.inspect_v3)
+        leap_day["evidence_receipt"]["created_at"] = "2028-02-29T23:59:59.999Z"
+        for path in (
+            ("data", "record", "persisted_at"),
+            ("data", "record", "retain_until"),
+            ("data", "event", "recorded_at"),
+            ("data", "event", "retain_until"),
+            ("data", "storage", "persisted_at"),
+            ("data", "storage", "retain_until"),
+        ):
+            node = leap_day
+            for key in path[:-1]:
+                node = node[key]
+            node[path[-1]] = "2028-02-29T23:59:59.999Z"
+        assert_valid(self, receipt_validator, leap_day["evidence_receipt"])
+        assert_valid(self, result_validator, leap_day)
+
+        invalid_timestamps = (
+            "2026-08-20T08:00:00.000+01:00",
+            "2026-08-20T07:00:00Z",
+            "2026-08-20T07:00:00.0Z",
+            "2026-08-20t07:00:00.000z",
+            "2026-02-31T07:00:00.000Z",
+            "2026-02-29T07:00:00.000Z",
+            "2026-04-31T07:00:00.000Z",
+            "2026-08-20T24:00:00.000Z",
+            "0000-08-20T07:00:00.000Z",
+        )
+        for timestamp in invalid_timestamps:
+            with self.subTest(contract="receipt", timestamp=timestamp):
+                changed_receipt = copy.deepcopy(self.inspect_v3["evidence_receipt"])
+                changed_receipt["created_at"] = timestamp
+                assert_invalid(self, receipt_validator, changed_receipt)
+
+        result_timestamp_paths = (
+            ("data", "record", "persisted_at"),
+            ("data", "record", "retain_until"),
+            ("data", "event", "recorded_at"),
+            ("data", "event", "retain_until"),
+            ("data", "storage", "persisted_at"),
+            ("data", "storage", "retain_until"),
+        )
+        for path in result_timestamp_paths:
+            for timestamp in invalid_timestamps:
+                with self.subTest(path=".".join(path), timestamp=timestamp):
+                    changed_result = copy.deepcopy(self.inspect_v3)
+                    node = changed_result
+                    for key in path[:-1]:
+                        node = node[key]
+                    node[path[-1]] = timestamp
+                    assert_invalid(self, result_validator, changed_result)
 
     def test_receipt_and_idempotency_lookups_are_explicit_without_widening_v1(self) -> None:
         v1_path = SCHEMA_DIR / "evidence-inspect-request.schema.json"
@@ -505,6 +721,13 @@ class EvidenceSchemaTests(unittest.TestCase):
         zero_key = copy.deepcopy(self.inspect_request_v2)
         zero_key["idempotency_key"] = f"gis-ai-go:ik:v1:{'0' * 64}"
         assert_invalid(self, v2_validator, zero_key)
+
+        for name, expected in UNCHANGED_INSPECTION_SCHEMA_SHA256.items():
+            with self.subTest(unchanged=name):
+                self.assertEqual(
+                    expected,
+                    hashlib.sha256((SCHEMA_DIR / name).read_bytes()).hexdigest(),
+                )
 
     def test_reconciliation_storage_schemas_are_digest_only_and_closed(self) -> None:
         for name, fixture in (

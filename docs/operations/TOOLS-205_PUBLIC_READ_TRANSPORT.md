@@ -127,18 +127,20 @@ list remains empty. T04 uses the wrapper and closed operation-problem dispatcher
 its exact content-addressed approved-cache fallback is implemented for explicitly
 injected use after an internally classified network failure or HTTP 500 to 599
 response. It has no default loader or environment seam and remains inactive. T11
-uses the closed v1/v2 inspect-request dispatcher and accepted catalogue problem
-schema. Their current provider dependencies, controlled errors, non-spatial CRS
-state and bounded inline cursor state are validated against substitution. T03's
-non-executing required-choice fallback is implemented. T11 has no alternate
-receipt, result replay or challenge route. Every fallback activation gate remains
-false.
+uses the unchanged closed v1/v2 inspect-request dispatcher, the current-call
+receipted v3 result and the accepted catalogue problem schema. Its receipt is
+inline-only and no resource or inspection call appends a ledger event. Their
+current provider dependencies, controlled errors, non-spatial CRS state and bounded
+inline cursor state are validated against substitution. T03's non-executing
+required-choice fallback is implemented. T11 has no result replay or challenge
+route. Every fallback activation gate remains false.
 
 `data.query` has `readOnlyHint: true`, `openWorldHint: true` and
 `idempotentHint: true`. The key is part of the arguments and cannot repeat provider
 or ledger side effects. A repeat does not replay success: it returns receipt-free
 `idempotency_pending`, `idempotency_completed` or `idempotency_conflict` with status
-`409`; completed evidence is retrieved separately through `evidence.inspect` v2.
+`409`; completed evidence is retrieved separately through the v2
+`evidence.inspect` lookup request and returned in a receipted v3 result.
 
 ## Threat and residual boundary
 
@@ -151,8 +153,9 @@ not contact ONS or expose provider bodies, credentials or local ledger paths.
 `QUAL-206-HOST-015` now passes one deterministic, non-live application-level case.
 The first result is deliberately dropped only after verified persistence, fresh
 ledger/index/application instances reopen, the retry returns completed `409` before
-provider preflight, and `evidence.inspect` v2 recovers the original receipt. The
-fixture proves exactly one provider execution, record and event and no result replay.
+provider preflight, and the v2 `evidence.inspect` lookup recovers the original
+receipt in a receipted v3 result. The fixture proves exactly one provider execution,
+record and event and no result replay.
 It remains unscored, supplies no live-host evidence and activates nothing.
 
 The guarantee is limited to a governed key shared through one index and a

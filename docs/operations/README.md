@@ -10,7 +10,9 @@ public discovery product. An accepted inactive gateway foundation on protected
 implementations. Accepted inactive slices add explicitly constructed direct and MCP
 `evidence.inspect`, `selection.resolve` and `data.query` faces over the applications
 and durable ledger, plus a digest-only reconciliation index and receipt-only inspect
-v2 recovery. Its deterministic, non-live and unscored `QUAL-206-HOST-015` case passes
+v2 recovery. The current inspection candidate returns a dedicated verifiable v3
+receipt for the inspection call itself without persisting it or adding a ledger
+event. Its deterministic, non-live and unscored `QUAL-206-HOST-015` case passes
 locally. The repository-only QUAL-206 preflight is accepted on protected `main`, but
 its evaluation receipts remain non-live, unscored and incomplete for release.
 Default capability lists remain empty, activation and publication remain blocked,

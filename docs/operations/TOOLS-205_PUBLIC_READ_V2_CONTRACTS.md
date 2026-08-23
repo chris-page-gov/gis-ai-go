@@ -111,12 +111,15 @@ parameter or result material fail closed. The existing transport-neutral
 plain-text projections accept either record version. The accepted v1 receipt lookup
 remains byte-identical. The later reconciliation extension adds a separately
 identified v2 key lookup and closed operation-request dispatcher without changing
-the route or activation state. A v1 record returns
-`gis-ai-go.evidence-inspect-result.v1`; a v2 record returns the distinct
-`gis-ai-go.evidence-inspect-result.v2`. The accepted v1 result-schema bytes and
-meaning remain unchanged. The inactive operation registry and OpenAPI/MCP contract
-point to `evidence-inspect-operation-result.schema.json`, a closed dispatcher whose
-two branches reference the exact v1 and v2 result schemas. Its runtime projection
+the route or activation state. At acceptance, a v1 record returned
+`gis-ai-go.evidence-inspect-result.v1` and a v2 record returned the distinct
+`gis-ai-go.evidence-inspect-result.v2`. Those accepted schema bytes and meanings
+remain unchanged. The accepted
+`evidence-inspect-operation-result.schema.json` v1/v2 dispatcher also remains
+byte-identical. The later inspection-receipt extension adds the separately
+identified `evidence-inspect-operation-result-v3.schema.json`, which dispatches only
+the current `gis-ai-go.evidence-inspect-result.v3` for either lookup while leaving
+both request versions and stored-record versions intact. Its runtime projection
 embeds every transitive schema and has no unresolved external reference.
 
 ## Public APIs

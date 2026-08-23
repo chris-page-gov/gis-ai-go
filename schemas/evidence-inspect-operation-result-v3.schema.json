@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:evidence-inspect-operation-result:v3",
+  "title": "GIS AI GO current evidence inspection operation result",
+  "description": "The current-call receipted result returned by evidence.inspect for either unchanged lookup request version.",
+  "$ref": "urn:gis-ai-go:schema:evidence-inspect-result:v3"
+}

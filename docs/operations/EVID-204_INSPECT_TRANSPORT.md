@@ -50,14 +50,35 @@ gateway build is deliberately not a standalone `dist/` package.
 Every successful face returns the same complete object: public evidence record,
 hash-chain event, durable storage reference and explicit verification statements.
 MCP supplies that object as both `structuredContent` and identical plain JSON text.
-The resource returns the same plain JSON text. The result states that ingest
-material was verified but not retained and that no attestation exists.
+The resource returns the same plain JSON text. The current operation result is
+`gis-ai-go.evidence-inspect-result.v3`. It contains a dedicated, independently
+verifiable current-call `gis-ai-go.evidence-receipt.v3` while retaining the earlier
+stored receipt beneath `data.record.receipt`.
 
-The v2 key lookup resolves internally to the original receipt and returns the
-existing `gis-ai-go.evidence-inspect-result.v2` object. It never returns the claim,
-key digest, raw key, original observation or original `data.query` result. The MCP
-resource remains only `gis-ai-go://evidence/receipts/{receipt_id}`; no resource URI
-accepts or embeds an idempotency key.
+The current receipt is constructed only after the server resolves and
+restart-verifies an anonymous-open stored target. It binds the current request,
+trace, inspection authority and policy decision, safe normalised lookup digest,
+exact ledger, receipt, record and event identities, software and transformations,
+and a digest of the receipt-free result core. It is inline-only, not persisted or
+attested, and creates no ledger record or event. Inspection therefore remains
+available when the durable ledger is at its event ceiling.
+
+The v2 key lookup resolves internally to the original v2 receipt and record. It
+never returns the reconciliation claim, raw key, public key hash, original
+observation or original `data.query` result. The receipt contains only a further
+domain-separated digest of safe lookup material. The MCP resource remains only
+`gis-ai-go://evidence/receipts/{receipt_id}`; no resource URI accepts or embeds an
+idempotency key.
+
+The accepted v1 and v2 request, stored-record, inspection-result and v1/v2 operation
+dispatcher contracts remain byte-identical. A separately identified v3 operation
+dispatcher returns only the current v3 result.
+
+New v3 timestamps use one canonical UTC millisecond form
+(`YYYY-MM-DDTHH:mm:ss.sssZ`). The v3 schemas bound real month lengths, leap days
+and time components; runtime verification additionally reuses the established
+receipt calendar validator and requires an exact ISO round trip. Historical v1 and
+v2 schema bytes and timestamp acceptance are unchanged.
 
 The shared result is bounded so the duplicated MCP compatibility representation,
 resource response and direct response all fail closed before transport limits are
@@ -102,7 +123,9 @@ The focused suite creates temporary ledger and index roots, persists evidenced
 catalogue and data results, reopens and verifies the stores, and then compares
 direct API, MCP HTTP, MCP STDIO, resource and plain-text results. It covers v1
 receipt lookup, v2 key lookup, absent and incomplete key states, and proves that no
-resource URI accepts a key. It also truncates immutable evidence and proves all
+resource URI accepts a key. It also verifies the inline receipt against independent
+policy, software, result-core and target-identity material, proves that inspection
+does not add a ledger event at capacity, truncates immutable evidence and proves all
 affected operation faces return only the controlled unavailable problem. Temporary
 machine paths and raw keys are assertions against leakage and are not placed in
 fixtures, logs or durable repository evidence.

@@ -76,6 +76,109 @@ def assert_invalid_record(schema_name: str, label: str, record: Any) -> None:
         raise AssertionError(f"{schema_name} accepted forbidden {label}")
 
 
+def receipted_inspection_result(prior_result: dict[str, Any]) -> dict[str, Any]:
+    result = copy.deepcopy(prior_result)
+    result["schema"] = "gis-ai-go.evidence-inspect-result.v3"
+    result["request_id"] = "request-evidence-inspect-v3"
+    authority = load_json(
+        ROOT / "schemas" / "public-authority-context-v3.schema.json"
+    )["const"]
+    policy = load_json(
+        ROOT
+        / "packages"
+        / "policy-client"
+        / "src"
+        / "public-evidence-inspect-v3.json"
+    )
+    target = {
+        "ledger_id": result["data"]["storage"]["ledger_id"],
+        "receipt_id": result["data"]["record"]["receipt"]["receipt_id"],
+        "record_id": result["data"]["storage"]["record_id"],
+        "event_id": result["data"]["storage"]["event_id"],
+    }
+    result["evidence_receipt"] = {
+        "schema": "gis-ai-go.evidence-receipt.v3",
+        "receipt_id": f"gis-ai-go:evidence-receipt:sha256:{'f' * 64}",
+        "created_at": "2026-08-23T10:00:00.000Z",
+        "request_id": result["request_id"],
+        "trace_id": result["trace_id"],
+        "operation": {
+            "name": "evidence.inspect",
+            "contract_version": "v3",
+            "normalised_parameters": {
+                "domain": "gis-ai-go.evidence-inspect-parameters.v3",
+                "sha256": "1" * 64,
+            },
+        },
+        "authority_context": authority,
+        "policy_decision": {
+            "schema": "gis-ai-go.public-policy-decision.v3",
+            "canonicalisation": "rfc8785-jcs",
+            "decision_id": (
+                "gis-ai-go:public-policy-decision:sha256:" + "2" * 64
+            ),
+            "request_id": result["request_id"],
+            "trace_id": result["trace_id"],
+            "authority_context_id": authority["context_id"],
+            "policy_id": policy["policy_id"],
+            "policy_version": "3.0.0",
+            "policy_default_effect": "deny",
+            "operation": "evidence.inspect",
+            "inspected_receipt_id": target["receipt_id"],
+            "effect": "allow-with-obligations",
+            "reason_code": "anonymous-open-evidence-inspection-allowed",
+            "obligations": [
+                "bind-inspected-evidence-identities",
+                "inline-evidence-receipt",
+                "no-evidence-write",
+                "no-result-replay",
+                "not-attested",
+                "not-persisted",
+            ],
+        },
+        "inspected_evidence": target,
+        "transformations": [
+            {"name": "normalise-evidence-inspect-lookup", "version": "v1"},
+            {"name": "read-restart-verified-evidence", "version": "v1"},
+            {"name": "verify-anonymous-open-evidence", "version": "v1"},
+            {"name": "project-evidence-inspect-result-core", "version": "v1"},
+        ],
+        "software": {
+            "name": "gis-ai-go-mcp-gateway",
+            "version": "0.1.0",
+            "revision": "3" * 40,
+        },
+        "result": {
+            "domain": "gis-ai-go.evidence-inspect-result-core.v3",
+            "sha256": "4" * 64,
+            "media_type": "application/json",
+            "returned_item_count": 1,
+        },
+        "verification": {
+            "status": "passed",
+            "canonicalisation": "rfc8785-jcs",
+            "digest_algorithm": "sha256",
+            "checks": [
+                "authority-context",
+                "inspected-evidence-identities",
+                "normalised-lookup-digest",
+                "public-policy-decision",
+                "result-core-digest",
+                "schema",
+                "software-identity",
+                "transformations",
+            ],
+        },
+        "evidence_handling": {
+            "delivery": "inline-only",
+            "persistence": "not-persisted",
+            "attestation": "not-attested",
+            "ledger_event": "not-created",
+        },
+    }
+    return result
+
+
 def validate_schema_catalogue() -> int:
     schema_paths = sorted((ROOT / "schemas").glob("*.schema.json"))
     if not schema_paths:
@@ -224,6 +327,7 @@ def main() -> None:
             "storage": storage_v2_fixture,
         },
     }
+    inspect_v3_fixture = receipted_inspection_result(inspect_v2_fixture)
     selection_plan_fixture = load_json(fixture_dir / "selection-plan.example.json")
     selection_receipt_fixture = copy.deepcopy(receipt_v2_fixture)
     selection_receipt_fixture["receipt_id"] = (
@@ -415,6 +519,15 @@ def main() -> None:
             ],
         ),
         (
+            "public-authority-context-v3.schema.json",
+            [
+                (
+                    "public evidence inspection authority",
+                    inspect_v3_fixture["evidence_receipt"]["authority_context"],
+                )
+            ],
+        ),
+        (
             "public-read-resource.schema.json",
             [
                 (
@@ -463,6 +576,21 @@ def main() -> None:
             ],
         ),
         (
+            "public-policy-v3.schema.json",
+            [
+                (
+                    "packages/policy-client/src/public-evidence-inspect-v3.json",
+                    load_json(
+                        ROOT
+                        / "packages"
+                        / "policy-client"
+                        / "src"
+                        / "public-evidence-inspect-v3.json"
+                    ),
+                )
+            ],
+        ),
+        (
             "public-policy-decision.schema.json",
             [
                 (
@@ -481,6 +609,15 @@ def main() -> None:
             ],
         ),
         (
+            "public-policy-decision-v3.schema.json",
+            [
+                (
+                    "synthetic evidence inspection policy decision",
+                    inspect_v3_fixture["evidence_receipt"]["policy_decision"],
+                )
+            ],
+        ),
+        (
             "evidence-receipt.schema.json",
             [
                 (
@@ -495,6 +632,15 @@ def main() -> None:
                 (
                     "evidence-receipt-v2.example.json",
                     receipt_v2_fixture,
+                )
+            ],
+        ),
+        (
+            "evidence-receipt-v3.schema.json",
+            [
+                (
+                    "synthetic evidence inspection receipt",
+                    inspect_v3_fixture["evidence_receipt"],
                 )
             ],
         ),
@@ -532,11 +678,19 @@ def main() -> None:
             [("synthetic v2 evidence inspection result", inspect_v2_fixture)],
         ),
         (
+            "evidence-inspect-result-v3.schema.json",
+            [("synthetic v3 evidence inspection result", inspect_v3_fixture)],
+        ),
+        (
             "evidence-inspect-operation-result.schema.json",
             [
                 ("synthetic v1 evidence inspection result", inspect_fixture),
                 ("synthetic v2 evidence inspection result", inspect_v2_fixture),
             ],
+        ),
+        (
+            "evidence-inspect-operation-result-v3.schema.json",
+            [("synthetic v3 evidence inspection result", inspect_v3_fixture)],
         ),
         (
             "data-query-parameters.schema.json",

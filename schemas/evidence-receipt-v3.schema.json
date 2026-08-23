@@ -1,0 +1,174 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:evidence-receipt:v3",
+  "title": "GIS AI GO evidence inspection receipt",
+  "description": "A content-addressed inline-only current-call receipt for evidence.inspect. It is never persisted and never creates a ledger event.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "receipt_id",
+    "created_at",
+    "request_id",
+    "trace_id",
+    "operation",
+    "authority_context",
+    "policy_decision",
+    "inspected_evidence",
+    "transformations",
+    "software",
+    "result",
+    "verification",
+    "evidence_handling"
+  ],
+  "properties": {
+    "schema": { "const": "gis-ai-go.evidence-receipt.v3" },
+    "receipt_id": {
+      "type": "string",
+      "pattern": "^gis-ai-go:evidence-receipt:sha256:[0-9a-f]{64}$"
+    },
+    "created_at": { "$ref": "#/$defs/timestamp" },
+    "request_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "trace_id": { "type": "string", "pattern": "^[0-9a-f]{32}$" },
+    "operation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "contract_version", "normalised_parameters"],
+      "properties": {
+        "name": { "const": "evidence.inspect" },
+        "contract_version": { "const": "v3" },
+        "normalised_parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["domain", "sha256"],
+          "properties": {
+            "domain": { "const": "gis-ai-go.evidence-inspect-parameters.v3" },
+            "sha256": { "$ref": "#/$defs/sha256" }
+          }
+        }
+      }
+    },
+    "authority_context": {
+      "$ref": "urn:gis-ai-go:schema:public-authority-context:v3"
+    },
+    "policy_decision": {
+      "allOf": [
+        { "$ref": "urn:gis-ai-go:schema:public-policy-decision:v3" },
+        {
+          "properties": {
+            "effect": { "const": "allow-with-obligations" },
+            "reason_code": { "const": "anonymous-open-evidence-inspection-allowed" }
+          }
+        }
+      ]
+    },
+    "inspected_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ledger_id", "receipt_id", "record_id", "event_id"],
+      "properties": {
+        "ledger_id": {
+          "type": "string",
+          "pattern": "^gis-ai-go:public-evidence-ledger:sha256:[0-9a-f]{64}$"
+        },
+        "receipt_id": {
+          "type": "string",
+          "pattern": "^gis-ai-go:evidence-receipt:sha256:[0-9a-f]{64}$"
+        },
+        "record_id": {
+          "type": "string",
+          "pattern": "^gis-ai-go:public-evidence-record:sha256:[0-9a-f]{64}$"
+        },
+        "event_id": {
+          "type": "string",
+          "pattern": "^gis-ai-go:evidence-ledger-event:sha256:[0-9a-f]{64}$"
+        }
+      }
+    },
+    "transformations": {
+      "oneOf": [
+        {
+          "const": [
+            { "name": "normalise-evidence-inspect-lookup", "version": "v1" },
+            { "name": "read-restart-verified-evidence", "version": "v1" },
+            { "name": "verify-anonymous-open-evidence", "version": "v1" },
+            { "name": "project-evidence-inspect-result-core", "version": "v1" }
+          ]
+        },
+        {
+          "const": [
+            { "name": "hash-public-idempotency-key", "version": "v1" },
+            { "name": "resolve-evidence-reconciliation-index", "version": "v1" },
+            { "name": "read-restart-verified-evidence", "version": "v1" },
+            { "name": "verify-anonymous-open-evidence", "version": "v1" },
+            { "name": "project-evidence-inspect-result-core", "version": "v1" }
+          ]
+        }
+      ]
+    },
+    "software": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version", "revision"],
+      "properties": {
+        "name": { "const": "gis-ai-go-mcp-gateway" },
+        "version": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+        },
+        "revision": { "type": "string", "pattern": "^[0-9a-f]{40}$" }
+      }
+    },
+    "result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["domain", "sha256", "media_type", "returned_item_count"],
+      "properties": {
+        "domain": { "const": "gis-ai-go.evidence-inspect-result-core.v3" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "media_type": { "const": "application/json" },
+        "returned_item_count": { "const": 1 }
+      }
+    },
+    "verification": {
+      "const": {
+        "canonicalisation": "rfc8785-jcs",
+        "checks": [
+          "authority-context",
+          "inspected-evidence-identities",
+          "normalised-lookup-digest",
+          "public-policy-decision",
+          "result-core-digest",
+          "schema",
+          "software-identity",
+          "transformations"
+        ],
+        "digest_algorithm": "sha256",
+        "status": "passed"
+      }
+    },
+    "evidence_handling": {
+      "const": {
+        "attestation": "not-attested",
+        "delivery": "inline-only",
+        "ledger_event": "not-created",
+        "persistence": "not-persisted"
+      }
+    }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "minLength": 24,
+      "maxLength": 24,
+      "pattern": "^(?:(?!0000)\\d{4}-(?:(?:01|03|05|07|08|10|12)-(?:0[1-9]|[12]\\d|3[01])|(?:04|06|09|11)-(?:0[1-9]|[12]\\d|30)|02-(?:0[1-9]|1\\d|2[0-8]))|(?:(?:\\d{2}(?:0[48]|[2468][048]|[13579][26]))|(?:0[48]|[2468][048]|[13579][26])00)-02-29)T(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}Z$"
+    }
+  }
+}

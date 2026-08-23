@@ -240,3 +240,4 @@ export function evaluatePublicCataloguePolicy(
 }
 
 export * from "./public-read-v2.js";
+export * from "./evidence-inspect-v3.js";

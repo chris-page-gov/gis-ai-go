@@ -383,6 +383,20 @@ function assertDateTime(value: unknown, path: string): asserts value is string {
   }
 }
 
+/**
+ * Apply the frozen v1 receipt calendar validator without exposing its throwing
+ * assertion contract. New evidence surfaces reuse this so runtime date-time
+ * acceptance cannot drift from the established receipt boundary.
+ */
+export function isStrictEvidenceDateTime(value: unknown): value is string {
+  try {
+    assertDateTime(value, "$.date_time");
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function assertSemver(value: unknown, path: string): asserts value is string {
   if (typeof value !== "string" || value.length > 32 || !SEMVER.test(value)) {
     fail(path, "must be a bounded semantic version");

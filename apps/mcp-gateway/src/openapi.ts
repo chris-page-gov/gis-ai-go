@@ -86,8 +86,8 @@ const evidenceInspectRequestV2Schema = sharedSchema(
 const evidenceInspectOperationRequestSchema = sharedSchema(
   "evidence-inspect-operation-request.schema.json",
 );
-const evidenceInspectOperationResultSchema = sharedSchema(
-  "evidence-inspect-operation-result.schema.json",
+const evidenceInspectOperationResultV3Schema = sharedSchema(
+  "evidence-inspect-operation-result-v3.schema.json",
 );
 const evidenceInspectResultSchema = sharedSchema(
   "evidence-inspect-result.schema.json",
@@ -95,11 +95,15 @@ const evidenceInspectResultSchema = sharedSchema(
 const evidenceInspectResultV2Schema = sharedSchema(
   "evidence-inspect-result-v2.schema.json",
 );
+const evidenceInspectResultV3Schema = sharedSchema(
+  "evidence-inspect-result-v3.schema.json",
+);
 const evidenceLedgerEventSchema = sharedSchema(
   "evidence-ledger-event.schema.json",
 );
 const evidenceReceiptSchema = sharedSchema("evidence-receipt.schema.json");
 const evidenceReceiptV2Schema = sharedSchema("evidence-receipt-v2.schema.json");
+const evidenceReceiptV3Schema = sharedSchema("evidence-receipt-v3.schema.json");
 const publicEvidenceRecordSchema = sharedSchema(
   "public-evidence-record.schema.json",
 );
@@ -112,11 +116,17 @@ const publicAuthorityContextSchema = sharedSchema(
 const publicAuthorityContextV2Schema = sharedSchema(
   "public-authority-context-v2.schema.json",
 );
+const publicAuthorityContextV3Schema = sharedSchema(
+  "public-authority-context-v3.schema.json",
+);
 const publicPolicyDecisionSchema = sharedSchema(
   "public-policy-decision.schema.json",
 );
 const publicPolicyDecisionV2Schema = sharedSchema(
   "public-policy-decision-v2.schema.json",
+);
+const publicPolicyDecisionV3Schema = sharedSchema(
+  "public-policy-decision-v3.schema.json",
 );
 const publicReadResourceSchema = sharedSchema("public-read-resource.schema.json");
 const selectionResolveRequestSchema = sharedSchema(
@@ -274,35 +284,25 @@ function catalogueOperationResultSchema(
 }
 
 function evidenceOperationResultSchema(): CatalogueJsonSchema {
-  const dispatcher = cloneJson(evidenceInspectOperationResultSchema);
+  const dispatcher = cloneJson(evidenceInspectOperationResultV3Schema);
   const rootDefinitions: Record<string, unknown> = {};
   rewriteReferences(dispatcher, "", {
-    "urn:gis-ai-go:schema:evidence-inspect-result:v1":
-      "#/$defs/evidence_inspect_result_v1",
-    "urn:gis-ai-go:schema:evidence-inspect-result:v2":
-      "#/$defs/evidence_inspect_result_v2",
+    "urn:gis-ai-go:schema:evidence-inspect-result:v3":
+      "#/$defs/evidence_inspect_result_v3",
   });
   embedSchemaResource(
-    evidenceInspectResultSchema,
-    "evidence_inspect_result_v1",
-    "inspect_v1",
+    evidenceInspectResultV3Schema,
+    "evidence_inspect_result_v3",
+    "inspect_v3",
     {
       "urn:gis-ai-go:schema:public-evidence-record:v1":
         "#/$defs/public_evidence_record",
-      "urn:gis-ai-go:schema:evidence-ledger-event:v1":
-        "#/$defs/evidence_ledger_event",
-    },
-    rootDefinitions,
-  );
-  embedSchemaResource(
-    evidenceInspectResultV2Schema,
-    "evidence_inspect_result_v2",
-    "inspect_v2",
-    {
       "urn:gis-ai-go:schema:public-evidence-record:v2":
         "#/$defs/public_evidence_record_v2",
       "urn:gis-ai-go:schema:evidence-ledger-event:v1":
         "#/$defs/evidence_ledger_event",
+      "urn:gis-ai-go:schema:evidence-receipt:v3":
+        "#/$defs/evidence_receipt_v3",
     },
     rootDefinitions,
   );
@@ -359,6 +359,18 @@ function evidenceOperationResultSchema(): CatalogueJsonSchema {
     rootDefinitions,
   );
   embedSchemaResource(
+    evidenceReceiptV3Schema,
+    "evidence_receipt_v3",
+    "evidence_v3",
+    {
+      "urn:gis-ai-go:schema:public-authority-context:v3":
+        "#/$defs/public_authority_context_v3",
+      "urn:gis-ai-go:schema:public-policy-decision:v3":
+        "#/$defs/public_policy_decision_v3",
+    },
+    rootDefinitions,
+  );
+  embedSchemaResource(
     publicAuthorityContextSchema,
     "public_authority_context",
     "authority",
@@ -383,6 +395,20 @@ function evidenceOperationResultSchema(): CatalogueJsonSchema {
     publicPolicyDecisionV2Schema,
     "public_policy_decision_v2",
     "policy_v2",
+    {},
+    rootDefinitions,
+  );
+  embedSchemaResource(
+    publicAuthorityContextV3Schema,
+    "public_authority_context_v3",
+    "authority_v3",
+    {},
+    rootDefinitions,
+  );
+  embedSchemaResource(
+    publicPolicyDecisionV3Schema,
+    "public_policy_decision_v3",
+    "policy_v3",
     {},
     rootDefinitions,
   );
@@ -532,14 +558,18 @@ function publicReadOperationResultSchema(
 
 /*
  * These canonical per-version exports remain externally referenced schemas.
- * The operation export below is the separately identified, self-contained
- * dispatcher used by the inactive direct API and MCP advertisements.
+ * The operation export below is the separately identified v3 self-contained
+ * dispatcher used by the inactive direct API and MCP advertisements. The
+ * historical v1 operation dispatcher remains a frozen repository contract.
  */
 export const evidenceInspectResultV1JsonSchema = deepFreeze(
   cloneJson(evidenceInspectResultSchema),
 );
 export const evidenceInspectResultV2JsonSchema = deepFreeze(
   cloneJson(evidenceInspectResultV2Schema),
+);
+export const evidenceInspectResultV3JsonSchema = deepFreeze(
+  cloneJson(evidenceInspectResultV3Schema),
 );
 
 export const catalogueSearchRequestJsonSchema = deepFreeze(

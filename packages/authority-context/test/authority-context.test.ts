@@ -3,14 +3,17 @@ import test from "node:test";
 
 import {
   canonicalJson,
+  verifyEvidenceInspectionAuthorityContext,
   verifyPublicAuthorityContext,
   verifyPublicReadAuthorityContext,
 } from "@gis-ai-go/evidence";
 
 import {
   PUBLIC_AUTHORITY_CONTEXT,
+  PUBLIC_EVIDENCE_INSPECTION_AUTHORITY_CONTEXT,
   PUBLIC_READ_AUTHORITY_CONTEXT,
   getPublicAuthorityContext,
+  getPublicEvidenceInspectionAuthorityContext,
   getPublicReadAuthorityContext,
 } from "../src/index.js";
 
@@ -72,6 +75,27 @@ test("constructs a deterministic frozen anonymous-open context without caller in
     "workload",
   ]);
   assert.equal([...keysIn(first)].some((key) => forbidden.has(key)), false);
+});
+
+test("constructs a separate no-write authority for current-call evidence inspection", () => {
+  const first = getPublicEvidenceInspectionAuthorityContext();
+  const second = getPublicEvidenceInspectionAuthorityContext();
+  assert.notEqual(first, second);
+  assert.equal(canonicalJson(first), canonicalJson(second));
+  assert.equal(
+    canonicalJson(first),
+    canonicalJson(PUBLIC_EVIDENCE_INSPECTION_AUTHORITY_CONTEXT),
+  );
+  assert.equal(verifyEvidenceInspectionAuthorityContext(first), true);
+  assertRecursivelyFrozen(first);
+  assert.deepEqual(first.permitted_operations, ["evidence.inspect"]);
+  assert.equal(first.evidence.persistence, "not-persisted");
+  assert.equal(first.evidence.ledger_event, "not-created");
+  assert.equal(first.access.authentication, "none");
+
+  const tampered = structuredClone(first);
+  (tampered.permitted_operations as unknown as string[]).push("data.query");
+  assert.equal(verifyEvidenceInspectionAuthorityContext(tampered), false);
 });
 
 test("detects any mutation of a detached context", () => {

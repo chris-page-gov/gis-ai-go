@@ -1,0 +1,35 @@
+{
+  "applies_to": {
+    "access_tier": "open",
+    "authority_profile": "anonymous-open",
+    "contains_personal_data": false,
+    "contains_protected_data": false,
+    "publication_classification": "public",
+    "read_only": true,
+    "stored_evidence_verification": "restart-verified"
+  },
+  "canonicalisation": "rfc8785-jcs",
+  "compilation": {
+    "kind": "compiled-json",
+    "runtime": "gis-ai-go-gateway"
+  },
+  "default_effect": "deny",
+  "policy_id": "gis-ai-go:public-policy:sha256:fb394e84b427864ba0f7e978aadab0fc7594ea2dcfa8fa0a1ad5463b2400c484",
+  "rules": [
+    {
+      "effect": "allow-with-obligations",
+      "obligations": [
+        "bind-inspected-evidence-identities",
+        "inline-evidence-receipt",
+        "no-evidence-write",
+        "no-result-replay",
+        "not-attested",
+        "not-persisted"
+      ],
+      "operation": "evidence.inspect",
+      "rule_id": "public-evidence-inspect"
+    }
+  ],
+  "schema": "gis-ai-go.public-policy.v3",
+  "version": "3.0.0"
+}

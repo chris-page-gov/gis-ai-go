@@ -248,6 +248,52 @@ class Qual206LocalEvaluationReceiptTests(unittest.TestCase):
                 )
             )
 
+    def test_evidence_inspection_suite_binds_v3_security_and_contract_material(self) -> None:
+        suite = next(
+            item
+            for item in self.document["suites"]
+            if item["label"] == "evidence-application"
+        )
+        self.assertEqual(
+            {item["path"] for item in suite["materials"]},
+            {
+                "apps/mcp-gateway/src/evidence-application.ts",
+                "apps/mcp-gateway/test/evidence-application.test.ts",
+                "packages/authority-context/src/evidence-inspect-v3.ts",
+                "packages/evidence/src/digest.ts",
+                "packages/evidence/src/evidence-inspect-receipt.ts",
+                "packages/evidence/src/public-ledger.ts",
+                "packages/evidence/src/public-read-receipt.ts",
+                "packages/evidence/src/reconciliation-index.ts",
+                "packages/evidence/src/receipt.ts",
+                "packages/policy-client/src/evidence-inspect-v3.ts",
+                "packages/policy-client/src/public-evidence-inspect-v3.json",
+                "schemas/evidence-inspect-operation-result-v3.schema.json",
+                "schemas/evidence-inspect-result-v3.schema.json",
+                "schemas/evidence-receipt-v3.schema.json",
+                "schemas/public-authority-context-v3.schema.json",
+                "schemas/public-policy-decision-v3.schema.json",
+                "schemas/public-policy-v3.schema.json",
+            },
+        )
+        e13 = next(
+            item for item in self.document["receipts"] if item["case"]["id"] == "E13"
+        )
+        assertion = next(
+            item
+            for item in e13["local_assertions"]
+            if item["id"] == "inspection-scope"
+        )
+        self.assertEqual(
+            assertion["statement"],
+            (
+                "Inspection returns a distinct inline-only current-call receipt bound "
+                "to the server-owned request and trace while preserving the earlier "
+                "stored receipt and policy trace; it creates no ledger event and is "
+                "not persisted or attested."
+            ),
+        )
+
     def test_schema_rejects_claim_inflation_drift_and_extra_cases(self) -> None:
         unknown = copy.deepcopy(self.document)
         unknown["receipts"][0]["unexpected"] = True

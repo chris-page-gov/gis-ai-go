@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:public-policy:v3",
+  "title": "GIS AI GO compiled public evidence inspection policy",
+  "description": "The checked default-deny policy that permits only restart-verified anonymous-open evidence inspection.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "policy_id",
+    "version",
+    "canonicalisation",
+    "compilation",
+    "default_effect",
+    "applies_to",
+    "rules"
+  ],
+  "properties": {
+    "schema": { "const": "gis-ai-go.public-policy.v3" },
+    "policy_id": {
+      "const": "gis-ai-go:public-policy:sha256:fb394e84b427864ba0f7e978aadab0fc7594ea2dcfa8fa0a1ad5463b2400c484"
+    },
+    "version": { "const": "3.0.0" },
+    "canonicalisation": { "const": "rfc8785-jcs" },
+    "compilation": {
+      "const": { "kind": "compiled-json", "runtime": "gis-ai-go-gateway" }
+    },
+    "default_effect": { "const": "deny" },
+    "applies_to": {
+      "const": {
+        "access_tier": "open",
+        "authority_profile": "anonymous-open",
+        "contains_personal_data": false,
+        "contains_protected_data": false,
+        "publication_classification": "public",
+        "read_only": true,
+        "stored_evidence_verification": "restart-verified"
+      }
+    },
+    "rules": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "const": {
+            "effect": "allow-with-obligations",
+            "obligations": [
+              "bind-inspected-evidence-identities",
+              "inline-evidence-receipt",
+              "no-evidence-write",
+              "no-result-replay",
+              "not-attested",
+              "not-persisted"
+            ],
+            "operation": "evidence.inspect",
+            "rule_id": "public-evidence-inspect"
+          }
+        }
+      ],
+      "items": false,
+      "minItems": 1,
+      "maxItems": 1
+    }
+  }
+}
