@@ -617,15 +617,32 @@ function validateDocument(value: unknown): ToolRegistryDocument {
     "version",
     "canonicalOrder",
     "activationRequirements",
+    "candidateAssembly",
     "runtimeAuthority",
     "source",
     "tools",
   ]);
-  if (document.schema !== "gis-ai-go.tool-registry.v1" || document.version !== "1.0.0") {
+  if (document.schema !== "gis-ai-go.tool-registry.v1" || document.version !== "1.1.0") {
     invalidRegistry();
   }
   assertExactSequence(document.canonicalOrder, TOOL_PROFILE_NAMES);
   assertExactSequence(document.activationRequirements, ACTIVATION_REQUIREMENTS);
+
+  const candidateAssembly = asRecord(document.candidateAssembly);
+  assertExactKeys(candidateAssembly, [
+    "state",
+    "source",
+    "operations",
+    "productionRegistration",
+  ]);
+  if (
+    candidateAssembly.state !== "candidate-unregistered" ||
+    candidateAssembly.source !== "apps/mcp-gateway/src/governed-assembly.ts" ||
+    candidateAssembly.productionRegistration !== false
+  ) {
+    invalidRegistry();
+  }
+  assertExactSequence(candidateAssembly.operations, V02_TARGET_ACTIVE_TOOL_NAMES);
 
   const runtimeAuthority = asRecord(document.runtimeAuthority);
   assertExactKeys(runtimeAuthority, [
@@ -717,6 +734,23 @@ function isCurrentCallable(profile: ToolProfile): boolean {
     gates.evidence &&
     gates.interoperability &&
     gates.fallback &&
+    isAccepted(profile.runtimeSchemas.input) &&
+    isAccepted(profile.runtimeSchemas.output) &&
+    isAccepted(profile.runtimeSchemas.problem)
+  );
+}
+
+function isCandidateAssemblyTool(
+  profile: ToolProfile,
+  operations: readonly string[],
+): boolean {
+  return (
+    operations.includes(profile.name) &&
+    profile.current.implementationState === "implemented" &&
+    profile.v02Target.lifecycleState === "active" &&
+    profile.v02Target.discoveryIntended &&
+    profile.readOnly &&
+    !profile.mutating &&
     isAccepted(profile.runtimeSchemas.input) &&
     isAccepted(profile.runtimeSchemas.output) &&
     isAccepted(profile.runtimeSchemas.problem)
@@ -822,6 +856,11 @@ export function createToolRegistry(value: unknown): ToolRegistry {
       return profile;
     },
     filter,
+    listCandidateAssemblyTools: (): readonly ToolProfile[] =>
+      Object.freeze(
+        document.tools.filter((profile) =>
+          isCandidateAssemblyTool(profile, document.candidateAssembly.operations)),
+      ),
     listCurrentCallable: (): readonly ToolProfile[] =>
       Object.freeze(document.tools.filter(isCurrentCallable)),
   };
@@ -853,6 +892,15 @@ export function getToolProfile(name: string): ToolProfile {
 /** Apply a closed metadata filter while retaining canonical order. */
 export function filterToolProfiles(filter: ToolRegistryFilter): readonly ToolProfile[] {
   return CANONICAL_TOOL_REGISTRY.filter(filter);
+}
+
+/**
+ * Return the exact implemented read-only candidate assembly. This candidate-only
+ * projection cannot register production operations and never includes a planned
+ * or mutating profile.
+ */
+export function listCandidateAssemblyTools(): readonly ToolProfile[] {
+  return CANONICAL_TOOL_REGISTRY.listCandidateAssemblyTools();
 }
 
 /**

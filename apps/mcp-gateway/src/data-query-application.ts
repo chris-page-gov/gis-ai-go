@@ -266,6 +266,11 @@ export interface DataQueryInvocationOptions {
   readonly deadline?: string;
 }
 
+/** Compile-time authority for captured pristine execution in the governed assembly. */
+export const GOVERNED_PRISTINE_ONS_EXECUTION = Symbol(
+  "gis-ai-go.governed-pristine-ons-execution",
+);
+
 export interface DataQueryApplicationOptions {
   /** Mandatory explicit injection; omission never constructs or activates an adapter. */
   readonly adapter: OnsDataApiAdapter;
@@ -278,6 +283,7 @@ export interface DataQueryApplicationOptions {
   readonly now?: () => Date;
   readonly evidenceLedger?: PublicEvidenceLedger;
   readonly reconciliationIndex?: PublicEvidenceReconciliationIndex;
+  readonly governedPristineExecution?: typeof GOVERNED_PRISTINE_ONS_EXECUTION;
 }
 
 export interface DataQueryApplication {
@@ -295,6 +301,7 @@ interface DataQueryRuntime {
   readonly now: () => Date;
   readonly evidenceLedger?: PublicEvidenceLedger;
   readonly reconciliationIndex?: PublicEvidenceReconciliationIndex;
+  readonly governedPristineExecution: boolean;
 }
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
@@ -351,6 +358,7 @@ function applicationRuntime(options: DataQueryApplicationOptions): DataQueryRunt
       "adapter",
       "approvedCache",
       "evidenceLedger",
+      "governedPristineExecution",
       "now",
       "reconciliationIndex",
       "software",
@@ -370,12 +378,20 @@ function applicationRuntime(options: DataQueryApplicationOptions): DataQueryRunt
   ) {
     throw new TypeError("Data query application approved cache is invalid");
   }
-  if (values.approvedCache !== undefined) {
+  if (
+    values.governedPristineExecution !== undefined &&
+    values.governedPristineExecution !== GOVERNED_PRISTINE_ONS_EXECUTION
+  ) {
+    throw new TypeError("Data query governed pristine execution authority is invalid");
+  }
+  const governedPristineExecution =
+    values.governedPristineExecution === GOVERNED_PRISTINE_ONS_EXECUTION;
+  if (values.approvedCache !== undefined || governedPristineExecution) {
     try {
       requirePristineOnsDataApiAdapter(adapter);
     } catch {
       throw new TypeError(
-        "Data query application approved cache requires an unmodified ONS adapter",
+        "Data query application pristine execution requires an unmodified ONS adapter",
       );
     }
   }
@@ -434,6 +450,7 @@ function applicationRuntime(options: DataQueryApplicationOptions): DataQueryRunt
     now: (values.now as (() => Date) | undefined) ?? (() => new Date()),
     ...(evidenceLedger === undefined ? {} : { evidenceLedger }),
     ...(reconciliationIndex === undefined ? {} : { reconciliationIndex }),
+    governedPristineExecution,
   });
 }
 
@@ -460,7 +477,7 @@ function assertApprovedCacheAdapter(
   runtime: DataQueryRuntime,
   context: CatalogueProblemContext,
 ): void {
-  if (runtime.approvedCache !== undefined) {
+  if (runtime.approvedCache !== undefined || runtime.governedPristineExecution) {
     try {
       requirePristineOnsDataApiAdapter(runtime.adapter);
     } catch {
@@ -1070,7 +1087,7 @@ async function query(
   let cacheHit: ApprovedOnsDataQueryCacheHit | undefined;
   let cacheCheckedAt: string | undefined;
   let approvedCacheExecution: OnsDataApiAdapterExecution | undefined;
-  if (runtime.approvedCache !== undefined) {
+  if (runtime.approvedCache !== undefined || runtime.governedPristineExecution) {
     try {
       approvedCacheExecution = executePristineOnsDataApiAdapter(
         runtime.adapter,
@@ -1094,7 +1111,7 @@ async function query(
       runtime.adapter,
       error,
       context,
-      runtime.approvedCache !== undefined,
+      runtime.approvedCache !== undefined || runtime.governedPristineExecution,
     );
     const approvedOutage =
       approvedCacheExecution?.approvedCacheOutage(error, adapterError) ?? null;

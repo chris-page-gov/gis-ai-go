@@ -11,6 +11,7 @@ import {
   createToolRegistry,
   filterToolProfiles,
   getToolProfile,
+  listCandidateAssemblyTools,
   listCurrentCallableTools,
   listToolProfiles,
 } from "../src/index.js";
@@ -169,6 +170,22 @@ test("keeps target lifecycle metadata separate from an empty current callable se
   );
 });
 
+test("projects one exact candidate-unregistered read-only assembly", () => {
+  assert.deepEqual(TOOL_REGISTRY_DOCUMENT.candidateAssembly, {
+    state: "candidate-unregistered",
+    source: "apps/mcp-gateway/src/governed-assembly.ts",
+    operations: V02_TARGET_ACTIVE_TOOL_NAMES,
+    productionRegistration: false,
+  });
+  const candidate = listCandidateAssemblyTools();
+  assert.deepEqual(candidate.map(({ name }) => name), V02_TARGET_ACTIVE_TOOL_NAMES);
+  assert.equal(candidate.every(({ readOnly }) => readOnly), true);
+  assert.equal(candidate.some(({ mutating }) => mutating), false);
+  assert.equal(candidate.some(({ current }) => current.implementationState !== "implemented"), false);
+  assert.equal(Object.isFrozen(candidate), true);
+  assert.deepEqual(listCurrentCallableTools(), []);
+});
+
 test("provides closed deterministic get and filter helpers", () => {
   assert.deepEqual(
     filterToolProfiles({ readOnly: true, releaseTarget: "v0.2.0" }).map(({ name }) => name),
@@ -264,6 +281,18 @@ test("rejects lifecycle, mutability, schema and target substitutions", () => {
   };
   targetAsRuntime.tools[0]!.v02Target.runtimeAuthority = true;
   expectInvalidRegistry(targetAsRuntime);
+
+  const productionCandidate = structuredClone(profileRecord()) as {
+    candidateAssembly: { productionRegistration: boolean };
+  };
+  productionCandidate.candidateAssembly.productionRegistration = true;
+  expectInvalidRegistry(productionCandidate);
+
+  const plannedCandidate = structuredClone(profileRecord()) as {
+    candidateAssembly: { operations: string[] };
+  };
+  plannedCandidate.candidateAssembly.operations[4] = "map.render";
+  expectInvalidRegistry(plannedCandidate);
 });
 
 test("rejects substitutions in the implemented public-read slice metadata", () => {

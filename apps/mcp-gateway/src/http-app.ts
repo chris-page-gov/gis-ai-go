@@ -19,9 +19,18 @@ import {
   isReconciledDataQueryApplication,
   type DataQueryApplication,
 } from "./data-query-application.js";
+import {
+  assessGovernedCandidateReadiness,
+  governedCandidateAssemblyBindings,
+  snapshotGovernedCandidateOptions,
+  snapshotGovernedCandidateStringArray,
+  verifyGovernedCandidateOperation,
+  type GovernedCandidateAssembly,
+} from "./governed-assembly.js";
 import { gatewayMetadata } from "./metadata.js";
 import {
   createCatalogueOpenApiDocument,
+  createGovernedCandidateOpenApiDocument,
   type GatewayApiOperation,
 } from "./openapi.js";
 import {
@@ -78,12 +87,24 @@ export interface GatewayHttpOptions {
   readonly evidenceApplication?: EvidenceInspectApplication;
   readonly selectionApplication?: SelectionResolveApplication;
   readonly dataQueryApplication?: DataQueryApplication;
+  /** Exact candidate-only assembly; production entrypoints deliberately omit it. */
+  readonly governedCandidateAssembly?: GovernedCandidateAssembly;
   readonly catalogueApplicationOptions?: CatalogueApplicationOptions;
   /** Branded inactive seam; verification can block readiness but never enable it. */
   readonly evidenceReadinessIntegrity?: EvidenceReadinessIntegrity;
   /** Reporting only. Error details are never returned to the caller. */
   readonly onerror?: (error: Error) => void;
 }
+
+export type GovernedCandidateHttpOptions = Pick<
+  GatewayHttpOptions,
+  | "allowedHosts"
+  | "allowedOrigins"
+  | "createRequestId"
+  | "createTraceId"
+  | "createTraceParentId"
+  | "onerror"
+>;
 
 export type BoundedJsonFailure = "duplicate" | "malformed" | "too_large";
 
@@ -622,15 +643,44 @@ function isSelectionProblem(value: unknown): value is SelectionResolveProblem {
 export function createGatewayHttpHandler(
   options: GatewayHttpOptions,
 ): (request: Request) => Promise<Response> {
-  const snapshot = options.snapshot;
+  const governedAssembly = options.governedCandidateAssembly;
+  const governedBindings = governedAssembly === undefined
+    ? undefined
+    : governedCandidateAssemblyBindings(governedAssembly);
+  if (governedBindings !== undefined) {
+    if (
+      options.snapshot !== governedBindings.snapshot ||
+      options.enabledApiOperations !== undefined ||
+      options.application !== undefined ||
+      options.evidenceApplication !== undefined ||
+      options.selectionApplication !== undefined ||
+      options.dataQueryApplication !== undefined ||
+      options.catalogueApplicationOptions !== undefined ||
+      options.evidenceReadinessIntegrity !== undefined
+    ) {
+      throw new TypeError(
+        "Governed candidate HTTP exposure cannot be combined with independent applications or activation",
+      );
+    }
+  }
+  const snapshot = governedBindings?.snapshot ?? options.snapshot;
   const allowedHosts = new Set(
     (options.allowedHosts ?? DEFAULT_ALLOWED_HOSTS).map((host) => host.toLowerCase()),
   );
   const allowedOrigins = new Set(options.allowedOrigins ?? DEFAULT_ALLOWED_ORIGINS);
-  const enabledApiOperations = options.enabledApiOperations ??
-    catalogueActivation.activeApiOperations;
-  const openApiDocument = createCatalogueOpenApiDocument(enabledApiOperations);
-  const applications = operationApplications(options, enabledApiOperations);
+  const enabledApiOperations = governedAssembly?.apiOperations ??
+    options.enabledApiOperations ?? catalogueActivation.activeApiOperations;
+  const openApiDocument = governedAssembly === undefined
+    ? createCatalogueOpenApiDocument(enabledApiOperations)
+    : createGovernedCandidateOpenApiDocument(enabledApiOperations);
+  const applications = governedBindings === undefined
+    ? operationApplications(options, enabledApiOperations)
+    : Object.freeze({
+        catalogue: governedBindings.catalogueApplication,
+        evidence: governedBindings.evidenceApplication,
+        selection: governedBindings.selectionApplication,
+        dataQuery: governedBindings.dataQueryApplication,
+      });
   const enabled = new Set(enabledApiOperations);
   const createRequestId = options.createRequestId ?? (() => randomBytes(16).toString("hex"));
   const createTraceId = options.createTraceId ?? (() => randomBytes(16).toString("hex"));
@@ -764,12 +814,31 @@ export function createGatewayHttpHandler(
             {
               status: "ok",
               product: gatewayMetadata.product,
-              lifecycle: gatewayMetadata.lifecycle,
+              lifecycle: governedAssembly?.state ?? gatewayMetadata.lifecycle,
+              ...(governedAssembly === undefined
+                ? {}
+                : { production_registration: false }),
               catalogue: catalogueIdentity(snapshot),
             },
             200,
           );
         case "/readyz":
+          if (governedAssembly !== undefined) {
+            const readiness = assessGovernedCandidateReadiness(governedAssembly);
+            if (readiness.reason === "evidence-integrity-failed") {
+              report(onerror, new Error(EVIDENCE_READINESS_INTEGRITY_FAILURE_MESSAGE));
+            }
+            return jsonResponse(
+              {
+                status: readiness.status,
+                reason: readiness.reason,
+                production_registration: readiness.productionRegistration,
+                active_tools: readiness.activeTools,
+                active_api_operations: readiness.activeApiOperations,
+              },
+              readiness.status === "ready" ? 200 : 503,
+            );
+          }
           if (evidenceReadinessIntegrity !== undefined) {
             try {
               verifyEvidenceReadinessIntegrity(evidenceReadinessIntegrity);
@@ -822,7 +891,6 @@ export function createGatewayHttpHandler(
         "The request body is available only as application/json with UTF-8 encoding.",
       );
     }
-
     let body: unknown;
     try {
       body = await readBoundedJson(request);
@@ -830,6 +898,17 @@ export function createGatewayHttpHandler(
       if (error instanceof BoundedJsonError) return bodyFailureResponse(error, context);
       report(onerror, error);
       return problemResponse("internal_error", context, "The request could not be processed.");
+    }
+    if (governedAssembly !== undefined) {
+      try {
+        verifyGovernedCandidateOperation(governedAssembly, operation);
+      } catch {
+        return problemResponse(
+          "service_unavailable",
+          context,
+          "The governed candidate dependencies are not ready.",
+        );
+      }
     }
 
     try {
@@ -868,4 +947,43 @@ export function createGatewayHttpHandler(
       return problemResponse("internal_error", context, "The request could not be processed.");
     }
   };
+}
+
+/** Create the direct face from one branded, candidate-unregistered assembly. */
+export function createGovernedCandidateHttpHandler(
+  assembly: GovernedCandidateAssembly,
+  options: GovernedCandidateHttpOptions = {},
+): (request: Request) => Promise<Response> {
+  const exactOptions = snapshotGovernedCandidateOptions(
+    options,
+    [
+      "allowedHosts",
+      "allowedOrigins",
+      "createRequestId",
+      "createTraceId",
+      "createTraceParentId",
+      "onerror",
+    ],
+    "Governed candidate HTTP options",
+  ) as GovernedCandidateHttpOptions;
+  const bindings = governedCandidateAssemblyBindings(assembly);
+  const allowedHosts = exactOptions.allowedHosts === undefined
+    ? undefined
+    : snapshotGovernedCandidateStringArray(
+        exactOptions.allowedHosts,
+        "Governed candidate HTTP allowedHosts",
+      );
+  const allowedOrigins = exactOptions.allowedOrigins === undefined
+    ? undefined
+    : snapshotGovernedCandidateStringArray(
+        exactOptions.allowedOrigins,
+        "Governed candidate HTTP allowedOrigins",
+      );
+  return createGatewayHttpHandler({
+    ...exactOptions,
+    ...(allowedHosts === undefined ? {} : { allowedHosts }),
+    ...(allowedOrigins === undefined ? {} : { allowedOrigins }),
+    snapshot: bindings.snapshot,
+    governedCandidateAssembly: assembly,
+  });
 }

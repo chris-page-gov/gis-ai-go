@@ -25,7 +25,9 @@
 !packages/provider-adapter-sdk/
 !packages/provider-adapter-sdk/**
 !packages/tool-registry/
-!packages/tool-registry/package.json
+!packages/tool-registry/**
+!profiles/
+!profiles/tool-registry.v1.json
 
 **/dist/
 **/node_modules/

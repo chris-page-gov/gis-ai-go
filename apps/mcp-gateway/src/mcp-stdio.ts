@@ -15,6 +15,7 @@ import {
 import {
   createCatalogueLegacyConformanceMcpServerFactory,
   createCatalogueMcpServerFactory,
+  createGovernedCandidateMcpServerFactory,
   containsRawIdempotencyKeyInMcpResourceUri,
   containsRawIdempotencyKeyInMcpText,
   isBoundedMcpRequestId,
@@ -22,7 +23,12 @@ import {
   MCP_RESOURCE_URI_MAX_CODE_POINTS,
   MCP_LEGACY_CONFORMANCE_ONLY,
   type CatalogueMcpOptions,
+  type GovernedCandidateMcpOptions,
 } from "./mcp-server.js";
+import {
+  snapshotGovernedCandidateOptions,
+  type GovernedCandidateAssembly,
+} from "./governed-assembly.js";
 
 export const MCP_STDIO_MAX_FRAME_BYTES = 1_048_576;
 export const MCP_STDIO_MAX_BUFFER_BYTES = MCP_STDIO_MAX_FRAME_BYTES;
@@ -39,6 +45,12 @@ const CONTROL_CHARACTER = /[\u0000-\u001f\u007f]/u;
 type TransportMessageExtra = Parameters<NonNullable<Transport["onmessage"]>>[1];
 
 export interface CatalogueMcpStdioOptions extends CatalogueMcpOptions {
+  /** Test or embedding seam. Omission uses the current process's stdio. */
+  readonly transport?: Transport;
+}
+
+export interface GovernedCandidateMcpStdioOptions
+  extends GovernedCandidateMcpOptions {
   /** Test or embedding seam. Omission uses the current process's stdio. */
   readonly transport?: Transport;
 }
@@ -296,6 +308,36 @@ export function startCatalogueStdio(
     transport: new BoundedStdioTransport(transport),
     ...(options.onerror === undefined ? {} : { onerror: options.onerror }),
   });
+}
+
+/** Start modern STDIO from the same candidate-unregistered assembly. */
+export function startGovernedCandidateStdio(
+  assembly: GovernedCandidateAssembly,
+  options: GovernedCandidateMcpStdioOptions = {},
+): StdioServerHandle {
+  const exactOptions = snapshotGovernedCandidateOptions(
+    options,
+    ["createRequestContext", "onerror", "transport"],
+    "Governed candidate STDIO options",
+  ) as GovernedCandidateMcpStdioOptions;
+  const transport =
+    exactOptions.transport ??
+    new StdioServerTransport(undefined, undefined, {
+      maxBufferSize: MCP_STDIO_MAX_BUFFER_BYTES,
+    });
+  return serveStdio(
+    createGovernedCandidateMcpServerFactory(assembly, {
+      ...(exactOptions.createRequestContext === undefined
+        ? {}
+        : { createRequestContext: exactOptions.createRequestContext }),
+      ...(exactOptions.onerror === undefined ? {} : { onerror: exactOptions.onerror }),
+    }),
+    {
+      legacy: "reject",
+      transport: new BoundedStdioTransport(transport),
+      ...(exactOptions.onerror === undefined ? {} : { onerror: exactOptions.onerror }),
+    },
+  );
 }
 
 /**

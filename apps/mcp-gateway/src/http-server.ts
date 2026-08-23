@@ -16,6 +16,12 @@ import type { CatalogueSnapshot } from "./catalogue-snapshot.js";
 import type { EvidenceInspectApplication } from "./evidence-application.js";
 import type { DataQueryApplication } from "./data-query-application.js";
 import {
+  governedCandidateAssemblyBindings,
+  snapshotGovernedCandidateOptions,
+  snapshotGovernedCandidateStringArray,
+  type GovernedCandidateAssembly,
+} from "./governed-assembly.js";
+import {
   BoundedJsonError,
   createGatewayHttpHandler,
   MAX_JSON_BODY_BYTES,
@@ -23,6 +29,7 @@ import {
 } from "./http-app.js";
 import {
   createCatalogueMcpHttpHandler,
+  createGovernedCandidateMcpHttpHandler,
   MCP_HTTP_MAX_STANDALONE_BODY_BYTES,
 } from "./mcp-http.js";
 import {
@@ -76,6 +83,8 @@ const SINGLETON_HEADERS = Object.freeze([
 const FETCH_FORBIDDEN_METHODS = new Set(["CONNECT", "TRACE", "TRACK"]);
 
 export interface GatewayNodeServerOptions {
+  /** Exact candidate-only assembly; omission retains the blocked production defaults. */
+  readonly governedCandidateAssembly?: GovernedCandidateAssembly;
   /** Explicit local-conformance seam. Omission keeps every direct route blocked. */
   readonly enabledApiOperations?: readonly GatewayApiOperation[];
   /** Explicit local-conformance seam. Omission keeps every MCP tool blocked. */
@@ -104,6 +113,20 @@ export interface GatewayNodeServer extends Server {
   /** Close MCP state before stopping the listener; safe to call repeatedly. */
   closeGateway(): Promise<void>;
 }
+
+export type GovernedCandidateNodeServerOptions = Pick<
+  GatewayNodeServerOptions,
+  | "createRequestId"
+  | "createTraceId"
+  | "createTraceParentId"
+  | "createMcpRequestContext"
+  | "directAllowedHosts"
+  | "directAllowedOrigins"
+  | "mcpAllowedHostnames"
+  | "mcpAllowedOrigins"
+  | "maxConcurrentRequests"
+  | "onerror"
+>;
 
 type BodyFailure = "malformed" | "too_large";
 
@@ -493,7 +516,29 @@ export function createGatewayNodeServer(
   options: GatewayNodeServerOptions = {},
 ): GatewayNodeServer {
   const maximumConcurrency = assertServerOptions(options);
-  const application = options.application ?? createCatalogueApplication(snapshot, {
+  const governedAssembly = options.governedCandidateAssembly;
+  const governedBindings = governedAssembly === undefined
+    ? undefined
+    : governedCandidateAssemblyBindings(governedAssembly);
+  if (governedBindings !== undefined) {
+    if (
+      snapshot !== governedBindings.snapshot ||
+      options.enabledApiOperations !== undefined ||
+      options.enabledMcpOperations !== undefined ||
+      options.enabledMcpResources !== undefined ||
+      options.application !== undefined ||
+      options.evidenceApplication !== undefined ||
+      options.selectionApplication !== undefined ||
+      options.dataQueryApplication !== undefined ||
+      options.evidenceReadinessIntegrity !== undefined
+    ) {
+      throw new TypeError(
+        "Governed candidate server exposure cannot be combined with independent applications or activation",
+      );
+    }
+  }
+  const application = governedBindings?.catalogueApplication ??
+    options.application ?? createCatalogueApplication(snapshot, {
     software: {
       name: "gis-ai-go-mcp-gateway",
       version: gatewayMetadata.version,
@@ -502,19 +547,23 @@ export function createGatewayNodeServer(
   });
   const directHandler = createGatewayHttpHandler({
     snapshot,
-    application,
-    ...(options.evidenceApplication === undefined
-      ? {}
-      : { evidenceApplication: options.evidenceApplication }),
-    ...(options.selectionApplication === undefined
-      ? {}
-      : { selectionApplication: options.selectionApplication }),
-    ...(options.dataQueryApplication === undefined
-      ? {}
-      : { dataQueryApplication: options.dataQueryApplication }),
-    ...(options.enabledApiOperations === undefined
-      ? {}
-      : { enabledApiOperations: options.enabledApiOperations }),
+    ...(governedAssembly === undefined
+      ? {
+          application,
+          ...(options.evidenceApplication === undefined
+            ? {}
+            : { evidenceApplication: options.evidenceApplication }),
+          ...(options.selectionApplication === undefined
+            ? {}
+            : { selectionApplication: options.selectionApplication }),
+          ...(options.dataQueryApplication === undefined
+            ? {}
+            : { dataQueryApplication: options.dataQueryApplication }),
+          ...(options.enabledApiOperations === undefined
+            ? {}
+            : { enabledApiOperations: options.enabledApiOperations }),
+        }
+      : { governedCandidateAssembly: governedAssembly }),
     ...(options.createRequestId === undefined
       ? {}
       : { createRequestId: options.createRequestId }),
@@ -533,29 +582,36 @@ export function createGatewayNodeServer(
       : { allowedOrigins: options.directAllowedOrigins }),
     ...(options.onerror === undefined ? {} : { onerror: options.onerror }),
   });
-  const mcpHandler = createCatalogueMcpHttpHandler({
-    application,
-    ...(options.evidenceApplication === undefined
-      ? {}
-      : { evidenceApplication: options.evidenceApplication }),
-    ...(options.selectionApplication === undefined
-      ? {}
-      : { selectionApplication: options.selectionApplication }),
-    ...(options.dataQueryApplication === undefined
-      ? {}
-      : { dataQueryApplication: options.dataQueryApplication }),
-    snapshot,
-    ...(options.enabledMcpOperations === undefined
-      ? {}
-      : { enabledOperations: options.enabledMcpOperations }),
-    ...(options.enabledMcpResources === undefined
-      ? {}
-      : { enabledResources: options.enabledMcpResources }),
-    ...(options.createMcpRequestContext === undefined
-      ? {}
-      : { createRequestContext: options.createMcpRequestContext }),
-    ...(options.onerror === undefined ? {} : { onerror: options.onerror }),
-  });
+  const mcpHandler = governedAssembly === undefined
+    ? createCatalogueMcpHttpHandler({
+        application,
+        ...(options.evidenceApplication === undefined
+          ? {}
+          : { evidenceApplication: options.evidenceApplication }),
+        ...(options.selectionApplication === undefined
+          ? {}
+          : { selectionApplication: options.selectionApplication }),
+        ...(options.dataQueryApplication === undefined
+          ? {}
+          : { dataQueryApplication: options.dataQueryApplication }),
+        snapshot,
+        ...(options.enabledMcpOperations === undefined
+          ? {}
+          : { enabledOperations: options.enabledMcpOperations }),
+        ...(options.enabledMcpResources === undefined
+          ? {}
+          : { enabledResources: options.enabledMcpResources }),
+        ...(options.createMcpRequestContext === undefined
+          ? {}
+          : { createRequestContext: options.createMcpRequestContext }),
+        ...(options.onerror === undefined ? {} : { onerror: options.onerror }),
+      })
+    : createGovernedCandidateMcpHttpHandler(governedAssembly, {
+        ...(options.createMcpRequestContext === undefined
+          ? {}
+          : { createRequestContext: options.createMcpRequestContext }),
+        ...(options.onerror === undefined ? {} : { onerror: options.onerror }),
+      });
   const mcpNodeHandler = toNodeHandler(
     {
       fetch: async (request, requestOptions) => {
@@ -754,4 +810,60 @@ export function createGatewayNodeServer(
     });
   };
   return gatewayServer;
+}
+
+/** Create both loopback faces from one descriptor-safe candidate assembly. */
+export function createGovernedCandidateNodeServer(
+  assembly: GovernedCandidateAssembly,
+  options: GovernedCandidateNodeServerOptions = {},
+): GatewayNodeServer {
+  const exactOptions = snapshotGovernedCandidateOptions(
+    options,
+    [
+      "createRequestId",
+      "createTraceId",
+      "createTraceParentId",
+      "createMcpRequestContext",
+      "directAllowedHosts",
+      "directAllowedOrigins",
+      "mcpAllowedHostnames",
+      "mcpAllowedOrigins",
+      "maxConcurrentRequests",
+      "onerror",
+    ],
+    "Governed candidate Node server options",
+  ) as GovernedCandidateNodeServerOptions;
+  const bindings = governedCandidateAssemblyBindings(assembly);
+  const directAllowedHosts = exactOptions.directAllowedHosts === undefined
+    ? undefined
+    : snapshotGovernedCandidateStringArray(
+        exactOptions.directAllowedHosts,
+        "Governed candidate Node directAllowedHosts",
+      );
+  const directAllowedOrigins = exactOptions.directAllowedOrigins === undefined
+    ? undefined
+    : snapshotGovernedCandidateStringArray(
+        exactOptions.directAllowedOrigins,
+        "Governed candidate Node directAllowedOrigins",
+      );
+  const mcpAllowedHostnames = exactOptions.mcpAllowedHostnames === undefined
+    ? undefined
+    : snapshotGovernedCandidateStringArray(
+        exactOptions.mcpAllowedHostnames,
+        "Governed candidate Node mcpAllowedHostnames",
+      );
+  const mcpAllowedOrigins = exactOptions.mcpAllowedOrigins === undefined
+    ? undefined
+    : snapshotGovernedCandidateStringArray(
+        exactOptions.mcpAllowedOrigins,
+        "Governed candidate Node mcpAllowedOrigins",
+      );
+  return createGatewayNodeServer(bindings.snapshot, {
+    ...exactOptions,
+    ...(directAllowedHosts === undefined ? {} : { directAllowedHosts }),
+    ...(directAllowedOrigins === undefined ? {} : { directAllowedOrigins }),
+    ...(mcpAllowedHostnames === undefined ? {} : { mcpAllowedHostnames }),
+    ...(mcpAllowedOrigins === undefined ? {} : { mcpAllowedOrigins }),
+    governedCandidateAssembly: assembly,
+  });
 }

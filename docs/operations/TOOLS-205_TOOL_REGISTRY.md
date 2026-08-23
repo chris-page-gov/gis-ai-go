@@ -51,7 +51,9 @@ The package exposes:
 - `filterToolProfiles(filter)` for a closed metadata filter which preserves
   canonical order; and
 - `listCurrentCallableTools()` for the set which passes every current ADR-0009
-  condition.
+  condition; and
+- `listCandidateAssemblyTools()` for the separately marked exact-five,
+  candidate-unregistered compile-time projection.
 
 The current callable result is an empty frozen array. The helper considers only
 `current` state and accepted runtime input, output and problem schema references;
@@ -97,6 +99,11 @@ the T03/T04/T11 current metadata, but do not change any production activation ar
 listener, shipped entrypoint or deployment. The registry never reads environment
 variables. Production activation remains solely in
 `apps/mcp-gateway/src/activation.ts`, whose tool and API arrays remain empty.
+
+The later governed assembly consumes the separate root `candidateAssembly`
+authority with `productionRegistration: false`; it does not change those current
+or production arrays. See
+[TOOLS-205 governed candidate assembly](TOOLS-205_GOVERNED_CANDIDATE_ASSEMBLY.md).
 
 T03, T04 and T11 are implemented-inactive and suspended. Their seven activation
 gates remain false. T04's implementation metadata now records the one explicitly

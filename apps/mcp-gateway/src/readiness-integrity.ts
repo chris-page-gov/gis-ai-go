@@ -19,7 +19,37 @@ const LEDGER_PROTOTYPE = PublicEvidenceLedger.prototype;
 const RECONCILIATION_PROTOTYPE = PublicEvidenceReconciliationIndex.prototype;
 const VERIFY_LEDGER = PublicEvidenceLedger.prototype.verify;
 const VERIFY_RECONCILIATION = PublicEvidenceReconciliationIndex.prototype.verify;
-const INSPECT_LEDGER_RECEIPTS = PublicEvidenceLedger.prototype.inspectReceipts;
+const LEDGER_DISPATCH_METHODS = Object.freeze({
+  verify: VERIFY_LEDGER,
+  persistReceipt: PublicEvidenceLedger.prototype.persistReceipt,
+  inspect: PublicEvidenceLedger.prototype.inspect,
+  inspectReceipts: PublicEvidenceLedger.prototype.inspectReceipts,
+});
+const RECONCILIATION_DISPATCH_METHODS = Object.freeze({
+  verify: VERIFY_RECONCILIATION,
+  lookup: PublicEvidenceReconciliationIndex.prototype.lookup,
+  claim: PublicEvidenceReconciliationIndex.prototype.claim,
+  resolve: PublicEvidenceReconciliationIndex.prototype.resolve,
+});
+
+function hasExactDispatchMethods(
+  value: object,
+  prototype: object,
+  expected: Readonly<Record<string, (...args: never[]) => unknown>>,
+): boolean {
+  for (const [name, implementation] of Object.entries(expected)) {
+    if (Object.getOwnPropertyDescriptor(value, name) !== undefined) return false;
+    const descriptor = Object.getOwnPropertyDescriptor(prototype, name);
+    if (
+      descriptor === undefined ||
+      !("value" in descriptor) ||
+      descriptor.value !== implementation
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
 
 function assertExactStores(
   ledger: PublicEvidenceLedger,
@@ -42,8 +72,6 @@ function assertExactStores(
   let linkedLedger: PropertyDescriptor | undefined;
   let ledgerDescriptor: PropertyDescriptor | undefined;
   let reconciliationDescriptor: PropertyDescriptor | undefined;
-  let ownInspectReceipts: PropertyDescriptor | undefined;
-  let prototypeInspectReceipts: PropertyDescriptor | undefined;
   try {
     ledgerPrototype = Object.getPrototypeOf(ledger) as object | null;
     reconciliationPrototype = Object.getPrototypeOf(reconciliationIndex) as object | null;
@@ -52,11 +80,6 @@ function assertExactStores(
     reconciliationDescriptor = Object.getOwnPropertyDescriptor(
       reconciliationIndex,
       "descriptor",
-    );
-    ownInspectReceipts = Object.getOwnPropertyDescriptor(ledger, "inspectReceipts");
-    prototypeInspectReceipts = Object.getOwnPropertyDescriptor(
-      LEDGER_PROTOTYPE,
-      "inspectReceipts",
     );
   } catch {
     throw new TypeError(
@@ -73,10 +96,12 @@ function assertExactStores(
     !("value" in ledgerDescriptor) ||
     reconciliationDescriptor === undefined ||
     !("value" in reconciliationDescriptor) ||
-    ownInspectReceipts !== undefined ||
-    prototypeInspectReceipts === undefined ||
-    !("value" in prototypeInspectReceipts) ||
-    prototypeInspectReceipts.value !== INSPECT_LEDGER_RECEIPTS
+    !hasExactDispatchMethods(ledger, LEDGER_PROTOTYPE, LEDGER_DISPATCH_METHODS) ||
+    !hasExactDispatchMethods(
+      reconciliationIndex,
+      RECONCILIATION_PROTOTYPE,
+      RECONCILIATION_DISPATCH_METHODS,
+    )
   ) {
     throw new TypeError(
       "Readiness integrity requires one exact linked evidence ledger and reconciliation index",
@@ -108,6 +133,14 @@ export function createEvidenceReadinessIntegrity(
   ledger: PublicEvidenceLedger,
   reconciliationIndex: PublicEvidenceReconciliationIndex,
 ): EvidenceReadinessIntegrity {
+  verifyExactStores(ledger, reconciliationIndex);
+  // Governed calls dispatch these public methods after asynchronous boundaries.
+  // Lock the exact instances and captured prototypes so no own or prototype
+  // substitution can enter between readiness and durable evidence dispatch.
+  Object.freeze(LEDGER_PROTOTYPE);
+  Object.freeze(RECONCILIATION_PROTOTYPE);
+  Object.freeze(ledger);
+  Object.freeze(reconciliationIndex);
   verifyExactStores(ledger, reconciliationIndex);
   const integrity = Object.freeze({ kind: EVIDENCE_READINESS_INTEGRITY_KIND });
   VERIFIERS.set(integrity, () => verifyExactStores(ledger, reconciliationIndex));

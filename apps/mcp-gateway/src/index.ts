@@ -5,6 +5,7 @@ export * from "./cursor.js";
 export * from "./data-query-application.js";
 export * from "./evidence-application.js";
 export * from "./execution-envelope.js";
+export * from "./governed-assembly.js";
 export * from "./http-app.js";
 export * from "./http-server.js";
 export * from "./metadata.js";

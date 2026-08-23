@@ -23,9 +23,6 @@ COPY packages/contracts/package.json packages/contracts/package.json
 COPY packages/evidence/package.json packages/evidence/package.json
 COPY packages/policy-client/package.json packages/policy-client/package.json
 COPY packages/provider-adapter-sdk/package.json packages/provider-adapter-sdk/package.json
-# The root importer names tool-registry as a development workspace dependency.
-# Its manifest is required for the frozen workspace graph, but it is neither
-# built nor copied into the production image.
 COPY packages/tool-registry/package.json packages/tool-registry/package.json
 
 # npm supplies the package bytes, while the independently published SHA-512 fixes
@@ -55,6 +52,8 @@ COPY packages/contracts/ packages/contracts/
 COPY packages/evidence/ packages/evidence/
 COPY packages/policy-client/ packages/policy-client/
 COPY packages/provider-adapter-sdk/ packages/provider-adapter-sdk/
+COPY packages/tool-registry/ packages/tool-registry/
+COPY profiles/tool-registry.v1.json profiles/tool-registry.v1.json
 COPY schemas/ schemas/
 COPY artifacts/okf/ artifacts/okf/
 
@@ -71,6 +70,7 @@ RUN --network=none test "$(tr -d '\n' < VERSION)" = "$PRODUCT_VERSION" \
     && pnpm --filter @gis-ai-go/authority-context run build \
     && pnpm --filter @gis-ai-go/policy-client run build \
     && pnpm --filter @gis-ai-go/provider-adapter-sdk run build \
+    && pnpm --filter @gis-ai-go/tool-registry run build \
     && pnpm --filter @gis-ai-go/mcp-gateway run build \
     && rm -rf \
       /runtime/apps/mcp-gateway/dist \
@@ -79,6 +79,7 @@ RUN --network=none test "$(tr -d '\n' < VERSION)" = "$PRODUCT_VERSION" \
       /runtime/apps/mcp-gateway/node_modules/@gis-ai-go/evidence/dist \
       /runtime/apps/mcp-gateway/node_modules/@gis-ai-go/policy-client/dist \
       /runtime/apps/mcp-gateway/node_modules/@gis-ai-go/provider-adapter-sdk/dist \
+      /runtime/apps/mcp-gateway/node_modules/@gis-ai-go/tool-registry/dist \
     && cp -a apps/mcp-gateway/dist /runtime/apps/mcp-gateway/dist \
     && cp -a packages/authority-context/dist \
       /runtime/apps/mcp-gateway/node_modules/@gis-ai-go/authority-context/dist \
@@ -90,6 +91,8 @@ RUN --network=none test "$(tr -d '\n' < VERSION)" = "$PRODUCT_VERSION" \
       /runtime/apps/mcp-gateway/node_modules/@gis-ai-go/policy-client/dist \
     && cp -a packages/provider-adapter-sdk/dist \
       /runtime/apps/mcp-gateway/node_modules/@gis-ai-go/provider-adapter-sdk/dist \
+    && cp -a packages/tool-registry/dist \
+      /runtime/apps/mcp-gateway/node_modules/@gis-ai-go/tool-registry/dist \
     && rm -f /runtime/apps/mcp-gateway/node_modules/.modules.yaml \
       /runtime/apps/mcp-gateway/node_modules/.pnpm/lock.yaml \
       /runtime/apps/mcp-gateway/node_modules/.pnpm/node_modules/@gis-ai-go/mcp-gateway \

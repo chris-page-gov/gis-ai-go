@@ -249,6 +249,15 @@ class ToolRegistryContractTests(unittest.TestCase):
             TARGET_ACTIVE,
         )
         self.assertEqual(target_active, TARGET_ACTIVE)
+        self.assertEqual(
+            self.profile["candidateAssembly"],
+            {
+                "state": "candidate-unregistered",
+                "source": "apps/mcp-gateway/src/governed-assembly.ts",
+                "operations": TARGET_ACTIVE,
+                "productionRegistration": False,
+            },
+        )
         for name in ["selection.resolve", "data.query"]:
             self.assertEqual(profiles[name]["current"]["implementationState"], "implemented")
             self.assertEqual(profiles[name]["current"]["lifecycleState"], "suspended")

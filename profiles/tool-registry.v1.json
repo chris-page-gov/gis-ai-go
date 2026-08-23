@@ -1,6 +1,6 @@
 {
   "schema": "gis-ai-go.tool-registry.v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "canonicalOrder": [
     "catalogue.search",
     "catalogue.describe",
@@ -26,6 +26,18 @@
     "interoperability",
     "fallback"
   ],
+  "candidateAssembly": {
+    "state": "candidate-unregistered",
+    "source": "apps/mcp-gateway/src/governed-assembly.ts",
+    "operations": [
+      "catalogue.search",
+      "catalogue.describe",
+      "selection.resolve",
+      "data.query",
+      "evidence.inspect"
+    ],
+    "productionRegistration": false
+  },
   "runtimeAuthority": {
     "source": "apps/mcp-gateway/src/activation.ts",
     "registryCanActivate": false,
