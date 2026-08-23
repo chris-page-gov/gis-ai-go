@@ -3402,87 +3402,89 @@ class GatewayImageContractTests(unittest.TestCase):
                 )
 
     def test_shared_privacy_boundary_is_linear_for_long_assignment_prefixes(self) -> None:
+        # Measure algorithm CPU cost rather than unrelated hosted-runner scheduling delay.
+        clock = time.process_time
         fixtures = (
             ("a_" * (8 * 1024 * 1024 // 2))[: 8 * 1024 * 1024],
             ("prefix_" * (8 * 1024 * 1024 // 7 + 1))[: 8 * 1024 * 1024],
             ("eyJ" * (8 * 1024 * 1024 // 3 + 1))[: 8 * 1024 * 1024],
         )
         for value in fixtures:
-            started = time.monotonic()
+            started = clock()
             with self.subTest(prefix=value[:8]):
                 self.assertIsNone(prohibited_text_reason(value))
-                self.assertLess(time.monotonic() - started, 10.0)
+                self.assertLess(clock() - started, 10.0)
         backslashes = "\\" * (8 * 1024 * 1024)
-        started = time.monotonic()
+        started = clock()
         self.assertEqual(prohibited_text_reason(backslashes), "sensitive")
-        self.assertLess(time.monotonic() - started, 10.0)
+        self.assertLess(clock() - started, 10.0)
 
         colon_slashes = (":/" * (8 * 1024 * 1024 // 2))[: 8 * 1024 * 1024]
-        started = time.monotonic()
+        started = clock()
         self.assertIsNone(prohibited_text_reason(colon_slashes))
-        self.assertLess(time.monotonic() - started, 10.0)
+        self.assertLess(clock() - started, 10.0)
 
         line_folds = ("a\n" * (4 * 1024 * 1024))[: 8 * 1024 * 1024]
-        started = time.monotonic()
+        started = clock()
         self.assertIsNone(prohibited_text_reason(line_folds))
-        self.assertLess(time.monotonic() - started, 10.0)
+        self.assertLess(clock() - started, 10.0)
 
         self.assertEqual(prohibited_text_reason("/\n/:!@"), "sensitive")
         self.assertEqual(prohibited_text_reason("/\n/!!/@@"), "private-path")
 
         spaces = " " * (8 * 1024 * 1024)
-        started = time.monotonic()
+        started = clock()
         self.assertIsNone(prohibited_text_reason(spaces))
-        self.assertLess(time.monotonic() - started, 10.0)
+        self.assertLess(clock() - started, 10.0)
 
         continuations = ("a\\\n" * (8 * 1024 * 1024 // 3 + 1))[
             : 8 * 1024 * 1024
         ]
-        started = time.monotonic()
+        started = clock()
         self.assertIsNone(prohibited_text_reason(continuations))
-        self.assertLess(time.monotonic() - started, 10.0)
+        self.assertLess(clock() - started, 10.0)
 
         escaped_quotes = "{" + '\\"' * ((8 * 1024 * 1024 - 1) // 2)
-        started = time.monotonic()
+        started = clock()
         self.assertEqual(prohibited_text_reason(escaped_quotes), "sensitive")
-        self.assertLess(time.monotonic() - started, 10.0)
+        self.assertLess(clock() - started, 10.0)
 
         unclosed_comments = "{" + "name/*" * ((8 * 1024 * 1024 - 1) // 6)
-        started = time.monotonic()
+        started = clock()
         self.assertEqual(prohibited_text_reason(unclosed_comments), "sensitive")
-        self.assertLess(time.monotonic() - started, 10.0)
+        self.assertLess(clock() - started, 10.0)
 
         for comment in ("/*", "//"):
             comment_only = (comment * (MAX_PRIVACY_MALFORMED_CHARS // 2 + 1))[
                 : MAX_PRIVACY_MALFORMED_CHARS + 1
             ]
-            started = time.monotonic()
+            started = clock()
             with self.subTest(comment=comment):
                 self.assertEqual(prohibited_text_reason(comment_only), "sensitive")
-                self.assertLess(time.monotonic() - started, 10.0)
+                self.assertLess(clock() - started, 10.0)
 
         dense_malformed_tokens = "{" + ("a " * (4 * 1024 * 1024 - 1)) + "}"
-        started = time.monotonic()
+        started = clock()
         self.assertEqual(prohibited_text_reason(dense_malformed_tokens), "sensitive")
-        self.assertLess(time.monotonic() - started, 10.0)
+        self.assertLess(clock() - started, 10.0)
 
         sequential_frames = "{" + "{}" * 4_097 + "}"
-        started = time.monotonic()
+        started = clock()
         self.assertEqual(prohibited_text_reason(sequential_frames), "sensitive")
-        self.assertLess(time.monotonic() - started, 10.0)
+        self.assertLess(clock() - started, 10.0)
 
         cpe_unit = "cpe:2.3:a:x:x:1:*:*:*:*:*:*:* "
         dense_cpe = (cpe_unit * (MAX_PRIVACY_TEXT_BYTES // len(cpe_unit) + 1))[
             :MAX_PRIVACY_TEXT_BYTES
         ]
-        started = time.monotonic()
+        started = clock()
         self.assertEqual(prohibited_text_reason(dense_cpe), "sensitive")
-        self.assertLess(time.monotonic() - started, 10.0)
+        self.assertLess(clock() - started, 10.0)
 
         over_raw_bound = "a" * (16 * 1024 * 1024) + "\n"
-        started = time.monotonic()
+        started = clock()
         self.assertEqual(prohibited_text_reason(over_raw_bound), "sensitive")
-        self.assertLess(time.monotonic() - started, 10.0)
+        self.assertLess(clock() - started, 10.0)
 
         aggregate_json = json.dumps(
             {
@@ -3491,33 +3493,33 @@ class GatewayImageContractTests(unittest.TestCase):
             },
             separators=(",", ":"),
         )
-        started = time.monotonic()
+        started = clock()
         self.assertGreater(len(aggregate_json), 8 * 1024 * 1024)
         self.assertEqual(prohibited_text_reason(aggregate_json), "sensitive")
-        self.assertLess(time.monotonic() - started, 10.0)
+        self.assertLess(clock() - started, 10.0)
 
         over_utf8_bound = "£" * (4 * 1024 * 1024 + 1)
         over_utf8_bytes = over_utf8_bound.encode("utf-8")
-        started = time.monotonic()
+        started = clock()
         self.assertLess(len(over_utf8_bound), 8 * 1024 * 1024)
         self.assertGreater(len(over_utf8_bytes), 8 * 1024 * 1024)
         self.assertEqual(prohibited_text_reason(over_utf8_bound), "sensitive")
         with self.assertRaisesRegex(ValueError, "prohibited sensitive"):
             assert_no_private_text(over_utf8_bytes, "fixture")
-        self.assertLess(time.monotonic() - started, 10.0)
+        self.assertLess(clock() - started, 10.0)
 
         encoded_run = "%41" * (MAX_PRIVACY_TEXT_BYTES // 3)
-        started = time.monotonic()
+        started = clock()
         self.assertEqual(
             prohibited_json_reason({"safe": encoded_run}),
             "sensitive",
         )
-        self.assertLess(time.monotonic() - started, 10.0)
+        self.assertLess(clock() - started, 10.0)
 
         long_traversal = "/" + "a/" * (8 * 1024 * 1024 // 2 - 8) + "../private"
-        started = time.monotonic()
+        started = clock()
         self.assertEqual(prohibited_text_reason(long_traversal), "private-path")
-        self.assertLess(time.monotonic() - started, 10.0)
+        self.assertLess(clock() - started, 10.0)
 
     def test_acceptance_binding_rejects_coordinated_runtime_mutations(self) -> None:
         source = {
