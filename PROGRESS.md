@@ -30,11 +30,12 @@ deployment, operator-fencing, schedule, RPO/RTO, disposal or release evidence.
 
 The accepted DEPLOY-207 base-remediation route is also integrated without displacing
 the independent-host workstream. The fixed `linux/amd64` UBI 10 composition and
-closed receipt and SBOM contracts are implemented. Its clean source branch passed
+closed receipt and SBOM contracts are implemented. The clean combined tree passed
 the complete repository and exact local image-assurance gates, including reproducible
 OCI bytes, a 488-component SBOM, Trivy and calibrated Node advisory coverage,
 retained offline replay, and runtime, persistence, suspension and exact-image restore
-acceptance. The combined tree still requires its own closed gate and the protected
+acceptance. The original security findings are remediated and the two bounded closure
+scans are complete with no findings. The tree still requires the protected
 pull-request and protected-main checks. It remains a repository-only blocked
 candidate; no publication, live provider call, deployment, activation, tag or
 release is claimed.
@@ -255,12 +256,10 @@ release is claimed.
 1. Complete bounded Claude capability evidence and the remaining independent
    desktop-STDIO and remote-HTTP host evidence. The local protocol matrix and
    Claude transport-only result do not complete issue #24's live-host criteria.
-2. For the clean combined integration commit, require the complete repository and
-   closed image-assurance gates to produce reproducible OCI bytes, the v2 composition
-   receipt, a full SBOM, current Trivy and calibrated Node advisory results, retained
-   offline replay, direct Node loader closure and Compose compatibility. Then require
-   the same commit to pass the protected pull-request and protected-main checks before
-   it can supersede the historical Debian candidate.
+2. Push the clean combined integration commit through a protected pull request, then
+   require the same commit to pass protected-main repository, exact image,
+   provenance and CodeQL checks before it can supersede the historical Debian
+   candidate.
 3. Keep DEPLOY-207 at `status: decision needed` until an authorised public runtime,
    hostname/TLS, identity, egress, storage and operator boundary exists.
 4. Only after that separate authority exists, deploy an unregistered
@@ -269,11 +268,14 @@ release is claimed.
 
 ## Current blockers
 
-- The repository-only image and Compose candidate are accepted on protected `main`.
-  There is still no authorised public runtime, hostname/TLS boundary, workload
-  identity, admitted persistent volume or backup target, independently administered
-  external checkpoint, operator-fencing/schedule/disposal model, service deployment
-  workflow or previous deployed image for a real rollback. The provider-independent
+- The owner has accepted the UBI and derived-image terms, MCP Registry terms and CC0
+  metadata dedication, and has authorised deployment, provider calls, registry
+  publication, activation and release in principle. Execution still lacks a selected
+  provider account, numeric monthly spend ceiling, public runtime, hostname/TLS
+  boundary, workload identity, admitted persistent volume or backup target,
+  independently administered external checkpoint, operator-fencing/schedule/disposal
+  model, service deployment workflow or previous deployed image for a real rollback.
+  Sites cannot supply the required stateful OCI/POSIX runtime. The provider-independent
   checkpoint mechanics are not deployed disaster-recovery evidence.
 - The gateway assertion is a typed private hand-off, not workload authentication or
   a signed policy decision. Any non-loopback deployment remains blocked on explicit
@@ -292,14 +294,15 @@ release is claimed.
   independent hosts, a live provider, authorised deployment and release evidence
   remain outstanding.
 - The historical protected-main Debian image retains three unresolved High findings.
-  The authorised fixed UBI 10 and Node source branch passed the complete repository
-  and exact image-assurance gates from clean committed source. That repository-only
-  evidence establishes the historical Debian package instances are absent from those
-  exact local bytes and gives the standalone Node runtime independent advisory
-  coverage. It cannot close the protected-main findings until the combined commit and
-  the protected pull-request and protected-main checks pass. No protected-source
-  attestation exists for the replacement yet, and every source change requires a new
-  exact image build and evidence set.
+  The authorised combined UBI 10 and Node integration passed the complete repository
+  and exact image-assurance gates from clean commit
+  `f8d3210064a2fc88f85722d373f935b355c8d289`. That repository-only evidence
+  establishes the historical Debian package instances are absent from those exact
+  local bytes and gives the standalone Node runtime independent advisory coverage. It
+  cannot close the protected-main findings until the combined commit and the protected
+  pull-request and protected-main checks pass. No protected-source attestation exists
+  for the replacement yet, and every source change requires a new exact image build
+  and evidence set.
 - The accepted ONS adapter and reconciliation storage are local, explicitly injected
   components. The fixed 4,096-claim pre-publication index ceiling and accepted ledger
   event ceiling are local safety bounds, not deployment quotas. There is no
@@ -311,6 +314,24 @@ release is claimed.
   the open product.
 
 ## Latest evidence
+
+- Combined integration local assurance on 24 August 2026: exact clean commit
+  `f8d3210064a2fc88f85722d373f935b355c8d289` passed the complete repository and
+  gateway-image gates. The realised OCI manifest is
+  `sha256:17b882a53f233d776985187c84d9b5724ad16d9c8c78e832c5cdeef81ecc4c88`;
+  the reproducible archive SHA-256 is
+  `4868d00038f7766cf41a5a71377156ee369c5e6cd6acea423a17546be7887c2d`;
+  and the 488-component SBOM SHA-256 is
+  `44d56247bfcc18a7966d3bff74fbde32cebcf3084d100c800943d34f1fb38b3e`.
+  The exact 24-subject evidence manifest is
+  `10c8f3b1dbd05cf59b543cacb0fd31ca811507f25b20c0a4fb7b0148dac335b5`.
+  The dependency-free verifier also accepted the exact 24-file OIDC transport subset
+  with the private Grype database excluded. Codex Security closure scans
+  `90f509a9-1e70-4b16-a241-9f2171d8969e` and
+  `b008b347-08e9-49e0-8f67-97e8281c9de5` completed with no findings. The full
+  25-file, owner-only evidence set remains local and is not a release asset. No
+  publication, provider call, deployment, registration, activation, tag or release
+  is claimed;
 
 - DEPLOY-207 clean UBI and Node assurance on 24 August 2026: exact commit
   `dc42d76a9617429cb05f8708ed543d62d862c819` passed the complete repository and
