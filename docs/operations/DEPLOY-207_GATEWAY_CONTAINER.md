@@ -432,7 +432,10 @@ occurrences, in addition to its depth and node bounds.
 Protected-main runs add two unprivileged trust domains before provenance. An
 independent image job checks out the exact clean commit, regenerates the OKF
 projection and produces a separate canonical OCI derivation without receiving any
-producer artefact. A separate verification job downloads the producer and independent
+producer artefact. Its fresh, isolated runner uses the same contract-fixed BuildKit
+builder name and pinned image as the producer runner; independence comes from the
+runner, checkout and artefact boundary, not from an alternative unchecked builder
+identity. A separate verification job downloads the producer and independent
 artefacts by their immutable current-run artefact IDs, regenerates the OKF projection,
 acquires and digest-checks the pinned scanners, and rehydrates the exact Grype database
 archive from Anchore using its retained URL, length and SHA-256. It then re-verifies

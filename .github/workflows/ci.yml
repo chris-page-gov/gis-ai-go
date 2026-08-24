@@ -304,7 +304,7 @@ jobs:
       - name: Start the independent pinned gateway image builder
         run: |
           docker buildx create \
-            --name gis-ai-go-gateway-independent \
+            --name gis-ai-go-gateway \
             --driver docker-container \
             --driver-opt image=moby/buildkit:buildx-stable-1@sha256:28a898719c18a33f4e8000685287fa36fd0dd9560c6440227d3a732d79bb41d8 \
             --use
@@ -328,7 +328,7 @@ jobs:
 
       - name: Remove the independent image builder
         if: always()
-        run: docker buildx rm gis-ai-go-gateway-independent
+        run: docker buildx rm gis-ai-go-gateway
 
       - name: Upload immutable independent gateway derivation
         id: gateway_independent_upload
