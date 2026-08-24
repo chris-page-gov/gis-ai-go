@@ -33,8 +33,10 @@ same control.
 
 The preflight outcome is **hold for activation and release**. In particular:
 
-- the three retained High image findings are unresolved and have not received owner
-  risk acceptance;
+- the historical protected-main Debian image retains three High findings without
+  owner risk acceptance. The replacement branch removes those package instances in
+  exact locally assured bytes, but protected pull-request and protected-main image
+  checks and attestations remain the closure condition;
 - the exact `data.query` approved-cache fallback is repository-only, explicitly
   injected and absent from production wiring; stale use is forbidden and no
   alternate-provider fallback exists;
@@ -109,7 +111,7 @@ The state labels mean:
 | RK20 — Provenance spoofing | Server-built canonical decisions and receipts bind parameters, source/version, transformations, software, rights and output digest. Content-addressed ledger inspection re-verifies records, while protected-main source and image subjects have separate attestations. The inactive checkpoint manifest binds both evidence roots but is not a receipt attestation. | Controlled, activation gated | The application ledger is not signed or WORM, and its external checkpoint is not admitted to an independently administered store. Live runtime/image identity and receipt parity must be evidenced on the deployed candidate. |
 | RK21 — Audit tampering | Exclusive append-only ledger writes, hash-linked events, restart verification and corruption failure prevent mutable overwrite and partial results. A provider-independent stopped-writer checkpoint binds the complete ledger/index pair in one content-addressed path-free manifest, requires private modes and no links, restores only to empty roots, completes both post-restore verifiers and rejects incomplete, cross-paired or tampered backups. A separately retained checkpoint binds both roots and the ledger tail so a structurally valid tail deletion is detectable. | Unresolved release gate | The stop is an operator assertion and file-system operators remain trusted. No admitted external checkpoint store, schedule, access-control evidence, deployment recovery exercise, RPO/RTO, retention or disposal decision exists; the mechanism is not signed, WORM or deployed. |
 | RK22 — Derived-data inference | The only provider result candidate is one reviewed public aggregate scalar; no protected inputs, joins, fine-grained geometry or arbitrary dimensions are reachable. | Excluded, deny preserved | Do not expand dimensions or combine tiers. Any later derived or protected output needs thresholds, inference review and new policy evidence. |
-| RK23 — Supply-chain compromise | Dependencies, Actions, base image, BuildKit, Syft and Trivy are pinned; installs are locked and script-disabled; source admission, two-build OCI identity, full SBOM, retained scan replay, CodeQL and protected-main attestations are enforced. | Unresolved release gate | Three unfixed High findings remain installed and unaccepted. A patched base or explicit owner acceptance after a refreshed exact-image review is required; registry and public-runtime provenance are also absent. |
+| RK23 — Supply-chain compromise | Dependencies, Actions, base image, BuildKit, Syft and Trivy are pinned; installs are locked and script-disabled; source admission, two-build OCI identity, full SBOM, retained scan replay, CodeQL and protected-main attestations are enforced. | Unresolved release gate | The historical protected-main Debian image retains three unfixed High findings. The locally assured UBI replacement removes those package instances, but exact protected pull-request and protected-main image checks and attestations must confirm that closure; explicit owner acceptance is required only for any High or Critical finding that remains. Registry and public-runtime provenance are also absent. |
 | RK24 — Model/tool hallucination | Deterministic selection never uses an LLM; schemas and the exact registry prevent invented tools, providers or parameters, and every MCP result includes a complete plain-text representation. The local E13 receipt is repository-only, unscored and incomplete. | Controlled, activation gated | Repeat E13 as a scored release-candidate evaluation and complete `HOST-017` and `HOST-018` in an independent supported host; no web, plug-in or external-service substitution is permitted. |
 | RK25 — Sensitive query-history exposure | Receipts retain semantic digests rather than raw queries; reconciliation stores no raw key or result; controlled errors, logs and retained host/image evidence reject prompts, credentials, provider bodies and machine paths. | Controlled, activation gated | Public ingress, proxy, platform, backup and audit retention need a separate privacy review and checked log-minimisation evidence. |
 | RK26 — CRS/axis-order error | EXEC schemas require explicit EPSG:4326 longitude-latitude and test invalid order and ranges. Selection and the fixed ONS query are explicitly non-spatial. | Excluded, deny preserved | Keep CRS-bearing tools planned until transformation libraries, gold fixtures and round-trip evidence pass. |
@@ -136,7 +138,8 @@ exact candidate must still provide:
 5. admitted backup and external-checkpoint storage, operator fencing, schedule,
    RPO/RTO, retention, disposal, incident, real restore and rollback evidence; and
 6. closure of the [image vulnerability disposition](../operations/QUAL-206_IMAGE_VULNERABILITY_DISPOSITION.md)
-   through patched bytes or separately recorded owner acceptance.
+   through exact attested protected replacement bytes, or separately recorded owner
+   acceptance for any High or Critical finding that remains.
 
 If any control, provider, tier, route or tool changes, review all affected rows again
 against the exact candidate bytes. A passing repository check or scan policy cannot

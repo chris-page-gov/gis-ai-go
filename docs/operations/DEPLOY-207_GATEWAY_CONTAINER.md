@@ -1,10 +1,10 @@
 # DEPLOY-207 blocked gateway container
 
 Status: accepted historical repository-only candidate on protected `main`; the
-fixed UBI 10 replacement passed an earlier complete local dirty-tree assurance run
-on 24 August 2026. That evidence predates the supplemental Node advisory control
-described below. The current candidate is not yet clean-source accepted, published,
-activated or deployed.
+fixed UBI 10 replacement passed complete clean-source local repository and image
+assurance at `f8d3210064a2fc88f85722d373f935b355c8d289` on 24 August 2026,
+including the supplemental Node advisory control described below. The replacement
+is not yet accepted on protected `main`, published, activated or deployed.
 
 This runbook covers the image, local Compose and assurance slice that can proceed
 without selecting a public runtime. It does not activate GIS AI GO, contact ONS,
@@ -33,9 +33,10 @@ to that exact source. This acceptance publishes no image or service and changes 
 activation state.
 
 The protected-main identities above describe the earlier Debian Bookworm runtime.
-They must not be reused for the local UBI replacement. Its local development
-identities below are separate and non-publishable; accepted evidence requires a new
-clean-source run and protected integration.
+They must not be reused for the UBI replacement. Its clean-source local identities
+below are separate and non-publishable; accepted protected evidence still requires
+pull-request and protected-main checks and attestations for the exact integrated
+source.
 
 ## Fixed UBI replacement candidate
 
@@ -82,26 +83,24 @@ file hashes and redistribution duties are recorded in
 the accepted boundary; it is not legal advice and does not accept changed inputs or
 later terms.
 
-### Earlier local assurance identity
+### Clean-source local assurance identity
 
-The complete dirty-tree development gate that preceded the supplemental Node lane
-passed on 24 August 2026. Two isolated no-cache builds produced byte-identical OCI
-archives. That earlier local evidence records:
+The complete repository and image gates passed from clean source commit
+`f8d3210064a2fc88f85722d373f935b355c8d289` on 24 August 2026. Two isolated
+no-cache builds produced byte-identical OCI archives. That local evidence records:
 
 - image manifest
-  `sha256:d1fcfa6647fa6500e187c780a411a44dd621265614d739844f9afb983d16748b`;
+  `sha256:17b882a53f233d776985187c84d9b5724ad16d9c8c78e832c5cdeef81ecc4c88`;
 - OCI archive SHA-256
-  `13f16ed22565a0a0d5f7757b39c04e70fd3e17d09631764e1ce45c713d384452`;
+  `4868d00038f7766cf41a5a71377156ee369c5e6cd6acea423a17546be7887c2d`;
 - 488-component full image SBOM SHA-256
-  `0357716068ec717e92317723661c50050b0c96906e831ab575bdf36443d5d856`;
-- current High/Critical Trivy report SHA-256
-  `4b16586001545d156729183875625043afc56fedaf8c7ac6c3fffdac008d75e0`,
-  with zero High and zero Critical Trivy findings;
-- retained database archive SHA-256
-  `591c0f1ce08328cdc90cf7e1421ea2ee2621185c546d262940498337654e476e`
-  and successful network-disabled replay; and
+  `44d56247bfcc18a7966d3bff74fbde32cebcf3084d100c800943d34f1fb38b3e`;
+- zero Trivy image findings and calibrated standalone Node results against retained
+  Grype database SHA-256
+  `20a7315860b2d07231103a73bedec01de31e7a7f3d590aedfc61709dc9e117f9`;
+- successful network-disabled replay; and
 - closed evidence-manifest SHA-256
-  `f39b60cead9b78475fd29cf9a19ae1a97547b7db905af657920cf50e0c6672fa`,
+  `10c8f3b1dbd05cf59b543cacb0fd31ca811507f25b20c0a4fb7b0148dac335b5`,
   after Compose runtime, persistence, suspension and exact-image restore passed.
 
 The 488-component SBOM contains 23 installed Red Hat runtime RPMs, 3 signing-key
@@ -111,17 +110,12 @@ image. A separately bound RPM/library component identifies the copied
 donor image identity and final-file hash. The exact Node and `libgcc_s` file
 components are part of the 446 measured file components; the remaining components
 are the gateway application and operating system. The SBOM contains no `gzip`,
-`util-linux`, `libblkid` or `libmount` RPM component. These identities are
-diagnostic local evidence classified `non-publishable-development-build`; they are
-not a registry artefact, attestation or release candidate and must change after the
-local commit creates a clean source identity.
-
-The current gate does not accept that earlier evidence because it lacks the
-standalone Node advisory subjects and the revised closed schemas. Those schemas are
-copied into the root filesystem, and the source-revision metadata also changes, so a
-fresh run must create and verify new exact OCI/rootfs bytes. The Node executable and
-gateway TypeScript sources remain unchanged, but both scanner lanes must pass before
-any new local or protected-main identity is recorded.
+`util-linux`, `libblkid` or `libmount` RPM component. The full 25-file evidence set,
+including the retained Grype database, remains owner-local with private permissions;
+the 24-file CI transport subset excludes that database. These identities are not a
+registry artefact, protected attestation or release candidate. Every later source
+commit must create and verify its own exact OCI/rootfs bytes, including both scanner
+lanes, before its identity can be recorded.
 
 ## Exact boundary
 
