@@ -13,6 +13,7 @@
     "protocol",
     "official_client",
     "coverage",
+    "exact_five_stdio",
     "suspension_stdio",
     "claims",
     "boundary",
@@ -126,6 +127,9 @@
       ],
       "items": false
     },
+    "exact_five_stdio": {
+      "$ref": "#/$defs/exactFiveStdio"
+    },
     "suspension_stdio": {
       "$ref": "#/$defs/suspensionStdio"
     },
@@ -133,7 +137,7 @@
       "$ref": "#/$defs/claims"
     },
     "boundary": {
-      "const": "Repository-material-bound deterministic source matrix. It is repository-only, non-live and unscored; coverage rows bind source declarations but do not record test execution, the suspension regression uses in-process STDIO server wiring, and the matrix does not complete host interoperability or authorise activation, deployment, registration or release."
+      "const": "Repository-material-bound deterministic source matrix. It is repository-only, non-live and unscored; coverage rows and subprocess sections bind source declarations but do not record a test-runner outcome. The exact-five and suspension regressions use test-only real-process STDIO with operating-system pipes and an injected zero-network fixture; the matrix does not complete host interoperability or authorise activation, deployment, registration or release."
     },
     "matrix_id": {
       "type": "string",
@@ -331,6 +335,106 @@
         }
       }
     },
+    "exactFiveStdio": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "transport",
+        "driver",
+        "wiring",
+        "source_base_commit",
+        "test_source",
+        "fixture_source",
+        "runner_source",
+        "operations",
+        "resources",
+        "checks",
+        "deterministic_provider_transport",
+        "live_provider_calls",
+        "production_registration",
+        "operating_system_pipe_framing"
+      ],
+      "properties": {
+        "transport": {
+          "const": "stdio"
+        },
+        "driver": {
+          "const": "raw-transcript"
+        },
+        "wiring": {
+          "const": "real-process-stdio"
+        },
+        "source_base_commit": {
+          "const": "fedba12b619e9be6e443e8b249d680b26f73ce9e"
+        },
+        "test_source": {
+          "$ref": "#/$defs/testSource"
+        },
+        "fixture_source": {
+          "$ref": "#/$defs/material"
+        },
+        "runner_source": {
+          "$ref": "#/$defs/material"
+        },
+        "operations": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "prefixItems": [
+            { "const": "catalogue.search" },
+            { "const": "catalogue.describe" },
+            { "const": "selection.resolve" },
+            { "const": "data.query" },
+            { "const": "evidence.inspect" }
+          ],
+          "items": false
+        },
+        "resources": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "prefixItems": [
+            { "const": "catalogue.public" },
+            { "const": "catalogue.record" },
+            { "const": "evidence.receipt" }
+          ],
+          "items": false
+        },
+        "checks": {
+          "type": "array",
+          "minItems": 13,
+          "maxItems": 13,
+          "prefixItems": [
+            { "const": "fail-closed-authority" },
+            { "const": "fragmented-os-pipe-framing" },
+            { "const": "server/discover" },
+            { "const": "tools/list-exact-five" },
+            { "const": "resources/list" },
+            { "const": "resources/templates/list" },
+            { "const": "resources/read-catalogue" },
+            { "const": "resources/read-record" },
+            { "const": "resources/read-evidence" },
+            { "const": "tools/call-one-per-operation" },
+            { "const": "structured-plain-text-parity" },
+            { "const": "cancellation-no-response-or-completed-evidence" },
+            { "const": "unsupported-traffic" }
+          ],
+          "items": false
+        },
+        "deterministic_provider_transport": {
+          "const": "injected-fixed-ons-fixture"
+        },
+        "live_provider_calls": {
+          "const": 0
+        },
+        "production_registration": {
+          "const": false
+        },
+        "operating_system_pipe_framing": {
+          "const": true
+        }
+      }
+    },
     "suspensionStdio": {
       "type": "object",
       "additionalProperties": false,
@@ -339,6 +443,8 @@
         "driver",
         "wiring",
         "test_source",
+        "fixture_source",
+        "runner_source",
         "scenario_count",
         "resulting_suspension_count",
         "checks",
@@ -354,10 +460,16 @@
           "const": "raw-transcript"
         },
         "wiring": {
-          "const": "in-process-stdio-server"
+          "const": "real-process-stdio"
         },
         "test_source": {
           "$ref": "#/$defs/testSource"
+        },
+        "fixture_source": {
+          "$ref": "#/$defs/material"
+        },
+        "runner_source": {
+          "$ref": "#/$defs/material"
         },
         "scenario_count": {
           "const": 7
@@ -386,7 +498,7 @@
           "const": 0
         },
         "operating_system_pipe_framing": {
-          "const": false
+          "const": true
         }
       }
     },

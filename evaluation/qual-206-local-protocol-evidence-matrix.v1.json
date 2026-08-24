@@ -3,7 +3,7 @@
   "classification": "repository-only-non-live-unscored",
   "schema_contract": {
     "path": "schemas/qual-206-local-protocol-evidence-matrix.schema.json",
-    "sha256": "af7ca810e01290d670a10501da8f7306958266bab1b68a02a48d2a06c95a791f"
+    "sha256": "baa856f4c0d28a497360c9af0526e6e0b3aa6698f19e1857549e988f48f4931a"
   },
   "repository_binding": {
     "kind": "repository-material-bound",
@@ -152,16 +152,79 @@
       }
     }
   ],
+  "exact_five_stdio": {
+    "transport": "stdio",
+    "driver": "raw-transcript",
+    "wiring": "real-process-stdio",
+    "source_base_commit": "fedba12b619e9be6e443e8b249d680b26f73ce9e",
+    "test_source": {
+      "path": "tests/interoperability/test_qual_206_exact_five_stdio.mjs",
+      "sha256": "5e8a250771ba8f2ff62c02ab9259f4bbd3a8e5b5ce4d76a6f0d73561723f2c50",
+      "source_test_names": [
+        "fails closed unless the exact-five subprocess authority is complete",
+        "serves the exact five operations and catalogue resources through real STDIO pipes",
+        "cancels a real-process data query without response or completed evidence",
+        "rejects unsupported real-process STDIO traffic without provider dispatch"
+      ]
+    },
+    "fixture_source": {
+      "path": "tests/interoperability/fixtures/qual_206_exact_five_stdio_server.mjs",
+      "sha256": "c7da5d258cce9addd2ebf7180138756ee5531b47f1a283e0d54a9a8e84f9aa18"
+    },
+    "runner_source": {
+      "path": "apps/mcp-gateway/test/qual-206-local-protocol-matrix.test.ts",
+      "sha256": "0329b39243e629d611784b22fb560a349d13ebd035d61fd0e9926aff5712fb2c"
+    },
+    "operations": [
+      "catalogue.search",
+      "catalogue.describe",
+      "selection.resolve",
+      "data.query",
+      "evidence.inspect"
+    ],
+    "resources": [
+      "catalogue.public",
+      "catalogue.record",
+      "evidence.receipt"
+    ],
+    "checks": [
+      "fail-closed-authority",
+      "fragmented-os-pipe-framing",
+      "server/discover",
+      "tools/list-exact-five",
+      "resources/list",
+      "resources/templates/list",
+      "resources/read-catalogue",
+      "resources/read-record",
+      "resources/read-evidence",
+      "tools/call-one-per-operation",
+      "structured-plain-text-parity",
+      "cancellation-no-response-or-completed-evidence",
+      "unsupported-traffic"
+    ],
+    "deterministic_provider_transport": "injected-fixed-ons-fixture",
+    "live_provider_calls": 0,
+    "production_registration": false,
+    "operating_system_pipe_framing": true
+  },
   "suspension_stdio": {
     "transport": "stdio",
     "driver": "raw-transcript",
-    "wiring": "in-process-stdio-server",
+    "wiring": "real-process-stdio",
     "test_source": {
-      "path": "apps/mcp-gateway/test/qual-206-local-protocol-matrix.test.ts",
-      "sha256": "cfdd1191b6afa41d6b5c4b0b29d638b6feaca4c6ca8aed794ad96520cd53e123",
+      "path": "tests/interoperability/test_qual_206_exact_five_stdio.mjs",
+      "sha256": "5e8a250771ba8f2ff62c02ab9259f4bbd3a8e5b5ce4d76a6f0d73561723f2c50",
       "source_test_names": [
-        "keeps every governed suspension absent and uncallable over in-process STDIO"
+        "keeps all seven governed suspensions absent and uncallable through real STDIO pipes"
       ]
+    },
+    "fixture_source": {
+      "path": "tests/interoperability/fixtures/qual_206_exact_five_stdio_server.mjs",
+      "sha256": "c7da5d258cce9addd2ebf7180138756ee5531b47f1a283e0d54a9a8e84f9aa18"
+    },
+    "runner_source": {
+      "path": "apps/mcp-gateway/test/qual-206-local-protocol-matrix.test.ts",
+      "sha256": "0329b39243e629d611784b22fb560a349d13ebd035d61fd0e9926aff5712fb2c"
     },
     "scenario_count": 7,
     "resulting_suspension_count": 9,
@@ -175,7 +238,7 @@
     ],
     "production_registration": false,
     "provider_network_calls": 0,
-    "operating_system_pipe_framing": false
+    "operating_system_pipe_framing": true
   },
   "claims": {
     "complete_qual_206": false,
@@ -190,6 +253,6 @@
     "public_registration": false,
     "release_acceptance": false
   },
-  "boundary": "Repository-material-bound deterministic source matrix. It is repository-only, non-live and unscored; coverage rows bind source declarations but do not record test execution, the suspension regression uses in-process STDIO server wiring, and the matrix does not complete host interoperability or authorise activation, deployment, registration or release.",
-  "matrix_id": "gis-ai-go:qual-206-local-protocol-evidence-matrix:sha256:472798d1207dcdd7fc9c001f3ae67e733b4fb7bbbae1514ec1d81dea2182e3f7"
+  "boundary": "Repository-material-bound deterministic source matrix. It is repository-only, non-live and unscored; coverage rows and subprocess sections bind source declarations but do not record a test-runner outcome. The exact-five and suspension regressions use test-only real-process STDIO with operating-system pipes and an injected zero-network fixture; the matrix does not complete host interoperability or authorise activation, deployment, registration or release.",
+  "matrix_id": "gis-ai-go:qual-206-local-protocol-evidence-matrix:sha256:4c736427ef768ff3a3f9564e509e897a331700047e980923c266883c5dd54dac"
 }

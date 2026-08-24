@@ -24,10 +24,11 @@ LOCKFILE_PATH = ROOT / "pnpm-lock.yaml"
 RUNTIME_BASE_COMMIT = "7fa8b720d3cbaa3e0a1ebfadf0fb355a7330a04c"
 BOUNDARY = (
     "Repository-material-bound deterministic source matrix. It is repository-only, "
-    "non-live and unscored; coverage rows bind source declarations but do not record "
-    "test execution, the suspension regression uses in-process STDIO server wiring, "
-    "and the matrix does not complete host interoperability or authorise activation, "
-    "deployment, registration or release."
+    "non-live and unscored; coverage rows and subprocess sections bind source "
+    "declarations but do not record a test-runner outcome. The exact-five and "
+    "suspension regressions use test-only real-process STDIO with operating-system "
+    "pipes and an injected zero-network fixture; the matrix does not complete host "
+    "interoperability or authorise activation, deployment, registration or release."
 )
 EXPECTED_RUNTIME_PATHS = [
     "apps/mcp-gateway/src/governed-assembly.ts",
@@ -139,8 +140,27 @@ EXPECTED_SOURCE_TEST_NAMES = {
     ],
 }
 EXPECTED_SUSPENSION_SOURCE = (
-    "apps/mcp-gateway/test/qual-206-local-protocol-matrix.test.ts",
-    ("keeps every governed suspension absent and uncallable over in-process STDIO",),
+    "tests/interoperability/test_qual_206_exact_five_stdio.mjs",
+    (
+        "keeps all seven governed suspensions absent and uncallable through real "
+        "STDIO pipes",
+    ),
+)
+EXPECTED_EXACT_FIVE_SOURCE = (
+    "tests/interoperability/test_qual_206_exact_five_stdio.mjs",
+    (
+        "fails closed unless the exact-five subprocess authority is complete",
+        "serves the exact five operations and catalogue resources through real "
+        "STDIO pipes",
+        "cancels a real-process data query without response or completed evidence",
+        "rejects unsupported real-process STDIO traffic without provider dispatch",
+    ),
+)
+EXPECTED_FIXTURE_PATH = (
+    "tests/interoperability/fixtures/qual_206_exact_five_stdio_server.mjs"
+)
+EXPECTED_RUNNER_PATH = (
+    "apps/mcp-gateway/test/qual-206-local-protocol-matrix.test.ts"
 )
 
 
@@ -290,6 +310,14 @@ class Qual206LocalProtocolEvidenceMatrixTests(unittest.TestCase):
         }
         self.assertEqual(actual_source_names, EXPECTED_SOURCE_TEST_NAMES)
 
+        exact_five_source = self.document["exact_five_stdio"]["test_source"]
+        self.assertEqual(
+            (
+                exact_five_source["path"],
+                tuple(exact_five_source["source_test_names"]),
+            ),
+            EXPECTED_EXACT_FIVE_SOURCE,
+        )
         suspension_source = self.document["suspension_stdio"]["test_source"]
         self.assertEqual(
             (
@@ -303,7 +331,39 @@ class Qual206LocalProtocolEvidenceMatrixTests(unittest.TestCase):
         self.assertTrue(suspension_path.is_file())
         self.assertEqual(suspension_source["sha256"], sha256(suspension_path))
 
-        for source_entry in [*coverage_sources, suspension_source]:
+        exact_fixture = self.document["exact_five_stdio"]["fixture_source"]
+        suspension_fixture = self.document["suspension_stdio"]["fixture_source"]
+        self.assertEqual(exact_fixture, suspension_fixture)
+        self.assertEqual(exact_fixture["path"], EXPECTED_FIXTURE_PATH)
+        fixture_path = (ROOT / exact_fixture["path"]).resolve()
+        self.assertTrue(fixture_path.is_relative_to(ROOT.resolve()))
+        self.assertTrue(fixture_path.is_file())
+        self.assertEqual(exact_fixture["sha256"], sha256(fixture_path))
+
+        exact_runner = self.document["exact_five_stdio"]["runner_source"]
+        suspension_runner = self.document["suspension_stdio"]["runner_source"]
+        self.assertEqual(exact_runner, suspension_runner)
+        self.assertEqual(exact_runner["path"], EXPECTED_RUNNER_PATH)
+        runner_path = (ROOT / exact_runner["path"]).resolve()
+        self.assertTrue(runner_path.is_relative_to(ROOT.resolve()))
+        self.assertTrue(runner_path.is_file())
+        self.assertEqual(exact_runner["sha256"], sha256(runner_path))
+        runner = runner_path.read_text(encoding="utf-8")
+        self.assertIn(
+            "tests/interoperability/test_qual_206_exact_five_stdio.mjs",
+            runner,
+        )
+
+        exact_five_path = (ROOT / exact_five_source["path"]).resolve()
+        self.assertTrue(exact_five_path.is_relative_to(ROOT.resolve()))
+        self.assertTrue(exact_five_path.is_file())
+        self.assertEqual(exact_five_source["sha256"], sha256(exact_five_path))
+
+        for source_entry in [
+            *coverage_sources,
+            exact_five_source,
+            suspension_source,
+        ]:
             source = (ROOT / source_entry["path"]).read_text(encoding="utf-8")
             for name in source_entry["source_test_names"]:
                 with self.subTest(path=source_entry["path"], source_test=name):
@@ -384,20 +444,57 @@ class Qual206LocalProtocolEvidenceMatrixTests(unittest.TestCase):
             )
             self.assertEqual(set(raw["covers"].values()), {True})
 
-    def test_suspension_evidence_is_in_process_and_not_host_acceptance(self) -> None:
+    def test_exact_five_and_suspension_evidence_use_test_only_os_pipes(self) -> None:
+        exact_five = self.document["exact_five_stdio"]
+        self.assertEqual(exact_five["wiring"], "real-process-stdio")
+        self.assertEqual(
+            exact_five["source_base_commit"],
+            "fedba12b619e9be6e443e8b249d680b26f73ce9e",
+        )
+        self.assertEqual(
+            exact_five["operations"],
+            [
+                "catalogue.search",
+                "catalogue.describe",
+                "selection.resolve",
+                "data.query",
+                "evidence.inspect",
+            ],
+        )
+        self.assertEqual(
+            exact_five["resources"],
+            ["catalogue.public", "catalogue.record", "evidence.receipt"],
+        )
+        self.assertEqual(
+            exact_five["deterministic_provider_transport"],
+            "injected-fixed-ons-fixture",
+        )
+        self.assertEqual(exact_five["live_provider_calls"], 0)
+        self.assertFalse(exact_five["production_registration"])
+        self.assertTrue(exact_five["operating_system_pipe_framing"])
+
         suspension = self.document["suspension_stdio"]
-        self.assertEqual(suspension["wiring"], "in-process-stdio-server")
+        self.assertEqual(suspension["wiring"], "real-process-stdio")
         self.assertEqual(suspension["scenario_count"], 7)
         self.assertEqual(suspension["resulting_suspension_count"], 9)
         self.assertFalse(suspension["production_registration"])
         self.assertEqual(suspension["provider_network_calls"], 0)
-        self.assertFalse(suspension["operating_system_pipe_framing"])
-        source = (ROOT / suspension["test_source"]["path"]).read_text(
+        self.assertTrue(suspension["operating_system_pipe_framing"])
+        source = (ROOT / exact_five["test_source"]["path"]).read_text(
             encoding="utf-8"
         )
-        self.assertIn("startGovernedCandidateStdio", source)
-        self.assertIn("InMemoryTransport.createLinkedPair", source)
-        self.assertNotIn("spawn(", source)
+        self.assertIn("spawn(", source)
+        self.assertIn('stdio: ["pipe", "pipe", "pipe", "pipe"]', source)
+        self.assertNotIn("InMemoryTransport.createLinkedPair", source)
+        fixture = (ROOT / exact_five["fixture_source"]["path"]).read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("startGovernedCandidateStdio", fixture)
+        self.assertIn("createOnsDataApiAdapter", fixture)
+        self.assertIn("transport: deterministicTransport", fixture)
+        self.assertNotIn('from "node:http"', fixture)
+        self.assertNotIn('from "node:https"', fixture)
+        self.assertNotIn("fetch(", fixture)
 
         self.assertEqual(self.document["boundary"], BOUNDARY)
         self.assertEqual(set(self.document["claims"].values()), {False})
@@ -419,8 +516,16 @@ class Qual206LocalProtocolEvidenceMatrixTests(unittest.TestCase):
         self.assert_invalid(activated)
 
         pipe_framing = copy.deepcopy(self.document)
-        pipe_framing["suspension_stdio"]["operating_system_pipe_framing"] = True
+        pipe_framing["suspension_stdio"]["operating_system_pipe_framing"] = False
         self.assert_invalid(pipe_framing)
+
+        live_provider = copy.deepcopy(self.document)
+        live_provider["exact_five_stdio"]["live_provider_calls"] = 1
+        self.assert_invalid(live_provider)
+
+        registered = copy.deepcopy(self.document)
+        registered["exact_five_stdio"]["production_registration"] = True
+        self.assert_invalid(registered)
 
         unpinned = copy.deepcopy(self.document)
         unpinned["official_client"]["version"] = "2.0.1"

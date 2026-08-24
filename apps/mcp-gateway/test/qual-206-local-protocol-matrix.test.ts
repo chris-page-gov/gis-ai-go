@@ -31,6 +31,13 @@ import {
 } from "../src/mcp-server.js";
 import { startGovernedCandidateStdio } from "../src/mcp-stdio.js";
 
+// Keep the real-process transcript in the gateway's ordinary test plane without
+// adding a production entrypoint or a separate release command.
+await import(new URL(
+  "../../../../tests/interoperability/test_qual_206_exact_five_stdio.mjs",
+  import.meta.url,
+).href);
+
 const SOURCE_CATALOGUE = fileURLToPath(
   new URL("../../../../artifacts/okf/", import.meta.url),
 );

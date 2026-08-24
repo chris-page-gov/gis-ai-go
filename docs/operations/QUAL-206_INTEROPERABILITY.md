@@ -2,6 +2,9 @@
 
 - status: local conformance and four ChatGPT secure-tunnel probes passed, including
   the current final telemetry wrapper;
+  a test-only real-process exact-five STDIO transcript, cancellation, unsupported
+  traffic and all seven suspension scenarios pass locally with zero live-provider
+  calls;
   four 20 August independent-host readiness attempts remain documented as not
   ready; a separate 23 August Claude Code legacy STDIO observation from exact
   protected-main bytes passed initialisation and tool listing, with capability
@@ -45,6 +48,19 @@ inspection applications only in process with a controlled provider transport and
 temporary private stores. It is not exposed by the catalogue conformance server or
 secure tunnel and is not live-host evidence.
 
+The complete gateway test suite additionally runs a separately named exact-five
+STDIO subprocess test.
+It can start only with its exact test flag, authority argument, full source commit,
+closed scenario and private audit pipe. It wraps the branded
+`candidate-unregistered` assembly, fragments JSON-RPC frames across real stdin and
+stdout pipes and injects one fixed ONS response into the exact adapter, so no
+provider network request is made. The active journey discovers and safely calls all
+five operations, reads the catalogue, record and evidence resources, and checks
+structured/plain-text parity. Separate subprocesses prove cancellation, unsupported
+traffic and all seven subtractive suspension scenarios. This fixture is not a
+shipped entrypoint, manual host procedure, live-provider result or activation
+mechanism.
+
 ## Build the exact local candidate
 
 Use a complete checkout because the accepted gateway still loads canonical schemas
@@ -59,6 +75,7 @@ pnpm --filter @gis-ai-go/evidence run build
 pnpm --filter @gis-ai-go/authority-context run build
 pnpm --filter @gis-ai-go/policy-client run build
 pnpm --filter @gis-ai-go/mcp-gateway run build
+pnpm run test:typescript
 pnpm run test:interoperability
 ```
 

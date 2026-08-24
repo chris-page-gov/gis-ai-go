@@ -266,12 +266,16 @@ passed repository, exact gateway-image, aggregate and provenance assurance, and
 [run 32667087601](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32667087601)
 passed CodeQL for Actions, JavaScript/TypeScript and Python. The matrix binds four
 official-client and raw-transcript HTTP and STDIO source-coverage rows to exact Git
-blobs from the protected-main runtime. Its in-process STDIO regression covers seven
-suspension scenarios, nine resulting suspensions, reduced tool and resource
-discovery, rejected suspended calls and zero provider calls. The JSON records no
-test-runner outcome; current execution is established separately by repository
-assurance. It remains repository-only, non-live and unscored; it is not desktop
-STDIO, remote HTTP, live-provider, activation, deployment or release evidence.
+blobs from the protected-main runtime. Its current test-only real-process extension
+uses operating-system pipes and an injected fixed provider fixture to exercise the
+unregistered exact-five assembly, catalogue and evidence resources,
+structured/plain-text parity, cancellation and unsupported traffic. Seven
+real-process suspension scenarios produce nine suspensions, reduced tool and
+resource discovery, rejected suspended calls and zero provider transport calls.
+The JSON records no test-runner outcome; current execution is established
+separately by repository assurance. It remains repository-only, non-live and
+unscored; it is not desktop STDIO, remote HTTP, live-provider, activation,
+deployment or release evidence.
 
 A separate source-bound Claude Code `2.1.204` observation now records protected-main
 legacy STDIO transport readiness from a clean, detached checkout of that exact
