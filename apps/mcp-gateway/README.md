@@ -124,10 +124,15 @@ referenced by any shipped entrypoint or default capability list.
 The blocked image is built from a materialised, checksum-bound Git-tracked and OKF
 context. Environment files are rejected and ignored, dependency fetching precedes
 the broad source copy, and subsequent install, build and runtime mutations have no
-BuildKit network. Its final image gate requires canonical OCI/source/runtime
-verification, exact repeat-build bytes, a full Syft SBOM, replayable Trivy evidence,
-container acceptance and the closed 12-file evidence manifest. Those controls do
-not enable this package.
+BuildKit network. The fixed `linux/amd64` runtime composes an exact UBI 10 micro root,
+the checked official Node.js 24.19.0 executable and licence, UBI micro's exact
+`libgcc_s`, and only the checked versioned `libstdc++` object and notices from the
+exact UBI Node.js 24 minimal donor. It retains
+the unmodified UBI EULA, source-container provenance and an explicit no-Red-Hat-
+support boundary. Its final image gate requires canonical OCI/source/runtime
+verification, exact repeat-build bytes, a full Syft SBOM with receipt-bound donor
+files, replayable Trivy evidence, container acceptance and the closed 12-file
+evidence manifest. Those controls do not enable this package.
 The test-only legacy launcher is separately named, requires both the existing
 conformance gate and an exact `--legacy-stdio-conformance-only` argument, and is
 not referenced by a package script or shipped entrypoint.

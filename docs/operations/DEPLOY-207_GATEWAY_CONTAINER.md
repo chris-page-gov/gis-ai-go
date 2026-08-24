@@ -1,7 +1,8 @@
 # DEPLOY-207 blocked gateway container
 
-Status: accepted repository-only candidate on protected `main`; inactive and
-undeployed.
+Status: accepted historical repository-only candidate on protected `main`; fixed
+UBI 10 replacement passed complete local dirty-tree assurance on 24 August 2026 but
+is not yet clean-source accepted, published, activated or deployed.
 
 This runbook covers the image, local Compose and assurance slice that can proceed
 without selecting a public runtime. It does not activate GIS AI GO, contact ONS,
@@ -28,6 +29,65 @@ Strict attestations bind the
 and [closed evidence manifest](https://github.com/chris-page-gov/gis-ai-go/attestations/42310993)
 to that exact source. This acceptance publishes no image or service and changes no
 activation state.
+
+The protected-main identities above describe the earlier Debian Bookworm runtime.
+They must not be reused for the local UBI replacement. Its local development
+identities below are separate and non-publishable; accepted evidence requires a new
+clean-source run and protected integration.
+
+## Fixed UBI replacement candidate
+
+The local replacement is deliberately one fixed `linux/amd64` composition, not a
+general base-image profile. Its realised root is the exact UBI 10 micro image at
+`registry.access.redhat.com/ubi10-micro@sha256:422bd02268e317995a8fbb9c81c0835aa99798a234b5619c52350843d5ed5c4d`.
+The official Node image remains the build environment and supplies the checked
+Node.js 24.19.0 executable and complete bundled Node licence. The exact UBI 10
+Node.js 24 minimal image at
+`registry.access.redhat.com/ubi10/nodejs-24-minimal@sha256:e0e44d118dfba1c90e8adbdc751d6db2a1c5f9b0856d31d577054f8ea5216e2d`
+supplies only the checked versioned `libstdc++` object and GCC runtime licence
+notices. UBI micro supplies the checked `libgcc_s` object and link; the final stage
+creates the checked `libstdc++.so.6` link without network access. A scratch final
+stage prevents donor product, vendor, maintainer and default-command metadata from
+being inherited.
+
+The repository owner accepted the applicable UBI terms for this fixed route on
+24 August 2026. Every derived image includes the unmodified UBI EULA at
+`/usr/share/licenses/gis-ai-go/RED_HAT_UBI_EULA.pdf`, the repository licence,
+`THIRD_PARTY.md`, the complete Node notice and the GCC runtime notices. Its labels
+state that Red Hat does not support or endorse the image. Exact corresponding Red
+Hat source-container references, upstream Node source and archive identity, copied
+file hashes and redistribution duties are recorded in
+[`THIRD_PARTY.md`](../../THIRD_PARTY.md) and the closed image receipt. This records
+the accepted boundary; it is not legal advice and does not accept changed inputs or
+later terms.
+
+### Local assurance identity
+
+The complete dirty-tree development gate passed on 24 August 2026. Two isolated
+no-cache builds produced byte-identical OCI archives. The local evidence records:
+
+- image manifest
+  `sha256:d1fcfa6647fa6500e187c780a411a44dd621265614d739844f9afb983d16748b`;
+- OCI archive SHA-256
+  `13f16ed22565a0a0d5f7757b39c04e70fd3e17d09631764e1ce45c713d384452`;
+- 488-component full image SBOM SHA-256
+  `0357716068ec717e92317723661c50050b0c96906e831ab575bdf36443d5d856`;
+- current High/Critical Trivy report SHA-256
+  `4b16586001545d156729183875625043afc56fedaf8c7ac6c3fffdac008d75e0`,
+  with zero High and zero Critical findings;
+- retained database archive SHA-256
+  `591c0f1ce08328cdc90cf7e1421ea2ee2621185c546d262940498337654e476e`
+  and successful network-disabled replay; and
+- closed evidence-manifest SHA-256
+  `f39b60cead9b78475fd29cf9a19ae1a97547b7db905af657920cf50e0c6672fa`,
+  after Compose runtime, persistence, suspension and exact-image restore passed.
+
+The SBOM contains 26 realised Red Hat RPM components plus the three exact runtime
+file components for Node, `libgcc_s` and `libstdc++`. It contains no `gzip`,
+`util-linux`, `libblkid` or `libmount` RPM component. These identities are diagnostic
+local evidence classified `non-publishable-development-build`; they are not a
+registry artefact, attestation or release candidate and must change after the local
+commit creates a clean source identity.
 
 ## Exact boundary
 
@@ -62,18 +122,22 @@ honestly not ready for service.
 
 ## Pinned construction
 
-The Containerfile uses the public multi-architecture Node
-`24.19.0-bookworm-slim` index at
-`sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03`.
+The builder uses the public multi-architecture Node `24.19.0-bookworm-slim` index
+at `sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03`,
+but the only admitted target is `linux/amd64` and the receipt binds that platform.
 The build downloads pnpm `10.33.2`, verifies its independently published SHA-512
 before installation, fetches the frozen dependency graph and creates a
 production-only `pnpm deploy` tree while dependency networking is still available.
 Both package-manager installation commands and the deploy materialiser disable
 scripts. A later frozen offline workspace install and compilation replace only the
-reviewed workspace outputs in that tree. The runtime stage installs no
-operating-system package and runs as numeric `65532:65532`. The runtime removes
-build-only tests, declarations and pnpm metadata, together with the unused npm and
-Corepack package-manager trees and entry points, after construction.
+reviewed workspace outputs in that tree. Before the broad source copy, the builder
+also retrieves the exact official UBI EULA with redirects disabled and rejects a
+changed status, size or SHA-256. The runtime installs no operating-system package
+and runs as numeric `65532:65532`. Its scratch composition carries the UBI micro
+root, only the checked Node and UBI-donor library objects, the production dependency
+tree, application outputs and required notices. Build-only tests, declarations and
+pnpm metadata, together with the unused npm and Corepack package-manager trees and
+entry points, do not enter the final image.
 
 Construction does not give BuildKit the repository checkout. The packager first
 materialises a temporary context containing the exact Git-tracked allowlist plus the
@@ -89,11 +153,13 @@ exclusions for `.env` and `.env.*` at every depth. The context inventory indepen
 rejects those environment-file names. Repository sources excluded by both controls
 cannot enter the image accidentally.
 
-The only three network-enabled `RUN` instructions complete before the exact broad
+The only four network-enabled `RUN` instructions complete before the exact broad
 application, package, schema and OKF source-copy inventory: the build verifies and
-installs the pinned pnpm tarball, runs the frozen package fetch and materialises the
-production deploy tree with scripts disabled. The structural verifier admits those
-three instructions only, derives the network-disabled boundary from the first
+installs the pinned pnpm tarball, runs the frozen package fetch, materialises the
+production deploy tree with scripts disabled and retrieves the hash- and
+size-checked UBI EULA. The structural verifier admits those four instructions only,
+including the exact EULA URL and integrity values, derives the network-disabled
+boundary from the first
 non-manifest source copy and rejects every later network-enabled build instruction.
 After source is copied, the frozen offline install, compilation, reviewed-output
 replacement and runtime-stage mutation all execute with BuildKit networking disabled.
@@ -104,7 +170,7 @@ replace or alter pnpm dependency build-policy controls.
 BuildKit is fixed to v0.32.2 at
 `sha256:28a898719c18a33f4e8000685287fa36fd0dd9560c6440227d3a732d79bb41d8`.
 The build receives the source commit time as `SOURCE_DATE_EPOCH`, disables inline
-SBOM and provenance variance, and emits one-platform OCI output. The packager
+SBOM and provenance variance, and emits fixed `linux/amd64` OCI output. The packager
 normalises the outer OCI tar ownership, modes, order and timestamps. Two isolated,
 no-cache builds must have the same archive bytes and index, manifest, configuration
 and layer digests.
@@ -123,7 +189,12 @@ The checked receipt binds:
 - repository, source commit, version and source cleanliness;
 - complete admitted build-context checksum manifest;
 - Node, pnpm and BuildKit identities;
-- target platform;
+- fixed UBI micro runtime and source-container identities;
+- fixed UBI Node.js donor and source-container identities;
+- upstream and copied Node identities, realised library paths, link targets and
+  hashes, exact base or donor providers, EULA and notice identities, and the explicit
+  no-support boundary;
+- target `linux/amd64` platform;
 - archive, manifest, configuration and every layer digest; and
 - the unchanged zero-capability runtime claims.
 
@@ -310,11 +381,18 @@ manifest. Pull requests cannot deploy or publish an image.
 
 ## SBOM and vulnerability policy
 
-The repository-wide deterministic SBOM records the exact Node base identity. The
-separate image SBOM inventories the full realised operating-system and Node
-production package set from the OCI archive. Syft output is not component-filtered.
-Its source identity, timestamp, serial number and list ordering are normalised against
-the image receipt; no component is removed.
+The repository-wide deterministic SBOM records the exact Node builder, UBI micro
+runtime and UBI Node.js library-donor identities. The separate image SBOM inventories
+the full realised operating-system and Node production package set from the OCI
+archive. Because Syft cannot infer a package relationship for individual objects
+copied across stages, the generator adds receipt-derived file components for the
+Node executable, base-provided `libgcc_s` and donor-provided `libstdc++`. Their
+hashes, licences, providers and source references are closed values, and the verifier
+reconstructs and compares those components exactly. The top-level image component
+also binds the receipt hash, both UBI source-container identities, the EULA hash and
+the no-support boundary. Existing
+Syft components are not filtered or replaced. Source identity, timestamp, serial
+number and list ordering are normalised against the image receipt.
 
 The raw Trivy report and closed scan projection retain every reported High and
 Critical finding. The policy fails only when any of those findings has a non-empty
@@ -338,13 +416,16 @@ The retained database, full report, scanner and engine versions, and phase times
 dynamic assurance evidence. A later scan may change without changing the image and
 must be treated as newer evidence, not an OCI reproducibility failure.
 
-The protected-main candidate retains three unfixed High findings. Their exact
-package status, constrained current exposure and non-accepting release decision are
-recorded in the
+The historical protected-main Debian candidate retains three unfixed High findings.
+The fixed UBI composition removes those exact Debian package instances from the
+candidate topology by replacement, not by suppressing evidence. The complete local
+gate establishes the 26-RPM realised topology and records zero current High or
+Critical findings. That closes the three exact historical package findings for these
+local bytes only. It does not supersede protected-main evidence or establish release
+readiness until clean-source and protected assurance reproduce the result. The
+historical status and replacement exit criteria are recorded in the
 [QUAL-206 gateway image vulnerability disposition](QUAL-206_IMAGE_VULNERABILITY_DISPOSITION.md).
-A passing fixable-only policy is not owner risk acceptance or release readiness;
-a patched base rebuilt into new candidate bytes or a separately recorded explicit
-owner risk acceptance remains mandatory before release.
+A passing fixable-only policy is not owner risk acceptance or release readiness.
 
 ## Deployment and rollback blockers
 

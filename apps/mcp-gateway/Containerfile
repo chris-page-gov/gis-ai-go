@@ -1,4 +1,6 @@
 ARG NODE_BASE="node:24.19.0-bookworm-slim@sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03"
+ARG UBI_RUNTIME_BASE="registry.access.redhat.com/ubi10-micro@sha256:422bd02268e317995a8fbb9c81c0835aa99798a234b5619c52350843d5ed5c4d"
+ARG UBI_RUNTIME_LIBRARY_DONOR="registry.access.redhat.com/ubi10/nodejs-24-minimal@sha256:e0e44d118dfba1c90e8adbdc751d6db2a1c5f9b0856d31d577054f8ea5216e2d"
 
 FROM ${NODE_BASE} AS builder
 
@@ -45,6 +47,16 @@ RUN pnpm fetch --frozen-lockfile
 # the network-disabled step.
 RUN pnpm --filter @gis-ai-go/mcp-gateway deploy --prod --legacy --ignore-scripts \
       /runtime/apps/mcp-gateway
+
+# Red Hat requires the unmodified UBI EULA in every derived image. Fetch exactly
+# the accepted official PDF and reject redirects, changed bytes or a changed size.
+RUN mkdir -p /runtime-licences \
+    && node --input-type=module --eval \
+      "import {createHash} from 'node:crypto'; import {writeFile} from 'node:fs/promises'; const [url, expectedDigest, expectedBytesText, target] = process.argv.slice(1); const response = await fetch(url, {redirect: 'error', signal: AbortSignal.timeout(60000)}); const bytes = Buffer.from(await response.arrayBuffer()); if (response.status !== 200 || bytes.length !== Number(expectedBytesText) || createHash('sha256').update(bytes).digest('hex') !== expectedDigest) process.exit(1); await writeFile(target, bytes, {mode: 0o444});" \
+      'https://www.redhat.com/licenses/EULA_Red_Hat_Universal_Base_Image_English_20190422.pdf' \
+      'a07025b9f5b71a816febe6ac76f21c9f759c806fa0a66874af90a50c3293f1b6' \
+      '248785' \
+      '/runtime-licences/RED_HAT_UBI_EULA.pdf'
 
 COPY apps/mcp-gateway/ apps/mcp-gateway/
 COPY packages/authority-context/ packages/authority-context/
@@ -98,9 +110,23 @@ RUN --network=none test "$(tr -d '\n' < VERSION)" = "$PRODUCT_VERSION" \
       /runtime/apps/mcp-gateway/node_modules/.pnpm/node_modules/@gis-ai-go/mcp-gateway \
     && find /runtime/apps/mcp-gateway -type d -path '*/dist/test' \
       -prune -exec rm -rf '{}' ';' \
-    && find /runtime/apps/mcp-gateway -type f -name '*.d.ts' -delete
+    && find /runtime/apps/mcp-gateway -type f -name '*.d.ts' -delete \
+    && mkdir -p \
+      /runtime-root/nonexistent \
+      /runtime-root/var/lib/gis-ai-go/ledger \
+      /runtime-root/var/lib/gis-ai-go/reconciliation \
+    && chown -R 65532:65532 /runtime-root/var/lib/gis-ai-go \
+    && chmod 0700 \
+      /runtime-root/var/lib/gis-ai-go \
+      /runtime-root/var/lib/gis-ai-go/ledger \
+      /runtime-root/var/lib/gis-ai-go/reconciliation \
+    && chmod 0555 /runtime-root/nonexistent
 
-FROM ${NODE_BASE} AS runtime
+FROM ${UBI_RUNTIME_LIBRARY_DONOR} AS runtime-libraries
+
+FROM ${UBI_RUNTIME_BASE} AS runtime-root
+
+FROM scratch AS runtime
 
 ARG PRODUCT_VERSION
 ARG SOURCE_CREATED
@@ -110,48 +136,90 @@ ARG SOURCE_TREE_CLEAN
 
 LABEL org.opencontainers.image.title="GIS AI GO blocked gateway candidate" \
       org.opencontainers.image.description="Repository-only zero-capability gateway container" \
-      org.opencontainers.image.licenses="MIT" \
+      org.opencontainers.image.licenses="MIT AND LicenseRef-Red-Hat-UBI-EULA AND LicenseRef-Third-Party-Notices" \
       org.opencontainers.image.source="https://github.com/chris-page-gov/gis-ai-go" \
       org.opencontainers.image.version="${PRODUCT_VERSION}" \
       org.opencontainers.image.revision="${SOURCE_REVISION}" \
       org.opencontainers.image.created="${SOURCE_CREATED}" \
+      org.opencontainers.image.base.name="registry.access.redhat.com/ubi10-micro@sha256:422bd02268e317995a8fbb9c81c0835aa99798a234b5619c52350843d5ed5c4d" \
+      org.opencontainers.image.base.digest="sha256:422bd02268e317995a8fbb9c81c0835aa99798a234b5619c52350843d5ed5c4d" \
       io.gis-ai-go.registry-id="io.github.chris-page-gov/gis-ai-go" \
       io.gis-ai-go.lifecycle="candidate-blocked" \
+      io.gis-ai-go.red-hat-support="not-supported-or-endorsed" \
+      io.gis-ai-go.runtime-library-donor="registry.access.redhat.com/ubi10/nodejs-24-minimal@sha256:e0e44d118dfba1c90e8adbdc751d6db2a1c5f9b0856d31d577054f8ea5216e2d" \
       io.gis-ai-go.source-tree-clean="${SOURCE_TREE_CLEAN}" \
       io.gis-ai-go.live-provider-calls="false" \
       io.gis-ai-go.active-tools="[]" \
       io.gis-ai-go.active-api-operations="[]"
 
-ENV HOME=/nonexistent \
+ENV PATH=/usr/local/bin \
+    NODE_VERSION=24.19.0 \
+    HOME=/nonexistent \
     NODE_ENV=production \
     TZ=UTC
 
 WORKDIR /app/apps/mcp-gateway
 
+COPY --from=runtime-root / /
+COPY --from=builder --chown=0:0 /usr/local/bin/node /usr/local/bin/node
+COPY --from=builder --chown=0:0 /usr/local/LICENSE /usr/share/licenses/nodejs/LICENSE
+COPY --from=runtime-libraries --chown=0:0 \
+  /usr/lib64/libstdc++.so.6.0.33 \
+  /usr/lib64/libstdc++.so.6.0.33
+COPY --from=runtime-libraries --chown=0:0 \
+  /usr/share/licenses/libgcc/ \
+  /usr/share/licenses/libgcc/
 COPY --from=builder --chown=0:0 /runtime/apps/mcp-gateway/ ./
 COPY --chown=0:0 schemas/ /app/schemas/
 COPY --chown=0:0 artifacts/okf/ /app/artifacts/okf/
 COPY --chown=0:0 LICENSE /app/LICENSE
+COPY --chown=0:0 LICENSE /usr/share/licenses/gis-ai-go/LICENSE
+COPY --chown=0:0 THIRD_PARTY.md /usr/share/licenses/gis-ai-go/THIRD_PARTY.md
+COPY --from=builder --chown=0:0 \
+  /runtime-licences/RED_HAT_UBI_EULA.pdf \
+  /usr/share/licenses/gis-ai-go/RED_HAT_UBI_EULA.pdf
+COPY --from=builder --chown=0:0 /runtime-root/nonexistent/ /nonexistent/
+COPY --from=builder --chown=65532:65532 \
+  /runtime-root/var/lib/gis-ai-go/ /var/lib/gis-ai-go/
 
-RUN --network=none mkdir -p \
-      /nonexistent \
-      /var/lib/gis-ai-go/ledger \
-      /var/lib/gis-ai-go/reconciliation \
-    && rm -rf \
-      /usr/local/lib/node_modules/corepack \
-      /usr/local/lib/node_modules/npm \
-    && rm -f \
-      /usr/local/bin/corepack \
-      /usr/local/bin/npm \
-      /usr/local/bin/npx \
-    && chown -R 65532:65532 /var/lib/gis-ai-go \
-    && chmod 0700 \
+RUN --network=none test ! -e /usr/lib64/libstdc++.so.6 \
+    && /usr/bin/ln -s \
+      libstdc++.so.6.0.33 \
+      /usr/lib64/libstdc++.so.6 \
+    && test "$(/usr/local/bin/node --version)" = 'v24.19.0' \
+    && test "$(/usr/bin/readlink /usr/lib64/libgcc_s.so.1)" = \
+      'libgcc_s-14-20251022.so.1' \
+    && test "$(/usr/bin/readlink /usr/lib64/libstdc++.so.6)" = \
+      'libstdc++.so.6.0.33' \
+    && test "$(/usr/bin/sha256sum /usr/local/bin/node)" = \
+      'bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12  /usr/local/bin/node' \
+    && test "$(/usr/bin/sha256sum /usr/lib64/libgcc_s-14-20251022.so.1)" = \
+      'a0070ef643f5ad08f3d3a32a439d8d02d388a38ba5732cbafe58f3a1d60f1e32  /usr/lib64/libgcc_s-14-20251022.so.1' \
+    && test "$(/usr/bin/sha256sum /usr/lib64/libstdc++.so.6.0.33)" = \
+      '6a76f822fa825d6a065358923c56f5569ac411b27987c035d6f61124a03016ee  /usr/lib64/libstdc++.so.6.0.33' \
+    && test "$(/usr/bin/sha256sum /usr/share/licenses/nodejs/LICENSE)" = \
+      '148eacf7863ef4329224a29398623077200a27194aa075569faf4a0a85566ca5  /usr/share/licenses/nodejs/LICENSE' \
+    && test "$(/usr/bin/sha256sum /usr/share/licenses/gis-ai-go/RED_HAT_UBI_EULA.pdf)" = \
+      'a07025b9f5b71a816febe6ac76f21c9f759c806fa0a66874af90a50c3293f1b6  /usr/share/licenses/gis-ai-go/RED_HAT_UBI_EULA.pdf' \
+    && node_closure="$(/usr/bin/ldd /usr/local/bin/node)" \
+    && case "$node_closure" in *'not found'*) exit 1 ;; esac \
+    && for dependency in \
+      ld-linux-x86-64.so.2 \
+      libc.so.6 \
+      libdl.so.2 \
+      libgcc_s.so.1 \
+      libm.so.6 \
+      libpthread.so.0 \
+      libstdc++.so.6; do \
+        case "$node_closure" in *"$dependency"*) ;; *) exit 1 ;; esac; \
+      done \
+    && /usr/bin/chmod -R a-w /app /usr/share/licenses/gis-ai-go \
+    && /usr/bin/chmod -R a+rX /app \
+    && /usr/bin/chmod 0555 /nonexistent \
+    && /usr/bin/chmod 0700 \
       /var/lib/gis-ai-go \
       /var/lib/gis-ai-go/ledger \
-      /var/lib/gis-ai-go/reconciliation \
-    && chmod 0555 /nonexistent \
-    && chmod -R a-w /app \
-    && chmod -R a+rX /app
+      /var/lib/gis-ai-go/reconciliation
 
 USER 65532:65532
 
@@ -160,6 +228,6 @@ EXPOSE 8787/tcp
 STOPSIGNAL SIGTERM
 
 HEALTHCHECK --interval=10s --timeout=3s --start-period=5s --retries=3 \
-  CMD ["node", "dist/src/container-healthcheck.js"]
+  CMD ["/usr/local/bin/node", "dist/src/container-healthcheck.js"]
 
-ENTRYPOINT ["node", "dist/src/container-main.js"]
+ENTRYPOINT ["/usr/local/bin/node", "dist/src/container-main.js"]

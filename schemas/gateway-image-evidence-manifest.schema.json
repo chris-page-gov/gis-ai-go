@@ -39,7 +39,7 @@
       "required": ["manifest_digest", "platform"],
       "properties": {
         "manifest_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
-        "platform": {"enum": ["linux/amd64", "linux/arm64"]}
+        "platform": {"const": "linux/amd64"}
       }
     },
     "subjects": {

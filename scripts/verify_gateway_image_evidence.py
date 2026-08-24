@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import stat
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -33,6 +34,7 @@ from gateway_image import (
     assert_no_private_json,
     assert_no_private_text,
     canonical_json_bytes,
+    make_runtime_sbom_components,
     parse_checksum,
     sha256_bytes,
     sha256_file,
@@ -127,13 +129,43 @@ def _verify_sbom(output: Path, receipt: dict[str, Any]) -> dict[str, Any]:
         or component.get("bom-ref") != receipt["image"]["manifest_digest"]
         or component.get("name") != "gis-ai-go-gateway"
         or component.get("version") != receipt["source"]["version"]
+        or component.get("licenses")
+        != [
+            {
+                "expression": (
+                    "MIT AND LicenseRef-Red-Hat-UBI-EULA AND "
+                    "LicenseRef-Third-Party-Notices"
+                )
+            }
+        ]
         or metadata.get("timestamp") != receipt["source"]["created"]
     ):
         raise ValueError("gateway image SBOM identity differs from its image receipt")
     expected_properties = {
         "gis-ai-go:image-manifest-digest": receipt["image"]["manifest_digest"],
+        "gis-ai-go:image-receipt-sha256": sha256_file(
+            output / "image-receipt.json"
+        ),
         "gis-ai-go:source-revision": receipt["source"]["revision"],
         "gis-ai-go:scanner-image": SYFT_REFERENCE,
+        "gis-ai-go:runtime-base-reference": receipt["build"]["runtime_composition"][
+            "runtime_base"
+        ]["reference"],
+        "gis-ai-go:runtime-base-source-reference": receipt["build"][
+            "runtime_composition"
+        ]["runtime_base"]["source_reference"],
+        "gis-ai-go:runtime-library-donor-reference": receipt["build"][
+            "runtime_composition"
+        ]["runtime_library_donor"]["reference"],
+        "gis-ai-go:runtime-library-source-reference": receipt["build"][
+            "runtime_composition"
+        ]["runtime_library_donor"]["source_reference"],
+        "gis-ai-go:ubi-eula-sha256": receipt["build"]["runtime_composition"][
+            "licence_material"
+        ]["ubi_eula"]["sha256"],
+        "gis-ai-go:support-boundary": receipt["build"]["runtime_composition"][
+            "support_boundary"
+        ],
     }
     properties = component.get("properties")
     if not isinstance(properties, list) or {
@@ -149,7 +181,34 @@ def _verify_sbom(output: Path, receipt: dict[str, Any]) -> dict[str, Any]:
         if isinstance(item, dict) and item.get("name") == "syft"
     } != {"1.42.2"}:
         raise ValueError("gateway image SBOM lacks the exact Syft identity")
+    components_by_reference: dict[str, dict[str, Any]] = {}
+    for item in sbom["components"]:
+        if not isinstance(item, dict) or not isinstance(item.get("bom-ref"), str):
+            continue
+        reference = item["bom-ref"]
+        if reference in components_by_reference:
+            raise ValueError("gateway image SBOM contains a duplicate component identity")
+        components_by_reference[reference] = item
+    for expected in make_runtime_sbom_components(receipt):
+        actual = components_by_reference.get(expected["bom-ref"])
+        normalised_expected = _normalise_sbom_value(expected)
+        if actual != normalised_expected:
+            raise ValueError(
+                "gateway image SBOM lacks an exact runtime donor-file component"
+            )
     return sbom
+
+
+def _normalise_sbom_value(value: Any) -> Any:
+    if isinstance(value, dict):
+        return {key: _normalise_sbom_value(value[key]) for key in sorted(value)}
+    if isinstance(value, list):
+        items = [_normalise_sbom_value(item) for item in value]
+        return sorted(
+            items,
+            key=lambda item: json.dumps(item, sort_keys=True, separators=(",", ":")),
+        )
+    return value
 
 
 def _parse_utc_timestamp(value: Any, *, label: str) -> datetime:

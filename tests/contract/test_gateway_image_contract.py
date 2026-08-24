@@ -42,7 +42,12 @@ from gateway_image import (  # noqa: E402
     OCI_INDEX_MEDIA_TYPE,
     PNPM_SHA512,
     PNPM_VERSION,
+    SYFT_REFERENCE,
     TRIVY_REFERENCE,
+    UBI_EULA_SHA256,
+    UBI_RUNTIME_BASE_DIGEST,
+    UBI_RUNTIME_BASE_REFERENCE,
+    UBI_RUNTIME_LIBRARY_DONOR_REFERENCE,
     SourceIdentity,
     assert_no_private_json,
     assert_no_private_text,
@@ -52,6 +57,7 @@ from gateway_image import (  # noqa: E402
     canonical_json_bytes,
     inspect_oci_archive,
     make_image_receipt,
+    make_runtime_sbom_components,
     parse_checksum,
     parse_gateway_containerfile_pins,
     prohibited_json_reason,
@@ -92,8 +98,10 @@ from verify_gateway_image_evidence import (  # noqa: E402
     _verify_acceptance_phase_timings,
     _verify_outer_phase_containment,
     _verify_phases,
+    _verify_sbom,
     _verify_text_evidence_privacy,
     _verify_tool_version_bindings,
+    _normalise_sbom_value,
 )
 from check_gateway_container import (  # noqa: E402
     COMPOSE_FILE,
@@ -136,12 +144,19 @@ def synthetic_oci(
             "Repository-only zero-capability gateway container"
         ),
         "org.opencontainers.image.source": "https://github.com/chris-page-gov/gis-ai-go",
-        "org.opencontainers.image.licenses": "MIT",
+        "org.opencontainers.image.licenses": (
+            "MIT AND LicenseRef-Red-Hat-UBI-EULA AND "
+            "LicenseRef-Third-Party-Notices"
+        ),
+        "org.opencontainers.image.base.name": UBI_RUNTIME_BASE_REFERENCE,
+        "org.opencontainers.image.base.digest": UBI_RUNTIME_BASE_DIGEST,
         "org.opencontainers.image.version": "0.1.0",
         "org.opencontainers.image.revision": revision,
         "org.opencontainers.image.created": created,
         "io.gis-ai-go.registry-id": EXPECTED_REGISTRY_ID,
         "io.gis-ai-go.lifecycle": "candidate-blocked",
+        "io.gis-ai-go.red-hat-support": "not-supported-or-endorsed",
+        "io.gis-ai-go.runtime-library-donor": UBI_RUNTIME_LIBRARY_DONOR_REFERENCE,
         "io.gis-ai-go.source-tree-clean": "true",
         "io.gis-ai-go.live-provider-calls": "false",
         "io.gis-ai-go.active-tools": "[]",
@@ -647,6 +662,36 @@ class GatewayImageContractTests(unittest.TestCase):
         dirty = json.loads(canonical_json_bytes(receipt))
         dirty["source"]["clean"] = False
         self.assertTrue(list(validator.iter_errors(dirty)))
+        for name, mutate in (
+            (
+                "runtime-base",
+                lambda value: value["build"]["runtime_composition"]["runtime_base"].update(
+                    {"digest": "sha256:" + "0" * 64}
+                ),
+            ),
+            (
+                "library-donor",
+                lambda value: value["build"]["runtime_composition"][
+                    "runtime_library_donor"
+                ].update({"reference": "registry.example.invalid/changed"}),
+            ),
+            (
+                "eula",
+                lambda value: value["build"]["runtime_composition"][
+                    "licence_material"
+                ]["ubi_eula"].update({"sha256": "0" * 64}),
+            ),
+            (
+                "support",
+                lambda value: value["build"]["runtime_composition"].update(
+                    {"support_boundary": "supported"}
+                ),
+            ),
+        ):
+            changed = json.loads(canonical_json_bytes(receipt))
+            mutate(changed)
+            with self.subTest(name=name):
+                self.assertTrue(list(validator.iter_errors(changed)))
 
     def test_inspector_rejects_tampered_oci_content(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -663,12 +708,128 @@ class GatewayImageContractTests(unittest.TestCase):
             with self.assertRaises((tarfile.TarError, ValueError)):
                 inspect_oci_archive(archive)
 
+    def test_image_sbom_binds_receipt_and_cross_stage_runtime_files(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            archive = root / "gateway-image.oci.tar"
+            synthetic_oci(archive)
+            source = SourceIdentity(
+                revision="a" * 40,
+                version="0.1.0",
+                source_date_epoch=1_777_000_000,
+                created="2026-08-21T00:00:00Z",
+                clean=True,
+            )
+            receipt = make_image_receipt(
+                source=source,
+                inspection=inspect_oci_archive(archive),
+                context_manifest_sha256="b" * 64,
+                context_file_count=1,
+                context_bytes=1,
+                archive_name="gateway-image.oci.tar",
+                realised_buildx_version="v0.35.0",
+            )
+            receipt_path = root / "image-receipt.json"
+            receipt_path.write_bytes(canonical_json_bytes(receipt))
+            composition = receipt["build"]["runtime_composition"]
+            properties = [
+                {
+                    "name": "gis-ai-go:image-manifest-digest",
+                    "value": receipt["image"]["manifest_digest"],
+                },
+                {
+                    "name": "gis-ai-go:image-receipt-sha256",
+                    "value": sha256_file(receipt_path),
+                },
+                {
+                    "name": "gis-ai-go:source-revision",
+                    "value": receipt["source"]["revision"],
+                },
+                {"name": "gis-ai-go:scanner-image", "value": SYFT_REFERENCE},
+                {
+                    "name": "gis-ai-go:runtime-base-reference",
+                    "value": composition["runtime_base"]["reference"],
+                },
+                {
+                    "name": "gis-ai-go:runtime-base-source-reference",
+                    "value": composition["runtime_base"]["source_reference"],
+                },
+                {
+                    "name": "gis-ai-go:runtime-library-donor-reference",
+                    "value": composition["runtime_library_donor"]["reference"],
+                },
+                {
+                    "name": "gis-ai-go:runtime-library-source-reference",
+                    "value": composition["runtime_library_donor"]["source_reference"],
+                },
+                {
+                    "name": "gis-ai-go:ubi-eula-sha256",
+                    "value": composition["licence_material"]["ubi_eula"]["sha256"],
+                },
+                {
+                    "name": "gis-ai-go:support-boundary",
+                    "value": composition["support_boundary"],
+                },
+            ]
+            sbom = {
+                "bomFormat": "CycloneDX",
+                "specVersion": "1.6",
+                "metadata": {
+                    "timestamp": receipt["source"]["created"],
+                    "component": {
+                        "bom-ref": receipt["image"]["manifest_digest"],
+                        "type": "container",
+                        "name": "gis-ai-go-gateway",
+                        "version": receipt["source"]["version"],
+                        "licenses": [
+                            {
+                                "expression": (
+                                    "MIT AND LicenseRef-Red-Hat-UBI-EULA AND "
+                                    "LicenseRef-Third-Party-Notices"
+                                )
+                            }
+                        ],
+                        "properties": properties,
+                    },
+                    "tools": {
+                        "components": [{"name": "syft", "version": "1.42.2"}]
+                    },
+                },
+                "components": [
+                    _normalise_sbom_value(item)
+                    for item in make_runtime_sbom_components(receipt)
+                ],
+            }
+            sbom_path = root / "gateway-image.sbom.cdx.json"
+
+            def write_sbom(value: dict[str, Any]) -> None:
+                sbom_path.write_bytes(canonical_json_bytes(value))
+                (root / "gateway-image.sbom.cdx.json.sha256").write_text(
+                    f"{sha256_file(sbom_path)}  {sbom_path.name}\n",
+                    encoding="utf-8",
+                )
+
+            write_sbom(sbom)
+            self.assertEqual(_verify_sbom(root, receipt), sbom)
+
+            changed = json.loads(canonical_json_bytes(sbom))
+            changed["components"][0]["properties"][0]["value"] = "changed"
+            write_sbom(changed)
+            with self.assertRaisesRegex(ValueError, "runtime donor-file"):
+                _verify_sbom(root, receipt)
+
     def test_container_and_compose_have_no_activation_or_provider_input(self) -> None:
         containerfile = (ROOT / "apps" / "mcp-gateway" / "Containerfile").read_text()
         compose = (ROOT / "deploy" / "gateway" / "compose.candidate.yaml").read_text()
         self.assertIn(NODE_BASE_DIGEST, containerfile)
+        self.assertIn(UBI_RUNTIME_BASE_REFERENCE, containerfile)
+        self.assertIn(UBI_RUNTIME_LIBRARY_DONOR_REFERENCE, containerfile)
+        self.assertIn(UBI_EULA_SHA256, containerfile)
         self.assertIn('USER 65532:65532', containerfile)
-        self.assertIn('ENTRYPOINT ["node", "dist/src/container-main.js"]', containerfile)
+        self.assertIn(
+            'ENTRYPOINT ["/usr/local/bin/node", "dist/src/container-main.js"]',
+            containerfile,
+        )
         self.assertNotRegex(containerfile, r"(?:ONS|API_KEY|ACTIVE_TOOLS|ACTIVE_OPERATIONS)")
         self.assertIn("COPY packages/tool-registry/ packages/tool-registry/", containerfile)
         self.assertIn(
@@ -677,7 +838,7 @@ class GatewayImageContractTests(unittest.TestCase):
         )
         self.assertIn("node_modules/.modules.yaml", containerfile)
         self.assertIn("-path '*/dist/test'", containerfile)
-        self.assertIn("/usr/local/lib/node_modules/npm", containerfile)
+        self.assertNotIn("COPY --from=builder /usr/local/lib/node_modules", containerfile)
         self.assertEqual(BUILDER_NAME, "gis-ai-go-gateway")
         self.assertIn("pull_policy: never", compose)
         self.assertIn("host_ip: 127.0.0.1", compose)
@@ -689,6 +850,11 @@ class GatewayImageContractTests(unittest.TestCase):
         containerfile = (ROOT / "apps" / "mcp-gateway" / "Containerfile").read_text()
         parsed = parse_gateway_containerfile_pins(containerfile)
         self.assertEqual(parsed["node_reference"], NODE_BASE_REFERENCE)
+        self.assertEqual(parsed["runtime_base_reference"], UBI_RUNTIME_BASE_REFERENCE)
+        self.assertEqual(
+            parsed["runtime_library_donor_reference"],
+            UBI_RUNTIME_LIBRARY_DONOR_REFERENCE,
+        )
         mutations = [
             containerfile.replace(
                 f'ARG NODE_BASE="{NODE_BASE_REFERENCE}"',
@@ -715,9 +881,33 @@ class GatewayImageContractTests(unittest.TestCase):
                 "      /runtime/apps/mcp-gateway",
                 "RUN true",
             ),
+            containerfile.replace(UBI_RUNTIME_BASE_DIGEST, "sha256:" + "0" * 64, 1),
+            containerfile.replace(
+                UBI_RUNTIME_LIBRARY_DONOR_REFERENCE,
+                "registry.access.redhat.com/ubi10/nodejs-24-minimal@sha256:"
+                + "0" * 64,
+                1,
+            ),
+            containerfile.replace(UBI_EULA_SHA256, "0" * 64, 1),
+            containerfile.replace(
+                "/usr/lib64/libstdc++.so.6.0.33 \\\n"
+                "  /usr/lib64/libstdc++.so.6.0.33",
+                "/usr/lib64/libstdc++.so.6.0.33",
+                1,
+            ),
+            containerfile.replace(
+                "&& /usr/bin/ln -s \\\n"
+                "      libstdc++.so.6.0.33 \\\n"
+                "      /usr/lib64/libstdc++.so.6",
+                "&& true",
+                1,
+            ),
+            containerfile.replace(
+                "libpthread.so.0 \\\n      libstdc++.so.6", "libstdc++.so.6", 1
+            ),
         ]
-        for mutation in mutations:
-            with self.subTest():
+        for index, mutation in enumerate(mutations):
+            with self.subTest(index=index):
                 with self.assertRaises(ValueError):
                     parse_gateway_containerfile_pins(mutation)
         verify_root_package_manager({"packageManager": f"pnpm@{PNPM_VERSION}"})

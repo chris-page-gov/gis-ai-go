@@ -1,5 +1,6 @@
 **
 !LICENSE
+!THIRD_PARTY.md
 !VERSION
 !package.json
 !pnpm-lock.yaml

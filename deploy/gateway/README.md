@@ -4,6 +4,16 @@ This local Compose file exercises the repository-only DEPLOY-207 container. It i
 not a deployment definition and it cannot activate a tool, direct operation,
 resource, application or provider.
 
+The current local image source uses the one reviewed `linux/amd64` composition:
+UBI 10 micro as the runtime root, the official Node image as builder and checked
+Node.js 24.19.0 donor, and UBI 10 Node.js 24 minimal as donor for the exact versioned
+`libstdc++` object and GCC notices. The UBI micro root supplies exact `libgcc_s`.
+The image includes the unmodified UBI EULA and all required licence
+and source-provenance notices. It is not supported or endorsed by Red Hat. This
+replacement is not accepted merely because it is constructed: run the complete
+image gate and retain the new receipt, SBOM, scan and Compose evidence before using
+it as a release candidate.
+
 The checker supplies `GIS_AI_GO_GATEWAY_IMAGE` as the exact locally loaded image
 identity and uses `pull_policy: never`. Do not replace it with a floating tag. The
 only declared host socket is `127.0.0.1:8787`; the isolated bridge is internal and

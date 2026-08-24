@@ -21,6 +21,9 @@ from gateway_image import (  # noqa: E402
     EXPECTED_ENTRYPOINT,
     EXPECTED_HEALTH_CONFIGURATION,
     EXPECTED_REGISTRY_ID,
+    UBI_RUNTIME_BASE_DIGEST,
+    UBI_RUNTIME_BASE_REFERENCE,
+    UBI_RUNTIME_LIBRARY_DONOR_REFERENCE,
     canonical_json_bytes,
     canonicalise_oci_archive,
     inspect_oci_archive,
@@ -60,12 +63,19 @@ def hybrid_files() -> tuple[dict[str, bytes], list[dict[str, Any]]]:
             "Repository-only zero-capability gateway container"
         ),
         "org.opencontainers.image.source": "https://github.com/chris-page-gov/gis-ai-go",
-        "org.opencontainers.image.licenses": "MIT",
+        "org.opencontainers.image.licenses": (
+            "MIT AND LicenseRef-Red-Hat-UBI-EULA AND "
+            "LicenseRef-Third-Party-Notices"
+        ),
+        "org.opencontainers.image.base.name": UBI_RUNTIME_BASE_REFERENCE,
+        "org.opencontainers.image.base.digest": UBI_RUNTIME_BASE_DIGEST,
         "org.opencontainers.image.version": "0.1.0",
         "org.opencontainers.image.revision": revision,
         "org.opencontainers.image.created": created,
         "io.gis-ai-go.registry-id": EXPECTED_REGISTRY_ID,
         "io.gis-ai-go.lifecycle": "candidate-blocked",
+        "io.gis-ai-go.red-hat-support": "not-supported-or-endorsed",
+        "io.gis-ai-go.runtime-library-donor": UBI_RUNTIME_LIBRARY_DONOR_REFERENCE,
         "io.gis-ai-go.source-tree-clean": "true",
         "io.gis-ai-go.live-provider-calls": "false",
         "io.gis-ai-go.active-tools": "[]",

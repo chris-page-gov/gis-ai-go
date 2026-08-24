@@ -15,6 +15,12 @@ from gateway_image import (
     NODE_BASE_DIGEST,
     NODE_BASE_NAME,
     NODE_BASE_VERSION,
+    UBI_RUNTIME_BASE_DIGEST,
+    UBI_RUNTIME_BASE_REFERENCE,
+    UBI_RUNTIME_BASE_VERSION,
+    UBI_RUNTIME_LIBRARY_DONOR_DIGEST,
+    UBI_RUNTIME_LIBRARY_DONOR_REFERENCE,
+    UBI_RUNTIME_LIBRARY_DONOR_VERSION,
     parse_gateway_containerfile_pins,
 )
 
@@ -120,7 +126,7 @@ def execution_container_components() -> Iterator[dict[str, str]]:
 
 
 def gateway_container_components() -> Iterator[dict[str, str]]:
-    """Bind the blocked gateway image to its reviewed multi-architecture base."""
+    """Bind the blocked gateway image to its fixed builder and UBI runtime inputs."""
 
     containerfile = (ROOT / "apps" / "mcp-gateway" / "Containerfile").read_text(
         encoding="utf-8"
@@ -129,6 +135,12 @@ def gateway_container_components() -> Iterator[dict[str, str]]:
     expected = f"{NODE_BASE_NAME}:{NODE_BASE_VERSION}@{NODE_BASE_DIGEST}"
     if parsed["node_reference"] != expected:
         raise AssertionError("gateway Containerfile differs from the SBOM base identity")
+    if (
+        parsed["runtime_base_reference"] != UBI_RUNTIME_BASE_REFERENCE
+        or parsed["runtime_library_donor_reference"]
+        != UBI_RUNTIME_LIBRARY_DONOR_REFERENCE
+    ):
+        raise AssertionError("gateway Containerfile differs from the UBI runtime identities")
     purl = (
         f"pkg:oci/{NODE_BASE_NAME}@{quote(NODE_BASE_VERSION, safe='')}"
         f"?repository_url=docker.io%2Flibrary%2Fnode"
@@ -140,6 +152,29 @@ def gateway_container_components() -> Iterator[dict[str, str]]:
         "version": NODE_BASE_VERSION,
         "purl": purl,
     }
+    for name, version, repository, digest in (
+        (
+            "ubi10-micro",
+            UBI_RUNTIME_BASE_VERSION,
+            "registry.access.redhat.com%2Fubi10-micro",
+            UBI_RUNTIME_BASE_DIGEST,
+        ),
+        (
+            "ubi10-nodejs-24-minimal",
+            UBI_RUNTIME_LIBRARY_DONOR_VERSION,
+            "registry.access.redhat.com%2Fubi10%2Fnodejs-24-minimal",
+            UBI_RUNTIME_LIBRARY_DONOR_DIGEST,
+        ),
+    ):
+        yield {
+            "type": "container",
+            "name": name,
+            "version": version,
+            "purl": (
+                f"pkg:oci/{name}@{quote(version, safe='')}"
+                f"?repository_url={repository}&digest={quote(digest, safe='')}"
+            ),
+        }
 
 
 def main() -> None:
@@ -178,9 +213,10 @@ def main() -> None:
                 {
                     "name": "gis-ai-go:scope",
                     "value": (
-                        "resolved package dependencies plus the pinned private execution and "
-                        "blocked gateway container bases; full gateway image operating-system "
-                        "inventory is emitted by the separate DEPLOY-207 image SBOM"
+                        "resolved package dependencies plus the pinned private execution image "
+                        "and fixed gateway Node builder, UBI runtime root and UBI library donor; "
+                        "the full realised gateway operating-system and runtime-file inventory "
+                        "is emitted by the separate DEPLOY-207 image SBOM"
                     ),
                 }
             ],

@@ -28,6 +28,17 @@ separately retained tail checkpoint, and restores only into empty private roots
 before completing both verifiers. It selects no storage provider and supplies no
 deployment, operator-fencing, schedule, RPO/RTO, disposal or release evidence.
 
+The accepted DEPLOY-207 base-remediation route is also integrated without displacing
+the independent-host workstream. The fixed `linux/amd64` UBI 10 composition and
+closed receipt and SBOM contracts are implemented. Its clean source branch passed
+the complete repository and exact local image-assurance gates, including reproducible
+OCI bytes, a 488-component SBOM, Trivy and calibrated Node advisory coverage,
+retained offline replay, and runtime, persistence, suspension and exact-image restore
+acceptance. The combined tree still requires its own closed gate and the protected
+pull-request and protected-main checks. It remains a repository-only blocked
+candidate; no publication, live provider call, deployment, activation, tag or
+release is claimed.
+
 ## Completed
 
 - Stage 0 foundation verified at `983b1a102aa8038c9f50ae1b1894315c3ae0b89f`;
@@ -244,10 +255,11 @@ deployment, operator-fencing, schedule, RPO/RTO, disposal or release evidence.
 1. Complete bounded Claude capability evidence and the remaining independent
    desktop-STDIO and remote-HTTP host evidence. The local protocol matrix and
    Claude transport-only result do not complete issue #24's live-host criteria.
-2. Monitor official supported glibc base releases. Re-probe Bookworm and Trixie
-   only when immutable upstream bytes or package fix status changes; accept a
-   replacement only if complete repository and image assurance, reproducible OCI
-   builds, SBOM, current scanning and compatibility review pass.
+2. Rerun the closed image-assurance gate for the fixed UBI 10 replacement from clean
+   committed source. Require the resulting reproducible OCI bytes, v2 composition
+   receipt, full SBOM, current scan, offline replay, direct Node loader closure and
+   Compose compatibility to pass the protected pull-request and protected-main checks
+   before they can supersede the historical Debian candidate.
 3. Keep DEPLOY-207 at `status: decision needed` until an authorised public runtime,
    hostname/TLS, identity, egress, storage and operator boundary exists.
 4. Only after that separate authority exists, deploy an unregistered
@@ -278,12 +290,14 @@ deployment, operator-fencing, schedule, RPO/RTO, disposal or release evidence.
   repository-local matrix is non-live and cannot close issue #23 or issue #24;
   independent hosts, a live provider, authorised deployment and release evidence
   remain outstanding.
-- The 23 August Bookworm and Trixie probe found no supported official glibc
-  replacement that both resolves all three retained High image vulnerabilities and
-  satisfies the current compatibility boundary. Re-probe only after immutable
-  upstream bytes or package fix status changes. Activation and release require
-  either a fully assured patched base or an explicit owner risk decision; repository
-  containment is not remediation or acceptance.
+- The historical protected-main Debian image retains three unresolved High findings.
+  The authorised fixed UBI 10 replacement now produces repeatable OCI bytes, a fresh
+  complete SBOM, a zero-High/zero-Critical current scan, offline replay and successful
+  Compose acceptance from local dirty source. That non-publishable result proves the
+  historical Debian package instances absent from these local bytes, but cannot close
+  the protected-main findings until the same complete gate binds clean committed source
+  and the protected pull-request and protected-main checks pass. No protected-source
+  attestation exists for the replacement yet.
 - The accepted ONS adapter and reconciliation storage are local, explicitly injected
   components. The fixed 4,096-claim pre-publication index ceiling and accepted ledger
   event ceiling are local safety bounds, not deployment quotas. There is no
@@ -295,6 +309,25 @@ deployment, operator-fencing, schedule, RPO/RTO, disposal or release evidence.
   the open product.
 
 ## Latest evidence
+
+- DEPLOY-207 local UBI replacement assurance on 24 August 2026: one fixed
+  `linux/amd64` composition binds exact UBI micro runtime, UBI Node.js library donor,
+  both corresponding source containers, checked Node and realised library objects,
+  UBI EULA and third-party notices through the closed v2 receipt and reconstructed
+  SBOM file components. The targeted image-contract, OCI compatibility and offline
+  evidence-replay suite passes 81 tests. The complete local dirty-tree gate produced
+  two byte-identical OCI archives with SHA-256
+  `13f16ed22565a0a0d5f7757b39c04e70fd3e17d09631764e1ce45c713d384452`, a
+  488-component SBOM with SHA-256
+  `0357716068ec717e92317723661c50050b0c96906e831ab575bdf36443d5d856`,
+  a current scan with zero High, zero Critical and zero fixable findings, successful
+  retained-database offline replay, and successful runtime, persistence, suspension
+  and exact-image rollback acceptance. The closed evidence manifest is
+  `sha256:f39b60cead9b78475fd29cf9a19ae1a97547b7db905af657920cf50e0c6672fa`.
+  This remains a non-publishable local development build because the source tree was
+  dirty; no clean-source acceptance, publication, deployment, activation, tag or
+  release is claimed. The complete locked repository gate also passes against the
+  same final file content;
 
 - Claude Code `2.1.204` protected-main legacy STDIO readiness: the
   [source-bound summary](tests/interoperability/evidence/claude-code-legacy-stdio-readiness-2026-08-23.json)
@@ -320,9 +353,9 @@ deployment, operator-fencing, schedule, RPO/RTO, disposal or release evidence.
   [manifest](https://github.com/chris-page-gov/gis-ai-go/attestations/42456259)
   attestations bind the same commit. The current local QUAL receipt set retains 7
   receipts, 17 suites and 82 exact tests at set ID
-  `gis-ai-go:qual-206-local-evaluation-set:sha256:160298c85fb3db5394c5c27d4905e1e5cf086bad60aae3b7512f2890dcbeb43d`
+  `gis-ai-go:qual-206-local-evaluation-set:sha256:cecd04f29ea0d5895d1fa252f628998ebedbaca18874f14028970c5bb04b1e45`
   and file SHA-256
-  `f93e0988a966e0387cde1bdb89261fe40308e733f1ac7725e8735818094e1dea`;
+  `d2722bdbbc19db09d6fb27c14db872b6d598d0b86d9f70041d1682c4693fa263`;
 - QUAL-206 local protocol-matrix acceptance: protected
   [pull request 55](https://github.com/chris-page-gov/gis-ai-go/pull/55) merged as
   `30b575beb27ff805745a2864c1acf44392774046`; protected-main assurance and
