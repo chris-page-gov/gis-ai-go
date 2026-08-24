@@ -415,8 +415,10 @@ use closed schemas; their canonical JSON and transitive source, image, SBOM, sca
 database, Compose and engine bindings are rechecked. An extra, missing, linked or
 non-regular directory entry fails the gate.
 
-CI runs image assurance after ordinary repository assurance. The stable final
-`assurance` job succeeds only when both producers succeed. A successful image job
+CI runs primary image assurance after ordinary repository assurance. The stable final
+`assurance` job succeeds only when those ordinary repository and primary gateway-image
+producers succeed. Protected-main provenance additionally requires the independent
+derivation and verification jobs described below. A successful primary image job
 uploads `gateway-image-<commit>-without-grype-db`: the checksum-bound Grype database
 archive is deliberately excluded, while its checksum and every other subject are
 transported. Failed runs do not upload the candidate, a partial directory or its
@@ -432,20 +434,36 @@ running as the repository owner, which could also alter source and evidence. Eac
 textual subject is rejected before parsing when it exceeds the 8 MiB privacy bound.
 Parsed JSON also has one cumulative 8 MiB UTF-8 budget across all key and string
 occurrences, in addition to its depth and node bounds.
-On protected-main runs, provenance downloads the incomplete transported directory,
-regenerates the OKF projection, acquires and digest-checks the pinned Grype scanner,
-then rehydrates the exact database archive from Anchore using the retained URL,
-length and SHA-256. Only then can it re-verify the complete directory against the
-checked-out commit and separately attest the OCI archive, full image SBOM and
-evidence manifest. Both GitHub-hosted jobs are ephemeral. No authorised durable
-database destination is configured in GitHub Actions, so the transported artefact is
-evidence of immediate checksum-rehydrated verification, not a self-contained
-long-term offline replay bundle. If Anchore stops serving the exact URL, later replay
-from the 90-day artefact fails closed. The required handoff is therefore to download
-the protected artefact promptly into an owner-supplied mode-0700 local directory,
-rehydrate the exact database there and verify the completed private set. External
-long-term replication remains an operational follow-up. Pull requests cannot deploy
-or publish an image.
+Protected-main runs add two unprivileged trust domains before provenance. An
+independent image job checks out the exact clean commit, regenerates the OKF
+projection and produces a separate canonical OCI derivation without receiving any
+producer artefact. A separate verification job downloads the producer and independent
+artefacts by their immutable current-run artefact IDs, regenerates the OKF projection,
+acquires and digest-checks the pinned scanners, and rehydrates the exact Grype database
+archive from Anchore using its retained URL, length and SHA-256. It then re-verifies
+the complete producer directory against the checked-out commit, requires a current
+Node advisory, verifies the independent receipt and requires the two OCI archives and
+their checksums to be byte-identical. Neither job has an OIDC token or attestation
+permission.
+
+The OIDC provenance job remains dependent on that full replay but does not accept a
+re-upload from it. It downloads the exact original producer artefact and independent
+derivation by their current-run artefact IDs. One standard-library-only verifier
+requires the known closed producer transport inventory, rechecks the manifest-bound
+OCI, SBOM and vulnerability receipt, compares the OCI bytes and checksums again, and
+uses the privileged runner clock to enforce the assessment, database and NVD provider
+freshness windows. Only then does the job separately attest the original OCI archive,
+full image SBOM and evidence manifest. It installs no project dependency and runs no
+Docker or scanner command.
+
+All GitHub-hosted jobs are ephemeral. No authorised durable database destination is
+configured in GitHub Actions, so the transported artefact is evidence of immediate
+checksum-rehydrated verification, not a self-contained long-term offline replay
+bundle. If Anchore stops serving the exact URL, later replay from the 90-day artefact
+fails closed. The required handoff is therefore to download the protected artefact
+promptly into an owner-supplied mode-0700 local directory, rehydrate the exact database
+there and verify the completed private set. External long-term replication remains an
+operational follow-up. Pull requests cannot deploy or publish an image.
 
 Use an owner-chosen path outside the repository; do not put that private path in a
 public receipt, log or document. After the protected workflow succeeds:

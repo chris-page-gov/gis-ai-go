@@ -128,6 +128,16 @@ class PagesWorkflowTests(unittest.TestCase):
         )[0]
         accepted_name = "- name: Upload immutable gateway image evidence"
         accepted = gateway.split(accepted_name, 1)[1]
+        self.assertIn("id: gateway_image_upload", accepted)
+        self.assertIn(
+            "evidence_artifact_id: ${{ steps.gateway_image_upload.outputs.artifact-id }}",
+            gateway,
+        )
+        self.assertIn(
+            "evidence_artifact_digest: "
+            "${{ steps.gateway_image_upload.outputs.artifact-digest }}",
+            gateway,
+        )
         self.assertIn("if: success()", accepted)
         self.assertIn(
             "name: gateway-image-${{ github.sha }}-without-grype-db", accepted
@@ -143,6 +153,7 @@ class PagesWorkflowTests(unittest.TestCase):
         )
         self.assertNotIn("gateway-image-failure-", gateway)
         self.assertNotIn(".gateway-quarantine-", gateway)
+        self.assertNotIn("overwrite:", gateway)
 
     def test_ci_publishes_pages_source_only_after_successful_main_assurance(self) -> None:
         guard = (
@@ -163,7 +174,7 @@ class PagesWorkflowTests(unittest.TestCase):
 
     def test_ci_reverifies_and_attests_the_exact_archive(self) -> None:
         provenance = CI_WORKFLOW.split("\n  provenance:\n", 1)[1].split(
-            "\n  gateway-provenance:\n", 1
+            "\n  gateway_independent_image:\n", 1
         )[0]
         self.assertIn("- assurance", provenance)
         self.assertIn("- repository_assurance", provenance)
@@ -179,32 +190,142 @@ class PagesWorkflowTests(unittest.TestCase):
         )
         self.assertIn("subject-path: artifacts/pages/artifact.tar", provenance)
 
-    def test_gateway_provenance_rebuilds_context_before_complete_verification(
-        self,
-    ) -> None:
-        provenance = CI_WORKFLOW.split("\n  gateway-provenance:\n", 1)[1]
-        self.assertIn("- assurance", provenance)
-        self.assertIn("- gateway_image", provenance)
-        self.assertIn("timeout-minutes: 30", provenance)
-        self.assertIn("version: 10.33.2", provenance)
-        self.assertIn("node-version: 24.19.0", provenance)
-        self.assertIn("version: 0.12.2", provenance)
-        self.assertIn("pnpm install --frozen-lockfile", provenance)
+    def test_gateway_independent_derivation_has_no_producer_input(self) -> None:
+        independent = CI_WORKFLOW.split(
+            "\n  gateway_independent_image:\n", 1
+        )[1].split("\n  gateway_attestation_verification:\n", 1)[0]
+        self.assertIn("needs: repository_assurance", independent)
+        self.assertIn("timeout-minutes: 30", independent)
+        self.assertIn("permissions:\n      contents: read", independent)
+        self.assertNotIn("actions: read", independent)
+        self.assertNotIn("id-token: write", independent)
+        self.assertNotIn("needs.gateway_image", independent)
+        self.assertNotIn("actions/download-artifact", independent)
+        self.assertNotIn("pnpm/action-setup", independent)
+        self.assertNotIn("actions/setup-node", independent)
+        self.assertNotIn("pnpm install", independent)
+        self.assertIn("scripts/build_okf.py", independent)
+        self.assertIn("scripts/package_gateway_oci.py", independent)
+        self.assertIn("scripts/verify_gateway_oci.py", independent)
+        self.assertIn('--expected-source-commit "$GITHUB_SHA"', independent)
+        self.assertIn("--require-clean", independent)
+        self.assertIn("gis-ai-go-gateway-independent", independent)
         self.assertIn(
-            "uv sync --locked --group dev --cache-dir .uv-cache", provenance
+            "moby/buildkit:buildx-stable-1@sha256:"
+            "28a898719c18a33f4e8000685287fa36fd0dd9560c6440227d3a732d79bb41d8",
+            independent,
         )
+        self.assertIn("id: gateway_independent_upload", independent)
+        self.assertIn(
+            "independent_artifact_id: "
+            "${{ steps.gateway_independent_upload.outputs.artifact-id }}",
+            independent,
+        )
+        self.assertIn(
+            "name: gateway-image-independent-${{ github.sha }}", independent
+        )
+        self.assertNotIn("overwrite:", independent)
 
-        download = "- name: Download immutable gateway image evidence"
+    def test_gateway_verifier_replays_exact_current_run_artifacts(self) -> None:
+        verification = CI_WORKFLOW.split(
+            "\n  gateway_attestation_verification:\n", 1
+        )[1].split("\n  gateway-provenance:\n", 1)[0]
+        for dependency in (
+            "- assurance",
+            "- gateway_image",
+            "- gateway_independent_image",
+        ):
+            self.assertIn(dependency, verification)
+        self.assertIn("timeout-minutes: 35", verification)
+        self.assertIn("actions: read", verification)
+        self.assertIn("contents: read", verification)
+        self.assertNotIn("attestations: write", verification)
+        self.assertNotIn("id-token: write", verification)
+        self.assertIn(
+            "artifact-ids: ${{ needs.gateway_image.outputs.evidence_artifact_id }}",
+            verification,
+        )
+        self.assertIn(
+            "artifact-ids: "
+            "${{ needs.gateway_independent_image.outputs.independent_artifact_id }}",
+            verification,
+        )
+        self.assertEqual(verification.count("digest-mismatch: error"), 2)
+        self.assertNotIn("name: gateway-image-${{ github.sha }}", verification)
+        self.assertNotIn("actions/upload-artifact", verification)
+
+        producer_download = "- name: Download exact producer gateway evidence"
+        independent_download = "- name: Download exact independent gateway derivation"
         rebuild = "- name: Regenerate the governed OKF projection"
         acquire_trivy = "- name: Acquire and validate pinned Trivy scanner over network"
         acquire_grype = "- name: Acquire and validate pinned Grype scanner over network"
         rehydrate = "- name: Rehydrate checksum-bound private Grype database"
         verify = "- name: Verify complete protected-main gateway image evidence"
-        self.assertLess(provenance.index(download), provenance.index(rebuild))
-        self.assertLess(provenance.index(rebuild), provenance.index(acquire_trivy))
-        self.assertLess(provenance.index(acquire_trivy), provenance.index(acquire_grype))
-        self.assertLess(provenance.index(acquire_grype), provenance.index(rehydrate))
-        self.assertLess(provenance.index(rehydrate), provenance.index(verify))
+        verify_independent = "- name: Verify downloaded independent gateway derivation"
+        compare = "- name: Compare producer and independent gateway bytes"
+        ordered = (
+            producer_download,
+            independent_download,
+            rebuild,
+            acquire_trivy,
+            acquire_grype,
+            rehydrate,
+            verify,
+            verify_independent,
+            compare,
+        )
+        for earlier, later in zip(ordered, ordered[1:]):
+            self.assertLess(verification.index(earlier), verification.index(later))
+        self.assertIn("scripts/verify_gateway_image_evidence.py", verification)
+        self.assertIn("--require-current-node-advisory", verification)
+        self.assertIn("scripts/verify_gateway_provenance.py compare-rebuild", verification)
+        self.assertIn('--expected-source-commit "$GITHUB_SHA"', verification)
+        self.assertGreaterEqual(verification.count("--require-clean"), 2)
+
+        trivy_digest = (
+            "62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969"
+        )
+        grype_digest = (
+            "ab8d929faec38875a45aba74c9651549cd096756d1981773c04375f282e91075"
+        )
+        self.assertIn(f"aquasec/trivy:0.74.0@sha256:{trivy_digest}", verification)
+        self.assertIn(
+            f"anchore/grype:v0.117.0@sha256:{grype_digest}", verification
+        )
+        self.assertIn('docker image inspect "$TRIVY_IMAGE"', verification)
+        self.assertIn('docker image inspect "$GRYPE_IMAGE"', verification)
+        self.assertIn("scripts/node_runtime_advisory.py", verification)
+        self.assertIn("restore-database", verification)
+
+    def test_gateway_oidc_job_attests_original_dependency_free_inputs(self) -> None:
+        provenance = CI_WORKFLOW.split("\n  gateway-provenance:\n", 1)[1]
+        for dependency in (
+            "- assurance",
+            "- gateway_image",
+            "- gateway_independent_image",
+            "- gateway_attestation_verification",
+        ):
+            self.assertIn(dependency, provenance)
+        self.assertIn("timeout-minutes: 10", provenance)
+        self.assertIn("actions: read", provenance)
+        self.assertIn("attestations: write", provenance)
+        self.assertIn("contents: read", provenance)
+        self.assertIn("id-token: write", provenance)
+        self.assertIn(
+            "artifact-ids: ${{ needs.gateway_image.outputs.evidence_artifact_id }}",
+            provenance,
+        )
+        self.assertIn(
+            "artifact-ids: "
+            "${{ needs.gateway_independent_image.outputs.independent_artifact_id }}",
+            provenance,
+        )
+        self.assertEqual(provenance.count("digest-mismatch: error"), 2)
+        self.assertNotIn("needs.gateway_attestation_verification.outputs", provenance)
+        self.assertNotIn("name: gateway-image-${{ github.sha }}", provenance)
+        self.assertNotIn("actions/upload-artifact", provenance)
+
+        verify = "- name: Verify independent bytes and current evidence before OIDC attestation"
         for attestation in (
             "- name: Attest immutable gateway OCI archive",
             "- name: Attest gateway image SBOM",
@@ -212,56 +333,25 @@ class PagesWorkflowTests(unittest.TestCase):
         ):
             with self.subTest(attestation=attestation):
                 self.assertLess(provenance.index(verify), provenance.index(attestation))
-        self.assertIn("run: pnpm run build:okf", provenance)
-        self.assertIn("run: pnpm run verify:gateway-image-evidence", provenance)
-
-        trivy_acquisition = provenance.split(acquire_trivy, 1)[1].split(
-            f"\n\n      {acquire_grype}", 1
-        )[0]
-        digest = "62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969"
+        self.assertIn("scripts/verify_gateway_provenance.py compare-rebuild", provenance)
         self.assertIn(
-            f"TRIVY_IMAGE: aquasec/trivy:0.74.0@sha256:{digest}", trivy_acquisition
+            "scripts/verify_gateway_provenance.py verify-attestation-inputs",
+            provenance,
         )
-        self.assertIn(
-            f"TRIVY_REPO_DIGEST: aquasec/trivy@sha256:{digest}", trivy_acquisition
-        )
-        self.assertIn('docker pull "$TRIVY_IMAGE"', trivy_acquisition)
-        self.assertIn('docker image inspect "$TRIVY_IMAGE"', trivy_acquisition)
-        self.assertIn(
-            'jq -e --arg expected "$TRIVY_REPO_DIGEST"', trivy_acquisition
-        )
-        self.assertIn(".[0].RepoDigests", trivy_acquisition)
-        self.assertIn("index($expected) != null", trivy_acquisition)
-
-        grype_acquisition = provenance.split(acquire_grype, 1)[1].split(
-            f"\n\n      {rehydrate}", 1
-        )[0]
-        grype_digest = (
-            "ab8d929faec38875a45aba74c9651549cd096756d1981773c04375f282e91075"
-        )
-        self.assertIn(
-            f"GRYPE_IMAGE: anchore/grype:v0.117.0@sha256:{grype_digest}",
-            grype_acquisition,
-        )
-        self.assertIn(
-            f"GRYPE_REPO_DIGEST: anchore/grype@sha256:{grype_digest}",
-            grype_acquisition,
-        )
-        self.assertIn(
-            'docker pull --platform linux/amd64 "$GRYPE_IMAGE"', grype_acquisition
-        )
-        self.assertIn('docker image inspect "$GRYPE_IMAGE"', grype_acquisition)
-
-        restore = provenance.split(rehydrate, 1)[1].split(
-            f"\n\n      {verify}", 1
-        )[0]
-        self.assertIn("scripts/node_runtime_advisory.py", restore)
-        self.assertIn("restore-database", restore)
-        self.assertIn(
-            "--scan artifacts/gateway/gateway-image.vulnerability-scan.json",
-            restore,
-        )
-        self.assertIn("--output-dir artifacts/gateway", restore)
+        self.assertIn('--expected-source-commit "$GITHUB_SHA"', provenance)
+        for forbidden in (
+            "pnpm/action-setup",
+            "actions/setup-node",
+            "astral-sh/setup-uv",
+            "pnpm install",
+            "uv sync",
+            "uv run",
+            "docker ",
+            "scripts/node_runtime_advisory.py",
+            "scripts/verify_gateway_image_evidence.py",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, provenance)
 
         for subject in (
             "artifacts/gateway/gateway-image.oci.tar",

@@ -480,6 +480,7 @@ def verify_gateway_image_evidence(
     expected_source_commit: str | None,
     require_clean: bool,
     replay_vulnerability_scans: bool,
+    require_current_node_advisory: bool = False,
 ) -> dict[str, Any]:
     output_metadata = output.lstat()
     if stat.S_ISLNK(output_metadata.st_mode) or not stat.S_ISDIR(output_metadata.st_mode):
@@ -515,6 +516,7 @@ def verify_gateway_image_evidence(
         sbom=output / "gateway-image.sbom.cdx.json",
         receipt_path=output / "image-receipt.json",
         replay=replay_vulnerability_scans,
+        require_current_node_advisory=require_current_node_advisory,
     )
     acceptance = _load_canonical(
         output / "container-acceptance.json",
@@ -578,6 +580,7 @@ def main() -> None:
     parser.add_argument("--expected-source-commit")
     parser.add_argument("--require-clean", action="store_true")
     parser.add_argument("--skip-vulnerability-replay", action="store_true")
+    parser.add_argument("--require-current-node-advisory", action="store_true")
     args = parser.parse_args()
     output = args.directory if args.directory.is_absolute() else ROOT / args.directory
     result = verify_gateway_image_evidence(
@@ -585,6 +588,7 @@ def main() -> None:
         expected_source_commit=args.expected_source_commit,
         require_clean=args.require_clean,
         replay_vulnerability_scans=not args.skip_vulnerability_replay,
+        require_current_node_advisory=args.require_current_node_advisory,
     )
     print(
         "Verified complete blocked gateway evidence for "

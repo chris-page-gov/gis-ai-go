@@ -84,6 +84,11 @@ OCI_LAYER_MEDIA_TYPE = "application/vnd.oci.image.layer.v1.tar+gzip"
 _SHA256_DIGEST = re.compile(r"sha256:[0-9a-f]{64}\Z")
 _RPM_PURL = re.compile(r"pkg:rpm/redhat/([^@?]+)@([^?]+)\?(.+)\Z")
 _NPM_PURL = re.compile(r"pkg:npm/(.+)@([^@?]+)(?:\?.*)?\Z")
+_TAR_BLOCK_BYTES = 512
+_TAR_CHECKSUM = slice(148, 156)
+_TAR_DEVICE_MAJOR = slice(329, 337)
+_TAR_DEVICE_MINOR = slice(337, 345)
+_DOCKER_TAR_ZERO_DEVICE = b"0000000\0"
 
 _DIAGNOSTIC_SENSITIVE = re.compile(
     r"(?i)(?:"
@@ -428,6 +433,56 @@ def _verify_donor_blob(
     return digest, name
 
 
+def _docker_ustar_header(member: tarfile.TarInfo) -> bytes:
+    """Return the canonical Docker/Go USTAR header for one donor member."""
+    canonical = tarfile.TarInfo(member.name)
+    canonical.uid = member.uid
+    canonical.gid = member.gid
+    canonical.uname = member.uname
+    canonical.gname = member.gname
+    canonical.mtime = member.mtime
+    canonical.mode = member.mode
+    canonical.type = member.type
+    canonical.size = member.size
+    header = bytearray(canonical.tobuf(format=tarfile.USTAR_FORMAT))
+    if len(header) != _TAR_BLOCK_BYTES:
+        raise ValueError("runtime-library donor archive header is not canonical USTAR")
+    # Go's archive/tar zero-encodes these fields for ordinary files and directories;
+    # Python's writer leaves them NUL-filled. Docker image save uses the Go encoding.
+    header[_TAR_DEVICE_MAJOR] = _DOCKER_TAR_ZERO_DEVICE
+    header[_TAR_DEVICE_MINOR] = _DOCKER_TAR_ZERO_DEVICE
+    header[_TAR_CHECKSUM] = b"        "
+    header[_TAR_CHECKSUM] = f"{sum(header):06o}\0 ".encode("ascii")
+    return bytes(header)
+
+
+def _write_canonical_donor_archive(
+    archive: tarfile.TarFile,
+    members: list[tarfile.TarInfo],
+    destination: Path,
+) -> None:
+    """Reconstruct the closed donor archive including its exact physical ending."""
+    with destination.open("xb") as output:
+        for member in members:
+            output.write(_docker_ustar_header(member))
+            if not member.isreg():
+                continue
+            source = archive.extractfile(member)
+            if source is None:
+                raise ValueError("runtime-library donor archive member is unavailable")
+            remaining = member.size
+            while remaining:
+                chunk = source.read(min(1024 * 1024, remaining))
+                if not chunk:
+                    raise ValueError("runtime-library donor archive member is incomplete")
+                output.write(chunk)
+                remaining -= len(chunk)
+            if source.read(1):
+                raise ValueError("runtime-library donor archive member exceeds its size")
+            output.write(b"\0" * (-member.size % _TAR_BLOCK_BYTES))
+        output.write(b"\0" * (2 * _TAR_BLOCK_BYTES))
+
+
 def inspect_donor_archive(path: Path) -> dict[str, Any]:
     """Verify and bind the retained Docker-save archive for the pinned donor."""
     metadata = path.lstat()
@@ -440,6 +495,7 @@ def inspect_donor_archive(path: Path) -> dict[str, Any]:
         raise ValueError("runtime-library donor archive is invalid or over its bound")
     with tarfile.open(path, "r:") as archive:
         members: dict[str, tarfile.TarInfo] = {}
+        ordered_members: list[tarfile.TarInfo] = []
         total = 0
         for member in archive:
             if len(members) >= MAX_OCI_FILES:
@@ -449,8 +505,10 @@ def inspect_donor_archive(path: Path) -> dict[str, Any]:
                 raise ValueError("runtime-library donor archive path inventory is ambiguous")
             if not (member.isdir() or member.isreg()):
                 raise ValueError("runtime-library donor archive contains a special member")
+            expected_type = tarfile.DIRTYPE if member.isdir() else tarfile.REGTYPE
             if (
-                member.uid != 0
+                member.type != expected_type
+                or member.uid != 0
                 or member.gid != 0
                 or member.uname != ""
                 or member.gname != ""
@@ -467,7 +525,10 @@ def inspect_donor_archive(path: Path) -> dict[str, Any]:
                 total += member.size
                 if total > MAX_OCI_BYTES:
                     raise ValueError("runtime-library donor archive exceeds its byte bound")
+            elif member.size != 0:
+                raise ValueError("runtime-library donor archive directory size is not canonical")
             members[name] = member
+            ordered_members.append(member)
         directories = {name for name, member in members.items() if member.isdir()}
         files = {name for name, member in members.items() if member.isreg()}
         if directories != {"blobs", "blobs/sha256"}:
@@ -570,6 +631,33 @@ def inspect_donor_archive(path: Path) -> dict[str, Any]:
         reachable = {manifest_name, config_name, *layer_names}
         if files != {"index.json", "manifest.json", "oci-layout"} | reachable:
             raise ValueError("runtime-library donor archive has unreachable content")
+        expected_order = [
+            "blobs",
+            "blobs/sha256",
+            *sorted(reachable),
+            "index.json",
+            "manifest.json",
+            "oci-layout",
+        ]
+        if [member.name for member in ordered_members] != expected_order:
+            raise ValueError("runtime-library donor archive inventory is not canonical")
+        with tempfile.TemporaryDirectory(
+            prefix="gis-ai-go-donor-canonical-"
+        ) as canonical_temporary:
+            canonical_archive = Path(canonical_temporary) / DONOR_ARCHIVE_NAME
+            _write_canonical_donor_archive(
+                archive,
+                ordered_members,
+                canonical_archive,
+            )
+            if not _bounded_files_equal(
+                path,
+                canonical_archive,
+                maximum_bytes=MAX_OCI_BYTES,
+            ):
+                raise ValueError(
+                    "runtime-library donor archive is not canonical Docker USTAR"
+                )
         return {
             "file": path.name,
             "sha256": sha256_file(path),
@@ -1475,6 +1563,7 @@ def verify_scan_evidence(
     sbom: Path,
     receipt_path: Path,
     replay: bool,
+    require_current_node_advisory: bool = False,
 ) -> dict[str, Any]:
     scan_bytes = read_bounded_regular_file(
         scan_path,
@@ -1629,6 +1718,7 @@ def verify_scan_evidence(
         receipt=receipt,
         phase=scan["phase"],
         replay=replay,
+        require_current_assessment=require_current_node_advisory,
     )
     findings = sorted(
         [*project_all_findings(report, donor_report), *node_findings],

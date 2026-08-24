@@ -63,6 +63,10 @@ MAX_GRYPE_REPORT_BYTES = 32 * 1024 * 1024
 MAX_GRYPE_DIAGNOSTIC_BYTES = 4 * 1024
 GRYPE_TIMEOUT_SECONDS = 20 * 60
 MAX_DATABASE_AGE_AT_SCAN = timedelta(days=3)
+# The protected producer and provenance jobs have 50- and 30-minute timeouts.
+# Two hours leaves transfer/setup headroom without treating retained history as same-run.
+MAX_PROTECTED_PROVENANCE_ASSESSMENT_AGE = timedelta(hours=2)
+MAX_PROTECTED_PROVENANCE_FUTURE_SKEW = timedelta(minutes=5)
 NODE_CALIBRATION_AFFECTED_VERSION = "24.18.0"
 NODE_CALIBRATION_FIXED_VERSION = "24.18.1"
 NODE_CALIBRATION_HIGH_IDS = frozenset(
@@ -1198,6 +1202,23 @@ def _provider_age_seconds(database: dict[str, Any], assessed_at: str) -> int:
     return round(age.total_seconds())
 
 
+def _trusted_verification_time() -> datetime:
+    """Return the verifier clock used only by explicit same-run provenance checks."""
+    return datetime.now(UTC)
+
+
+def _verify_protected_provenance_freshness(
+    assessed: datetime, *, verified_at: datetime
+) -> None:
+    if verified_at.tzinfo is None or verified_at.utcoffset() != timedelta(0):
+        raise ValueError("protected provenance verifier clock is not UTC")
+    age = verified_at - assessed
+    if age < -MAX_PROTECTED_PROVENANCE_FUTURE_SKEW:
+        raise ValueError("retained Grype assessment is ahead of the verifier clock")
+    if age > MAX_PROTECTED_PROVENANCE_ASSESSMENT_AGE:
+        raise ValueError("retained Grype assessment is too old for protected provenance")
+
+
 def generate_node_advisory(
     *, sbom: dict[str, Any], receipt: dict[str, Any], output: Path
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
@@ -1260,6 +1281,7 @@ def verify_node_advisory(
     receipt: dict[str, Any],
     phase: dict[str, Any],
     replay: bool,
+    require_current_assessment: bool = False,
 ) -> list[dict[str, Any]]:
     identity = extract_node_identity(sbom, receipt)
     if node.get("component") != identity:
@@ -1381,6 +1403,10 @@ def verify_node_advisory(
         raise ValueError("retained Grype assessment timing is invalid") from error
     if not phase_started <= assessed <= phase_completed:
         raise ValueError("retained Grype assessment is outside the scan phase")
+    if require_current_assessment:
+        _verify_protected_provenance_freshness(
+            assessed, verified_at=_trusted_verification_time()
+        )
     calibration = _calibration_projection(expected_roles)
     if node.get("calibration") != calibration:
         raise ValueError("retained Grype Node calibration is incomplete")

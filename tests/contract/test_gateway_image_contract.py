@@ -96,6 +96,7 @@ from scan_gateway_image import (  # noqa: E402
     evaluate_policy,
     generate_scan_evidence,
     inspect_database_archive,
+    inspect_donor_archive,
     package_database,
     project_coverage,
     project_findings,
@@ -138,6 +139,105 @@ def compact(value: object) -> bytes:
 
 def digest(value: bytes) -> str:
     return "sha256:" + hashlib.sha256(value).hexdigest()
+
+
+def docker_ustar(entries: list[tuple[str, bytes | None, int]]) -> bytes:
+    """Build the Docker/Go USTAR form independently of the production helper."""
+    output = io.BytesIO()
+    for name, payload, mode in entries:
+        member = tarfile.TarInfo(name)
+        member.type = tarfile.DIRTYPE if payload is None else tarfile.REGTYPE
+        member.mode = mode
+        member.uid = 0
+        member.gid = 0
+        member.mtime = 0
+        member.size = 0 if payload is None else len(payload)
+        header = bytearray(member.tobuf(format=tarfile.USTAR_FORMAT))
+        header[329:337] = b"0000000\0"
+        header[337:345] = b"0000000\0"
+        header[148:156] = b"        "
+        header[148:156] = f"{sum(header):06o}\0 ".encode("ascii")
+        output.write(header)
+        if payload is not None:
+            output.write(payload)
+            output.write(b"\0" * (-len(payload) % 512))
+    output.write(b"\0" * 1024)
+    return output.getvalue()
+
+
+def donor_archive_fixture() -> tuple[bytes, str]:
+    layer = b"synthetic donor layer"
+    layer_digest = digest(layer)
+    config = compact(
+        {
+            "architecture": "amd64",
+            "os": "linux",
+            "rootfs": {"type": "layers", "diff_ids": ["sha256:" + "a" * 64]},
+        }
+    )
+    config_digest = digest(config)
+    manifest = compact(
+        {
+            "schemaVersion": 2,
+            "mediaType": "application/vnd.oci.image.manifest.v1+json",
+            "config": {
+                "mediaType": "application/vnd.oci.image.config.v1+json",
+                "digest": config_digest,
+                "size": len(config),
+            },
+            "layers": [
+                {
+                    "mediaType": "application/vnd.oci.image.layer.v1.tar+gzip",
+                    "digest": layer_digest,
+                    "size": len(layer),
+                }
+            ],
+        }
+    )
+    manifest_digest = digest(manifest)
+    blobs = {
+        f"blobs/sha256/{config_digest.removeprefix('sha256:')}": config,
+        f"blobs/sha256/{layer_digest.removeprefix('sha256:')}": layer,
+        f"blobs/sha256/{manifest_digest.removeprefix('sha256:')}": manifest,
+    }
+    index = compact(
+        {
+            "schemaVersion": 2,
+            "mediaType": "application/vnd.oci.image.index.v1+json",
+            "manifests": [
+                {
+                    "mediaType": "application/vnd.oci.image.manifest.v1+json",
+                    "digest": manifest_digest,
+                    "size": len(manifest),
+                    "annotations": {
+                        "containerd.io/distribution.source.registry.access.redhat.com": (
+                            "ubi10/nodejs-24-minimal"
+                        )
+                    },
+                }
+            ],
+        }
+    )
+    docker_manifest = compact(
+        [
+            {
+                "Config": f"blobs/sha256/{config_digest.removeprefix('sha256:')}",
+                "RepoTags": None,
+                "Layers": [
+                    f"blobs/sha256/{layer_digest.removeprefix('sha256:')}"
+                ],
+            }
+        ]
+    )
+    entries = [
+        ("blobs", None, 0o755),
+        ("blobs/sha256", None, 0o755),
+        *((name, payload, 0o444) for name, payload in sorted(blobs.items())),
+        ("index.json", index, 0o644),
+        ("manifest.json", docker_manifest, 0o644),
+        ("oci-layout", compact({"imageLayoutVersion": "1.0.0"}), 0o444),
+    ]
+    return docker_ustar(entries), manifest_digest
 
 
 def receipt_ready_inspection(path: Path):
@@ -2011,6 +2111,33 @@ class GatewayImageContractTests(unittest.TestCase):
             archive.write_bytes(data)
             with self.assertRaises((ValueError, tarfile.TarError, OSError)):
                 inspect_database_archive(archive)
+
+    def test_donor_archive_rejects_post_eof_content(self) -> None:
+        canonical, manifest_digest = donor_archive_fixture()
+        second_archive = docker_ustar(
+            [("opaque-proof.txt", b"safe parser-differential proof", 0o444)]
+        )
+        with tempfile.TemporaryDirectory() as temporary:
+            archive = Path(temporary) / "gateway-runtime-library-donor.oci.tar"
+            archive.write_bytes(canonical)
+            with mock.patch(
+                "scan_gateway_image.UBI_RUNTIME_LIBRARY_DONOR_DIGEST",
+                manifest_digest,
+            ):
+                identity = inspect_donor_archive(archive)
+                self.assertEqual(identity["manifest_digest"], manifest_digest)
+                mutations = {
+                    "non-zero-trailer": canonical + b"trailing",
+                    "concatenated-tar": canonical + second_archive,
+                    "extra-zero-block": canonical + b"\0" * 512,
+                }
+                for name, mutation in mutations.items():
+                    archive.write_bytes(mutation)
+                    with self.subTest(name=name), self.assertRaisesRegex(
+                        ValueError,
+                        "not canonical Docker USTAR",
+                    ):
+                        inspect_donor_archive(archive)
 
     def test_trivy_coverage_closes_exact_os_language_and_donor_inventories(self) -> None:
         report, donor_report, sbom, receipt, donor = coverage_fixture()

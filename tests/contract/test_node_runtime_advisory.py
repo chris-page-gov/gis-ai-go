@@ -8,6 +8,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from unittest import mock
 from urllib.parse import quote
@@ -468,6 +469,118 @@ class NodeRuntimeAdvisoryTests(unittest.TestCase):
         future_provider["provider"]["captured"] = "2026-08-23T06:15:28Z"  # type: ignore[index]
         with self.assertRaisesRegex(ValueError, "provider is not current enough"):
             _provider_age_seconds(future_provider, ASSESSED_AT)
+
+    def _verify_current_retained_fixture(self, verified_at: datetime) -> list[dict[str, object]]:
+        phase = {
+            "started_at": "2026-08-24T06:15:00Z",
+            "completed_at": "2026-08-24T06:16:00Z",
+        }
+        with tempfile.TemporaryDirectory() as temporary:
+            directory = Path(temporary)
+            node, sbom, receipt = self._write_retained_fixture(directory)
+            with mock.patch(
+                "node_runtime_advisory._trusted_verification_time",
+                return_value=verified_at,
+            ):
+                return verify_node_advisory(
+                    node=node,
+                    directory=directory,
+                    sbom=sbom,
+                    receipt=receipt,
+                    phase=phase,
+                    replay=False,
+                    require_current_assessment=True,
+                )
+
+    def test_protected_provenance_rejects_stale_coherent_assessment(self) -> None:
+        verified_at = datetime.fromisoformat(ASSESSED_AT[:-1] + "+00:00") + timedelta(
+            hours=2, seconds=1
+        )
+        with self.assertRaisesRegex(ValueError, "too old for protected provenance"):
+            self._verify_current_retained_fixture(verified_at)
+
+    def test_protected_provenance_rejects_assessment_beyond_future_skew(self) -> None:
+        assessed = datetime.fromisoformat(ASSESSED_AT[:-1] + "+00:00")
+        with self.assertRaisesRegex(ValueError, "ahead of the verifier clock"):
+            self._verify_current_retained_fixture(
+                assessed - timedelta(minutes=5, seconds=1)
+            )
+
+    def test_protected_provenance_accepts_fresh_assessment_and_clock_skew(self) -> None:
+        assessed = datetime.fromisoformat(ASSESSED_AT[:-1] + "+00:00")
+        verification_times = (
+            assessed + timedelta(hours=1),
+            assessed + timedelta(hours=2),
+            assessed - timedelta(minutes=5),
+        )
+        for verified_at in verification_times:
+            with self.subTest(verified_at=verified_at):
+                self.assertEqual(self._verify_current_retained_fixture(verified_at), [])
+
+    def test_historical_offline_replay_does_not_require_current_assessment(self) -> None:
+        phase = {
+            "started_at": "2026-08-24T06:15:00Z",
+            "completed_at": "2026-08-24T06:16:00Z",
+        }
+        with tempfile.TemporaryDirectory() as temporary:
+            directory = Path(temporary)
+            node, sbom, receipt = self._write_retained_fixture(directory)
+            replay_node = copy.deepcopy(node)
+            replay_node["database"] = {  # type: ignore[index]
+                key: node["database"][key]  # type: ignore[index]
+                for key in (
+                    "schema_version",
+                    "source_url",
+                    "source_sha256",
+                    "built",
+                    "valid",
+                    "load_mode",
+                    "provider",
+                )
+            }
+            replay_node.pop("replay")
+            inventory = node["database"]["expanded_files"]  # type: ignore[index]
+            imported_status = {
+                key: replay_node["database"][key]  # type: ignore[index]
+                for key in (
+                    "schema_version",
+                    "source_url",
+                    "source_sha256",
+                    "built",
+                    "valid",
+                    "load_mode",
+                )
+            }
+            with (
+                mock.patch(
+                    "node_runtime_advisory._trusted_verification_time",
+                    return_value=datetime(2030, 1, 1, tzinfo=UTC),
+                ) as trusted_clock,
+                mock.patch(
+                    "node_runtime_advisory.import_database",
+                    return_value=imported_status,
+                ),
+                mock.patch(
+                    "node_runtime_advisory.database_inventory",
+                    return_value=inventory,
+                ),
+                mock.patch(
+                    "node_runtime_advisory.assess_node",
+                    return_value=(replay_node, {}, []),
+                ),
+            ):
+                self.assertEqual(
+                    verify_node_advisory(
+                        node=node,
+                        directory=directory,
+                        sbom=sbom,
+                        receipt=receipt,
+                        phase=phase,
+                        replay=True,
+                    ),
+                    [],
+                )
+            trusted_clock.assert_not_called()
 
     def _write_retained_fixture(
         self, directory: Path
