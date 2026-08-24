@@ -104,7 +104,7 @@ class FileMeasurement:
 
 def canonical_json_bytes(value: Any) -> bytes:
     return (
-        json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
+        json.dumps(value, ensure_ascii=True, indent=2, sort_keys=True) + "\n"
     ).encode()
 
 

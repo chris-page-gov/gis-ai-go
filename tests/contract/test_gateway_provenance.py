@@ -28,6 +28,7 @@ from verify_gateway_provenance import (  # noqa: E402
     verify_rebuild,
 )
 from gateway_evidence import ACCEPTED_FILES, SUBJECTS  # noqa: E402
+from gateway_image import canonical_json_bytes as gateway_canonical_json_bytes  # noqa: E402
 
 
 SOURCE_COMMIT = "5" * 40
@@ -75,12 +76,13 @@ def write_attestation_inputs(directory: Path) -> None:
     }
     if set(property_values) != SBOM_PROPERTY_NAMES:
         raise AssertionError("attestation fixture SBOM property inventory differs")
-    sbom = canonical_json_bytes(
+    sbom = gateway_canonical_json_bytes(
         {
             "bomFormat": "CycloneDX",
             "metadata": {
                 "component": {
                     "bom-ref": IMAGE_DIGEST,
+                    "description": "Governed gateway evidence — exact image",
                     "properties": [
                         {"name": name, "value": property_values[name]}
                         for name in sorted(property_values)
@@ -206,6 +208,10 @@ def write_rebound_sbom(directory: Path, sbom: dict[str, object]) -> None:
 
 
 class GatewayProvenanceTests(unittest.TestCase):
+    def test_oidc_canonical_json_matches_gateway_evidence_encoding(self) -> None:
+        value = {"description": "Governed gateway evidence — exact image"}
+        self.assertEqual(canonical_json_bytes(value), gateway_canonical_json_bytes(value))
+
     def test_original_producer_transport_inventory_matches_the_evidence_contract(
         self,
     ) -> None:
