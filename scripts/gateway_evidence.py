@@ -31,6 +31,11 @@ SUBJECTS = (
     ("trivy-database", "gateway-image.trivy-db.tar.gz"),
     ("trivy-database-checksum", "gateway-image.trivy-db.tar.gz.sha256"),
     ("trivy-report", "gateway-image.trivy-report.json"),
+    ("runtime-library-donor-archive", "gateway-runtime-library-donor.oci.tar"),
+    (
+        "runtime-library-donor-trivy-report",
+        "gateway-runtime-library-donor.trivy-report.json",
+    ),
     ("vulnerability-scan", "gateway-image.vulnerability-scan.json"),
     ("container-acceptance", "container-acceptance.json"),
 )

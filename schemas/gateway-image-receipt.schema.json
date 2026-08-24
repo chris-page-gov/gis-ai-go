@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:gis-ai-go:schema:gateway-image-receipt:v2",
+  "$id": "urn:gis-ai-go:schema:gateway-image-receipt:v3",
   "title": "GIS AI GO blocked gateway image receipt",
   "description": "The exact-source construction receipt for one repository-only, zero-capability gateway OCI archive.",
   "type": "object",
@@ -16,7 +16,7 @@
   ],
   "properties": {
     "schema": {
-      "const": "gis-ai-go.gateway-image-receipt.v2"
+      "const": "gis-ai-go.gateway-image-receipt.v3"
     },
     "classification": {
       "enum": [
@@ -131,6 +131,11 @@
               "version": "10.2-1787229483",
               "source_reference": "registry.access.redhat.com/ubi10/nodejs-24-minimal:10.2-1787229483-source@sha256:d64e6f3fd22629366c4e088fe8bd0694ce818f79d8e72bb7a3f74fc6fd672644",
               "source_digest": "sha256:d64e6f3fd22629366c4e088fe8bd0694ce818f79d8e72bb7a3f74fc6fd672644",
+              "package": {
+                "name": "libstdc++",
+                "version": "14.3.1-4.4.el10",
+                "purl": "pkg:rpm/redhat/libstdc%2B%2B@14.3.1-4.4.el10?arch=x86_64&distro=rhel-10.2&upstream=gcc-14.3.1-4.4.el10.src.rpm"
+              },
               "copied_files": [
                 {
                   "path": "/usr/lib64/libstdc++.so.6.0.33",
@@ -290,6 +295,7 @@
         "config_digest",
         "layer_digests",
         "rootfs_diff_ids",
+        "rootfs",
         "entrypoint",
         "user"
       ],
@@ -336,6 +342,165 @@
           "items": {
             "type": "string",
             "pattern": "^sha256:[0-9a-f]{64}$"
+          }
+        },
+        "rootfs": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "inventory_sha256",
+            "entry_count",
+            "regular_file_bytes",
+            "kind_counts",
+            "critical_entries"
+          ],
+          "properties": {
+            "inventory_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "entry_count": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200000
+            },
+            "regular_file_bytes": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2147483648
+            },
+            "kind_counts": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "directory",
+                "regular-file",
+                "symbolic-link",
+                "hard-link"
+              ],
+              "properties": {
+                "directory": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 200000
+                },
+                "regular-file": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 200000
+                },
+                "symbolic-link": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 200000
+                },
+                "hard-link": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 200000
+                }
+              }
+            },
+            "critical_entries": {
+              "type": "array",
+              "minItems": 22,
+              "maxItems": 22,
+              "uniqueItems": true,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "path",
+                  "kind",
+                  "mode",
+                  "uid",
+                  "gid",
+                  "mtime"
+                ],
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "pattern": "^/[A-Za-z0-9._+/-]{1,1023}$"
+                  },
+                  "kind": {
+                    "enum": [
+                      "directory",
+                      "regular-file",
+                      "symbolic-link",
+                      "hard-link"
+                    ]
+                  },
+                  "mode": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4095
+                  },
+                  "uid": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "gid": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "mtime": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 253402300799
+                  },
+                  "bytes": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483648
+                  },
+                  "sha256": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  },
+                  "target": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  }
+                },
+                "allOf": [
+                  {
+                    "if": {
+                      "properties": {
+                        "kind": {
+                          "enum": [
+                            "regular-file",
+                            "hard-link"
+                          ]
+                        }
+                      }
+                    },
+                    "then": {
+                      "required": [
+                        "bytes",
+                        "sha256"
+                      ]
+                    }
+                  },
+                  {
+                    "if": {
+                      "properties": {
+                        "kind": {
+                          "const": "symbolic-link"
+                        }
+                      }
+                    },
+                    "then": {
+                      "required": [
+                        "target"
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
           }
         },
         "entrypoint": {

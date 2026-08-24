@@ -482,6 +482,8 @@ def main() -> None:
                 [
                     python,
                     "scripts/scan_gateway_image.py",
+                    "--archive",
+                    artifact("gateway-image.oci.tar"),
                     "--sbom",
                     artifact("gateway-image.sbom.cdx.json"),
                     "--receipt",

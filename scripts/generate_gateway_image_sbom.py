@@ -19,6 +19,7 @@ from gateway_image import (
     inspect_oci_archive,
     make_runtime_sbom_components,
     sha256_file,
+    verify_runtime_composition,
 )
 
 
@@ -44,9 +45,13 @@ def main() -> None:
     inspection = inspect_oci_archive(archive)
     receipt = json.loads(receipt_path.read_bytes())
     source = receipt.get("source")
-    if not isinstance(source, dict) or receipt.get("image", {}).get(
-        "manifest_digest"
-    ) != inspection.manifest_digest:
+    if (
+        not isinstance(source, dict)
+        or receipt.get("image", {}).get("manifest_digest")
+        != inspection.manifest_digest
+        or receipt.get("image", {}).get("rootfs")
+        != verify_runtime_composition(inspection)
+    ):
         raise ValueError("gateway SBOM input differs from the image receipt")
 
     result = subprocess.run(
@@ -115,6 +120,10 @@ def main() -> None:
             },
             {"name": "gis-ai-go:source-revision", "value": source["revision"]},
             {"name": "gis-ai-go:scanner-image", "value": SYFT_REFERENCE},
+            {
+                "name": "gis-ai-go:rootfs-inventory-sha256",
+                "value": receipt["image"]["rootfs"]["inventory_sha256"],
+            },
             {
                 "name": "gis-ai-go:runtime-base-reference",
                 "value": receipt["build"]["runtime_composition"]["runtime_base"][

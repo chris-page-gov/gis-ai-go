@@ -50,6 +50,25 @@ creates the checked `libstdc++.so.6` link without network access. A scratch fina
 stage prevents donor product, vendor, maintainer and default-command metadata from
 being inherited.
 
+The verifier reconstructs the merged root filesystem in layer order before it
+accepts a receipt or SBOM. It applies ordinary and opaque-directory whiteouts,
+rejects duplicate paths and descendants below a file or link, and measures every
+remaining entry's type, mode, owner, modification time, size, target and content
+hash. It preserves hard-link inode semantics in header order, reanchors surviving
+link groups deterministically and rejects impossible link metadata. Every parent
+must be an explicit directory before its child is applied. Fixed path and component
+bounds and one batched removal pass per layer bound verification work. Sparse files
+and unmeasured PAX, ACL, extended-attribute or capability metadata are rejected;
+only effective `path` and `linkpath` PAX fields are admitted. The receipt and SBOM
+bind the complete measured inventory hash. They also bind and recheck the exact Node
+executable, GCC runtime objects and links, repository and upstream licences,
+notices, non-login home and persistent-storage directories. The three reviewed
+licence directories are closed against extra files. The complete inventory hash,
+together with byte-identical second-build comparison and the pinned hash of the
+whole normalised final-stage Containerfile instruction sequence, is the control for
+changed or additional non-critical files. A second `RUN`, `COPY` or `ADD`, or an
+extra shell operation inside the reviewed `RUN`, therefore fails before packaging.
+
 The repository owner accepted the applicable UBI terms for this fixed route on
 24 August 2026. Every derived image includes the unmodified UBI EULA at
 `/usr/share/licenses/gis-ai-go/RED_HAT_UBI_EULA.pdf`, the repository licence,
@@ -82,12 +101,17 @@ no-cache builds produced byte-identical OCI archives. The local evidence records
   `f39b60cead9b78475fd29cf9a19ae1a97547b7db905af657920cf50e0c6672fa`,
   after Compose runtime, persistence, suspension and exact-image restore passed.
 
-The SBOM contains 26 realised Red Hat RPM components plus the three exact runtime
-file components for Node, `libgcc_s` and `libstdc++`. It contains no `gzip`,
-`util-linux`, `libblkid` or `libmount` RPM component. These identities are diagnostic
-local evidence classified `non-publishable-development-build`; they are not a
-registry artefact, attestation or release candidate and must change after the local
-commit creates a clean source identity.
+The 488-component SBOM contains 23 installed Red Hat runtime RPMs, 3 signing-key
+RPM metadata components and 13 Node package components discovered in the final
+image. A separately bound RPM/library component identifies the copied
+`libstdc++` as Red Hat version `14.3.1-4.4.el10` with its exact package URL,
+donor image identity and final-file hash. The exact Node and `libgcc_s` file
+components are part of the 446 measured file components; the remaining components
+are the gateway application and operating system. The SBOM contains no `gzip`,
+`util-linux`, `libblkid` or `libmount` RPM component. These identities are
+diagnostic local evidence classified `non-publishable-development-build`; they are
+not a registry artefact, attestation or release candidate and must change after the
+local commit creates a clean source identity.
 
 ## Exact boundary
 
@@ -308,8 +332,12 @@ The image gate performs this fixed sequence:
    runtime configuration;
 4. perform a second no-cache build and compare exact bytes and content digests;
 5. generate a full, unfiltered CycloneDX image SBOM with pinned Syft 1.42.2;
-6. scan the SBOM for all High and Critical findings with pinned Trivy 0.74.0, retain
-   the checksummed database and report, and prove an offline replay;
+6. scan the exact gateway OCI archive directly for all High and Critical findings
+   with pinned Trivy 0.74.0 and `--list-all-pkgs`; require the direct report to
+   cover the exact 23 installed runtime RPMs, 3 signing-key RPM metadata records
+   and 13 Node packages in the SBOM; independently scan and retain the exact pinned
+   donor OCI archive so the copied `libstdc++` RPM is covered; then retain the
+   checksummed database and both reports and replay both scans with no network;
 7. load the exact OCI archive and start only the local Compose candidate;
 8. record declared and realised ingress, then verify health, blocked readiness,
    zero capability, direct and MCP Host filtering, limits, non-root/read-only
@@ -321,7 +349,8 @@ The image gate performs this fixed sequence:
 12. save, remove, reload and restart the exact image identity while retaining the
     same volume identities; and
 13. require the exact closed evidence directory, validate all closed receipts and
-    schemas, bind all 11 subjects in one final manifest and replay the retained scan.
+    schemas, bind all 13 subjects in one final manifest and replay both retained
+    scans.
 
 Step 12 is a local restore-mechanism rehearsal, not evidence of a production
 rollback. A real rollback must select a previous accepted registry digest and an
@@ -336,8 +365,8 @@ remain withheld.
 This diagnostic path cannot weaken the exact-image check or turn a load failure
 into acceptance.
 
-The successful evidence directory contains exactly 12 regular, non-symbolic-link
-files: 11 checksum-bound subjects plus their manifest.
+The successful evidence directory contains exactly 14 regular, non-symbolic-link
+files: 13 checksum-bound subjects plus their manifest.
 
 ```text
 build-context.sha256
@@ -351,6 +380,8 @@ gateway-image.trivy-db.tar.gz
 gateway-image.trivy-db.tar.gz.sha256
 gateway-image.trivy-report.json
 gateway-image.vulnerability-scan.json
+gateway-runtime-library-donor.oci.tar
+gateway-runtime-library-donor.trivy-report.json
 image-receipt.json
 ```
 

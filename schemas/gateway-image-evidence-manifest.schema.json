@@ -44,8 +44,8 @@
     },
     "subjects": {
       "type": "array",
-      "minItems": 11,
-      "maxItems": 11,
+      "minItems": 13,
+      "maxItems": 13,
       "uniqueItems": true,
       "items": {"$ref": "#/$defs/subject"}
     },
@@ -112,6 +112,8 @@
             "trivy-database",
             "trivy-database-checksum",
             "trivy-report",
+            "runtime-library-donor-archive",
+            "runtime-library-donor-trivy-report",
             "vulnerability-scan",
             "container-acceptance"
           ]

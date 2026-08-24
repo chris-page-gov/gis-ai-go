@@ -56,6 +56,7 @@ PHASE_ORDER = [
 TEXT_EVIDENCE = ACCEPTED_FILES - {
     "gateway-image.oci.tar",
     "gateway-image.trivy-db.tar.gz",
+    "gateway-runtime-library-donor.oci.tar",
 }
 ACCEPTANCE_PHASE_ORDER = [
     "engine-identity",
@@ -76,6 +77,7 @@ TEXT_FILE_LIMITS = {
     "gateway-image.sbom.cdx.json.sha256": MAX_CHECKSUM_OR_CONTEXT_BYTES,
     "gateway-image.trivy-db.tar.gz.sha256": MAX_CHECKSUM_OR_CONTEXT_BYTES,
     "gateway-image.trivy-report.json": MAX_SCAN_JSON_BYTES,
+    "gateway-runtime-library-donor.trivy-report.json": MAX_SCAN_JSON_BYTES,
     "gateway-image.vulnerability-scan.json": MAX_SCAN_JSON_BYTES,
     "container-acceptance.json": MAX_ACCEPTANCE_JSON_BYTES,
     EVIDENCE_MANIFEST_NAME: MAX_MANIFEST_JSON_BYTES,
@@ -148,6 +150,9 @@ def _verify_sbom(output: Path, receipt: dict[str, Any]) -> dict[str, Any]:
         ),
         "gis-ai-go:source-revision": receipt["source"]["revision"],
         "gis-ai-go:scanner-image": SYFT_REFERENCE,
+        "gis-ai-go:rootfs-inventory-sha256": receipt["image"]["rootfs"][
+            "inventory_sha256"
+        ],
         "gis-ai-go:runtime-base-reference": receipt["build"]["runtime_composition"][
             "runtime_base"
         ]["reference"],
@@ -494,6 +499,7 @@ def verify_gateway_image_evidence(
     sbom = _verify_sbom(output, receipt)
     scan = verify_scan_evidence(
         scan_path=output / "gateway-image.vulnerability-scan.json",
+        archive=output / "gateway-image.oci.tar",
         sbom=output / "gateway-image.sbom.cdx.json",
         receipt_path=output / "image-receipt.json",
         replay=replay_trivy,

@@ -12,6 +12,7 @@ import tarfile
 import tempfile
 import time
 import unittest
+from dataclasses import replace
 from pathlib import Path
 from typing import Any, Callable
 from unittest import mock
@@ -37,6 +38,11 @@ from gateway_image import (  # noqa: E402
     FORBIDDEN_PACKAGE_LIFECYCLE_SCRIPTS,
     MAX_PRIVACY_MALFORMED_CHARS,
     MAX_PRIVACY_TEXT_BYTES,
+    LIBSTDCXX_PATH,
+    LIBSTDCXX_RPM_NAME,
+    LIBSTDCXX_RPM_PURL,
+    LIBSTDCXX_RPM_VERSION,
+    LIBSTDCXX_SHA256,
     NODE_BASE_DIGEST,
     NODE_BASE_REFERENCE,
     OCI_INDEX_MEDIA_TYPE,
@@ -48,7 +54,13 @@ from gateway_image import (  # noqa: E402
     UBI_RUNTIME_BASE_DIGEST,
     UBI_RUNTIME_BASE_REFERENCE,
     UBI_RUNTIME_LIBRARY_DONOR_REFERENCE,
+    _required_runtime_entries,
+    _summarise_rootfs,
     SourceIdentity,
+    RootfsEntry,
+    _merge_rootfs,
+    _rootfs_path_ancestors,
+    _validate_layer_tar,
     assert_no_private_json,
     assert_no_private_text,
     build_context_inventory,
@@ -70,17 +82,22 @@ from gateway_image import (  # noqa: E402
     verify_package_manifest_lifecycle_policy,
     verify_pinned_builder,
     verify_root_package_manager,
+    verify_runtime_composition,
 )
 from scan_gateway_image import (  # noqa: E402
     MAX_TRIVY_DIAGNOSTIC_BYTES,
+    TRIVY_DONOR_PATH,
+    TRIVY_OCI_PATH,
     TRIVY_SCAN_TIMEOUT_SECONDS,
     _acquire_trivy_image,
     _docker_scan,
     _sanitise_trivy_diagnostic,
+    bind_gateway_archive,
     evaluate_policy,
     generate_scan_evidence,
     inspect_database_archive,
     package_database,
+    project_coverage,
     project_findings,
     verify_phase_timing,
 )
@@ -121,6 +138,231 @@ def compact(value: object) -> bytes:
 
 def digest(value: bytes) -> str:
     return "sha256:" + hashlib.sha256(value).hexdigest()
+
+
+def receipt_ready_inspection(path: Path):
+    """Add measured contract entries to a synthetic inspection for receipt unit tests."""
+    inspection = inspect_oci_archive(path)
+    entries = {item.path: item for item in inspection.rootfs_inventory}
+    required = _required_runtime_entries()
+    for item in required:
+        parts = item.path.lstrip("/").split("/")
+        for depth in range(1, len(parts)):
+            parent = "/" + "/".join(parts[:depth])
+            entries.setdefault(parent, RootfsEntry(parent, "directory", 0o755, 0, 0))
+        entries[item.path] = item
+    inventory, inventory_sha256, regular_bytes = _summarise_rootfs(entries.values())
+    return replace(
+        inspection,
+        rootfs_inventory=inventory,
+        rootfs_inventory_sha256=inventory_sha256,
+        rootfs_regular_file_bytes=regular_bytes,
+    )
+
+
+def with_rootfs_entries(inspection, entries: list[RootfsEntry]):
+    inventory, inventory_sha256, regular_bytes = _summarise_rootfs(entries)
+    return replace(
+        inspection,
+        rootfs_inventory=inventory,
+        rootfs_inventory_sha256=inventory_sha256,
+        rootfs_regular_file_bytes=regular_bytes,
+    )
+
+
+def trivy_inventory_report(
+    *, artifact_path: str = TRIVY_OCI_PATH
+) -> dict[str, Any]:
+    return {
+        "SchemaVersion": 2,
+        "Trivy": {"Version": "0.74.0"},
+        "ArtifactID": "sha256:" + "1" * 64,
+        "ArtifactName": artifact_path,
+        "ArtifactType": "container_image",
+        "Metadata": {
+            "OS": {"Family": "redhat", "Name": "10.2"},
+            "ImageID": "sha256:" + "1" * 64,
+            "DiffIDs": ["sha256:" + "2" * 64],
+        },
+        "Results": [
+            {
+                "Target": f"{artifact_path} (redhat 10.2)",
+                "Class": "os-pkgs",
+                "Type": "redhat",
+                "Packages": [
+                    {
+                        "Name": "glibc",
+                        "Version": "2.39",
+                        "Release": "1.el10",
+                        "Arch": "x86_64",
+                        "Identifier": {
+                            "PURL": (
+                                "pkg:rpm/redhat/glibc@2.39-1.el10?"
+                                "arch=x86_64&distro=redhat-10.2"
+                            )
+                        },
+                    }
+                ],
+                "Vulnerabilities": [],
+            }
+        ],
+    }
+
+
+def layer_tar(entries: list[dict[str, Any]]) -> bytes:
+    output = io.BytesIO()
+    archive_format = (
+        tarfile.PAX_FORMAT
+        if any(
+            entry.get("pax_headers")
+            or len(entry["path"].encode("utf-8")) > 100
+            or len(entry.get("target", "").encode("utf-8")) > 100
+            for entry in entries
+        )
+        else tarfile.USTAR_FORMAT
+    )
+    with tarfile.open(fileobj=output, mode="w", format=archive_format) as archive:
+        for entry in entries:
+            member = tarfile.TarInfo(entry["path"])
+            member.mode = entry.get("mode", 0o755 if entry["kind"] == "directory" else 0o644)
+            member.uid = entry.get("uid", 0)
+            member.gid = entry.get("gid", 0)
+            member.mtime = entry.get("mtime", 0)
+            member.pax_headers = entry.get("pax_headers", {})
+            if entry["kind"] == "directory":
+                member.type = tarfile.DIRTYPE
+                archive.addfile(member)
+            elif entry["kind"] == "symbolic-link":
+                member.type = tarfile.SYMTYPE
+                member.linkname = entry["target"]
+                archive.addfile(member)
+            elif entry["kind"] == "hard-link":
+                member.type = tarfile.LNKTYPE
+                member.linkname = entry["target"]
+                archive.addfile(member)
+            else:
+                payload = entry.get("content", b"")
+                member.type = tarfile.REGTYPE
+                member.size = len(payload)
+                archive.addfile(member, io.BytesIO(payload))
+    return output.getvalue()
+
+
+def merged_test_rootfs(*layers: list[dict[str, Any]]):
+    outer = io.BytesIO()
+    with tarfile.open(fileobj=outer, mode="w", format=tarfile.USTAR_FORMAT) as archive:
+        for index, entries in enumerate(layers):
+            payload = gzip.compress(layer_tar(entries), mtime=0)
+            member = tarfile.TarInfo(f"layer-{index}.tar.gz")
+            member.size = len(payload)
+            archive.addfile(member, io.BytesIO(payload))
+    outer.seek(0)
+    with tarfile.open(fileobj=outer, mode="r:") as archive:
+        members = [archive.getmember(f"layer-{index}.tar.gz") for index in range(len(layers))]
+        return _merge_rootfs(archive, members)
+
+
+def coverage_fixture() -> tuple[
+    dict[str, Any],
+    dict[str, Any],
+    dict[str, Any],
+    dict[str, Any],
+    dict[str, Any],
+]:
+    config_digest = "sha256:" + "1" * 64
+    diff_id = "sha256:" + "2" * 64
+    final_report = trivy_inventory_report()
+    final_report["Results"].append(
+        {
+            "Target": "Node.js",
+            "Class": "lang-pkgs",
+            "Type": "node-pkg",
+            "Packages": [
+                {
+                    "Name": "undici-types",
+                    "Version": "7.16.0",
+                    "Identifier": {"PURL": "pkg:npm/undici-types@7.16.0"},
+                }
+            ],
+            "Vulnerabilities": [],
+        }
+    )
+    donor_report = trivy_inventory_report(artifact_path=TRIVY_DONOR_PATH)
+    donor_report["ArtifactID"] = "sha256:" + "3" * 64
+    donor_report["Metadata"]["ImageID"] = "sha256:" + "3" * 64
+    donor_report["Metadata"]["DiffIDs"] = ["sha256:" + "4" * 64]
+    donor_report["Results"][0]["Packages"] = [
+        {
+            "Name": LIBSTDCXX_RPM_NAME,
+            "Version": "14.3.1",
+            "Release": "4.4.el10",
+            "Arch": "x86_64",
+            "Identifier": {
+                "PURL": (
+                    "pkg:rpm/redhat/libstdc%2B%2B@14.3.1-4.4.el10?"
+                    "arch=x86_64&distro=redhat-10.2"
+                )
+            },
+        }
+    ]
+    sbom = {
+        "components": [
+            {
+                "name": "glibc",
+                "version": "2.39-1.el10",
+                "purl": (
+                    "pkg:rpm/redhat/glibc@2.39-1.el10?"
+                    "arch=x86_64&distro=rhel-10.2"
+                ),
+            },
+            {
+                "name": "undici-types",
+                "version": "7.16.0",
+                "purl": "pkg:npm/undici-types@7.16.0",
+            },
+            {
+                "name": LIBSTDCXX_RPM_NAME,
+                "version": LIBSTDCXX_RPM_VERSION,
+                "purl": LIBSTDCXX_RPM_PURL,
+                "hashes": [{"alg": "SHA-256", "content": LIBSTDCXX_SHA256}],
+                "properties": [
+                    {
+                        "name": "gis-ai-go:runtime-file-path",
+                        "value": LIBSTDCXX_PATH,
+                    }
+                ],
+            },
+        ]
+    }
+    receipt = {
+        "image": {
+            "config_digest": config_digest,
+            "rootfs_diff_ids": [diff_id],
+            "rootfs": {
+                "critical_entries": [
+                    {"path": LIBSTDCXX_PATH, "sha256": LIBSTDCXX_SHA256}
+                ]
+            },
+        },
+        "build": {
+            "runtime_composition": {
+                "runtime_library_donor": {
+                    "package": {
+                        "name": LIBSTDCXX_RPM_NAME,
+                        "version": LIBSTDCXX_RPM_VERSION,
+                        "purl": LIBSTDCXX_RPM_PURL,
+                    }
+                }
+            }
+        },
+    }
+    donor = {
+        "reference": UBI_RUNTIME_LIBRARY_DONOR_REFERENCE,
+        "manifest_digest": UBI_RUNTIME_LIBRARY_DONOR_REFERENCE.rsplit("@", 1)[1],
+        "config_digest": "sha256:" + "3" * 64,
+        "rootfs_diff_ids": ["sha256:" + "4" * 64],
+    }
+    return final_report, donor_report, sbom, receipt, donor
 
 
 JsonMutation = Callable[[dict[str, Any]], None]
@@ -637,7 +879,7 @@ class GatewayImageContractTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             archive = Path(temporary) / "gateway-image.oci.tar"
             synthetic_oci(archive)
-            inspection = inspect_oci_archive(archive)
+            inspection = receipt_ready_inspection(archive)
         source = SourceIdentity(
             revision="a" * 40,
             version="0.1.0",
@@ -722,7 +964,7 @@ class GatewayImageContractTests(unittest.TestCase):
             )
             receipt = make_image_receipt(
                 source=source,
-                inspection=inspect_oci_archive(archive),
+                inspection=receipt_ready_inspection(archive),
                 context_manifest_sha256="b" * 64,
                 context_file_count=1,
                 context_bytes=1,
@@ -746,6 +988,10 @@ class GatewayImageContractTests(unittest.TestCase):
                     "value": receipt["source"]["revision"],
                 },
                 {"name": "gis-ai-go:scanner-image", "value": SYFT_REFERENCE},
+                {
+                    "name": "gis-ai-go:rootfs-inventory-sha256",
+                    "value": receipt["image"]["rootfs"]["inventory_sha256"],
+                },
                 {
                     "name": "gis-ai-go:runtime-base-reference",
                     "value": composition["runtime_base"]["reference"],
@@ -904,6 +1150,27 @@ class GatewayImageContractTests(unittest.TestCase):
             ),
             containerfile.replace(
                 "libpthread.so.0 \\\n      libstdc++.so.6", "libstdc++.so.6", 1
+            ),
+            containerfile.replace(
+                "USER 65532:65532",
+                "RUN --network=none /usr/bin/true\n\nUSER 65532:65532",
+                1,
+            ),
+            containerfile.replace(
+                "USER 65532:65532",
+                "COPY LICENSE /tmp/late-copy\n\nUSER 65532:65532",
+                1,
+            ),
+            containerfile.replace(
+                "USER 65532:65532",
+                "ADD LICENSE /tmp/late-add\n\nUSER 65532:65532",
+                1,
+            ),
+            containerfile.replace(
+                "      /var/lib/gis-ai-go/reconciliation\n\nUSER 65532:65532",
+                "      /var/lib/gis-ai-go/reconciliation \\\n"
+                "    && /usr/bin/touch /unexpected\n\nUSER 65532:65532",
+                1,
             ),
         ]
         for index, mutation in enumerate(mutations):
@@ -1079,12 +1346,331 @@ class GatewayImageContractTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     inspect_oci_archive(archive)
 
+    def test_synthetic_oci_cannot_claim_verified_runtime_composition(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            archive = Path(temporary) / "gateway-image.oci.tar"
+            synthetic_oci(archive)
+            inspection = inspect_oci_archive(archive)
+            with self.assertRaisesRegex(ValueError, "critical entry differs"):
+                verify_runtime_composition(inspection)
+
+    def test_runtime_composition_rejects_critical_file_and_licence_mutations(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            archive = Path(temporary) / "gateway-image.oci.tar"
+            synthetic_oci(archive)
+            inspection = receipt_ready_inspection(archive)
+        verified = verify_runtime_composition(inspection)
+        self.assertEqual(
+            verified["inventory_sha256"], inspection.rootfs_inventory_sha256
+        )
+        original = list(inspection.rootfs_inventory)
+        by_path = {item.path: item for item in original}
+        mutations: dict[str, list[RootfsEntry]] = {
+            "missing-critical-file": [
+                item for item in original if item.path != "/app/LICENSE"
+            ],
+            "changed-critical-hash": [
+                replace(item, sha256="0" * 64)
+                if item.path == LIBSTDCXX_PATH
+                else item
+                for item in original
+            ],
+            "changed-symlink-target": [
+                replace(item, target="substituted.so.6")
+                if item.path == "/usr/lib64/libstdc++.so.6"
+                else item
+                for item in original
+            ],
+            "changed-owner": [
+                replace(item, uid=65532)
+                if item.path == "/usr/local/bin/node"
+                else item
+                for item in original
+            ],
+            "extra-licence-file": [
+                *original,
+                RootfsEntry(
+                    "/usr/share/licenses/gis-ai-go/EXTRA",
+                    "regular-file",
+                    0o444,
+                    0,
+                    0,
+                    size=1,
+                    sha256=hashlib.sha256(b"x").hexdigest(),
+                ),
+            ],
+        }
+        self.assertEqual(by_path[LIBSTDCXX_PATH].sha256, LIBSTDCXX_SHA256)
+        for name, entries in mutations.items():
+            with self.subTest(name=name), self.assertRaises(ValueError):
+                verify_runtime_composition(with_rootfs_entries(inspection, entries))
+
+    def test_merged_rootfs_applies_whiteouts_and_opaque_directories(self) -> None:
+        base = [
+            {"path": "etc", "kind": "directory"},
+            {"path": "etc/demo", "kind": "directory"},
+            {"path": "etc/demo/a", "kind": "regular-file", "content": b"a"},
+            {"path": "etc/demo/b", "kind": "regular-file", "content": b"b"},
+        ]
+        whiteout = [
+            {
+                "path": "etc/demo/.wh.a",
+                "kind": "regular-file",
+                "content": b"",
+            }
+        ]
+        inventory, _, _ = merged_test_rootfs(base, whiteout)
+        paths = {item.path for item in inventory}
+        self.assertNotIn("/etc/demo/a", paths)
+        self.assertIn("/etc/demo/b", paths)
+        self.assertNotIn("/etc/demo/.wh.a", paths)
+
+        opaque = [
+            {
+                "path": "etc/demo/.wh..wh..opq",
+                "kind": "regular-file",
+                "content": b"",
+            },
+            {"path": "etc/demo/c", "kind": "regular-file", "content": b"c"},
+        ]
+        opaque_inventory, _, _ = merged_test_rootfs(base, opaque)
+        opaque_paths = {item.path for item in opaque_inventory}
+        self.assertNotIn("/etc/demo/a", opaque_paths)
+        self.assertNotIn("/etc/demo/b", opaque_paths)
+        self.assertIn("/etc/demo/c", opaque_paths)
+
+    def test_merged_rootfs_preserves_hardlink_inode_order_and_reanchors(self) -> None:
+        old_digest = hashlib.sha256(b"old").hexdigest()
+        new_digest = hashlib.sha256(b"new").hexdigest()
+
+        inventory, _, _ = merged_test_rootfs(
+            [{"path": "a", "kind": "regular-file", "content": b"old"}],
+            [
+                {"path": "b", "kind": "hard-link", "target": "a"},
+                {"path": "a", "kind": "regular-file", "content": b"new"},
+            ],
+        )
+        by_path = {item.path: item for item in inventory}
+        self.assertEqual((by_path["/a"].kind, by_path["/a"].sha256), ("regular-file", new_digest))
+        self.assertEqual((by_path["/b"].kind, by_path["/b"].sha256), ("regular-file", old_digest))
+        self.assertIsNone(by_path["/b"].target)
+
+        forward, _, _ = merged_test_rootfs(
+            [
+                {"path": "b", "kind": "hard-link", "target": "a"},
+                {"path": "a", "kind": "regular-file", "content": b"new"},
+            ]
+        )
+        forward_by_path = {item.path: item for item in forward}
+        self.assertEqual(forward_by_path["/a"].kind, "regular-file")
+        self.assertEqual(forward_by_path["/b"].kind, "hard-link")
+        self.assertEqual(forward_by_path["/b"].target, "/a")
+        self.assertEqual(forward_by_path["/b"].sha256, new_digest)
+
+        chain, _, _ = merged_test_rootfs(
+            [
+                {"path": "c", "kind": "hard-link", "target": "b"},
+                {"path": "b", "kind": "hard-link", "target": "a"},
+                {"path": "a", "kind": "regular-file", "content": b"new"},
+            ]
+        )
+        chain_by_path = {item.path: item for item in chain}
+        self.assertEqual(chain_by_path["/b"].target, "/a")
+        self.assertEqual(chain_by_path["/c"].target, "/a")
+
+        whiteout, _, _ = merged_test_rootfs(
+            [
+                {"path": "a", "kind": "regular-file", "content": b"old"},
+                {"path": "b", "kind": "hard-link", "target": "a"},
+            ],
+            [{"path": ".wh.a", "kind": "regular-file", "content": b""}],
+        )
+        self.assertEqual(len(whiteout), 1)
+        self.assertEqual((whiteout[0].path, whiteout[0].kind), ("/b", "regular-file"))
+        self.assertIsNone(whiteout[0].target)
+
+    def test_merged_rootfs_rejects_impossible_hardlink_metadata(self) -> None:
+        with self.assertRaisesRegex(ValueError, "hard-link metadata"):
+            merged_test_rootfs(
+                [{"path": "a", "kind": "regular-file", "content": b"old"}],
+                [
+                    {
+                        "path": "b",
+                        "kind": "hard-link",
+                        "target": "a",
+                        "mode": 0o600,
+                    }
+                ],
+            )
+
+    def test_rootfs_measures_mtime_and_rejects_unmodelled_pax_metadata(self) -> None:
+        first, first_digest, _ = merged_test_rootfs(
+            [{"path": "a", "kind": "regular-file", "content": b"x", "mtime": 1}]
+        )
+        second, second_digest, _ = merged_test_rootfs(
+            [{"path": "a", "kind": "regular-file", "content": b"x", "mtime": 2}]
+        )
+        self.assertEqual(first[0].mtime, 1)
+        self.assertEqual(second[0].mtime, 2)
+        self.assertNotEqual(first_digest, second_digest)
+
+        capability = layer_tar(
+            [
+                {
+                    "path": "a",
+                    "kind": "regular-file",
+                    "content": b"x",
+                    "pax_headers": {
+                        "SCHILY.xattr.security.capability": "synthetic"
+                    },
+                }
+            ]
+        )
+        with self.assertRaisesRegex(ValueError, "PAX, ACL or extended"):
+            _validate_layer_tar(io.BytesIO(capability))
+
+        fractional_mtime = layer_tar(
+            [
+                {
+                    "path": "a",
+                    "kind": "regular-file",
+                    "content": b"x",
+                    "pax_headers": {"mtime": "1.5"},
+                }
+            ]
+        )
+        with self.assertRaisesRegex(ValueError, "time or sparse"):
+            _validate_layer_tar(io.BytesIO(fractional_mtime))
+
+    def test_merged_rootfs_requires_explicit_parents_in_header_order(self) -> None:
+        missing_parent = [
+            {"path": "newdir/file", "kind": "regular-file", "content": b"x"}
+        ]
+        child_before_parent = [
+            {"path": "newdir/file", "kind": "regular-file", "content": b"x"},
+            {"path": "newdir", "kind": "directory"},
+        ]
+        lower_file_parent = (
+            [{"path": "newdir", "kind": "regular-file", "content": b"x"}],
+            missing_parent,
+        )
+        with self.assertRaisesRegex(ValueError, "explicit parent"):
+            merged_test_rootfs(missing_parent)
+        with self.assertRaisesRegex(ValueError, "explicit parent"):
+            merged_test_rootfs(child_before_parent)
+        with self.assertRaisesRegex(ValueError, "non-directory ancestor"):
+            merged_test_rootfs(*lower_file_parent)
+
+        accepted, _, _ = merged_test_rootfs(
+            [
+                {"path": "newdir", "kind": "directory"},
+                {"path": "newdir/file", "kind": "regular-file", "content": b"x"},
+            ]
+        )
+        self.assertEqual({item.path for item in accepted}, {"/newdir", "/newdir/file"})
+
+    def test_rootfs_whiteout_work_is_bounded_per_existing_entry(self) -> None:
+        count = 200
+        base = [
+            {"path": f"file-{index}", "kind": "regular-file", "content": b"x"}
+            for index in range(count)
+        ]
+        base.append({"path": "keep", "kind": "regular-file", "content": b"x"})
+        whiteouts = [
+            {
+                "path": f".wh.file-{index}",
+                "kind": "regular-file",
+                "content": b"",
+            }
+            for index in range(count)
+        ]
+        with mock.patch(
+            "gateway_image._rootfs_path_ancestors",
+            wraps=_rootfs_path_ancestors,
+        ) as ancestors:
+            inventory, _, _ = merged_test_rootfs(base, whiteouts)
+        self.assertEqual(tuple(item.path for item in inventory), ("/keep",))
+        self.assertEqual(ancestors.call_count, (count + 1) * 2)
+
+    def test_layer_paths_and_links_have_fixed_byte_and_depth_bounds(self) -> None:
+        cases = {
+            "path-bytes": [
+                {"path": "a" * 4_097, "kind": "regular-file", "content": b"x"}
+            ],
+            "path-depth": [
+                {
+                    "path": "/".join(["a"] * 129),
+                    "kind": "regular-file",
+                    "content": b"x",
+                }
+            ],
+            "component-bytes": [
+                {"path": "a" * 256, "kind": "regular-file", "content": b"x"}
+            ],
+            "link-bytes": [
+                {
+                    "path": "link",
+                    "kind": "symbolic-link",
+                    "target": "a" * 4_097,
+                }
+            ],
+        }
+        for name, entries in cases.items():
+            with self.subTest(name=name), self.assertRaises(ValueError):
+                _validate_layer_tar(io.BytesIO(layer_tar(entries)))
+
+    def test_rootfs_summary_rejects_non_directory_ancestors(self) -> None:
+        entries = [
+            RootfsEntry(
+                "/ambiguous",
+                "regular-file",
+                0o644,
+                0,
+                0,
+                size=1,
+                sha256=hashlib.sha256(b"a").hexdigest(),
+            ),
+            RootfsEntry(
+                "/ambiguous/child",
+                "regular-file",
+                0o644,
+                0,
+                0,
+                size=1,
+                sha256=hashlib.sha256(b"b").hexdigest(),
+            ),
+        ]
+        with self.assertRaisesRegex(ValueError, "non-directory"):
+            _summarise_rootfs(entries)
+
+    def test_layer_inventory_rejects_duplicate_and_link_ancestor_collisions(self) -> None:
+        duplicate = layer_tar(
+            [
+                {"path": "same", "kind": "regular-file", "content": b"a"},
+                {"path": "same", "kind": "regular-file", "content": b"b"},
+            ]
+        )
+        linked_ancestor = layer_tar(
+            [
+                {"path": "linked", "kind": "symbolic-link", "target": "target"},
+                {
+                    "path": "linked/child",
+                    "kind": "regular-file",
+                    "content": b"x",
+                },
+            ]
+        )
+        with self.assertRaisesRegex(ValueError, "duplicate"):
+            _validate_layer_tar(io.BytesIO(duplicate))
+        with self.assertRaisesRegex(ValueError, "non-directory"):
+            _validate_layer_tar(io.BytesIO(linked_ancestor))
+
     def test_receipt_verifier_rejects_source_and_context_mutations(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             archive = root / "gateway-image.oci.tar"
             synthetic_oci(archive)
-            inspection = inspect_oci_archive(archive)
+            inspection = receipt_ready_inspection(archive)
             source = SourceIdentity(
                 revision="a" * 40,
                 version="0.1.0",
@@ -1110,6 +1696,8 @@ class GatewayImageContractTests(unittest.TestCase):
             receipt_path = root / "image-receipt.json"
             with mock.patch("verify_gateway_oci.source_identity", return_value=source), mock.patch(
                 "verify_gateway_oci.build_context_inventory", return_value=inventory
+            ), mock.patch(
+                "verify_gateway_oci.inspect_oci_archive", return_value=inspection
             ):
                 receipt_path.write_bytes(canonical_json_bytes(receipt))
                 verify_gateway_oci(
@@ -1205,7 +1793,7 @@ class GatewayImageContractTests(unittest.TestCase):
                 inspect.assert_not_called()
 
             synthetic_oci(archive)
-            inspection = inspect_oci_archive(archive)
+            inspection = receipt_ready_inspection(archive)
             source = SourceIdentity(
                 revision="a" * 40,
                 version="0.1.0",
@@ -1424,8 +2012,105 @@ class GatewayImageContractTests(unittest.TestCase):
             with self.assertRaises((ValueError, tarfile.TarError, OSError)):
                 inspect_database_archive(archive)
 
+    def test_trivy_coverage_closes_exact_os_language_and_donor_inventories(self) -> None:
+        report, donor_report, sbom, receipt, donor = coverage_fixture()
+        coverage = project_coverage(report, donor_report, sbom, receipt, donor)
+        self.assertTrue(coverage["passed"])
+        self.assertEqual(
+            coverage["external_runtime_package"]["version"],
+            LIBSTDCXX_RPM_VERSION,
+        )
+        self.assertEqual(
+            coverage["external_runtime_package"]["donor_scanned_rpm_count"], 1
+        )
+
+        def changed(value: dict[str, Any]) -> dict[str, Any]:
+            return json.loads(canonical_json_bytes(value))
+
+        cases: dict[str, tuple[dict[str, Any], dict[str, Any], dict[str, Any]]] = {}
+        missing_os = changed(report)
+        missing_os["Results"] = [
+            item for item in missing_os["Results"] if item["Class"] != "os-pkgs"
+        ]
+        cases["missing-os-target"] = (missing_os, donor_report, sbom)
+
+        missing_language = changed(report)
+        missing_language["Results"] = [
+            item
+            for item in missing_language["Results"]
+            if item["Class"] != "lang-pkgs"
+        ]
+        cases["missing-language-target"] = (missing_language, donor_report, sbom)
+
+        missing_package = changed(report)
+        missing_package["Results"][0]["Packages"] = []
+        cases["missing-os-package"] = (missing_package, donor_report, sbom)
+
+        substituted_package = changed(report)
+        substituted_package["Results"][0]["Packages"][0]["Release"] = "2.el10"
+        substituted_package["Results"][0]["Packages"][0]["Identifier"]["PURL"] = (
+            "pkg:rpm/redhat/glibc@2.39-2.el10?arch=x86_64&distro=redhat-10.2"
+        )
+        cases["substituted-os-package"] = (substituted_package, donor_report, sbom)
+
+        missing_donor = changed(donor_report)
+        missing_donor["Results"][0]["Packages"] = [
+            {
+                "Name": "libgcc",
+                "Version": "14.3.1",
+                "Release": "4.4.el10",
+                "Arch": "x86_64",
+                "Identifier": {
+                    "PURL": (
+                        "pkg:rpm/redhat/libgcc@14.3.1-4.4.el10?"
+                        "arch=x86_64&distro=redhat-10.2"
+                    )
+                },
+            }
+        ]
+        cases["missing-donor-package"] = (report, missing_donor, sbom)
+
+        substituted_sbom = changed(sbom)
+        substituted_sbom["components"][0]["version"] = "2.39-2.el10"
+        substituted_sbom["components"][0]["purl"] = (
+            "pkg:rpm/redhat/glibc@2.39-2.el10?arch=x86_64&distro=rhel-10.2"
+        )
+        cases["substituted-sbom-package"] = (report, donor_report, substituted_sbom)
+
+        for name, (candidate, candidate_donor, candidate_sbom) in cases.items():
+            with self.subTest(name=name), self.assertRaises(ValueError):
+                project_coverage(
+                    candidate,
+                    candidate_donor,
+                    candidate_sbom,
+                    receipt,
+                    donor,
+                )
+
+    def test_trivy_scan_input_is_bound_to_the_exact_received_oci_bytes(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            archive = Path(temporary) / "gateway-image.oci.tar"
+            archive.write_bytes(b"exact OCI bytes")
+            receipt = {
+                "image": {
+                    "archive": archive.name,
+                    "archive_sha256": sha256_file(archive),
+                    "archive_bytes": archive.stat().st_size,
+                    "config_digest": "sha256:" + "1" * 64,
+                    "rootfs_diff_ids": ["sha256:" + "2" * 64],
+                    "rootfs": {"inventory_sha256": "3" * 64},
+                }
+            }
+            self.assertEqual(
+                bind_gateway_archive(archive, receipt)["sha256"],
+                receipt["image"]["archive_sha256"],
+            )
+            archive.write_bytes(b"substituted OCI bytes")
+            with self.assertRaisesRegex(ValueError, "differs from the exact OCI"):
+                bind_gateway_archive(archive, receipt)
+
     def test_trivy_scan_success_preserves_exact_online_and_offline_commands(self) -> None:
-        report = {"Trivy": {"Version": "0.74.0"}, "Results": []}
+        report = trivy_inventory_report()
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             cache = root / "cache"
@@ -1446,11 +2131,23 @@ class GatewayImageContractTests(unittest.TestCase):
                 pull_command = run.call_args.args[0]
                 self.assertEqual(pull_command, ("docker", "pull", TRIVY_REFERENCE))
                 self.assertEqual(
-                    _docker_scan(cache=cache, sbom=sbom, offline=True, pull="never"),
+                    _docker_scan(
+                        cache=cache,
+                        archive=sbom,
+                        artifact_path=TRIVY_OCI_PATH,
+                        offline=True,
+                        pull="never",
+                    ),
                     report,
                 )
                 self.assertEqual(
-                    _docker_scan(cache=cache, sbom=sbom, offline=False, pull="never"),
+                    _docker_scan(
+                        cache=cache,
+                        archive=sbom,
+                        artifact_path=TRIVY_OCI_PATH,
+                        offline=False,
+                        pull="never",
+                    ),
                     report,
                 )
                 common = (
@@ -1466,19 +2163,21 @@ class GatewayImageContractTests(unittest.TestCase):
                         "--tmpfs=/tmp:rw,noexec,nosuid,nodev,size=512m,mode=0700,"
                         f"uid={os.getuid()},gid={os.getgid()}"
                     ),
-                    f"--volume={sbom}:/input/gateway-image.sbom.cdx.json:ro",
+                    f"--volume={sbom}:{TRIVY_OCI_PATH}:ro",
                     f"--volume={cache}:/cache",
                 )
                 scanner = (
                     TRIVY_REFERENCE,
-                    "sbom",
+                    "image",
+                    f"--input={TRIVY_OCI_PATH}",
                     "--cache-dir=/cache",
+                    "--cache-backend=memory",
                     "--scanners=vuln",
                     "--severity=HIGH,CRITICAL",
                     "--format=json",
                     "--no-progress",
+                    "--list-all-pkgs",
                 )
-                target = "/input/gateway-image.sbom.cdx.json"
                 self.assertEqual(
                     run.call_args_list,
                     [
@@ -1490,14 +2189,14 @@ class GatewayImageContractTests(unittest.TestCase):
                         ),
                         mock.call(
                             (*common, "--network=none", *scanner,
-                             "--skip-db-update", "--offline-scan", target),
+                             "--skip-db-update", "--offline-scan"),
                             cwd=ROOT,
                             check=True,
                             capture_output=True,
                             timeout=TRIVY_SCAN_TIMEOUT_SECONDS,
                         ),
                         mock.call(
-                            (*common, *scanner, target),
+                            (*common, *scanner),
                             cwd=ROOT,
                             check=True,
                             capture_output=True,
@@ -1507,11 +2206,17 @@ class GatewayImageContractTests(unittest.TestCase):
                 )
             with mock.patch("scan_gateway_image.subprocess.run") as run:
                 with self.assertRaises(ValueError):
-                    _docker_scan(cache=cache, sbom=sbom, offline=True, pull="always")
+                    _docker_scan(
+                        cache=cache,
+                        archive=sbom,
+                        artifact_path=TRIVY_OCI_PATH,
+                        offline=True,
+                        pull="always",
+                    )
                 run.assert_not_called()
 
     def test_trivy_scan_uses_the_native_cache_owner_without_capabilities(self) -> None:
-        report = {"Trivy": {"Version": "0.74.0"}, "Results": []}
+        report = trivy_inventory_report()
         completed = subprocess.CompletedProcess(
             args=(),
             returncode=0,
@@ -1534,7 +2239,8 @@ class GatewayImageContractTests(unittest.TestCase):
                 self.assertEqual(
                     _docker_scan(
                         cache=cache,
-                        sbom=sbom,
+                        archive=sbom,
+                        artifact_path=TRIVY_OCI_PATH,
                         offline=False,
                         pull="never",
                     ),
@@ -1571,7 +2277,13 @@ class GatewayImageContractTests(unittest.TestCase):
             ) as run, self.assertRaisesRegex(
                 ValueError, "pinned Trivy scan failed with exit code 7"
             ) as raised:
-                _docker_scan(cache=cache, sbom=sbom, offline=False, pull="never")
+                _docker_scan(
+                    cache=cache,
+                    archive=sbom,
+                    artifact_path=TRIVY_OCI_PATH,
+                    offline=False,
+                    pull="never",
+                )
 
             message = str(raised.exception)
             self.assertIn('stderr_text="database download failed: connection reset"', message)
@@ -1716,7 +2428,13 @@ class GatewayImageContractTests(unittest.TestCase):
                 with self.subTest(name=name), mock.patch(
                     "scan_gateway_image.subprocess.run", side_effect=error
                 ) as run, self.assertRaises(ValueError) as raised:
-                    _docker_scan(cache=cache, sbom=sbom, offline=False, pull="never")
+                    _docker_scan(
+                        cache=cache,
+                        archive=sbom,
+                        artifact_path=TRIVY_OCI_PATH,
+                        offline=False,
+                        pull="never",
+                    )
                 message = str(raised.exception)
                 self.assertIn(f"stdout_reason={reason}", message)
                 self.assertNotIn("stdout_bytes=", message)
@@ -1747,7 +2465,13 @@ class GatewayImageContractTests(unittest.TestCase):
                 with self.subTest(name=name), mock.patch(
                     "scan_gateway_image.subprocess.run", side_effect=error
                 ), self.assertRaises(ValueError) as raised:
-                    _docker_scan(cache=cache, sbom=sbom, offline=False, pull="never")
+                    _docker_scan(
+                        cache=cache,
+                        archive=sbom,
+                        artifact_path=TRIVY_OCI_PATH,
+                        offline=False,
+                        pull="never",
+                    )
                 message = str(raised.exception)
                 self.assertIn(expected, message)
                 if name == "exact":
@@ -1785,7 +2509,13 @@ class GatewayImageContractTests(unittest.TestCase):
                 with self.subTest(error=type(error).__name__), mock.patch(
                     "scan_gateway_image.subprocess.run", side_effect=error
                 ), self.assertRaisesRegex(ValueError, expected) as raised:
-                    _docker_scan(cache=cache, sbom=sbom, offline=False, pull="never")
+                    _docker_scan(
+                        cache=cache,
+                        archive=sbom,
+                        artifact_path=TRIVY_OCI_PATH,
+                        offline=False,
+                        pull="never",
+                    )
                 self.assertNotIn(hidden_path, str(raised.exception))
                 self.assertIsNone(raised.exception.__cause__)
                 self.assertIsNone(raised.exception.__context__)
@@ -1818,10 +2548,11 @@ class GatewayImageContractTests(unittest.TestCase):
                 return []
 
             with (
-                mock.patch("scan_gateway_image._acquire_trivy_image"),
+                mock.patch("scan_gateway_image.bind_gateway_archive", return_value={}),
+                mock.patch("scan_gateway_image._acquire_scan_images", return_value={}),
                 mock.patch(
                     "scan_gateway_image._docker_scan",
-                    side_effect=[{}, report],
+                    side_effect=[{}, {}, report, report],
                 ),
                 mock.patch("scan_gateway_image.package_database", side_effect=package),
                 mock.patch("scan_gateway_image.inspect_database_archive", return_value=[]),
@@ -1830,7 +2561,9 @@ class GatewayImageContractTests(unittest.TestCase):
                     ValueError, "gateway Trivy report contains prohibited"
                 ) as raised,
             ):
-                generate_scan_evidence(sbom=sbom, receipt_path=receipt, output=output)
+                generate_scan_evidence(
+                    archive=sbom, sbom=sbom, receipt_path=receipt, output=output
+                )
 
             self.assertNotIn(marker, str(raised.exception))
             self.assertFalse((root / "gateway-image.trivy-report.json").exists())
@@ -1861,10 +2594,11 @@ class GatewayImageContractTests(unittest.TestCase):
                 return []
 
             with (
-                mock.patch("scan_gateway_image._acquire_trivy_image"),
+                mock.patch("scan_gateway_image.bind_gateway_archive", return_value={}),
+                mock.patch("scan_gateway_image._acquire_scan_images", return_value={}),
                 mock.patch(
                     "scan_gateway_image._docker_scan",
-                    side_effect=[{}, report],
+                    side_effect=[{}, {}, report, report],
                 ),
                 mock.patch("scan_gateway_image.package_database", side_effect=package),
                 mock.patch("scan_gateway_image.inspect_database_archive", return_value=[]),
@@ -1873,7 +2607,9 @@ class GatewayImageContractTests(unittest.TestCase):
                     ValueError, "gateway Trivy report contains prohibited"
                 ) as raised,
             ):
-                generate_scan_evidence(sbom=sbom, receipt_path=receipt, output=output)
+                generate_scan_evidence(
+                    archive=sbom, sbom=sbom, receipt_path=receipt, output=output
+                )
 
             self.assertNotIn(token, str(raised.exception))
             self.assertFalse((root / "gateway-image.trivy-report.json").exists())
@@ -2226,7 +2962,11 @@ class GatewayImageContractTests(unittest.TestCase):
                         self.assertRaises(ValueError) as raised,
                     ):
                         _docker_scan(
-                            cache=cache, sbom=sbom, offline=False, pull="never"
+                            cache=cache,
+                            archive=sbom,
+                            artifact_path=TRIVY_OCI_PATH,
+                            offline=False,
+                            pull="never",
                         )
                     message = str(raised.exception)
                     self.assertIn(f"stdout_reason={reason}", message)
