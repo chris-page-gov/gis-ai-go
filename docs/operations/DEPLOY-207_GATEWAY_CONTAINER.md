@@ -452,9 +452,11 @@ derivation by their current-run artefact IDs. One standard-library-only verifier
 requires the known closed producer transport inventory, rechecks the manifest-bound
 OCI, SBOM and vulnerability receipt, compares the OCI bytes and checksums again, and
 uses the privileged runner clock to enforce the assessment, database and NVD provider
-freshness windows. Only then does the job separately attest the original OCI archive,
-full image SBOM and evidence manifest. It installs no project dependency and runs no
-Docker or scanner command.
+freshness windows. It also requires the exact gateway SBOM property-name inventory,
+rejects malformed or duplicate properties and binds the source and image identities.
+Only then does the job separately attest the original OCI archive, full image SBOM
+and evidence manifest. It installs no project dependency and runs no Docker or scanner
+command.
 
 All GitHub-hosted jobs are ephemeral. No authorised durable database destination is
 configured in GitHub Actions, so the transported artefact is evidence of immediate

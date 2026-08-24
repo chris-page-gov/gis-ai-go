@@ -124,6 +124,24 @@ def _load_canonical(
     return value
 
 
+def _strict_property_map(value: Any, *, label: str) -> dict[str, str]:
+    if not isinstance(value, list):
+        raise ValueError(f"{label} is not a list")
+    properties: dict[str, str] = {}
+    for item in value:
+        if (
+            not isinstance(item, dict)
+            or set(item) != {"name", "value"}
+            or not isinstance(item["name"], str)
+            or not item["name"]
+            or not isinstance(item["value"], str)
+            or item["name"] in properties
+        ):
+            raise ValueError(f"{label} contains an invalid or duplicate property")
+        properties[item["name"]] = item["value"]
+    return properties
+
+
 def _verify_sbom(output: Path, receipt: dict[str, Any]) -> dict[str, Any]:
     path = output / "gateway-image.sbom.cdx.json"
     checksum = output / "gateway-image.sbom.cdx.json.sha256"
@@ -183,12 +201,11 @@ def _verify_sbom(output: Path, receipt: dict[str, Any]) -> dict[str, Any]:
             "support_boundary"
         ],
     }
-    properties = component.get("properties")
-    if not isinstance(properties, list) or {
-        item.get("name"): item.get("value")
-        for item in properties
-        if isinstance(item, dict)
-    } != expected_properties:
+    properties = _strict_property_map(
+        component.get("properties"),
+        label="gateway image SBOM properties",
+    )
+    if properties != expected_properties:
         raise ValueError("gateway image SBOM properties differ from the exact source")
     tools = metadata.get("tools", {}).get("components")
     if not isinstance(tools, list) or {

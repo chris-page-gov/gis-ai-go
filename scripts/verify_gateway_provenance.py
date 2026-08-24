@@ -79,6 +79,21 @@ VERSION_RE = re.compile(
 MAX_DATABASE_AGE_AT_SCAN = timedelta(days=3)
 MAX_PROVENANCE_ASSESSMENT_AGE = timedelta(hours=2)
 MAX_PROVENANCE_FUTURE_SKEW = timedelta(minutes=5)
+SBOM_PROPERTY_NAMES = frozenset(
+    {
+        "gis-ai-go:image-manifest-digest",
+        "gis-ai-go:image-receipt-sha256",
+        "gis-ai-go:rootfs-inventory-sha256",
+        "gis-ai-go:runtime-base-reference",
+        "gis-ai-go:runtime-base-source-reference",
+        "gis-ai-go:runtime-library-donor-reference",
+        "gis-ai-go:runtime-library-source-reference",
+        "gis-ai-go:scanner-image",
+        "gis-ai-go:source-revision",
+        "gis-ai-go:support-boundary",
+        "gis-ai-go:ubi-eula-sha256",
+    }
+)
 
 
 @dataclass(frozen=True)
@@ -91,6 +106,24 @@ def canonical_json_bytes(value: Any) -> bytes:
     return (
         json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
     ).encode()
+
+
+def _strict_property_map(value: Any, *, label: str) -> dict[str, str]:
+    if not isinstance(value, list):
+        raise ValueError(f"{label} is not a list")
+    properties: dict[str, str] = {}
+    for item in value:
+        if (
+            not isinstance(item, dict)
+            or set(item) != {"name", "value"}
+            or not isinstance(item["name"], str)
+            or not item["name"]
+            or not isinstance(item["value"], str)
+            or item["name"] in properties
+        ):
+            raise ValueError(f"{label} contains an invalid or duplicate property")
+        properties[item["name"]] = item["value"]
+    return properties
 
 
 def _file_identity(metadata: os.stat_result) -> tuple[int, int, int, int, int]:
@@ -525,21 +558,18 @@ def verify_attestation_inputs(
         if isinstance(metadata_document, dict)
         else None
     )
-    properties = component.get("properties") if isinstance(component, dict) else None
-    property_map = (
-        {
-            item.get("name"): item.get("value")
-            for item in properties
-            if isinstance(item, dict)
-        }
-        if isinstance(properties, list)
-        else {}
+    property_map = _strict_property_map(
+        component.get("properties") if isinstance(component, dict) else None,
+        label="gateway image SBOM properties",
     )
     if (
         sbom.get("bomFormat") != "CycloneDX"
         or not isinstance(component, dict)
         or component.get("bom-ref") != image["manifest_digest"]
+        or set(property_map) != SBOM_PROPERTY_NAMES
         or property_map.get("gis-ai-go:source-revision") != expected_source_commit
+        or property_map.get("gis-ai-go:image-manifest-digest")
+        != image["manifest_digest"]
     ):
         raise ValueError("gateway image SBOM differs from the attestation identity")
     scan = load_canonical_json_object(

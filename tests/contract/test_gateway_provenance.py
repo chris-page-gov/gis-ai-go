@@ -21,6 +21,7 @@ from verify_gateway_provenance import (  # noqa: E402
     MANIFEST_SUBJECTS,
     PRODUCER_TRANSPORT_FILES,
     SCAN_NAME,
+    SBOM_PROPERTY_NAMES,
     SBOM_NAME,
     canonical_json_bytes,
     verify_attestation_inputs,
@@ -55,6 +56,25 @@ def write_archive(directory: Path, payload: bytes) -> tuple[Path, Path]:
 def write_attestation_inputs(directory: Path) -> None:
     directory.mkdir()
     archive = b"canonical gateway OCI"
+    property_values = {
+        "gis-ai-go:image-manifest-digest": IMAGE_DIGEST,
+        "gis-ai-go:image-receipt-sha256": "b" * 64,
+        "gis-ai-go:rootfs-inventory-sha256": "c" * 64,
+        "gis-ai-go:runtime-base-reference": (
+            "registry.example/base@sha256:" + "d" * 64
+        ),
+        "gis-ai-go:runtime-base-source-reference": "registry.example/base-source",
+        "gis-ai-go:runtime-library-donor-reference": (
+            "registry.example/donor@sha256:" + "e" * 64
+        ),
+        "gis-ai-go:runtime-library-source-reference": "registry.example/donor-source",
+        "gis-ai-go:scanner-image": "registry.example/syft@sha256:" + "f" * 64,
+        "gis-ai-go:source-revision": SOURCE_COMMIT,
+        "gis-ai-go:support-boundary": "repository-only blocked candidate",
+        "gis-ai-go:ubi-eula-sha256": "1" * 64,
+    }
+    if set(property_values) != SBOM_PROPERTY_NAMES:
+        raise AssertionError("attestation fixture SBOM property inventory differs")
     sbom = canonical_json_bytes(
         {
             "bomFormat": "CycloneDX",
@@ -62,10 +82,8 @@ def write_attestation_inputs(directory: Path) -> None:
                 "component": {
                     "bom-ref": IMAGE_DIGEST,
                     "properties": [
-                        {
-                            "name": "gis-ai-go:source-revision",
-                            "value": SOURCE_COMMIT,
-                        }
+                        {"name": name, "value": property_values[name]}
+                        for name in sorted(property_values)
                     ],
                 }
             },
@@ -156,6 +174,35 @@ def write_attestation_inputs(directory: Path) -> None:
         "subjects": subjects,
     }
     (directory / EVIDENCE_MANIFEST_NAME).write_bytes(canonical_json_bytes(manifest))
+
+
+def write_rebound_sbom(directory: Path, sbom: dict[str, object]) -> None:
+    sbom_bytes = canonical_json_bytes(sbom)
+    (directory / SBOM_NAME).write_bytes(sbom_bytes)
+    checksum_bytes = f"{sha256(sbom_bytes)}  {SBOM_NAME}\n".encode("ascii")
+    checksum_name = f"{SBOM_NAME}.sha256"
+    (directory / checksum_name).write_bytes(checksum_bytes)
+
+    scan_path = directory / SCAN_NAME
+    scan = json.loads(scan_path.read_bytes())
+    scan["sbom"]["bytes"] = len(sbom_bytes)
+    scan["sbom"]["sha256"] = sha256(sbom_bytes)
+    scan_bytes = canonical_json_bytes(scan)
+    scan_path.write_bytes(scan_bytes)
+
+    manifest_path = directory / EVIDENCE_MANIFEST_NAME
+    manifest = json.loads(manifest_path.read_bytes())
+    updated = {
+        SBOM_NAME: sbom_bytes,
+        checksum_name: checksum_bytes,
+        SCAN_NAME: scan_bytes,
+    }
+    for subject in manifest["subjects"]:
+        content = updated.get(subject["file"])
+        if content is not None:
+            subject["bytes"] = len(content)
+            subject["sha256"] = sha256(content)
+    manifest_path.write_bytes(canonical_json_bytes(manifest))
 
 
 class GatewayProvenanceTests(unittest.TestCase):
@@ -342,7 +389,12 @@ class GatewayProvenanceTests(unittest.TestCase):
             write_attestation_inputs(root)
             sbom_path = root / SBOM_NAME
             sbom = json.loads(sbom_path.read_bytes())
-            sbom["metadata"]["component"]["properties"][0]["value"] = "6" * 40
+            source_property = next(
+                item
+                for item in sbom["metadata"]["component"]["properties"]
+                if item["name"] == "gis-ai-go:source-revision"
+            )
+            source_property["value"] = "6" * 40
             sbom_bytes = canonical_json_bytes(sbom)
             sbom_path.write_bytes(sbom_bytes)
             manifest_path = root / EVIDENCE_MANIFEST_NAME
@@ -359,6 +411,51 @@ class GatewayProvenanceTests(unittest.TestCase):
                     expected_source_commit=SOURCE_COMMIT,
                     verified_at=VERIFIED_AT,
                 )
+
+    def test_oidc_attestation_rejects_ambiguous_sbom_properties(self) -> None:
+        for case in (
+            "duplicate source",
+            "duplicate scanner",
+            "scalar item",
+            "extra field",
+            "non-string value",
+        ):
+            with self.subTest(case=case), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary) / "attestation"
+                write_attestation_inputs(root)
+                sbom = json.loads((root / SBOM_NAME).read_bytes())
+                properties = sbom["metadata"]["component"]["properties"]
+                if case == "duplicate source":
+                    properties.insert(
+                        0,
+                        {
+                            "name": "gis-ai-go:source-revision",
+                            "value": "6" * 40,
+                        },
+                    )
+                elif case == "duplicate scanner":
+                    scanner = next(
+                        item
+                        for item in properties
+                        if item["name"] == "gis-ai-go:scanner-image"
+                    )
+                    properties.insert(0, dict(scanner))
+                elif case == "scalar item":
+                    properties.insert(0, "ignored")
+                elif case == "extra field":
+                    properties[0]["unexpected"] = True
+                else:
+                    properties[0]["value"] = 1
+                write_rebound_sbom(root, sbom)
+                with self.assertRaisesRegex(
+                    ValueError,
+                    "invalid or duplicate property",
+                ):
+                    verify_attestation_inputs(
+                        directory=root,
+                        expected_source_commit=SOURCE_COMMIT,
+                        verified_at=VERIFIED_AT,
+                    )
 
     def test_oidc_attestation_uses_its_clock_for_scan_freshness(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

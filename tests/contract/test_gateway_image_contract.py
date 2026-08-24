@@ -1158,6 +1158,40 @@ class GatewayImageContractTests(unittest.TestCase):
             write_sbom(sbom)
             self.assertEqual(_verify_sbom(root, receipt), sbom)
 
+            scanner_property = next(
+                item
+                for item in properties
+                if item["name"] == "gis-ai-go:scanner-image"
+            )
+            invalid_property_lists: dict[str, list[Any]] = {
+                "duplicate source": [
+                    {
+                        "name": "gis-ai-go:source-revision",
+                        "value": "b" * 40,
+                    },
+                    *properties,
+                ],
+                "duplicate scanner": [dict(scanner_property), *properties],
+                "scalar item": ["ignored", *properties],
+                "extra field": [
+                    {**properties[0], "unexpected": True},
+                    *properties[1:],
+                ],
+                "non-string value": [
+                    {**properties[0], "value": 1},
+                    *properties[1:],
+                ],
+            }
+            for name, invalid_properties in invalid_property_lists.items():
+                changed = json.loads(canonical_json_bytes(sbom))
+                changed["metadata"]["component"]["properties"] = invalid_properties
+                write_sbom(changed)
+                with self.subTest(name=name), self.assertRaisesRegex(
+                    ValueError,
+                    "invalid or duplicate property",
+                ):
+                    _verify_sbom(root, receipt)
+
             changed = json.loads(canonical_json_bytes(sbom))
             changed["components"][0]["properties"][0]["value"] = "changed"
             write_sbom(changed)
