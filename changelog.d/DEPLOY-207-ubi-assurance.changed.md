@@ -17,3 +17,13 @@ the vulnerability gate: try the three official database locations in a fixed ord
 with a fresh cache per attempt, retain only a closed successful cache, and map total
 registry exhaustion to fixed privacy-safe phase metadata. Scanning and replay remain
 digest-pinned, network-disabled and unable to update the retained database.
+
+Make donor-image evidence independent of the Docker daemon's image-store backend.
+Export the digest-pinned UBI library donor through the already pinned BuildKit
+builder, require its layers and derived configuration to match the exact upstream
+manifest and configuration apart from BuildKit's sole deterministic top-level
+`created` normalisation, and reconstruct one deterministic closed OCI archive with
+the exact source configuration.
+Map external acquisition/export failures and donor-integrity validation failures to
+distinct fixed privacy-safe phases without replaying registry, temporary-path or
+runner details.

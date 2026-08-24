@@ -159,6 +159,8 @@ TRIVY_DB_REPOSITORIES = (
     "public.ecr.aws/aquasecurity/trivy-db:2",
 )
 TRIVY_DB_ACQUISITION_EXIT_CODE = 86
+RUNTIME_LIBRARY_DONOR_ACQUISITION_EXIT_CODE = 87
+RUNTIME_LIBRARY_DONOR_VALIDATION_EXIT_CODE = 88
 
 EXPECTED_REPOSITORY = "chris-page-gov/gis-ai-go"
 EXPECTED_REGISTRY_ID = "io.github.chris-page-gov/gis-ai-go"

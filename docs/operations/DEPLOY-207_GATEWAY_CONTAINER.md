@@ -339,9 +339,10 @@ The image gate performs this fixed sequence:
 6. scan the exact gateway OCI archive directly for all High and Critical findings
    with pinned Trivy 0.74.0 and `--list-all-pkgs`; require the direct report to
    cover the exact 23 installed runtime RPMs, 3 signing-key RPM metadata records
-   and 13 Node packages in the SBOM; independently scan and retain the exact pinned
-   donor OCI archive so the copied `libstdc++` RPM is covered; then retain the
-   checksummed database and both reports and replay both scans with no network;
+   and 13 Node packages in the SBOM; independently export the exact pinned donor
+   through the pinned BuildKit builder, reconstruct and retain its source OCI graph,
+   and scan it so the copied `libstdc++` RPM is covered; then retain the checksummed
+   database and both reports and replay both scans with no network;
    separately use digest-pinned Grype 0.117.0 and one retained NVD CPE database to
    scan the exact Node.js 24.19.0 component and the 24.18.0 affected and 24.18.1
    fixed controls, retaining each input and paired JSON and CycloneDX report before
@@ -518,6 +519,21 @@ response, credential or runner path in the public log. The gate then packages ex
 individual and archive hashes and sizes, and proves that a network-disabled,
 `--skip-db-update --offline-scan` replay produces the same stable report projection
 without changing the database.
+
+The retained donor archive does not depend on whether the host Docker daemon uses
+the classic or containerd image store. The gate uses the already verified, pinned
+BuildKit builder to export a base-only `linux/amd64` OCI graph with provenance and
+SBOM generation disabled. The Buildx client uses the pinned BuildKit builder to read
+the immutable upstream manifest and configuration; their digests must match the
+donor reference, and every exported layer plus the BuildKit-derived configuration
+must match that source graph before a canonical archive is written. The sole
+permitted intermediate configuration difference is BuildKit's deterministic
+normalisation of top-level `created` to the final source history timestamp; the
+canonical archive restores the exact source configuration. An external
+metadata or export failure emits only
+`failure_stage=runtime-library-donor-acquisition`; a digest, graph or canonical
+archive failure emits only `failure_stage=runtime-library-donor-validation`.
+Registry responses, commands, temporary paths and runner paths are not replayed.
 
 Trivy's operating-system and language-package inventories do not provide advisory
 coverage for the standalone Node executable recorded as `pkg:generic/node@24.19.0`.

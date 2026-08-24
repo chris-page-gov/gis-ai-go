@@ -48,6 +48,8 @@ from gateway_image import (  # noqa: E402
     OCI_INDEX_MEDIA_TYPE,
     PNPM_SHA512,
     PNPM_VERSION,
+    RUNTIME_LIBRARY_DONOR_ACQUISITION_EXIT_CODE,
+    RUNTIME_LIBRARY_DONOR_VALIDATION_EXIT_CODE,
     SYFT_REFERENCE,
     TRIVY_DB_ACQUISITION_EXIT_CODE,
     TRIVY_DB_REPOSITORIES,
@@ -95,9 +97,15 @@ from scan_gateway_image import (  # noqa: E402
     TRIVY_OCI_PATH,
     TRIVY_SCAN_TIMEOUT_SECONDS,
     TrivyDatabaseAcquisitionError,
+    RuntimeLibraryDonorAcquisitionError,
+    RuntimeLibraryDonorValidationError,
+    _acquire_scan_images,
     _acquire_trivy_image,
     _download_trivy_database,
     _docker_scan,
+    _go_json_bytes,
+    _materialise_buildkit_donor_archive,
+    _source_donor_documents,
     _sanitise_trivy_diagnostic,
     bind_gateway_archive,
     evaluate_policy,
@@ -245,6 +253,103 @@ def donor_archive_fixture() -> tuple[bytes, str]:
         ("oci-layout", compact({"imageLayoutVersion": "1.0.0"}), 0o444),
     ]
     return docker_ustar(entries), manifest_digest
+
+
+def buildkit_donor_export_fixture() -> tuple[bytes, bytes, bytes, str]:
+    layer = b"synthetic BuildKit donor layer"
+    layer_digest = digest(layer)
+    source_config = {
+        "created": "2026-08-21T00:00:00.123456789Z",
+        "architecture": "amd64",
+        "os": "linux",
+        "config": {"Labels": {"maintainer": "Example <owner@example.invalid>"}},
+        "rootfs": {"type": "layers", "diff_ids": ["sha256:" + "a" * 64]},
+        "history": [
+            {
+                "created": "2026-08-21T00:00:01.123456789Z",
+                "created_by": "RUN true && true",
+            }
+        ],
+    }
+    source_config_bytes = _go_json_bytes(source_config)
+    source_config_digest = digest(source_config_bytes)
+    layers = [
+        {
+            "mediaType": "application/vnd.oci.image.layer.v1.tar+gzip",
+            "digest": layer_digest,
+            "size": len(layer),
+        }
+    ]
+    source_manifest_bytes = compact(
+        {
+            "schemaVersion": 2,
+            "mediaType": "application/vnd.oci.image.manifest.v1+json",
+            "config": {
+                "mediaType": "application/vnd.oci.image.config.v1+json",
+                "digest": source_config_digest,
+                "size": len(source_config_bytes),
+            },
+            "layers": layers,
+            "annotations": {"org.opencontainers.image.created": "2026-08-21T00:00:00Z"},
+        }
+    )
+    source_manifest_digest = digest(source_manifest_bytes)
+    derived_config = dict(source_config)
+    derived_config["created"] = source_config["history"][-1]["created"]
+    derived_config_bytes = _go_json_bytes(derived_config)
+    derived_config_digest = digest(derived_config_bytes)
+    derived_manifest_bytes = compact(
+        {
+            "schemaVersion": 2,
+            "mediaType": "application/vnd.oci.image.manifest.v1+json",
+            "config": {
+                "mediaType": "application/vnd.oci.image.config.v1+json",
+                "digest": derived_config_digest,
+                "size": len(derived_config_bytes),
+            },
+            "layers": layers,
+        }
+    )
+    derived_manifest_digest = digest(derived_manifest_bytes)
+    blobs = {
+        f"blobs/sha256/{layer_digest.removeprefix('sha256:')}": layer,
+        f"blobs/sha256/{derived_config_digest.removeprefix('sha256:')}": (
+            derived_config_bytes
+        ),
+        f"blobs/sha256/{derived_manifest_digest.removeprefix('sha256:')}": (
+            derived_manifest_bytes
+        ),
+    }
+    index = compact(
+        {
+            "schemaVersion": 2,
+            "mediaType": "application/vnd.oci.image.index.v1+json",
+            "manifests": [
+                {
+                    "mediaType": "application/vnd.oci.image.manifest.v1+json",
+                    "digest": derived_manifest_digest,
+                    "size": len(derived_manifest_bytes),
+                    "annotations": {
+                        "org.opencontainers.image.created": "2026-08-24T00:00:00Z"
+                    },
+                    "platform": {"architecture": "amd64", "os": "linux"},
+                }
+            ],
+        }
+    )
+    entries = [
+        ("blobs", None, 0o755),
+        ("blobs/sha256", None, 0o755),
+        *((name, payload, 0o444) for name, payload in sorted(blobs.items())),
+        ("index.json", index, 0o644),
+        ("oci-layout", compact({"imageLayoutVersion": "1.0.0"}), 0o444),
+    ]
+    return (
+        docker_ustar(entries),
+        source_manifest_bytes,
+        source_config_bytes,
+        source_manifest_digest,
+    )
 
 
 def receipt_ready_inspection(path: Path):
@@ -2179,6 +2284,439 @@ class GatewayImageContractTests(unittest.TestCase):
                         "not canonical Docker USTAR",
                     ):
                         inspect_donor_archive(archive)
+
+    def test_buildkit_donor_export_materialises_the_exact_source_graph(self) -> None:
+        raw, source_manifest, source_config, source_digest = (
+            buildkit_donor_export_fixture()
+        )
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            raw_path = root / "raw.oci.tar"
+            first = root / "first.oci.tar"
+            second = root / "second.oci.tar"
+            raw_path.write_bytes(raw)
+            with mock.patch(
+                "scan_gateway_image.UBI_RUNTIME_LIBRARY_DONOR_DIGEST",
+                source_digest,
+            ):
+                _materialise_buildkit_donor_archive(
+                    raw_path,
+                    first,
+                    source_manifest_bytes=source_manifest,
+                    source_config_bytes=source_config,
+                )
+                _materialise_buildkit_donor_archive(
+                    raw_path,
+                    second,
+                    source_manifest_bytes=source_manifest,
+                    source_config_bytes=source_config,
+                )
+                identity = inspect_donor_archive(first)
+                first_bytes = first.read_bytes()
+                second_bytes = second.read_bytes()
+
+        self.assertEqual(identity["manifest_digest"], source_digest)
+        self.assertEqual(first_bytes, second_bytes)
+        self.assertNotIn(digest(source_config), raw.decode("latin-1"))
+
+    def test_go_json_projection_matches_an_independent_known_vector(self) -> None:
+        document = {
+            "created": "2026-08-21T00:00:00.123456789Z",
+            "config": {
+                "Labels": {
+                    "maintainer": "Example <owner@example.invalid> & team"
+                },
+                "Cmd": ["line\u2028break", "\u2029"],
+            },
+        }
+        expected = (
+            b'{"created":"2026-08-21T00:00:00.123456789Z","config":'
+            b'{"Labels":{"maintainer":"Example \\u003cowner@example.invalid'
+            b'\\u003e \\u0026 team"},"Cmd":["line\\u2028break","\\u2029"]}}'
+        )
+        self.assertEqual(_go_json_bytes(document), expected)
+        self.assertEqual(
+            hashlib.sha256(expected).hexdigest(),
+            "41447ef7106fb0c152d8877882953258d578367428429b021dc0d7d72d9e1559",
+        )
+
+    def test_source_donor_documents_use_exact_metadata_commands_and_bytes(self) -> None:
+        config_json = (
+            '{"created":"2026-08-21T00:00:00.123456789Z","config":'
+            '{"Labels":{"maintainer":"Example <owner@example.invalid> & team"},'
+            '"Cmd":["line\u2028break","\u2029"]}}'
+        ).encode("utf-8")
+        expected_config = (
+            b'{"created":"2026-08-21T00:00:00.123456789Z","config":'
+            b'{"Labels":{"maintainer":"Example \\u003cowner@example.invalid'
+            b'\\u003e \\u0026 team"},"Cmd":["line\\u2028break","\\u2029"]}}'
+        )
+        config_digest = digest(expected_config)
+        manifest = compact(
+            {
+                "schemaVersion": 2,
+                "mediaType": "application/vnd.oci.image.manifest.v1+json",
+                "config": {
+                    "mediaType": "application/vnd.oci.image.config.v1+json",
+                    "digest": config_digest,
+                    "size": len(expected_config),
+                },
+                "layers": [
+                    {
+                        "mediaType": "application/vnd.oci.image.layer.v1.tar+gzip",
+                        "digest": "sha256:" + "a" * 64,
+                        "size": 1,
+                    }
+                ],
+            }
+        )
+        donor_digest = digest(manifest)
+        responses = iter((manifest, config_json))
+        calls: list[tuple[tuple[str, ...], dict[str, Any]]] = []
+
+        def inspect(
+            command: tuple[str, ...], **kwargs: Any
+        ) -> subprocess.CompletedProcess[bytes]:
+            calls.append((command, kwargs))
+            return subprocess.CompletedProcess(command, 0, next(responses), b"")
+
+        with (
+            mock.patch(
+                "scan_gateway_image.UBI_RUNTIME_LIBRARY_DONOR_DIGEST",
+                donor_digest,
+            ),
+            mock.patch("scan_gateway_image.subprocess.run", side_effect=inspect),
+        ):
+            actual_manifest, actual_config = _source_donor_documents()
+
+        self.assertEqual(actual_manifest, manifest)
+        self.assertEqual(actual_config, expected_config)
+        self.assertEqual(
+            [command for command, _kwargs in calls],
+            [
+                (
+                    "docker",
+                    "buildx",
+                    "imagetools",
+                    "inspect",
+                    "--builder",
+                    BUILDER_NAME,
+                    "--raw",
+                    UBI_RUNTIME_LIBRARY_DONOR_REFERENCE,
+                ),
+                (
+                    "docker",
+                    "buildx",
+                    "imagetools",
+                    "inspect",
+                    "--builder",
+                    BUILDER_NAME,
+                    "--format",
+                    "{{json .Image}}",
+                    UBI_RUNTIME_LIBRARY_DONOR_REFERENCE,
+                ),
+            ],
+        )
+        self.assertEqual(
+            [kwargs for _command, kwargs in calls],
+            [
+                {
+                    "cwd": ROOT,
+                    "check": True,
+                    "capture_output": True,
+                    "timeout": gateway_scan.DONOR_METADATA_TIMEOUT_SECONDS,
+                },
+                {
+                    "cwd": ROOT,
+                    "check": True,
+                    "capture_output": True,
+                    "timeout": gateway_scan.DONOR_METADATA_TIMEOUT_SECONDS,
+                },
+            ],
+        )
+
+    def test_buildkit_donor_export_rejects_duplicate_json_members(self) -> None:
+        raw, source_manifest, source_config, source_digest = (
+            buildkit_donor_export_fixture()
+        )
+        entries: list[tuple[str, bytes | None, int]] = []
+        with tarfile.open(fileobj=io.BytesIO(raw), mode="r:") as archive:
+            for member in archive:
+                source = archive.extractfile(member) if member.isreg() else None
+                payload = source.read() if source is not None else None
+                if member.name == "index.json" and payload is not None:
+                    payload = b'{"schemaVersion":1,' + payload[1:]
+                entries.append((member.name, payload, member.mode))
+        mutated = docker_ustar(entries)
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            raw_path = root / "raw.oci.tar"
+            destination = root / "donor.oci.tar"
+            raw_path.write_bytes(mutated)
+            with (
+                mock.patch(
+                    "scan_gateway_image.UBI_RUNTIME_LIBRARY_DONOR_DIGEST",
+                    source_digest,
+                ),
+                self.assertRaisesRegex(ValueError, "index.json"),
+            ):
+                _materialise_buildkit_donor_archive(
+                    raw_path,
+                    destination,
+                    source_manifest_bytes=source_manifest,
+                    source_config_bytes=source_config,
+                )
+
+    def test_scan_image_acquisition_uses_only_the_pinned_buildkit_export(self) -> None:
+        raw, source_manifest, source_config, source_digest = (
+            buildkit_donor_export_fixture()
+        )
+        calls: list[tuple[tuple[str, ...], dict[str, Any], str]] = []
+
+        def build(
+            command: tuple[str, ...], **kwargs: Any
+        ) -> subprocess.CompletedProcess[bytes]:
+            context = Path(command[-1])
+            containerfile = (context / "Containerfile").read_text(encoding="utf-8")
+            calls.append((command, kwargs, containerfile))
+            output_index = command.index("--output") + 1
+            destination = Path(command[output_index].removeprefix("type=oci,dest="))
+            destination.write_bytes(raw)
+            return subprocess.CompletedProcess(command, 0, b"", b"")
+
+        with tempfile.TemporaryDirectory() as temporary:
+            donor = Path(temporary) / "gateway-runtime-library-donor.oci.tar"
+            with (
+                mock.patch("scan_gateway_image._acquire_trivy_image") as scanner,
+                mock.patch("scan_gateway_image.verify_pinned_builder") as builder,
+                mock.patch(
+                    "scan_gateway_image._source_donor_documents",
+                    return_value=(source_manifest, source_config),
+                ),
+                mock.patch(
+                    "scan_gateway_image.UBI_RUNTIME_LIBRARY_DONOR_DIGEST",
+                    source_digest,
+                ),
+                mock.patch("scan_gateway_image.subprocess.run", side_effect=build),
+            ):
+                identity = _acquire_scan_images(donor)
+
+        scanner.assert_called_once_with()
+        builder.assert_called_once_with()
+        self.assertEqual(len(calls), 1)
+        command, kwargs, containerfile = calls[0]
+        context = Path(command[-1])
+        containerfile_path = context / "Containerfile"
+        raw_path = context.parent / "runtime-library-donor.raw.oci.tar"
+        self.assertEqual(
+            command,
+            (
+                "docker",
+                "buildx",
+                "build",
+                "--builder",
+                BUILDER_NAME,
+                "--file",
+                str(containerfile_path),
+                "--platform",
+                "linux/amd64",
+                "--target",
+                "runtime-libraries",
+                "--pull",
+                "--no-cache",
+                "--provenance=false",
+                "--sbom=false",
+                "--output",
+                f"type=oci,dest={raw_path}",
+                str(context),
+            ),
+        )
+        self.assertEqual(
+            kwargs,
+            {
+                "cwd": ROOT,
+                "check": True,
+                "stdin": subprocess.DEVNULL,
+                "stdout": subprocess.DEVNULL,
+                "stderr": subprocess.DEVNULL,
+                "timeout": gateway_scan.DONOR_EXPORT_TIMEOUT_SECONDS,
+            },
+        )
+        self.assertEqual(
+            containerfile,
+            f"FROM {UBI_RUNTIME_LIBRARY_DONOR_REFERENCE} AS runtime-libraries\n",
+        )
+        self.assertEqual(identity["manifest_digest"], source_digest)
+
+    def test_donor_acquisition_failure_is_fixed_and_reserved(self) -> None:
+        private_prefix = "/" + "home/runner"
+        private_command = (
+            "docker",
+            f"{private_prefix}/work secret=SHOULD-NOT-BE-REPLAYED",
+        )
+        failures = {
+            "process": subprocess.CalledProcessError(
+                1,
+                private_command,
+                output=b"secret=SHOULD-NOT-BE-REPLAYED",
+                stderr=private_prefix.encode(),
+            ),
+            "timeout": subprocess.TimeoutExpired(
+                private_command,
+                1,
+                output=b"secret=SHOULD-NOT-BE-REPLAYED",
+                stderr=private_prefix.encode(),
+            ),
+            "launch": OSError(
+                f"{private_prefix}/work secret=SHOULD-NOT-BE-REPLAYED"
+            ),
+        }
+        for name, failure in failures.items():
+            with self.subTest(name=name), tempfile.TemporaryDirectory() as temporary:
+                donor = Path(temporary) / "gateway-runtime-library-donor.oci.tar"
+                donor.write_bytes(b"stale")
+                with (
+                    mock.patch("scan_gateway_image._acquire_trivy_image"),
+                    mock.patch("scan_gateway_image.verify_pinned_builder"),
+                    mock.patch(
+                        "scan_gateway_image._source_donor_documents",
+                        return_value=(b"manifest", b"config"),
+                    ),
+                    mock.patch(
+                        "scan_gateway_image.subprocess.run",
+                        side_effect=failure,
+                    ),
+                    self.assertRaises(
+                        RuntimeLibraryDonorAcquisitionError
+                    ) as raised,
+                ):
+                    _acquire_scan_images(donor)
+                self.assertFalse(donor.exists())
+                message = str(raised.exception)
+                self.assertEqual(
+                    message,
+                    "pinned runtime-library donor acquisition failed closed",
+                )
+                self.assertNotIn(private_prefix, message)
+                self.assertNotIn("SHOULD-NOT-BE-REPLAYED", message)
+                self.assertIsNone(raised.exception.__cause__)
+                self.assertIsNone(raised.exception.__context__)
+
+        stdout = io.StringIO()
+        stderr = io.StringIO()
+        with (
+            mock.patch.object(
+                gateway_scan,
+                "main",
+                side_effect=RuntimeLibraryDonorAcquisitionError("private detail"),
+            ),
+            mock.patch.object(sys, "stdout", stdout),
+            mock.patch.object(sys, "stderr", stderr),
+            self.assertRaises(SystemExit) as exited,
+        ):
+            gateway_scan.cli()
+        self.assertEqual(
+            exited.exception.code,
+            RUNTIME_LIBRARY_DONOR_ACQUISITION_EXIT_CODE,
+        )
+        self.assertEqual(stdout.getvalue(), "")
+        self.assertEqual(stderr.getvalue(), "")
+
+    def test_donor_validation_failure_is_fixed_and_reserved(self) -> None:
+        private_prefix = "/" + "home/runner"
+        failures = {
+            "identity": ValueError(
+                f"{private_prefix}/work secret=SHOULD-NOT-BE-REPLAYED"
+            ),
+            "builder-timeout": subprocess.TimeoutExpired(
+                ("docker", f"{private_prefix}/work"),
+                1,
+                output=b"secret=SHOULD-NOT-BE-REPLAYED",
+            ),
+        }
+        for name, failure in failures.items():
+            with self.subTest(name=name), tempfile.TemporaryDirectory() as temporary:
+                donor = Path(temporary) / "gateway-runtime-library-donor.oci.tar"
+                donor.write_bytes(b"stale")
+                with (
+                    mock.patch("scan_gateway_image._acquire_trivy_image"),
+                    mock.patch(
+                        "scan_gateway_image.verify_pinned_builder",
+                        side_effect=failure,
+                    ),
+                    self.assertRaises(RuntimeLibraryDonorValidationError) as raised,
+                ):
+                    _acquire_scan_images(donor)
+                self.assertFalse(donor.exists())
+                message = str(raised.exception)
+                self.assertEqual(
+                    message,
+                    "pinned runtime-library donor validation failed closed",
+                )
+                self.assertNotIn(private_prefix, message)
+                self.assertNotIn("SHOULD-NOT-BE-REPLAYED", message)
+                self.assertIsNone(raised.exception.__cause__)
+                self.assertIsNone(raised.exception.__context__)
+
+        stdout = io.StringIO()
+        stderr = io.StringIO()
+        with (
+            mock.patch.object(
+                gateway_scan,
+                "main",
+                side_effect=RuntimeLibraryDonorValidationError("private detail"),
+            ),
+            mock.patch.object(sys, "stdout", stdout),
+            mock.patch.object(sys, "stderr", stderr),
+            self.assertRaises(SystemExit) as exited,
+        ):
+            gateway_scan.cli()
+        self.assertEqual(
+            exited.exception.code,
+            RUNTIME_LIBRARY_DONOR_VALIDATION_EXIT_CODE,
+        )
+        self.assertEqual(stdout.getvalue(), "")
+        self.assertEqual(stderr.getvalue(), "")
+
+    def test_donor_final_archive_io_failure_is_validation(self) -> None:
+        private_prefix = "/" + "home/runner"
+
+        def materialise(
+            _raw: Path, destination: Path, **_kwargs: Any
+        ) -> None:
+            destination.write_bytes(b"candidate")
+
+        with tempfile.TemporaryDirectory() as temporary:
+            donor = Path(temporary) / "gateway-runtime-library-donor.oci.tar"
+            with (
+                mock.patch("scan_gateway_image._acquire_trivy_image"),
+                mock.patch("scan_gateway_image.verify_pinned_builder"),
+                mock.patch(
+                    "scan_gateway_image._source_donor_documents",
+                    return_value=(b"manifest", b"config"),
+                ),
+                mock.patch("scan_gateway_image._run_donor_export_command"),
+                mock.patch(
+                    "scan_gateway_image._materialise_buildkit_donor_archive",
+                    side_effect=materialise,
+                ),
+                mock.patch(
+                    "scan_gateway_image.inspect_donor_archive",
+                    side_effect=OSError(
+                        f"{private_prefix}/work secret=SHOULD-NOT-BE-REPLAYED"
+                    ),
+                ),
+                self.assertRaises(RuntimeLibraryDonorValidationError) as raised,
+            ):
+                _acquire_scan_images(donor)
+            self.assertFalse(donor.exists())
+        self.assertEqual(
+            str(raised.exception),
+            "pinned runtime-library donor validation failed closed",
+        )
+        self.assertIsNone(raised.exception.__cause__)
+        self.assertIsNone(raised.exception.__context__)
 
     def test_trivy_coverage_closes_exact_os_language_and_donor_inventories(self) -> None:
         report, donor_report, sbom, receipt, donor = coverage_fixture()

@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import gzip
 import hashlib
+import io
 import json
 import os
 import re
@@ -32,6 +33,7 @@ from gateway_evidence import (
     read_bounded_regular_file,
 )
 from gateway_image import (
+    BUILDER_NAME,
     LIBSTDCXX_PATH,
     LIBSTDCXX_RPM_NAME,
     LIBSTDCXX_RPM_PURL,
@@ -41,6 +43,8 @@ from gateway_image import (
     MAX_LAYER_PATH_COMPONENTS,
     MAX_LAYER_PATH_COMPONENT_BYTES,
     MAX_OCI_BYTES,
+    RUNTIME_LIBRARY_DONOR_ACQUISITION_EXIT_CODE,
+    RUNTIME_LIBRARY_DONOR_VALIDATION_EXIT_CODE,
     ROOT,
     TRIVY_DB_ACQUISITION_EXIT_CODE,
     TRIVY_DB_REPOSITORIES,
@@ -54,6 +58,7 @@ from gateway_image import (
     parse_checksum,
     prohibited_text_reason,
     sha256_file,
+    verify_pinned_builder,
 )
 from node_runtime_advisory import generate_node_advisory, verify_node_advisory
 
@@ -77,6 +82,8 @@ MAX_TRIVY_DIAGNOSTIC_RENDERED_BYTES = 4 * MAX_TRIVY_DIAGNOSTIC_BYTES + 2
 TRIVY_SCAN_TIMEOUT_SECONDS = 20 * 60
 TRIVY_DB_INTERNAL_TIMEOUT_SECONDS = 4 * 60 + 30
 TRIVY_DB_DOWNLOAD_TIMEOUT_SECONDS = 5 * 60
+DONOR_EXPORT_TIMEOUT_SECONDS = 20 * 60
+DONOR_METADATA_TIMEOUT_SECONDS = 5 * 60
 TRIVY_OCI_PATH = "/input/gateway-image.oci.tar"
 TRIVY_DONOR_PATH = "/input/gateway-runtime-library-donor.oci.tar"
 MAX_OCI_FILES = 20_000
@@ -105,6 +112,14 @@ _DIAGNOSTIC_SENSITIVE = re.compile(
 
 class TrivyDatabaseAcquisitionError(ValueError):
     """Signal that every allowlisted Trivy database source failed closed."""
+
+
+class RuntimeLibraryDonorAcquisitionError(ValueError):
+    """Signal that the pinned donor could not be acquired or exported."""
+
+
+class RuntimeLibraryDonorValidationError(ValueError):
+    """Signal that acquired donor evidence failed closed validation."""
 
 
 def utc_timestamp() -> str:
@@ -390,11 +405,13 @@ def _archive_json_member(
     if source is None:
         raise ValueError(f"donor OCI JSON member is unavailable: {name}")
     try:
-        document = json.loads(source.read(MAX_JSON_BYTES + 1))
-    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        document = parse_bounded_json_object(
+            source.read(MAX_JSON_BYTES + 1),
+            maximum_bytes=MAX_JSON_BYTES,
+            label=f"donor OCI JSON member {name}",
+        )
+    except ValueError as error:
         raise ValueError(f"donor OCI JSON member is invalid: {name}") from error
-    if not isinstance(document, dict):
-        raise ValueError(f"donor OCI JSON member must be an object: {name}")
     return document
 
 
@@ -489,6 +506,412 @@ def _write_canonical_donor_archive(
                 raise ValueError("runtime-library donor archive member exceeds its size")
             output.write(b"\0" * (-member.size % _TAR_BLOCK_BYTES))
         output.write(b"\0" * (2 * _TAR_BLOCK_BYTES))
+
+
+def _compact_json_bytes(value: Any) -> bytes:
+    return json.dumps(value, sort_keys=True, separators=(",", ":")).encode("utf-8")
+
+
+def _go_json_bytes(value: Any) -> bytes:
+    """Reproduce the pinned Buildx Go JSON projection used for image config."""
+    rendered = json.dumps(value, ensure_ascii=False, separators=(",", ":"))
+    rendered = (
+        rendered.replace("&", "\\u0026")
+        .replace("<", "\\u003c")
+        .replace(">", "\\u003e")
+        .replace("\u2028", "\\u2028")
+        .replace("\u2029", "\\u2029")
+    )
+    return rendered.encode("utf-8")
+
+
+def _run_donor_metadata_command(
+    arguments: tuple[str, ...],
+) -> subprocess.CompletedProcess[bytes]:
+    result: subprocess.CompletedProcess[bytes] | None = None
+    failed = False
+    try:
+        result = subprocess.run(
+            arguments,
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            timeout=DONOR_METADATA_TIMEOUT_SECONDS,
+        )
+    except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
+        failed = True
+    if failed or result is None:
+        raise RuntimeLibraryDonorAcquisitionError(
+            "pinned runtime-library donor acquisition failed closed"
+        ) from None
+    return result
+
+
+def _run_donor_export_command(
+    arguments: tuple[str, ...],
+) -> subprocess.CompletedProcess[bytes]:
+    result: subprocess.CompletedProcess[bytes] | None = None
+    failed = False
+    try:
+        result = subprocess.run(
+            arguments,
+            cwd=ROOT,
+            check=True,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            timeout=DONOR_EXPORT_TIMEOUT_SECONDS,
+        )
+    except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
+        failed = True
+    if failed or result is None:
+        raise RuntimeLibraryDonorAcquisitionError(
+            "pinned runtime-library donor acquisition failed closed"
+        ) from None
+    return result
+
+
+def _source_donor_documents() -> tuple[bytes, bytes]:
+    manifest_result = _run_donor_metadata_command(
+        (
+            "docker",
+            "buildx",
+            "imagetools",
+            "inspect",
+            "--builder",
+            BUILDER_NAME,
+            "--raw",
+            UBI_RUNTIME_LIBRARY_DONOR_REFERENCE,
+        )
+    )
+    manifest_bytes = manifest_result.stdout
+    if (
+        len(manifest_bytes) < 1
+        or len(manifest_bytes) > MAX_JSON_BYTES
+        or hashlib.sha256(manifest_bytes).hexdigest()
+        != UBI_RUNTIME_LIBRARY_DONOR_DIGEST.removeprefix("sha256:")
+    ):
+        raise ValueError("pinned donor source manifest differs from its digest")
+    manifest = parse_bounded_json_object(
+        manifest_bytes,
+        maximum_bytes=MAX_JSON_BYTES,
+        label="pinned donor source manifest",
+    )
+    config_descriptor = manifest.get("config")
+    if (
+        manifest.get("schemaVersion") != 2
+        or manifest.get("mediaType") != OCI_MANIFEST_MEDIA_TYPE
+        or not isinstance(config_descriptor, dict)
+        or not isinstance(manifest.get("layers"), list)
+        or not manifest["layers"]
+    ):
+        raise ValueError("pinned donor source manifest is outside the closed contract")
+
+    config_result = _run_donor_metadata_command(
+        (
+            "docker",
+            "buildx",
+            "imagetools",
+            "inspect",
+            "--builder",
+            BUILDER_NAME,
+            "--format",
+            "{{json .Image}}",
+            UBI_RUNTIME_LIBRARY_DONOR_REFERENCE,
+        )
+    )
+    config_document = parse_bounded_json_object(
+        config_result.stdout,
+        maximum_bytes=MAX_JSON_BYTES,
+        label="pinned donor source configuration",
+    )
+    config_bytes = _go_json_bytes(config_document)
+    expected_config_digest = config_descriptor.get("digest")
+    expected_config_size = config_descriptor.get("size")
+    if (
+        set(config_descriptor) != {"mediaType", "digest", "size"}
+        or config_descriptor.get("mediaType") != OCI_CONFIG_MEDIA_TYPE
+        or not isinstance(expected_config_digest, str)
+        or _SHA256_DIGEST.fullmatch(expected_config_digest) is None
+        or type(expected_config_size) is not int
+        or expected_config_size != len(config_bytes)
+        or hashlib.sha256(config_bytes).hexdigest()
+        != expected_config_digest.removeprefix("sha256:")
+    ):
+        raise ValueError("pinned donor source configuration differs from its descriptor")
+    return manifest_bytes, config_bytes
+
+
+def _write_donor_member(
+    output: BinaryIO,
+    *,
+    name: str,
+    mode: int,
+    size: int,
+    source: BinaryIO | None,
+) -> None:
+    member = tarfile.TarInfo(name)
+    member.type = tarfile.DIRTYPE if source is None else tarfile.REGTYPE
+    member.mode = mode
+    member.uid = 0
+    member.gid = 0
+    member.mtime = 0
+    member.size = size
+    output.write(_docker_ustar_header(member))
+    if source is None:
+        return
+    remaining = size
+    while remaining:
+        chunk = source.read(min(1024 * 1024, remaining))
+        if not chunk:
+            raise ValueError("runtime-library donor export member is incomplete")
+        output.write(chunk)
+        remaining -= len(chunk)
+    if source.read(1):
+        raise ValueError("runtime-library donor export member exceeds its descriptor")
+    output.write(b"\0" * (-size % _TAR_BLOCK_BYTES))
+
+
+def _materialise_buildkit_donor_archive(
+    raw: Path,
+    destination: Path,
+    *,
+    source_manifest_bytes: bytes,
+    source_config_bytes: bytes,
+) -> None:
+    """Turn a pinned BuildKit base export into the exact source OCI graph."""
+    source_manifest = parse_bounded_json_object(
+        source_manifest_bytes,
+        maximum_bytes=MAX_JSON_BYTES,
+        label="pinned donor source manifest",
+    )
+    source_config = parse_bounded_json_object(
+        source_config_bytes,
+        maximum_bytes=MAX_JSON_BYTES,
+        label="pinned donor source configuration",
+    )
+    source_config_descriptor = source_manifest.get("config")
+    source_layers = source_manifest.get("layers")
+    if (
+        hashlib.sha256(source_manifest_bytes).hexdigest()
+        != UBI_RUNTIME_LIBRARY_DONOR_DIGEST.removeprefix("sha256:")
+        or not isinstance(source_config_descriptor, dict)
+        or not isinstance(source_layers, list)
+        or not source_layers
+        or len(source_layers) > 64
+    ):
+        raise ValueError("pinned donor source graph is invalid")
+
+    with tarfile.open(raw, "r:") as archive:
+        members: dict[str, tarfile.TarInfo] = {}
+        total = 0
+        for member in archive:
+            if len(members) >= MAX_OCI_FILES:
+                raise ValueError("BuildKit donor export exceeds its file bound")
+            name = _safe_relative_path(member.name)
+            if name != member.name or name in members:
+                raise ValueError("BuildKit donor export path inventory is ambiguous")
+            if not (member.isdir() or member.isreg()):
+                raise ValueError("BuildKit donor export contains a special member")
+            if member.isreg():
+                total += member.size
+                if total > MAX_OCI_BYTES:
+                    raise ValueError("BuildKit donor export exceeds its byte bound")
+            members[name] = member
+        directories = {name for name, member in members.items() if member.isdir()}
+        if directories != {"blobs", "blobs/sha256"}:
+            raise ValueError("BuildKit donor export directory inventory is not closed")
+        if _archive_json_member(archive, members, "oci-layout") != {
+            "imageLayoutVersion": "1.0.0"
+        }:
+            raise ValueError("BuildKit donor export OCI layout is invalid")
+        index = _archive_json_member(archive, members, "index.json")
+        descriptors = index.get("manifests")
+        if (
+            set(index) != {"schemaVersion", "mediaType", "manifests"}
+            or index.get("schemaVersion") != 2
+            or index.get("mediaType") != OCI_INDEX_MEDIA_TYPE
+            or not isinstance(descriptors, list)
+            or len(descriptors) != 1
+        ):
+            raise ValueError("BuildKit donor export index is outside the closed contract")
+        descriptor = descriptors[0]
+        _, derived_manifest_name = _verify_donor_blob(
+            archive,
+            members,
+            descriptor,
+            media_type=OCI_MANIFEST_MEDIA_TYPE,
+            maximum=MAX_JSON_BYTES,
+            optional_keys=frozenset({"annotations", "platform"}),
+        )
+        if (
+            descriptor.get("platform") != {"architecture": "amd64", "os": "linux"}
+            or not isinstance(descriptor.get("annotations"), dict)
+            or set(descriptor["annotations"]) != {"org.opencontainers.image.created"}
+            or not isinstance(
+                descriptor["annotations"]["org.opencontainers.image.created"], str
+            )
+        ):
+            raise ValueError("BuildKit donor export descriptor is outside the platform contract")
+        derived_manifest = _archive_json_member(
+            archive, members, derived_manifest_name
+        )
+        derived_config_descriptor = derived_manifest.get("config")
+        derived_layers = derived_manifest.get("layers")
+        if (
+            set(derived_manifest) != {"schemaVersion", "mediaType", "config", "layers"}
+            or derived_manifest.get("schemaVersion") != 2
+            or derived_manifest.get("mediaType") != OCI_MANIFEST_MEDIA_TYPE
+            or not isinstance(derived_config_descriptor, dict)
+            or not isinstance(derived_layers, list)
+            or derived_layers != source_layers
+        ):
+            raise ValueError("BuildKit donor export changed the pinned source layers")
+        _, derived_config_name = _verify_donor_blob(
+            archive,
+            members,
+            derived_config_descriptor,
+            media_type=OCI_CONFIG_MEDIA_TYPE,
+            maximum=MAX_JSON_BYTES,
+        )
+        layer_names: list[str] = []
+        for layer in derived_layers:
+            _, name = _verify_donor_blob(
+                archive,
+                members,
+                layer,
+                media_type=OCI_LAYER_MEDIA_TYPE,
+                maximum=MAX_OCI_BYTES,
+            )
+            layer_names.append(name)
+        derived_config = _archive_json_member(archive, members, derived_config_name)
+        history = source_config.get("history")
+        if (
+            not isinstance(history, list)
+            or not history
+            or not isinstance(history[-1], dict)
+            or not isinstance(history[-1].get("created"), str)
+        ):
+            raise ValueError("pinned donor source history is invalid")
+        expected_derived_config = dict(source_config)
+        expected_derived_config["created"] = history[-1]["created"]
+        if derived_config != expected_derived_config:
+            raise ValueError("BuildKit donor export changed the pinned source configuration")
+        expected_files = {
+            "index.json",
+            "oci-layout",
+            derived_manifest_name,
+            derived_config_name,
+            *layer_names,
+        }
+        files = {name for name, member in members.items() if member.isreg()}
+        if files != expected_files:
+            raise ValueError("BuildKit donor export has unreachable or missing content")
+
+        source_manifest_name = (
+            "blobs/sha256/"
+            + UBI_RUNTIME_LIBRARY_DONOR_DIGEST.removeprefix("sha256:")
+        )
+        source_config_digest = source_config_descriptor.get("digest")
+        source_config_size = source_config_descriptor.get("size")
+        if (
+            not isinstance(source_config_digest, str)
+            or _SHA256_DIGEST.fullmatch(source_config_digest) is None
+            or type(source_config_size) is not int
+            or source_config_size != len(source_config_bytes)
+            or hashlib.sha256(source_config_bytes).hexdigest()
+            != source_config_digest.removeprefix("sha256:")
+        ):
+            raise ValueError("pinned donor source configuration binding is invalid")
+        source_config_name = (
+            "blobs/sha256/" + source_config_digest.removeprefix("sha256:")
+        )
+        index_bytes = _compact_json_bytes(
+            {
+                "schemaVersion": 2,
+                "mediaType": OCI_INDEX_MEDIA_TYPE,
+                "manifests": [
+                    {
+                        "mediaType": OCI_MANIFEST_MEDIA_TYPE,
+                        "digest": UBI_RUNTIME_LIBRARY_DONOR_DIGEST,
+                        "size": len(source_manifest_bytes),
+                        "annotations": {
+                            "containerd.io/distribution.source.registry.access.redhat.com": (
+                                "ubi10/nodejs-24-minimal"
+                            )
+                        },
+                    }
+                ],
+            }
+        )
+        docker_manifest_bytes = _compact_json_bytes(
+            [
+                {
+                    "Config": source_config_name,
+                    "RepoTags": None,
+                    "Layers": layer_names,
+                }
+            ]
+        )
+        layout_bytes = _compact_json_bytes({"imageLayoutVersion": "1.0.0"})
+        blob_sources: dict[str, tuple[int, BinaryIO]] = {
+            source_config_name: (
+                len(source_config_bytes),
+                io.BytesIO(source_config_bytes),
+            ),
+            source_manifest_name: (
+                len(source_manifest_bytes),
+                io.BytesIO(source_manifest_bytes),
+            ),
+        }
+        for name in layer_names:
+            member = members[name]
+            source = archive.extractfile(member)
+            if source is None:
+                raise ValueError("BuildKit donor layer is unavailable")
+            blob_sources[name] = (member.size, source)
+
+        temporary = destination.with_suffix(destination.suffix + ".tmp")
+        temporary.unlink(missing_ok=True)
+        try:
+            with temporary.open("xb") as output:
+                _write_donor_member(
+                    output, name="blobs", mode=0o755, size=0, source=None
+                )
+                _write_donor_member(
+                    output,
+                    name="blobs/sha256",
+                    mode=0o755,
+                    size=0,
+                    source=None,
+                )
+                for name in sorted(blob_sources):
+                    size, source = blob_sources[name]
+                    _write_donor_member(
+                        output,
+                        name=name,
+                        mode=0o444,
+                        size=size,
+                        source=source,
+                    )
+                for name, payload, mode in (
+                    ("index.json", index_bytes, 0o644),
+                    ("manifest.json", docker_manifest_bytes, 0o644),
+                    ("oci-layout", layout_bytes, 0o444),
+                ):
+                    _write_donor_member(
+                        output,
+                        name=name,
+                        mode=mode,
+                        size=len(payload),
+                        source=io.BytesIO(payload),
+                    )
+                output.write(b"\0" * (2 * _TAR_BLOCK_BYTES))
+            if temporary.stat().st_size > MAX_OCI_BYTES:
+                raise ValueError("canonical donor archive exceeds its byte bound")
+            temporary.replace(destination)
+        finally:
+            temporary.unlink(missing_ok=True)
 
 
 def inspect_donor_archive(path: Path) -> dict[str, Any]:
@@ -1205,31 +1628,76 @@ def _acquire_trivy_image() -> None:
 
 def _acquire_scan_images(donor_archive: Path) -> dict[str, Any]:
     _acquire_trivy_image()
-    subprocess.run(
-        ("docker", "pull", UBI_RUNTIME_LIBRARY_DONOR_REFERENCE),
-        cwd=ROOT,
-        check=True,
-        timeout=20 * 60,
-    )
-    temporary = donor_archive.with_suffix(donor_archive.suffix + ".tmp")
+    failure: str | None = None
+    identity: dict[str, Any] | None = None
     try:
-        subprocess.run(
-            (
-                "docker",
-                "image",
-                "save",
-                f"--output={temporary}",
-                UBI_RUNTIME_LIBRARY_DONOR_REFERENCE,
-            ),
-            cwd=ROOT,
-            check=True,
-            timeout=20 * 60,
-        )
-        identity = inspect_donor_archive(temporary)
-        temporary.replace(donor_archive)
-        return {**identity, "file": donor_archive.name}
-    finally:
-        temporary.unlink(missing_ok=True)
+        verify_pinned_builder()
+        source_manifest_bytes, source_config_bytes = _source_donor_documents()
+        with tempfile.TemporaryDirectory(
+            prefix="gis-ai-go-donor-export-"
+        ) as export_temporary:
+            root = Path(export_temporary)
+            context = root / "context"
+            context.mkdir(mode=0o700)
+            containerfile = context / "Containerfile"
+            containerfile.write_text(
+                f"FROM {UBI_RUNTIME_LIBRARY_DONOR_REFERENCE} AS runtime-libraries\n",
+                encoding="utf-8",
+            )
+            raw = root / "runtime-library-donor.raw.oci.tar"
+            _run_donor_export_command(
+                (
+                    "docker",
+                    "buildx",
+                    "build",
+                    "--builder",
+                    BUILDER_NAME,
+                    "--file",
+                    str(containerfile),
+                    "--platform",
+                    "linux/amd64",
+                    "--target",
+                    "runtime-libraries",
+                    "--pull",
+                    "--no-cache",
+                    "--provenance=false",
+                    "--sbom=false",
+                    "--output",
+                    f"type=oci,dest={raw}",
+                    str(context),
+                )
+            )
+            _materialise_buildkit_donor_archive(
+                raw,
+                donor_archive,
+                source_manifest_bytes=source_manifest_bytes,
+                source_config_bytes=source_config_bytes,
+            )
+        identity = inspect_donor_archive(donor_archive)
+    except RuntimeLibraryDonorAcquisitionError:
+        failure = "acquisition"
+    except (
+        OSError,
+        subprocess.CalledProcessError,
+        subprocess.TimeoutExpired,
+        tarfile.TarError,
+        ValueError,
+    ):
+        failure = "validation"
+    if failure is not None or identity is None:
+        try:
+            donor_archive.unlink(missing_ok=True)
+        except OSError:
+            pass
+    if failure == "acquisition":
+        raise RuntimeLibraryDonorAcquisitionError(
+            "pinned runtime-library donor acquisition failed closed"
+        ) from None
+    if failure == "validation" or identity is None:
+        raise RuntimeLibraryDonorValidationError(
+            "pinned runtime-library donor validation failed closed"
+        ) from None
+    return {**identity, "file": donor_archive.name}
 
 
 def _trivy_container_arguments(
@@ -1819,6 +2287,10 @@ def cli() -> None:
         main()
     except TrivyDatabaseAcquisitionError:
         raise SystemExit(TRIVY_DB_ACQUISITION_EXIT_CODE) from None
+    except RuntimeLibraryDonorAcquisitionError:
+        raise SystemExit(RUNTIME_LIBRARY_DONOR_ACQUISITION_EXIT_CODE) from None
+    except RuntimeLibraryDonorValidationError:
+        raise SystemExit(RUNTIME_LIBRARY_DONOR_VALIDATION_EXIT_CODE) from None
 
 
 if __name__ == "__main__":
