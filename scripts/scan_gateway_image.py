@@ -42,6 +42,8 @@ from gateway_image import (
     MAX_LAYER_PATH_COMPONENT_BYTES,
     MAX_OCI_BYTES,
     ROOT,
+    TRIVY_DB_ACQUISITION_EXIT_CODE,
+    TRIVY_DB_REPOSITORIES,
     TRIVY_REFERENCE,
     UBI_RUNTIME_LIBRARY_DONOR_DIGEST,
     UBI_RUNTIME_LIBRARY_DONOR_REFERENCE,
@@ -73,6 +75,8 @@ TIMING_TOLERANCE_MS = 2_000
 MAX_TRIVY_DIAGNOSTIC_BYTES = 4 * 1024
 MAX_TRIVY_DIAGNOSTIC_RENDERED_BYTES = 4 * MAX_TRIVY_DIAGNOSTIC_BYTES + 2
 TRIVY_SCAN_TIMEOUT_SECONDS = 20 * 60
+TRIVY_DB_INTERNAL_TIMEOUT_SECONDS = 4 * 60 + 30
+TRIVY_DB_DOWNLOAD_TIMEOUT_SECONDS = 5 * 60
 TRIVY_OCI_PATH = "/input/gateway-image.oci.tar"
 TRIVY_DONOR_PATH = "/input/gateway-runtime-library-donor.oci.tar"
 MAX_OCI_FILES = 20_000
@@ -97,6 +101,10 @@ _DIAGNOSTIC_SENSITIVE = re.compile(
     r"passwords?|passwd|pwd|client[ _-]?secrets?|secrets?"
     r")"
 )
+
+
+class TrivyDatabaseAcquisitionError(ValueError):
+    """Signal that every allowlisted Trivy database source failed closed."""
 
 
 def utc_timestamp() -> str:
@@ -1224,6 +1232,75 @@ def _acquire_scan_images(donor_archive: Path) -> dict[str, Any]:
         temporary.unlink(missing_ok=True)
 
 
+def _trivy_container_arguments(
+    *, cache: Path, mounts: tuple[tuple[Path, str], ...] = ()
+) -> list[str]:
+    scanner_uid = os.getuid()
+    scanner_gid = os.getgid()
+    arguments = [
+        "docker",
+        "run",
+        "--rm",
+        "--pull=never",
+        "--read-only",
+        "--cap-drop=ALL",
+        "--security-opt=no-new-privileges",
+        f"--user={scanner_uid}:{scanner_gid}",
+        (
+            "--tmpfs=/tmp:rw,noexec,nosuid,nodev,size=512m,mode=0700,"
+            f"uid={scanner_uid},gid={scanner_gid}"
+        ),
+    ]
+    arguments.extend(
+        f"--volume={source.resolve(strict=True)}:{target}:ro"
+        for source, target in mounts
+    )
+    arguments.append(f"--volume={cache.resolve(strict=True)}:/cache")
+    return arguments
+
+
+def _download_trivy_database(root: Path) -> Path:
+    """Acquire one closed Trivy database from ordered official repositories."""
+    attempted = 0
+    for attempted, repository in enumerate(TRIVY_DB_REPOSITORIES, start=1):
+        cache = root / f"attempt-{attempted}"
+        cache.mkdir(mode=0o700)
+        arguments = _trivy_container_arguments(cache=cache)
+        arguments.extend(
+            [
+                TRIVY_REFERENCE,
+                "image",
+                "--cache-dir=/cache",
+                "--cache-backend=memory",
+                "--download-db-only",
+                "--no-progress",
+                f"--timeout={TRIVY_DB_INTERNAL_TIMEOUT_SECONDS}s",
+                f"--db-repository={repository}",
+            ]
+        )
+        try:
+            subprocess.run(
+                tuple(arguments),
+                cwd=ROOT,
+                check=True,
+                capture_output=True,
+                timeout=TRIVY_DB_DOWNLOAD_TIMEOUT_SECONDS,
+            )
+            cache_inventory(cache)
+        except (
+            OSError,
+            subprocess.CalledProcessError,
+            subprocess.TimeoutExpired,
+            ValueError,
+        ):
+            continue
+        return cache
+    raise TrivyDatabaseAcquisitionError(
+        "pinned Trivy database acquisition failed closed; "
+        f"attempted_registry_count={attempted}"
+    ) from None
+
+
 def _docker_scan(
     *,
     cache: Path,
@@ -1243,21 +1320,10 @@ def _docker_scan(
         or artifact_path not in {TRIVY_OCI_PATH, TRIVY_DONOR_PATH}
     ):
         raise ValueError("Trivy OCI input archive is invalid or outside its bound")
-    mounted_archive = archive.resolve(strict=True)
-    mounted_cache = cache.resolve(strict=True)
-    scanner_uid = os.getuid()
-    scanner_gid = os.getgid()
-    arguments = [
-        "docker", "run", "--rm", f"--pull={pull}", "--read-only", "--cap-drop=ALL",
-        "--security-opt=no-new-privileges",
-        f"--user={scanner_uid}:{scanner_gid}",
-        (
-            "--tmpfs=/tmp:rw,noexec,nosuid,nodev,size=512m,mode=0700,"
-            f"uid={scanner_uid},gid={scanner_gid}"
-        ),
-        f"--volume={mounted_archive}:{artifact_path}:ro",
-        f"--volume={mounted_cache}:/cache",
-    ]
+    arguments = _trivy_container_arguments(
+        cache=cache, mounts=((archive, artifact_path),)
+    )
+    arguments[3] = f"--pull={pull}"
     if offline:
         arguments.append("--network=none")
     arguments.extend(
@@ -1413,24 +1479,11 @@ def generate_scan_evidence(
     donor_archive_path = output.parent / DONOR_ARCHIVE_NAME
     donor_report_path = output.parent / DONOR_REPORT_NAME
     donor = _acquire_scan_images(donor_archive_path)
-    with tempfile.TemporaryDirectory(prefix="gis-ai-go-trivy-online-") as online_temporary:
-        online_cache = Path(online_temporary) / "cache"
-        online_cache.mkdir(mode=0o700)
-        _docker_scan(
-            cache=online_cache,
-            archive=archive,
-            artifact_path=TRIVY_OCI_PATH,
-            offline=False,
-            pull="never",
-        )
-        _docker_scan(
-            cache=online_cache,
-            archive=donor_archive_path,
-            artifact_path=TRIVY_DONOR_PATH,
-            offline=False,
-            pull="never",
-        )
-        inventory = package_database(online_cache, archive_path)
+    with tempfile.TemporaryDirectory(
+        prefix="gis-ai-go-trivy-acquisition-"
+    ) as acquisition_temporary:
+        acquired_cache = _download_trivy_database(Path(acquisition_temporary))
+        inventory = package_database(acquired_cache, archive_path)
     checksum_path.write_text(
         f"{sha256_file(archive_path)}  {archive_path.name}\n", encoding="utf-8"
     )
@@ -1761,5 +1814,12 @@ def main() -> None:
     print("Gateway image vulnerability scan and retained offline replay passed.")
 
 
+def cli() -> None:
+    try:
+        main()
+    except TrivyDatabaseAcquisitionError:
+        raise SystemExit(TRIVY_DB_ACQUISITION_EXIT_CODE) from None
+
+
 if __name__ == "__main__":
-    main()
+    cli()

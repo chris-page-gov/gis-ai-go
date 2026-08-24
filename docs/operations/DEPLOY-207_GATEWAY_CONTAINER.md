@@ -506,7 +506,14 @@ The raw Trivy report and closed scan projection retain every reported High and
 Critical finding. The policy fails only when any of those findings has a non-empty
 fixed version; unfixed findings remain recorded rather than being hidden or
 misrepresented as patched. The scanner image is immutable, while the public
-vulnerability database is time-varying. The gate therefore packages exactly
+vulnerability database is time-varying. Database acquisition uses the pinned
+scanner in a capability-free, read-only container and tries three allowlisted
+official locations in order: the Google pull-through mirror, GitHub Container
+Registry and AWS Public ECR. Each attempt starts with a separate empty cache; only
+a successful cache with the closed two-file inventory is retained. A 270-second
+in-container timeout leaves a 30-second margin inside the host subprocess bound.
+Exhausting all three locations fails the phase with fixed metadata and no registry
+response, credential or runner path in the public log. The gate then packages exactly
 `db/metadata.json` and `db/trivy.db` into a canonical gzip archive, records their
 individual and archive hashes and sizes, and proves that a network-disabled,
 `--skip-db-update --offline-scan` replay produces the same stable report projection

@@ -328,6 +328,48 @@ class GatewayImageAssurancePromotionTests(unittest.TestCase):
         self.assertIsNone(raised.exception.__cause__)
         self.assertIsNone(raised.exception.__context__)
 
+    def test_checked_phase_maps_only_the_reserved_database_acquisition_exit(self) -> None:
+        private_prefix = "/" + "home/runner"
+        payload = (
+            b"Bearer SHOULD-NOT-BE-REPLAYED "
+            + f"{private_prefix}/work/private".encode()
+        )
+        command = (
+            "import os,sys;"
+            f"os.write(2,{payload!r});"
+            f"sys.exit({assurance.TRIVY_DB_ACQUISITION_EXIT_CODE})"
+        )
+        stdout = io.StringIO()
+        stderr = io.StringIO()
+        with (
+            contextlib.redirect_stdout(stdout),
+            contextlib.redirect_stderr(stderr),
+            self.assertRaisesRegex(
+                ValueError, "failed during Trivy database acquisition"
+            ) as raised,
+        ):
+            assurance.run_checked(
+                "vulnerability-scan", [sys.executable, "-c", command]
+            )
+        rendered = stdout.getvalue() + stderr.getvalue() + str(raised.exception)
+        self.assertIn("failure_stage=trivy-db-acquisition", rendered)
+        self.assertIn(
+            f"attempted_registry_count={len(assurance.TRIVY_DB_REPOSITORIES)}",
+            rendered,
+        )
+        self.assertNotIn(payload.decode(), rendered)
+        self.assertNotIn("Bearer", rendered)
+        self.assertNotIn(private_prefix, rendered)
+
+        unrelated = io.StringIO()
+        with (
+            contextlib.redirect_stdout(unrelated),
+            contextlib.redirect_stderr(unrelated),
+            self.assertRaisesRegex(ValueError, "exited unsuccessfully"),
+        ):
+            assurance.run_checked("fixture", [sys.executable, "-c", command])
+        self.assertNotIn("failure_stage=trivy-db-acquisition", unrelated.getvalue())
+
     def test_checked_phase_withholds_safe_text_on_timeout(self) -> None:
         payload = b"benign-looking timeout detail"
         command = f"import os,time;os.write(1,{payload!r});time.sleep(10)"

@@ -23,6 +23,8 @@ from gateway_evidence import write_evidence_manifest
 from gateway_image import (
     PRIVACY_PHASE_OUTPUT_BOUNDARY,
     ROOT,
+    TRIVY_DB_ACQUISITION_EXIT_CODE,
+    TRIVY_DB_REPOSITORIES,
     contains_diagnostic_private_path,
     prohibited_text_reason,
 )
@@ -332,7 +334,12 @@ def run_checked(
     ):
         failure = "could not be completed"
     elif type(return_code) is not int or return_code != 0:
-        failure = "exited unsuccessfully"
+        failure = (
+            "failed during Trivy database acquisition"
+            if name == "vulnerability-scan"
+            and return_code == TRIVY_DB_ACQUISITION_EXIT_CODE
+            else "exited unsuccessfully"
+        )
     elif prohibited_output_reason is not None:
         failure = "emitted prohibited output"
     if drain_failed:
@@ -360,6 +367,13 @@ def run_checked(
             replay=False,
             reason=prohibited_output_reason or failure.replace(" ", "-"),
         )
+        if failure == "failed during Trivy database acquisition":
+            sys.stderr.write(
+                "gateway image assurance phase vulnerability-scan failed closed; "
+                "failure_stage=trivy-db-acquisition; "
+                f"attempted_registry_count={len(TRIVY_DB_REPOSITORIES)}\n"
+            )
+            sys.stderr.flush()
     if failure is not None:
         raise ValueError(f"gateway image assurance phase {name} {failure}")
 

@@ -11,3 +11,9 @@ transport only its checksum and rehydrate the database from Anchore for immediat
 protected offline replay. Require the protected artefact to be downloaded promptly
 to an owner-supplied mode-0700 local directory, rehydrated and verified there; an
 external long-term replica remains an operational follow-up.
+
+Make Trivy database acquisition resilient on shared CI runners without weakening
+the vulnerability gate: try the three official database locations in a fixed order
+with a fresh cache per attempt, retain only a closed successful cache, and map total
+registry exhaustion to fixed privacy-safe phase metadata. Scanning and replay remain
+digest-pinned, network-disabled and unable to update the retained database.

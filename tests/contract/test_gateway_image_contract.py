@@ -49,6 +49,8 @@ from gateway_image import (  # noqa: E402
     PNPM_SHA512,
     PNPM_VERSION,
     SYFT_REFERENCE,
+    TRIVY_DB_ACQUISITION_EXIT_CODE,
+    TRIVY_DB_REPOSITORIES,
     TRIVY_REFERENCE,
     UBI_EULA_SHA256,
     UBI_RUNTIME_BASE_DIGEST,
@@ -84,12 +86,17 @@ from gateway_image import (  # noqa: E402
     verify_root_package_manager,
     verify_runtime_composition,
 )
+import scan_gateway_image as gateway_scan  # noqa: E402
 from scan_gateway_image import (  # noqa: E402
     MAX_TRIVY_DIAGNOSTIC_BYTES,
+    TRIVY_DB_DOWNLOAD_TIMEOUT_SECONDS,
+    TRIVY_DB_INTERNAL_TIMEOUT_SECONDS,
     TRIVY_DONOR_PATH,
     TRIVY_OCI_PATH,
     TRIVY_SCAN_TIMEOUT_SECONDS,
+    TrivyDatabaseAcquisitionError,
     _acquire_trivy_image,
+    _download_trivy_database,
     _docker_scan,
     _sanitise_trivy_diagnostic,
     bind_gateway_archive,
@@ -2270,6 +2277,119 @@ class GatewayImageContractTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "differs from the exact OCI"):
                 bind_gateway_archive(archive, receipt)
 
+    def test_trivy_database_acquisition_uses_fresh_ordered_official_sources(self) -> None:
+        completed = subprocess.CompletedProcess(
+            args=(), returncode=0, stdout=b"", stderr=b""
+        )
+        private_path = ("/" + "home/runner/work/private").encode()
+        failures: list[object] = [
+            subprocess.CalledProcessError(
+                1,
+                ("docker", "run"),
+                output=b"Bearer SHOULD-NOT-BE-REPLAYED",
+                stderr=private_path,
+            ),
+            subprocess.TimeoutExpired(
+                ("docker", "run"),
+                TRIVY_DB_DOWNLOAD_TIMEOUT_SECONDS,
+                output=b"::error::SHOULD-NOT-BE-REPLAYED",
+                stderr=b"https://example.invalid/?token=SHOULD-NOT-BE-REPLAYED",
+            ),
+            completed,
+        ]
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            with (
+                mock.patch(
+                    "scan_gateway_image.subprocess.run", side_effect=failures
+                ) as run,
+                mock.patch(
+                    "scan_gateway_image.cache_inventory", return_value=[]
+                ) as inventory,
+            ):
+                cache = _download_trivy_database(root)
+
+        self.assertEqual(cache.name, "attempt-3")
+        self.assertEqual(run.call_count, len(TRIVY_DB_REPOSITORIES))
+        cache_mounts: list[str] = []
+        for index, (call, repository) in enumerate(
+            zip(run.call_args_list, TRIVY_DB_REPOSITORIES, strict=True), start=1
+        ):
+            command = call.args[0]
+            self.assertEqual(command[:4], ("docker", "run", "--rm", "--pull=never"))
+            self.assertIn("--read-only", command)
+            self.assertIn("--cap-drop=ALL", command)
+            self.assertIn("--security-opt=no-new-privileges", command)
+            self.assertIn("--download-db-only", command)
+            self.assertIn("--no-progress", command)
+            self.assertIn(
+                f"--timeout={TRIVY_DB_INTERNAL_TIMEOUT_SECONDS}s", command
+            )
+            self.assertEqual(
+                [item for item in command if item.startswith("--db-repository=")],
+                [f"--db-repository={repository}"],
+            )
+            cache_mount = next(
+                item for item in command if item.startswith("--volume=")
+            )
+            self.assertIn(f"attempt-{index}", cache_mount)
+            cache_mounts.append(cache_mount)
+            self.assertEqual(call.kwargs["timeout"], TRIVY_DB_DOWNLOAD_TIMEOUT_SECONDS)
+            self.assertLess(
+                TRIVY_DB_INTERNAL_TIMEOUT_SECONDS,
+                TRIVY_DB_DOWNLOAD_TIMEOUT_SECONDS,
+            )
+            self.assertTrue(call.kwargs["capture_output"])
+        self.assertEqual(len(set(cache_mounts)), len(TRIVY_DB_REPOSITORIES))
+        inventory.assert_called_once_with(cache)
+
+    def test_trivy_database_acquisition_exhaustion_is_closed_and_reserved(self) -> None:
+        sentinel = "SHOULD-NOT-BE-REPLAYED"
+        private_prefix = "/" + "home/runner"
+        failures = [
+            subprocess.CalledProcessError(
+                1,
+                ("docker", "run"),
+                output=f"Bearer {sentinel}".encode(),
+                stderr=f"{private_prefix}/work/{sentinel}".encode(),
+            )
+            for _repository in TRIVY_DB_REPOSITORIES
+        ]
+        with tempfile.TemporaryDirectory() as temporary:
+            with (
+                mock.patch(
+                    "scan_gateway_image.subprocess.run", side_effect=failures
+                ),
+                self.assertRaises(TrivyDatabaseAcquisitionError) as raised,
+            ):
+                _download_trivy_database(Path(temporary))
+
+        message = str(raised.exception)
+        self.assertIn(
+            f"attempted_registry_count={len(TRIVY_DB_REPOSITORIES)}", message
+        )
+        self.assertNotIn(sentinel, message)
+        self.assertNotIn(private_prefix, message)
+        self.assertIsNone(raised.exception.__cause__)
+        self.assertIsNone(raised.exception.__context__)
+
+        stdout = io.StringIO()
+        stderr = io.StringIO()
+        with (
+            mock.patch.object(
+                gateway_scan,
+                "main",
+                side_effect=TrivyDatabaseAcquisitionError("private detail"),
+            ),
+            mock.patch.object(sys, "stdout", stdout),
+            mock.patch.object(sys, "stderr", stderr),
+            self.assertRaises(SystemExit) as exited,
+        ):
+            gateway_scan.cli()
+        self.assertEqual(exited.exception.code, TRIVY_DB_ACQUISITION_EXIT_CODE)
+        self.assertEqual(stdout.getvalue(), "")
+        self.assertEqual(stderr.getvalue(), "")
+
     def test_trivy_scan_success_preserves_exact_online_and_offline_commands(self) -> None:
         report = trivy_inventory_report()
         with tempfile.TemporaryDirectory() as temporary:
@@ -2712,8 +2832,11 @@ class GatewayImageContractTests(unittest.TestCase):
                 mock.patch("scan_gateway_image.bind_gateway_archive", return_value={}),
                 mock.patch("scan_gateway_image._acquire_scan_images", return_value={}),
                 mock.patch(
+                    "scan_gateway_image._download_trivy_database", return_value=root
+                ),
+                mock.patch(
                     "scan_gateway_image._docker_scan",
-                    side_effect=[{}, {}, report, report],
+                    side_effect=[report, report],
                 ),
                 mock.patch("scan_gateway_image.package_database", side_effect=package),
                 mock.patch("scan_gateway_image.inspect_database_archive", return_value=[]),
@@ -2758,8 +2881,11 @@ class GatewayImageContractTests(unittest.TestCase):
                 mock.patch("scan_gateway_image.bind_gateway_archive", return_value={}),
                 mock.patch("scan_gateway_image._acquire_scan_images", return_value={}),
                 mock.patch(
+                    "scan_gateway_image._download_trivy_database", return_value=root
+                ),
+                mock.patch(
                     "scan_gateway_image._docker_scan",
-                    side_effect=[{}, {}, report, report],
+                    side_effect=[report, report],
                 ),
                 mock.patch("scan_gateway_image.package_database", side_effect=package),
                 mock.patch("scan_gateway_image.inspect_database_archive", return_value=[]),

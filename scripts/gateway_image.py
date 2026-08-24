@@ -153,6 +153,12 @@ TRIVY_REFERENCE = (
     "aquasec/trivy:0.74.0@"
     "sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969"
 )
+TRIVY_DB_REPOSITORIES = (
+    "mirror.gcr.io/aquasec/trivy-db:2",
+    "ghcr.io/aquasecurity/trivy-db:2",
+    "public.ecr.aws/aquasecurity/trivy-db:2",
+)
+TRIVY_DB_ACQUISITION_EXIT_CODE = 86
 
 EXPECTED_REPOSITORY = "chris-page-gov/gis-ai-go"
 EXPECTED_REGISTRY_ID = "io.github.chris-page-gov/gis-ai-go"
