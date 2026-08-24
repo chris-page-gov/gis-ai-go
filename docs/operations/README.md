@@ -31,6 +31,7 @@ and no public MCP service or API is deployed.
 - [MCP-201 verification record](MCP-201_VERIFICATION.md)
 - [EVID-204 canonical public inline evidence](EVID-204_INLINE_EVIDENCE.md)
 - [EVID-204 durable public evidence candidate](EVID-204_DURABLE_LEDGER.md)
+- [EVID-204 evidence checkpoint and recovery candidate](EVID-204_CHECKPOINT_RECOVERY.md)
 - [EVID-204 evidence inspection transport candidate](EVID-204_INSPECT_TRANSPORT.md)
 - [EXEC-202 private execution service](EXEC-202_EXECUTION_SERVICE.md)
 - [ADAPT-203 provider contract and inactive ONS adapter](ADAPT-203_PROVIDER_PREFLIGHT.md)

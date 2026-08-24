@@ -1,0 +1,1 @@
+- Publish external evidence checkpoints through a deterministic private transaction directory and atomic no-replace hard link, keep pre-durable targets unverifiable, require exclusive stopped-writer reconciliation for bounded indeterminate states, and accept only exact independently verified late claimants as idempotent success.

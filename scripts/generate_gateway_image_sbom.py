@@ -17,7 +17,9 @@ from gateway_image import (
     assert_no_private_text,
     canonical_json_bytes,
     inspect_oci_archive,
+    make_runtime_sbom_components,
     sha256_file,
+    verify_runtime_composition,
 )
 
 
@@ -43,9 +45,13 @@ def main() -> None:
     inspection = inspect_oci_archive(archive)
     receipt = json.loads(receipt_path.read_bytes())
     source = receipt.get("source")
-    if not isinstance(source, dict) or receipt.get("image", {}).get(
-        "manifest_digest"
-    ) != inspection.manifest_digest:
+    if (
+        not isinstance(source, dict)
+        or receipt.get("image", {}).get("manifest_digest")
+        != inspection.manifest_digest
+        or receipt.get("image", {}).get("rootfs")
+        != verify_runtime_composition(inspection)
+    ):
         raise ValueError("gateway SBOM input differs from the image receipt")
 
     result = subprocess.run(
@@ -82,6 +88,13 @@ def main() -> None:
         or not document["components"]
     ):
         raise ValueError("pinned Syft returned an empty or unsupported image SBOM")
+    runtime_components = make_runtime_sbom_components(receipt)
+    existing_references = {
+        item.get("bom-ref") for item in document["components"] if isinstance(item, dict)
+    }
+    if any(item["bom-ref"] in existing_references for item in runtime_components):
+        raise ValueError("pinned Syft SBOM collides with a fixed runtime-file identity")
+    document["components"].extend(runtime_components)
     metadata = document.get("metadata")
     if not isinstance(metadata, dict):
         raise ValueError("pinned Syft image SBOM lacks metadata")
@@ -91,10 +104,62 @@ def main() -> None:
         "type": "container",
         "name": "gis-ai-go-gateway",
         "version": source["version"],
+        "licenses": [
+            {
+                "expression": (
+                    "MIT AND LicenseRef-Red-Hat-UBI-EULA AND "
+                    "LicenseRef-Third-Party-Notices"
+                )
+            }
+        ],
         "properties": [
             {"name": "gis-ai-go:image-manifest-digest", "value": inspection.manifest_digest},
+            {
+                "name": "gis-ai-go:image-receipt-sha256",
+                "value": sha256_file(receipt_path),
+            },
             {"name": "gis-ai-go:source-revision", "value": source["revision"]},
             {"name": "gis-ai-go:scanner-image", "value": SYFT_REFERENCE},
+            {
+                "name": "gis-ai-go:rootfs-inventory-sha256",
+                "value": receipt["image"]["rootfs"]["inventory_sha256"],
+            },
+            {
+                "name": "gis-ai-go:runtime-base-reference",
+                "value": receipt["build"]["runtime_composition"]["runtime_base"][
+                    "reference"
+                ],
+            },
+            {
+                "name": "gis-ai-go:runtime-base-source-reference",
+                "value": receipt["build"]["runtime_composition"]["runtime_base"][
+                    "source_reference"
+                ],
+            },
+            {
+                "name": "gis-ai-go:runtime-library-donor-reference",
+                "value": receipt["build"]["runtime_composition"][
+                    "runtime_library_donor"
+                ]["reference"],
+            },
+            {
+                "name": "gis-ai-go:runtime-library-source-reference",
+                "value": receipt["build"]["runtime_composition"][
+                    "runtime_library_donor"
+                ]["source_reference"],
+            },
+            {
+                "name": "gis-ai-go:ubi-eula-sha256",
+                "value": receipt["build"]["runtime_composition"]["licence_material"][
+                    "ubi_eula"
+                ]["sha256"],
+            },
+            {
+                "name": "gis-ai-go:support-boundary",
+                "value": receipt["build"]["runtime_composition"][
+                    "support_boundary"
+                ],
+            },
         ],
     }
     document["serialNumber"] = f"urn:uuid:{uuid.uuid5(uuid.NAMESPACE_URL, inspection.manifest_digest)}"

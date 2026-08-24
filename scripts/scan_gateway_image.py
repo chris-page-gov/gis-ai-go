@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import gzip
 import hashlib
+import io
 import json
 import os
 import re
@@ -18,6 +19,7 @@ import unicodedata
 from datetime import UTC, datetime
 from pathlib import Path, PurePosixPath
 from typing import Any, BinaryIO
+from urllib.parse import parse_qs, unquote
 
 from jsonschema import Draft202012Validator, FormatChecker
 
@@ -31,8 +33,24 @@ from gateway_evidence import (
     read_bounded_regular_file,
 )
 from gateway_image import (
+    BUILDER_NAME,
+    LIBSTDCXX_PATH,
+    LIBSTDCXX_RPM_NAME,
+    LIBSTDCXX_RPM_PURL,
+    LIBSTDCXX_RPM_VERSION,
+    LIBSTDCXX_SHA256,
+    MAX_LAYER_PATH_BYTES,
+    MAX_LAYER_PATH_COMPONENTS,
+    MAX_LAYER_PATH_COMPONENT_BYTES,
+    MAX_OCI_BYTES,
+    RUNTIME_LIBRARY_DONOR_ACQUISITION_EXIT_CODE,
+    RUNTIME_LIBRARY_DONOR_VALIDATION_EXIT_CODE,
     ROOT,
+    TRIVY_DB_ACQUISITION_EXIT_CODE,
+    TRIVY_DB_REPOSITORIES,
     TRIVY_REFERENCE,
+    UBI_RUNTIME_LIBRARY_DONOR_DIGEST,
+    UBI_RUNTIME_LIBRARY_DONOR_REFERENCE,
     assert_no_private_json,
     assert_no_private_text,
     canonical_json_bytes,
@@ -40,7 +58,9 @@ from gateway_image import (
     parse_checksum,
     prohibited_text_reason,
     sha256_file,
+    verify_pinned_builder,
 )
+from node_runtime_advisory import generate_node_advisory, verify_node_advisory
 
 BLOCKED_SEVERITIES = frozenset({"HIGH", "CRITICAL"})
 TRIVY_VERSION = "0.74.0"
@@ -48,6 +68,8 @@ SCAN_SCHEMA = ROOT / "schemas" / "gateway-image-vulnerability-scan.schema.json"
 DB_ARCHIVE_NAME = "gateway-image.trivy-db.tar.gz"
 DB_CHECKSUM_NAME = f"{DB_ARCHIVE_NAME}.sha256"
 REPORT_NAME = "gateway-image.trivy-report.json"
+DONOR_ARCHIVE_NAME = "gateway-runtime-library-donor.oci.tar"
+DONOR_REPORT_NAME = "gateway-runtime-library-donor.trivy-report.json"
 EXPECTED_DB_FILES = frozenset({"db/metadata.json", "db/trivy.db"})
 MAX_DB_FILES = 8
 MAX_DB_EXPANDED_BYTES = 2 * 1024 * 1024 * 1024
@@ -58,6 +80,26 @@ TIMING_TOLERANCE_MS = 2_000
 MAX_TRIVY_DIAGNOSTIC_BYTES = 4 * 1024
 MAX_TRIVY_DIAGNOSTIC_RENDERED_BYTES = 4 * MAX_TRIVY_DIAGNOSTIC_BYTES + 2
 TRIVY_SCAN_TIMEOUT_SECONDS = 20 * 60
+TRIVY_DB_INTERNAL_TIMEOUT_SECONDS = 4 * 60 + 30
+TRIVY_DB_DOWNLOAD_TIMEOUT_SECONDS = 5 * 60
+DONOR_EXPORT_TIMEOUT_SECONDS = 20 * 60
+DONOR_METADATA_TIMEOUT_SECONDS = 5 * 60
+TRIVY_OCI_PATH = "/input/gateway-image.oci.tar"
+TRIVY_DONOR_PATH = "/input/gateway-runtime-library-donor.oci.tar"
+MAX_OCI_FILES = 20_000
+MAX_JSON_BYTES = 4 * 1024 * 1024
+OCI_INDEX_MEDIA_TYPE = "application/vnd.oci.image.index.v1+json"
+OCI_MANIFEST_MEDIA_TYPE = "application/vnd.oci.image.manifest.v1+json"
+OCI_CONFIG_MEDIA_TYPE = "application/vnd.oci.image.config.v1+json"
+OCI_LAYER_MEDIA_TYPE = "application/vnd.oci.image.layer.v1.tar+gzip"
+_SHA256_DIGEST = re.compile(r"sha256:[0-9a-f]{64}\Z")
+_RPM_PURL = re.compile(r"pkg:rpm/redhat/([^@?]+)@([^?]+)\?(.+)\Z")
+_NPM_PURL = re.compile(r"pkg:npm/(.+)@([^@?]+)(?:\?.*)?\Z")
+_TAR_BLOCK_BYTES = 512
+_TAR_CHECKSUM = slice(148, 156)
+_TAR_DEVICE_MAJOR = slice(329, 337)
+_TAR_DEVICE_MINOR = slice(337, 345)
+_DOCKER_TAR_ZERO_DEVICE = b"0000000\0"
 
 _DIAGNOSTIC_SENSITIVE = re.compile(
     r"(?i)(?:"
@@ -66,6 +108,18 @@ _DIAGNOSTIC_SENSITIVE = re.compile(
     r"passwords?|passwd|pwd|client[ _-]?secrets?|secrets?"
     r")"
 )
+
+
+class TrivyDatabaseAcquisitionError(ValueError):
+    """Signal that every allowlisted Trivy database source failed closed."""
+
+
+class RuntimeLibraryDonorAcquisitionError(ValueError):
+    """Signal that the pinned donor could not be acquired or exported."""
+
+
+class RuntimeLibraryDonorValidationError(ValueError):
+    """Signal that acquired donor evidence failed closed validation."""
 
 
 def utc_timestamp() -> str:
@@ -112,6 +166,12 @@ def _sanitise_trivy_diagnostic(value: object, *, label: str) -> str:
 
 
 def _safe_relative_path(value: str) -> str:
+    try:
+        encoded = value.encode("utf-8", errors="strict")
+    except UnicodeEncodeError as error:
+        raise ValueError(f"non-UTF-8 Trivy evidence path: {value!r}") from error
+    if len(encoded) > MAX_LAYER_PATH_BYTES:
+        raise ValueError(f"Trivy evidence path exceeds its byte bound: {value!r}")
     logical = PurePosixPath(value)
     if (
         not value
@@ -120,6 +180,11 @@ def _safe_relative_path(value: str) -> str:
         or "\0" in value
         or logical.is_absolute()
         or any(part in {"", ".", ".."} for part in logical.parts)
+        or len(logical.parts) > MAX_LAYER_PATH_COMPONENTS
+        or any(
+            len(part.encode("utf-8")) > MAX_LAYER_PATH_COMPONENT_BYTES
+            for part in logical.parts
+        )
     ):
         raise ValueError(f"unsafe Trivy database path: {value!r}")
     return logical.as_posix()
@@ -328,6 +393,715 @@ def inspect_database_archive(
             temporary.cleanup()
 
 
+def _archive_json_member(
+    archive: tarfile.TarFile,
+    members: dict[str, tarfile.TarInfo],
+    name: str,
+) -> dict[str, Any]:
+    member = members.get(name)
+    if member is None or not member.isreg() or member.size > MAX_JSON_BYTES:
+        raise ValueError(f"donor OCI JSON member is missing or over its bound: {name}")
+    source = archive.extractfile(member)
+    if source is None:
+        raise ValueError(f"donor OCI JSON member is unavailable: {name}")
+    try:
+        document = parse_bounded_json_object(
+            source.read(MAX_JSON_BYTES + 1),
+            maximum_bytes=MAX_JSON_BYTES,
+            label=f"donor OCI JSON member {name}",
+        )
+    except ValueError as error:
+        raise ValueError(f"donor OCI JSON member is invalid: {name}") from error
+    return document
+
+
+def _verify_donor_blob(
+    archive: tarfile.TarFile,
+    members: dict[str, tarfile.TarInfo],
+    descriptor: Any,
+    *,
+    media_type: str,
+    maximum: int,
+    optional_keys: frozenset[str] = frozenset(),
+) -> tuple[str, str]:
+    if (
+        not isinstance(descriptor, dict)
+        or not {"mediaType", "digest", "size"}.issubset(descriptor)
+        or not set(descriptor).issubset(
+            {"mediaType", "digest", "size"} | optional_keys
+        )
+        or descriptor.get("mediaType") != media_type
+    ):
+        raise ValueError("donor OCI descriptor differs from the closed contract")
+    digest = descriptor.get("digest")
+    size = descriptor.get("size")
+    if (
+        not isinstance(digest, str)
+        or _SHA256_DIGEST.fullmatch(digest) is None
+        or type(size) is not int
+        or size < 1
+        or size > maximum
+    ):
+        raise ValueError("donor OCI descriptor digest or size is invalid")
+    name = f"blobs/sha256/{digest.removeprefix('sha256:')}"
+    member = members.get(name)
+    if member is None or not member.isreg() or member.size != size:
+        raise ValueError("donor OCI descriptor blob is missing or has a different size")
+    source = archive.extractfile(member)
+    if source is None:
+        raise ValueError("donor OCI descriptor blob is unavailable")
+    realised = hashlib.sha256()
+    while chunk := source.read(1024 * 1024):
+        realised.update(chunk)
+    if realised.hexdigest() != digest.removeprefix("sha256:"):
+        raise ValueError("donor OCI descriptor blob digest differs")
+    return digest, name
+
+
+def _docker_ustar_header(member: tarfile.TarInfo) -> bytes:
+    """Return the canonical Docker/Go USTAR header for one donor member."""
+    canonical = tarfile.TarInfo(member.name)
+    canonical.uid = member.uid
+    canonical.gid = member.gid
+    canonical.uname = member.uname
+    canonical.gname = member.gname
+    canonical.mtime = member.mtime
+    canonical.mode = member.mode
+    canonical.type = member.type
+    canonical.size = member.size
+    header = bytearray(canonical.tobuf(format=tarfile.USTAR_FORMAT))
+    if len(header) != _TAR_BLOCK_BYTES:
+        raise ValueError("runtime-library donor archive header is not canonical USTAR")
+    # Go's archive/tar zero-encodes these fields for ordinary files and directories;
+    # Python's writer leaves them NUL-filled. Docker image save uses the Go encoding.
+    header[_TAR_DEVICE_MAJOR] = _DOCKER_TAR_ZERO_DEVICE
+    header[_TAR_DEVICE_MINOR] = _DOCKER_TAR_ZERO_DEVICE
+    header[_TAR_CHECKSUM] = b"        "
+    header[_TAR_CHECKSUM] = f"{sum(header):06o}\0 ".encode("ascii")
+    return bytes(header)
+
+
+def _write_canonical_donor_archive(
+    archive: tarfile.TarFile,
+    members: list[tarfile.TarInfo],
+    destination: Path,
+) -> None:
+    """Reconstruct the closed donor archive including its exact physical ending."""
+    with destination.open("xb") as output:
+        for member in members:
+            output.write(_docker_ustar_header(member))
+            if not member.isreg():
+                continue
+            source = archive.extractfile(member)
+            if source is None:
+                raise ValueError("runtime-library donor archive member is unavailable")
+            remaining = member.size
+            while remaining:
+                chunk = source.read(min(1024 * 1024, remaining))
+                if not chunk:
+                    raise ValueError("runtime-library donor archive member is incomplete")
+                output.write(chunk)
+                remaining -= len(chunk)
+            if source.read(1):
+                raise ValueError("runtime-library donor archive member exceeds its size")
+            output.write(b"\0" * (-member.size % _TAR_BLOCK_BYTES))
+        output.write(b"\0" * (2 * _TAR_BLOCK_BYTES))
+
+
+def _compact_json_bytes(value: Any) -> bytes:
+    return json.dumps(value, sort_keys=True, separators=(",", ":")).encode("utf-8")
+
+
+def _go_json_bytes(value: Any) -> bytes:
+    """Reproduce the pinned Buildx Go JSON projection used for image config."""
+    rendered = json.dumps(value, ensure_ascii=False, separators=(",", ":"))
+    rendered = (
+        rendered.replace("&", "\\u0026")
+        .replace("<", "\\u003c")
+        .replace(">", "\\u003e")
+        .replace("\u2028", "\\u2028")
+        .replace("\u2029", "\\u2029")
+    )
+    return rendered.encode("utf-8")
+
+
+def _run_donor_metadata_command(
+    arguments: tuple[str, ...],
+) -> subprocess.CompletedProcess[bytes]:
+    result: subprocess.CompletedProcess[bytes] | None = None
+    failed = False
+    try:
+        result = subprocess.run(
+            arguments,
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            timeout=DONOR_METADATA_TIMEOUT_SECONDS,
+        )
+    except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
+        failed = True
+    if failed or result is None:
+        raise RuntimeLibraryDonorAcquisitionError(
+            "pinned runtime-library donor acquisition failed closed"
+        ) from None
+    return result
+
+
+def _run_donor_export_command(
+    arguments: tuple[str, ...],
+) -> subprocess.CompletedProcess[bytes]:
+    result: subprocess.CompletedProcess[bytes] | None = None
+    failed = False
+    try:
+        result = subprocess.run(
+            arguments,
+            cwd=ROOT,
+            check=True,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            timeout=DONOR_EXPORT_TIMEOUT_SECONDS,
+        )
+    except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
+        failed = True
+    if failed or result is None:
+        raise RuntimeLibraryDonorAcquisitionError(
+            "pinned runtime-library donor acquisition failed closed"
+        ) from None
+    return result
+
+
+def _source_donor_documents() -> tuple[bytes, bytes]:
+    manifest_result = _run_donor_metadata_command(
+        (
+            "docker",
+            "buildx",
+            "imagetools",
+            "inspect",
+            "--builder",
+            BUILDER_NAME,
+            "--raw",
+            UBI_RUNTIME_LIBRARY_DONOR_REFERENCE,
+        )
+    )
+    manifest_bytes = manifest_result.stdout
+    if (
+        len(manifest_bytes) < 1
+        or len(manifest_bytes) > MAX_JSON_BYTES
+        or hashlib.sha256(manifest_bytes).hexdigest()
+        != UBI_RUNTIME_LIBRARY_DONOR_DIGEST.removeprefix("sha256:")
+    ):
+        raise ValueError("pinned donor source manifest differs from its digest")
+    manifest = parse_bounded_json_object(
+        manifest_bytes,
+        maximum_bytes=MAX_JSON_BYTES,
+        label="pinned donor source manifest",
+    )
+    config_descriptor = manifest.get("config")
+    if (
+        manifest.get("schemaVersion") != 2
+        or manifest.get("mediaType") != OCI_MANIFEST_MEDIA_TYPE
+        or not isinstance(config_descriptor, dict)
+        or not isinstance(manifest.get("layers"), list)
+        or not manifest["layers"]
+    ):
+        raise ValueError("pinned donor source manifest is outside the closed contract")
+
+    config_result = _run_donor_metadata_command(
+        (
+            "docker",
+            "buildx",
+            "imagetools",
+            "inspect",
+            "--builder",
+            BUILDER_NAME,
+            "--format",
+            "{{json .Image}}",
+            UBI_RUNTIME_LIBRARY_DONOR_REFERENCE,
+        )
+    )
+    config_document = parse_bounded_json_object(
+        config_result.stdout,
+        maximum_bytes=MAX_JSON_BYTES,
+        label="pinned donor source configuration",
+    )
+    config_bytes = _go_json_bytes(config_document)
+    expected_config_digest = config_descriptor.get("digest")
+    expected_config_size = config_descriptor.get("size")
+    if (
+        set(config_descriptor) != {"mediaType", "digest", "size"}
+        or config_descriptor.get("mediaType") != OCI_CONFIG_MEDIA_TYPE
+        or not isinstance(expected_config_digest, str)
+        or _SHA256_DIGEST.fullmatch(expected_config_digest) is None
+        or type(expected_config_size) is not int
+        or expected_config_size != len(config_bytes)
+        or hashlib.sha256(config_bytes).hexdigest()
+        != expected_config_digest.removeprefix("sha256:")
+    ):
+        raise ValueError("pinned donor source configuration differs from its descriptor")
+    return manifest_bytes, config_bytes
+
+
+def _write_donor_member(
+    output: BinaryIO,
+    *,
+    name: str,
+    mode: int,
+    size: int,
+    source: BinaryIO | None,
+) -> None:
+    member = tarfile.TarInfo(name)
+    member.type = tarfile.DIRTYPE if source is None else tarfile.REGTYPE
+    member.mode = mode
+    member.uid = 0
+    member.gid = 0
+    member.mtime = 0
+    member.size = size
+    output.write(_docker_ustar_header(member))
+    if source is None:
+        return
+    remaining = size
+    while remaining:
+        chunk = source.read(min(1024 * 1024, remaining))
+        if not chunk:
+            raise ValueError("runtime-library donor export member is incomplete")
+        output.write(chunk)
+        remaining -= len(chunk)
+    if source.read(1):
+        raise ValueError("runtime-library donor export member exceeds its descriptor")
+    output.write(b"\0" * (-size % _TAR_BLOCK_BYTES))
+
+
+def _materialise_buildkit_donor_archive(
+    raw: Path,
+    destination: Path,
+    *,
+    source_manifest_bytes: bytes,
+    source_config_bytes: bytes,
+) -> None:
+    """Turn a pinned BuildKit base export into the exact source OCI graph."""
+    source_manifest = parse_bounded_json_object(
+        source_manifest_bytes,
+        maximum_bytes=MAX_JSON_BYTES,
+        label="pinned donor source manifest",
+    )
+    source_config = parse_bounded_json_object(
+        source_config_bytes,
+        maximum_bytes=MAX_JSON_BYTES,
+        label="pinned donor source configuration",
+    )
+    source_config_descriptor = source_manifest.get("config")
+    source_layers = source_manifest.get("layers")
+    if (
+        hashlib.sha256(source_manifest_bytes).hexdigest()
+        != UBI_RUNTIME_LIBRARY_DONOR_DIGEST.removeprefix("sha256:")
+        or not isinstance(source_config_descriptor, dict)
+        or not isinstance(source_layers, list)
+        or not source_layers
+        or len(source_layers) > 64
+    ):
+        raise ValueError("pinned donor source graph is invalid")
+
+    with tarfile.open(raw, "r:") as archive:
+        members: dict[str, tarfile.TarInfo] = {}
+        total = 0
+        for member in archive:
+            if len(members) >= MAX_OCI_FILES:
+                raise ValueError("BuildKit donor export exceeds its file bound")
+            name = _safe_relative_path(member.name)
+            if name != member.name or name in members:
+                raise ValueError("BuildKit donor export path inventory is ambiguous")
+            if not (member.isdir() or member.isreg()):
+                raise ValueError("BuildKit donor export contains a special member")
+            if member.isreg():
+                total += member.size
+                if total > MAX_OCI_BYTES:
+                    raise ValueError("BuildKit donor export exceeds its byte bound")
+            members[name] = member
+        directories = {name for name, member in members.items() if member.isdir()}
+        if directories != {"blobs", "blobs/sha256"}:
+            raise ValueError("BuildKit donor export directory inventory is not closed")
+        if _archive_json_member(archive, members, "oci-layout") != {
+            "imageLayoutVersion": "1.0.0"
+        }:
+            raise ValueError("BuildKit donor export OCI layout is invalid")
+        index = _archive_json_member(archive, members, "index.json")
+        descriptors = index.get("manifests")
+        if (
+            set(index) != {"schemaVersion", "mediaType", "manifests"}
+            or index.get("schemaVersion") != 2
+            or index.get("mediaType") != OCI_INDEX_MEDIA_TYPE
+            or not isinstance(descriptors, list)
+            or len(descriptors) != 1
+        ):
+            raise ValueError("BuildKit donor export index is outside the closed contract")
+        descriptor = descriptors[0]
+        _, derived_manifest_name = _verify_donor_blob(
+            archive,
+            members,
+            descriptor,
+            media_type=OCI_MANIFEST_MEDIA_TYPE,
+            maximum=MAX_JSON_BYTES,
+            optional_keys=frozenset({"annotations", "platform"}),
+        )
+        if (
+            descriptor.get("platform") != {"architecture": "amd64", "os": "linux"}
+            or not isinstance(descriptor.get("annotations"), dict)
+            or set(descriptor["annotations"]) != {"org.opencontainers.image.created"}
+            or not isinstance(
+                descriptor["annotations"]["org.opencontainers.image.created"], str
+            )
+        ):
+            raise ValueError("BuildKit donor export descriptor is outside the platform contract")
+        derived_manifest = _archive_json_member(
+            archive, members, derived_manifest_name
+        )
+        derived_config_descriptor = derived_manifest.get("config")
+        derived_layers = derived_manifest.get("layers")
+        if (
+            set(derived_manifest) != {"schemaVersion", "mediaType", "config", "layers"}
+            or derived_manifest.get("schemaVersion") != 2
+            or derived_manifest.get("mediaType") != OCI_MANIFEST_MEDIA_TYPE
+            or not isinstance(derived_config_descriptor, dict)
+            or not isinstance(derived_layers, list)
+            or derived_layers != source_layers
+        ):
+            raise ValueError("BuildKit donor export changed the pinned source layers")
+        _, derived_config_name = _verify_donor_blob(
+            archive,
+            members,
+            derived_config_descriptor,
+            media_type=OCI_CONFIG_MEDIA_TYPE,
+            maximum=MAX_JSON_BYTES,
+        )
+        layer_names: list[str] = []
+        for layer in derived_layers:
+            _, name = _verify_donor_blob(
+                archive,
+                members,
+                layer,
+                media_type=OCI_LAYER_MEDIA_TYPE,
+                maximum=MAX_OCI_BYTES,
+            )
+            layer_names.append(name)
+        derived_config = _archive_json_member(archive, members, derived_config_name)
+        history = source_config.get("history")
+        if (
+            not isinstance(history, list)
+            or not history
+            or not isinstance(history[-1], dict)
+            or not isinstance(history[-1].get("created"), str)
+        ):
+            raise ValueError("pinned donor source history is invalid")
+        expected_derived_config = dict(source_config)
+        expected_derived_config["created"] = history[-1]["created"]
+        if derived_config != expected_derived_config:
+            raise ValueError("BuildKit donor export changed the pinned source configuration")
+        expected_files = {
+            "index.json",
+            "oci-layout",
+            derived_manifest_name,
+            derived_config_name,
+            *layer_names,
+        }
+        files = {name for name, member in members.items() if member.isreg()}
+        if files != expected_files:
+            raise ValueError("BuildKit donor export has unreachable or missing content")
+
+        source_manifest_name = (
+            "blobs/sha256/"
+            + UBI_RUNTIME_LIBRARY_DONOR_DIGEST.removeprefix("sha256:")
+        )
+        source_config_digest = source_config_descriptor.get("digest")
+        source_config_size = source_config_descriptor.get("size")
+        if (
+            not isinstance(source_config_digest, str)
+            or _SHA256_DIGEST.fullmatch(source_config_digest) is None
+            or type(source_config_size) is not int
+            or source_config_size != len(source_config_bytes)
+            or hashlib.sha256(source_config_bytes).hexdigest()
+            != source_config_digest.removeprefix("sha256:")
+        ):
+            raise ValueError("pinned donor source configuration binding is invalid")
+        source_config_name = (
+            "blobs/sha256/" + source_config_digest.removeprefix("sha256:")
+        )
+        index_bytes = _compact_json_bytes(
+            {
+                "schemaVersion": 2,
+                "mediaType": OCI_INDEX_MEDIA_TYPE,
+                "manifests": [
+                    {
+                        "mediaType": OCI_MANIFEST_MEDIA_TYPE,
+                        "digest": UBI_RUNTIME_LIBRARY_DONOR_DIGEST,
+                        "size": len(source_manifest_bytes),
+                        "annotations": {
+                            "containerd.io/distribution.source.registry.access.redhat.com": (
+                                "ubi10/nodejs-24-minimal"
+                            )
+                        },
+                    }
+                ],
+            }
+        )
+        docker_manifest_bytes = _compact_json_bytes(
+            [
+                {
+                    "Config": source_config_name,
+                    "RepoTags": None,
+                    "Layers": layer_names,
+                }
+            ]
+        )
+        layout_bytes = _compact_json_bytes({"imageLayoutVersion": "1.0.0"})
+        blob_sources: dict[str, tuple[int, BinaryIO]] = {
+            source_config_name: (
+                len(source_config_bytes),
+                io.BytesIO(source_config_bytes),
+            ),
+            source_manifest_name: (
+                len(source_manifest_bytes),
+                io.BytesIO(source_manifest_bytes),
+            ),
+        }
+        for name in layer_names:
+            member = members[name]
+            source = archive.extractfile(member)
+            if source is None:
+                raise ValueError("BuildKit donor layer is unavailable")
+            blob_sources[name] = (member.size, source)
+
+        temporary = destination.with_suffix(destination.suffix + ".tmp")
+        temporary.unlink(missing_ok=True)
+        try:
+            with temporary.open("xb") as output:
+                _write_donor_member(
+                    output, name="blobs", mode=0o755, size=0, source=None
+                )
+                _write_donor_member(
+                    output,
+                    name="blobs/sha256",
+                    mode=0o755,
+                    size=0,
+                    source=None,
+                )
+                for name in sorted(blob_sources):
+                    size, source = blob_sources[name]
+                    _write_donor_member(
+                        output,
+                        name=name,
+                        mode=0o444,
+                        size=size,
+                        source=source,
+                    )
+                for name, payload, mode in (
+                    ("index.json", index_bytes, 0o644),
+                    ("manifest.json", docker_manifest_bytes, 0o644),
+                    ("oci-layout", layout_bytes, 0o444),
+                ):
+                    _write_donor_member(
+                        output,
+                        name=name,
+                        mode=mode,
+                        size=len(payload),
+                        source=io.BytesIO(payload),
+                    )
+                output.write(b"\0" * (2 * _TAR_BLOCK_BYTES))
+            if temporary.stat().st_size > MAX_OCI_BYTES:
+                raise ValueError("canonical donor archive exceeds its byte bound")
+            temporary.replace(destination)
+        finally:
+            temporary.unlink(missing_ok=True)
+
+
+def inspect_donor_archive(path: Path) -> dict[str, Any]:
+    """Verify and bind the retained Docker-save archive for the pinned donor."""
+    metadata = path.lstat()
+    if (
+        stat.S_ISLNK(metadata.st_mode)
+        or not stat.S_ISREG(metadata.st_mode)
+        or metadata.st_size < 1
+        or metadata.st_size > MAX_OCI_BYTES
+    ):
+        raise ValueError("runtime-library donor archive is invalid or over its bound")
+    with tarfile.open(path, "r:") as archive:
+        members: dict[str, tarfile.TarInfo] = {}
+        ordered_members: list[tarfile.TarInfo] = []
+        total = 0
+        for member in archive:
+            if len(members) >= MAX_OCI_FILES:
+                raise ValueError("runtime-library donor archive exceeds its file bound")
+            name = _safe_relative_path(member.name)
+            if name != member.name or name in members:
+                raise ValueError("runtime-library donor archive path inventory is ambiguous")
+            if not (member.isdir() or member.isreg()):
+                raise ValueError("runtime-library donor archive contains a special member")
+            expected_type = tarfile.DIRTYPE if member.isdir() else tarfile.REGTYPE
+            if (
+                member.type != expected_type
+                or member.uid != 0
+                or member.gid != 0
+                or member.uname != ""
+                or member.gname != ""
+                or member.mtime != 0
+                or member.pax_headers
+            ):
+                raise ValueError("runtime-library donor archive metadata is not canonical")
+            expected_mode = 0o755 if member.isdir() else (
+                0o644 if name in {"index.json", "manifest.json"} else 0o444
+            )
+            if member.mode != expected_mode:
+                raise ValueError("runtime-library donor archive mode is not canonical")
+            if member.isreg():
+                total += member.size
+                if total > MAX_OCI_BYTES:
+                    raise ValueError("runtime-library donor archive exceeds its byte bound")
+            elif member.size != 0:
+                raise ValueError("runtime-library donor archive directory size is not canonical")
+            members[name] = member
+            ordered_members.append(member)
+        directories = {name for name, member in members.items() if member.isdir()}
+        files = {name for name, member in members.items() if member.isreg()}
+        if directories != {"blobs", "blobs/sha256"}:
+            raise ValueError("runtime-library donor directory inventory is not closed")
+        if not {"index.json", "manifest.json", "oci-layout"}.issubset(files):
+            raise ValueError("runtime-library donor archive is incomplete")
+        layout = _archive_json_member(archive, members, "oci-layout")
+        if layout != {"imageLayoutVersion": "1.0.0"}:
+            raise ValueError("runtime-library donor OCI layout is invalid")
+        index = _archive_json_member(archive, members, "index.json")
+        descriptors = index.get("manifests")
+        if (
+            set(index) != {"schemaVersion", "mediaType", "manifests"}
+            or index.get("schemaVersion") != 2
+            or index.get("mediaType") != OCI_INDEX_MEDIA_TYPE
+            or not isinstance(descriptors, list)
+            or len(descriptors) != 1
+        ):
+            raise ValueError("runtime-library donor index is outside the closed contract")
+        descriptor = descriptors[0]
+        manifest_digest, manifest_name = _verify_donor_blob(
+            archive,
+            members,
+            descriptor,
+            media_type=OCI_MANIFEST_MEDIA_TYPE,
+            maximum=MAX_JSON_BYTES,
+            optional_keys=frozenset({"annotations"}),
+        )
+        if (
+            manifest_digest != UBI_RUNTIME_LIBRARY_DONOR_DIGEST
+            or descriptor.get("annotations")
+            != {
+                "containerd.io/distribution.source.registry.access.redhat.com":
+                    "ubi10/nodejs-24-minimal"
+            }
+        ):
+            raise ValueError("runtime-library donor archive differs from the pinned image")
+        manifest = _archive_json_member(archive, members, manifest_name)
+        layers = manifest.get("layers")
+        if (
+            manifest.get("schemaVersion") != 2
+            or manifest.get("mediaType") != OCI_MANIFEST_MEDIA_TYPE
+            or not isinstance(layers, list)
+            or not layers
+            or len(layers) > 64
+            or not set(manifest).issubset(
+                {"schemaVersion", "mediaType", "config", "layers", "annotations"}
+            )
+        ):
+            raise ValueError("runtime-library donor manifest is invalid")
+        config_digest, config_name = _verify_donor_blob(
+            archive,
+            members,
+            manifest.get("config"),
+            media_type=OCI_CONFIG_MEDIA_TYPE,
+            maximum=MAX_JSON_BYTES,
+        )
+        layer_digests: list[str] = []
+        layer_names: list[str] = []
+        for layer in layers:
+            digest, name = _verify_donor_blob(
+                archive,
+                members,
+                layer,
+                media_type=OCI_LAYER_MEDIA_TYPE,
+                maximum=MAX_OCI_BYTES,
+            )
+            layer_digests.append(digest)
+            layer_names.append(name)
+        config = _archive_json_member(archive, members, config_name)
+        rootfs = config.get("rootfs")
+        diff_ids = rootfs.get("diff_ids") if isinstance(rootfs, dict) else None
+        if (
+            config.get("architecture") != "amd64"
+            or config.get("os") != "linux"
+            or not isinstance(rootfs, dict)
+            or set(rootfs) != {"type", "diff_ids"}
+            or rootfs.get("type") != "layers"
+            or not isinstance(diff_ids, list)
+            or len(diff_ids) != len(layer_digests)
+            or any(
+                not isinstance(item, str) or _SHA256_DIGEST.fullmatch(item) is None
+                for item in diff_ids
+            )
+            or len(set(diff_ids)) != len(diff_ids)
+        ):
+            raise ValueError("runtime-library donor configuration identity is invalid")
+        manifest_member = members["manifest.json"]
+        source = archive.extractfile(manifest_member)
+        if source is None or manifest_member.size > MAX_JSON_BYTES:
+            raise ValueError("runtime-library donor Docker manifest is unavailable")
+        try:
+            docker_manifest = json.loads(source.read(MAX_JSON_BYTES + 1))
+        except (UnicodeDecodeError, json.JSONDecodeError) as error:
+            raise ValueError("runtime-library donor Docker manifest is invalid") from error
+        if docker_manifest != [
+            {"Config": config_name, "RepoTags": None, "Layers": layer_names}
+        ]:
+            raise ValueError("runtime-library donor Docker manifest differs from its OCI graph")
+        reachable = {manifest_name, config_name, *layer_names}
+        if files != {"index.json", "manifest.json", "oci-layout"} | reachable:
+            raise ValueError("runtime-library donor archive has unreachable content")
+        expected_order = [
+            "blobs",
+            "blobs/sha256",
+            *sorted(reachable),
+            "index.json",
+            "manifest.json",
+            "oci-layout",
+        ]
+        if [member.name for member in ordered_members] != expected_order:
+            raise ValueError("runtime-library donor archive inventory is not canonical")
+        with tempfile.TemporaryDirectory(
+            prefix="gis-ai-go-donor-canonical-"
+        ) as canonical_temporary:
+            canonical_archive = Path(canonical_temporary) / DONOR_ARCHIVE_NAME
+            _write_canonical_donor_archive(
+                archive,
+                ordered_members,
+                canonical_archive,
+            )
+            if not _bounded_files_equal(
+                path,
+                canonical_archive,
+                maximum_bytes=MAX_OCI_BYTES,
+            ):
+                raise ValueError(
+                    "runtime-library donor archive is not canonical Docker USTAR"
+                )
+        return {
+            "file": path.name,
+            "sha256": sha256_file(path),
+            "bytes": metadata.st_size,
+            "reference": UBI_RUNTIME_LIBRARY_DONOR_REFERENCE,
+            "manifest_digest": manifest_digest,
+            "config_digest": config_digest,
+            "layer_digests": layer_digests,
+            "rootfs_diff_ids": diff_ids,
+            "platform": "linux/amd64",
+        }
+
+
 def _bounded_text(value: Any, *, label: str, maximum: int) -> str:
     if not isinstance(value, str) or not value or len(value) > maximum:
         raise ValueError(f"Trivy report {label} is missing or outside its bound")
@@ -343,7 +1117,421 @@ def validate_trivy_report(document: dict[str, Any]) -> None:
         raise ValueError("retained report lacks the exact Trivy identity or result shape")
 
 
-def project_findings(document: dict[str, Any]) -> list[dict[str, Any]]:
+def _normalise_trivy_package(value: Any) -> dict[str, Any]:
+    if not isinstance(value, dict):
+        raise ValueError("Trivy report contains an invalid package inventory entry")
+    name = _bounded_text(value.get("Name"), label="package name", maximum=512)
+    version = _bounded_text(value.get("Version"), label="package version", maximum=512)
+    identifier = value.get("Identifier")
+    if not isinstance(identifier, dict):
+        raise ValueError("Trivy report package lacks its package URL identity")
+    purl = _bounded_text(identifier.get("PURL"), label="package URL", maximum=2_048)
+    package: dict[str, Any] = {
+        "Name": name,
+        "Version": version,
+        "Identifier": {"PURL": purl},
+    }
+    for key in ("Release", "Arch"):
+        item = value.get(key)
+        if item is not None:
+            package[key] = _bounded_text(
+                item, label=f"package {key.lower()}", maximum=512
+            )
+    return package
+
+
+def _normalise_trivy_vulnerability(value: Any) -> dict[str, Any]:
+    if not isinstance(value, dict):
+        raise ValueError("Trivy report contains an invalid vulnerability")
+    severity = value.get("Severity")
+    if severity not in BLOCKED_SEVERITIES:
+        raise ValueError("Trivy report contains a finding outside the requested severities")
+    fixed = value.get("FixedVersion")
+    if fixed is None or fixed == "":
+        fixed_version = ""
+    else:
+        fixed_version = _bounded_text(
+            fixed, label="fixed version", maximum=1_024
+        )
+    return {
+        "VulnerabilityID": _bounded_text(
+            value.get("VulnerabilityID"), label="vulnerability ID", maximum=256
+        ),
+        "PkgName": _bounded_text(
+            value.get("PkgName"), label="vulnerability package", maximum=512
+        ),
+        "InstalledVersion": _bounded_text(
+            value.get("InstalledVersion"),
+            label="installed version",
+            maximum=512,
+        ),
+        "FixedVersion": fixed_version,
+        "Severity": severity,
+    }
+
+
+def normalise_trivy_report(
+    document: dict[str, Any], *, artifact_path: str = TRIVY_OCI_PATH
+) -> dict[str, Any]:
+    """Retain one deterministic, privacy-safe projection of an exact OCI scan."""
+    validate_trivy_report(document)
+    artifact_id = document.get("ArtifactID")
+    metadata = document.get("Metadata")
+    if (
+        document.get("SchemaVersion") != 2
+        or not isinstance(artifact_id, str)
+        or re.fullmatch(r"sha256:[0-9a-f]{64}", artifact_id) is None
+        or document.get("ArtifactName") != artifact_path
+        or document.get("ArtifactType") != "container_image"
+        or not isinstance(metadata, dict)
+    ):
+        raise ValueError("Trivy report is not bound to the exact OCI archive input")
+    image_id = metadata.get("ImageID")
+    diff_ids = metadata.get("DiffIDs")
+    operating_system = metadata.get("OS")
+    if (
+        not isinstance(image_id, str)
+        or re.fullmatch(r"sha256:[0-9a-f]{64}", image_id) is None
+        or not isinstance(diff_ids, list)
+        or not diff_ids
+        or len(diff_ids) > 64
+        or any(
+            not isinstance(item, str)
+            or re.fullmatch(r"sha256:[0-9a-f]{64}", item) is None
+            for item in diff_ids
+        )
+        or len(set(diff_ids)) != len(diff_ids)
+        or operating_system != {"Family": "redhat", "Name": "10.2"}
+    ):
+        raise ValueError("Trivy report OCI metadata differs from the reviewed image")
+    results: list[dict[str, Any]] = []
+    for result in document["Results"]:
+        if not isinstance(result, dict):
+            raise ValueError("Trivy report contains an invalid result target")
+        packages = result.get("Packages")
+        if not isinstance(packages, list) or not packages:
+            raise ValueError("Trivy report result lacks its package inventory")
+        vulnerabilities = result.get("Vulnerabilities") or []
+        if not isinstance(vulnerabilities, list):
+            raise ValueError("Trivy report result has an invalid vulnerability list")
+        results.append(
+            {
+                "Target": _bounded_text(
+                    result.get("Target"), label="target", maximum=1_024
+                ),
+                "Class": _bounded_text(
+                    result.get("Class"), label="target class", maximum=128
+                ),
+                "Type": _bounded_text(
+                    result.get("Type"), label="target type", maximum=128
+                ),
+                "Packages": sorted(
+                    (_normalise_trivy_package(item) for item in packages),
+                    key=lambda item: (
+                        item["Name"],
+                        item["Version"],
+                        item.get("Release", ""),
+                        item.get("Arch", ""),
+                        item["Identifier"]["PURL"],
+                    ),
+                ),
+                "Vulnerabilities": sorted(
+                    (_normalise_trivy_vulnerability(item) for item in vulnerabilities),
+                    key=lambda item: (
+                        item["Severity"],
+                        item["VulnerabilityID"],
+                        item["PkgName"],
+                        item["InstalledVersion"],
+                        item["FixedVersion"],
+                    ),
+                ),
+            }
+        )
+    return {
+        "SchemaVersion": 2,
+        "Trivy": {"Version": TRIVY_VERSION},
+        "ArtifactID": artifact_id,
+        "ArtifactName": artifact_path,
+        "ArtifactType": "container_image",
+        "Metadata": {
+            "OS": operating_system,
+            "ImageID": image_id,
+            "DiffIDs": diff_ids,
+        },
+        "Results": sorted(
+            results,
+            key=lambda item: (item["Class"], item["Type"], item["Target"]),
+        ),
+    }
+
+
+def _parse_rpm_purl(value: str, *, expected_distro: str) -> tuple[str, str, str | None]:
+    match = _RPM_PURL.fullmatch(value)
+    if match is None:
+        raise ValueError("RPM package inventory contains an invalid Red Hat package URL")
+    query = parse_qs(match.group(3), keep_blank_values=True, strict_parsing=True)
+    if query.get("distro") != [expected_distro] or any(
+        len(items) != 1 for items in query.values()
+    ):
+        raise ValueError("RPM package URL differs from the expected Red Hat distribution")
+    arch = query.get("arch", [None])[0]
+    return unquote(match.group(1)), unquote(match.group(2)), arch
+
+
+def _parse_npm_purl(value: str) -> tuple[str, str]:
+    match = _NPM_PURL.fullmatch(value)
+    if match is None:
+        raise ValueError("Node package inventory contains an invalid package URL")
+    return unquote(match.group(1)), unquote(match.group(2))
+
+
+def project_coverage(
+    document: dict[str, Any],
+    donor_document: dict[str, Any],
+    sbom: dict[str, Any],
+    receipt: dict[str, Any],
+    donor: dict[str, Any],
+) -> dict[str, Any]:
+    """Fail closed unless Trivy covers the exact SBOM OS and language inventories."""
+    report = normalise_trivy_report(document)
+    metadata = report["Metadata"]
+    if (
+        metadata["ImageID"] != receipt["image"]["config_digest"]
+        or metadata["DiffIDs"] != receipt["image"]["rootfs_diff_ids"]
+    ):
+        raise ValueError("Trivy report differs from the exact OCI configuration or layers")
+    results = report["Results"]
+    os_results = [item for item in results if item["Class"] == "os-pkgs"]
+    language_results = [item for item in results if item["Class"] == "lang-pkgs"]
+    if (
+        len(results) != 2
+        or len(os_results) != 1
+        or len(language_results) != 1
+        or os_results[0]["Type"] != "redhat"
+        or os_results[0]["Target"] != f"{TRIVY_OCI_PATH} (redhat 10.2)"
+        or language_results[0]["Type"] != "node-pkg"
+        or language_results[0]["Target"] != "Node.js"
+    ):
+        raise ValueError("Trivy report OS and language target inventory is not closed")
+
+    components = sbom.get("components")
+    if not isinstance(components, list) or not components:
+        raise ValueError("gateway SBOM lacks its package inventory")
+    expected_os: dict[tuple[str, str, str], str] = {}
+    expected_metadata_rpms: dict[tuple[str, str], str] = {}
+    expected_language: dict[str, tuple[str, str]] = {}
+    donor_component: dict[str, Any] | None = None
+    for component in components:
+        if not isinstance(component, dict):
+            continue
+        purl = component.get("purl")
+        if not isinstance(purl, str):
+            continue
+        if purl.startswith("pkg:rpm/redhat/"):
+            name, version, arch = _parse_rpm_purl(purl, expected_distro="rhel-10.2")
+            if component.get("name") != name or component.get("version") != version:
+                raise ValueError("gateway SBOM RPM identity fields disagree")
+            if purl == LIBSTDCXX_RPM_PURL:
+                if donor_component is not None:
+                    raise ValueError("gateway SBOM duplicates the donor libstdc++ identity")
+                donor_component = component
+            elif name == "gpg-pubkey":
+                if arch is not None:
+                    raise ValueError("gateway SBOM signing-key metadata has an unexpected arch")
+                identity = (name, version)
+                if identity in expected_metadata_rpms:
+                    raise ValueError("gateway SBOM duplicates signing-key RPM metadata")
+                expected_metadata_rpms[identity] = purl
+            else:
+                if arch is None:
+                    raise ValueError("gateway SBOM runtime RPM lacks its architecture")
+                identity = (name, version, arch)
+                if identity in expected_os:
+                    raise ValueError("gateway SBOM duplicates one runtime RPM identity")
+                expected_os[identity] = purl
+        elif purl.startswith("pkg:npm/"):
+            name, version = _parse_npm_purl(purl)
+            if component.get("name") != name or component.get("version") != version:
+                raise ValueError("gateway SBOM Node package identity fields disagree")
+            if purl in expected_language:
+                raise ValueError("gateway SBOM duplicates one Node package identity")
+            expected_language[purl] = (name, version)
+
+    if donor_component is None:
+        raise ValueError("gateway SBOM lacks the exact donor libstdc++ RPM identity")
+    receipt_donor = receipt["build"]["runtime_composition"]["runtime_library_donor"]
+    if receipt_donor.get("package") != {
+        "name": LIBSTDCXX_RPM_NAME,
+        "version": LIBSTDCXX_RPM_VERSION,
+        "purl": LIBSTDCXX_RPM_PURL,
+    }:
+        raise ValueError("gateway receipt lacks the exact donor libstdc++ RPM identity")
+    donor_hashes = donor_component.get("hashes")
+    donor_properties = donor_component.get("properties")
+    if (
+        not isinstance(donor_hashes, list)
+        or {item.get("content") for item in donor_hashes if isinstance(item, dict)}
+        != {LIBSTDCXX_SHA256}
+        or not isinstance(donor_properties, list)
+        or {
+            item.get("name"): item.get("value")
+            for item in donor_properties
+            if isinstance(item, dict)
+        }.get("gis-ai-go:runtime-file-path")
+        != LIBSTDCXX_PATH
+    ):
+        raise ValueError("gateway SBOM donor libstdc++ file binding differs")
+    critical = {
+        item["path"]: item for item in receipt["image"]["rootfs"]["critical_entries"]
+    }
+    if critical.get(LIBSTDCXX_PATH, {}).get("sha256") != LIBSTDCXX_SHA256:
+        raise ValueError("gateway root filesystem donor libstdc++ binding differs")
+
+    scanned_os: dict[tuple[str, str, str], str] = {}
+    scanned_metadata_rpms: dict[tuple[str, str], str] = {}
+    for package in os_results[0]["Packages"]:
+        purl = package["Identifier"]["PURL"]
+        name, purl_version, arch = _parse_rpm_purl(
+            purl, expected_distro="redhat-10.2"
+        )
+        release = package.get("Release")
+        combined_version = (
+            f"{package['Version']}-{release}" if release else package["Version"]
+        )
+        if package["Name"] != name or combined_version != purl_version:
+            raise ValueError("Trivy OS package fields disagree with their package URL")
+        if name == "gpg-pubkey":
+            if arch != "None" or package.get("Arch") != "None":
+                raise ValueError("Trivy signing-key RPM metadata has an unexpected arch")
+            metadata_identity = (name, combined_version)
+            if metadata_identity in scanned_metadata_rpms:
+                raise ValueError("Trivy report duplicates signing-key RPM metadata")
+            scanned_metadata_rpms[metadata_identity] = purl
+            continue
+        if arch is None or package.get("Arch") != arch:
+            raise ValueError("Trivy OS package architecture fields disagree")
+        identity = (name, combined_version, arch)
+        if identity in scanned_os:
+            raise ValueError("Trivy report duplicates one OS package identity")
+        scanned_os[identity] = purl
+    if set(scanned_os) != set(expected_os):
+        raise ValueError("Trivy report does not cover the exact SBOM OS package inventory")
+    if set(scanned_metadata_rpms) != set(expected_metadata_rpms):
+        raise ValueError("Trivy report does not cover the exact SBOM RPM metadata inventory")
+
+    scanned_language: dict[str, tuple[str, str]] = {}
+    for package in language_results[0]["Packages"]:
+        purl = package["Identifier"]["PURL"]
+        name, version = _parse_npm_purl(purl)
+        if package["Name"] != name or package["Version"] != version:
+            raise ValueError("Trivy Node package fields disagree with their package URL")
+        if purl in scanned_language:
+            raise ValueError("Trivy report duplicates one Node package identity")
+        scanned_language[purl] = (name, version)
+    if scanned_language != expected_language:
+        raise ValueError("Trivy report does not cover the exact SBOM Node package inventory")
+
+    donor_report = normalise_trivy_report(
+        donor_document, artifact_path=TRIVY_DONOR_PATH
+    )
+    donor_metadata = donor_report["Metadata"]
+    if (
+        donor_metadata["ImageID"] != donor["config_digest"]
+        or donor_metadata["DiffIDs"] != donor["rootfs_diff_ids"]
+    ):
+        raise ValueError("Trivy donor report differs from the pinned donor OCI graph")
+    donor_results = donor_report["Results"]
+    if (
+        len(donor_results) != 1
+        or donor_results[0]["Class"] != "os-pkgs"
+        or donor_results[0]["Type"] != "redhat"
+        or donor_results[0]["Target"]
+        != f"{TRIVY_DONOR_PATH} (redhat 10.2)"
+    ):
+        raise ValueError("Trivy donor report package target inventory is not closed")
+    donor_packages: dict[tuple[str, str, str], str] = {}
+    for package in donor_results[0]["Packages"]:
+        purl = package["Identifier"]["PURL"]
+        name, purl_version, arch = _parse_rpm_purl(
+            purl, expected_distro="redhat-10.2"
+        )
+        release = package.get("Release")
+        combined_version = (
+            f"{package['Version']}-{release}" if isinstance(release, str) else ""
+        )
+        if (
+            not isinstance(release, str)
+            or arch is None
+            or package.get("Arch") != arch
+            or package["Name"] != name
+            or combined_version != purl_version
+        ):
+            raise ValueError("Trivy donor package lacks release or architecture identity")
+        identity = (name, combined_version, arch)
+        if identity in donor_packages:
+            raise ValueError("Trivy donor report duplicates an RPM identity")
+        donor_packages[identity] = purl
+    donor_identity = (
+        LIBSTDCXX_RPM_NAME,
+        LIBSTDCXX_RPM_VERSION,
+        "x86_64",
+    )
+    donor_report_purl = donor_packages.get(donor_identity)
+    if donor_report_purl is None:
+        raise ValueError("Trivy donor report omits the exact copied libstdc++ RPM")
+
+    return {
+        "mode": "exact-oci-archive-plus-pinned-donor",
+        "operating_system": {
+            "family": "redhat",
+            "version": "10.2",
+            "class": "os-pkgs",
+            "type": "redhat",
+            "scanned_packages": [
+                {
+                    "name": name,
+                    "version": version,
+                    "arch": arch,
+                    "report_purl": scanned_os[(name, version, arch)],
+                    "sbom_purl": expected_os[(name, version, arch)],
+                }
+                for name, version, arch in sorted(expected_os)
+            ],
+            "scanned_metadata_packages": [
+                {
+                    "name": name,
+                    "version": version,
+                    "report_purl": scanned_metadata_rpms[(name, version)],
+                    "sbom_purl": expected_metadata_rpms[(name, version)],
+                }
+                for name, version in sorted(expected_metadata_rpms)
+            ],
+        },
+        "language": {
+            "class": "lang-pkgs",
+            "type": "node-pkg",
+            "scanned_purls": sorted(expected_language),
+        },
+        "external_runtime_package": {
+            "name": LIBSTDCXX_RPM_NAME,
+            "version": LIBSTDCXX_RPM_VERSION,
+            "sbom_purl": LIBSTDCXX_RPM_PURL,
+            "report_purl": donor_report_purl,
+            "file_path": LIBSTDCXX_PATH,
+            "file_sha256": LIBSTDCXX_SHA256,
+            "donor_reference": donor["reference"],
+            "donor_manifest_digest": donor["manifest_digest"],
+            "donor_config_digest": donor["config_digest"],
+            "donor_rootfs_diff_ids": donor["rootfs_diff_ids"],
+            "donor_scanned_rpm_count": len(donor_packages),
+        },
+        "passed": True,
+    }
+
+
+def project_findings(
+    document: dict[str, Any], *, package_allowlist: frozenset[str] | None = None
+) -> list[dict[str, Any]]:
     validate_trivy_report(document)
     projected: list[dict[str, Any]] = []
     results = document.get("Results")
@@ -367,6 +1555,8 @@ def project_findings(document: dict[str, Any]) -> list[dict[str, Any]]:
             package = _bounded_text(
                 finding.get("PkgName"), label="package name", maximum=512
             )
+            if package_allowlist is not None and package not in package_allowlist:
+                continue
             installed = _bounded_text(
                 finding.get("InstalledVersion"),
                 label="installed version",
@@ -393,11 +1583,33 @@ def project_findings(document: dict[str, Any]) -> list[dict[str, Any]]:
                 raise ValueError("Trivy report exceeds the retained finding-count bound")
     return sorted(
         projected,
-        key=lambda item: (
-            item["severity"], item["id"], item["target"], item["package"],
-            item["installed_version"], item["fixed_version"] or "",
-        ),
+        key=_finding_sort_key,
     )
+
+
+def _finding_sort_key(item: dict[str, Any]) -> tuple[str, ...]:
+    return (
+        item["severity"],
+        item["id"],
+        item["target"],
+        item["package"],
+        item["installed_version"],
+        item["fixed_version"] or "",
+    )
+
+
+def project_all_findings(
+    report: dict[str, Any], donor_report: dict[str, Any]
+) -> list[dict[str, Any]]:
+    findings = [
+        *project_findings(report),
+        *project_findings(
+            donor_report, package_allowlist=frozenset({LIBSTDCXX_RPM_NAME})
+        ),
+    ]
+    if len(findings) > MAX_FINDINGS:
+        raise ValueError("combined Trivy reports exceed the retained finding-count bound")
+    return sorted(findings, key=_finding_sort_key)
 
 
 def evaluate_policy(findings: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], bool]:
@@ -414,33 +1626,188 @@ def _acquire_trivy_image() -> None:
     )
 
 
-def _docker_scan(*, cache: Path, sbom: Path, offline: bool, pull: str) -> dict[str, Any]:
-    if offline and pull != "never":
-        raise ValueError("offline Trivy replay must use Docker pull=never")
+def _acquire_scan_images(donor_archive: Path) -> dict[str, Any]:
+    _acquire_trivy_image()
+    failure: str | None = None
+    identity: dict[str, Any] | None = None
+    try:
+        verify_pinned_builder()
+        source_manifest_bytes, source_config_bytes = _source_donor_documents()
+        with tempfile.TemporaryDirectory(
+            prefix="gis-ai-go-donor-export-"
+        ) as export_temporary:
+            root = Path(export_temporary)
+            context = root / "context"
+            context.mkdir(mode=0o700)
+            containerfile = context / "Containerfile"
+            containerfile.write_text(
+                f"FROM {UBI_RUNTIME_LIBRARY_DONOR_REFERENCE} AS runtime-libraries\n",
+                encoding="utf-8",
+            )
+            raw = root / "runtime-library-donor.raw.oci.tar"
+            _run_donor_export_command(
+                (
+                    "docker",
+                    "buildx",
+                    "build",
+                    "--builder",
+                    BUILDER_NAME,
+                    "--file",
+                    str(containerfile),
+                    "--platform",
+                    "linux/amd64",
+                    "--target",
+                    "runtime-libraries",
+                    "--pull",
+                    "--no-cache",
+                    "--provenance=false",
+                    "--sbom=false",
+                    "--output",
+                    f"type=oci,dest={raw}",
+                    str(context),
+                )
+            )
+            _materialise_buildkit_donor_archive(
+                raw,
+                donor_archive,
+                source_manifest_bytes=source_manifest_bytes,
+                source_config_bytes=source_config_bytes,
+            )
+        identity = inspect_donor_archive(donor_archive)
+    except RuntimeLibraryDonorAcquisitionError:
+        failure = "acquisition"
+    except (
+        OSError,
+        subprocess.CalledProcessError,
+        subprocess.TimeoutExpired,
+        tarfile.TarError,
+        ValueError,
+    ):
+        failure = "validation"
+    if failure is not None or identity is None:
+        try:
+            donor_archive.unlink(missing_ok=True)
+        except OSError:
+            pass
+    if failure == "acquisition":
+        raise RuntimeLibraryDonorAcquisitionError(
+            "pinned runtime-library donor acquisition failed closed"
+        ) from None
+    if failure == "validation" or identity is None:
+        raise RuntimeLibraryDonorValidationError(
+            "pinned runtime-library donor validation failed closed"
+        ) from None
+    return {**identity, "file": donor_archive.name}
+
+
+def _trivy_container_arguments(
+    *, cache: Path, mounts: tuple[tuple[Path, str], ...] = ()
+) -> list[str]:
     scanner_uid = os.getuid()
     scanner_gid = os.getgid()
     arguments = [
-        "docker", "run", "--rm", f"--pull={pull}", "--read-only", "--cap-drop=ALL",
+        "docker",
+        "run",
+        "--rm",
+        "--pull=never",
+        "--read-only",
+        "--cap-drop=ALL",
         "--security-opt=no-new-privileges",
         f"--user={scanner_uid}:{scanner_gid}",
         (
             "--tmpfs=/tmp:rw,noexec,nosuid,nodev,size=512m,mode=0700,"
             f"uid={scanner_uid},gid={scanner_gid}"
         ),
-        f"--volume={sbom}:/input/gateway-image.sbom.cdx.json:ro",
-        f"--volume={cache}:/cache",
     ]
+    arguments.extend(
+        f"--volume={source.resolve(strict=True)}:{target}:ro"
+        for source, target in mounts
+    )
+    arguments.append(f"--volume={cache.resolve(strict=True)}:/cache")
+    return arguments
+
+
+def _download_trivy_database(root: Path) -> Path:
+    """Acquire one closed Trivy database from ordered official repositories."""
+    attempted = 0
+    for attempted, repository in enumerate(TRIVY_DB_REPOSITORIES, start=1):
+        cache = root / f"attempt-{attempted}"
+        cache.mkdir(mode=0o700)
+        arguments = _trivy_container_arguments(cache=cache)
+        arguments.extend(
+            [
+                TRIVY_REFERENCE,
+                "image",
+                "--cache-dir=/cache",
+                "--cache-backend=memory",
+                "--download-db-only",
+                "--no-progress",
+                f"--timeout={TRIVY_DB_INTERNAL_TIMEOUT_SECONDS}s",
+                f"--db-repository={repository}",
+            ]
+        )
+        try:
+            subprocess.run(
+                tuple(arguments),
+                cwd=ROOT,
+                check=True,
+                capture_output=True,
+                timeout=TRIVY_DB_DOWNLOAD_TIMEOUT_SECONDS,
+            )
+            cache_inventory(cache)
+        except (
+            OSError,
+            subprocess.CalledProcessError,
+            subprocess.TimeoutExpired,
+            ValueError,
+        ):
+            continue
+        return cache
+    raise TrivyDatabaseAcquisitionError(
+        "pinned Trivy database acquisition failed closed; "
+        f"attempted_registry_count={attempted}"
+    ) from None
+
+
+def _docker_scan(
+    *,
+    cache: Path,
+    archive: Path,
+    artifact_path: str,
+    offline: bool,
+    pull: str,
+) -> dict[str, Any]:
+    if offline and pull != "never":
+        raise ValueError("offline Trivy replay must use Docker pull=never")
+    archive_metadata = archive.lstat()
+    if (
+        stat.S_ISLNK(archive_metadata.st_mode)
+        or not stat.S_ISREG(archive_metadata.st_mode)
+        or archive_metadata.st_size < 1
+        or archive_metadata.st_size > MAX_OCI_BYTES
+        or artifact_path not in {TRIVY_OCI_PATH, TRIVY_DONOR_PATH}
+    ):
+        raise ValueError("Trivy OCI input archive is invalid or outside its bound")
+    arguments = _trivy_container_arguments(
+        cache=cache, mounts=((archive, artifact_path),)
+    )
+    arguments[3] = f"--pull={pull}"
     if offline:
         arguments.append("--network=none")
     arguments.extend(
         [
-            TRIVY_REFERENCE, "sbom", "--cache-dir=/cache", "--scanners=vuln",
+            TRIVY_REFERENCE,
+            "image",
+            f"--input={artifact_path}",
+            "--cache-dir=/cache",
+            "--cache-backend=memory",
+            "--scanners=vuln",
             "--severity=HIGH,CRITICAL", "--format=json", "--no-progress",
+            "--list-all-pkgs",
         ]
     )
     if offline:
         arguments.extend(["--skip-db-update", "--offline-scan"])
-    arguments.append("/input/gateway-image.sbom.cdx.json")
     result: subprocess.CompletedProcess[bytes] | None = None
     failure: ValueError | None = None
     try:
@@ -479,8 +1846,7 @@ def _docker_scan(*, cache: Path, sbom: Path, offline: bool, pull: str) -> dict[s
         maximum_bytes=MAX_REPORT_BYTES,
         label="pinned Trivy scan report",
     )
-    validate_trivy_report(report)
-    return report
+    return normalise_trivy_report(report, artifact_path=artifact_path)
 
 
 def replay_projection(document: dict[str, Any]) -> dict[str, Any]:
@@ -513,24 +1879,79 @@ def verify_phase_timing(phase: dict[str, Any]) -> None:
         raise ValueError("gateway vulnerability scan timing is inconsistent")
 
 
-def generate_scan_evidence(*, sbom: Path, receipt_path: Path, output: Path) -> dict[str, Any]:
+def _file_binding(path: Path) -> dict[str, Any]:
+    metadata = path.lstat()
+    if stat.S_ISLNK(metadata.st_mode) or not stat.S_ISREG(metadata.st_mode):
+        raise ValueError(f"retained evidence file is not one regular file: {path.name}")
+    return {
+        "file": path.name,
+        "sha256": sha256_file(path),
+        "bytes": metadata.st_size,
+    }
+
+
+def bind_gateway_archive(archive: Path, receipt: dict[str, Any]) -> dict[str, Any]:
+    """Bind the scan input to the exact archive already measured by the image receipt."""
+    image = receipt.get("image")
+    if not isinstance(image, dict):
+        raise ValueError("gateway image receipt lacks its exact OCI identity")
+    file_binding = _file_binding(archive)
+    if file_binding != {
+        "file": image.get("archive"),
+        "sha256": image.get("archive_sha256"),
+        "bytes": image.get("archive_bytes"),
+    }:
+        raise ValueError("gateway vulnerability scan input differs from the exact OCI receipt")
+    config_digest = image.get("config_digest")
+    rootfs_diff_ids = image.get("rootfs_diff_ids")
+    rootfs = image.get("rootfs")
+    if (
+        not isinstance(config_digest, str)
+        or _SHA256_DIGEST.fullmatch(config_digest) is None
+        or not isinstance(rootfs_diff_ids, list)
+        or not rootfs_diff_ids
+        or len(rootfs_diff_ids) > 64
+        or any(
+            not isinstance(item, str) or _SHA256_DIGEST.fullmatch(item) is None
+            for item in rootfs_diff_ids
+        )
+        or len(set(rootfs_diff_ids)) != len(rootfs_diff_ids)
+        or not isinstance(rootfs, dict)
+        or not isinstance(rootfs.get("inventory_sha256"), str)
+        or re.fullmatch(r"[0-9a-f]{64}", rootfs["inventory_sha256"]) is None
+    ):
+        raise ValueError("gateway image receipt lacks its measured OCI configuration")
+    return {
+        **file_binding,
+        "config_digest": config_digest,
+        "rootfs_diff_ids": rootfs_diff_ids,
+        "rootfs_inventory_sha256": rootfs["inventory_sha256"],
+    }
+
+
+def generate_scan_evidence(
+    *, archive: Path, sbom: Path, receipt_path: Path, output: Path
+) -> dict[str, Any]:
     receipt = load_bounded_json_object(
         receipt_path,
         maximum_bytes=MAX_RECEIPT_JSON_BYTES,
         label="gateway image receipt",
     )
+    image_binding = bind_gateway_archive(archive, receipt)
     started_at = utc_timestamp()
     started = time.monotonic()
     output.parent.mkdir(parents=True, exist_ok=True)
     archive_path = output.parent / DB_ARCHIVE_NAME
     checksum_path = output.parent / DB_CHECKSUM_NAME
     report_path = output.parent / REPORT_NAME
-    _acquire_trivy_image()
-    with tempfile.TemporaryDirectory(prefix="gis-ai-go-trivy-online-") as online_temporary:
-        online_cache = Path(online_temporary) / "cache"
-        online_cache.mkdir(mode=0o700)
-        _docker_scan(cache=online_cache, sbom=sbom, offline=False, pull="never")
-        inventory = package_database(online_cache, archive_path)
+    donor_archive_path = output.parent / DONOR_ARCHIVE_NAME
+    donor_report_path = output.parent / DONOR_REPORT_NAME
+    donor = _acquire_scan_images(donor_archive_path)
+    with tempfile.TemporaryDirectory(
+        prefix="gis-ai-go-trivy-acquisition-"
+    ) as acquisition_temporary:
+        acquired_cache = _download_trivy_database(Path(acquisition_temporary))
+        inventory = package_database(acquired_cache, archive_path)
     checksum_path.write_text(
         f"{sha256_file(archive_path)}  {archive_path.name}\n", encoding="utf-8"
     )
@@ -540,22 +1961,56 @@ def generate_scan_evidence(*, sbom: Path, receipt_path: Path, output: Path) -> d
         extracted_inventory = inspect_database_archive(archive_path, extract_to=replay_cache)
         if extracted_inventory != inventory:
             raise ValueError("retained Trivy database differs after canonical extraction")
-        report = _docker_scan(cache=replay_cache, sbom=sbom, offline=True, pull="never")
+        report = _docker_scan(
+            cache=replay_cache,
+            archive=archive,
+            artifact_path=TRIVY_OCI_PATH,
+            offline=True,
+            pull="never",
+        )
+        donor_report = _docker_scan(
+            cache=replay_cache,
+            archive=donor_archive_path,
+            artifact_path=TRIVY_DONOR_PATH,
+            offline=True,
+            pull="never",
+        )
         if cache_inventory(replay_cache) != inventory:
             raise ValueError("offline Trivy replay mutated the retained database")
     report_bytes = canonical_json_bytes(report)
+    donor_report_bytes = canonical_json_bytes(donor_report)
     assert_no_private_json(report, "gateway Trivy report")
     assert_no_private_text(report_bytes, "gateway Trivy report")
-    findings = project_findings(report)
+    assert_no_private_json(donor_report, "gateway donor Trivy report")
+    assert_no_private_text(donor_report_bytes, "gateway donor Trivy report")
+    sbom_document = load_bounded_json_object(
+        sbom,
+        maximum_bytes=MAX_SBOM_JSON_BYTES,
+        label="gateway image SBOM",
+    )
+    coverage = project_coverage(
+        report, donor_report, sbom_document, receipt, donor
+    )
+    node_runtime, node_findings = generate_node_advisory(
+        sbom=sbom_document,
+        receipt=receipt,
+        output=output.parent,
+    )
+    findings = sorted(
+        [*project_all_findings(report, donor_report), *node_findings],
+        key=_finding_sort_key,
+    )
     fixable, passed = evaluate_policy(findings)
     evidence = {
-        "schema": "gis-ai-go.gateway-image-vulnerability-scan.v1",
+        "schema": "gis-ai-go.gateway-image-vulnerability-scan.v3",
         "classification": (
             "repository-only-blocked-candidate"
             if receipt["source"]["clean"] else "non-publishable-development-build"
         ),
         "source_revision": receipt["source"]["revision"],
         "image_manifest_digest": receipt["image"]["manifest_digest"],
+        "image": image_binding,
+        "donor_image": donor,
         "scanner": {"image": TRIVY_REFERENCE, "version": TRIVY_VERSION},
         "sbom": {"file": sbom.name, "sha256": sha256_file(sbom), "bytes": sbom.stat().st_size},
         "database": {
@@ -564,16 +2019,28 @@ def generate_scan_evidence(*, sbom: Path, receipt_path: Path, output: Path) -> d
             "expanded_bytes": sum(item["bytes"] for item in inventory),
             "file_count": len(inventory), "files": inventory,
         },
-        "report": {
-            "file": report_path.name, "sha256": hashlib.sha256(report_bytes).hexdigest(),
-            "bytes": len(report_bytes),
+        "reports": {
+            "gateway": {
+                "file": report_path.name,
+                "sha256": hashlib.sha256(report_bytes).hexdigest(),
+                "bytes": len(report_bytes),
+            },
+            "runtime_library_donor": {
+                "file": donor_report_path.name,
+                "sha256": hashlib.sha256(donor_report_bytes).hexdigest(),
+                "bytes": len(donor_report_bytes),
+            },
         },
         "replay": {
             "pull": "never",
             "network": "none",
             "skip_db_update": True,
             "offline_scan": True,
+            "list_all_packages": True,
+            "inputs": [archive.name, donor_archive_path.name],
         },
+        "node_runtime": node_runtime,
+        "coverage": coverage,
         "policy": {
             "severities": sorted(BLOCKED_SEVERITIES), "block_fixable_only": True,
             "maximum_fixable_findings": 0,
@@ -601,6 +2068,7 @@ def generate_scan_evidence(*, sbom: Path, receipt_path: Path, output: Path) -> d
     assert_no_private_json(evidence, "gateway vulnerability evidence")
     assert_no_private_text(output_bytes, "gateway vulnerability evidence")
     report_path.write_bytes(report_bytes)
+    donor_report_path.write_bytes(donor_report_bytes)
     output.write_bytes(output_bytes)
     if not passed:
         raise AssertionError(
@@ -610,7 +2078,13 @@ def generate_scan_evidence(*, sbom: Path, receipt_path: Path, output: Path) -> d
 
 
 def verify_scan_evidence(
-    *, scan_path: Path, sbom: Path, receipt_path: Path, replay: bool
+    *,
+    scan_path: Path,
+    archive: Path,
+    sbom: Path,
+    receipt_path: Path,
+    replay: bool,
+    require_current_node_advisory: bool = False,
 ) -> dict[str, Any]:
     scan_bytes = read_bounded_regular_file(
         scan_path,
@@ -646,10 +2120,15 @@ def verify_scan_evidence(
         if receipt["source"]["clean"]
         else "non-publishable-development-build"
     )
+    image_binding = bind_gateway_archive(archive, receipt)
+    donor_archive = scan_path.parent / DONOR_ARCHIVE_NAME
+    donor = inspect_donor_archive(donor_archive)
     if (
         scan["classification"] != expected_classification
         or scan["source_revision"] != receipt["source"]["revision"]
         or scan["image_manifest_digest"] != receipt["image"]["manifest_digest"]
+        or scan["image"] != image_binding
+        or scan["donor_image"] != donor
         or scan["sbom"]
         != {
             "file": sbom.name,
@@ -658,18 +2137,21 @@ def verify_scan_evidence(
         }
     ):
         raise ValueError("gateway vulnerability receipt differs from source, image or SBOM")
-    archive = scan_path.parent / scan["database"]["archive"]
+    database_archive = scan_path.parent / scan["database"]["archive"]
     checksum = scan_path.parent / DB_CHECKSUM_NAME
-    if parse_checksum(checksum, archive.name) != sha256_file(archive):
+    if (
+        parse_checksum(checksum, database_archive.name)
+        != sha256_file(database_archive)
+    ):
         raise ValueError("retained Trivy database checksum differs")
-    archive_metadata = archive.lstat()
+    archive_metadata = database_archive.lstat()
     with tempfile.TemporaryDirectory(prefix="gis-ai-go-trivy-verify-") as temporary:
         cache = Path(temporary) / "cache"
         cache.mkdir(mode=0o700)
-        inventory = inspect_database_archive(archive, extract_to=cache)
+        inventory = inspect_database_archive(database_archive, extract_to=cache)
         expected_database = {
-            "archive": archive.name,
-            "archive_sha256": sha256_file(archive),
+            "archive": database_archive.name,
+            "archive_sha256": sha256_file(database_archive),
             "archive_bytes": archive_metadata.st_size,
             "expanded_bytes": sum(item["bytes"] for item in inventory),
             "file_count": len(inventory),
@@ -680,13 +2162,21 @@ def verify_scan_evidence(
         if replay:
             replay_report = _docker_scan(
                 cache=cache,
-                sbom=sbom,
+                archive=archive,
+                artifact_path=TRIVY_OCI_PATH,
+                offline=True,
+                pull="never",
+            )
+            replay_donor_report = _docker_scan(
+                cache=cache,
+                archive=donor_archive,
+                artifact_path=TRIVY_DONOR_PATH,
                 offline=True,
                 pull="never",
             )
             if cache_inventory(cache) != inventory:
                 raise ValueError("verification replay mutated the retained Trivy database")
-    report_path = scan_path.parent / scan["report"]["file"]
+    report_path = scan_path.parent / scan["reports"]["gateway"]["file"]
     report_bytes = read_bounded_regular_file(
         report_path,
         maximum_bytes=MAX_REPORT_BYTES,
@@ -697,18 +2187,69 @@ def verify_scan_evidence(
         maximum_bytes=MAX_REPORT_BYTES,
         label="retained Trivy scan report",
     )
-    validate_trivy_report(report)
+    report = normalise_trivy_report(report)
     expected_report = {
         "file": report_path.name,
         "sha256": hashlib.sha256(report_bytes).hexdigest(),
         "bytes": len(report_bytes),
     }
-    if canonical_json_bytes(report) != report_bytes or scan["report"] != expected_report:
+    if (
+        canonical_json_bytes(report) != report_bytes
+        or scan["reports"]["gateway"] != expected_report
+    ):
         raise ValueError("gateway vulnerability receipt report binding differs")
-    findings = project_findings(report)
+    donor_report_path = scan_path.parent / scan["reports"][
+        "runtime_library_donor"
+    ]["file"]
+    donor_report_bytes = read_bounded_regular_file(
+        donor_report_path,
+        maximum_bytes=MAX_REPORT_BYTES,
+        label="retained donor Trivy scan report",
+    )
+    donor_report = parse_bounded_json_object(
+        donor_report_bytes,
+        maximum_bytes=MAX_REPORT_BYTES,
+        label="retained donor Trivy scan report",
+    )
+    donor_report = normalise_trivy_report(
+        donor_report, artifact_path=TRIVY_DONOR_PATH
+    )
+    expected_donor_report = {
+        "file": donor_report_path.name,
+        "sha256": hashlib.sha256(donor_report_bytes).hexdigest(),
+        "bytes": len(donor_report_bytes),
+    }
+    if (
+        canonical_json_bytes(donor_report) != donor_report_bytes
+        or scan["reports"]["runtime_library_donor"] != expected_donor_report
+    ):
+        raise ValueError("gateway donor vulnerability report binding differs")
+    sbom_document = parse_bounded_json_object(
+        sbom_bytes,
+        maximum_bytes=MAX_SBOM_JSON_BYTES,
+        label="gateway image SBOM",
+    )
+    coverage = project_coverage(
+        report, donor_report, sbom_document, receipt, donor
+    )
+    node_findings = verify_node_advisory(
+        node=scan["node_runtime"],
+        directory=scan_path.parent,
+        sbom=sbom_document,
+        receipt=receipt,
+        phase=scan["phase"],
+        replay=replay,
+        require_current_assessment=require_current_node_advisory,
+    )
+    findings = sorted(
+        [*project_all_findings(report, donor_report), *node_findings],
+        key=_finding_sort_key,
+    )
     fixable, passed = evaluate_policy(findings)
     if (
-        scan["findings"] != findings or scan["fixable_findings"] != fixable
+        scan["coverage"] != coverage
+        or scan["findings"] != findings
+        or scan["fixable_findings"] != fixable
         or scan["passed"] != passed or not passed
     ):
         raise ValueError("gateway vulnerability policy projection differs from its report")
@@ -716,21 +2257,41 @@ def verify_scan_evidence(
     if replay:
         if replay_projection(replay_report) != replay_projection(report):
             raise ValueError("offline Trivy replay differs from the retained report")
+        if replay_projection(replay_donor_report) != replay_projection(donor_report):
+            raise ValueError("offline donor Trivy replay differs from the retained report")
     return scan
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
+    parser.add_argument("--archive", type=Path)
     parser.add_argument("--sbom", type=Path, required=True)
     parser.add_argument("--receipt", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     sbom = args.sbom if args.sbom.is_absolute() else ROOT / args.sbom
     receipt = args.receipt if args.receipt.is_absolute() else ROOT / args.receipt
+    if args.archive is None:
+        archive = receipt.parent / "gateway-image.oci.tar"
+    else:
+        archive = args.archive if args.archive.is_absolute() else ROOT / args.archive
     output = args.output if args.output.is_absolute() else ROOT / args.output
-    generate_scan_evidence(sbom=sbom, receipt_path=receipt, output=output)
+    generate_scan_evidence(
+        archive=archive, sbom=sbom, receipt_path=receipt, output=output
+    )
     print("Gateway image vulnerability scan and retained offline replay passed.")
 
 
+def cli() -> None:
+    try:
+        main()
+    except TrivyDatabaseAcquisitionError:
+        raise SystemExit(TRIVY_DB_ACQUISITION_EXIT_CODE) from None
+    except RuntimeLibraryDonorAcquisitionError:
+        raise SystemExit(RUNTIME_LIBRARY_DONOR_ACQUISITION_EXIT_CODE) from None
+    except RuntimeLibraryDonorValidationError:
+        raise SystemExit(RUNTIME_LIBRARY_DONOR_VALIDATION_EXIT_CODE) from None
+
+
 if __name__ == "__main__":
-    main()
+    cli()

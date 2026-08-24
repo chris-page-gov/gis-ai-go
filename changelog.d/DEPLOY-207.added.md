@@ -27,3 +27,12 @@
   internal-network states as zero realised host bindings, with bounded host-closed
   probes around the container-local route matrix. No service, provider or production
   rollback is activated or deployed.
+
+- A fixed `linux/amd64` UBI 10 replacement composition for the blocked gateway,
+  with an exact UBI micro runtime root, checked Node.js 24.19.0 executable, exact
+  UBI Node.js donor `libstdc++` and corresponding source-container identities. The
+  closed v2 image receipt and verified image SBOM bind realised-file hashes, link
+  targets, exact base or donor providers, the unmodified UBI EULA, complete Node and GCC
+  notices and the explicit Red Hat no-support boundary. The historical Debian High
+  findings remain retained until a fresh complete scan and image gate accept the
+  replacement bytes.

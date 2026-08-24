@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import stat
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -33,6 +34,7 @@ from gateway_image import (
     assert_no_private_json,
     assert_no_private_text,
     canonical_json_bytes,
+    make_runtime_sbom_components,
     parse_checksum,
     sha256_bytes,
     sha256_file,
@@ -54,6 +56,8 @@ PHASE_ORDER = [
 TEXT_EVIDENCE = ACCEPTED_FILES - {
     "gateway-image.oci.tar",
     "gateway-image.trivy-db.tar.gz",
+    "gateway-node.grype-db.tar.zst",
+    "gateway-runtime-library-donor.oci.tar",
 }
 ACCEPTANCE_PHASE_ORDER = [
     "engine-identity",
@@ -74,6 +78,17 @@ TEXT_FILE_LIMITS = {
     "gateway-image.sbom.cdx.json.sha256": MAX_CHECKSUM_OR_CONTEXT_BYTES,
     "gateway-image.trivy-db.tar.gz.sha256": MAX_CHECKSUM_OR_CONTEXT_BYTES,
     "gateway-image.trivy-report.json": MAX_SCAN_JSON_BYTES,
+    "gateway-node.grype-db.tar.zst.sha256": MAX_CHECKSUM_OR_CONTEXT_BYTES,
+    "gateway-node.actual.input.cdx.json": MAX_SCAN_JSON_BYTES,
+    "gateway-node.actual.grype.json": MAX_SCAN_JSON_BYTES,
+    "gateway-node.actual.grype.cdx.json": MAX_SCAN_JSON_BYTES,
+    "gateway-node.affected.input.cdx.json": MAX_SCAN_JSON_BYTES,
+    "gateway-node.affected.grype.json": MAX_SCAN_JSON_BYTES,
+    "gateway-node.affected.grype.cdx.json": MAX_SCAN_JSON_BYTES,
+    "gateway-node.fixed.input.cdx.json": MAX_SCAN_JSON_BYTES,
+    "gateway-node.fixed.grype.json": MAX_SCAN_JSON_BYTES,
+    "gateway-node.fixed.grype.cdx.json": MAX_SCAN_JSON_BYTES,
+    "gateway-runtime-library-donor.trivy-report.json": MAX_SCAN_JSON_BYTES,
     "gateway-image.vulnerability-scan.json": MAX_SCAN_JSON_BYTES,
     "container-acceptance.json": MAX_ACCEPTANCE_JSON_BYTES,
     EVIDENCE_MANIFEST_NAME: MAX_MANIFEST_JSON_BYTES,
@@ -109,6 +124,24 @@ def _load_canonical(
     return value
 
 
+def _strict_property_map(value: Any, *, label: str) -> dict[str, str]:
+    if not isinstance(value, list):
+        raise ValueError(f"{label} is not a list")
+    properties: dict[str, str] = {}
+    for item in value:
+        if (
+            not isinstance(item, dict)
+            or set(item) != {"name", "value"}
+            or not isinstance(item["name"], str)
+            or not item["name"]
+            or not isinstance(item["value"], str)
+            or item["name"] in properties
+        ):
+            raise ValueError(f"{label} contains an invalid or duplicate property")
+        properties[item["name"]] = item["value"]
+    return properties
+
+
 def _verify_sbom(output: Path, receipt: dict[str, Any]) -> dict[str, Any]:
     path = output / "gateway-image.sbom.cdx.json"
     checksum = output / "gateway-image.sbom.cdx.json.sha256"
@@ -127,20 +160,52 @@ def _verify_sbom(output: Path, receipt: dict[str, Any]) -> dict[str, Any]:
         or component.get("bom-ref") != receipt["image"]["manifest_digest"]
         or component.get("name") != "gis-ai-go-gateway"
         or component.get("version") != receipt["source"]["version"]
+        or component.get("licenses")
+        != [
+            {
+                "expression": (
+                    "MIT AND LicenseRef-Red-Hat-UBI-EULA AND "
+                    "LicenseRef-Third-Party-Notices"
+                )
+            }
+        ]
         or metadata.get("timestamp") != receipt["source"]["created"]
     ):
         raise ValueError("gateway image SBOM identity differs from its image receipt")
     expected_properties = {
         "gis-ai-go:image-manifest-digest": receipt["image"]["manifest_digest"],
+        "gis-ai-go:image-receipt-sha256": sha256_file(
+            output / "image-receipt.json"
+        ),
         "gis-ai-go:source-revision": receipt["source"]["revision"],
         "gis-ai-go:scanner-image": SYFT_REFERENCE,
+        "gis-ai-go:rootfs-inventory-sha256": receipt["image"]["rootfs"][
+            "inventory_sha256"
+        ],
+        "gis-ai-go:runtime-base-reference": receipt["build"]["runtime_composition"][
+            "runtime_base"
+        ]["reference"],
+        "gis-ai-go:runtime-base-source-reference": receipt["build"][
+            "runtime_composition"
+        ]["runtime_base"]["source_reference"],
+        "gis-ai-go:runtime-library-donor-reference": receipt["build"][
+            "runtime_composition"
+        ]["runtime_library_donor"]["reference"],
+        "gis-ai-go:runtime-library-source-reference": receipt["build"][
+            "runtime_composition"
+        ]["runtime_library_donor"]["source_reference"],
+        "gis-ai-go:ubi-eula-sha256": receipt["build"]["runtime_composition"][
+            "licence_material"
+        ]["ubi_eula"]["sha256"],
+        "gis-ai-go:support-boundary": receipt["build"]["runtime_composition"][
+            "support_boundary"
+        ],
     }
-    properties = component.get("properties")
-    if not isinstance(properties, list) or {
-        item.get("name"): item.get("value")
-        for item in properties
-        if isinstance(item, dict)
-    } != expected_properties:
+    properties = _strict_property_map(
+        component.get("properties"),
+        label="gateway image SBOM properties",
+    )
+    if properties != expected_properties:
         raise ValueError("gateway image SBOM properties differ from the exact source")
     tools = metadata.get("tools", {}).get("components")
     if not isinstance(tools, list) or {
@@ -149,7 +214,34 @@ def _verify_sbom(output: Path, receipt: dict[str, Any]) -> dict[str, Any]:
         if isinstance(item, dict) and item.get("name") == "syft"
     } != {"1.42.2"}:
         raise ValueError("gateway image SBOM lacks the exact Syft identity")
+    components_by_reference: dict[str, dict[str, Any]] = {}
+    for item in sbom["components"]:
+        if not isinstance(item, dict) or not isinstance(item.get("bom-ref"), str):
+            continue
+        reference = item["bom-ref"]
+        if reference in components_by_reference:
+            raise ValueError("gateway image SBOM contains a duplicate component identity")
+        components_by_reference[reference] = item
+    for expected in make_runtime_sbom_components(receipt):
+        actual = components_by_reference.get(expected["bom-ref"])
+        normalised_expected = _normalise_sbom_value(expected)
+        if actual != normalised_expected:
+            raise ValueError(
+                "gateway image SBOM lacks an exact runtime donor-file component"
+            )
     return sbom
+
+
+def _normalise_sbom_value(value: Any) -> Any:
+    if isinstance(value, dict):
+        return {key: _normalise_sbom_value(value[key]) for key in sorted(value)}
+    if isinstance(value, list):
+        items = [_normalise_sbom_value(item) for item in value]
+        return sorted(
+            items,
+            key=lambda item: json.dumps(item, sort_keys=True, separators=(",", ":")),
+        )
+    return value
 
 
 def _parse_utc_timestamp(value: Any, *, label: str) -> datetime:
@@ -372,6 +464,7 @@ def _verify_tool_version_bindings(
         "buildkit": receipt["build"]["buildkit_version"],
         "syft": "1.42.2",
         "trivy": scan["scanner"]["version"],
+        "grype": scan["node_runtime"]["scanner"]["version"],
     }
     if manifest["tool_versions"] != expected:
         raise ValueError("gateway evidence tool identities differ from producing evidence")
@@ -403,7 +496,8 @@ def verify_gateway_image_evidence(
     output: Path,
     expected_source_commit: str | None,
     require_clean: bool,
-    replay_trivy: bool,
+    replay_vulnerability_scans: bool,
+    require_current_node_advisory: bool = False,
 ) -> dict[str, Any]:
     output_metadata = output.lstat()
     if stat.S_ISLNK(output_metadata.st_mode) or not stat.S_ISDIR(output_metadata.st_mode):
@@ -435,9 +529,11 @@ def verify_gateway_image_evidence(
     sbom = _verify_sbom(output, receipt)
     scan = verify_scan_evidence(
         scan_path=output / "gateway-image.vulnerability-scan.json",
+        archive=output / "gateway-image.oci.tar",
         sbom=output / "gateway-image.sbom.cdx.json",
         receipt_path=output / "image-receipt.json",
-        replay=replay_trivy,
+        replay=replay_vulnerability_scans,
+        require_current_node_advisory=require_current_node_advisory,
     )
     acceptance = _load_canonical(
         output / "container-acceptance.json",
@@ -500,14 +596,16 @@ def main() -> None:
     parser.add_argument("--directory", type=Path, required=True)
     parser.add_argument("--expected-source-commit")
     parser.add_argument("--require-clean", action="store_true")
-    parser.add_argument("--skip-trivy-replay", action="store_true")
+    parser.add_argument("--skip-vulnerability-replay", action="store_true")
+    parser.add_argument("--require-current-node-advisory", action="store_true")
     args = parser.parse_args()
     output = args.directory if args.directory.is_absolute() else ROOT / args.directory
     result = verify_gateway_image_evidence(
         output=output,
         expected_source_commit=args.expected_source_commit,
         require_clean=args.require_clean,
-        replay_trivy=not args.skip_trivy_replay,
+        replay_vulnerability_scans=not args.skip_vulnerability_replay,
+        require_current_node_advisory=args.require_current_node_advisory,
     )
     print(
         "Verified complete blocked gateway evidence for "

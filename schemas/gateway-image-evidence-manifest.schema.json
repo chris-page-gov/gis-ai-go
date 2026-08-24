@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:gis-ai-go:schema:gateway-image-evidence-manifest:v1",
+  "$id": "urn:gis-ai-go:schema:gateway-image-evidence-manifest:v2",
   "title": "GIS AI GO blocked gateway evidence manifest",
   "type": "object",
   "additionalProperties": false,
@@ -16,7 +16,7 @@
     "claims"
   ],
   "properties": {
-    "schema": {"const": "gis-ai-go.gateway-image-evidence-manifest.v1"},
+    "schema": {"const": "gis-ai-go.gateway-image-evidence-manifest.v2"},
     "classification": {
       "enum": ["repository-only-blocked-candidate", "non-publishable-development-build"]
     },
@@ -39,13 +39,13 @@
       "required": ["manifest_digest", "platform"],
       "properties": {
         "manifest_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
-        "platform": {"enum": ["linux/amd64", "linux/arm64"]}
+        "platform": {"const": "linux/amd64"}
       }
     },
     "subjects": {
       "type": "array",
-      "minItems": 11,
-      "maxItems": 11,
+      "minItems": 24,
+      "maxItems": 24,
       "uniqueItems": true,
       "items": {"$ref": "#/$defs/subject"}
     },
@@ -59,7 +59,8 @@
         "buildx",
         "buildkit",
         "syft",
-        "trivy"
+        "trivy",
+        "grype"
       ],
       "properties": {
         "docker_client": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+[-+A-Za-z0-9.]*$"},
@@ -68,7 +69,8 @@
         "buildx": {"type": "string", "pattern": "^v?[0-9]+\\.[0-9]+\\.[0-9]+[-+A-Za-z0-9.]*$"},
         "buildkit": {"const": "v0.32.2"},
         "syft": {"const": "1.42.2"},
-        "trivy": {"const": "0.74.0"}
+        "trivy": {"const": "0.74.0"},
+        "grype": {"const": "0.117.0"}
       }
     },
     "phases": {
@@ -112,6 +114,19 @@
             "trivy-database",
             "trivy-database-checksum",
             "trivy-report",
+            "grype-database",
+            "grype-database-checksum",
+            "node-actual-input",
+            "node-actual-grype-report",
+            "node-actual-grype-cyclonedx-report",
+            "node-affected-input",
+            "node-affected-grype-report",
+            "node-affected-grype-cyclonedx-report",
+            "node-fixed-input",
+            "node-fixed-grype-report",
+            "node-fixed-grype-cyclonedx-report",
+            "runtime-library-donor-archive",
+            "runtime-library-donor-trivy-report",
             "vulnerability-scan",
             "container-acceptance"
           ]

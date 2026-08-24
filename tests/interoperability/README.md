@@ -3,10 +3,14 @@
 The supported public product remains the static `v0.1.0` Explorer. The accepted MCP
 gateway has empty production activation arrays and readiness remains `503`.
 
-QUAL-206 may exercise the explicit local conformance seam with exactly
+QUAL-206 may exercise the explicit local host-conformance seam with exactly
 `catalogue.search`, `catalogue.describe`, the public catalogue resource and the
-record resource. This is test evidence, not production activation or a public MCP
-service.
+record resource. The gateway test suite also starts a separately named, test-only
+real subprocess around the unregistered governed assembly. That fixture discovers
+the exact five candidate operations, reads the catalogue and evidence resources,
+uses only an injected deterministic provider response and exercises all seven
+suspension scenarios through operating-system pipes. Neither seam is production
+activation or a public MCP service.
 
 Run the deterministic, minimised-telemetry harness with:
 

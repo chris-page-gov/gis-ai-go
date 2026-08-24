@@ -32,6 +32,93 @@ NODE_BASE_NAME = "node"
 NODE_BASE_VERSION = "24.19.0-bookworm-slim"
 NODE_BASE_DIGEST = "sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03"
 NODE_BASE_REFERENCE = f"{NODE_BASE_NAME}:{NODE_BASE_VERSION}@{NODE_BASE_DIGEST}"
+NODE_BINARY_SHA256 = "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12"
+NODE_LICENCE_SHA256 = "148eacf7863ef4329224a29398623077200a27194aa075569faf4a0a85566ca5"
+NODE_UPSTREAM_ARCHIVE_URL = (
+    "https://nodejs.org/download/release/v24.19.0/node-v24.19.0-linux-x64.tar.xz"
+)
+NODE_UPSTREAM_ARCHIVE_SHA256 = (
+    "14b342e71204f811bde6153be8e04b62aef63c236fef92b55f9c83154b409647"
+)
+NODE_RUNTIME_PURL = "pkg:generic/node@24.19.0"
+NODE_RUNTIME_CPE = "cpe:2.3:a:nodejs:node.js:24.19.0:*:*:*:*:*:*:*"
+NODE_SECURITY_ADVISORY_URL = (
+    "https://nodejs.org/en/blog/vulnerability/july-2026-security-releases"
+)
+UBI_RUNTIME_BASE_NAME = "registry.access.redhat.com/ubi10-micro"
+UBI_RUNTIME_BASE_VERSION = "10.2-1786324819"
+UBI_RUNTIME_BASE_DIGEST = (
+    "sha256:422bd02268e317995a8fbb9c81c0835aa99798a234b5619c52350843d5ed5c4d"
+)
+UBI_RUNTIME_BASE_REFERENCE = f"{UBI_RUNTIME_BASE_NAME}@{UBI_RUNTIME_BASE_DIGEST}"
+UBI_RUNTIME_BASE_SOURCE_DIGEST = (
+    "sha256:2ed8c342b2121296998c202850b70aac10e9c4450aae60c51c828cec7a7d29f0"
+)
+UBI_RUNTIME_BASE_SOURCE_REFERENCE = (
+    f"{UBI_RUNTIME_BASE_NAME}:{UBI_RUNTIME_BASE_VERSION}-source@"
+    f"{UBI_RUNTIME_BASE_SOURCE_DIGEST}"
+)
+UBI_RUNTIME_LIBRARY_DONOR_NAME = (
+    "registry.access.redhat.com/ubi10/nodejs-24-minimal"
+)
+UBI_RUNTIME_LIBRARY_DONOR_VERSION = "10.2-1787229483"
+UBI_RUNTIME_LIBRARY_DONOR_DIGEST = (
+    "sha256:e0e44d118dfba1c90e8adbdc751d6db2a1c5f9b0856d31d577054f8ea5216e2d"
+)
+UBI_RUNTIME_LIBRARY_DONOR_REFERENCE = (
+    f"{UBI_RUNTIME_LIBRARY_DONOR_NAME}@{UBI_RUNTIME_LIBRARY_DONOR_DIGEST}"
+)
+UBI_RUNTIME_LIBRARY_SOURCE_DIGEST = (
+    "sha256:d64e6f3fd22629366c4e088fe8bd0694ce818f79d8e72bb7a3f74fc6fd672644"
+)
+UBI_RUNTIME_LIBRARY_SOURCE_REFERENCE = (
+    f"{UBI_RUNTIME_LIBRARY_DONOR_NAME}:{UBI_RUNTIME_LIBRARY_DONOR_VERSION}-source@"
+    f"{UBI_RUNTIME_LIBRARY_SOURCE_DIGEST}"
+)
+UBI_EULA_URL = (
+    "https://www.redhat.com/licenses/"
+    "EULA_Red_Hat_Universal_Base_Image_English_20190422.pdf"
+)
+UBI_EULA_SHA256 = "a07025b9f5b71a816febe6ac76f21c9f759c806fa0a66874af90a50c3293f1b6"
+UBI_EULA_BYTES = 248_785
+LIBGCC_PATH = "/usr/lib64/libgcc_s-14-20251022.so.1"
+LIBGCC_SHA256 = "a0070ef643f5ad08f3d3a32a439d8d02d388a38ba5732cbafe58f3a1d60f1e32"
+LIBSTDCXX_PATH = "/usr/lib64/libstdc++.so.6.0.33"
+LIBSTDCXX_SHA256 = "6a76f822fa825d6a065358923c56f5569ac411b27987c035d6f61124a03016ee"
+LIBSTDCXX_RPM_NAME = "libstdc++"
+LIBSTDCXX_RPM_VERSION = "14.3.1-4.4.el10"
+LIBSTDCXX_RPM_PURL = (
+    "pkg:rpm/redhat/libstdc%2B%2B@14.3.1-4.4.el10?"
+    "arch=x86_64&distro=rhel-10.2&upstream=gcc-14.3.1-4.4.el10.src.rpm"
+)
+RUNTIME_NOTICE_PATH = ROOT / "THIRD_PARTY.md"
+GCC_RUNTIME_NOTICE_FILES = (
+    (
+        "COPYING",
+        "231f7edcc7352d7734a96eef0b8030f77982678c516876fcb81e25b32d68564c",
+        18_002,
+    ),
+    (
+        "COPYING.LIB",
+        "32434afcc8666ba060e111d715bfdb6c2d5dd8a35fa4d3ab8ad67d8f850d2f2b",
+        26_440,
+    ),
+    (
+        "COPYING.RUNTIME",
+        "9d6b43ce4d8de0c878bf16b54d8e7a10d9bd42b75178153e3af6a815bdc90f74",
+        3_324,
+    ),
+    (
+        "COPYING3",
+        "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+        35_147,
+    ),
+    (
+        "COPYING3.LIB",
+        "a853c2ffec17057872340eee242ae4d96cbf2b520ae27d903e1b2fef1a5f9d1c",
+        7_639,
+    ),
+)
 PNPM_VERSION = "10.33.2"
 PNPM_SHA512 = (
     "a90faf6feeab71ad6c6e57f94e0fe1a12f5dcc22cd754db40ae9593eb6a3e0b6"
@@ -55,6 +142,9 @@ BUILDKIT_CLASSIC_AMD64_REPOSITORY_DIGEST = (
 )
 BUILDKIT_VERSION = "v0.32.2"
 BUILDER_NAME = "gis-ai-go-gateway"
+EXPECTED_RUNTIME_STAGE_SHA256 = (
+    "68d742dd41fe6329f0b1b6e9561873fa8f65fbe45b52ad90de9674270a7c817f"
+)
 SYFT_REFERENCE = (
     "anchore/syft:v1.42.2@"
     "sha256:15952b4306fd990724afaaf7f1c71fcd03546b89fbf6f2d32b0be5f81e3ef431"
@@ -63,11 +153,23 @@ TRIVY_REFERENCE = (
     "aquasec/trivy:0.74.0@"
     "sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969"
 )
+TRIVY_DB_REPOSITORIES = (
+    "mirror.gcr.io/aquasec/trivy-db:2",
+    "ghcr.io/aquasecurity/trivy-db:2",
+    "public.ecr.aws/aquasecurity/trivy-db:2",
+)
+TRIVY_DB_ACQUISITION_EXIT_CODE = 86
+RUNTIME_LIBRARY_DONOR_ACQUISITION_EXIT_CODE = 87
+RUNTIME_LIBRARY_DONOR_VALIDATION_EXIT_CODE = 88
 
 EXPECTED_REPOSITORY = "chris-page-gov/gis-ai-go"
 EXPECTED_REGISTRY_ID = "io.github.chris-page-gov/gis-ai-go"
-EXPECTED_ENTRYPOINT = ["node", "dist/src/container-main.js"]
-EXPECTED_HEALTHCHECK = ["CMD", "node", "dist/src/container-healthcheck.js"]
+EXPECTED_ENTRYPOINT = ["/usr/local/bin/node", "dist/src/container-main.js"]
+EXPECTED_HEALTHCHECK = [
+    "CMD",
+    "/usr/local/bin/node",
+    "dist/src/container-healthcheck.js",
+]
 EXPECTED_HEALTH_CONFIGURATION = {
     "Test": EXPECTED_HEALTHCHECK,
     "Interval": 10_000_000_000,
@@ -79,9 +181,8 @@ EXPECTED_WORKING_DIRECTORY = "/app/apps/mcp-gateway"
 EXPECTED_USER = "65532:65532"
 EXPECTED_PORT = "8787/tcp"
 EXPECTED_ENVIRONMENT = [
-    "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+    "PATH=/usr/local/bin",
     "NODE_VERSION=24.19.0",
-    "YARN_VERSION=1.22.22",
     "HOME=/nonexistent",
     "NODE_ENV=production",
     "TZ=UTC",
@@ -98,7 +199,7 @@ DOCKER_SAVE_MANIFEST = "manifest.json"
 COMMIT_RE = re.compile(r"[0-9a-f]{40}\Z")
 SHA256_RE = re.compile(r"sha256:[0-9a-f]{64}\Z")
 VERSION_RE = re.compile(r"(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\Z")
-PLATFORM_RE = re.compile(r"linux/(?:amd64|arm64)\Z")
+PLATFORM_RE = re.compile(r"linux/amd64\Z")
 _PATH_TOKEN_BOUNDARY = r"(?<![A-Za-z0-9._~/%-])"
 _DRIVE_TOKEN_BOUNDARY = r"(?<![A-Za-z0-9._~/%-])"
 _FORWARD_UNC_BOUNDARY = (
@@ -2928,11 +3029,16 @@ MAX_OCI_BYTES = 768 * 1024 * 1024
 MAX_LAYER_EXPANDED_BYTES = 512 * 1024 * 1024
 MAX_ROOTFS_EXPANDED_BYTES = 2 * 1024 * 1024 * 1024
 MAX_LAYER_MEMBERS = 200_000
+MAX_LAYER_PATH_BYTES = 4_096
+MAX_LAYER_PATH_COMPONENTS = 128
+MAX_LAYER_PATH_COMPONENT_BYTES = 255
+MAX_LAYER_MTIME = 253_402_300_799
 MAX_JSON_BYTES = 4 * 1024 * 1024
 MAX_CHECKSUM_BYTES = 4 * 1024
 
 CONTEXT_FILES = (
     "LICENSE",
+    "THIRD_PARTY.md",
     "VERSION",
     "package.json",
     "pnpm-lock.yaml",
@@ -3025,6 +3131,19 @@ class SourceIdentity:
 
 
 @dataclass(frozen=True)
+class RootfsEntry:
+    path: str
+    kind: str
+    mode: int
+    uid: int
+    gid: int
+    mtime: int = 0
+    size: int | None = None
+    sha256: str | None = None
+    target: str | None = None
+
+
+@dataclass(frozen=True)
 class OciInspection:
     archive_sha256: str
     archive_size: int
@@ -3035,6 +3154,9 @@ class OciInspection:
     rootfs_diff_ids: tuple[str, ...]
     platform: str
     labels: dict[str, str]
+    rootfs_inventory: tuple[RootfsEntry, ...]
+    rootfs_inventory_sha256: str
+    rootfs_regular_file_bytes: int
 
 
 def run(
@@ -3349,15 +3471,37 @@ def parse_gateway_containerfile_pins(text: str) -> dict[str, str]:
     expected_arg = f'ARG NODE_BASE="{NODE_BASE_REFERENCE}"'
     if node_args != [expected_arg]:
         raise ValueError("gateway Containerfile must declare one exact active Node base ARG")
+    runtime_args = [
+        item for item in instructions if item.startswith("ARG UBI_RUNTIME_BASE")
+    ]
+    if runtime_args != [f'ARG UBI_RUNTIME_BASE="{UBI_RUNTIME_BASE_REFERENCE}"']:
+        raise ValueError("gateway Containerfile must declare one exact UBI runtime base ARG")
+    donor_args = [
+        item
+        for item in instructions
+        if item.startswith("ARG UBI_RUNTIME_LIBRARY_DONOR")
+    ]
+    if donor_args != [
+        f'ARG UBI_RUNTIME_LIBRARY_DONOR="{UBI_RUNTIME_LIBRARY_DONOR_REFERENCE}"'
+    ]:
+        raise ValueError(
+            "gateway Containerfile must declare one exact UBI runtime-library donor ARG"
+        )
     from_instructions = [item for item in instructions if item.startswith("FROM ")]
     if from_instructions != [
         "FROM ${NODE_BASE} AS builder",
-        "FROM ${NODE_BASE} AS runtime",
+        "FROM ${UBI_RUNTIME_LIBRARY_DONOR} AS runtime-libraries",
+        "FROM ${UBI_RUNTIME_BASE} AS runtime-root",
+        "FROM scratch AS runtime",
     ]:
-        raise ValueError("gateway Containerfile FROM instructions differ from the fixed Node base")
+        raise ValueError(
+            "gateway Containerfile FROM instructions differ from the fixed UBI composition"
+        )
     if any(item.startswith("ADD ") for item in instructions):
         raise ValueError("gateway Containerfile must not admit local or remote ADD inputs")
-    builder_end = instructions.index("FROM ${NODE_BASE} AS runtime")
+    builder_end = instructions.index(
+        "FROM ${UBI_RUNTIME_LIBRARY_DONOR} AS runtime-libraries"
+    )
     builder_instructions = instructions[:builder_end]
     builder_copies = tuple(
         item for item in builder_instructions if item.startswith("COPY ")
@@ -3422,14 +3566,26 @@ def parse_gateway_containerfile_pins(text: str) -> dict[str, str]:
         for item in builder_instructions[:source_copy_cutoff]
         if item.startswith("RUN ") and not item.startswith("RUN --network=none ")
     )
-    if networked_before_source != (
-        bootstrap_instruction,
-        fetch_instruction,
-        deploy_instruction,
+    if (
+        len(networked_before_source) != 4
+        or networked_before_source[:3]
+        != (bootstrap_instruction, fetch_instruction, deploy_instruction)
     ):
         raise ValueError(
             "gateway pre-source networked RUN inventory differs from the closed contract"
         )
+    eula_fetch = networked_before_source[3]
+    if (
+        not eula_fetch.startswith("RUN mkdir -p /runtime-licences && node ")
+        or eula_fetch.count(UBI_EULA_URL) != 1
+        or eula_fetch.count(UBI_EULA_SHA256) != 1
+        or eula_fetch.count(str(UBI_EULA_BYTES)) != 1
+        or eula_fetch.count("/runtime-licences/RED_HAT_UBI_EULA.pdf") != 1
+        or "redirect: 'error'" not in eula_fetch
+        or "response.status !== 200" not in eula_fetch
+        or "createHash('sha256')" not in eula_fetch
+    ):
+        raise ValueError("gateway UBI EULA fetch differs from the exact accepted bytes")
     bootstrap_index = builder_instructions.index(bootstrap_instruction)
     manifest_copy_indexes = [
         builder_instructions.index(item) for item in BUILDER_MANIFEST_COPY_INSTRUCTIONS
@@ -3466,11 +3622,124 @@ def parse_gateway_containerfile_pins(text: str) -> dict[str, str]:
     )
     if any(value not in build_runs[0] for value in required_workspace_copies):
         raise ValueError("gateway runtime lacks a reviewed workspace build output")
-    runtime_runs = [item for item in instructions if "mkdir -p /nonexistent" in item]
+    runtime_copies = tuple(
+        item for item in instructions[builder_end:] if item.startswith("COPY ")
+    )
+    if runtime_copies != (
+        "COPY --from=runtime-root / /",
+        "COPY --from=builder --chown=0:0 /usr/local/bin/node /usr/local/bin/node",
+        (
+            "COPY --from=builder --chown=0:0 /usr/local/LICENSE "
+            "/usr/share/licenses/nodejs/LICENSE"
+        ),
+        (
+            "COPY --from=runtime-libraries --chown=0:0 "
+            "/usr/lib64/libstdc++.so.6.0.33 /usr/lib64/libstdc++.so.6.0.33"
+        ),
+        (
+            "COPY --from=runtime-libraries --chown=0:0 /usr/share/licenses/libgcc/ "
+            "/usr/share/licenses/libgcc/"
+        ),
+        "COPY --from=builder --chown=0:0 /runtime/apps/mcp-gateway/ ./",
+        "COPY --chown=0:0 schemas/ /app/schemas/",
+        "COPY --chown=0:0 artifacts/okf/ /app/artifacts/okf/",
+        "COPY --chown=0:0 LICENSE /app/LICENSE",
+        "COPY --chown=0:0 LICENSE /usr/share/licenses/gis-ai-go/LICENSE",
+        "COPY --chown=0:0 THIRD_PARTY.md /usr/share/licenses/gis-ai-go/THIRD_PARTY.md",
+        (
+            "COPY --from=builder --chown=0:0 "
+            "/runtime-licences/RED_HAT_UBI_EULA.pdf "
+            "/usr/share/licenses/gis-ai-go/RED_HAT_UBI_EULA.pdf"
+        ),
+        "COPY --from=builder --chown=0:0 /runtime-root/nonexistent/ /nonexistent/",
+        (
+            "COPY --from=builder --chown=65532:65532 /runtime-root/var/lib/gis-ai-go/ "
+            "/var/lib/gis-ai-go/"
+        ),
+    ):
+        raise ValueError("gateway runtime COPY inventory differs from the fixed composition")
+    runtime_runs = [
+        item for item in instructions if "mkdir -p /runtime-root/nonexistent" in item
+    ]
     if len(runtime_runs) != 1 or not runtime_runs[0].startswith("RUN --network=none "):
         raise ValueError("gateway runtime mutation must run with networking disabled")
+    runtime_checks = [item for item in instructions if "/usr/bin/ldd /usr/local/bin/node" in item]
+    if (
+        len(runtime_checks) != 1
+        or not runtime_checks[0].startswith("RUN --network=none ")
+        or any(
+            value not in runtime_checks[0]
+            for value in (
+                NODE_BINARY_SHA256,
+                NODE_LICENCE_SHA256,
+                LIBGCC_SHA256,
+                LIBSTDCXX_SHA256,
+                UBI_EULA_SHA256,
+                "ld-linux-x86-64.so.2",
+                "libc.so.6",
+                "libdl.so.2",
+                "libgcc_s.so.1",
+                "libm.so.6",
+                "libpthread.so.0",
+                "libstdc++.so.6",
+                "/usr/bin/ln -s libstdc++.so.6.0.33 /usr/lib64/libstdc++.so.6",
+            )
+        )
+    ):
+        raise ValueError("gateway Node runtime closure check differs from the fixed contract")
+    runtime_stage_start = instructions.index("FROM scratch AS runtime")
+    runtime_stage = instructions[runtime_stage_start + 1 :]
+    expected_runtime_verbs = [
+        "ARG",
+        "ARG",
+        "ARG",
+        "ARG",
+        "ARG",
+        "LABEL",
+        "ENV",
+        "WORKDIR",
+        *(["COPY"] * len(runtime_copies)),
+        "RUN",
+        "USER",
+        "EXPOSE",
+        "STOPSIGNAL",
+        "HEALTHCHECK",
+        "ENTRYPOINT",
+    ]
+    if [item.partition(" ")[0] for item in runtime_stage] != expected_runtime_verbs:
+        raise ValueError("gateway final-stage instruction inventory is not closed")
+    if sha256_bytes(canonical_json_bytes(runtime_stage)) != EXPECTED_RUNTIME_STAGE_SHA256:
+        raise ValueError(
+            "gateway final-stage normalised instruction sequence differs from the "
+            "reviewed mutation contract"
+        )
+    if (
+        runtime_stage[:5]
+        != [
+            "ARG PRODUCT_VERSION",
+            "ARG SOURCE_CREATED",
+            "ARG SOURCE_DATE_EPOCH",
+            "ARG SOURCE_REVISION",
+            "ARG SOURCE_TREE_CLEAN",
+        ]
+        or runtime_stage[-5:]
+        != [
+            "USER 65532:65532",
+            "EXPOSE 8787/tcp",
+            "STOPSIGNAL SIGTERM",
+            (
+                "HEALTHCHECK --interval=10s --timeout=3s --start-period=5s "
+                "--retries=3 CMD [\"/usr/local/bin/node\", "
+                "\"dist/src/container-healthcheck.js\"]"
+            ),
+            "ENTRYPOINT [\"/usr/local/bin/node\", \"dist/src/container-main.js\"]",
+        ]
+    ):
+        raise ValueError("gateway final-stage metadata instructions differ")
     return {
         "node_reference": NODE_BASE_REFERENCE,
+        "runtime_base_reference": UBI_RUNTIME_BASE_REFERENCE,
+        "runtime_library_donor_reference": UBI_RUNTIME_LIBRARY_DONOR_REFERENCE,
         "pnpm_version": PNPM_VERSION,
         "pnpm_sha512": PNPM_SHA512,
     }
@@ -3485,6 +3754,8 @@ def verify_gateway_dockerignore(text: str) -> None:
     for required in ("**/dist/", "**/node_modules/", "**/*.tsbuildinfo"):
         if required not in rules:
             raise ValueError(f"gateway Dockerignore lacks required exclusion: {required}")
+    if "!THIRD_PARTY.md" not in rules:
+        raise ValueError("gateway Dockerignore omits the runtime provenance notice")
 
 
 def verify_root_package_manager(package: Any) -> None:
@@ -3669,6 +3940,12 @@ def buildx_version() -> str:
 
 def _safe_tar_path(value: str) -> str:
     candidate = value[2:] if value.startswith("./") else value
+    try:
+        encoded = candidate.encode("utf-8", errors="strict")
+    except UnicodeEncodeError as error:
+        raise ValueError(f"unsafe non-UTF-8 OCI archive path: {value!r}") from error
+    if len(encoded) > MAX_LAYER_PATH_BYTES:
+        raise ValueError(f"OCI archive path exceeds its byte bound: {value!r}")
     logical = PurePosixPath(candidate)
     if (
         not candidate
@@ -3677,6 +3954,11 @@ def _safe_tar_path(value: str) -> str:
         or "\0" in candidate
         or logical.is_absolute()
         or any(part in {"", ".", ".."} for part in logical.parts)
+        or len(logical.parts) > MAX_LAYER_PATH_COMPONENTS
+        or any(
+            len(part.encode("utf-8")) > MAX_LAYER_PATH_COMPONENT_BYTES
+            for part in logical.parts
+        )
     ):
         raise ValueError(f"unsafe OCI archive path: {value!r}")
     return logical.as_posix()
@@ -3892,12 +4174,31 @@ def _uncompressed_layer_digest(
 
 
 def _validate_layer_link(member_name: str, value: str, *, symbolic: bool) -> None:
-    if not value or "\\" in value or "\0" in value:
+    try:
+        encoded = value.encode("utf-8", errors="strict")
+    except UnicodeEncodeError as error:
+        raise ValueError("OCI layer contains a non-UTF-8 link target") from error
+    if (
+        not value
+        or len(encoded) > MAX_LAYER_PATH_BYTES
+        or "\\" in value
+        or "\0" in value
+    ):
         raise ValueError("OCI layer contains an unsafe link target")
     if value.startswith("/") or not symbolic:
         parts = PurePosixPath(value.lstrip("/")).parts
     else:
         parts = (*PurePosixPath(member_name).parent.parts, *PurePosixPath(value).parts)
+    if (
+        len(parts) > MAX_LAYER_PATH_COMPONENTS
+        or any(
+            len(part.encode("utf-8", errors="strict"))
+            > MAX_LAYER_PATH_COMPONENT_BYTES
+            for part in parts
+            if part not in {"", ".", ".."}
+        )
+    ):
+        raise ValueError("OCI layer link target exceeds its path bound")
     resolved: list[str] = []
     for part in parts:
         if part in {"", "."}:
@@ -3912,27 +4213,480 @@ def _validate_layer_link(member_name: str, value: str, *, symbolic: bool) -> Non
         raise ValueError("OCI layer link target resolves to no path")
 
 
+def _validate_layer_member_metadata(member: tarfile.TarInfo) -> None:
+    """Reject tar metadata that the realised rootfs inventory cannot safely model."""
+    if (
+        type(member.mtime) is not int
+        or member.mtime < 0
+        or member.mtime > MAX_LAYER_MTIME
+        or member.sparse is not None
+    ):
+        raise ValueError("OCI layer member time or sparse metadata is outside the contract")
+    allowed_pax = {"path"}
+    if member.issym() or member.islnk():
+        allowed_pax.add("linkpath")
+    if not set(member.pax_headers).issubset(allowed_pax):
+        raise ValueError("OCI layer contains unmeasured PAX, ACL or extended attributes")
+    if member.pax_headers.get("path", member.name) != member.name:
+        raise ValueError("OCI layer PAX path differs from the effective member path")
+    if member.pax_headers.get("linkpath", member.linkname) != member.linkname:
+        raise ValueError("OCI layer PAX link path differs from the effective target")
+
+
 def _validate_layer_tar(fileobj: BinaryIO) -> None:
     names: set[str] = set()
+    kinds: dict[str, str] = {}
     try:
         with tarfile.open(fileobj=fileobj, mode="r:") as layer:
             for member in layer:
                 if len(names) >= MAX_LAYER_MEMBERS:
                     raise ValueError("OCI layer exceeds its member-count bound")
+                _validate_layer_member_metadata(member)
                 name = _safe_tar_path(member.name)
                 if name in names:
                     raise ValueError("OCI layer contains a duplicate path")
                 names.add(name)
                 if not (member.isdir() or member.isreg() or member.issym() or member.islnk()):
                     raise ValueError("OCI layer contains an unsupported special member")
+                kinds[name] = "directory" if member.isdir() else "non-directory"
                 if member.size < 0 or member.size > MAX_LAYER_EXPANDED_BYTES:
                     raise ValueError("OCI layer member exceeds its byte bound")
                 if member.issym() or member.islnk():
                     _validate_layer_link(
                         name, member.linkname, symbolic=member.issym()
                     )
+        for name in names:
+            parts = PurePosixPath(name).parts
+            for depth in range(1, len(parts)):
+                ancestor = PurePosixPath(*parts[:depth]).as_posix()
+                if kinds.get(ancestor) == "non-directory":
+                    raise ValueError(
+                        "OCI layer contains descendants beneath a non-directory path"
+                    )
     except tarfile.TarError as error:
         raise ValueError("OCI layer does not expand to a valid tar archive") from error
+
+
+def _rootfs_entry_document(entry: RootfsEntry) -> dict[str, Any]:
+    document: dict[str, Any] = {
+        "path": entry.path,
+        "kind": entry.kind,
+        "mode": entry.mode,
+        "uid": entry.uid,
+        "gid": entry.gid,
+        "mtime": entry.mtime,
+    }
+    if entry.size is not None:
+        document["bytes"] = entry.size
+    if entry.sha256 is not None:
+        document["sha256"] = entry.sha256
+    if entry.target is not None:
+        document["target"] = entry.target
+    return document
+
+
+def _summarise_rootfs(
+    entries: Iterable[RootfsEntry],
+) -> tuple[tuple[RootfsEntry, ...], str, int]:
+    ordered = tuple(sorted(entries, key=lambda item: item.path))
+    if not ordered or len({item.path for item in ordered}) != len(ordered):
+        raise ValueError("OCI merged root filesystem inventory is empty or duplicated")
+    if any(
+        item.path != "/" + _safe_tar_path(item.path.lstrip("/"))
+        or item.kind not in {"directory", "regular-file", "symbolic-link", "hard-link"}
+        or item.mode < 0
+        or item.mode > 0o7777
+        or item.uid < 0
+        or item.gid < 0
+        or item.uid > 4_294_967_295
+        or item.gid > 4_294_967_295
+        or type(item.mtime) is not int
+        or item.mtime < 0
+        or item.mtime > MAX_LAYER_MTIME
+        for item in ordered
+    ):
+        raise ValueError("OCI merged root filesystem inventory contains invalid metadata")
+    regular_bytes = 0
+    indexed = {item.path: item for item in ordered}
+    for item in ordered:
+        parts = PurePosixPath(item.path).parts
+        for depth in range(1, len(parts) - 1):
+            ancestor_path = PurePosixPath(*parts[: depth + 1]).as_posix()
+            ancestor = indexed.get(ancestor_path)
+            if ancestor is None:
+                raise ValueError(
+                    "OCI merged root filesystem lacks an explicit parent directory"
+                )
+            if ancestor.kind != "directory":
+                raise ValueError(
+                    "OCI merged root filesystem contains descendants beneath "
+                    "a non-directory path"
+                )
+        if item.kind in {"regular-file", "hard-link"}:
+            if (
+                type(item.size) is not int
+                or item.size < 0
+                or not isinstance(item.sha256, str)
+                or re.fullmatch(r"[0-9a-f]{64}", item.sha256) is None
+                or (item.target is not None and item.kind == "regular-file")
+                or (item.kind == "hard-link" and not item.target)
+            ):
+                raise ValueError("OCI merged root filesystem file metadata is invalid")
+            if item.kind == "regular-file":
+                regular_bytes += item.size
+        elif item.kind == "symbolic-link":
+            if item.size is not None or item.sha256 is not None or not item.target:
+                raise ValueError("OCI merged root filesystem link metadata is invalid")
+            _validate_layer_link(
+                item.path.lstrip("/"), item.target, symbolic=True
+            )
+        elif item.size is not None or item.sha256 is not None or item.target is not None:
+            raise ValueError("OCI merged root filesystem directory metadata is invalid")
+    for item in ordered:
+        if item.kind != "hard-link":
+            continue
+        assert item.target is not None
+        target = indexed.get(item.target)
+        if (
+            target is None
+            or target.kind != "regular-file"
+            or (
+                item.mode,
+                item.uid,
+                item.gid,
+                item.mtime,
+                item.size,
+                item.sha256,
+            )
+            != (
+                target.mode,
+                target.uid,
+                target.gid,
+                target.mtime,
+                target.size,
+                target.sha256,
+            )
+        ):
+            raise ValueError("OCI merged root filesystem hard-link target is inconsistent")
+    inventory_bytes = canonical_json_bytes(
+        [_rootfs_entry_document(item) for item in ordered]
+    )
+    return ordered, sha256_bytes(inventory_bytes), regular_bytes
+
+
+def _rootfs_path_ancestors(path: str) -> tuple[str, ...]:
+    parts = PurePosixPath(path).parts
+    if not parts or parts[0] != "/" or len(parts) > MAX_LAYER_PATH_COMPONENTS + 1:
+        raise ValueError("OCI root filesystem path is outside its component bound")
+    return (
+        "/",
+        *(
+            "/" + "/".join(parts[1 : depth + 1])
+            for depth in range(1, len(parts))
+        ),
+    )
+
+
+def _batch_remove_rootfs_paths(
+    rootfs: dict[str, RootfsEntry],
+    inode_by_path: dict[str, int],
+    *,
+    subtrees: set[str],
+    descendants: set[str],
+) -> None:
+    """Apply one layer's removals in bounded O(entries * maximum path depth) work."""
+    if not subtrees and not descendants:
+        return
+    for candidate in tuple(rootfs):
+        ancestors = _rootfs_path_ancestors(candidate)
+        if subtrees.intersection(ancestors) or descendants.intersection(ancestors[:-1]):
+            del rootfs[candidate]
+            inode_by_path.pop(candidate, None)
+
+
+def _require_explicit_parent_directories(
+    rootfs: dict[str, RootfsEntry], path: str
+) -> None:
+    for ancestor in _rootfs_path_ancestors(path)[1:-1]:
+        entry = rootfs.get(ancestor)
+        if entry is None:
+            raise ValueError("OCI layer entry lacks an explicit parent directory")
+        if entry.kind != "directory":
+            raise ValueError("OCI layer entry has a non-directory ancestor")
+
+
+def _canonicalise_rootfs_inodes(
+    rootfs: dict[str, RootfsEntry], inode_by_path: dict[str, int]
+) -> tuple[RootfsEntry, ...]:
+    groups: dict[int, list[str]] = {}
+    for path, inode in inode_by_path.items():
+        entry = rootfs.get(path)
+        if entry is None or entry.kind != "regular-file":
+            raise ValueError("OCI root filesystem inode index is inconsistent")
+        groups.setdefault(inode, []).append(path)
+    if any(
+        entry.kind == "regular-file" and path not in inode_by_path
+        for path, entry in rootfs.items()
+    ):
+        raise ValueError("OCI root filesystem regular file lacks an inode identity")
+    realised = [
+        entry for path, entry in rootfs.items() if path not in inode_by_path
+    ]
+    for paths in groups.values():
+        ordered_paths = sorted(paths)
+        anchor = ordered_paths[0]
+        metadata = rootfs[anchor]
+        for path in ordered_paths:
+            candidate = rootfs[path]
+            if (
+                candidate.mode,
+                candidate.uid,
+                candidate.gid,
+                candidate.mtime,
+                candidate.size,
+                candidate.sha256,
+            ) != (
+                metadata.mode,
+                metadata.uid,
+                metadata.gid,
+                metadata.mtime,
+                metadata.size,
+                metadata.sha256,
+            ):
+                raise ValueError("OCI root filesystem hard-link inode metadata differs")
+            realised.append(
+                RootfsEntry(
+                    path,
+                    "regular-file" if path == anchor else "hard-link",
+                    metadata.mode,
+                    metadata.uid,
+                    metadata.gid,
+                    mtime=metadata.mtime,
+                    size=metadata.size,
+                    sha256=metadata.sha256,
+                    target=None if path == anchor else anchor,
+                )
+            )
+    return tuple(realised)
+
+
+def _layer_rootfs_entries(
+    archive: tarfile.TarFile,
+    member: tarfile.TarInfo,
+) -> tuple[list[RootfsEntry], set[str], set[str]]:
+    extracted = archive.extractfile(member)
+    if extracted is None:
+        raise ValueError("OCI layer blob is unavailable for root filesystem inspection")
+    entries: list[RootfsEntry] = []
+    removals: set[str] = set()
+    opaque_directories: set[str] = set()
+    expanded = 0
+    try:
+        with tempfile.TemporaryFile() as expanded_layer:
+            with gzip.GzipFile(fileobj=extracted, mode="rb") as decompressed:
+                while chunk := decompressed.read(1024 * 1024):
+                    expanded += len(chunk)
+                    if expanded > MAX_LAYER_EXPANDED_BYTES:
+                        raise ValueError("OCI layer exceeds its expanded byte bound")
+                    expanded_layer.write(chunk)
+            expanded_layer.seek(0)
+            with tarfile.open(fileobj=expanded_layer, mode="r:") as layer:
+                for member_index, layer_member in enumerate(layer):
+                    if member_index >= MAX_LAYER_MEMBERS:
+                        raise ValueError("OCI layer exceeds its member-count bound")
+                    _validate_layer_member_metadata(layer_member)
+                    name = _safe_tar_path(layer_member.name)
+                    basename = PurePosixPath(name).name
+                    parent = PurePosixPath(name).parent.as_posix()
+                    parent = "" if parent == "." else parent
+                    if basename.startswith(".wh."):
+                        if not layer_member.isreg() or layer_member.size != 0:
+                            raise ValueError("OCI whiteout marker is not an empty regular file")
+                        if basename == ".wh..wh..opq":
+                            opaque_directories.add(parent)
+                        else:
+                            target_name = basename.removeprefix(".wh.")
+                            if not target_name or target_name.startswith(".wh."):
+                                raise ValueError("OCI whiteout marker has an invalid target")
+                            removals.add(
+                                f"{parent}/{target_name}" if parent else target_name
+                            )
+                        continue
+                    mode = layer_member.mode & 0o7777
+                    if layer_member.uid < 0 or layer_member.gid < 0:
+                        raise ValueError("OCI layer contains negative ownership metadata")
+                    path = f"/{name}"
+                    if layer_member.isdir():
+                        entries.append(
+                            RootfsEntry(
+                                path,
+                                "directory",
+                                mode,
+                                layer_member.uid,
+                                layer_member.gid,
+                                mtime=layer_member.mtime,
+                            )
+                        )
+                    elif layer_member.isreg():
+                        source = layer.extractfile(layer_member)
+                        if source is None:
+                            raise ValueError("OCI layer regular file is unavailable")
+                        digest = hashlib.sha256()
+                        size = 0
+                        while chunk := source.read(1024 * 1024):
+                            size += len(chunk)
+                            if size > layer_member.size:
+                                raise ValueError(
+                                    "OCI layer regular file exceeds its declared size"
+                                )
+                            digest.update(chunk)
+                        if size != layer_member.size:
+                            raise ValueError(
+                                "OCI layer regular file differs from its declared size"
+                            )
+                        entries.append(
+                            RootfsEntry(
+                                path,
+                                "regular-file",
+                                mode,
+                                layer_member.uid,
+                                layer_member.gid,
+                                mtime=layer_member.mtime,
+                                size=size,
+                                sha256=digest.hexdigest(),
+                            )
+                        )
+                    elif layer_member.issym():
+                        _validate_layer_link(name, layer_member.linkname, symbolic=True)
+                        entries.append(
+                            RootfsEntry(
+                                path,
+                                "symbolic-link",
+                                mode,
+                                layer_member.uid,
+                                layer_member.gid,
+                                mtime=layer_member.mtime,
+                                target=layer_member.linkname,
+                            )
+                        )
+                    elif layer_member.islnk():
+                        _validate_layer_link(name, layer_member.linkname, symbolic=False)
+                        target = "/" + _safe_tar_path(layer_member.linkname.lstrip("/"))
+                        entries.append(
+                            RootfsEntry(
+                                path,
+                                "hard-link",
+                                mode,
+                                layer_member.uid,
+                                layer_member.gid,
+                                mtime=layer_member.mtime,
+                                target=target,
+                            )
+                        )
+                    else:
+                        raise ValueError("OCI layer contains an unsupported special member")
+    except (EOFError, gzip.BadGzipFile, OSError, tarfile.TarError) as error:
+        raise ValueError(
+            "OCI layer cannot be reconstructed as a bounded root filesystem"
+        ) from error
+    return entries, removals, opaque_directories
+
+
+def _merge_rootfs(
+    archive: tarfile.TarFile,
+    layer_members: Iterable[tarfile.TarInfo],
+) -> tuple[tuple[RootfsEntry, ...], str, int]:
+    rootfs: dict[str, RootfsEntry] = {}
+    inode_by_path: dict[str, int] = {}
+    next_inode = 1
+    for layer_member in layer_members:
+        entries, removals, opaque_directories = _layer_rootfs_entries(
+            archive, layer_member
+        )
+        replacement_subtrees = {
+            entry.path
+            for entry in entries
+            if entry.kind != "directory"
+            and (existing := rootfs.get(entry.path)) is not None
+            and existing.kind == "directory"
+        }
+        _batch_remove_rootfs_paths(
+            rootfs,
+            inode_by_path,
+            subtrees={f"/{path}" for path in removals} | replacement_subtrees,
+            descendants={f"/{path}" if path else "/" for path in opaque_directories},
+        )
+
+        pending_by_target: dict[str, list[RootfsEntry]] = {}
+
+        def materialise_hard_link(entry: RootfsEntry) -> str | None:
+            assert entry.target is not None
+            target = rootfs.get(entry.target)
+            if target is None:
+                pending_by_target.setdefault(entry.target, []).append(entry)
+                return None
+            inode = inode_by_path.get(entry.target)
+            if target.kind != "regular-file" or inode is None:
+                raise ValueError("OCI layer hard-link target is not a regular file")
+            if (entry.mode, entry.uid, entry.gid, entry.mtime) != (
+                target.mode,
+                target.uid,
+                target.gid,
+                target.mtime,
+            ):
+                raise ValueError("OCI layer hard-link metadata differs from its inode")
+            rootfs.pop(entry.path, None)
+            inode_by_path.pop(entry.path, None)
+            rootfs[entry.path] = RootfsEntry(
+                entry.path,
+                "regular-file",
+                target.mode,
+                target.uid,
+                target.gid,
+                mtime=target.mtime,
+                size=target.size,
+                sha256=target.sha256,
+            )
+            inode_by_path[entry.path] = inode
+            return entry.path
+
+        def resolve_waiting(path: str) -> None:
+            available = [path]
+            while available:
+                target_path = available.pop()
+                for pending in pending_by_target.pop(target_path, []):
+                    realised_path = materialise_hard_link(pending)
+                    assert realised_path is not None
+                    available.append(realised_path)
+
+        for entry in entries:
+            _require_explicit_parent_directories(rootfs, entry.path)
+            if entry.kind == "hard-link":
+                if entry.target == entry.path:
+                    raise ValueError("OCI layer hard-link cannot target itself")
+                realised_path = materialise_hard_link(entry)
+                if realised_path is not None:
+                    resolve_waiting(realised_path)
+                continue
+            existing = rootfs.get(entry.path)
+            if not (
+                entry.kind == "directory"
+                and existing is not None
+                and existing.kind == "directory"
+            ):
+                rootfs.pop(entry.path, None)
+                inode_by_path.pop(entry.path, None)
+            rootfs[entry.path] = entry
+            if entry.kind == "regular-file":
+                inode_by_path[entry.path] = next_inode
+                next_inode += 1
+                resolve_waiting(entry.path)
+        if pending_by_target:
+            raise ValueError("OCI layer contains an unresolved hard-link target")
+        if len(rootfs) > MAX_LAYER_MEMBERS:
+            raise ValueError("OCI merged root filesystem exceeds its entry-count bound")
+        _summarise_rootfs(_canonicalise_rootfs_inodes(rootfs, inode_by_path))
+    return _summarise_rootfs(_canonicalise_rootfs_inodes(rootfs, inode_by_path))
 
 
 def _validate_image_labels(labels: dict[str, str]) -> None:
@@ -3942,9 +4696,16 @@ def _validate_image_labels(labels: dict[str, str]) -> None:
             "Repository-only zero-capability gateway container"
         ),
         "org.opencontainers.image.source": "https://github.com/chris-page-gov/gis-ai-go",
-        "org.opencontainers.image.licenses": "MIT",
+        "org.opencontainers.image.licenses": (
+            "MIT AND LicenseRef-Red-Hat-UBI-EULA AND "
+            "LicenseRef-Third-Party-Notices"
+        ),
+        "org.opencontainers.image.base.name": UBI_RUNTIME_BASE_REFERENCE,
+        "org.opencontainers.image.base.digest": UBI_RUNTIME_BASE_DIGEST,
         "io.gis-ai-go.registry-id": EXPECTED_REGISTRY_ID,
         "io.gis-ai-go.lifecycle": "candidate-blocked",
+        "io.gis-ai-go.red-hat-support": "not-supported-or-endorsed",
+        "io.gis-ai-go.runtime-library-donor": UBI_RUNTIME_LIBRARY_DONOR_REFERENCE,
         "io.gis-ai-go.live-provider-calls": "false",
         "io.gis-ai-go.active-tools": "[]",
         "io.gis-ai-go.active-api-operations": "[]",
@@ -4207,6 +4968,7 @@ def inspect_oci_archive(path: Path) -> OciInspection:
         )
         layer_digests: list[str] = []
         realised_diff_ids: list[str] = []
+        layer_blob_members: list[tarfile.TarInfo] = []
         expanded_rootfs = 0
         for layer in layers:
             layer_digest, layer_name = _descriptor_blob(
@@ -4225,6 +4987,12 @@ def inspect_oci_archive(path: Path) -> OciInspection:
                 raise ValueError("OCI root filesystem exceeds its expanded byte bound")
             layer_digests.append(layer_digest)
             realised_diff_ids.append(realised_diff_id)
+            layer_blob_members.append(members[layer_name])
+        (
+            rootfs_inventory,
+            rootfs_inventory_sha256,
+            rootfs_regular_file_bytes,
+        ) = _merge_rootfs(archive, layer_blob_members)
         config = _json_member(archive, members, config_name)
         runtime = config.get("config")
         if not isinstance(runtime, dict):
@@ -4264,7 +5032,7 @@ def inspect_oci_archive(path: Path) -> OciInspection:
             raise ValueError("OCI image stop signal differs from the closed runtime contract")
         architecture = config.get("architecture")
         operating_system = config.get("os")
-        if architecture not in {"amd64", "arm64"} or operating_system != "linux":
+        if architecture != "amd64" or operating_system != "linux":
             raise ValueError("OCI image platform is outside the reviewed candidate")
         platform = f"{operating_system}/{architecture}"
         if descriptor.get("platform") != {
@@ -4330,6 +5098,9 @@ def inspect_oci_archive(path: Path) -> OciInspection:
             rootfs_diff_ids=tuple(diff_ids),
             platform=platform,
             labels=dict(labels),
+            rootfs_inventory=rootfs_inventory,
+            rootfs_inventory_sha256=rootfs_inventory_sha256,
+            rootfs_regular_file_bytes=rootfs_regular_file_bytes,
         )
 
 
@@ -4342,7 +5113,7 @@ def build_oci_archive(
     no_cache: bool = True,
 ) -> OciInspection:
     if PLATFORM_RE.fullmatch(platform) is None:
-        raise ValueError("gateway image platform must be linux/amd64 or linux/arm64")
+        raise ValueError("gateway image platform must be the fixed linux/amd64 target")
     verify_checked_inputs(source)
     verify_pinned_builder()
     inventory = build_context_inventory()
@@ -4392,6 +5163,228 @@ def build_oci_archive(
     return inspection
 
 
+def _required_runtime_entries() -> tuple[RootfsEntry, ...]:
+    repository_licence = RUNTIME_NOTICE_PATH.parent / "LICENSE"
+    for path, label in (
+        (repository_licence, "repository licence"),
+        (RUNTIME_NOTICE_PATH, "third-party notice"),
+    ):
+        metadata = path.lstat()
+        if stat.S_ISLNK(metadata.st_mode) or not stat.S_ISREG(metadata.st_mode):
+            raise ValueError(f"gateway {label} is not a real regular file")
+    entries = [
+        RootfsEntry(
+            "/usr/local/bin/node",
+            "regular-file",
+            0o755,
+            0,
+            0,
+            size=125_989_464,
+            sha256=NODE_BINARY_SHA256,
+        ),
+        RootfsEntry(
+            LIBGCC_PATH,
+            "regular-file",
+            0o755,
+            0,
+            0,
+            size=186_528,
+            sha256=LIBGCC_SHA256,
+        ),
+        RootfsEntry(
+            "/usr/lib64/libgcc_s.so.1",
+            "symbolic-link",
+            0o777,
+            0,
+            0,
+            target="libgcc_s-14-20251022.so.1",
+        ),
+        RootfsEntry(
+            LIBSTDCXX_PATH,
+            "regular-file",
+            0o755,
+            0,
+            0,
+            size=2_634_472,
+            sha256=LIBSTDCXX_SHA256,
+        ),
+        RootfsEntry(
+            "/usr/lib64/libstdc++.so.6",
+            "symbolic-link",
+            0o777,
+            0,
+            0,
+            target="libstdc++.so.6.0.33",
+        ),
+        RootfsEntry(
+            "/usr/share/licenses/nodejs",
+            "directory",
+            0o755,
+            0,
+            0,
+        ),
+        RootfsEntry(
+            "/usr/share/licenses/nodejs/LICENSE",
+            "regular-file",
+            0o644,
+            0,
+            0,
+            size=157_606,
+            sha256=NODE_LICENCE_SHA256,
+        ),
+        RootfsEntry(
+            "/usr/share/licenses/gis-ai-go",
+            "directory",
+            0o555,
+            0,
+            0,
+        ),
+        RootfsEntry(
+            "/usr/share/licenses/gis-ai-go/RED_HAT_UBI_EULA.pdf",
+            "regular-file",
+            0o444,
+            0,
+            0,
+            size=UBI_EULA_BYTES,
+            sha256=UBI_EULA_SHA256,
+        ),
+        RootfsEntry(
+            "/usr/share/licenses/gis-ai-go/LICENSE",
+            "regular-file",
+            0o444,
+            0,
+            0,
+            size=repository_licence.stat().st_size,
+            sha256=sha256_file(repository_licence),
+        ),
+        RootfsEntry(
+            "/usr/share/licenses/gis-ai-go/THIRD_PARTY.md",
+            "regular-file",
+            0o444,
+            0,
+            0,
+            size=RUNTIME_NOTICE_PATH.stat().st_size,
+            sha256=sha256_file(RUNTIME_NOTICE_PATH),
+        ),
+        RootfsEntry(
+            "/app/LICENSE",
+            "regular-file",
+            0o444,
+            0,
+            0,
+            size=repository_licence.stat().st_size,
+            sha256=sha256_file(repository_licence),
+        ),
+        RootfsEntry("/nonexistent", "directory", 0o555, 0, 0),
+        RootfsEntry("/var/lib/gis-ai-go", "directory", 0o700, 65532, 65532),
+        RootfsEntry("/var/lib/gis-ai-go/ledger", "directory", 0o700, 65532, 65532),
+        RootfsEntry(
+            "/var/lib/gis-ai-go/reconciliation",
+            "directory",
+            0o700,
+            65532,
+            65532,
+        ),
+        RootfsEntry("/usr/share/licenses/libgcc", "directory", 0o755, 0, 0),
+    ]
+    entries.extend(
+        RootfsEntry(
+            f"/usr/share/licenses/libgcc/{name}",
+            "regular-file",
+            0o644,
+            0,
+            0,
+            size=size,
+            sha256=digest,
+        )
+        for name, digest, size in GCC_RUNTIME_NOTICE_FILES
+    )
+    return tuple(sorted(entries, key=lambda item: item.path))
+
+
+def verify_runtime_composition(inspection: OciInspection) -> dict[str, Any]:
+    """Verify and project the measured, closed runtime filesystem composition."""
+    inventory, inventory_sha256, regular_file_bytes = _summarise_rootfs(
+        inspection.rootfs_inventory
+    )
+    if (
+        inventory_sha256 != inspection.rootfs_inventory_sha256
+        or regular_file_bytes != inspection.rootfs_regular_file_bytes
+    ):
+        raise ValueError("OCI root filesystem summary differs from its measured inventory")
+    by_path = {item.path: item for item in inventory}
+    required = _required_runtime_entries()
+    for expected in required:
+        actual = by_path.get(expected.path)
+        if actual is None or (
+            actual.path,
+            actual.kind,
+            actual.mode,
+            actual.uid,
+            actual.gid,
+            actual.size,
+            actual.sha256,
+            actual.target,
+        ) != (
+            expected.path,
+            expected.kind,
+            expected.mode,
+            expected.uid,
+            expected.gid,
+            expected.size,
+            expected.sha256,
+            expected.target,
+        ):
+            raise ValueError(
+                f"OCI root filesystem critical entry differs: {expected.path}"
+            )
+    for directory, expected_paths in (
+        (
+            "/usr/share/licenses/gis-ai-go",
+            {
+                "/usr/share/licenses/gis-ai-go",
+                "/usr/share/licenses/gis-ai-go/LICENSE",
+                "/usr/share/licenses/gis-ai-go/RED_HAT_UBI_EULA.pdf",
+                "/usr/share/licenses/gis-ai-go/THIRD_PARTY.md",
+            },
+        ),
+        (
+            "/usr/share/licenses/nodejs",
+            {
+                "/usr/share/licenses/nodejs",
+                "/usr/share/licenses/nodejs/LICENSE",
+            },
+        ),
+        (
+            "/usr/share/licenses/libgcc",
+            {
+                "/usr/share/licenses/libgcc",
+                *(f"/usr/share/licenses/libgcc/{name}" for name, _, _ in GCC_RUNTIME_NOTICE_FILES),
+            },
+        ),
+    ):
+        actual_paths = {
+            path
+            for path in by_path
+            if path == directory or path.startswith(f"{directory}/")
+        }
+        if actual_paths != expected_paths:
+            raise ValueError(f"OCI root filesystem licence inventory differs: {directory}")
+    counts = {
+        kind: sum(item.kind == kind for item in inventory)
+        for kind in ("directory", "regular-file", "symbolic-link", "hard-link")
+    }
+    return {
+        "inventory_sha256": inventory_sha256,
+        "entry_count": len(inventory),
+        "regular_file_bytes": regular_file_bytes,
+        "kind_counts": counts,
+        "critical_entries": [
+            _rootfs_entry_document(by_path[item.path]) for item in required
+        ],
+    }
+
+
 def make_image_receipt(
     *,
     source: SourceIdentity,
@@ -4410,8 +5403,100 @@ def make_image_receipt(
         or labels.get("io.gis-ai-go.source-tree-clean") != str(source.clean).lower()
     ):
         raise ValueError("OCI labels do not bind the supplied source identity")
+    rootfs = verify_runtime_composition(inspection)
+    runtime_composition = {
+        "runtime_base": {
+            "reference": UBI_RUNTIME_BASE_REFERENCE,
+            "digest": UBI_RUNTIME_BASE_DIGEST,
+            "version": UBI_RUNTIME_BASE_VERSION,
+            "source_reference": UBI_RUNTIME_BASE_SOURCE_REFERENCE,
+            "source_digest": UBI_RUNTIME_BASE_SOURCE_DIGEST,
+            "verified_files": [
+                {
+                    "path": "/usr/lib64/libgcc_s.so.1",
+                    "kind": "symbolic-link",
+                    "target": "libgcc_s-14-20251022.so.1",
+                },
+                {
+                    "path": LIBGCC_PATH,
+                    "kind": "regular-file",
+                    "sha256": LIBGCC_SHA256,
+                },
+            ],
+        },
+        "node_binary": {
+            "donor_reference": NODE_BASE_REFERENCE,
+            "version": "24.19.0",
+            "path": "/usr/local/bin/node",
+            "sha256": NODE_BINARY_SHA256,
+            "purl": NODE_RUNTIME_PURL,
+            "cpe": NODE_RUNTIME_CPE,
+            "licence_path": "/usr/share/licenses/nodejs/LICENSE",
+            "licence_sha256": NODE_LICENCE_SHA256,
+            "upstream_archive_url": NODE_UPSTREAM_ARCHIVE_URL,
+            "upstream_archive_sha256": NODE_UPSTREAM_ARCHIVE_SHA256,
+            "security_advisory_url": NODE_SECURITY_ADVISORY_URL,
+        },
+        "runtime_library_donor": {
+            "reference": UBI_RUNTIME_LIBRARY_DONOR_REFERENCE,
+            "digest": UBI_RUNTIME_LIBRARY_DONOR_DIGEST,
+            "version": UBI_RUNTIME_LIBRARY_DONOR_VERSION,
+            "source_reference": UBI_RUNTIME_LIBRARY_SOURCE_REFERENCE,
+            "source_digest": UBI_RUNTIME_LIBRARY_SOURCE_DIGEST,
+            "package": {
+                "name": LIBSTDCXX_RPM_NAME,
+                "version": LIBSTDCXX_RPM_VERSION,
+                "purl": LIBSTDCXX_RPM_PURL,
+            },
+            "copied_files": [
+                {
+                    "path": LIBSTDCXX_PATH,
+                    "kind": "regular-file",
+                    "sha256": LIBSTDCXX_SHA256,
+                },
+            ],
+            "constructed_links": [
+                {
+                    "path": "/usr/lib64/libstdc++.so.6",
+                    "target": "libstdc++.so.6.0.33",
+                },
+            ],
+        },
+        "dependency_closure": [
+            {"soname": "ld-linux-x86-64.so.2", "provider": "runtime-base"},
+            {"soname": "libc.so.6", "provider": "runtime-base"},
+            {"soname": "libdl.so.2", "provider": "runtime-base"},
+            {"soname": "libgcc_s.so.1", "provider": "runtime-base"},
+            {"soname": "libm.so.6", "provider": "runtime-base"},
+            {"soname": "libpthread.so.0", "provider": "runtime-base"},
+            {"soname": "libstdc++.so.6", "provider": "runtime-library-donor"},
+        ],
+        "licence_material": {
+            "ubi_eula": {
+                "url": UBI_EULA_URL,
+                "sha256": UBI_EULA_SHA256,
+                "bytes": UBI_EULA_BYTES,
+                "image_path": (
+                    "/usr/share/licenses/gis-ai-go/RED_HAT_UBI_EULA.pdf"
+                ),
+            },
+            "gcc_runtime_notices": {
+                "image_directory": "/usr/share/licenses/libgcc",
+                "files": [
+                    {"name": name, "sha256": digest}
+                    for name, digest, _ in GCC_RUNTIME_NOTICE_FILES
+                ],
+            },
+            "redistribution_notice": {
+                "source_path": "THIRD_PARTY.md",
+                "image_path": "/usr/share/licenses/gis-ai-go/THIRD_PARTY.md",
+                "sha256": sha256_file(RUNTIME_NOTICE_PATH),
+            },
+        },
+        "support_boundary": "not-red-hat-supported-or-endorsed",
+    }
     return {
-        "schema": "gis-ai-go.gateway-image-receipt.v1",
+        "schema": "gis-ai-go.gateway-image-receipt.v3",
         "classification": (
             "repository-only-blocked-candidate"
             if source.clean
@@ -4431,6 +5516,7 @@ def make_image_receipt(
                 "reference": NODE_BASE_REFERENCE,
                 "digest": NODE_BASE_DIGEST,
             },
+            "runtime_composition": runtime_composition,
             "package_manager": {
                 "name": "pnpm",
                 "version": PNPM_VERSION,
@@ -4455,6 +5541,7 @@ def make_image_receipt(
             "config_digest": inspection.config_digest,
             "layer_digests": list(inspection.layer_digests),
             "rootfs_diff_ids": list(inspection.rootfs_diff_ids),
+            "rootfs": rootfs,
             "entrypoint": EXPECTED_ENTRYPOINT,
             "user": EXPECTED_USER,
         },
@@ -4474,6 +5561,116 @@ def make_image_receipt(
             "vulnerability_scan": TRIVY_REFERENCE,
         },
     }
+
+
+def make_runtime_sbom_components(receipt: dict[str, Any]) -> list[dict[str, Any]]:
+    """Project exact runtime files whose cross-stage origin Syft cannot infer."""
+    composition = receipt["build"]["runtime_composition"]
+    runtime_base = composition["runtime_base"]
+    node = composition["node_binary"]
+    donor = composition["runtime_library_donor"]
+    base_files = {item["path"]: item for item in runtime_base["verified_files"]}
+    constructed_links = {
+        item["path"]: item for item in donor["constructed_links"]
+    }
+    rootfs = receipt["image"]["rootfs"]
+    measured = {item["path"]: item for item in rootfs["critical_entries"]}
+
+    def measurement_properties(path: str) -> list[dict[str, str]]:
+        entry = measured[path]
+        return [
+            {
+                "name": "gis-ai-go:rootfs-inventory-sha256",
+                "value": rootfs["inventory_sha256"],
+            },
+            {"name": "gis-ai-go:runtime-file-mode", "value": oct(entry["mode"])},
+            {"name": "gis-ai-go:runtime-file-uid", "value": str(entry["uid"])},
+            {"name": "gis-ai-go:runtime-file-gid", "value": str(entry["gid"])},
+            {"name": "gis-ai-go:runtime-file-mtime", "value": str(entry["mtime"])},
+            {"name": "gis-ai-go:runtime-file-bytes", "value": str(entry["bytes"])},
+        ]
+
+    return [
+        {
+            "bom-ref": f"urn:gis-ai-go:runtime-file:sha256:{node['sha256']}",
+            "type": "file",
+            "name": "node",
+            "version": node["version"],
+            "scope": "required",
+            "hashes": [{"alg": "SHA-256", "content": node["sha256"]}],
+            "licenses": [{"license": {"id": "MIT"}}],
+            "properties": [
+                {"name": "gis-ai-go:runtime-file-path", "value": node["path"]},
+                *measurement_properties(node["path"]),
+                {
+                    "name": "gis-ai-go:donor-image",
+                    "value": node["donor_reference"],
+                },
+                {
+                    "name": "gis-ai-go:upstream-archive",
+                    "value": node["upstream_archive_url"],
+                },
+                {
+                    "name": "gis-ai-go:upstream-archive-sha256",
+                    "value": node["upstream_archive_sha256"],
+                },
+            ],
+        },
+        {
+            "bom-ref": f"urn:gis-ai-go:runtime-file:sha256:{LIBGCC_SHA256}",
+            "type": "file",
+            "name": PurePosixPath(LIBGCC_PATH).name,
+            "version": "14-20251022",
+            "scope": "required",
+            "hashes": [{"alg": "SHA-256", "content": LIBGCC_SHA256}],
+            "licenses": [
+                {"expression": "GPL-3.0-or-later WITH GCC-exception-3.1"}
+            ],
+            "properties": [
+                {"name": "gis-ai-go:runtime-file-path", "value": LIBGCC_PATH},
+                *measurement_properties(LIBGCC_PATH),
+                {
+                    "name": "gis-ai-go:runtime-symbolic-link",
+                    "value": base_files["/usr/lib64/libgcc_s.so.1"]["target"],
+                },
+                {
+                    "name": "gis-ai-go:donor-image",
+                    "value": runtime_base["reference"],
+                },
+                {
+                    "name": "gis-ai-go:source-image",
+                    "value": runtime_base["source_reference"],
+                },
+            ],
+        },
+        {
+            "bom-ref": donor["package"]["purl"],
+            "type": "library",
+            "name": donor["package"]["name"],
+            "version": donor["package"]["version"],
+            "purl": donor["package"]["purl"],
+            "scope": "required",
+            "hashes": [{"alg": "SHA-256", "content": LIBSTDCXX_SHA256}],
+            "licenses": [
+                {"expression": "GPL-3.0-or-later WITH GCC-exception-3.1"}
+            ],
+            "properties": [
+                {"name": "gis-ai-go:runtime-file-path", "value": LIBSTDCXX_PATH},
+                *measurement_properties(LIBSTDCXX_PATH),
+                {
+                    "name": "gis-ai-go:runtime-symbolic-link",
+                    "value": constructed_links["/usr/lib64/libstdc++.so.6"][
+                        "target"
+                    ],
+                },
+                {"name": "gis-ai-go:donor-image", "value": donor["reference"]},
+                {
+                    "name": "gis-ai-go:source-image",
+                    "value": donor["source_reference"],
+                },
+            ],
+        },
+    ]
 
 
 def parse_checksum(path: Path, expected_name: str) -> str:
