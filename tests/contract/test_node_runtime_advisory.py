@@ -582,6 +582,95 @@ class NodeRuntimeAdvisoryTests(unittest.TestCase):
                 )
             trusted_clock.assert_not_called()
 
+    def test_replay_allows_fresh_sqlite_layout_but_rejects_shape_or_mutation(self) -> None:
+        phase = {
+            "started_at": "2026-08-24T06:15:00Z",
+            "completed_at": "2026-08-24T06:16:00Z",
+        }
+        with tempfile.TemporaryDirectory() as temporary:
+            directory = Path(temporary)
+            node, sbom, receipt = self._write_retained_fixture(directory)
+            replay_node = copy.deepcopy(node)
+            replay_node["database"] = {  # type: ignore[index]
+                key: node["database"][key]  # type: ignore[index]
+                for key in (
+                    "schema_version",
+                    "source_url",
+                    "source_sha256",
+                    "built",
+                    "valid",
+                    "load_mode",
+                    "provider",
+                )
+            }
+            replay_node.pop("replay")
+            imported_status = {
+                key: replay_node["database"][key]  # type: ignore[index]
+                for key in (
+                    "schema_version",
+                    "source_url",
+                    "source_sha256",
+                    "built",
+                    "valid",
+                    "load_mode",
+                )
+            }
+            fresh_inventory = [
+                {"path": "6/import.json", "sha256": "c" * 64, "bytes": 1},
+                {
+                    "path": "6/vulnerability.db",
+                    "sha256": "d" * 64,
+                    "bytes": 2,
+                },
+            ]
+
+            def verify_with_inventory(inventories: object) -> list[dict[str, object]]:
+                with (
+                    mock.patch(
+                        "node_runtime_advisory.import_database",
+                        return_value=imported_status,
+                    ),
+                    mock.patch(
+                        "node_runtime_advisory.database_inventory",
+                        side_effect=inventories,
+                    ),
+                    mock.patch(
+                        "node_runtime_advisory.assess_node",
+                        return_value=(replay_node, {}, []),
+                    ),
+                ):
+                    return verify_node_advisory(
+                        node=node,
+                        directory=directory,
+                        sbom=sbom,
+                        receipt=receipt,
+                        phase=phase,
+                        replay=True,
+                    )
+
+            self.assertEqual(
+                verify_with_inventory([fresh_inventory, fresh_inventory]), []
+            )
+
+            for changed in (
+                [
+                    {"path": "6/other.json", "sha256": "c" * 64, "bytes": 1},
+                    fresh_inventory[1],
+                ],
+                [fresh_inventory[0], {**fresh_inventory[1], "bytes": 3}],
+            ):
+                with self.subTest(changed=changed), self.assertRaises(ValueError):
+                    verify_with_inventory([changed])
+
+            mutated_inventory = [
+                fresh_inventory[0],
+                {**fresh_inventory[1], "sha256": "e" * 64},
+            ]
+            with self.assertRaisesRegex(
+                ValueError, "verification Grype assessment mutated"
+            ):
+                verify_with_inventory([fresh_inventory, mutated_inventory])
+
     def _write_retained_fixture(
         self, directory: Path
     ) -> tuple[dict[str, object], dict[str, object], dict[str, object]]:

@@ -564,6 +564,14 @@ normaliser accepts only that exact marker and binds it back to the separately
 retained Anchore URL, checksum, schema and build time. It does not reinterpret the
 marker as independent network provenance.
 
+Grype can materialise two imports of the same checksum-bound archive as physically
+different but logically equivalent SQLite files. Cross-import verification therefore
+requires the exact closed file paths and byte sizes, the same validated archive and
+database status, and byte-equivalent normalised scan results. It still compares the
+full imported-file SHA-256 inventory immediately before and after each assessment,
+so any mutation within a scan fails closed; physical hashes from separate imports
+are retained as evidence but are not treated as a stable database identity.
+
 The database acquired on 24 August 2026 is 146,543,041 bytes compressed and expands
 to about 2.08 GB. A later evidence run may acquire different bytes and must record
 its own size, hash, schema and build time. The archive is dynamic private assurance

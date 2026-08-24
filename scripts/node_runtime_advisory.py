@@ -407,6 +407,38 @@ def database_inventory(cache: Path) -> list[dict[str, Any]]:
     return result
 
 
+def _database_inventory_shape(
+    value: Any, *, label: str
+) -> list[dict[str, str | int]]:
+    """Validate the closed import inventory and project its stable shape.
+
+    Separate imports of one checksum-bound Grype archive can materialise the same
+    SQLite database with different physical bytes. Full hashes remain useful for
+    detecting mutation within one assessment, but are not a cross-import identity.
+    """
+    expected_paths = ("6/import.json", "6/vulnerability.db")
+    if not isinstance(value, list) or len(value) != len(expected_paths):
+        raise ValueError(f"{label} is invalid or not closed")
+    shape: list[dict[str, str | int]] = []
+    total = 0
+    for expected_path, item in zip(expected_paths, value, strict=True):
+        if (
+            not isinstance(item, dict)
+            or set(item) != {"path", "sha256", "bytes"}
+            or item.get("path") != expected_path
+            or not isinstance(item.get("sha256"), str)
+            or _SHA256.fullmatch(item["sha256"]) is None
+            or type(item.get("bytes")) is not int
+            or item["bytes"] <= 0
+        ):
+            raise ValueError(f"{label} is invalid or not closed")
+        total += item["bytes"]
+        if total > MAX_GRYPE_DB_EXPANDED_BYTES:
+            raise ValueError(f"{label} exceeds its expanded bound")
+        shape.append({"path": expected_path, "bytes": item["bytes"]})
+    return shape
+
+
 def extract_node_identity(sbom: dict[str, Any], receipt: dict[str, Any]) -> dict[str, str]:
     composition = receipt.get("build", {}).get("runtime_composition", {})
     node = composition.get("node_binary") if isinstance(composition, dict) else None
@@ -1298,6 +1330,9 @@ def verify_node_advisory(
     database = node.get("database")
     if not isinstance(database, dict) or database.get("load_mode") != "manual-import":
         raise ValueError("retained Grype Node database binding is missing")
+    retained_inventory_shape = _database_inventory_shape(
+        database.get("expanded_files"), label="retained Grype database inventory"
+    )
     database_source = _database_source_binding(database)
     retained_roles = node.get("roles")
     if not isinstance(retained_roles, dict) or set(retained_roles) != set(NODE_ROLES):
@@ -1431,8 +1466,13 @@ def verify_node_advisory(
             if status != {**database_source, "load_mode": "manual-import"}:
                 raise ValueError("verification Grype import differs from retained status")
             inventory = database_inventory(cache)
-            if inventory != database.get("expanded_files"):
-                raise ValueError("verification Grype database inventory differs")
+            if (
+                _database_inventory_shape(
+                    inventory, label="verification Grype database inventory"
+                )
+                != retained_inventory_shape
+            ):
+                raise ValueError("verification Grype database inventory shape differs")
             replay_node, _, replay_findings = assess_node(
                 cache, sbom, receipt, database_source=database_source
             )
