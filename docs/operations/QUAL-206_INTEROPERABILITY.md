@@ -225,6 +225,7 @@ MCP registry for a conformance run.
 | Antigravity IDE 1.107.0 | Temporary profile, STDIO discovery, search, resource and fallback | `not_ready`: isolated profile signed out and server directory unavailable; zero MCP traffic |
 | Claude Code 2.1.204, modern-only seam, 20 August | Strict temporary MCP configuration and non-persistent session | `not_ready`: legacy `initialize` rejected `-32022`; capability unscored |
 | Claude Code 2.1.204, protected-main legacy seam, 23 August | Isolated `mcp list` transport check against the protected-main source named below | `ready`: legacy initialisation and `tools/list` passed; capability unscored |
+| Claude Code 2.1.241, strict modern and fallback seams, 24 August | Two credential-free `mcp list` checks against exact protected main `dda0eb9` | strict `2026-07-28` `not_ready`: client offered `2025-11-25` and received `-32022`; constructor-only fallback `ready`: initialisation and `tools/list` passed; capability unscored |
 | VS Code 1.134.0 | Temporary workspace and MCP registry; prove correct window attachment | `not_ready`: no GitHub token and no proved chat attachment; zero MCP traffic |
 | Official SDK client | HTTP and STDIO discovery, calls, resources and shutdown | Accepted on protected `main` |
 
@@ -236,8 +237,8 @@ server results. Run the capability pack only after discovery and listing succeed
 
 Start from the reviewed checkout and create one disposable root. Do not reuse a
 normal host profile or put an AI-provider credential in the MCP definition. Remove
-both OpenAI key variable names from every non-OpenAI host parent and its MCP proxy
-process:
+the five recognised OpenAI and Anthropic credential variable names from every
+non-OpenAI host parent and every MCP proxy process:
 
 ```bash
 export QUAL206_REPO="$(pwd -P)"
@@ -260,6 +261,12 @@ argument list, substituting the host name in the telemetry path and client label
 OPENAI_API_KEY
 -u
 CODEX_API_KEY
+-u
+ANTHROPIC_API_KEY
+-u
+ANTHROPIC_AUTH_TOKEN
+-u
+CLAUDE_CODE_OAUTH_TOKEN
 GIS_AI_GO_QUAL_206_CONFORMANCE=1
 GIS_AI_GO_QUAL_206_SOURCE_COMMIT=<QUAL206_SOURCE_COMMIT>
 <QUAL206_NODE>
@@ -286,6 +293,8 @@ qual206_mcp_server() {
     --arg server "$QUAL206_REPO/scripts/qual_206_conformance_server.mjs" \
     '{type:"stdio",command:"/usr/bin/env",args:[
       "-u","OPENAI_API_KEY","-u","CODEX_API_KEY",
+      "-u","ANTHROPIC_API_KEY","-u","ANTHROPIC_AUTH_TOKEN",
+      "-u","CLAUDE_CODE_OAUTH_TOKEN",
       "GIS_AI_GO_QUAL_206_CONFORMANCE=1",
       "GIS_AI_GO_QUAL_206_SOURCE_COMMIT="+$commit,
       $node,$proxy,"--log",$log,"--client",$client,"--",$node,$server
@@ -306,9 +315,9 @@ automation invocation. See [Model Context Protocol](https://developers.openai.co
 [configuration reference](https://developers.openai.com/codex/config-reference/).
 
 Use an empty disposable Git workspace and the exact `QUAL-206-HOST-002` corpus
-case. The MCP command strips both supported API-key variable names before starting
-the telemetry proxy, so neither the proxy nor its server child receives the
-credential. The execution command also enables Codex's default secret-name
+case. The MCP command strips all five recognised provider credential variable names
+before starting the telemetry proxy, so neither the proxy nor its server child
+receives a credential. The execution command also enables Codex's default secret-name
 exclusions, preventing a later model-spawned shell subprocess from inheriting the
 single-invocation API key:
 
@@ -320,6 +329,8 @@ git -C "$QUAL206_HOST_ROOT/codex-workspace" init -q
   CODEX_HOME="$QUAL206_HOST_ROOT/codex-home" \
   codex mcp add gis-ai-go-qual-206 -- \
   /usr/bin/env -u CODEX_API_KEY -u OPENAI_API_KEY \
+  -u ANTHROPIC_API_KEY -u ANTHROPIC_AUTH_TOKEN \
+  -u CLAUDE_CODE_OAUTH_TOKEN \
   GIS_AI_GO_QUAL_206_CONFORMANCE=1 \
   "GIS_AI_GO_QUAL_206_SOURCE_COMMIT=$QUAL206_SOURCE_COMMIT" \
   "$QUAL206_NODE" "$QUAL206_REPO/scripts/qual_206_telemetry_proxy.mjs" \
@@ -332,6 +343,8 @@ umask 077
 jq -r '.cases[] | select(.id == "QUAL-206-HOST-002") | .prompt' \
   tests/interoperability/qual_206_cases.json | \
   CODEX_API_KEY=${OPENAI_API_KEY} /usr/bin/env -u OPENAI_API_KEY \
+  -u ANTHROPIC_API_KEY -u ANTHROPIC_AUTH_TOKEN \
+  -u CLAUDE_CODE_OAUTH_TOKEN \
   HOME="$QUAL206_HOST_ROOT/codex-profile" \
   CODEX_HOME="$QUAL206_HOST_ROOT/codex-home" \
   codex -a never exec --strict-config --json --ephemeral --ignore-rules \
@@ -374,6 +387,8 @@ jq -n --argjson server "$MCP_SERVER_JSON" \
   '{mcpServers:{"gis-ai-go-qual-206":$server}}' \
   > "$QUAL206_HOST_ROOT/claude/mcp.json"
 /usr/bin/env -u OPENAI_API_KEY -u CODEX_API_KEY \
+  -u ANTHROPIC_API_KEY -u ANTHROPIC_AUTH_TOKEN \
+  -u CLAUDE_CODE_OAUTH_TOKEN \
   CLAUDE_CONFIG_DIR="$QUAL206_HOST_ROOT/claude" claude \
   --bare --print --no-session-persistence --strict-mcp-config \
   --mcp-config "$QUAL206_HOST_ROOT/claude/mcp.json" \
@@ -400,6 +415,12 @@ Repeat that health check by writing only this public-safe object to the isolated
         "OPENAI_API_KEY",
         "-u",
         "CODEX_API_KEY",
+        "-u",
+        "ANTHROPIC_API_KEY",
+        "-u",
+        "ANTHROPIC_AUTH_TOKEN",
+        "-u",
+        "CLAUDE_CODE_OAUTH_TOKEN",
         "<QUAL206_NODE>",
         "<QUAL206_REPO>/scripts/qual_206_telemetry_proxy.mjs",
         "--log",
@@ -423,6 +444,8 @@ Then run:
 
 ```bash
 /usr/bin/env -u OPENAI_API_KEY -u CODEX_API_KEY \
+  -u ANTHROPIC_API_KEY -u ANTHROPIC_AUTH_TOKEN \
+  -u CLAUDE_CODE_OAUTH_TOKEN \
   CLAUDE_CONFIG_DIR="$QUAL206_HOST_ROOT/claude" claude mcp list
 ```
 
@@ -437,7 +460,9 @@ AG_BIN='/Applications/Antigravity IDE.app/Contents/Resources/app/bin/antigravity
 MCP_SERVER_JSON="$(qual206_mcp_server antigravity antigravity-ide-1.107.0)"
 MCP_DEFINITION_JSON="$(jq -cn --argjson server "$MCP_SERVER_JSON" \
   '$server | del(.type) + {name:"gis-ai-go-qual-206"}')"
-/usr/bin/env -u OPENAI_API_KEY -u CODEX_API_KEY "$AG_BIN" \
+/usr/bin/env -u OPENAI_API_KEY -u CODEX_API_KEY \
+  -u ANTHROPIC_API_KEY -u ANTHROPIC_AUTH_TOKEN \
+  -u CLAUDE_CODE_OAUTH_TOKEN "$AG_BIN" \
   --user-data-dir "$QUAL206_HOST_ROOT/antigravity/user-data" \
   --extensions-dir "$QUAL206_HOST_ROOT/antigravity/extensions" \
   --sync off --new-window --add-mcp "$MCP_DEFINITION_JSON" \
@@ -456,7 +481,9 @@ For VS Code, use the same isolated launch pattern:
 MCP_SERVER_JSON="$(qual206_mcp_server vscode vscode-1.134.0)"
 MCP_DEFINITION_JSON="$(jq -cn --argjson server "$MCP_SERVER_JSON" \
   '$server | del(.type) + {name:"gis-ai-go-qual-206"}')"
-/usr/bin/env -u OPENAI_API_KEY -u CODEX_API_KEY code \
+/usr/bin/env -u OPENAI_API_KEY -u CODEX_API_KEY \
+  -u ANTHROPIC_API_KEY -u ANTHROPIC_AUTH_TOKEN \
+  -u CLAUDE_CODE_OAUTH_TOKEN code \
   --user-data-dir "$QUAL206_HOST_ROOT/vscode/user-data" \
   --extensions-dir "$QUAL206_HOST_ROOT/vscode/extensions" \
   --sync off --new-window --add-mcp "$MCP_DEFINITION_JSON" \
@@ -564,9 +591,10 @@ node scripts/qual_206_telemetry_proxy.mjs \
   --legacy-stdio-conformance-only
 ```
 
-For a host registry, retain the `/usr/bin/env -u OPENAI_API_KEY -u CODEX_API_KEY`
-outer command from the independent-host procedure. Replace only the final server
-command with this ordered pair:
+For a host registry, retain the outer `/usr/bin/env` command from the
+independent-host procedure that removes all five recognised OpenAI and Anthropic
+credential variables. Replace only the final server command with this ordered
+pair:
 
 ```text
 <QUAL206_NODE> <QUAL206_REPO>/scripts/qual_206_legacy_conformance_server.mjs
@@ -637,6 +665,43 @@ independent-host gate.
 This fallback is local-only. Do not attach it to the existing ChatGPT tunnel,
 change that tunnel's profile, publish its address, activate a production tool or
 infer general host compatibility from the official-client regression.
+
+### Updated Claude Code protocol observation
+
+On 24 August 2026, the owner-approved Anthropic updater changed the installed
+Claude Code from `2.1.204` to `2.1.241`. At the observation point the official npm
+registry labelled `2.1.231` stable and `2.1.241` latest; the observed arm64 binary
+SHA-256 was
+`1495eb7c42d3b4451f5f1cd38b6d498d22a4a38c802bc2be5c1cf1795e64820d`.
+The official MCP target remained the final `2026-07-28` release recorded as
+`S-MCP-SPEC` in the source ledger.
+
+Two isolated `claude mcp list` checks used disposable profile roots with mode
+`0700`, primary configuration and telemetry files with mode `0600`, an allowlisted
+MCP child environment and no provider credential. Claude generated `0755` backup
+subdirectories containing one `0644` and one `0600` configuration backup; both
+subdirectories remained unreachable outside their enclosing `0700` profile roots.
+Both checks were bound to a clean detached checkout of exact protected-main commit
+`dda0eb9f776e64bcd45069e77b4acbcd4d495e01`, tree
+`258e6f3b3f62abccf04795e015f6961e06740fcf`. The exact preflight passed after the
+known local loopback sandbox restriction was removed.
+
+Claude Code `2.1.241` offered protocol `2025-11-25`. The strict modern server
+therefore returned `-32022` rather than silently downgrading the canonical
+`2026-07-28` surface. The constructor-only fallback then completed initialisation,
+the initialised notification and `tools/list`, and exited with no pending request.
+The closed, path-free
+[`2.1.241 observation`](../../tests/interoperability/evidence/claude-code-2.1.241-stdio-observation-2026-08-24.json)
+binds both private-log digests and preserves the earlier `2.1.204` schema and
+evidence digests.
+
+This is an explained client-version variance, not modern-protocol or capability
+acceptance. It exercised no model task, tool call, resource read, exact-five
+assembly, live provider, remote HTTP host, registration, activation, deployment or
+release. Do not widen the shipped protocol boundary to make this host appear
+compatible. A different independent desktop host must first prove
+`server/discover` or another valid `2026-07-28` opening before running the bounded
+capability pack.
 
 ## Historical failure-derived cases
 

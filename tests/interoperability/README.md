@@ -79,5 +79,14 @@ readiness only. No model authentication, model task, tool call, resource read, l
 provider, remote HTTP host, exact-five production assembly, registration,
 activation, deployment or release was exercised, so capability remains unscored.
 
+The additive
+[Claude Code 2.1.241 observation](evidence/claude-code-2.1.241-stdio-observation-2026-08-24.json)
+records the approved client update and two isolated checks from exact protected
+main `dda0eb9f776e64bcd45069e77b4acbcd4d495e01`. Version `2.1.241` offered MCP
+`2025-11-25`: the strict `2026-07-28` entrypoint rejected that opening with
+`-32022`, while the constructor-only fallback connected and completed
+`tools/list`. No model, operation, resource, provider or remote HTTP host was
+exercised. The earlier `2.1.204` record remains byte-exact and separate.
+
 See the [QUAL-206 interoperability runbook](../../docs/operations/QUAL-206_INTEROPERABILITY.md)
 for repeatable ChatGPT secure-tunnel and independent-host procedures.
