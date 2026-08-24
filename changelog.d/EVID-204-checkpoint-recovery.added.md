@@ -1,0 +1,1 @@
+- Add a provider-independent stopped-writer checkpoint and empty-root recovery contract for the linked evidence ledger and reconciliation index, with a path-free content-addressed manifest, external tail checkpoint, complete post-restore verification and hostile backup rejection.

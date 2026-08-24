@@ -1,6 +1,6 @@
 # Delivery progress
 
-Last updated: 23 August 2026
+Last updated: 24 August 2026
 
 ## Current outcome
 
@@ -20,6 +20,13 @@ The supported target active set is exactly `catalogue.search`,
   independent desktop-STDIO and remote-HTTP host evidence; and
 - stop before any public runtime, live provider call, host credential, registry
   publication, activation, tag or release that requires separate authority.
+
+Supporting `EVID-204` release assurance remains inactive and does not replace that
+main flow. A provider-independent candidate now checkpoints one stopped linked
+ledger/index pair, binds it with one path-free content-addressed manifest and a
+separately retained tail checkpoint, and restores only into empty private roots
+before completing both verifiers. It selects no storage provider and supplies no
+deployment, operator-fencing, schedule, RPO/RTO, disposal or release evidence.
 
 ## Completed
 
@@ -251,8 +258,10 @@ The supported target active set is exactly `catalogue.search`,
 
 - The repository-only image and Compose candidate are accepted on protected `main`.
   There is still no authorised public runtime, hostname/TLS boundary, workload
-  identity, admitted persistent volume, backup/disposal/operator model, service
-  deployment workflow or previous deployed image for a real rollback.
+  identity, admitted persistent volume or backup target, independently administered
+  external checkpoint, operator-fencing/schedule/disposal model, service deployment
+  workflow or previous deployed image for a real rollback. The provider-independent
+  checkpoint mechanics are not deployed disaster-recovery evidence.
 - The gateway assertion is a typed private hand-off, not workload authentication or
   a signed policy decision. Any non-loopback deployment remains blocked on explicit
   service identity and network-policy evidence.

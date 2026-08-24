@@ -79,6 +79,12 @@ SCHEMA_IDS = {
     "evidence-reconciliation-resolution.schema.json": (
         "urn:gis-ai-go:schema:evidence-reconciliation-resolution:v1"
     ),
+    "evidence-checkpoint-manifest.schema.json": (
+        "urn:gis-ai-go:schema:evidence-checkpoint-manifest:v1"
+    ),
+    "evidence-external-checkpoint.schema.json": (
+        "urn:gis-ai-go:schema:evidence-external-checkpoint:v1"
+    ),
 }
 
 V1_INSPECT_SCHEMA_SHA256 = (

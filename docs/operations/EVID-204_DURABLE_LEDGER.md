@@ -143,11 +143,14 @@ store or treat a permission-only change as repair for any other verification fau
 ## Residual boundary
 
 These are application-level append-only stores, not signatures, attestations, WORM
-media or malicious-operator defences. A complete tail deletion cannot be detected
-without an external checkpoint. One writer owns the ledger root. The index excludes
-same-key execution across processes that share it, but does not make different-key
-ledger appends generally multi-writer safe. Backups, external checkpoints, disaster
-recovery and production retention assurance remain open.
+media or malicious-operator defences. One writer owns the ledger root. The index
+excludes same-key execution across processes that share it, but does not make
+different-key ledger appends generally multi-writer safe. The separate
+[provider-independent checkpoint and recovery candidate](EVID-204_CHECKPOINT_RECOVERY.md)
+now supplies coherent-pair backup, external tail checkpointing and empty-root
+restore mechanics. Provider admission, operator fencing, schedule, RPO/RTO, a real
+deployment recovery exercise, production retention and disposal assurance remain
+open.
 
 This accepted storage slice included no direct route, MCP registration, listener
 activation, deployment or public registry entry. The later

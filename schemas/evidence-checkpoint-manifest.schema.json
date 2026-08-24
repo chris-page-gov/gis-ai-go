@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:evidence-checkpoint-manifest:v1",
+  "title": "GIS AI GO evidence checkpoint manifest",
+  "description": "A path-free, content-addressed manifest binding one stopped-writer public evidence ledger and reconciliation index backup.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "checkpoint_id",
+    "created_at",
+    "quiescence",
+    "ledger",
+    "reconciliation_index",
+    "recovery",
+    "privacy"
+  ],
+  "properties": {
+    "schema": {"const": "gis-ai-go.evidence-checkpoint-manifest.v1"},
+    "checkpoint_id": {
+      "type": "string",
+      "pattern": "^gis-ai-go:evidence-checkpoint:sha256:[0-9a-f]{64}$"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$"
+    },
+    "quiescence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["writer", "assertion", "source_verification", "concurrent_change"],
+      "properties": {
+        "writer": {"const": "stopped-single-writer"},
+        "assertion": {"const": "operator-supplied"},
+        "source_verification": {"const": "complete-before-and-after-copy"},
+        "concurrent_change": {"const": "rejected"}
+      }
+    },
+    "ledger": {"$ref": "#/$defs/ledgerState"},
+    "reconciliation_index": {"$ref": "#/$defs/indexState"},
+    "recovery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "destination_roots",
+        "verification",
+        "in_place_repair",
+        "disposal_automation"
+      ],
+      "properties": {
+        "destination_roots": {"const": "existing-empty-private-directories"},
+        "verification": {"const": "complete-ledger-and-index-after-restore"},
+        "in_place_repair": {"const": false},
+        "disposal_automation": {"const": false}
+      }
+    },
+    "privacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_path",
+        "destination_path",
+        "raw_query",
+        "result_material",
+        "credentials",
+        "personal_data"
+      ],
+      "properties": {
+        "source_path": {"const": false},
+        "destination_path": {"const": false},
+        "raw_query": {"const": false},
+        "result_material": {"const": false},
+        "credentials": {"const": false},
+        "personal_data": {"const": false}
+      }
+    }
+  },
+  "$defs": {
+    "rootSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["root_sha256", "entry_count", "file_count", "total_bytes"],
+      "properties": {
+        "root_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "entry_count": {"type": "integer", "minimum": 1, "maximum": 3000000},
+        "file_count": {"type": "integer", "minimum": 1, "maximum": 3000000},
+        "total_bytes": {"type": "integer", "minimum": 1, "maximum": 9007199254740991}
+      }
+    },
+    "ledgerState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ledger_id",
+        "retention_days",
+        "event_count",
+        "record_count",
+        "last_event_id",
+        "root"
+      ],
+      "properties": {
+        "ledger_id": {
+          "type": "string",
+          "pattern": "^gis-ai-go:public-evidence-ledger:sha256:[0-9a-f]{64}$"
+        },
+        "retention_days": {"type": "integer", "minimum": 1, "maximum": 3650},
+        "event_count": {"type": "integer", "minimum": 0, "maximum": 1000000},
+        "record_count": {"type": "integer", "minimum": 0, "maximum": 1000000},
+        "last_event_id": {
+          "oneOf": [
+            {"type": "null"},
+            {
+              "type": "string",
+              "pattern": "^gis-ai-go:evidence-ledger-event:sha256:[0-9a-f]{64}$"
+            }
+          ]
+        },
+        "root": {"$ref": "#/$defs/rootSummary"}
+      }
+    },
+    "indexState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "index_id",
+        "ledger_id",
+        "claim_count",
+        "resolution_count",
+        "completed_count",
+        "pending_count",
+        "root"
+      ],
+      "properties": {
+        "index_id": {
+          "type": "string",
+          "pattern": "^gis-ai-go:evidence-reconciliation-index:sha256:[0-9a-f]{64}$"
+        },
+        "ledger_id": {
+          "type": "string",
+          "pattern": "^gis-ai-go:public-evidence-ledger:sha256:[0-9a-f]{64}$"
+        },
+        "claim_count": {"type": "integer", "minimum": 0, "maximum": 4096},
+        "resolution_count": {"type": "integer", "minimum": 0, "maximum": 4096},
+        "completed_count": {"type": "integer", "minimum": 0, "maximum": 4096},
+        "pending_count": {"type": "integer", "minimum": 0, "maximum": 4096},
+        "root": {"$ref": "#/$defs/rootSummary"}
+      }
+    }
+  }
+}

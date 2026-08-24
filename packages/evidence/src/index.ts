@@ -1,4 +1,5 @@
 export * from "./canonical-json.js";
+export * from "./checkpoint.js";
 export * from "./digest.js";
 export * from "./evidence-inspect-receipt.js";
 export * from "./public-ledger.js";
