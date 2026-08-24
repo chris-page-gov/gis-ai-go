@@ -255,11 +255,12 @@ release is claimed.
 1. Complete bounded Claude capability evidence and the remaining independent
    desktop-STDIO and remote-HTTP host evidence. The local protocol matrix and
    Claude transport-only result do not complete issue #24's live-host criteria.
-2. Rerun the closed image-assurance gate for the fixed UBI 10 replacement from clean
-   committed source. Require the resulting reproducible OCI bytes, v2 composition
-   receipt, full SBOM, current scan, offline replay, direct Node loader closure and
-   Compose compatibility to pass the protected pull-request and protected-main checks
-   before they can supersede the historical Debian candidate.
+2. For the clean combined integration commit, require the complete repository and
+   closed image-assurance gates to produce reproducible OCI bytes, the v2 composition
+   receipt, a full SBOM, current Trivy and calibrated Node advisory results, retained
+   offline replay, direct Node loader closure and Compose compatibility. Then require
+   the same commit to pass the protected pull-request and protected-main checks before
+   it can supersede the historical Debian candidate.
 3. Keep DEPLOY-207 at `status: decision needed` until an authorised public runtime,
    hostname/TLS, identity, egress, storage and operator boundary exists.
 4. Only after that separate authority exists, deploy an unregistered
@@ -291,13 +292,14 @@ release is claimed.
   independent hosts, a live provider, authorised deployment and release evidence
   remain outstanding.
 - The historical protected-main Debian image retains three unresolved High findings.
-  The authorised fixed UBI 10 replacement now produces repeatable OCI bytes, a fresh
-  complete SBOM, a zero-High/zero-Critical current scan, offline replay and successful
-  Compose acceptance from local dirty source. That non-publishable result proves the
-  historical Debian package instances absent from these local bytes, but cannot close
-  the protected-main findings until the same complete gate binds clean committed source
-  and the protected pull-request and protected-main checks pass. No protected-source
-  attestation exists for the replacement yet.
+  The authorised fixed UBI 10 and Node source branch passed the complete repository
+  and exact image-assurance gates from clean committed source. That repository-only
+  evidence establishes the historical Debian package instances are absent from those
+  exact local bytes and gives the standalone Node runtime independent advisory
+  coverage. It cannot close the protected-main findings until the combined commit and
+  the protected pull-request and protected-main checks pass. No protected-source
+  attestation exists for the replacement yet, and every source change requires a new
+  exact image build and evidence set.
 - The accepted ONS adapter and reconciliation storage are local, explicitly injected
   components. The fixed 4,096-claim pre-publication index ceiling and accepted ledger
   event ceiling are local safety bounds, not deployment quotas. There is no
@@ -310,24 +312,30 @@ release is claimed.
 
 ## Latest evidence
 
-- DEPLOY-207 local UBI replacement assurance on 24 August 2026: one fixed
-  `linux/amd64` composition binds exact UBI micro runtime, UBI Node.js library donor,
-  both corresponding source containers, checked Node and realised library objects,
-  UBI EULA and third-party notices through the closed v2 receipt and reconstructed
-  SBOM file components. The targeted image-contract, OCI compatibility and offline
-  evidence-replay suite passes 81 tests. The complete local dirty-tree gate produced
-  two byte-identical OCI archives with SHA-256
-  `13f16ed22565a0a0d5f7757b39c04e70fd3e17d09631764e1ce45c713d384452`, a
-  488-component SBOM with SHA-256
-  `0357716068ec717e92317723661c50050b0c96906e831ab575bdf36443d5d856`,
-  a current scan with zero High, zero Critical and zero fixable findings, successful
-  retained-database offline replay, and successful runtime, persistence, suspension
-  and exact-image rollback acceptance. The closed evidence manifest is
-  `sha256:f39b60cead9b78475fd29cf9a19ae1a97547b7db905af657920cf50e0c6672fa`.
-  This remains a non-publishable local development build because the source tree was
-  dirty; no clean-source acceptance, publication, deployment, activation, tag or
-  release is claimed. The complete locked repository gate also passes against the
-  same final file content;
+- DEPLOY-207 clean UBI and Node assurance on 24 August 2026: exact commit
+  `dc42d76a9617429cb05f8708ed543d62d862c819` passed the complete repository and
+  image-assurance gates. Its fixed `linux/amd64` composition binds the exact UBI
+  micro runtime, UBI Node.js library donor, both corresponding source containers,
+  realised library objects, standalone Node executable, UBI EULA and third-party
+  notices. The realised OCI manifest is
+  `sha256:7af70ba3c2a1d5a2eba076d0fbbadf688d43e619ece48622419a4ddafa8fbf57`;
+  the reproducible archive SHA-256 is
+  `e03b17fa54b2f516b453b956e7bebae737ff4409240d4bb55916e959cca0bda0`;
+  and the 488-component SBOM SHA-256 is
+  `99b33fbfa51be2bc59f5b4165c4cac7883eeef3818ac4ad3d0d12453faf7e4b7`.
+  Trivy reported no image findings. The retained Grype database SHA-256 is
+  `20a7315860b2d07231103a73bedec01de31e7a7f3d590aedfc61709dc9e117f9`;
+  its exact owner-local copy remains private and excluded from redistributable
+  Actions artefacts. Against that database, Node 24.19.0 reported no matches,
+  affected control 24.18.0 reported 11 matches including the three required High
+  advisories, and fixed control 24.18.1 reported no matches. Network-disabled replay
+  and runtime, persistence, suspension and exact-image restore acceptance passed.
+  The 24-subject evidence-manifest SHA-256 is
+  `b8ad597884c12f264ac0a3cd56801fd2320e35440c0c37a8374c3ce936507f54`.
+  The Node result is a point-in-time claim of no High or Critical NVD CPE matches for
+  that exact component and retained database, not a claim of no vulnerabilities. The
+  candidate remains repository-only and blocked; no publication, provider call,
+  deployment, registration, activation, tag or release is claimed;
 
 - Claude Code `2.1.204` protected-main legacy STDIO readiness: the
   [source-bound summary](tests/interoperability/evidence/claude-code-legacy-stdio-readiness-2026-08-23.json)
