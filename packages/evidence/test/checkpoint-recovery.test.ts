@@ -118,6 +118,38 @@ function checkpointPair(parent: string, pair: ReturnType<typeof openPair>, name 
   return { checkpointDirectory, externalCheckpointFile, verification };
 }
 
+function checkpointChecker(): string {
+  return resolve(
+    dirname(fileURLToPath(import.meta.url)),
+    "../../../..",
+    "scripts/check_evidence_checkpoint.mjs",
+  );
+}
+
+function expectStandaloneCheckpointFailure(
+  checkpointDirectory: string,
+  externalCheckpointFile: string,
+  code: EvidenceCheckpointError["code"],
+): void {
+  const checked = spawnSync(
+    process.execPath,
+    [
+      checkpointChecker(),
+      "--checkpoint-directory",
+      checkpointDirectory,
+      "--external-checkpoint-file",
+      externalCheckpointFile,
+    ],
+    { encoding: "utf8" },
+  );
+  assert.equal(checked.status, 1, checked.stdout);
+  assert.deepEqual(JSON.parse(checked.stderr), {
+    schema: "gis-ai-go.evidence-checkpoint-check.v1",
+    status: "failed",
+    code,
+  });
+}
+
 function expectCheckpointError(
   run: () => unknown,
   codes: EvidenceCheckpointError["code"] | readonly EvidenceCheckpointError["code"][],
@@ -176,7 +208,7 @@ function rewriteCheckpointDocuments(
   );
 }
 
-test("creates one path-free linked manifest and restores only after complete verification", () => {
+test("creates one linked manifest, passes a fresh standalone check and restores", () => {
   const parent = temporaryParent();
   try {
     const pair = openPair(parent);
@@ -210,15 +242,10 @@ test("creates one path-free linked manifest and restores only after complete ver
     assert.equal(manifestText.includes('"destination_path":false'), true);
     assert.equal(manifestText.includes('"writer":"stopped-single-writer"'), true);
 
-    const checker = resolve(
-      dirname(fileURLToPath(import.meta.url)),
-      "../../../..",
-      "scripts/check_evidence_checkpoint.mjs",
-    );
     const checked = spawnSync(
       process.execPath,
       [
-        checker,
+        checkpointChecker(),
         "--checkpoint-directory",
         checkpoint.checkpointDirectory,
         "--external-checkpoint-file",
@@ -300,14 +327,83 @@ test("rejects dot-prefixed children of both source roots but permits disjoint si
   }
 });
 
-test("re-verifies protected sources after publishing the external checkpoint", () => {
+test("does not publish after a valid source advance before the snapshot point", () => {
+  const parent = temporaryParent();
+  try {
+    for (const source of ["ledger", "reconciliation-index"] as const) {
+      const caseParent = join(parent, source);
+      mkdirSync(caseParent, { mode: 0o700 });
+      const pair = openPair(caseParent);
+      populateLinkedPair(pair);
+      const checkpointDirectory = join(caseParent, "late-change-checkpoint");
+      const externalCheckpointFile = join(caseParent, "late-change.external.json");
+      let changed = false;
+      expectCheckpointError(
+        () =>
+          createEvidenceCheckpoint({
+            ledgerRootDirectory: pair.ledgerRoot,
+            reconciliationIndexRootDirectory: pair.indexRoot,
+            checkpointDirectory,
+            externalCheckpointFile,
+            stoppedSingleWriter: true,
+            now: () => {
+              changed = true;
+              if (source === "ledger") {
+                const fixture = makeReceiptFixture();
+                pair.ledger.persistReceipt(fixture.receipt, {
+                  normalisedParameters: fixture.normalisedParameters,
+                  resultCore: fixture.resultCore,
+                  publicPolicy: fixture.publicPolicy,
+                  licenceObligations: LICENCE_OBLIGATIONS,
+                  expectedAuthorityContext: fixture.authorityContext,
+                  expectedPolicyDecision: fixture.policyDecision,
+                  expectedCatalogue: CATALOGUE,
+                  expectedSoftware: SOFTWARE,
+                });
+              } else {
+                const fixture = makePublicReadReceiptFixture();
+                const claim = pair.reconciliationIndex.claim({
+                  idempotencyKey: `gis-ai-go:ik:v1:${"2".repeat(64)}`,
+                  operation: "data.query",
+                  requestId: "request-late-index-advance",
+                  traceId: "2123456789abcdef0123456789abcdef",
+                  resourceId: fixture.receipt.resource.resource_id,
+                  normalisedParametersSha256:
+                    fixture.receipt.operation.normalised_parameters.sha256,
+                });
+                assert.equal(claim.status, "claimed");
+              }
+              return CHECKPOINT_AT;
+            },
+          }),
+        "corruption",
+      );
+      assert.equal(changed, true);
+      assert.equal(existsSync(join(checkpointDirectory, "manifest.json")), true);
+      assert.equal(existsSync(externalCheckpointFile), false);
+      expectStandaloneCheckpointFailure(
+        checkpointDirectory,
+        externalCheckpointFile,
+        "io-failure",
+      );
+      assert.equal(pair.ledger.verify().event_count, source === "ledger" ? 2 : 1);
+      assert.equal(
+        pair.reconciliationIndex.verify().pending_count,
+        source === "reconciliation-index" ? 1 : 0,
+      );
+    }
+  } finally {
+    rmSync(parent, { recursive: true, force: true });
+  }
+});
+
+test("keeps a checkpoint unverifiable when its external commit path is claimed late", () => {
   const parent = temporaryParent();
   try {
     const pair = openPair(parent);
     populateLinkedPair(pair);
-    const checkpointDirectory = join(parent, "late-change-checkpoint");
-    const externalCheckpointFile = join(parent, "late-change.external.json");
-    let changed = false;
+    const checkpointDirectory = join(parent, "publication-collision-checkpoint");
+    const externalCheckpointFile = join(parent, "publication-collision.external.json");
     expectCheckpointError(
       () =>
         createEvidenceCheckpoint({
@@ -317,15 +413,18 @@ test("re-verifies protected sources after publishing the external checkpoint", (
           externalCheckpointFile,
           stoppedSingleWriter: true,
           now: () => {
-            changed = true;
-            writeFileSync(join(pair.ledgerRoot, "..late-writer.json"), "{}\n", { mode: 0o600 });
+            writeFileSync(externalCheckpointFile, "", { mode: 0o600 });
             return CHECKPOINT_AT;
           },
         }),
-      ["corruption", "io-failure"],
+      "collision",
     );
-    assert.equal(changed, true);
-    assert.equal(existsSync(externalCheckpointFile), true);
+    assert.equal(existsSync(join(checkpointDirectory, "manifest.json")), true);
+    expectStandaloneCheckpointFailure(
+      checkpointDirectory,
+      externalCheckpointFile,
+      "corruption",
+    );
   } finally {
     rmSync(parent, { recursive: true, force: true });
   }

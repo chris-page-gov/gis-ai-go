@@ -1202,13 +1202,9 @@ function assertDisjoint(paths: readonly string[]): void {
   }
 }
 
-function readCheckpointDocuments(
-  checkpointRoot: string,
-  externalFile: string,
-): {
+function readCheckpointManifest(checkpointRoot: string): {
   readonly manifest: EvidenceCheckpointManifest;
   readonly manifestBytes: Buffer;
-  readonly external: EvidenceExternalCheckpoint;
 } {
   const expected = ["ledger", "manifest.json", "reconciliation-index"];
   const entries = readBoundedDirectoryNames(
@@ -1224,36 +1220,39 @@ function readCheckpointDocuments(
   }
   const manifestDocument = readCanonicalDocument(join(checkpointRoot, "manifest.json"));
   assertManifest(manifestDocument.value);
+  return Object.freeze({
+    manifest: canonicalJsonClone(manifestDocument.value),
+    manifestBytes: manifestDocument.bytes,
+  });
+}
+
+function readCheckpointDocuments(
+  checkpointRoot: string,
+  externalFile: string,
+): {
+  readonly manifest: EvidenceCheckpointManifest;
+  readonly manifestBytes: Buffer;
+  readonly external: EvidenceExternalCheckpoint;
+} {
+  const manifestDocument = readCheckpointManifest(checkpointRoot);
   const externalDocument = readCanonicalDocument(externalFile);
   assertExternalCheckpoint(externalDocument.value);
   if (
-    !statesMatch(manifestDocument.value, externalDocument.value) ||
-    sha256Bytes(manifestDocument.bytes) !== externalDocument.value.manifest_sha256
+    !statesMatch(manifestDocument.manifest, externalDocument.value) ||
+    sha256Bytes(manifestDocument.manifestBytes) !== externalDocument.value.manifest_sha256
   ) {
     fail("checkpoint-mismatch", "External checkpoint does not match the complete backup manifest");
   }
   return Object.freeze({
-    manifest: canonicalJsonClone(manifestDocument.value),
-    manifestBytes: manifestDocument.bytes,
+    ...manifestDocument,
     external: canonicalJsonClone(externalDocument.value),
   });
 }
 
-function verifyCheckpointInternal(
-  options: VerifyEvidenceCheckpointOptions,
+function verifyCheckpointPayload(
+  checkpointRoot: string,
+  manifest: EvidenceCheckpointManifest,
 ): EvidenceCheckpointVerification {
-  const checkpointPath = configurationPath(options.checkpointDirectory, "Checkpoint directory");
-  const externalPath = configurationPath(
-    options.externalCheckpointFile,
-    "External checkpoint file",
-  );
-  const checkpointRoot = canonicalExistingPath(checkpointPath, true);
-  const externalStat = lstatSync(externalPath);
-  assertPrivateRegularFile(externalStat, false, MAX_CHECKPOINT_DOCUMENT_BYTES);
-  const externalFile = realpathSync(externalPath);
-  assertDisjoint([checkpointRoot, externalFile]);
-
-  const { manifest } = readCheckpointDocuments(checkpointRoot, externalFile);
   const ledgerRoot = join(checkpointRoot, "ledger");
   const indexRoot = join(checkpointRoot, "reconciliation-index");
   const ledgerInventoryBefore = scanEvidenceRoot(ledgerRoot, "ledger", manifest.ledger.root);
@@ -1298,6 +1297,24 @@ function verifyCheckpointInternal(
     fail("checkpoint-mismatch", "Evidence checkpoint changed or failed complete pair verification");
   }
   return verificationResult(manifest.checkpoint_id, ledgerHealth, indexHealth);
+}
+
+function verifyCheckpointInternal(
+  options: VerifyEvidenceCheckpointOptions,
+): EvidenceCheckpointVerification {
+  const checkpointPath = configurationPath(options.checkpointDirectory, "Checkpoint directory");
+  const externalPath = configurationPath(
+    options.externalCheckpointFile,
+    "External checkpoint file",
+  );
+  const checkpointRoot = canonicalExistingPath(checkpointPath, true);
+  const externalStat = lstatSync(externalPath);
+  assertPrivateRegularFile(externalStat, false, MAX_CHECKPOINT_DOCUMENT_BYTES);
+  const externalFile = realpathSync(externalPath);
+  assertDisjoint([checkpointRoot, externalFile]);
+
+  const { manifest } = readCheckpointDocuments(checkpointRoot, externalFile);
+  return verifyCheckpointPayload(checkpointRoot, manifest);
 }
 
 /**
@@ -1386,7 +1403,21 @@ export function createEvidenceCheckpoint(
     );
     const manifestBytes = writeExclusiveCanonical(join(checkpointPath, "manifest.json"), manifest);
     const external = buildExternalCheckpoint(manifest, manifestBytes);
-    writeExclusiveCanonical(externalPath, external);
+    assertExternalCheckpoint(external);
+    const checkpointRootAfterWrites = canonicalExistingPath(checkpointPath, true);
+    const storedManifest = readCheckpointManifest(checkpointRootAfterWrites);
+    if (
+      !storedManifest.manifestBytes.equals(manifestBytes) ||
+      canonicalJson(storedManifest.manifest) !== canonicalJson(manifest)
+    ) {
+      fail("checkpoint-mismatch", "Evidence checkpoint manifest changed after its candidate write");
+    }
+    const checkpointVerification = verifyCheckpointPayload(
+      checkpointRootAfterWrites,
+      storedManifest.manifest,
+    );
+    // This complete source verification is the snapshot linearisation point.
+    // Any change visible here leaves the external commit record unpublished.
     const {
       ledgerHealth: healthFinal,
       indexHealth: indexHealthFinal,
@@ -1403,12 +1434,15 @@ export function createEvidenceCheckpoint(
       !inventoriesMatch(ledgerInventoryAfter, ledgerInventoryFinal) ||
       !inventoriesMatch(indexInventoryAfter, indexInventoryFinal)
     ) {
-      fail("corruption", "Evidence checkpoint source changed while outputs were published");
+      fail("corruption", "Evidence checkpoint source changed before checkpoint publication");
     }
-    return verifyCheckpointInternal({
-      checkpointDirectory: checkpointPath,
-      externalCheckpointFile: externalPath,
-    });
+    // The external checkpoint is the transaction commit record. Until this
+    // exclusive, durable write completes, a standalone verifier rejects the
+    // candidate even when its copied payload and manifest are otherwise valid.
+    // A successful return means the complete canonical bytes, file and parent
+    // directory have all been synchronised by writeExclusiveCanonical.
+    writeExclusiveCanonical(externalPath, external);
+    return checkpointVerification;
   } catch (error) {
     if (error instanceof EvidenceCheckpointError) throw error;
     fail("io-failure", "Evidence checkpoint creation failed closed");

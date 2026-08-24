@@ -23,9 +23,11 @@ reconciliation-index/
 identities, both complete domain-separated root digests, counts, the ledger's event
 count and last event identity, and the recovery boundary. The small external
 checkpoint repeats those identities and roots plus the manifest file SHA-256. It
-must be retained outside the backup directory. Comparing a current pair with this
-separate value detects a structurally valid rollback or deletion of a complete
-ledger tail that the ledger's internal chain alone cannot detect.
+is also the transaction commit record: until its exclusive durable write completes,
+the candidate backup is unpublished and the standalone checker rejects it. It must
+be retained outside the backup directory. Comparing a current pair with this separate
+value detects a structurally valid rollback or deletion of a complete ledger tail
+that the ledger's internal chain alone cannot detect.
 
 All checkpoint directories are `0700`; every manifest, descriptor, evidence
 document and marker is `0600`. Symbolic links, file hard links, special files,
@@ -45,6 +47,12 @@ runtime completes `ledger.verify()` and reconciliation-index `verify()` before a
 after copying and rejects any observed change, but it cannot prove that an unknown
 process is fenced. The provider-specific deployment must define the supervisor,
 maintenance mode and evidence for this stop.
+
+The final complete source verification is the snapshot's linearisation point. A
+source advance observed before that point prevents publication. Resuming or allowing
+a writer to advance either source after that point violates the operator's
+`stoppedSingleWriter` assertion; the resulting checkpoint remains an exact snapshot
+at the declared point rather than evidence of the later source state.
 
 ## Create a checkpoint
 
@@ -70,15 +78,19 @@ exist, overlap either source root, or overlap each other. The runtime:
 2. inventories all allowed entries and bytes without following links;
 3. copies each file with exclusive creation and synchronises it;
 4. repeats both complete source verifications and inventories;
-5. writes the content-addressed manifest last;
-6. writes the external checkpoint outside the backup directory; and
-7. repeats both source verifications and inventories after all output writes; and
-8. reopens and completely verifies the copied ledger/index pair against both
-   documents.
+5. writes and reopens the content-addressed manifest last within the backup;
+6. completely verifies the copied ledger/index pair against that manifest;
+7. repeats both source verifications and inventories after every backup write and
+   copied-pair check, establishing the snapshot linearisation point; and
+8. exclusively and durably writes the external checkpoint as the final transaction
+   commit record.
 
 If any step fails, keep the stopped writer stopped. Do not promote a checkpoint
-without both complete documents and a passing checker. The library deliberately
-does not remove a partial output.
+without both complete documents and a passing checker. A partial backup may contain
+a valid manifest, but a missing, incomplete or colliding external commit record makes
+it deterministically unverifiable. This prevents a late valid ledger-tail or index
+advance observed by the final source check from leaving an older restorable
+checkpoint. The library deliberately does not remove a partial output.
 
 ## Verify a checkpoint
 
