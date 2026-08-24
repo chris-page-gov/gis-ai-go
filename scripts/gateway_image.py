@@ -40,6 +40,11 @@ NODE_UPSTREAM_ARCHIVE_URL = (
 NODE_UPSTREAM_ARCHIVE_SHA256 = (
     "14b342e71204f811bde6153be8e04b62aef63c236fef92b55f9c83154b409647"
 )
+NODE_RUNTIME_PURL = "pkg:generic/node@24.19.0"
+NODE_RUNTIME_CPE = "cpe:2.3:a:nodejs:node.js:24.19.0:*:*:*:*:*:*:*"
+NODE_SECURITY_ADVISORY_URL = (
+    "https://nodejs.org/en/blog/vulnerability/july-2026-security-releases"
+)
 UBI_RUNTIME_BASE_NAME = "registry.access.redhat.com/ubi10-micro"
 UBI_RUNTIME_BASE_VERSION = "10.2-1786324819"
 UBI_RUNTIME_BASE_DIGEST = (
@@ -5416,10 +5421,13 @@ def make_image_receipt(
             "version": "24.19.0",
             "path": "/usr/local/bin/node",
             "sha256": NODE_BINARY_SHA256,
+            "purl": NODE_RUNTIME_PURL,
+            "cpe": NODE_RUNTIME_CPE,
             "licence_path": "/usr/share/licenses/nodejs/LICENSE",
             "licence_sha256": NODE_LICENCE_SHA256,
             "upstream_archive_url": NODE_UPSTREAM_ARCHIVE_URL,
             "upstream_archive_sha256": NODE_UPSTREAM_ARCHIVE_SHA256,
+            "security_advisory_url": NODE_SECURITY_ADVISORY_URL,
         },
         "runtime_library_donor": {
             "reference": UBI_RUNTIME_LIBRARY_DONOR_REFERENCE,

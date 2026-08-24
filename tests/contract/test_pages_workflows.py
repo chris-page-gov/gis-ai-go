@@ -129,11 +129,18 @@ class PagesWorkflowTests(unittest.TestCase):
         accepted_name = "- name: Upload immutable gateway image evidence"
         accepted = gateway.split(accepted_name, 1)[1]
         self.assertIn("if: success()", accepted)
-        self.assertIn("name: gateway-image-${{ github.sha }}", accepted)
-        self.assertIn("path: artifacts/gateway/", accepted)
+        self.assertIn(
+            "name: gateway-image-${{ github.sha }}-without-grype-db", accepted
+        )
+        self.assertIn("path: |\n            artifacts/gateway/", accepted)
+        self.assertIn(
+            "!artifacts/gateway/gateway-node.grype-db.tar.zst", accepted
+        )
         self.assertIn("if-no-files-found: error", accepted)
         self.assertNotIn("if: always()", accepted)
-        self.assertEqual(gateway.count("path: artifacts/gateway/"), 1)
+        self.assertEqual(
+            gateway.count("!artifacts/gateway/gateway-node.grype-db.tar.zst"), 1
+        )
         self.assertNotIn("gateway-image-failure-", gateway)
         self.assertNotIn(".gateway-quarantine-", gateway)
 
@@ -178,7 +185,7 @@ class PagesWorkflowTests(unittest.TestCase):
         provenance = CI_WORKFLOW.split("\n  gateway-provenance:\n", 1)[1]
         self.assertIn("- assurance", provenance)
         self.assertIn("- gateway_image", provenance)
-        self.assertIn("timeout-minutes: 20", provenance)
+        self.assertIn("timeout-minutes: 30", provenance)
         self.assertIn("version: 10.33.2", provenance)
         self.assertIn("node-version: 24.19.0", provenance)
         self.assertIn("version: 0.12.2", provenance)
@@ -189,11 +196,15 @@ class PagesWorkflowTests(unittest.TestCase):
 
         download = "- name: Download immutable gateway image evidence"
         rebuild = "- name: Regenerate the governed OKF projection"
-        acquire = "- name: Acquire and validate pinned Trivy scanner over network"
+        acquire_trivy = "- name: Acquire and validate pinned Trivy scanner over network"
+        acquire_grype = "- name: Acquire and validate pinned Grype scanner over network"
+        rehydrate = "- name: Rehydrate checksum-bound private Grype database"
         verify = "- name: Verify complete protected-main gateway image evidence"
         self.assertLess(provenance.index(download), provenance.index(rebuild))
-        self.assertLess(provenance.index(rebuild), provenance.index(acquire))
-        self.assertLess(provenance.index(acquire), provenance.index(verify))
+        self.assertLess(provenance.index(rebuild), provenance.index(acquire_trivy))
+        self.assertLess(provenance.index(acquire_trivy), provenance.index(acquire_grype))
+        self.assertLess(provenance.index(acquire_grype), provenance.index(rehydrate))
+        self.assertLess(provenance.index(rehydrate), provenance.index(verify))
         for attestation in (
             "- name: Attest immutable gateway OCI archive",
             "- name: Attest gateway image SBOM",
@@ -204,22 +215,53 @@ class PagesWorkflowTests(unittest.TestCase):
         self.assertIn("run: pnpm run build:okf", provenance)
         self.assertIn("run: pnpm run verify:gateway-image-evidence", provenance)
 
-        acquisition = provenance.split(acquire, 1)[1].split(
-            f"\n\n      {verify}", 1
+        trivy_acquisition = provenance.split(acquire_trivy, 1)[1].split(
+            f"\n\n      {acquire_grype}", 1
         )[0]
         digest = "62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969"
         self.assertIn(
-            f"TRIVY_IMAGE: aquasec/trivy:0.74.0@sha256:{digest}", acquisition
+            f"TRIVY_IMAGE: aquasec/trivy:0.74.0@sha256:{digest}", trivy_acquisition
         )
         self.assertIn(
-            f"TRIVY_REPO_DIGEST: aquasec/trivy@sha256:{digest}", acquisition
+            f"TRIVY_REPO_DIGEST: aquasec/trivy@sha256:{digest}", trivy_acquisition
         )
-        self.assertIn('docker pull "$TRIVY_IMAGE"', acquisition)
-        self.assertIn('docker image inspect "$TRIVY_IMAGE"', acquisition)
-        self.assertIn('jq -e --arg expected "$TRIVY_REPO_DIGEST"', acquisition)
-        self.assertIn(".[0].RepoDigests", acquisition)
-        self.assertIn("index($expected) != null", acquisition)
-        self.assertNotIn("replay", acquire.lower())
+        self.assertIn('docker pull "$TRIVY_IMAGE"', trivy_acquisition)
+        self.assertIn('docker image inspect "$TRIVY_IMAGE"', trivy_acquisition)
+        self.assertIn(
+            'jq -e --arg expected "$TRIVY_REPO_DIGEST"', trivy_acquisition
+        )
+        self.assertIn(".[0].RepoDigests", trivy_acquisition)
+        self.assertIn("index($expected) != null", trivy_acquisition)
+
+        grype_acquisition = provenance.split(acquire_grype, 1)[1].split(
+            f"\n\n      {rehydrate}", 1
+        )[0]
+        grype_digest = (
+            "ab8d929faec38875a45aba74c9651549cd096756d1981773c04375f282e91075"
+        )
+        self.assertIn(
+            f"GRYPE_IMAGE: anchore/grype:v0.117.0@sha256:{grype_digest}",
+            grype_acquisition,
+        )
+        self.assertIn(
+            f"GRYPE_REPO_DIGEST: anchore/grype@sha256:{grype_digest}",
+            grype_acquisition,
+        )
+        self.assertIn(
+            'docker pull --platform linux/amd64 "$GRYPE_IMAGE"', grype_acquisition
+        )
+        self.assertIn('docker image inspect "$GRYPE_IMAGE"', grype_acquisition)
+
+        restore = provenance.split(rehydrate, 1)[1].split(
+            f"\n\n      {verify}", 1
+        )[0]
+        self.assertIn("scripts/node_runtime_advisory.py", restore)
+        self.assertIn("restore-database", restore)
+        self.assertIn(
+            "--scan artifacts/gateway/gateway-image.vulnerability-scan.json",
+            restore,
+        )
+        self.assertIn("--output-dir artifacts/gateway", restore)
 
         for subject in (
             "artifacts/gateway/gateway-image.oci.tar",

@@ -1,8 +1,10 @@
 # DEPLOY-207 blocked gateway container
 
-Status: accepted historical repository-only candidate on protected `main`; fixed
-UBI 10 replacement passed complete local dirty-tree assurance on 24 August 2026 but
-is not yet clean-source accepted, published, activated or deployed.
+Status: accepted historical repository-only candidate on protected `main`; the
+fixed UBI 10 replacement passed an earlier complete local dirty-tree assurance run
+on 24 August 2026. That evidence predates the supplemental Node advisory control
+described below. The current candidate is not yet clean-source accepted, published,
+activated or deployed.
 
 This runbook covers the image, local Compose and assurance slice that can proceed
 without selecting a public runtime. It does not activate GIS AI GO, contact ONS,
@@ -80,10 +82,11 @@ file hashes and redistribution duties are recorded in
 the accepted boundary; it is not legal advice and does not accept changed inputs or
 later terms.
 
-### Local assurance identity
+### Earlier local assurance identity
 
-The complete dirty-tree development gate passed on 24 August 2026. Two isolated
-no-cache builds produced byte-identical OCI archives. The local evidence records:
+The complete dirty-tree development gate that preceded the supplemental Node lane
+passed on 24 August 2026. Two isolated no-cache builds produced byte-identical OCI
+archives. That earlier local evidence records:
 
 - image manifest
   `sha256:d1fcfa6647fa6500e187c780a411a44dd621265614d739844f9afb983d16748b`;
@@ -93,7 +96,7 @@ no-cache builds produced byte-identical OCI archives. The local evidence records
   `0357716068ec717e92317723661c50050b0c96906e831ab575bdf36443d5d856`;
 - current High/Critical Trivy report SHA-256
   `4b16586001545d156729183875625043afc56fedaf8c7ac6c3fffdac008d75e0`,
-  with zero High and zero Critical findings;
+  with zero High and zero Critical Trivy findings;
 - retained database archive SHA-256
   `591c0f1ce08328cdc90cf7e1421ea2ee2621185c546d262940498337654e476e`
   and successful network-disabled replay; and
@@ -112,6 +115,13 @@ are the gateway application and operating system. The SBOM contains no `gzip`,
 diagnostic local evidence classified `non-publishable-development-build`; they are
 not a registry artefact, attestation or release candidate and must change after the
 local commit creates a clean source identity.
+
+The current gate does not accept that earlier evidence because it lacks the
+standalone Node advisory subjects and the revised closed schemas. Those schemas are
+copied into the root filesystem, and the source-revision metadata also changes, so a
+fresh run must create and verify new exact OCI/rootfs bytes. The Node executable and
+gateway TypeScript sources remain unchanged, but both scanner lanes must pass before
+any new local or protected-main identity is recorded.
 
 ## Exact boundary
 
@@ -338,6 +348,10 @@ The image gate performs this fixed sequence:
    and 13 Node packages in the SBOM; independently scan and retain the exact pinned
    donor OCI archive so the copied `libstdc++` RPM is covered; then retain the
    checksummed database and both reports and replay both scans with no network;
+   separately use digest-pinned Grype 0.117.0 and one retained NVD CPE database to
+   scan the exact Node.js 24.19.0 component and the 24.18.0 affected and 24.18.1
+   fixed controls, retaining each input and paired JSON and CycloneDX report before
+   replaying the complete lane with no network;
 7. load the exact OCI archive and start only the local Compose candidate;
 8. record declared and realised ingress, then verify health, blocked readiness,
    zero capability, direct and MCP Host filtering, limits, non-root/read-only
@@ -349,8 +363,8 @@ The image gate performs this fixed sequence:
 12. save, remove, reload and restart the exact image identity while retaining the
     same volume identities; and
 13. require the exact closed evidence directory, validate all closed receipts and
-    schemas, bind all 13 subjects in one final manifest and replay both retained
-    scans.
+    schemas, bind all 24 subjects in one final manifest and replay every retained
+    Trivy and Grype scan.
 
 Step 12 is a local restore-mechanism rehearsal, not evidence of a production
 rollback. A real rollback must select a previous accepted registry digest and an
@@ -365,8 +379,8 @@ remain withheld.
 This diagnostic path cannot weaken the exact-image check or turn a load failure
 into acceptance.
 
-The successful evidence directory contains exactly 14 regular, non-symbolic-link
-files: 13 checksum-bound subjects plus their manifest.
+The successful private producing directory contains exactly 25 regular,
+non-symbolic-link files: 24 checksum-bound subjects plus their manifest.
 
 ```text
 build-context.sha256
@@ -379,6 +393,17 @@ gateway-image.sbom.cdx.json.sha256
 gateway-image.trivy-db.tar.gz
 gateway-image.trivy-db.tar.gz.sha256
 gateway-image.trivy-report.json
+gateway-node.grype-db.tar.zst
+gateway-node.grype-db.tar.zst.sha256
+gateway-node.actual.input.cdx.json
+gateway-node.actual.grype.json
+gateway-node.actual.grype.cdx.json
+gateway-node.affected.input.cdx.json
+gateway-node.affected.grype.json
+gateway-node.affected.grype.cdx.json
+gateway-node.fixed.input.cdx.json
+gateway-node.fixed.grype.json
+gateway-node.fixed.grype.cdx.json
 gateway-image.vulnerability-scan.json
 gateway-runtime-library-donor.oci.tar
 gateway-runtime-library-donor.trivy-report.json
@@ -392,8 +417,10 @@ non-regular directory entry fails the gate.
 
 CI runs image assurance after ordinary repository assurance. The stable final
 `assurance` job succeeds only when both producers succeed. A successful image job
-uploads `gateway-image-<commit>`. Failed runs do not upload the candidate, a partial
-directory or its quarantine, and cannot reach provenance. GitHub Actions retains
+uploads `gateway-image-<commit>-without-grype-db`: the checksum-bound Grype database
+archive is deliberately excluded, while its checksum and every other subject are
+transported. Failed runs do not upload the candidate, a partial directory or its
+quarantine, and cannot reach provenance. GitHub Actions retains
 ordinary job logs under the workflow's normal retention policy; those logs are not
 evidence artefacts and are not covered by the textual-evidence privacy gate. The
 repository `artifacts` parent must be a real directory: a symbolic link or an
@@ -405,10 +432,46 @@ running as the repository owner, which could also alter source and evidence. Eac
 textual subject is rejected before parsing when it exceeds the 8 MiB privacy bound.
 Parsed JSON also has one cumulative 8 MiB UTF-8 budget across all key and string
 occurrences, in addition to its depth and node bounds.
-On protected-main runs, provenance downloads and re-verifies the complete
-directory against the checked-out commit, regenerates the OKF projection, and separately
-attests the OCI archive, full image SBOM and evidence
-manifest. Pull requests cannot deploy or publish an image.
+On protected-main runs, provenance downloads the incomplete transported directory,
+regenerates the OKF projection, acquires and digest-checks the pinned Grype scanner,
+then rehydrates the exact database archive from Anchore using the retained URL,
+length and SHA-256. Only then can it re-verify the complete directory against the
+checked-out commit and separately attest the OCI archive, full image SBOM and
+evidence manifest. Both GitHub-hosted jobs are ephemeral. No authorised durable
+database destination is configured in GitHub Actions, so the transported artefact is
+evidence of immediate checksum-rehydrated verification, not a self-contained
+long-term offline replay bundle. If Anchore stops serving the exact URL, later replay
+from the 90-day artefact fails closed. The required handoff is therefore to download
+the protected artefact promptly into an owner-supplied mode-0700 local directory,
+rehydrate the exact database there and verify the completed private set. External
+long-term replication remains an operational follow-up. Pull requests cannot deploy
+or publish an image.
+
+Use an owner-chosen path outside the repository; do not put that private path in a
+public receipt, log or document. After the protected workflow succeeds:
+
+```bash
+export GIS_AI_GO_PRIVATE_EVIDENCE_DIR=/owner/chosen/private/path
+export GIS_AI_GO_RUN_ID="PROTECTED_WORKFLOW_RUN_ID"
+export GIS_AI_GO_COMMIT="40_CHARACTER_PROTECTED_MAIN_COMMIT"
+install -d -m 0700 "$GIS_AI_GO_PRIVATE_EVIDENCE_DIR"
+gh run download "$GIS_AI_GO_RUN_ID" \
+  --name "gateway-image-$GIS_AI_GO_COMMIT-without-grype-db" \
+  --dir "$GIS_AI_GO_PRIVATE_EVIDENCE_DIR"
+uv run --locked --cache-dir .uv-cache python scripts/node_runtime_advisory.py \
+  restore-database \
+  --scan "$GIS_AI_GO_PRIVATE_EVIDENCE_DIR/gateway-image.vulnerability-scan.json" \
+  --output-dir "$GIS_AI_GO_PRIVATE_EVIDENCE_DIR"
+uv run --locked --cache-dir .uv-cache python scripts/verify_gateway_image_evidence.py \
+  --directory "$GIS_AI_GO_PRIVATE_EVIDENCE_DIR" \
+  --expected-source-commit "$GIS_AI_GO_COMMIT" \
+  --require-clean
+```
+
+The restore is networked and accepts only the exact Anchore origin, path, length and
+SHA-256 retained in the receipt. The final verifier imports those local bytes and
+replays the three Node roles with `--pull=never` and `--network=none`. Preserve the
+completed directory locally until the owner names its private long-term destination.
 
 ## SBOM and vulnerability policy
 
@@ -435,13 +498,77 @@ individual and archive hashes and sizes, and proves that a network-disabled,
 `--skip-db-update --offline-scan` replay produces the same stable report projection
 without changing the database.
 
-Both scanner passes run as the invoking host UID and GID so the capability-free
+Trivy's operating-system and language-package inventories do not provide advisory
+coverage for the standalone Node executable recorded as `pkg:generic/node@24.19.0`.
+The supplemental lane closes that specific gap without changing the Node executable
+or gateway TypeScript sources. The assurance schemas are nevertheless copied into
+the image, so the OCI/rootfs bytes change and need a fresh build. The lane uses the
+exact `linux/amd64` image for
+[Grype 0.117.0](https://github.com/anchore/grype/releases/tag/v0.117.0), pinned by
+digest, and stock CPE matching against the NVD provider in one retained Grype
+database. The actual single-component input is reconstructed from the image receipt,
+full SBOM and measured root filesystem; its package URL, Node.js CPE, executable hash
+and upstream archive identity must agree, and a second Node identity or executable
+fails the gate.
+
+The same scanner, configuration and database must produce the expected High matches
+for Node.js 24.18.0 and must not produce them for 24.18.1. Those controls exercise
+`CVE-2026-56846`, `CVE-2026-56848` and `CVE-2026-58043`, which the
+[official Node.js July 2026 advisory](https://nodejs.org/en/blog/vulnerability/july-2026-security-releases)
+identifies as High issues fixed by the 24.18.1 security release. The retained actual
+JSON and CycloneDX reports must still contain the exact 24.19.0 component, have no
+ignored match and have no High or Critical NVD CPE match. That is the complete claim:
+it is not a claim that Node.js has no vulnerabilities, and it does not extend to a
+provider, ecosystem or database that is absent from the retained evidence.
+
+The closed configuration also forbids VEX documents, CPE synthesis, package/path
+exclusions and Node-relevant ignore rules. Each role binds the SHA-256 of its full
+normalised match semantics, including severity, fix state and versions, searched and
+found CPEs, matcher and version constraint; offline replay must reproduce that hash.
+The NVD provider capture time must be no later than the database build, the build no
+later than assessment, and the provider capture no more than three days old at the
+original assessment.
+
+Grype downloads its public database once, validates the archive checksum and
+provider inventory, and retains the database archive, checksum, three exact inputs
+and six raw reports. Verification imports that same archive and replays all six
+format scans with `--pull=never` and `--network=none`; changed, stale, non-NVD,
+swapped or synthesised-CPE evidence fails. Anchore documents both the
+[database lifecycle](https://oss.anchore.com/docs/guides/vulnerability/database/)
+and [local database import](https://oss.anchore.com/docs/reference/grype/cli/).
+The downloader uses only the fixed public request headers `Accept:
+application/zstd` and `User-Agent: gis-ai-go/0.1 vulnerability-evidence`, disables
+ambient proxies and rejects redirects before checking the exact origin, media type,
+length and SHA-256. Grype reports `from: manual import` after a local import; the
+normaliser accepts only that exact marker and binds it back to the separately
+retained Anchore URL, checksum, schema and build time. It does not reinterpret the
+marker as independent network provenance.
+
+The database acquired on 24 August 2026 is 146,543,041 bytes compressed and expands
+to about 2.08 GB. A later evidence run may acquire different bytes and must record
+its own size, hash, schema and build time. The archive is dynamic private assurance
+evidence, not part of the OCI image, uploaded Actions artefact or a release asset.
+The producing and protected-verification jobs each need temporary space for the
+expanded database and reports, and protected verification downloads about 147 MB
+again to rehydrate the checksum-bound archive. Anchore states that it publishes the
+collated database at no cost, but runner, private storage and transfer costs still
+apply. [Grype's Apache-2.0 software licence](https://github.com/anchore/grype/blob/v0.117.0/LICENSE)
+is not treated as a licence for the compiled provider datasets. The NVD provider
+remains subject to the
+[NVD terms of use](https://nvd.nist.gov/developers/terms-of-use), including its
+requested source and non-endorsement notice. This assurance-only material is not
+added to the runtime's bundled third-party notice; keeping it in this runbook avoids
+changing that separate runtime file merely to describe external scanner evidence.
+
+Both Trivy passes run as the invoking host UID and GID so the capability-free
 container can write the owner-private mode-0700 cache on native Linux as well as
 Docker Desktop. Its private `/tmp` tmpfs has the same numeric owner. The scanner
 still has a read-only root filesystem, all capabilities dropped and
 `no-new-privileges`; the offline replay additionally retains `--pull=never` and
 `--network=none`. The gate does not make either mount group- or world-writable and
-does not restore `CAP_DAC_OVERRIDE`.
+does not restore `CAP_DAC_OVERRIDE`. The Grype scans use the same non-root,
+read-only, capability-free container boundary; only initial database acquisition is
+network-enabled.
 
 The retained database, full report, scanner and engine versions, and phase times are
 dynamic assurance evidence. A later scan may change without changing the image and
@@ -449,12 +576,13 @@ must be treated as newer evidence, not an OCI reproducibility failure.
 
 The historical protected-main Debian candidate retains three unfixed High findings.
 The fixed UBI composition removes those exact Debian package instances from the
-candidate topology by replacement, not by suppressing evidence. The complete local
-gate establishes the 26-RPM realised topology and records zero current High or
-Critical findings. That closes the three exact historical package findings for these
-local bytes only. It does not supersede protected-main evidence or establish release
-readiness until clean-source and protected assurance reproduce the result. The
-historical status and replacement exit criteria are recorded in the
+candidate topology by replacement, not by suppressing evidence. The earlier local
+Trivy gate establishes the 26-RPM realised topology and records zero High or Critical
+Trivy findings for those local bytes. The current gate additionally requires the
+narrow, calibrated Node NVD CPE result described above. Neither result supersedes
+protected-main evidence or establishes release readiness until clean-source and
+protected assurance reproduce it. The historical status and replacement exit
+criteria are recorded in the
 [QUAL-206 gateway image vulnerability disposition](QUAL-206_IMAGE_VULNERABILITY_DISPOSITION.md).
 A passing fixable-only policy is not owner risk acceptance or release readiness.
 

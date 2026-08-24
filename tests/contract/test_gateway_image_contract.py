@@ -4597,6 +4597,7 @@ class GatewayImageContractTests(unittest.TestCase):
                 "buildkit": "v0.32.2",
                 "syft": "1.42.2",
                 "trivy": "0.74.0",
+                "grype": "0.117.0",
             }
         }
         tool_acceptance = {
@@ -4606,7 +4607,10 @@ class GatewayImageContractTests(unittest.TestCase):
                 "compose": {"version": "v5.3.1"},
             }
         }
-        tool_scan = {"scanner": {"version": "0.74.0"}}
+        tool_scan = {
+            "scanner": {"version": "0.74.0"},
+            "node_runtime": {"scanner": {"version": "0.117.0"}},
+        }
         _verify_tool_version_bindings(
             tool_manifest, receipt, tool_scan, tool_acceptance
         )

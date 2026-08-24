@@ -120,10 +120,13 @@
               "version": "24.19.0",
               "path": "/usr/local/bin/node",
               "sha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12",
+              "purl": "pkg:generic/node@24.19.0",
+              "cpe": "cpe:2.3:a:nodejs:node.js:24.19.0:*:*:*:*:*:*:*",
               "licence_path": "/usr/share/licenses/nodejs/LICENSE",
               "licence_sha256": "148eacf7863ef4329224a29398623077200a27194aa075569faf4a0a85566ca5",
               "upstream_archive_url": "https://nodejs.org/download/release/v24.19.0/node-v24.19.0-linux-x64.tar.xz",
-              "upstream_archive_sha256": "14b342e71204f811bde6153be8e04b62aef63c236fef92b55f9c83154b409647"
+              "upstream_archive_sha256": "14b342e71204f811bde6153be8e04b62aef63c236fef92b55f9c83154b409647",
+              "security_advisory_url": "https://nodejs.org/en/blog/vulnerability/july-2026-security-releases"
             },
             "runtime_library_donor": {
               "reference": "registry.access.redhat.com/ubi10/nodejs-24-minimal@sha256:e0e44d118dfba1c90e8adbdc751d6db2a1c5f9b0856d31d577054f8ea5216e2d",

@@ -31,6 +31,26 @@ SUBJECTS = (
     ("trivy-database", "gateway-image.trivy-db.tar.gz"),
     ("trivy-database-checksum", "gateway-image.trivy-db.tar.gz.sha256"),
     ("trivy-report", "gateway-image.trivy-report.json"),
+    ("grype-database", "gateway-node.grype-db.tar.zst"),
+    ("grype-database-checksum", "gateway-node.grype-db.tar.zst.sha256"),
+    ("node-actual-input", "gateway-node.actual.input.cdx.json"),
+    ("node-actual-grype-report", "gateway-node.actual.grype.json"),
+    (
+        "node-actual-grype-cyclonedx-report",
+        "gateway-node.actual.grype.cdx.json",
+    ),
+    ("node-affected-input", "gateway-node.affected.input.cdx.json"),
+    ("node-affected-grype-report", "gateway-node.affected.grype.json"),
+    (
+        "node-affected-grype-cyclonedx-report",
+        "gateway-node.affected.grype.cdx.json",
+    ),
+    ("node-fixed-input", "gateway-node.fixed.input.cdx.json"),
+    ("node-fixed-grype-report", "gateway-node.fixed.grype.json"),
+    (
+        "node-fixed-grype-cyclonedx-report",
+        "gateway-node.fixed.grype.cdx.json",
+    ),
     ("runtime-library-donor-archive", "gateway-runtime-library-donor.oci.tar"),
     (
         "runtime-library-donor-trivy-report",
@@ -112,7 +132,7 @@ def make_evidence_manifest(output: Path, phases: list[dict[str, Any]]) -> dict[s
         label="gateway container acceptance receipt",
     )
     manifest = {
-        "schema": "gis-ai-go.gateway-image-evidence-manifest.v1",
+        "schema": "gis-ai-go.gateway-image-evidence-manifest.v2",
         "classification": receipt["classification"],
         "source": {
             "revision": receipt["source"]["revision"],
@@ -132,6 +152,7 @@ def make_evidence_manifest(output: Path, phases: list[dict[str, Any]]) -> dict[s
             "buildkit": receipt["build"]["buildkit_version"],
             "syft": _syft_version(sbom),
             "trivy": scan["scanner"]["version"],
+            "grype": scan["node_runtime"]["scanner"]["version"],
         },
         "phases": phases,
         "passed": True,

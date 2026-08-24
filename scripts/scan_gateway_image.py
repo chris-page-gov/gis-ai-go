@@ -53,6 +53,7 @@ from gateway_image import (
     prohibited_text_reason,
     sha256_file,
 )
+from node_runtime_advisory import generate_node_advisory, verify_node_advisory
 
 BLOCKED_SEVERITIES = frozenset({"HIGH", "CRITICAL"})
 TRIVY_VERSION = "0.74.0"
@@ -1381,10 +1382,18 @@ def generate_scan_evidence(
     coverage = project_coverage(
         report, donor_report, sbom_document, receipt, donor
     )
-    findings = project_all_findings(report, donor_report)
+    node_runtime, node_findings = generate_node_advisory(
+        sbom=sbom_document,
+        receipt=receipt,
+        output=output.parent,
+    )
+    findings = sorted(
+        [*project_all_findings(report, donor_report), *node_findings],
+        key=_finding_sort_key,
+    )
     fixable, passed = evaluate_policy(findings)
     evidence = {
-        "schema": "gis-ai-go.gateway-image-vulnerability-scan.v2",
+        "schema": "gis-ai-go.gateway-image-vulnerability-scan.v3",
         "classification": (
             "repository-only-blocked-candidate"
             if receipt["source"]["clean"] else "non-publishable-development-build"
@@ -1421,6 +1430,7 @@ def generate_scan_evidence(
             "list_all_packages": True,
             "inputs": [archive.name, donor_archive_path.name],
         },
+        "node_runtime": node_runtime,
         "coverage": coverage,
         "policy": {
             "severities": sorted(BLOCKED_SEVERITIES), "block_fixable_only": True,
@@ -1612,7 +1622,18 @@ def verify_scan_evidence(
     coverage = project_coverage(
         report, donor_report, sbom_document, receipt, donor
     )
-    findings = project_all_findings(report, donor_report)
+    node_findings = verify_node_advisory(
+        node=scan["node_runtime"],
+        directory=scan_path.parent,
+        sbom=sbom_document,
+        receipt=receipt,
+        phase=scan["phase"],
+        replay=replay,
+    )
+    findings = sorted(
+        [*project_all_findings(report, donor_report), *node_findings],
+        key=_finding_sort_key,
+    )
     fixable, passed = evaluate_policy(findings)
     if (
         scan["coverage"] != coverage

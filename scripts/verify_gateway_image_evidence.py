@@ -56,6 +56,7 @@ PHASE_ORDER = [
 TEXT_EVIDENCE = ACCEPTED_FILES - {
     "gateway-image.oci.tar",
     "gateway-image.trivy-db.tar.gz",
+    "gateway-node.grype-db.tar.zst",
     "gateway-runtime-library-donor.oci.tar",
 }
 ACCEPTANCE_PHASE_ORDER = [
@@ -77,6 +78,16 @@ TEXT_FILE_LIMITS = {
     "gateway-image.sbom.cdx.json.sha256": MAX_CHECKSUM_OR_CONTEXT_BYTES,
     "gateway-image.trivy-db.tar.gz.sha256": MAX_CHECKSUM_OR_CONTEXT_BYTES,
     "gateway-image.trivy-report.json": MAX_SCAN_JSON_BYTES,
+    "gateway-node.grype-db.tar.zst.sha256": MAX_CHECKSUM_OR_CONTEXT_BYTES,
+    "gateway-node.actual.input.cdx.json": MAX_SCAN_JSON_BYTES,
+    "gateway-node.actual.grype.json": MAX_SCAN_JSON_BYTES,
+    "gateway-node.actual.grype.cdx.json": MAX_SCAN_JSON_BYTES,
+    "gateway-node.affected.input.cdx.json": MAX_SCAN_JSON_BYTES,
+    "gateway-node.affected.grype.json": MAX_SCAN_JSON_BYTES,
+    "gateway-node.affected.grype.cdx.json": MAX_SCAN_JSON_BYTES,
+    "gateway-node.fixed.input.cdx.json": MAX_SCAN_JSON_BYTES,
+    "gateway-node.fixed.grype.json": MAX_SCAN_JSON_BYTES,
+    "gateway-node.fixed.grype.cdx.json": MAX_SCAN_JSON_BYTES,
     "gateway-runtime-library-donor.trivy-report.json": MAX_SCAN_JSON_BYTES,
     "gateway-image.vulnerability-scan.json": MAX_SCAN_JSON_BYTES,
     "container-acceptance.json": MAX_ACCEPTANCE_JSON_BYTES,
@@ -436,6 +447,7 @@ def _verify_tool_version_bindings(
         "buildkit": receipt["build"]["buildkit_version"],
         "syft": "1.42.2",
         "trivy": scan["scanner"]["version"],
+        "grype": scan["node_runtime"]["scanner"]["version"],
     }
     if manifest["tool_versions"] != expected:
         raise ValueError("gateway evidence tool identities differ from producing evidence")
@@ -467,7 +479,7 @@ def verify_gateway_image_evidence(
     output: Path,
     expected_source_commit: str | None,
     require_clean: bool,
-    replay_trivy: bool,
+    replay_vulnerability_scans: bool,
 ) -> dict[str, Any]:
     output_metadata = output.lstat()
     if stat.S_ISLNK(output_metadata.st_mode) or not stat.S_ISDIR(output_metadata.st_mode):
@@ -502,7 +514,7 @@ def verify_gateway_image_evidence(
         archive=output / "gateway-image.oci.tar",
         sbom=output / "gateway-image.sbom.cdx.json",
         receipt_path=output / "image-receipt.json",
-        replay=replay_trivy,
+        replay=replay_vulnerability_scans,
     )
     acceptance = _load_canonical(
         output / "container-acceptance.json",
@@ -565,14 +577,14 @@ def main() -> None:
     parser.add_argument("--directory", type=Path, required=True)
     parser.add_argument("--expected-source-commit")
     parser.add_argument("--require-clean", action="store_true")
-    parser.add_argument("--skip-trivy-replay", action="store_true")
+    parser.add_argument("--skip-vulnerability-replay", action="store_true")
     args = parser.parse_args()
     output = args.directory if args.directory.is_absolute() else ROOT / args.directory
     result = verify_gateway_image_evidence(
         output=output,
         expected_source_commit=args.expected_source_commit,
         require_clean=args.require_clean,
-        replay_trivy=not args.skip_trivy_replay,
+        replay_vulnerability_scans=not args.skip_vulnerability_replay,
     )
     print(
         "Verified complete blocked gateway evidence for "

@@ -1,4 +1,13 @@
 Strengthen the blocked UBI gateway release gate with measured merged-rootfs
 verification, exact critical runtime and licence bindings, closed final-stage
 instructions, direct inventory-bearing Trivy scans of the exact gateway and donor
-OCI archives, and deterministic network-disabled retained-database replay.
+OCI archives, and deterministic network-disabled retained-database replay. Add a
+supplemental digest-pinned Grype 0.117.0/NVD CPE lane for the standalone Node.js
+24.19.0 runtime, calibrated against affected 24.18.0 and fixed 24.18.1 controls,
+without changing the Node executable or gateway TypeScript sources. The revised
+schemas are copied into the image, so this change requires fresh OCI/rootfs bytes and
+a fresh assurance run. Hold the exact Grype database through each producing run;
+transport only its checksum and rehydrate the database from Anchore for immediate
+protected offline replay. Require the protected artefact to be downloaded promptly
+to an owner-supplied mode-0700 local directory, rehydrated and verified there; an
+external long-term replica remains an operational follow-up.

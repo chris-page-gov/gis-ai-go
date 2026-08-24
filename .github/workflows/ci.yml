@@ -177,8 +177,10 @@ jobs:
         if: success()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: gateway-image-${{ github.sha }}
-          path: artifacts/gateway/
+          name: gateway-image-${{ github.sha }}-without-grype-db
+          path: |
+            artifacts/gateway/
+            !artifacts/gateway/gateway-node.grype-db.tar.zst
           if-no-files-found: error
           retention-days: 90
           compression-level: 0
@@ -269,7 +271,7 @@ jobs:
       - assurance
       - gateway_image
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 30
     permissions:
       actions: read
       attestations: write
@@ -307,7 +309,7 @@ jobs:
       - name: Download immutable gateway image evidence
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: gateway-image-${{ github.sha }}
+          name: gateway-image-${{ github.sha }}-without-grype-db
           path: artifacts/gateway
 
       - name: Regenerate the governed OKF projection
@@ -324,6 +326,25 @@ jobs:
               length == 1 and
               (.[0].RepoDigests | type == "array" and index($expected) != null)
             ' > /dev/null
+
+      - name: Acquire and validate pinned Grype scanner over network
+        env:
+          GRYPE_IMAGE: anchore/grype:v0.117.0@sha256:ab8d929faec38875a45aba74c9651549cd096756d1981773c04375f282e91075
+          GRYPE_REPO_DIGEST: anchore/grype@sha256:ab8d929faec38875a45aba74c9651549cd096756d1981773c04375f282e91075
+        run: |
+          docker pull --platform linux/amd64 "$GRYPE_IMAGE"
+          docker image inspect "$GRYPE_IMAGE" |
+            jq -e --arg expected "$GRYPE_REPO_DIGEST" '
+              length == 1 and
+              (.[0].RepoDigests | type == "array" and index($expected) != null)
+            ' > /dev/null
+
+      - name: Rehydrate checksum-bound private Grype database
+        run: |
+          uv run --locked --cache-dir .uv-cache python scripts/node_runtime_advisory.py \
+            restore-database \
+            --scan artifacts/gateway/gateway-image.vulnerability-scan.json \
+            --output-dir artifacts/gateway
 
       - name: Verify complete protected-main gateway image evidence
         run: pnpm run verify:gateway-image-evidence
