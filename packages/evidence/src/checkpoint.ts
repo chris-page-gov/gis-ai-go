@@ -7,13 +7,13 @@ import {
   lstatSync,
   mkdirSync,
   openSync,
+  opendirSync,
   readSync,
-  readdirSync,
   realpathSync,
   writeSync,
   type Stats,
 } from "node:fs";
-import { basename, dirname, isAbsolute, join, relative, resolve } from "node:path";
+import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { types as utilTypes } from "node:util";
 
 import { canonicalJson, canonicalJsonClone } from "./canonical-json.js";
@@ -45,7 +45,12 @@ const LEDGER_RECORD_FILE = /^[0-9a-f]{64}\.json$/u;
 const INDEX_DOCUMENT_FILE = /^[0-9a-f]{64}\.json$/u;
 const INDEX_MARKER_FILE = /^[0-9a-f]{64}$/u;
 const MAX_CONFIGURATION_PATH_LENGTH = 4_096;
-const MAX_EVIDENCE_FILE_BYTES = 4_194_304;
+const MAX_DESCRIPTOR_BYTES = 16_384;
+const MAX_LEDGER_EVENT_BYTES = 65_536;
+const MAX_LEDGER_RECORD_BYTES = 4_194_304;
+const MAX_INDEX_CLAIM_BYTES = 32_768;
+const MAX_INDEX_RESOLUTION_BYTES = 16_384;
+const MAX_EVIDENCE_FILE_BYTES = MAX_LEDGER_RECORD_BYTES;
 const MAX_CHECKPOINT_DOCUMENT_BYTES = 65_536;
 const MAX_LEDGER_EVENTS = 1_000_000;
 const MAX_INDEX_CLAIMS = 4_096;
@@ -58,6 +63,17 @@ const INDEX_DIRECTORIES = Object.freeze([
   "resolution-ready",
   "resolutions",
 ] as const);
+
+const MAX_LEDGER_CHECKPOINT_FILES = 1 + 2 * MAX_LEDGER_EVENTS;
+const MAX_LEDGER_CHECKPOINT_ENTRIES = LEDGER_DIRECTORIES.length + MAX_LEDGER_CHECKPOINT_FILES;
+const MAX_LEDGER_CHECKPOINT_BYTES =
+  MAX_DESCRIPTOR_BYTES +
+  MAX_LEDGER_EVENTS * (MAX_LEDGER_EVENT_BYTES + MAX_LEDGER_RECORD_BYTES);
+const MAX_INDEX_CHECKPOINT_FILES = 1 + INDEX_DIRECTORIES.length * MAX_INDEX_CLAIMS;
+const MAX_INDEX_CHECKPOINT_ENTRIES = INDEX_DIRECTORIES.length + MAX_INDEX_CHECKPOINT_FILES;
+const MAX_INDEX_CHECKPOINT_BYTES =
+  MAX_DESCRIPTOR_BYTES +
+  MAX_INDEX_CLAIMS * (MAX_INDEX_CLAIM_BYTES + MAX_INDEX_RESOLUTION_BYTES);
 
 type EvidenceRootRole = "ledger" | "reconciliation-index";
 
@@ -81,6 +97,14 @@ interface EvidenceRootInventory {
   readonly role: EvidenceRootRole;
   readonly entries: readonly InventoryEntry[];
   readonly summary: EvidenceCheckpointRootSummary;
+}
+
+interface EvidenceRootTraversalLimits {
+  readonly directoryCount: number;
+  readonly maximumChildrenPerDirectory: number;
+  readonly maximumEntries: number;
+  readonly maximumFiles: number;
+  readonly maximumTotalBytes: number;
 }
 
 export interface EvidenceCheckpointRootSummary {
@@ -260,16 +284,23 @@ function assertRealDirectory(path: string, privateMode: boolean): void {
   }
 }
 
-function assertPrivateRegularFile(stat: Stats, allowEmpty: boolean): void {
+function assertPrivateRegularFile(
+  stat: Stats,
+  allowEmpty: boolean,
+  maximumBytes = MAX_EVIDENCE_FILE_BYTES,
+): void {
   if (
     !stat.isFile() ||
     stat.isSymbolicLink() ||
     stat.nlink !== 1 ||
     !hasExactPrivateMode(stat.mode, 0o600) ||
-    stat.size > MAX_EVIDENCE_FILE_BYTES ||
+    stat.size > maximumBytes ||
     (!allowEmpty && stat.size < 2)
   ) {
-    fail("corruption", "Evidence checkpoint requires private, unlinked regular files");
+    fail(
+      "corruption",
+      "Evidence checkpoint requires private, unlinked regular files within the fixed byte bound",
+    );
   }
 }
 
@@ -287,9 +318,13 @@ function sameFile(left: Stats, right: Stats): boolean {
   );
 }
 
-function readPrivateFile(path: string, allowEmpty: boolean): Buffer {
+function readPrivateFile(
+  path: string,
+  allowEmpty: boolean,
+  maximumBytes = MAX_EVIDENCE_FILE_BYTES,
+): Buffer {
   const scanned = lstatSync(path);
-  assertPrivateRegularFile(scanned, allowEmpty);
+  assertPrivateRegularFile(scanned, allowEmpty, maximumBytes);
   let descriptor: number | undefined;
   try {
     descriptor = openSync(path, constants.O_RDONLY | constants.O_NOFOLLOW);
@@ -319,7 +354,7 @@ function sha256Bytes(value: Uint8Array): string {
 }
 
 function readCanonicalDocument(path: string): { readonly value: unknown; readonly bytes: Buffer } {
-  const bytes = readPrivateFile(path, false);
+  const bytes = readPrivateFile(path, false, MAX_CHECKPOINT_DOCUMENT_BYTES);
   if (bytes.length > MAX_CHECKPOINT_DOCUMENT_BYTES) {
     fail("corruption", "Evidence checkpoint document exceeds its fixed bound");
   }
@@ -394,17 +429,23 @@ function assertBoundedCount(
 function assertRootSummary(
   value: unknown,
   label: string,
+  role: EvidenceRootRole,
 ): asserts value is EvidenceCheckpointRootSummary {
   const record = asRecord(value, label);
+  const limits = traversalLimits(role);
   assertExactKeys(record, ["entry_count", "file_count", "root_sha256", "total_bytes"], label);
   if (typeof record.root_sha256 !== "string" || !SHA256.test(record.root_sha256)) {
     fail("corruption", `${label} has an invalid content root`);
   }
-  assertBoundedCount(record.entry_count, Number.MAX_SAFE_INTEGER, `${label} entry count`);
-  assertBoundedCount(record.file_count, Number.MAX_SAFE_INTEGER, `${label} file count`);
-  assertBoundedCount(record.total_bytes, Number.MAX_SAFE_INTEGER, `${label} byte count`);
-  if (record.file_count > record.entry_count) {
-    fail("corruption", `${label} file count exceeds its entry count`);
+  assertBoundedCount(record.entry_count, limits.maximumEntries, `${label} entry count`);
+  assertBoundedCount(record.file_count, limits.maximumFiles, `${label} file count`);
+  assertBoundedCount(record.total_bytes, limits.maximumTotalBytes, `${label} byte count`);
+  if (
+    record.file_count < 1 ||
+    record.total_bytes < 2 ||
+    record.entry_count !== record.file_count + limits.directoryCount
+  ) {
+    fail("corruption", `${label} counts are inconsistent with its fixed root structure`);
   }
 }
 
@@ -431,7 +472,11 @@ function assertLedgerState(value: unknown): asserts value is EvidenceCheckpointL
   ) {
     fail("corruption", "Evidence checkpoint ledger tail identity is inconsistent");
   }
-  assertRootSummary(record.root, "Evidence checkpoint ledger root");
+  assertRootSummary(record.root, "Evidence checkpoint ledger root", "ledger");
+  const expectedFiles = 1 + record.event_count + record.record_count;
+  if (record.root.file_count !== expectedFiles) {
+    fail("corruption", "Evidence checkpoint ledger root count does not match its ledger state");
+  }
 }
 
 function assertIndexState(value: unknown): asserts value is EvidenceCheckpointIndexState {
@@ -477,7 +522,19 @@ function assertIndexState(value: unknown): asserts value is EvidenceCheckpointIn
   ) {
     fail("corruption", "Evidence checkpoint index counts are inconsistent");
   }
-  assertRootSummary(record.root, "Evidence checkpoint reconciliation root");
+  assertRootSummary(
+    record.root,
+    "Evidence checkpoint reconciliation root",
+    "reconciliation-index",
+  );
+  const minimumFiles = 1 + record.claim_count + 4 * record.resolution_count;
+  const maximumFiles = 1 + INDEX_DIRECTORIES.length * record.claim_count;
+  if (record.root.file_count < minimumFiles || record.root.file_count > maximumFiles) {
+    fail(
+      "corruption",
+      "Evidence checkpoint reconciliation root count does not match its index state",
+    );
+  }
 }
 
 function assertManifest(value: unknown): asserts value is EvidenceCheckpointManifest {
@@ -636,10 +693,63 @@ function expectedRootEntries(role: EvidenceRootRole): readonly string[] {
       ]);
 }
 
-function scanEvidenceRoot(root: string, role: EvidenceRootRole): EvidenceRootInventory {
+function traversalLimits(role: EvidenceRootRole): EvidenceRootTraversalLimits {
+  return role === "ledger"
+    ? Object.freeze({
+        directoryCount: LEDGER_DIRECTORIES.length,
+        maximumChildrenPerDirectory: MAX_LEDGER_EVENTS,
+        maximumEntries: MAX_LEDGER_CHECKPOINT_ENTRIES,
+        maximumFiles: MAX_LEDGER_CHECKPOINT_FILES,
+        maximumTotalBytes: MAX_LEDGER_CHECKPOINT_BYTES,
+      })
+    : Object.freeze({
+        directoryCount: INDEX_DIRECTORIES.length,
+        maximumChildrenPerDirectory: MAX_INDEX_CLAIMS,
+        maximumEntries: MAX_INDEX_CHECKPOINT_ENTRIES,
+        maximumFiles: MAX_INDEX_CHECKPOINT_FILES,
+        maximumTotalBytes: MAX_INDEX_CHECKPOINT_BYTES,
+      });
+}
+
+function maximumInventoryFileBytes(
+  role: EvidenceRootRole,
+  directory: string | undefined,
+): number {
+  if (directory === undefined) return MAX_DESCRIPTOR_BYTES;
+  if (role === "ledger") {
+    return directory === "events" ? MAX_LEDGER_EVENT_BYTES : MAX_LEDGER_RECORD_BYTES;
+  }
+  if (directory === "claims") return MAX_INDEX_CLAIM_BYTES;
+  if (directory === "resolutions") return MAX_INDEX_RESOLUTION_BYTES;
+  return 0;
+}
+
+function readBoundedDirectoryNames(path: string, maximum: number, label: string): string[] {
+  const directory = opendirSync(path);
+  const names: string[] = [];
+  try {
+    for (;;) {
+      const entry = directory.readSync();
+      if (entry === null) break;
+      if (names.length >= maximum) {
+        fail("corruption", `${label} exceeds its fixed entry bound`);
+      }
+      names.push(entry.name);
+    }
+  } finally {
+    directory.closeSync();
+  }
+  return names.sort();
+}
+
+function scanEvidenceRoot(
+  root: string,
+  role: EvidenceRootRole,
+  expectedSummary?: EvidenceCheckpointRootSummary,
+): EvidenceRootInventory {
   assertRealDirectory(root, true);
-  const rootEntries = readdirSync(root).sort();
   const expected = expectedRootEntries(role);
+  const rootEntries = readBoundedDirectoryNames(root, expected.length, "Evidence root");
   if (
     rootEntries.length !== expected.length ||
     rootEntries.some((entry, index) => entry !== expected[index])
@@ -649,27 +759,60 @@ function scanEvidenceRoot(root: string, role: EvidenceRootRole): EvidenceRootInv
   const directories = role === "ledger" ? LEDGER_DIRECTORIES : INDEX_DIRECTORIES;
   const descriptor = role === "ledger" ? "ledger.json" : "index.json";
   const entries: InventoryEntry[] = [];
+  const limits = traversalLimits(role);
+  const maximumFiles = Math.min(
+    limits.maximumFiles,
+    expectedSummary?.file_count ?? limits.maximumFiles,
+  );
+  const maximumTotalBytes = Math.min(
+    limits.maximumTotalBytes,
+    expectedSummary?.total_bytes ?? limits.maximumTotalBytes,
+  );
   let totalBytes = 0;
   let fileCount = 0;
 
-  const descriptorBytes = readPrivateFile(join(root, descriptor), false);
-  entries.push(
-    Object.freeze({
-      path: descriptor,
-      kind: "file",
-      mode: "0600",
-      bytes: descriptorBytes.length,
-      sha256: sha256Bytes(descriptorBytes),
-    }),
-  );
-  totalBytes += descriptorBytes.length;
-  fileCount += 1;
+  const addFile = (
+    relativePath: string,
+    directory: string | undefined,
+    allowEmpty: boolean,
+  ): void => {
+    if (fileCount >= maximumFiles) {
+      fail("corruption", "Evidence checkpoint source exceeds its fixed file bound");
+    }
+    const remainingBytes = maximumTotalBytes - totalBytes;
+    const bytes = readPrivateFile(
+      join(root, relativePath),
+      allowEmpty,
+      Math.min(maximumInventoryFileBytes(role, directory), remainingBytes),
+    );
+    entries.push(
+      Object.freeze({
+        path: relativePath,
+        kind: "file",
+        mode: "0600",
+        bytes: bytes.length,
+        sha256: sha256Bytes(bytes),
+      }),
+    );
+    totalBytes += bytes.length;
+    fileCount += 1;
+  };
+
+  addFile(descriptor, undefined, false);
 
   for (const directory of directories) {
     const directoryPath = join(root, directory);
     assertRealDirectory(directoryPath, true);
     entries.push(Object.freeze({ path: directory, kind: "directory", mode: "0700" }));
-    for (const name of readdirSync(directoryPath).sort()) {
+    const maximumChildren = Math.min(
+      limits.maximumChildrenPerDirectory,
+      maximumFiles - fileCount,
+    );
+    for (const name of readBoundedDirectoryNames(
+      directoryPath,
+      maximumChildren,
+      `Evidence ${role} ${directory} directory`,
+    )) {
       if (!allowedChild(role, directory, name)) {
         fail("corruption", "Evidence checkpoint source has an unexpected child entry");
       }
@@ -678,21 +821,7 @@ function scanEvidenceRoot(root: string, role: EvidenceRootRole): EvidenceRootInv
         role === "reconciliation-index" &&
         directory !== "claims" &&
         directory !== "resolutions";
-      const bytes = readPrivateFile(join(root, directory, name), allowEmpty);
-      entries.push(
-        Object.freeze({
-          path: relativePath,
-          kind: "file",
-          mode: "0600",
-          bytes: bytes.length,
-          sha256: sha256Bytes(bytes),
-        }),
-      );
-      totalBytes += bytes.length;
-      if (!Number.isSafeInteger(totalBytes)) {
-        fail("corruption", "Evidence checkpoint source exceeds the safe byte bound");
-      }
-      fileCount += 1;
+      addFile(relativePath, directory, allowEmpty);
     }
   }
   entries.sort((left, right) => (left.path < right.path ? -1 : left.path > right.path ? 1 : 0));
@@ -714,13 +843,17 @@ function inventoriesMatch(left: EvidenceRootInventory, right: EvidenceRootInvent
 }
 
 function pathsOverlap(left: string, right: string): boolean {
-  const fromLeft = relative(left, right);
-  const fromRight = relative(right, left);
-  return (
-    fromLeft === "" ||
-    (!fromLeft.startsWith("..") && !isAbsolute(fromLeft)) ||
-    (!fromRight.startsWith("..") && !isAbsolute(fromRight))
-  );
+  if (left === right) return true;
+  const below = (parent: string, candidate: string): boolean => {
+    const candidateFromParent = relative(parent, candidate);
+    return (
+      candidateFromParent !== "" &&
+      candidateFromParent !== ".." &&
+      !candidateFromParent.startsWith(`..${sep}`) &&
+      !isAbsolute(candidateFromParent)
+    );
+  };
+  return below(left, right) || below(right, left);
 }
 
 function configurationPath(value: unknown, label: string): string {
@@ -809,8 +942,13 @@ function createPrivateDirectory(path: string): void {
 
 function assertEmptyPrivateRoot(path: string): void {
   assertRealDirectory(path, true);
-  if (readdirSync(path).length !== 0) {
-    fail("destination-not-empty", "Evidence recovery requires two empty destination roots");
+  const directory = opendirSync(path);
+  try {
+    if (directory.readSync() !== null) {
+      fail("destination-not-empty", "Evidence recovery requires two empty destination roots");
+    }
+  } finally {
+    directory.closeSync();
   }
 }
 
@@ -828,6 +966,7 @@ function copyInventory(
     const bytes = readPrivateFile(
       join(sourceRoot, entry.path),
       inventory.role === "reconciliation-index" && entry.bytes === 0,
+      entry.bytes,
     );
     if (bytes.length !== entry.bytes || sha256Bytes(bytes) !== entry.sha256) {
       fail("corruption", "Evidence checkpoint source changed during copy");
@@ -1071,8 +1210,12 @@ function readCheckpointDocuments(
   readonly manifestBytes: Buffer;
   readonly external: EvidenceExternalCheckpoint;
 } {
-  const entries = readdirSync(checkpointRoot).sort();
   const expected = ["ledger", "manifest.json", "reconciliation-index"];
+  const entries = readBoundedDirectoryNames(
+    checkpointRoot,
+    expected.length,
+    "Evidence checkpoint directory",
+  );
   if (
     entries.length !== expected.length ||
     entries.some((entry, index) => entry !== expected[index])
@@ -1106,15 +1249,19 @@ function verifyCheckpointInternal(
   );
   const checkpointRoot = canonicalExistingPath(checkpointPath, true);
   const externalStat = lstatSync(externalPath);
-  assertPrivateRegularFile(externalStat, false);
+  assertPrivateRegularFile(externalStat, false, MAX_CHECKPOINT_DOCUMENT_BYTES);
   const externalFile = realpathSync(externalPath);
   assertDisjoint([checkpointRoot, externalFile]);
 
   const { manifest } = readCheckpointDocuments(checkpointRoot, externalFile);
   const ledgerRoot = join(checkpointRoot, "ledger");
   const indexRoot = join(checkpointRoot, "reconciliation-index");
-  const ledgerInventoryBefore = scanEvidenceRoot(ledgerRoot, "ledger");
-  const indexInventoryBefore = scanEvidenceRoot(indexRoot, "reconciliation-index");
+  const ledgerInventoryBefore = scanEvidenceRoot(ledgerRoot, "ledger", manifest.ledger.root);
+  const indexInventoryBefore = scanEvidenceRoot(
+    indexRoot,
+    "reconciliation-index",
+    manifest.reconciliation_index.root,
+  );
   if (
     canonicalJson(ledgerInventoryBefore.summary) !== canonicalJson(manifest.ledger.root) ||
     canonicalJson(indexInventoryBefore.summary) !==
@@ -1132,8 +1279,12 @@ function verifyCheckpointInternal(
     ledger,
   });
   const { ledgerHealth, indexHealth } = verifyPair(ledger, reconciliationIndex);
-  const ledgerInventoryAfter = scanEvidenceRoot(ledgerRoot, "ledger");
-  const indexInventoryAfter = scanEvidenceRoot(indexRoot, "reconciliation-index");
+  const ledgerInventoryAfter = scanEvidenceRoot(ledgerRoot, "ledger", manifest.ledger.root);
+  const indexInventoryAfter = scanEvidenceRoot(
+    indexRoot,
+    "reconciliation-index",
+    manifest.reconciliation_index.root,
+  );
   if (
     !healthMatchesStates(
       manifest.ledger,
@@ -1236,6 +1387,24 @@ export function createEvidenceCheckpoint(
     const manifestBytes = writeExclusiveCanonical(join(checkpointPath, "manifest.json"), manifest);
     const external = buildExternalCheckpoint(manifest, manifestBytes);
     writeExclusiveCanonical(externalPath, external);
+    const {
+      ledgerHealth: healthFinal,
+      indexHealth: indexHealthFinal,
+    } = verifyPair(ledger, reconciliationIndex);
+    const ledgerInventoryFinal = scanEvidenceRoot(ledgerRoot, "ledger", manifest.ledger.root);
+    const indexInventoryFinal = scanEvidenceRoot(
+      indexRoot,
+      "reconciliation-index",
+      manifest.reconciliation_index.root,
+    );
+    if (
+      canonicalJson(healthAfter) !== canonicalJson(healthFinal) ||
+      canonicalJson(indexHealthAfter) !== canonicalJson(indexHealthFinal) ||
+      !inventoriesMatch(ledgerInventoryAfter, ledgerInventoryFinal) ||
+      !inventoriesMatch(indexInventoryAfter, indexInventoryFinal)
+    ) {
+      fail("corruption", "Evidence checkpoint source changed while outputs were published");
+    }
     return verifyCheckpointInternal({
       checkpointDirectory: checkpointPath,
       externalCheckpointFile: externalPath,
@@ -1300,14 +1469,22 @@ export function verifyEvidenceRootsAgainstExternalCheckpoint(
       "External checkpoint file",
     );
     const externalStat = lstatSync(externalPath);
-    assertPrivateRegularFile(externalStat, false);
+    assertPrivateRegularFile(externalStat, false, MAX_CHECKPOINT_DOCUMENT_BYTES);
     const externalFile = realpathSync(externalPath);
     assertDisjoint([ledgerRoot, indexRoot, externalFile]);
     const externalDocument = readCanonicalDocument(externalFile);
     assertExternalCheckpoint(externalDocument.value);
 
-    const ledgerBefore = scanEvidenceRoot(ledgerRoot, "ledger");
-    const indexBefore = scanEvidenceRoot(indexRoot, "reconciliation-index");
+    const ledgerBefore = scanEvidenceRoot(
+      ledgerRoot,
+      "ledger",
+      externalDocument.value.ledger.root,
+    );
+    const indexBefore = scanEvidenceRoot(
+      indexRoot,
+      "reconciliation-index",
+      externalDocument.value.reconciliation_index.root,
+    );
     const {
       ledger,
       reconciliationIndex,
@@ -1318,8 +1495,16 @@ export function verifyEvidenceRootsAgainstExternalCheckpoint(
       ledger,
       reconciliationIndex,
     );
-    const ledgerAfter = scanEvidenceRoot(ledgerRoot, "ledger");
-    const indexAfter = scanEvidenceRoot(indexRoot, "reconciliation-index");
+    const ledgerAfter = scanEvidenceRoot(
+      ledgerRoot,
+      "ledger",
+      externalDocument.value.ledger.root,
+    );
+    const indexAfter = scanEvidenceRoot(
+      indexRoot,
+      "reconciliation-index",
+      externalDocument.value.reconciliation_index.root,
+    );
     if (
       canonicalJson(ledgerHealth) !== canonicalJson(verifiedLedgerHealth) ||
       canonicalJson(indexHealth) !== canonicalJson(verifiedIndexHealth) ||
@@ -1398,8 +1583,16 @@ export function restoreEvidenceCheckpoint(
     const { manifest } = readCheckpointDocuments(checkpointRoot, externalFile);
     const sourceLedgerRoot = join(checkpointRoot, "ledger");
     const sourceIndexRoot = join(checkpointRoot, "reconciliation-index");
-    const ledgerInventory = scanEvidenceRoot(sourceLedgerRoot, "ledger");
-    const indexInventory = scanEvidenceRoot(sourceIndexRoot, "reconciliation-index");
+    const ledgerInventory = scanEvidenceRoot(
+      sourceLedgerRoot,
+      "ledger",
+      manifest.ledger.root,
+    );
+    const indexInventory = scanEvidenceRoot(
+      sourceIndexRoot,
+      "reconciliation-index",
+      manifest.reconciliation_index.root,
+    );
     if (
       canonicalJson(ledgerInventory.summary) !== canonicalJson(manifest.ledger.root) ||
       canonicalJson(indexInventory.summary) !== canonicalJson(manifest.reconciliation_index.root)

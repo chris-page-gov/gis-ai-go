@@ -32,11 +32,13 @@ def validator(name: str) -> Draft202012Validator:
     )
 
 
-def root_summary(identity: str) -> dict[str, object]:
+def root_summary(
+    identity: str, *, entry_count: int, file_count: int
+) -> dict[str, object]:
     return {
         "root_sha256": identity * 64,
-        "entry_count": 4,
-        "file_count": 2,
+        "entry_count": entry_count,
+        "file_count": file_count,
         "total_bytes": 1024,
     }
 
@@ -62,7 +64,7 @@ def manifest() -> dict[str, object]:
             "last_event_id": (
                 f"gis-ai-go:evidence-ledger-event:sha256:{'c' * 64}"
             ),
-            "root": root_summary("d"),
+            "root": root_summary("d", entry_count=5, file_count=3),
         },
         "reconciliation_index": {
             "index_id": (
@@ -76,7 +78,7 @@ def manifest() -> dict[str, object]:
             "resolution_count": 1,
             "completed_count": 1,
             "pending_count": 0,
-            "root": root_summary("f"),
+            "root": root_summary("f", entry_count=11, file_count=6),
         },
         "recovery": {
             "destination_roots": "existing-empty-private-directories",
@@ -168,6 +170,42 @@ class EvidenceCheckpointContractTests(unittest.TestCase):
                 )
             )
         )
+
+    def test_role_specific_root_traversal_ceilings_are_closed(self) -> None:
+        ceilings = {
+            "ledger": {
+                "entry_count": 2_000_003,
+                "file_count": 2_000_001,
+                "total_bytes": 4_259_840_016_384,
+            },
+            "reconciliation_index": {
+                "entry_count": 20_486,
+                "file_count": 20_481,
+                "total_bytes": 201_342_976,
+            },
+        }
+        checkpoint_validator = validator("evidence-checkpoint-manifest.schema.json")
+        external_validator = validator("evidence-external-checkpoint.schema.json")
+
+        for role, limits in ceilings.items():
+            for field, maximum in limits.items():
+                at_boundary = manifest()
+                at_boundary[role]["root"][field] = maximum
+                self.assertEqual(
+                    [],
+                    [error.message for error in checkpoint_validator.iter_errors(at_boundary)],
+                )
+
+                above_boundary = manifest()
+                above_boundary[role]["root"][field] = maximum + 1
+                self.assertTrue(list(checkpoint_validator.iter_errors(above_boundary)))
+                self.assertTrue(
+                    list(
+                        external_validator.iter_errors(
+                            external_checkpoint(above_boundary)
+                        )
+                    )
+                )
 
 
 if __name__ == "__main__":

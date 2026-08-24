@@ -77,15 +77,26 @@
     }
   },
   "$defs": {
-    "rootSummary": {
+    "ledgerRootSummary": {
       "type": "object",
       "additionalProperties": false,
       "required": ["root_sha256", "entry_count", "file_count", "total_bytes"],
       "properties": {
         "root_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
-        "entry_count": {"type": "integer", "minimum": 1, "maximum": 3000000},
-        "file_count": {"type": "integer", "minimum": 1, "maximum": 3000000},
-        "total_bytes": {"type": "integer", "minimum": 1, "maximum": 9007199254740991}
+        "entry_count": {"type": "integer", "minimum": 3, "maximum": 2000003},
+        "file_count": {"type": "integer", "minimum": 1, "maximum": 2000001},
+        "total_bytes": {"type": "integer", "minimum": 2, "maximum": 4259840016384}
+      }
+    },
+    "indexRootSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["root_sha256", "entry_count", "file_count", "total_bytes"],
+      "properties": {
+        "root_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "entry_count": {"type": "integer", "minimum": 6, "maximum": 20486},
+        "file_count": {"type": "integer", "minimum": 1, "maximum": 20481},
+        "total_bytes": {"type": "integer", "minimum": 2, "maximum": 201342976}
       }
     },
     "ledgerState": {
@@ -116,7 +127,7 @@
             }
           ]
         },
-        "root": {"$ref": "#/$defs/rootSummary"}
+        "root": {"$ref": "#/$defs/ledgerRootSummary"}
       }
     },
     "indexState": {
@@ -144,7 +155,7 @@
         "resolution_count": {"type": "integer", "minimum": 0, "maximum": 4096},
         "completed_count": {"type": "integer", "minimum": 0, "maximum": 4096},
         "pending_count": {"type": "integer", "minimum": 0, "maximum": 4096},
-        "root": {"$ref": "#/$defs/rootSummary"}
+        "root": {"$ref": "#/$defs/indexRootSummary"}
       }
     }
   }

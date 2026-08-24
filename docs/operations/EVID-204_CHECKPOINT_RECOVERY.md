@@ -31,7 +31,8 @@ All checkpoint directories are `0700`; every manifest, descriptor, evidence
 document and marker is `0600`. Symbolic links, file hard links, special files,
 unexpected entries, broader modes and changing source bytes fail closed. Writes are
 exclusive and never overwrite an existing backup, external checkpoint or restored
-file.
+file. Directory enumeration and aggregate bytes are bounded by the evidence-root
+role before hostile names are sorted or file content is read.
 
 ## Stopped-writer precondition
 
@@ -71,7 +72,8 @@ exist, overlap either source root, or overlap each other. The runtime:
 4. repeats both complete source verifications and inventories;
 5. writes the content-addressed manifest last;
 6. writes the external checkpoint outside the backup directory; and
-7. reopens and completely verifies the copied ledger/index pair against both
+7. repeats both source verifications and inventories after all output writes; and
+8. reopens and completely verifies the copied ledger/index pair against both
    documents.
 
 If any step fails, keep the stopped writer stopped. Do not promote a checkpoint
@@ -97,6 +99,24 @@ paths. Failure returns a fixed error code and no path. The checker rejects:
 - changed bytes, modes or identities;
 - a symbolic link, file hard link, special file or unexpected entry; and
 - an external checkpoint that does not match the manifest and both complete roots.
+
+### Fixed traversal ceilings
+
+The checkpoint contract has role-specific ceilings derived from the bounded ledger
+and reconciliation-index storage contracts. They are evidence format limits, not a
+provider quota:
+
+| Root | Entries | Files | Aggregate bytes |
+| --- | ---: | ---: | ---: |
+| Ledger | 2,000,003 | 2,000,001 | 4,259,840,016,384 |
+| Reconciliation index | 20,486 | 20,481 | 201,342,976 |
+
+Each child directory is enumerated incrementally only up to its role limit before
+the accepted names are sorted. During verification, the smaller file, entry and
+byte totals in the already validated manifest become additional ceilings. A file
+whose metadata would cross the remaining byte total is rejected before its content
+is allocated or read. The same bounds apply to creation, verification, current-root
+comparison and restore.
 
 A sibling file on the same writable filesystem satisfies the runtime's disjoint-path
 check but is not an independent security boundary. Before the writer resumes, copy

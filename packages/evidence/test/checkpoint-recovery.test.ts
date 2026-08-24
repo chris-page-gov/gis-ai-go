@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import {
   chmodSync,
   cpSync,
+  existsSync,
   linkSync,
   lstatSync,
   mkdirSync,
@@ -18,6 +20,8 @@ import { spawnSync } from "node:child_process";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
+import { canonicalJson } from "../src/canonical-json.js";
+import { contentAddress } from "../src/digest.js";
 import {
   EvidenceCheckpointError,
   createEvidenceCheckpoint,
@@ -43,6 +47,25 @@ import {
 const KEY = `gis-ai-go:ik:v1:${"1".repeat(64)}`;
 const OPENED_AT = new Date("2026-08-24T08:00:00.000Z");
 const CHECKPOINT_AT = new Date("2026-08-24T09:00:00.000Z");
+
+interface MutableCheckpointManifest extends Record<string, unknown> {
+  checkpoint_id: string;
+  created_at: string;
+  ledger: {
+    root: {
+      entry_count: number;
+      file_count: number;
+      total_bytes: number;
+    };
+  };
+  reconciliation_index: {
+    root: {
+      entry_count: number;
+      file_count: number;
+      total_bytes: number;
+    };
+  };
+}
 
 function temporaryParent(): string {
   return mkdtempSync(join(tmpdir(), "gis-ai-go-evidence-checkpoint-"));
@@ -120,6 +143,37 @@ function normaliseCopiedModes(root: string): void {
     const path = join(root, entry);
     chmodSync(path, lstatSync(path).isDirectory() ? 0o700 : 0o600);
   }
+}
+
+function rewriteCheckpointDocuments(
+  checkpointDirectory: string,
+  externalCheckpointFile: string,
+  mutate: (manifest: MutableCheckpointManifest) => void,
+): void {
+  const manifestPath = join(checkpointDirectory, "manifest.json");
+  const manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as MutableCheckpointManifest;
+  mutate(manifest);
+  const core: Record<string, unknown> = { ...manifest };
+  delete core.checkpoint_id;
+  manifest.checkpoint_id = contentAddress(
+    "gis-ai-go:evidence-checkpoint",
+    "gis-ai-go.evidence-checkpoint-manifest.v1",
+    core,
+  );
+  const manifestBytes = Buffer.from(`${canonicalJson(manifest)}\n`, "utf8");
+  writeFileSync(manifestPath, manifestBytes);
+  writeFileSync(
+    externalCheckpointFile,
+    `${canonicalJson({
+      schema: "gis-ai-go.evidence-external-checkpoint.v1",
+      created_at: manifest.created_at,
+      checkpoint_id: manifest.checkpoint_id,
+      manifest_sha256: createHash("sha256").update(manifestBytes).digest("hex"),
+      storage_boundary: "external-to-backup-required",
+      ledger: manifest.ledger,
+      reconciliation_index: manifest.reconciliation_index,
+    })}\n`,
+  );
 }
 
 test("creates one path-free linked manifest and restores only after complete verification", () => {
@@ -204,6 +258,182 @@ test("creates one path-free linked manifest and restores only after complete ver
   }
 });
 
+test("rejects dot-prefixed children of both source roots but permits disjoint siblings", () => {
+  const parent = temporaryParent();
+  try {
+    const pair = openPair(parent);
+    populateLinkedPair(pair);
+    for (const [label, sourceRoot] of [
+      ["ledger", pair.ledgerRoot],
+      ["index", pair.indexRoot],
+    ] as const) {
+      const checkpointDirectory = join(parent, `rejected-${label}-checkpoint`);
+      const externalCheckpointFile = join(sourceRoot, `..${label}-external.json`);
+      expectCheckpointError(
+        () =>
+          createEvidenceCheckpoint({
+            ledgerRootDirectory: pair.ledgerRoot,
+            reconciliationIndexRootDirectory: pair.indexRoot,
+            checkpointDirectory,
+            externalCheckpointFile,
+            stoppedSingleWriter: true,
+          }),
+        "invalid-configuration",
+      );
+      assert.equal(existsSync(checkpointDirectory), false);
+      assert.equal(existsSync(externalCheckpointFile), false);
+    }
+    assert.equal(pair.ledger.verify().event_count, 1);
+    assert.equal(pair.reconciliationIndex.verify().completed_count, 1);
+
+    const accepted = createEvidenceCheckpoint({
+      ledgerRootDirectory: pair.ledgerRoot,
+      reconciliationIndexRootDirectory: pair.indexRoot,
+      checkpointDirectory: join(parent, "..checkpoint"),
+      externalCheckpointFile: join(parent, "..checkpoint.external.json"),
+      stoppedSingleWriter: true,
+      now: () => CHECKPOINT_AT,
+    });
+    assert.equal(accepted.status, "verified");
+  } finally {
+    rmSync(parent, { recursive: true, force: true });
+  }
+});
+
+test("re-verifies protected sources after publishing the external checkpoint", () => {
+  const parent = temporaryParent();
+  try {
+    const pair = openPair(parent);
+    populateLinkedPair(pair);
+    const checkpointDirectory = join(parent, "late-change-checkpoint");
+    const externalCheckpointFile = join(parent, "late-change.external.json");
+    let changed = false;
+    expectCheckpointError(
+      () =>
+        createEvidenceCheckpoint({
+          ledgerRootDirectory: pair.ledgerRoot,
+          reconciliationIndexRootDirectory: pair.indexRoot,
+          checkpointDirectory,
+          externalCheckpointFile,
+          stoppedSingleWriter: true,
+          now: () => {
+            changed = true;
+            writeFileSync(join(pair.ledgerRoot, "..late-writer.json"), "{}\n", { mode: 0o600 });
+            return CHECKPOINT_AT;
+          },
+        }),
+      ["corruption", "io-failure"],
+    );
+    assert.equal(changed, true);
+    assert.equal(existsSync(externalCheckpointFile), true);
+  } finally {
+    rmSync(parent, { recursive: true, force: true });
+  }
+});
+
+test("enforces manifest-derived entry and aggregate-byte bounds before hostile reads", () => {
+  const parent = temporaryParent();
+  try {
+    const pair = openPair(parent);
+    populateLinkedPair(pair);
+    const checkpoint = checkpointPair(parent, pair);
+
+    const extraEntry = copyCheckpoint(checkpoint.checkpointDirectory, parent, "extra-entry");
+    const extraEntryExternal = join(parent, "extra-entry.external.json");
+    cpSync(checkpoint.externalCheckpointFile, extraEntryExternal, { preserveTimestamps: true });
+    chmodSync(extraEntryExternal, 0o600);
+    writeFileSync(
+      join(extraEntry, "reconciliation-index", "resolutions", `${"f".repeat(64)}.json`),
+      "untrusted bytes that must not be read\n",
+      { mode: 0o000 },
+    );
+    assert.throws(
+      () =>
+        verifyEvidenceCheckpoint({
+          checkpointDirectory: extraEntry,
+          externalCheckpointFile: extraEntryExternal,
+        }),
+      (error: unknown) => {
+        assert.ok(error instanceof EvidenceCheckpointError);
+        assert.equal(error.code, "corruption");
+        assert.match(error.message, /fixed entry bound/u);
+        return true;
+      },
+    );
+
+    const byteUndercount = copyCheckpoint(
+      checkpoint.checkpointDirectory,
+      parent,
+      "byte-undercount",
+    );
+    const byteUndercountExternal = join(parent, "byte-undercount.external.json");
+    cpSync(checkpoint.externalCheckpointFile, byteUndercountExternal, {
+      preserveTimestamps: true,
+    });
+    chmodSync(byteUndercountExternal, 0o600);
+    rewriteCheckpointDocuments(byteUndercount, byteUndercountExternal, (manifest) => {
+      manifest.ledger.root.total_bytes -= 1;
+    });
+    assert.throws(
+      () =>
+        verifyEvidenceCheckpoint({
+          checkpointDirectory: byteUndercount,
+          externalCheckpointFile: byteUndercountExternal,
+        }),
+      (error: unknown) => {
+        assert.ok(error instanceof EvidenceCheckpointError);
+        assert.equal(error.code, "corruption");
+        assert.match(error.message, /fixed byte bound/u);
+        return true;
+      },
+    );
+  } finally {
+    rmSync(parent, { recursive: true, force: true });
+  }
+});
+
+test("rejects role-specific declared traversal ceilings without large fixtures", () => {
+  const parent = temporaryParent();
+  try {
+    const pair = openPair(parent);
+    populateLinkedPair(pair);
+    const checkpoint = checkpointPair(parent, pair);
+    for (const [name, mutate] of [
+      [
+        "ledger-byte-limit",
+        (manifest: MutableCheckpointManifest): void => {
+          manifest.ledger.root.total_bytes = 4_259_840_016_385;
+        },
+      ],
+      [
+        "index-byte-limit",
+        (manifest: MutableCheckpointManifest): void => {
+          manifest.reconciliation_index.root.total_bytes = 201_342_977;
+        },
+      ],
+    ] as const) {
+      const checkpointDirectory = copyCheckpoint(
+        checkpoint.checkpointDirectory,
+        parent,
+        name,
+      );
+      const externalCheckpointFile = join(parent, `${name}.external.json`);
+      cpSync(checkpoint.externalCheckpointFile, externalCheckpointFile, {
+        preserveTimestamps: true,
+      });
+      chmodSync(externalCheckpointFile, 0o600);
+      rewriteCheckpointDocuments(checkpointDirectory, externalCheckpointFile, mutate);
+      expectCheckpointError(
+        () =>
+          verifyEvidenceCheckpoint({ checkpointDirectory, externalCheckpointFile }),
+        "corruption",
+      );
+    }
+  } finally {
+    rmSync(parent, { recursive: true, force: true });
+  }
+});
+
 test("rejects incomplete, cross-paired, tampered, linked and broader-mode backups", () => {
   const parent = temporaryParent();
   try {
@@ -256,7 +486,7 @@ test("rejects incomplete, cross-paired, tampered, linked and broader-mode backup
           checkpointDirectory: tampered,
           externalCheckpointFile: first.externalCheckpointFile,
         }),
-      "checkpoint-mismatch",
+      ["corruption", "checkpoint-mismatch"],
     );
 
     const linked = copyCheckpoint(first.checkpointDirectory, parent, "linked");
