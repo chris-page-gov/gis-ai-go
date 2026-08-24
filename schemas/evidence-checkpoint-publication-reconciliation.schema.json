@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:evidence-checkpoint-publication-reconciliation:v1",
+  "title": "GIS AI GO evidence checkpoint publication reconciliation",
+  "description": "The bounded result of synchronising or completing one deterministic external checkpoint publication.",
+  "oneOf": [
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "status",
+        "publication_durability",
+        "checkpoint_id",
+        "ledger_id",
+        "reconciliation_index_id"
+      ],
+      "properties": {
+        "schema": {
+          "const": "gis-ai-go.evidence-checkpoint-publication-reconciliation.v1"
+        },
+        "status": {"const": "passed"},
+        "publication_durability": {
+          "const": "file-and-parent-directory-synchronised"
+        },
+        "checkpoint_id": {
+          "type": "string",
+          "pattern": "^gis-ai-go:evidence-checkpoint:sha256:[0-9a-f]{64}$"
+        },
+        "ledger_id": {
+          "type": "string",
+          "pattern": "^gis-ai-go:public-evidence-ledger:sha256:[0-9a-f]{64}$"
+        },
+        "reconciliation_index_id": {
+          "type": "string",
+          "pattern": "^gis-ai-go:evidence-reconciliation-index:sha256:[0-9a-f]{64}$"
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "status", "code"],
+      "properties": {
+        "schema": {
+          "const": "gis-ai-go.evidence-checkpoint-publication-reconciliation.v1"
+        },
+        "status": {"const": "failed"},
+        "code": {"type": "string", "minLength": 1, "maxLength": 64}
+      }
+    }
+  ]
+}

@@ -207,6 +207,60 @@ class EvidenceCheckpointContractTests(unittest.TestCase):
                     )
                 )
 
+    def test_check_and_reconciliation_results_distinguish_durability(self) -> None:
+        source_manifest = manifest()
+        check = {
+            "schema": "gis-ai-go.evidence-checkpoint-check.v1",
+            "status": "passed",
+            "publication_durability": "not-established-by-read-only-check",
+            "checkpoint_id": source_manifest["checkpoint_id"],
+            "ledger": {
+                "ledger_id": source_manifest["ledger"]["ledger_id"],
+                "event_count": 1,
+                "record_count": 1,
+                "last_event_id": source_manifest["ledger"]["last_event_id"],
+            },
+            "reconciliation_index": {
+                "index_id": source_manifest["reconciliation_index"]["index_id"],
+                "ledger_id": source_manifest["ledger"]["ledger_id"],
+                "claim_count": 1,
+                "completed_count": 1,
+                "pending_count": 0,
+            },
+        }
+        reconciled = {
+            "schema": (
+                "gis-ai-go.evidence-checkpoint-publication-reconciliation.v1"
+            ),
+            "status": "passed",
+            "publication_durability": "file-and-parent-directory-synchronised",
+            "checkpoint_id": source_manifest["checkpoint_id"],
+            "ledger_id": source_manifest["ledger"]["ledger_id"],
+            "reconciliation_index_id": (
+                source_manifest["reconciliation_index"]["index_id"]
+            ),
+        }
+        check_validator = validator("evidence-checkpoint-check.schema.json")
+        reconciliation_validator = validator(
+            "evidence-checkpoint-publication-reconciliation.schema.json"
+        )
+        self.assertEqual([], list(check_validator.iter_errors(check)))
+        self.assertEqual([], list(reconciliation_validator.iter_errors(reconciled)))
+
+        falsely_durable = copy.deepcopy(check)
+        falsely_durable["publication_durability"] = (
+            "file-and-parent-directory-synchronised"
+        )
+        self.assertTrue(list(check_validator.iter_errors(falsely_durable)))
+
+        read_only_reconciliation = copy.deepcopy(reconciled)
+        read_only_reconciliation["publication_durability"] = (
+            "not-established-by-read-only-check"
+        )
+        self.assertTrue(
+            list(reconciliation_validator.iter_errors(read_only_reconciliation))
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

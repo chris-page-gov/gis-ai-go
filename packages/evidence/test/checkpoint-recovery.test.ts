@@ -27,11 +27,16 @@ import {
   createEvidenceCheckpoint,
   openEvidenceReconciliationIndex,
   openPublicEvidenceLedger,
+  reconcileEvidenceCheckpointPublication,
   restoreEvidenceCheckpoint,
   verifyEvidenceCheckpoint,
   verifyEvidenceRootsAgainstExternalCheckpoint,
   type CreateEvidenceCheckpointOptions,
+  type ReconcileEvidenceCheckpointPublicationOptions,
 } from "../src/index.js";
+import {
+  withEvidenceCheckpointPublicationHookForTest,
+} from "../src/checkpoint-publication-test-seam.js";
 import {
   CATALOGUE,
   LICENCE_OBLIGATIONS,
@@ -124,6 +129,32 @@ function checkpointChecker(): string {
     "../../../..",
     "scripts/check_evidence_checkpoint.mjs",
   );
+}
+
+function checkpointPublicationReconciler(): string {
+  return resolve(
+    dirname(fileURLToPath(import.meta.url)),
+    "../../../..",
+    "scripts/reconcile_evidence_checkpoint_publication.mjs",
+  );
+}
+
+function checkpointTransactionDirectory(externalCheckpointFile: string): string {
+  const canonicalTarget = resolve(externalCheckpointFile);
+  const digest = createHash("sha256")
+    .update("gis-ai-go.evidence-external-checkpoint-transaction.v1\0", "utf8")
+    .update(canonicalTarget, "utf8")
+    .digest("hex");
+  return join(
+    dirname(canonicalTarget),
+    `.gis-ai-go-evidence-checkpoint-transaction-${digest}`,
+  );
+}
+
+function checkpointTransactionEntries(parent: string): string[] {
+  return readdirSync(parent)
+    .filter((entry) => entry.startsWith(".gis-ai-go-evidence-checkpoint-transaction-"))
+    .sort();
 }
 
 function expectStandaloneCheckpointFailure(
@@ -256,8 +287,13 @@ test("creates one linked manifest, passes a fresh standalone check and restores"
     assert.equal(checked.status, 0, checked.stderr);
     const checkResult = JSON.parse(checked.stdout) as Record<string, unknown>;
     assert.equal(checkResult.status, "passed");
+    assert.equal(
+      checkResult.publication_durability,
+      "not-established-by-read-only-check",
+    );
     assert.equal(checkResult.checkpoint_id, checkpoint.verification.checkpoint_id);
     assert.equal(checked.stdout.includes(parent), false);
+    assert.deepEqual(checkpointTransactionEntries(parent), []);
 
     const restoredLedgerRoot = join(parent, "restored-ledger");
     const restoredIndexRoot = join(parent, "restored-index");
@@ -397,7 +433,497 @@ test("does not publish after a valid source advance before the snapshot point", 
   }
 });
 
-test("keeps a checkpoint unverifiable when its external commit path is claimed late", () => {
+test("keeps the declared snapshot when a writer violates quiescence after its snapshot point", () => {
+  const parent = temporaryParent();
+  try {
+    const pair = openPair(parent);
+    populateLinkedPair(pair);
+    const checkpointDirectory = join(parent, "post-snapshot-write-checkpoint");
+    const externalCheckpointFile = join(parent, "post-snapshot-write.external.json");
+    let advanced = false;
+    const options = withEvidenceCheckpointPublicationHookForTest(
+      {
+        ledgerRootDirectory: pair.ledgerRoot,
+        reconciliationIndexRootDirectory: pair.indexRoot,
+        checkpointDirectory,
+        externalCheckpointFile,
+        stoppedSingleWriter: true as const,
+        now: () => CHECKPOINT_AT,
+      },
+      ({ phase }) => {
+        if (phase !== "before-target-link" || advanced) return;
+        const fixture = makeReceiptFixture();
+        pair.ledger.persistReceipt(fixture.receipt, {
+          normalisedParameters: fixture.normalisedParameters,
+          resultCore: fixture.resultCore,
+          publicPolicy: fixture.publicPolicy,
+          licenceObligations: LICENCE_OBLIGATIONS,
+          expectedAuthorityContext: fixture.authorityContext,
+          expectedPolicyDecision: fixture.policyDecision,
+          expectedCatalogue: CATALOGUE,
+          expectedSoftware: SOFTWARE,
+        });
+        advanced = true;
+      },
+    );
+    const created = createEvidenceCheckpoint(options);
+    assert.equal(advanced, true);
+    assert.equal(created.ledger.event_count, 1);
+    assert.equal(pair.ledger.verify().event_count, 2);
+    assert.equal(
+      verifyEvidenceCheckpoint({ checkpointDirectory, externalCheckpointFile }).ledger
+        .event_count,
+      1,
+    );
+  } finally {
+    rmSync(parent, { recursive: true, force: true });
+  }
+});
+
+test("keeps the final path absent when the closed stage cannot be synchronised", () => {
+  const parent = temporaryParent();
+  try {
+    const pair = openPair(parent);
+    populateLinkedPair(pair);
+    const checkpointDirectory = join(parent, "stage-fsync-checkpoint");
+    const externalCheckpointFile = join(parent, "stage-fsync.external.json");
+    let observedStagePath: string | undefined;
+    const options = withEvidenceCheckpointPublicationHookForTest(
+      {
+        ledgerRootDirectory: pair.ledgerRoot,
+        reconciliationIndexRootDirectory: pair.indexRoot,
+        checkpointDirectory,
+        externalCheckpointFile,
+        stoppedSingleWriter: true as const,
+        now: () => CHECKPOINT_AT,
+      },
+      ({ phase, stagePath, targetPath }) => {
+        if (phase !== "before-stage-file-sync") return;
+        observedStagePath = stagePath;
+        assert.equal(targetPath, externalCheckpointFile);
+        assert.equal(existsSync(stagePath), true);
+        assert.equal(existsSync(targetPath), false);
+        expectCheckpointError(
+          () => verifyEvidenceCheckpoint({ checkpointDirectory, externalCheckpointFile }),
+          "io-failure",
+        );
+        const error = new Error("simulated stage file fsync failure") as NodeJS.ErrnoException;
+        error.code = "EIO";
+        throw error;
+      },
+    );
+    expectCheckpointError(() => createEvidenceCheckpoint(options), "io-failure");
+    assert.ok(observedStagePath);
+    assert.equal(existsSync(externalCheckpointFile), false);
+    assert.equal(existsSync(observedStagePath), false);
+    assert.deepEqual(checkpointTransactionEntries(parent), []);
+    expectStandaloneCheckpointFailure(
+      checkpointDirectory,
+      externalCheckpointFile,
+      "io-failure",
+    );
+  } finally {
+    rmSync(parent, { recursive: true, force: true });
+  }
+});
+
+test("retains an unverifiable linked state until indeterminate publication is reconciled", () => {
+  const parent = temporaryParent();
+  try {
+    const pair = openPair(parent);
+    populateLinkedPair(pair);
+    const checkpointDirectory = join(parent, "linked-publication-checkpoint");
+    const externalCheckpointFile = join(parent, "linked-publication.external.json");
+    let observedStagePath: string | undefined;
+    let rejectedWhileVisible = false;
+    const options = withEvidenceCheckpointPublicationHookForTest(
+      {
+        ledgerRootDirectory: pair.ledgerRoot,
+        reconciliationIndexRootDirectory: pair.indexRoot,
+        checkpointDirectory,
+        externalCheckpointFile,
+        stoppedSingleWriter: true as const,
+        now: () => CHECKPOINT_AT,
+      },
+      ({ phase, stagePath, targetPath }) => {
+        observedStagePath = stagePath;
+        if (phase === "after-target-link") {
+          assert.equal(existsSync(targetPath), true);
+          assert.equal(lstatSync(stagePath).nlink, 2);
+          assert.equal(lstatSync(targetPath).nlink, 2);
+          expectCheckpointError(
+            () => verifyEvidenceCheckpoint({ checkpointDirectory, externalCheckpointFile }),
+            "corruption",
+          );
+          rejectedWhileVisible = true;
+        }
+        if (phase === "before-target-parent-sync") {
+          const error = new Error(
+            "simulated target parent-directory fsync failure",
+          ) as NodeJS.ErrnoException;
+          error.code = "EIO";
+          throw error;
+        }
+      },
+    );
+    expectCheckpointError(
+      () => createEvidenceCheckpoint(options),
+      "publication-indeterminate",
+    );
+    assert.equal(rejectedWhileVisible, true);
+    assert.ok(observedStagePath);
+    assert.equal(lstatSync(observedStagePath).nlink, 2);
+    assert.equal(lstatSync(externalCheckpointFile).nlink, 2);
+    assert.equal(lstatSync(observedStagePath).ino, lstatSync(externalCheckpointFile).ino);
+    expectStandaloneCheckpointFailure(
+      checkpointDirectory,
+      externalCheckpointFile,
+      "corruption",
+    );
+
+    const reconciled = spawnSync(
+      process.execPath,
+      [
+        checkpointPublicationReconciler(),
+        "--checkpoint-directory",
+        checkpointDirectory,
+        "--external-checkpoint-file",
+        externalCheckpointFile,
+        "--stopped-single-writer-confirmed",
+        "--exclusive-publication-owner-confirmed",
+      ],
+      { encoding: "utf8" },
+    );
+    assert.equal(reconciled.status, 0, reconciled.stderr);
+    const result = JSON.parse(reconciled.stdout) as Record<string, unknown>;
+    assert.equal(result.status, "passed");
+    assert.equal(
+      result.publication_durability,
+      "file-and-parent-directory-synchronised",
+    );
+    assert.equal(lstatSync(externalCheckpointFile).nlink, 1);
+    assert.equal(existsSync(observedStagePath), false);
+    assert.equal(
+      verifyEvidenceCheckpoint({ checkpointDirectory, externalCheckpointFile }).status,
+      "verified",
+    );
+  } finally {
+    rmSync(parent, { recursive: true, force: true });
+  }
+});
+
+test("contains a lost hard-link response as indeterminate linked publication", () => {
+  const parent = temporaryParent();
+  try {
+    const pair = openPair(parent);
+    populateLinkedPair(pair);
+    const checkpointDirectory = join(parent, "lost-link-response-checkpoint");
+    const externalCheckpointFile = join(parent, "lost-link-response.external.json");
+    let stagePath: string | undefined;
+    const options = withEvidenceCheckpointPublicationHookForTest(
+      {
+        ledgerRootDirectory: pair.ledgerRoot,
+        reconciliationIndexRootDirectory: pair.indexRoot,
+        checkpointDirectory,
+        externalCheckpointFile,
+        stoppedSingleWriter: true as const,
+        now: () => CHECKPOINT_AT,
+      },
+      (state) => {
+        stagePath = state.stagePath;
+        if (state.phase !== "before-target-link") return;
+        linkSync(state.stagePath, state.targetPath);
+        const error = new Error("simulated lost hard-link response") as NodeJS.ErrnoException;
+        error.code = "EIO";
+        throw error;
+      },
+    );
+    expectCheckpointError(
+      () => createEvidenceCheckpoint(options),
+      "publication-indeterminate",
+    );
+    assert.ok(stagePath);
+    assert.equal(lstatSync(stagePath).nlink, 2);
+    assert.equal(lstatSync(externalCheckpointFile).nlink, 2);
+    expectStandaloneCheckpointFailure(
+      checkpointDirectory,
+      externalCheckpointFile,
+      "corruption",
+    );
+    assert.equal(
+      reconcileEvidenceCheckpointPublication({
+        checkpointDirectory,
+        exclusivePublicationOwner: true,
+        externalCheckpointFile,
+        stoppedSingleWriter: true,
+      }).status,
+      "verified",
+    );
+    assert.equal(existsSync(stagePath), false);
+  } finally {
+    rmSync(parent, { recursive: true, force: true });
+  }
+});
+
+test("keeps linked recovery indeterminate when its reopen has an I/O fault", () => {
+  const parent = temporaryParent();
+  try {
+    const pair = openPair(parent);
+    populateLinkedPair(pair);
+    const checkpointDirectory = join(parent, "linked-reopen-checkpoint");
+    const externalCheckpointFile = join(parent, "linked-reopen.external.json");
+    let stagePath: string | undefined;
+    const creatingOptions = withEvidenceCheckpointPublicationHookForTest(
+      {
+        ledgerRootDirectory: pair.ledgerRoot,
+        reconciliationIndexRootDirectory: pair.indexRoot,
+        checkpointDirectory,
+        externalCheckpointFile,
+        stoppedSingleWriter: true as const,
+        now: () => CHECKPOINT_AT,
+      },
+      (state) => {
+        stagePath = state.stagePath;
+        if (state.phase !== "before-target-parent-sync") return;
+        const error = new Error(
+          "simulated initial target-parent fsync failure",
+        ) as NodeJS.ErrnoException;
+        error.code = "EIO";
+        throw error;
+      },
+    );
+    expectCheckpointError(
+      () => createEvidenceCheckpoint(creatingOptions),
+      "publication-indeterminate",
+    );
+    assert.ok(stagePath);
+    assert.equal(lstatSync(stagePath).nlink, 2);
+    assert.equal(lstatSync(externalCheckpointFile).nlink, 2);
+
+    const reconcilingOptions = withEvidenceCheckpointPublicationHookForTest(
+      {
+        checkpointDirectory,
+        exclusivePublicationOwner: true as const,
+        externalCheckpointFile,
+        stoppedSingleWriter: true as const,
+      },
+      ({ phase }) => {
+        if (phase !== "before-linked-recovery-reopen") return;
+        const error = new Error(
+          "simulated linked recovery reopen I/O fault",
+        ) as NodeJS.ErrnoException;
+        error.code = "EIO";
+        throw error;
+      },
+    );
+    expectCheckpointError(
+      () => reconcileEvidenceCheckpointPublication(reconcilingOptions),
+      "publication-indeterminate",
+    );
+    assert.equal(lstatSync(stagePath).nlink, 2);
+    assert.equal(lstatSync(externalCheckpointFile).nlink, 2);
+    expectStandaloneCheckpointFailure(
+      checkpointDirectory,
+      externalCheckpointFile,
+      "corruption",
+    );
+    assert.equal(
+      reconcileEvidenceCheckpointPublication({
+        checkpointDirectory,
+        exclusivePublicationOwner: true,
+        externalCheckpointFile,
+        stoppedSingleWriter: true,
+      }).status,
+      "verified",
+    );
+    assert.equal(existsSync(stagePath), false);
+  } finally {
+    rmSync(parent, { recursive: true, force: true });
+  }
+});
+
+test("reconciles a durable target left linked when staging removal fails", () => {
+  const parent = temporaryParent();
+  try {
+    const pair = openPair(parent);
+    populateLinkedPair(pair);
+    const checkpointDirectory = join(parent, "unlink-failure-checkpoint");
+    const externalCheckpointFile = join(parent, "unlink-failure.external.json");
+    let stagePath: string | undefined;
+    let targetWasSynchronised = false;
+    const options = withEvidenceCheckpointPublicationHookForTest(
+      {
+        ledgerRootDirectory: pair.ledgerRoot,
+        reconciliationIndexRootDirectory: pair.indexRoot,
+        checkpointDirectory,
+        externalCheckpointFile,
+        stoppedSingleWriter: true as const,
+        now: () => CHECKPOINT_AT,
+      },
+      (state) => {
+        stagePath = state.stagePath;
+        if (state.phase === "after-target-parent-sync") {
+          targetWasSynchronised = true;
+        }
+        if (state.phase === "before-stage-unlink") {
+          throw new Error("simulated staging unlink failure");
+        }
+      },
+    );
+    expectCheckpointError(
+      () => createEvidenceCheckpoint(options),
+      "publication-indeterminate",
+    );
+    assert.equal(targetWasSynchronised, true);
+    assert.ok(stagePath);
+    assert.equal(lstatSync(stagePath).nlink, 2);
+    assert.equal(lstatSync(externalCheckpointFile).nlink, 2);
+    expectStandaloneCheckpointFailure(
+      checkpointDirectory,
+      externalCheckpointFile,
+      "corruption",
+    );
+    assert.equal(
+      reconcileEvidenceCheckpointPublication({
+        checkpointDirectory,
+        exclusivePublicationOwner: true,
+        externalCheckpointFile,
+        stoppedSingleWriter: true,
+      }).status,
+      "verified",
+    );
+    assert.equal(existsSync(stagePath), false);
+  } finally {
+    rmSync(parent, { recursive: true, force: true });
+  }
+});
+
+test("reports clean-up durability ambiguity without hiding currently verified content", () => {
+  const parent = temporaryParent();
+  try {
+    const pair = openPair(parent);
+    populateLinkedPair(pair);
+    const checkpointDirectory = join(parent, "cleanup-sync-checkpoint");
+    const externalCheckpointFile = join(parent, "cleanup-sync.external.json");
+    let observedStagePath: string | undefined;
+    const options = withEvidenceCheckpointPublicationHookForTest(
+      {
+        ledgerRootDirectory: pair.ledgerRoot,
+        reconciliationIndexRootDirectory: pair.indexRoot,
+        checkpointDirectory,
+        externalCheckpointFile,
+        stoppedSingleWriter: true as const,
+        now: () => CHECKPOINT_AT,
+      },
+      ({ phase, stagePath }) => {
+        observedStagePath = stagePath;
+        if (phase !== "before-cleanup-parent-sync") return;
+        const error = new Error(
+          "simulated staging clean-up directory fsync failure",
+        ) as NodeJS.ErrnoException;
+        error.code = "EIO";
+        throw error;
+      },
+    );
+    expectCheckpointError(
+      () => createEvidenceCheckpoint(options),
+      "publication-indeterminate",
+    );
+    assert.ok(observedStagePath);
+    assert.equal(existsSync(observedStagePath), false);
+    assert.equal(lstatSync(externalCheckpointFile).nlink, 1);
+    assert.equal(
+      verifyEvidenceCheckpoint({ checkpointDirectory, externalCheckpointFile }).status,
+      "verified",
+    );
+
+    const checked = spawnSync(
+      process.execPath,
+      [
+        checkpointChecker(),
+        "--checkpoint-directory",
+        checkpointDirectory,
+        "--external-checkpoint-file",
+        externalCheckpointFile,
+      ],
+      { encoding: "utf8" },
+    );
+    assert.equal(checked.status, 0, checked.stderr);
+    assert.equal(
+      (JSON.parse(checked.stdout) as Record<string, unknown>).publication_durability,
+      "not-established-by-read-only-check",
+    );
+    assert.equal(
+      reconcileEvidenceCheckpointPublication({
+        checkpointDirectory,
+        exclusivePublicationOwner: true,
+        externalCheckpointFile,
+        stoppedSingleWriter: true,
+      }).status,
+      "verified",
+    );
+    assert.deepEqual(checkpointTransactionEntries(parent), []);
+  } finally {
+    rmSync(parent, { recursive: true, force: true });
+  }
+});
+
+test("reports target-only durability ambiguity after transaction-directory removal", () => {
+  const parent = temporaryParent();
+  try {
+    const pair = openPair(parent);
+    populateLinkedPair(pair);
+    const checkpointDirectory = join(parent, "target-only-checkpoint");
+    const externalCheckpointFile = join(parent, "target-only.external.json");
+    const transactionDirectory = checkpointTransactionDirectory(externalCheckpointFile);
+    let removalObserved = false;
+    const options = withEvidenceCheckpointPublicationHookForTest(
+      {
+        ledgerRootDirectory: pair.ledgerRoot,
+        reconciliationIndexRootDirectory: pair.indexRoot,
+        checkpointDirectory,
+        externalCheckpointFile,
+        stoppedSingleWriter: true as const,
+        now: () => CHECKPOINT_AT,
+      },
+      ({ phase }) => {
+        if (phase !== "after-transaction-directory-remove") return;
+        removalObserved = true;
+        assert.equal(existsSync(transactionDirectory), false);
+        assert.equal(lstatSync(externalCheckpointFile).nlink, 1);
+        const error = new Error(
+          "simulated target-parent fsync failure after transaction removal",
+        ) as NodeJS.ErrnoException;
+        error.code = "EIO";
+        throw error;
+      },
+    );
+    expectCheckpointError(
+      () => createEvidenceCheckpoint(options),
+      "publication-indeterminate",
+    );
+    assert.equal(removalObserved, true);
+    assert.equal(existsSync(transactionDirectory), false);
+    assert.equal(
+      verifyEvidenceCheckpoint({ checkpointDirectory, externalCheckpointFile }).status,
+      "verified",
+    );
+    assert.equal(
+      reconcileEvidenceCheckpointPublication({
+        checkpointDirectory,
+        exclusivePublicationOwner: true,
+        externalCheckpointFile,
+        stoppedSingleWriter: true,
+      }).status,
+      "verified",
+    );
+    assert.deepEqual(checkpointTransactionEntries(parent), []);
+  } finally {
+    rmSync(parent, { recursive: true, force: true });
+  }
+});
+
+test("keeps a checkpoint unverifiable when its external commit path is claimed by partial data", () => {
   const parent = temporaryParent();
   try {
     const pair = openPair(parent);
@@ -425,6 +951,474 @@ test("keeps a checkpoint unverifiable when its external commit path is claimed l
       externalCheckpointFile,
       "corruption",
     );
+  } finally {
+    rmSync(parent, { recursive: true, force: true });
+  }
+});
+
+test("converges on an exact canonical late claimant as idempotent verified success", () => {
+  const parent = temporaryParent();
+  try {
+    const pair = openPair(parent);
+    populateLinkedPair(pair);
+    const reference = checkpointPair(parent, pair, "reference-checkpoint");
+    const checkpointDirectory = join(parent, "exact-claimant-checkpoint");
+    const externalCheckpointFile = join(parent, "exact-claimant.external.json");
+    let claimantInode: number | undefined;
+    const expectedBytes = readFileSync(reference.externalCheckpointFile);
+    const created = createEvidenceCheckpoint({
+      ledgerRootDirectory: pair.ledgerRoot,
+      reconciliationIndexRootDirectory: pair.indexRoot,
+      checkpointDirectory,
+      externalCheckpointFile,
+      stoppedSingleWriter: true,
+      now: () => {
+        cpSync(reference.externalCheckpointFile, externalCheckpointFile, {
+          preserveTimestamps: true,
+        });
+        chmodSync(externalCheckpointFile, 0o600);
+        claimantInode = lstatSync(externalCheckpointFile).ino;
+        return CHECKPOINT_AT;
+      },
+    });
+    assert.equal(created.status, "verified");
+    assert.equal(created.checkpoint_id, reference.verification.checkpoint_id);
+    assert.equal(lstatSync(externalCheckpointFile).ino, claimantInode);
+    assert.deepEqual(readFileSync(externalCheckpointFile), expectedBytes);
+    assert.deepEqual(checkpointTransactionEntries(parent), []);
+
+    const checked = spawnSync(
+      process.execPath,
+      [
+        checkpointChecker(),
+        "--checkpoint-directory",
+        checkpointDirectory,
+        "--external-checkpoint-file",
+        externalCheckpointFile,
+      ],
+      { encoding: "utf8" },
+    );
+    assert.equal(checked.status, 0, checked.stderr);
+    assert.equal(
+      (JSON.parse(checked.stdout) as Record<string, unknown>).checkpoint_id,
+      created.checkpoint_id,
+    );
+  } finally {
+    rmSync(parent, { recursive: true, force: true });
+  }
+});
+
+test("reconciles an exact late claimant after its directory durability is indeterminate", () => {
+  const parent = temporaryParent();
+  try {
+    const pair = openPair(parent);
+    populateLinkedPair(pair);
+    const reference = checkpointPair(parent, pair, "uncertain-reference");
+    const checkpointDirectory = join(parent, "uncertain-exact-checkpoint");
+    const externalCheckpointFile = join(parent, "uncertain-exact.external.json");
+    let stagePath: string | undefined;
+    let claimed = false;
+    const options = withEvidenceCheckpointPublicationHookForTest(
+      {
+        ledgerRootDirectory: pair.ledgerRoot,
+        reconciliationIndexRootDirectory: pair.indexRoot,
+        checkpointDirectory,
+        externalCheckpointFile,
+        stoppedSingleWriter: true as const,
+        now: () => CHECKPOINT_AT,
+      },
+      (state) => {
+        stagePath = state.stagePath;
+        if (state.phase === "before-target-link") {
+          cpSync(reference.externalCheckpointFile, externalCheckpointFile, {
+            preserveTimestamps: true,
+          });
+          chmodSync(externalCheckpointFile, 0o600);
+          claimed = true;
+        }
+        if (state.phase === "before-target-parent-sync") {
+          const error = new Error(
+            "simulated exact claimant directory fsync failure",
+          ) as NodeJS.ErrnoException;
+          error.code = "EIO";
+          throw error;
+        }
+      },
+    );
+    expectCheckpointError(
+      () => createEvidenceCheckpoint(options),
+      "publication-indeterminate",
+    );
+    assert.equal(claimed, true);
+    assert.ok(stagePath);
+    assert.equal(lstatSync(stagePath).nlink, 1);
+    assert.equal(lstatSync(externalCheckpointFile).nlink, 1);
+    assert.equal(
+      verifyEvidenceCheckpoint({ checkpointDirectory, externalCheckpointFile }).status,
+      "verified",
+    );
+    assert.equal(
+      reconcileEvidenceCheckpointPublication({
+        checkpointDirectory,
+        exclusivePublicationOwner: true,
+        externalCheckpointFile,
+        stoppedSingleWriter: true,
+      }).status,
+      "verified",
+    );
+    assert.equal(existsSync(stagePath), false);
+  } finally {
+    rmSync(parent, { recursive: true, force: true });
+  }
+});
+
+test("preserves an exact late claimant when inspection or verification has an I/O fault", () => {
+  const parent = temporaryParent();
+  try {
+    for (const faultPhase of [
+      "before-existing-target-open",
+      "before-existing-target-verification",
+    ] as const) {
+      const caseParent = join(parent, faultPhase);
+      mkdirSync(caseParent, { mode: 0o700 });
+      const pair = openPair(caseParent);
+      populateLinkedPair(pair);
+      const reference = checkpointPair(caseParent, pair, "reference");
+      const checkpointDirectory = join(caseParent, "checkpoint");
+      const externalCheckpointFile = join(caseParent, "external.json");
+      let stagePath: string | undefined;
+      const options = withEvidenceCheckpointPublicationHookForTest(
+        {
+          ledgerRootDirectory: pair.ledgerRoot,
+          reconciliationIndexRootDirectory: pair.indexRoot,
+          checkpointDirectory,
+          externalCheckpointFile,
+          stoppedSingleWriter: true as const,
+          now: () => CHECKPOINT_AT,
+        },
+        (state) => {
+          stagePath = state.stagePath;
+          if (state.phase === "before-target-link") {
+            cpSync(reference.externalCheckpointFile, externalCheckpointFile, {
+              preserveTimestamps: true,
+            });
+            chmodSync(externalCheckpointFile, 0o600);
+          }
+          if (state.phase === faultPhase) {
+            const error = new Error(
+              "simulated exact claimant inspection I/O fault",
+            ) as NodeJS.ErrnoException;
+            error.code = "EIO";
+            throw error;
+          }
+        },
+      );
+      expectCheckpointError(
+        () => createEvidenceCheckpoint(options),
+        "publication-indeterminate",
+      );
+      assert.ok(stagePath);
+      assert.equal(lstatSync(stagePath).nlink, 1);
+      assert.equal(
+        verifyEvidenceCheckpoint({ checkpointDirectory, externalCheckpointFile }).status,
+        "verified",
+      );
+      assert.equal(
+        reconcileEvidenceCheckpointPublication({
+          checkpointDirectory,
+          exclusivePublicationOwner: true,
+          externalCheckpointFile,
+          stoppedSingleWriter: true,
+        }).status,
+        "verified",
+      );
+      assert.equal(existsSync(stagePath), false);
+    }
+  } finally {
+    rmSync(parent, { recursive: true, force: true });
+  }
+});
+
+test("rejects and preserves different, linked and special late claimants", () => {
+  const parent = temporaryParent();
+  try {
+    for (const claimant of [
+      "different",
+      "symbolic-link",
+      "hard-link",
+      "directory",
+    ] as const) {
+      const caseParent = join(parent, claimant);
+      mkdirSync(caseParent, { mode: 0o700 });
+      const pair = openPair(caseParent);
+      populateLinkedPair(pair);
+      const checkpointDirectory = join(caseParent, "checkpoint");
+      const externalCheckpointFile = join(caseParent, "external.json");
+      const linkTarget = join(caseParent, "link-target.json");
+      let differentReference: string | undefined;
+      if (claimant === "different") {
+        differentReference = join(caseParent, "different-reference.external.json");
+        createEvidenceCheckpoint({
+          ledgerRootDirectory: pair.ledgerRoot,
+          reconciliationIndexRootDirectory: pair.indexRoot,
+          checkpointDirectory: join(caseParent, "different-reference-checkpoint"),
+          externalCheckpointFile: differentReference,
+          stoppedSingleWriter: true,
+          now: () => new Date("2026-08-24T09:01:00.000Z"),
+        });
+      }
+      if (claimant === "symbolic-link" || claimant === "hard-link") {
+        writeFileSync(linkTarget, "{}\n", { mode: 0o600 });
+      }
+      expectCheckpointError(
+        () =>
+          createEvidenceCheckpoint({
+            ledgerRootDirectory: pair.ledgerRoot,
+            reconciliationIndexRootDirectory: pair.indexRoot,
+            checkpointDirectory,
+            externalCheckpointFile,
+            stoppedSingleWriter: true,
+            now: () => {
+              if (claimant === "different") {
+                assert.ok(differentReference);
+                cpSync(differentReference, externalCheckpointFile, {
+                  preserveTimestamps: true,
+                });
+                chmodSync(externalCheckpointFile, 0o600);
+              } else if (claimant === "symbolic-link") {
+                symlinkSync(linkTarget, externalCheckpointFile);
+              } else if (claimant === "hard-link") {
+                linkSync(linkTarget, externalCheckpointFile);
+              } else {
+                mkdirSync(externalCheckpointFile, { mode: 0o700 });
+              }
+              return CHECKPOINT_AT;
+            },
+          }),
+        "collision",
+      );
+      assert.deepEqual(checkpointTransactionEntries(caseParent), []);
+      if (claimant === "different") {
+        assert.ok(differentReference);
+        assert.deepEqual(
+          readFileSync(externalCheckpointFile),
+          readFileSync(differentReference),
+        );
+      } else if (claimant === "symbolic-link") {
+        assert.equal(lstatSync(externalCheckpointFile).isSymbolicLink(), true);
+      } else if (claimant === "hard-link") {
+        assert.equal(lstatSync(externalCheckpointFile).nlink, 2);
+      } else {
+        assert.equal(lstatSync(externalCheckpointFile).isDirectory(), true);
+      }
+      expectStandaloneCheckpointFailure(
+        checkpointDirectory,
+        externalCheckpointFile,
+        claimant === "different" ? "checkpoint-mismatch" : "corruption",
+      );
+    }
+  } finally {
+    rmSync(parent, { recursive: true, force: true });
+  }
+});
+
+test("treats an existing publication transaction as busy without adopting its stage", () => {
+  const parent = temporaryParent();
+  try {
+    const pair = openPair(parent);
+    populateLinkedPair(pair);
+    const checkpointDirectory = join(parent, "owner-checkpoint");
+    const externalCheckpointFile = join(parent, "shared.external.json");
+    let competingAttempted = false;
+    const ownerOptions = withEvidenceCheckpointPublicationHookForTest(
+      {
+        ledgerRootDirectory: pair.ledgerRoot,
+        reconciliationIndexRootDirectory: pair.indexRoot,
+        checkpointDirectory,
+        externalCheckpointFile,
+        stoppedSingleWriter: true as const,
+        now: () => CHECKPOINT_AT,
+      },
+      ({ phase, stagePath }) => {
+        if (phase !== "after-stage-parent-sync" || competingAttempted) return;
+        competingAttempted = true;
+        const before = lstatSync(stagePath);
+        const beforeBytes = readFileSync(stagePath);
+        expectCheckpointError(
+          () =>
+            createEvidenceCheckpoint({
+              ledgerRootDirectory: pair.ledgerRoot,
+              reconciliationIndexRootDirectory: pair.indexRoot,
+              checkpointDirectory: join(parent, "competing-checkpoint"),
+              externalCheckpointFile,
+              stoppedSingleWriter: true,
+              now: () => CHECKPOINT_AT,
+            }),
+          "publication-indeterminate",
+        );
+        const after = lstatSync(stagePath);
+        assert.equal(after.dev, before.dev);
+        assert.equal(after.ino, before.ino);
+        assert.equal(after.nlink, 1);
+        assert.deepEqual(readFileSync(stagePath), beforeBytes);
+        assert.equal(existsSync(externalCheckpointFile), false);
+      },
+    );
+
+    assert.equal(createEvidenceCheckpoint(ownerOptions).status, "verified");
+    assert.equal(competingAttempted, true);
+    assert.deepEqual(checkpointTransactionEntries(parent), []);
+    assert.equal(
+      verifyEvidenceCheckpoint({ checkpointDirectory, externalCheckpointFile }).status,
+      "verified",
+    );
+  } finally {
+    rmSync(parent, { recursive: true, force: true });
+  }
+});
+
+test("reconciles each bounded transaction residue under exclusive authority", () => {
+  const parent = temporaryParent();
+  try {
+    for (const state of ["empty", "stage-only", "linked", "target-only"] as const) {
+      const caseParent = join(parent, state);
+      mkdirSync(caseParent, { mode: 0o700 });
+      const pair = openPair(caseParent);
+      populateLinkedPair(pair);
+      const checkpoint = checkpointPair(caseParent, pair);
+      const expectedBytes = readFileSync(checkpoint.externalCheckpointFile);
+      rmSync(checkpoint.externalCheckpointFile);
+      const transactionDirectory = checkpointTransactionDirectory(
+        checkpoint.externalCheckpointFile,
+      );
+      const stagePath = join(transactionDirectory, "stage");
+
+      if (state !== "target-only") {
+        mkdirSync(transactionDirectory, { mode: 0o700 });
+      }
+      if (state === "stage-only" || state === "linked") {
+        writeFileSync(stagePath, expectedBytes, { mode: 0o600 });
+      }
+      if (state === "linked") {
+        linkSync(stagePath, checkpoint.externalCheckpointFile);
+        assert.equal(lstatSync(stagePath).nlink, 2);
+      }
+      if (state === "target-only") {
+        writeFileSync(checkpoint.externalCheckpointFile, expectedBytes, { mode: 0o600 });
+      }
+
+      const reconciled = reconcileEvidenceCheckpointPublication({
+        checkpointDirectory: checkpoint.checkpointDirectory,
+        exclusivePublicationOwner: true,
+        externalCheckpointFile: checkpoint.externalCheckpointFile,
+        stoppedSingleWriter: true,
+      });
+      assert.equal(reconciled.status, "verified");
+      assert.equal(lstatSync(checkpoint.externalCheckpointFile).nlink, 1);
+      assert.deepEqual(readFileSync(checkpoint.externalCheckpointFile), expectedBytes);
+      assert.equal(existsSync(transactionDirectory), false);
+      assert.equal(
+        verifyEvidenceCheckpoint({
+          checkpointDirectory: checkpoint.checkpointDirectory,
+          externalCheckpointFile: checkpoint.externalCheckpointFile,
+        }).status,
+        "verified",
+      );
+    }
+  } finally {
+    rmSync(parent, { recursive: true, force: true });
+  }
+});
+
+test("requires explicit stopped-writer and exclusive-owner reconciliation assertions", () => {
+  const parent = temporaryParent();
+  try {
+    const pair = openPair(parent);
+    populateLinkedPair(pair);
+    const checkpoint = checkpointPair(parent, pair);
+    for (const invalid of [
+      { stoppedSingleWriter: false, exclusivePublicationOwner: true },
+      { stoppedSingleWriter: true, exclusivePublicationOwner: false },
+    ]) {
+      expectCheckpointError(
+        () =>
+          reconcileEvidenceCheckpointPublication({
+            checkpointDirectory: checkpoint.checkpointDirectory,
+            externalCheckpointFile: checkpoint.externalCheckpointFile,
+            ...invalid,
+          } as unknown as ReconcileEvidenceCheckpointPublicationOptions),
+        "quiescence-required",
+      );
+    }
+    const missingCliAssertions = spawnSync(
+      process.execPath,
+      [
+        checkpointPublicationReconciler(),
+        "--checkpoint-directory",
+        checkpoint.checkpointDirectory,
+        "--external-checkpoint-file",
+        checkpoint.externalCheckpointFile,
+      ],
+      { encoding: "utf8" },
+    );
+    assert.equal(missingCliAssertions.status, 2);
+    assert.match(missingCliAssertions.stderr, /exclusive-publication-owner-confirmed/u);
+    assert.deepEqual(checkpointTransactionEntries(parent), []);
+  } finally {
+    rmSync(parent, { recursive: true, force: true });
+  }
+});
+
+test("preserves mismatched and unexpected transaction-directory residue", () => {
+  const parent = temporaryParent();
+  try {
+    for (const residue of ["different-stage", "symbolic-stage", "unexpected-entry"] as const) {
+      const caseParent = join(parent, residue);
+      mkdirSync(caseParent, { mode: 0o700 });
+      const pair = openPair(caseParent);
+      populateLinkedPair(pair);
+      const checkpoint = checkpointPair(caseParent, pair);
+      rmSync(checkpoint.externalCheckpointFile);
+      const transactionDirectory = checkpointTransactionDirectory(
+        checkpoint.externalCheckpointFile,
+      );
+      const stagePath = join(transactionDirectory, "stage");
+      const linkTarget = join(caseParent, "foreign-stage-target.json");
+      mkdirSync(transactionDirectory, { mode: 0o700 });
+      if (residue === "different-stage") {
+        writeFileSync(stagePath, "foreign-stage\n", { mode: 0o600 });
+      } else if (residue === "symbolic-stage") {
+        writeFileSync(linkTarget, "foreign-stage\n", { mode: 0o600 });
+        symlinkSync(linkTarget, stagePath);
+      } else {
+        writeFileSync(join(transactionDirectory, "unexpected"), "foreign\n", {
+          mode: 0o600,
+        });
+      }
+
+      expectCheckpointError(
+        () =>
+          reconcileEvidenceCheckpointPublication({
+            checkpointDirectory: checkpoint.checkpointDirectory,
+            exclusivePublicationOwner: true,
+            externalCheckpointFile: checkpoint.externalCheckpointFile,
+            stoppedSingleWriter: true,
+          }),
+        "collision",
+      );
+      assert.equal(existsSync(checkpoint.externalCheckpointFile), false);
+      assert.equal(existsSync(transactionDirectory), true);
+      if (residue === "different-stage") {
+        assert.equal(readFileSync(stagePath, "utf8"), "foreign-stage\n");
+      } else if (residue === "symbolic-stage") {
+        assert.equal(lstatSync(stagePath).isSymbolicLink(), true);
+      } else {
+        assert.equal(
+          readFileSync(join(transactionDirectory, "unexpected"), "utf8"),
+          "foreign\n",
+        );
+      }
+    }
   } finally {
     rmSync(parent, { recursive: true, force: true });
   }

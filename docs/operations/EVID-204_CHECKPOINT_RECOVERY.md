@@ -23,18 +23,26 @@ reconciliation-index/
 identities, both complete domain-separated root digests, counts, the ledger's event
 count and last event identity, and the recovery boundary. The small external
 checkpoint repeats those identities and roots plus the manifest file SHA-256. It
-is also the transaction commit record: until its exclusive durable write completes,
-the candidate backup is unpublished and the standalone checker rejects it. It must
-be retained outside the backup directory. Comparing a current pair with this separate
-value detects a structurally valid rollback or deletion of a complete ledger tail
-that the ledger's internal chain alone cannot detect.
+is also the transaction commit record. Publication first claims one deterministic
+private `0700` transaction directory beside the target. Its canonical bytes are
+written, synchronised and closed at the fixed `0600` `stage` path inside that
+directory before an atomic no-replace hard link can make the final path visible.
+Both names are retained with a link count of 2 until the final directory entry is
+durable, so the standalone checker rejects every pre-durable visible target. The
+external checkpoint must be retained outside the backup directory. Comparing a
+current pair with this separate value detects a structurally valid rollback or
+deletion of a complete ledger tail that the ledger's internal chain alone cannot
+detect.
 
 All checkpoint directories are `0700`; every manifest, descriptor, evidence
 document and marker is `0600`. Symbolic links, file hard links, special files,
 unexpected entries, broader modes and changing source bytes fail closed. Writes are
 exclusive and never overwrite an existing backup, external checkpoint or restored
-file. Directory enumeration and aggregate bytes are bounded by the evidence-root
-role before hostile names are sorted or file content is read.
+file. An exact canonical late claimant that independently verifies with the complete
+backup is accepted as idempotent success; partial, different, linked, symbolic-link
+and special-file claimants remain collisions. Directory enumeration and aggregate
+bytes are bounded by the evidence-root role before hostile names are sorted or file
+content is read.
 
 ## Stopped-writer precondition
 
@@ -82,8 +90,16 @@ exist, overlap either source root, or overlap each other. The runtime:
 6. completely verifies the copied ledger/index pair against that manifest;
 7. repeats both source verifications and inventories after every backup write and
    copied-pair check, establishing the snapshot linearisation point; and
-8. exclusively and durably writes the external checkpoint as the final transaction
-   commit record.
+8. atomically claims one deterministic sibling `0700` transaction directory, writes
+   the canonical external bytes to its fixed `0600` `stage`, synchronises and closes
+   the file, then synchronises the transaction directory and target parent;
+9. atomically hard-links that stage to the unclaimed final path without overwrite,
+   retains the verifier-rejected link count of 2 until the target directory entry is
+   synchronised, then removes the exact inode-matched stage, synchronises the held
+   inode and transaction directory, removes the empty transaction directory, and
+   synchronises its removal from the target parent; and
+10. freshly verifies the published external checkpoint and complete backup before
+    returning success.
 
 If any step fails, keep the stopped writer stopped. Do not promote a checkpoint
 without both complete documents and a passing checker. A partial backup may contain
@@ -91,6 +107,67 @@ a valid manifest, but a missing, incomplete or colliding external commit record 
 it deterministically unverifiable. This prevents a late valid ledger-tail or index
 advance observed by the final source check from leaving an older restorable
 checkpoint. The library deliberately does not remove a partial output.
+
+The deterministic transaction-directory name contains a bounded digest of the
+canonical target path; the only allowed child is the fixed `stage`. An ordinary
+creator that finds the transaction directory already present returns
+`publication-indeterminate` and does not open, adopt or alter it. Publication never
+scans for or removes similarly named siblings. While holding the transaction
+directory descriptor as its namespace lock, it removes `stage` only after proving
+the expected inode, bytes and link state.
+
+The target parent must be a trusted directory that is not renamed or remounted
+during publication. Its filesystem must support hard links between the private
+transaction directory and sibling target, plus file and directory `fsync`.
+Unsupported provider filesystems fail closed; there is no rename, copy or
+direct-target fallback. Successful reconciliation establishes that the required
+filesystem `fsync` calls returned successfully. Node.js does not expose macOS
+`F_FULLFSYNC`, so this is not a claim of the strongest physical power-loss guarantee
+available on every device. This transaction changes no successful
+`gis-ai-go.evidence-checkpoint-manifest.v1` or
+`gis-ai-go.evidence-external-checkpoint.v1` document bytes.
+
+### Indeterminate publication and reconciliation
+
+`publication-indeterminate` means the caller must not infer either success or
+absence from the create error. Keep the single writer stopped and preserve the
+checkpoint, target and deterministic transaction directory. The bounded states are:
+
+- an exact one-link stage can remain inside the transaction directory before target
+  publication, while the missing target makes the checker fail;
+- if the atomic target link is visible but its first directory synchronisation did
+  not complete, the stage and target remain the same inode with link count 2 and the
+  checker rejects them;
+- if the target entry was synchronised but stage removal did not complete, the same
+  deliberately unverifiable two-link state may remain; or
+- an exact one-link target can coexist with a separate exact one-link stage, an
+  empty transaction directory, or no transaction directory after a currently
+  visible removal. The target can then pass a read-only check, but that pass does not
+  prove that the preceding directory operation will survive a crash.
+
+Reconcile only after confirming both that the source writer remains stopped and
+that no checkpoint publisher or other reconciler can be running. The two CLI flags
+below are explicit operator assertions of those conditions, not process discovery:
+
+```bash
+pnpm --filter @gis-ai-go/evidence run build
+node scripts/reconcile_evidence_checkpoint_publication.mjs \
+  --checkpoint-directory "$EVIDENCE_CHECKPOINT_DIRECTORY" \
+  --external-checkpoint-file "$EVIDENCE_EXTERNAL_CHECKPOINT_FILE" \
+  --stopped-single-writer-confirmed \
+  --exclusive-publication-owner-confirmed
+```
+
+The reconciler completely verifies the candidate backup, reconstructs the one exact
+canonical external document, and accepts only the bounded absent, empty, exact
+one-link and matching two-link states above. It never adopts a transaction while
+another actor may own it. Under the asserted exclusive-owner precondition it
+synchronises the exact file and final directory entry, removes only the proven
+stage, synchronises the clean-up and freshly verifies the complete checkpoint. Its
+successful canonical JSON sets `publication_durability` to
+`file-and-parent-directory-synchronised`. An unexpected entry, mismatch, symbolic
+link, special file or unrelated hard link is preserved and fails closed. There is no
+recursive clean-up.
 
 ## Verify a checkpoint
 
@@ -104,7 +181,11 @@ node scripts/check_evidence_checkpoint.mjs \
 ```
 
 Success returns a canonical JSON summary containing identities and counts, never
-paths. Failure returns a fixed error code and no path. The checker rejects:
+paths. It sets `publication_durability` to
+`not-established-by-read-only-check`: verification proves the bytes and current
+namespace state, not crash persistence of a preceding directory operation. Use the
+reconciler after `publication-indeterminate`. Failure returns a fixed error code and
+no path. The checker rejects:
 
 - a missing manifest, root entry, record, event, claim, resolution or marker;
 - a ledger from one checkpoint paired with an index or manifest from another;

@@ -50,6 +50,7 @@ if (options === null) {
       `${canonicalJson({
         schema: "gis-ai-go.evidence-checkpoint-check.v1",
         status: "passed",
+        publication_durability: "not-established-by-read-only-check",
         checkpoint_id: result.checkpoint_id,
         ledger: {
           ledger_id: result.ledger.ledger_id,

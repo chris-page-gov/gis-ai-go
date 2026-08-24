@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:evidence-checkpoint-check:v1",
+  "title": "GIS AI GO evidence checkpoint read-only check",
+  "description": "A read-only current-content check. A pass does not establish crash durability for the external checkpoint directory entry.",
+  "oneOf": [
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "status",
+        "publication_durability",
+        "checkpoint_id",
+        "ledger",
+        "reconciliation_index"
+      ],
+      "properties": {
+        "schema": {"const": "gis-ai-go.evidence-checkpoint-check.v1"},
+        "status": {"const": "passed"},
+        "publication_durability": {
+          "const": "not-established-by-read-only-check"
+        },
+        "checkpoint_id": {
+          "type": "string",
+          "pattern": "^gis-ai-go:evidence-checkpoint:sha256:[0-9a-f]{64}$"
+        },
+        "ledger": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["ledger_id", "event_count", "record_count", "last_event_id"],
+          "properties": {
+            "ledger_id": {
+              "type": "string",
+              "pattern": "^gis-ai-go:public-evidence-ledger:sha256:[0-9a-f]{64}$"
+            },
+            "event_count": {"type": "integer", "minimum": 0, "maximum": 1000000},
+            "record_count": {"type": "integer", "minimum": 0, "maximum": 1000000},
+            "last_event_id": {
+              "oneOf": [
+                {"type": "null"},
+                {
+                  "type": "string",
+                  "pattern": "^gis-ai-go:evidence-ledger-event:sha256:[0-9a-f]{64}$"
+                }
+              ]
+            }
+          }
+        },
+        "reconciliation_index": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "index_id",
+            "ledger_id",
+            "claim_count",
+            "completed_count",
+            "pending_count"
+          ],
+          "properties": {
+            "index_id": {
+              "type": "string",
+              "pattern": "^gis-ai-go:evidence-reconciliation-index:sha256:[0-9a-f]{64}$"
+            },
+            "ledger_id": {
+              "type": "string",
+              "pattern": "^gis-ai-go:public-evidence-ledger:sha256:[0-9a-f]{64}$"
+            },
+            "claim_count": {"type": "integer", "minimum": 0, "maximum": 4096},
+            "completed_count": {"type": "integer", "minimum": 0, "maximum": 4096},
+            "pending_count": {"type": "integer", "minimum": 0, "maximum": 4096}
+          }
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "status", "code"],
+      "properties": {
+        "schema": {"const": "gis-ai-go.evidence-checkpoint-check.v1"},
+        "status": {"const": "failed"},
+        "code": {"type": "string", "minLength": 1, "maxLength": 64}
+      }
+    }
+  ]
+}

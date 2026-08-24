@@ -4,12 +4,15 @@ import {
   constants,
   fstatSync,
   fsyncSync,
+  linkSync,
   lstatSync,
   mkdirSync,
   openSync,
   opendirSync,
   readSync,
   realpathSync,
+  rmdirSync,
+  unlinkSync,
   writeSync,
   type Stats,
 } from "node:fs";
@@ -17,6 +20,10 @@ import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "nod
 import { types as utilTypes } from "node:util";
 
 import { canonicalJson, canonicalJsonClone } from "./canonical-json.js";
+import {
+  evidenceCheckpointPublicationTestHook,
+  type EvidenceCheckpointPublicationTestPhase,
+} from "./checkpoint-publication-test-seam.js";
 import {
   contentAddress,
   domainSeparatedSha256,
@@ -54,6 +61,9 @@ const MAX_EVIDENCE_FILE_BYTES = MAX_LEDGER_RECORD_BYTES;
 const MAX_CHECKPOINT_DOCUMENT_BYTES = 65_536;
 const MAX_LEDGER_EVENTS = 1_000_000;
 const MAX_INDEX_CLAIMS = 4_096;
+const EXTERNAL_CHECKPOINT_TRANSACTION_PREFIX =
+  ".gis-ai-go-evidence-checkpoint-transaction-";
+const EXTERNAL_CHECKPOINT_STAGE_NAME = "stage";
 
 const LEDGER_DIRECTORIES = Object.freeze(["events", "records"] as const);
 const INDEX_DIRECTORIES = Object.freeze([
@@ -188,6 +198,12 @@ export interface VerifyEvidenceCheckpointOptions {
   readonly externalCheckpointFile: string;
 }
 
+export interface ReconcileEvidenceCheckpointPublicationOptions
+  extends VerifyEvidenceCheckpointOptions {
+  readonly stoppedSingleWriter: true;
+  readonly exclusivePublicationOwner: true;
+}
+
 export interface VerifyEvidenceRootsAgainstExternalCheckpointOptions {
   readonly ledgerRootDirectory: string;
   readonly reconciliationIndexRootDirectory: string;
@@ -222,6 +238,7 @@ export type EvidenceCheckpointErrorCode =
   | "destination-not-empty"
   | "invalid-configuration"
   | "io-failure"
+  | "publication-indeterminate"
   | "quiescence-required";
 
 export class EvidenceCheckpointError extends Error {
@@ -288,18 +305,19 @@ function assertPrivateRegularFile(
   stat: Stats,
   allowEmpty: boolean,
   maximumBytes = MAX_EVIDENCE_FILE_BYTES,
+  expectedLinkCount = 1,
 ): void {
   if (
     !stat.isFile() ||
     stat.isSymbolicLink() ||
-    stat.nlink !== 1 ||
+    stat.nlink !== expectedLinkCount ||
     !hasExactPrivateMode(stat.mode, 0o600) ||
     stat.size > maximumBytes ||
     (!allowEmpty && stat.size < 2)
   ) {
     fail(
       "corruption",
-      "Evidence checkpoint requires private, unlinked regular files within the fixed byte bound",
+      "Evidence checkpoint requires private regular files with the required link count and fixed byte bound",
     );
   }
 }
@@ -318,16 +336,24 @@ function sameFile(left: Stats, right: Stats): boolean {
   );
 }
 
-function readPrivateFile(
+interface OpenPrivateFile {
+  readonly descriptor: number;
+  readonly stat: Stats;
+  readonly bytes: Buffer;
+}
+
+function openPrivateFileForInspection(
   path: string,
   allowEmpty: boolean,
   maximumBytes = MAX_EVIDENCE_FILE_BYTES,
-): Buffer {
+  expectedLinkCount = 1,
+  flags = constants.O_RDONLY,
+): OpenPrivateFile {
   const scanned = lstatSync(path);
-  assertPrivateRegularFile(scanned, allowEmpty, maximumBytes);
+  assertPrivateRegularFile(scanned, allowEmpty, maximumBytes, expectedLinkCount);
   let descriptor: number | undefined;
   try {
-    descriptor = openSync(path, constants.O_RDONLY | constants.O_NOFOLLOW);
+    descriptor = openSync(path, flags | constants.O_NOFOLLOW);
     const before = fstatSync(descriptor);
     if (!sameFile(scanned, before)) {
       fail("corruption", "Evidence checkpoint content changed during inspection");
@@ -343,9 +369,25 @@ function readPrivateFile(
     if (!sameFile(scanned, after) || offset !== scanned.size) {
       fail("corruption", "Evidence checkpoint content changed while it was read");
     }
-    return bytes;
-  } finally {
+    const result = Object.freeze({ descriptor, stat: after, bytes });
+    descriptor = undefined;
+    return result;
+  } catch (error) {
     if (descriptor !== undefined) closeSync(descriptor);
+    throw error;
+  }
+}
+
+function readPrivateFile(
+  path: string,
+  allowEmpty: boolean,
+  maximumBytes = MAX_EVIDENCE_FILE_BYTES,
+): Buffer {
+  const opened = openPrivateFileForInspection(path, allowEmpty, maximumBytes);
+  try {
+    return opened.bytes;
+  } finally {
+    closeSync(opened.descriptor);
   }
 }
 
@@ -931,6 +973,750 @@ function writeExclusiveCanonical(path: string, value: unknown): Buffer {
   return bytes;
 }
 
+type EvidenceCheckpointPublicationHook = ReturnType<
+  typeof evidenceCheckpointPublicationTestHook
+>;
+
+function externalCheckpointTransactionPath(targetPath: string): string {
+  const digest = createHash("sha256")
+    .update("gis-ai-go.evidence-external-checkpoint-transaction.v1\0", "utf8")
+    .update(targetPath, "utf8")
+    .digest("hex");
+  return join(dirname(targetPath), `${EXTERNAL_CHECKPOINT_TRANSACTION_PREFIX}${digest}`);
+}
+
+function externalCheckpointStagePath(targetPath: string): string {
+  return join(externalCheckpointTransactionPath(targetPath), EXTERNAL_CHECKPOINT_STAGE_NAME);
+}
+
+function runPublicationHook(
+  hook: EvidenceCheckpointPublicationHook,
+  phase: EvidenceCheckpointPublicationTestPhase,
+  stagePath: string,
+  targetPath: string,
+): void {
+  hook?.(Object.freeze({ phase, stagePath, targetPath }));
+}
+
+function sameInode(left: Stats, right: Stats): boolean {
+  return left.isFile() && right.isFile() && left.dev === right.dev && left.ino === right.ino;
+}
+
+interface ExternalCheckpointPublicationTransaction {
+  readonly path: string;
+  readonly descriptor: number;
+  readonly stat: Stats;
+  readonly createdByCall: boolean;
+  closed: boolean;
+}
+
+function sameDirectoryInode(left: Stats, right: Stats): boolean {
+  return (
+    left.isDirectory() &&
+    right.isDirectory() &&
+    left.dev === right.dev &&
+    left.ino === right.ino
+  );
+}
+
+function assertPublicationTransaction(
+  transaction: ExternalCheckpointPublicationTransaction,
+): void {
+  if (transaction.closed) {
+    fail("io-failure", "External checkpoint transaction descriptor is closed");
+  }
+  const pathStat = lstatSync(transaction.path);
+  const descriptorStat = fstatSync(transaction.descriptor);
+  if (
+    pathStat.isSymbolicLink() ||
+    !sameDirectoryInode(pathStat, descriptorStat) ||
+    !sameDirectoryInode(transaction.stat, descriptorStat) ||
+    !hasExactPrivateMode(pathStat.mode, 0o700)
+  ) {
+    fail("corruption", "External checkpoint transaction directory changed during publication");
+  }
+}
+
+function openPublicationTransaction(
+  targetPath: string,
+  allowReconciliation: boolean,
+): ExternalCheckpointPublicationTransaction {
+  const transactionPath = externalCheckpointTransactionPath(targetPath);
+  let createdByCall = false;
+  try {
+    mkdirSync(transactionPath, { mode: 0o700 });
+    createdByCall = true;
+    syncDirectory(dirname(transactionPath));
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
+    if (!allowReconciliation) {
+      failPublicationIndeterminate(
+        "Another external checkpoint publication transaction is active or requires reconciliation",
+      );
+    }
+  }
+  assertRealDirectory(transactionPath, true);
+  const entries = readBoundedDirectoryNames(
+    transactionPath,
+    1,
+    "External checkpoint transaction directory",
+  );
+  if (entries.some((entry) => entry !== EXTERNAL_CHECKPOINT_STAGE_NAME)) {
+    fail("collision", "External checkpoint transaction contains an unexpected entry");
+  }
+  const scanned = lstatSync(transactionPath);
+  const descriptor = openSync(
+    transactionPath,
+    constants.O_RDONLY | constants.O_NOFOLLOW,
+  );
+  try {
+    const opened = fstatSync(descriptor);
+    if (!sameDirectoryInode(scanned, opened)) {
+      fail("corruption", "External checkpoint transaction changed while it was opened");
+    }
+    return {
+      path: transactionPath,
+      descriptor,
+      stat: opened,
+      createdByCall,
+      closed: false,
+    };
+  } catch (error) {
+    closeQuietly(descriptor);
+    throw error;
+  }
+}
+
+function closePublicationTransaction(
+  transaction: ExternalCheckpointPublicationTransaction,
+): void {
+  if (transaction.closed) return;
+  transaction.closed = true;
+  closeQuietly(transaction.descriptor);
+}
+
+function syncPublicationTransaction(
+  transaction: ExternalCheckpointPublicationTransaction,
+): void {
+  assertPublicationTransaction(transaction);
+  fsyncSync(transaction.descriptor);
+}
+
+function closeQuietly(descriptor: number): void {
+  try {
+    closeSync(descriptor);
+  } catch {
+    // Closing an inspection descriptor cannot change publication durability.
+  }
+}
+
+function isDeterministicPrivateFileMiss(error: unknown): boolean {
+  if (error instanceof EvidenceCheckpointError) return error.code === "corruption";
+  return ["ELOOP", "ENOENT", "ENOTDIR"].includes(
+    (error as NodeJS.ErrnoException).code ?? "",
+  );
+}
+
+function tryOpenExactPrivateFile(
+  path: string,
+  expectedBytes: Buffer,
+  expectedLinkCount: 1 | 2,
+  flags = constants.O_RDONLY,
+): OpenPrivateFile | null {
+  try {
+    const opened = openPrivateFileForInspection(
+      path,
+      false,
+      MAX_CHECKPOINT_DOCUMENT_BYTES,
+      expectedLinkCount,
+      flags,
+    );
+    if (!opened.bytes.equals(expectedBytes)) {
+      closeQuietly(opened.descriptor);
+      return null;
+    }
+    return opened;
+  } catch (error) {
+    if (isDeterministicPrivateFileMiss(error)) return null;
+    throw error;
+  }
+}
+
+function readExactDescriptorState(
+  descriptor: number,
+  expectedBytes: Buffer,
+  expectedLinkCount: 1 | 2,
+): Stats {
+  const before = fstatSync(descriptor);
+  assertPrivateRegularFile(
+    before,
+    false,
+    MAX_CHECKPOINT_DOCUMENT_BYTES,
+    expectedLinkCount,
+  );
+  if (before.size !== expectedBytes.length) {
+    fail("corruption", "Evidence checkpoint publication bytes changed during inspection");
+  }
+  const bytes = Buffer.allocUnsafe(before.size);
+  let offset = 0;
+  while (offset < bytes.length) {
+    const count = readSync(descriptor, bytes, offset, bytes.length - offset, offset);
+    if (count === 0) break;
+    offset += count;
+  }
+  const after = fstatSync(descriptor);
+  if (!sameFile(before, after) || offset !== before.size || !bytes.equals(expectedBytes)) {
+    fail("corruption", "Evidence checkpoint publication bytes changed while they were read");
+  }
+  return after;
+}
+
+function assertExactLinkedPublication(
+  descriptor: number,
+  stagePath: string,
+  targetPath: string,
+  expectedBytes: Buffer,
+): Stats {
+  const descriptorStat = readExactDescriptorState(descriptor, expectedBytes, 2);
+  const stageStat = lstatSync(stagePath);
+  const targetStat = lstatSync(targetPath);
+  assertPrivateRegularFile(stageStat, false, MAX_CHECKPOINT_DOCUMENT_BYTES, 2);
+  assertPrivateRegularFile(targetStat, false, MAX_CHECKPOINT_DOCUMENT_BYTES, 2);
+  if (
+    !sameFile(descriptorStat, stageStat) ||
+    !sameFile(descriptorStat, targetStat) ||
+    !sameInode(stageStat, targetStat)
+  ) {
+    fail("corruption", "Evidence checkpoint publication links do not identify one exact inode");
+  }
+  return descriptorStat;
+}
+
+function assertExactPublishedTarget(
+  descriptor: number,
+  targetPath: string,
+  expectedBytes: Buffer,
+): Stats {
+  const descriptorStat = readExactDescriptorState(descriptor, expectedBytes, 1);
+  const targetStat = lstatSync(targetPath);
+  assertPrivateRegularFile(targetStat, false, MAX_CHECKPOINT_DOCUMENT_BYTES, 1);
+  if (!sameFile(descriptorStat, targetStat)) {
+    fail("corruption", "Evidence checkpoint publication target changed during commit");
+  }
+  return descriptorStat;
+}
+
+function unlinkTransactionStage(
+  transaction: ExternalCheckpointPublicationTransaction,
+  stagePath: string,
+  expected: Stats,
+  expectedLinkCount: 1 | 2,
+): boolean {
+  assertPublicationTransaction(transaction);
+  try {
+    const current = lstatSync(stagePath);
+    if (
+      !sameInode(current, expected) ||
+      current.isSymbolicLink() ||
+      current.nlink !== expectedLinkCount
+    ) {
+      return false;
+    }
+    // The private transaction directory is the namespace lock. No conforming
+    // publisher can reuse this pathname until the directory is released.
+    unlinkSync(stagePath);
+    return true;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return false;
+    return false;
+  }
+}
+
+function releasePublicationTransaction(
+  transaction: ExternalCheckpointPublicationTransaction,
+  hook?: EvidenceCheckpointPublicationHook,
+  stagePath?: string,
+  targetPath?: string,
+): void {
+  assertPublicationTransaction(transaction);
+  const entries = readBoundedDirectoryNames(
+    transaction.path,
+    1,
+    "External checkpoint transaction directory",
+  );
+  if (entries.length !== 0) {
+    fail("collision", "External checkpoint transaction is not empty after staging clean-up");
+  }
+  syncPublicationTransaction(transaction);
+  closePublicationTransaction(transaction);
+  rmdirSync(transaction.path);
+  if (stagePath !== undefined && targetPath !== undefined) {
+    runPublicationHook(
+      hook,
+      "after-transaction-directory-remove",
+      stagePath,
+      targetPath,
+    );
+  }
+  syncDirectory(dirname(transaction.path));
+}
+
+function bestEffortAbandonPublicationTransaction(
+  transaction: ExternalCheckpointPublicationTransaction,
+  stagePath: string,
+  expected?: Stats,
+): void {
+  try {
+    if (expected !== undefined && !unlinkTransactionStage(transaction, stagePath, expected, 1)) {
+      return;
+    }
+    releasePublicationTransaction(transaction);
+  } catch {
+    // A retained private transaction remains bounded and requires reconciliation.
+  }
+}
+
+function writeExternalStage(
+  transaction: ExternalCheckpointPublicationTransaction,
+  stagePath: string,
+  targetPath: string,
+  bytes: Buffer,
+  hook: EvidenceCheckpointPublicationHook,
+): Stats | null {
+  let descriptor: number | undefined;
+  let created: Stats | undefined;
+  try {
+    try {
+      descriptor = openSync(
+        stagePath,
+        constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL | constants.O_NOFOLLOW,
+        0o600,
+      );
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === "EEXIST") return null;
+      throw error;
+    }
+    created = fstatSync(descriptor);
+    assertPrivateRegularFile(created, true, MAX_CHECKPOINT_DOCUMENT_BYTES, 1);
+    let offset = 0;
+    while (offset < bytes.length) {
+      const count = writeSync(descriptor, bytes, offset, bytes.length - offset, offset);
+      if (count < 1) fail("io-failure", "External checkpoint staging write did not complete");
+      offset += count;
+    }
+    runPublicationHook(hook, "before-stage-file-sync", stagePath, targetPath);
+    fsyncSync(descriptor);
+    closeSync(descriptor);
+    descriptor = undefined;
+    const closed = lstatSync(stagePath);
+    assertPrivateRegularFile(closed, false, MAX_CHECKPOINT_DOCUMENT_BYTES, 1);
+    if (!sameInode(created, closed) || closed.size !== bytes.length) {
+      fail("corruption", "External checkpoint staging inode changed before publication");
+    }
+    return closed;
+  } catch (error) {
+    if (descriptor !== undefined) closeQuietly(descriptor);
+    if (transaction.createdByCall) {
+      bestEffortAbandonPublicationTransaction(transaction, stagePath, created);
+    }
+    throw error;
+  }
+}
+
+function syncExactPrivateFile(
+  path: string,
+  expectedBytes: Buffer,
+  expectedLinkCount: 1 | 2,
+): boolean {
+  const opened = tryOpenExactPrivateFile(
+    path,
+    expectedBytes,
+    expectedLinkCount,
+    constants.O_RDWR,
+  );
+  if (opened === null) return false;
+  try {
+    fsyncSync(opened.descriptor);
+    return true;
+  } finally {
+    closeQuietly(opened.descriptor);
+  }
+}
+
+function tryOpenExactLinkedStage(
+  stagePath: string,
+  targetPath: string,
+  expectedBytes: Buffer,
+): OpenPrivateFile | null {
+  const opened = tryOpenExactPrivateFile(stagePath, expectedBytes, 2);
+  if (opened === null) return null;
+  try {
+    const target = lstatSync(targetPath);
+    assertPrivateRegularFile(target, false, MAX_CHECKPOINT_DOCUMENT_BYTES, 2);
+    if (!sameFile(opened.stat, target)) {
+      closeQuietly(opened.descriptor);
+      return null;
+    }
+    return opened;
+  } catch (error) {
+    closeQuietly(opened.descriptor);
+    if (isDeterministicPrivateFileMiss(error)) return null;
+    throw error;
+  }
+}
+
+function failPublicationIndeterminate(message: string): never {
+  fail("publication-indeterminate", message);
+}
+
+function verifyAfterDurablePublication(
+  verifyPublished: () => EvidenceCheckpointVerification,
+): EvidenceCheckpointVerification {
+  try {
+    return verifyPublished();
+  } catch (error) {
+    if (
+      error instanceof EvidenceCheckpointError &&
+      error.code !== "io-failure" &&
+      error.code !== "publication-indeterminate"
+    ) {
+      throw error;
+    }
+    failPublicationIndeterminate(
+      "External checkpoint is durable but its final verification was indeterminate",
+    );
+  }
+}
+
+function completeLinkedExternalPublication(
+  transaction: ExternalCheckpointPublicationTransaction,
+  stagePath: string,
+  targetPath: string,
+  expectedBytes: Buffer,
+  openedStage: OpenPrivateFile,
+  verifyPublished: () => EvidenceCheckpointVerification,
+  hook: EvidenceCheckpointPublicationHook,
+): EvidenceCheckpointVerification {
+  let committedStat: Stats;
+  try {
+    committedStat = assertExactLinkedPublication(
+      openedStage.descriptor,
+      stagePath,
+      targetPath,
+      expectedBytes,
+    );
+    runPublicationHook(
+      hook,
+      "before-target-parent-sync",
+      stagePath,
+      targetPath,
+    );
+    syncDirectory(dirname(targetPath));
+  } catch {
+    closeQuietly(openedStage.descriptor);
+    failPublicationIndeterminate(
+      "External checkpoint target visibility has indeterminate directory durability",
+    );
+  }
+
+  try {
+    runPublicationHook(
+      hook,
+      "after-target-parent-sync",
+      stagePath,
+      targetPath,
+    );
+    runPublicationHook(hook, "before-stage-unlink", stagePath, targetPath);
+    unlinkTransactionStage(transaction, stagePath, committedStat, 2);
+    fsyncSync(openedStage.descriptor);
+    // Another exact publisher may have completed the same transition. Only
+    // accept that case when the held inode is now the exact nlink=1 target.
+    assertExactPublishedTarget(openedStage.descriptor, targetPath, expectedBytes);
+    runPublicationHook(hook, "after-stage-unlink", stagePath, targetPath);
+    runPublicationHook(
+      hook,
+      "before-cleanup-parent-sync",
+      stagePath,
+      targetPath,
+    );
+    syncPublicationTransaction(transaction);
+    releasePublicationTransaction(transaction, hook, stagePath, targetPath);
+  } catch {
+    closeQuietly(openedStage.descriptor);
+    failPublicationIndeterminate(
+      "External checkpoint commit is durable but staging clean-up is indeterminate",
+    );
+  }
+  closeQuietly(openedStage.descriptor);
+  return verifyAfterDurablePublication(verifyPublished);
+}
+
+function acceptExactExistingExternal(
+  transaction: ExternalCheckpointPublicationTransaction,
+  stagePath: string,
+  targetPath: string,
+  expectedBytes: Buffer,
+  openedStage: OpenPrivateFile,
+  stageCreatedByCall: boolean,
+  verifyPublished: () => EvidenceCheckpointVerification,
+  hook: EvidenceCheckpointPublicationHook,
+): EvidenceCheckpointVerification {
+  let existingTarget: OpenPrivateFile | null;
+  try {
+    runPublicationHook(hook, "before-existing-target-open", stagePath, targetPath);
+    existingTarget = tryOpenExactPrivateFile(
+      targetPath,
+      expectedBytes,
+      1,
+      constants.O_RDWR,
+    );
+  } catch {
+    closeQuietly(openedStage.descriptor);
+    failPublicationIndeterminate(
+      "Exact external checkpoint target inspection did not complete deterministically",
+    );
+  }
+  if (existingTarget === null) {
+    closeQuietly(openedStage.descriptor);
+    if (stageCreatedByCall && transaction.createdByCall) {
+      bestEffortAbandonPublicationTransaction(transaction, stagePath, openedStage.stat);
+    }
+    fail("collision", "External checkpoint target was claimed by different content");
+  }
+  try {
+    try {
+      runPublicationHook(
+        hook,
+        "before-existing-target-verification",
+        stagePath,
+        targetPath,
+      );
+      verifyPublished();
+    } catch (error) {
+      if (
+        error instanceof EvidenceCheckpointError &&
+        ["checkpoint-mismatch", "collision", "corruption"].includes(error.code)
+      ) {
+        fail("collision", "External checkpoint claimant does not verify with this backup");
+      }
+      failPublicationIndeterminate(
+        "Exact external checkpoint verification did not complete deterministically",
+      );
+    }
+    fsyncSync(existingTarget.descriptor);
+    readExactDescriptorState(existingTarget.descriptor, expectedBytes, 1);
+    runPublicationHook(
+      hook,
+      "before-target-parent-sync",
+      stagePath,
+      targetPath,
+    );
+    syncDirectory(dirname(targetPath));
+    runPublicationHook(
+      hook,
+      "after-target-parent-sync",
+      stagePath,
+      targetPath,
+    );
+    readExactDescriptorState(existingTarget.descriptor, expectedBytes, 1);
+    verifyPublished();
+  } catch (error) {
+    closeQuietly(existingTarget.descriptor);
+    closeQuietly(openedStage.descriptor);
+    if (error instanceof EvidenceCheckpointError && error.code === "collision") {
+      if (stageCreatedByCall && transaction.createdByCall) {
+        bestEffortAbandonPublicationTransaction(transaction, stagePath, openedStage.stat);
+      }
+      throw error;
+    }
+    failPublicationIndeterminate(
+      "Exact external checkpoint content is visible but its directory durability is indeterminate",
+    );
+  }
+  closeQuietly(existingTarget.descriptor);
+
+  try {
+    runPublicationHook(hook, "before-stage-unlink", stagePath, targetPath);
+    const removed = unlinkTransactionStage(transaction, stagePath, openedStage.stat, 1);
+    closeQuietly(openedStage.descriptor);
+    if (removed) {
+      runPublicationHook(hook, "after-stage-unlink", stagePath, targetPath);
+      runPublicationHook(
+        hook,
+        "before-cleanup-parent-sync",
+        stagePath,
+        targetPath,
+      );
+    }
+    syncPublicationTransaction(transaction);
+    releasePublicationTransaction(transaction, hook, stagePath, targetPath);
+  } catch {
+    failPublicationIndeterminate(
+      "Exact external checkpoint is durable but staging clean-up is indeterminate",
+    );
+  }
+  return verifyAfterDurablePublication(verifyPublished);
+}
+
+function publishExternalCheckpoint(
+  targetPath: string,
+  bytes: Buffer,
+  verifyPublished: () => EvidenceCheckpointVerification,
+  hook: EvidenceCheckpointPublicationHook,
+  allowReconciliation = false,
+): EvidenceCheckpointVerification {
+  const transaction = openPublicationTransaction(targetPath, allowReconciliation);
+  const stagePath = externalCheckpointStagePath(targetPath);
+  try {
+    const createdStage = writeExternalStage(
+      transaction,
+      stagePath,
+      targetPath,
+      bytes,
+      hook,
+    );
+    const stageCreatedByCall = createdStage !== null;
+
+    if (createdStage === null) {
+      let linkedStage: OpenPrivateFile | null;
+      try {
+        linkedStage = tryOpenExactLinkedStage(stagePath, targetPath, bytes);
+      } catch {
+        failPublicationIndeterminate(
+          "External checkpoint linked recovery inspection did not complete deterministically",
+        );
+      }
+      if (linkedStage !== null) {
+        try {
+          if (!syncExactPrivateFile(stagePath, bytes, 2)) {
+            failPublicationIndeterminate(
+              "External checkpoint linked recovery state changed before file synchronisation",
+            );
+          }
+        } catch {
+          closeQuietly(linkedStage.descriptor);
+          failPublicationIndeterminate(
+            "External checkpoint linked recovery file durability is indeterminate",
+          );
+        }
+        closeQuietly(linkedStage.descriptor);
+        let reopened: OpenPrivateFile | null;
+        try {
+          runPublicationHook(
+            hook,
+            "before-linked-recovery-reopen",
+            stagePath,
+            targetPath,
+          );
+          reopened = tryOpenExactLinkedStage(stagePath, targetPath, bytes);
+        } catch {
+          failPublicationIndeterminate(
+            "External checkpoint linked recovery reopen did not complete deterministically",
+          );
+        }
+        if (reopened === null) {
+          failPublicationIndeterminate(
+            "External checkpoint linked recovery state changed during inspection",
+          );
+        }
+        return completeLinkedExternalPublication(
+          transaction,
+          stagePath,
+          targetPath,
+          bytes,
+          reopened,
+          verifyPublished,
+          hook,
+        );
+      }
+      let exactStage: boolean;
+      try {
+        exactStage = syncExactPrivateFile(stagePath, bytes, 1);
+      } catch {
+        failPublicationIndeterminate(
+          "External checkpoint staging recovery inspection did not complete deterministically",
+        );
+      }
+      if (!exactStage) {
+        fail("collision", "Existing external checkpoint staging path is not an exact residue");
+      }
+    }
+
+    try {
+      runPublicationHook(hook, "after-stage-file-sync", stagePath, targetPath);
+      syncPublicationTransaction(transaction);
+      syncDirectory(dirname(targetPath));
+      runPublicationHook(hook, "after-stage-parent-sync", stagePath, targetPath);
+    } catch (error) {
+      if (createdStage !== null && transaction.createdByCall) {
+        bestEffortAbandonPublicationTransaction(transaction, stagePath, createdStage);
+      }
+      throw error;
+    }
+
+    let openedStage: OpenPrivateFile | null;
+    try {
+      openedStage = tryOpenExactPrivateFile(stagePath, bytes, 1);
+    } catch {
+      failPublicationIndeterminate(
+        "External checkpoint staging inspection did not complete deterministically",
+      );
+    }
+    if (openedStage === null) {
+      if (createdStage !== null && transaction.createdByCall) {
+        bestEffortAbandonPublicationTransaction(transaction, stagePath, createdStage);
+      }
+      fail("collision", "External checkpoint staging state changed before publication");
+    }
+
+    try {
+      runPublicationHook(hook, "before-target-link", stagePath, targetPath);
+      linkSync(stagePath, targetPath);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === "EEXIST") {
+        return acceptExactExistingExternal(
+          transaction,
+          stagePath,
+          targetPath,
+          bytes,
+          openedStage,
+          stageCreatedByCall,
+          verifyPublished,
+          hook,
+        );
+      }
+      closeQuietly(openedStage.descriptor);
+      // A provider may commit the hard link and still report an I/O failure.
+      // Preserve the transaction so explicit reconciliation can inspect the
+      // target rather than misreporting a potentially visible commit as absent.
+      failPublicationIndeterminate(
+        "External checkpoint atomic target-link outcome is indeterminate",
+      );
+    }
+
+    try {
+      assertExactLinkedPublication(openedStage.descriptor, stagePath, targetPath, bytes);
+      runPublicationHook(hook, "after-target-link", stagePath, targetPath);
+    } catch {
+      closeQuietly(openedStage.descriptor);
+      failPublicationIndeterminate(
+        "External checkpoint target became visible without a proven linked publication state",
+      );
+    }
+    return completeLinkedExternalPublication(
+      transaction,
+      stagePath,
+      targetPath,
+      bytes,
+      openedStage,
+      verifyPublished,
+      hook,
+    );
+  } finally {
+    closePublicationTransaction(transaction);
+  }
+}
+
 function createPrivateDirectory(path: string): void {
   if (entryExists(path)) {
     fail("collision", "Evidence checkpoint refused to overwrite an existing directory");
@@ -1343,6 +2129,7 @@ export function createEvidenceCheckpoint(
     if (snapshot.now !== undefined && typeof snapshot.now !== "function") {
       fail("invalid-configuration", "Evidence checkpoint clock is invalid");
     }
+    const publicationHook = evidenceCheckpointPublicationTestHook(options);
     const ledgerPath = configurationPath(
       snapshot.ledgerRootDirectory,
       "Evidence ledger root",
@@ -1360,10 +2147,17 @@ export function createEvidenceCheckpoint(
     );
     const checkpointRoot = canonicalNewPath(checkpointPath);
     const externalFile = canonicalNewPath(externalPath);
-    if (entryExists(checkpointPath) || entryExists(externalPath)) {
+    const externalTransaction = externalCheckpointTransactionPath(externalFile);
+    if (entryExists(checkpointPath) || entryExists(externalFile)) {
       fail("collision", "Evidence checkpoint outputs must not already exist");
     }
-    assertDisjoint([ledgerRoot, indexRoot, checkpointRoot, externalFile]);
+    assertDisjoint([
+      ledgerRoot,
+      indexRoot,
+      checkpointRoot,
+      externalFile,
+      externalTransaction,
+    ]);
 
     const ledgerInventoryBefore = scanEvidenceRoot(ledgerRoot, "ledger");
     const indexInventoryBefore = scanEvidenceRoot(indexRoot, "reconciliation-index");
@@ -1412,10 +2206,7 @@ export function createEvidenceCheckpoint(
     ) {
       fail("checkpoint-mismatch", "Evidence checkpoint manifest changed after its candidate write");
     }
-    const checkpointVerification = verifyCheckpointPayload(
-      checkpointRootAfterWrites,
-      storedManifest.manifest,
-    );
+    verifyCheckpointPayload(checkpointRootAfterWrites, storedManifest.manifest);
     // This complete source verification is the snapshot linearisation point.
     // Any change visible here leaves the external commit record unpublished.
     const {
@@ -1436,16 +2227,95 @@ export function createEvidenceCheckpoint(
     ) {
       fail("corruption", "Evidence checkpoint source changed before checkpoint publication");
     }
-    // The external checkpoint is the transaction commit record. Until this
-    // exclusive, durable write completes, a standalone verifier rejects the
-    // candidate even when its copied payload and manifest are otherwise valid.
-    // A successful return means the complete canonical bytes, file and parent
-    // directory have all been synchronised by writeExclusiveCanonical.
-    writeExclusiveCanonical(externalPath, external);
-    return checkpointVerification;
+    // The external checkpoint is the transaction commit record. Canonical bytes
+    // are first closed and synchronised at the fixed stage inside a claimed
+    // sibling transaction directory. Atomic no-replace linking then exposes an
+    // nlink=2 target, which the standalone verifier rejects until the target
+    // directory entry is durable. Only then is the stage removed, the private
+    // transaction released and both removals synchronised. The return value
+    // comes from a fresh verification of the published target.
+    const externalBytes = Buffer.from(`${canonicalJson(external)}\n`, "utf8");
+    return publishExternalCheckpoint(
+      externalFile,
+      externalBytes,
+      () =>
+        verifyCheckpointInternal({
+          checkpointDirectory: checkpointRootAfterWrites,
+          externalCheckpointFile: externalFile,
+        }),
+      publicationHook,
+    );
   } catch (error) {
     if (error instanceof EvidenceCheckpointError) throw error;
     fail("io-failure", "Evidence checkpoint creation failed closed");
+  }
+}
+
+/**
+ * Complete or confirm a checkpoint publication after an indeterminate create.
+ * This mutates only the deterministic transaction and canonical external path
+ * after independently verifying the complete candidate backup.
+ */
+export function reconcileEvidenceCheckpointPublication(
+  options: ReconcileEvidenceCheckpointPublicationOptions,
+): EvidenceCheckpointVerification {
+  try {
+    const snapshot = snapshotClosedOptions(
+      options,
+      [
+        "checkpointDirectory",
+        "exclusivePublicationOwner",
+        "externalCheckpointFile",
+        "stoppedSingleWriter",
+      ],
+      [],
+      "Evidence checkpoint publication reconciliation options",
+    );
+    const publicationHook = evidenceCheckpointPublicationTestHook(options);
+    if (
+      snapshot.stoppedSingleWriter !== true ||
+      snapshot.exclusivePublicationOwner !== true
+    ) {
+      fail(
+        "quiescence-required",
+        "Publication reconciliation requires a stopped writer and one exclusive publication owner",
+      );
+    }
+    const checkpointPath = configurationPath(
+      snapshot.checkpointDirectory,
+      "Checkpoint directory",
+    );
+    const externalPath = configurationPath(
+      snapshot.externalCheckpointFile,
+      "External checkpoint file",
+    );
+    const checkpointRoot = canonicalExistingPath(checkpointPath, true);
+    const externalFile = canonicalNewPath(externalPath);
+    const transactionPath = externalCheckpointTransactionPath(externalFile);
+    assertDisjoint([checkpointRoot, externalFile, transactionPath]);
+
+    const storedManifest = readCheckpointManifest(checkpointRoot);
+    verifyCheckpointPayload(checkpointRoot, storedManifest.manifest);
+    const external = buildExternalCheckpoint(
+      storedManifest.manifest,
+      storedManifest.manifestBytes,
+    );
+    assertExternalCheckpoint(external);
+    const externalBytes = Buffer.from(`${canonicalJson(external)}\n`, "utf8");
+    return publishExternalCheckpoint(
+      externalFile,
+      externalBytes,
+      () =>
+        verifyCheckpointInternal({
+          checkpointDirectory: checkpointRoot,
+          externalCheckpointFile: externalFile,
+        }),
+      publicationHook,
+      true,
+    );
+  } catch (error) {
+    if (error instanceof EvidenceCheckpointError) throw error;
+    fail("io-failure", "Evidence checkpoint publication reconciliation failed closed");
   }
 }
 
