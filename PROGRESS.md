@@ -15,11 +15,14 @@ The supported target active set is exactly `catalogue.search`,
 
 - retain the repository-local STDIO and client/version matrix bound to the
   protected-main v3 inspection-receipt runtime as preflight only;
-- retain the source-bound Claude Code `2.1.204` legacy STDIO transport-readiness
-  result separately from capability scoring, then complete the remaining
-  independent desktop-STDIO and remote-HTTP host evidence; and
-- stop before any public runtime, live provider call, host credential, registry
-  publication, activation, tag or release that requires separate authority.
+- preserve the source-bound Claude Code `2.1.204` result and the additive `2.1.241`
+  protocol observation separately from capability scoring; `2.1.241` offers MCP
+  `2025-11-25`, so it cannot close the strict `2026-07-28` desktop-host gate;
+- complete the remaining strict-modern independent desktop-STDIO and remote-HTTP
+  host evidence; and
+- continue provider-neutral preparation, but stop before public provisioning or
+  spend until a provider account, numeric monthly ceiling and operational hosting
+  envelope are supplied.
 
 Supporting `EVID-204` release assurance remains inactive and does not replace that
 main flow. A provider-independent candidate now checkpoints one stopped linked
@@ -28,17 +31,16 @@ separately retained tail checkpoint, and restores only into empty private roots
 before completing both verifiers. It selects no storage provider and supplies no
 deployment, operator-fencing, schedule, RPO/RTO, disposal or release evidence.
 
-The accepted DEPLOY-207 base-remediation route is also integrated without displacing
+The accepted DEPLOY-207 base-remediation route is integrated without displacing
 the independent-host workstream. The fixed `linux/amd64` UBI 10 composition and
-closed receipt and SBOM contracts are implemented. The clean combined tree passed
-the complete repository and exact local image-assurance gates, including reproducible
-OCI bytes, a 488-component SBOM, Trivy and calibrated Node advisory coverage,
-retained offline replay, and runtime, persistence, suspension and exact-image restore
-acceptance. The original security findings are remediated and the two bounded closure
-scans are complete with no findings. The tree still requires the protected
-pull-request and protected-main checks. It remains a repository-only blocked
-candidate; no publication, live provider call, deployment, activation, tag or
-release is claimed.
+closed receipt and SBOM contracts are implemented. Exact protected-main commit
+`dda0eb9f776e64bcd45069e77b4acbcd4d495e01` passed repository assurance, producer
+and independent OCI derivation, byte-identical verification, a 488-component SBOM,
+Trivy and calibrated Node advisory coverage, retained offline replay, runtime,
+persistence, suspension, exact-image restore, provenance and CodeQL. The original
+Debian findings are absent from the accepted UBI bytes. It remains a repository-only
+blocked candidate; no publication, live provider call, deployment, activation, tag
+or release is claimed.
 
 ## Completed
 
@@ -253,13 +255,13 @@ release is claimed.
 
 ## Next
 
-1. Complete bounded Claude capability evidence and the remaining independent
-   desktop-STDIO and remote-HTTP host evidence. The local protocol matrix and
-   Claude transport-only result do not complete issue #24's live-host criteria.
-2. Push the clean combined integration commit through a protected pull request, then
-   require the same commit to pass protected-main repository, exact image,
-   provenance and CodeQL checks before it can supersede the historical Debian
-   candidate.
+1. Use a different independent desktop host whose first frame proves a valid
+   `2026-07-28` opening, then complete the bounded capability pack and remaining
+   remote-HTTP host evidence. Claude Code `2.1.241` is an explained legacy-only
+   transport result, not the modern host acceptance.
+2. Retain the exact protected-main UBI, independent-derivation and provenance
+   evidence from runs `32760872035` and `32760871684`; rebuild and repeat it after
+   every later source-changing activation or release commit.
 3. Keep DEPLOY-207 at `status: decision needed` until an authorised public runtime,
    hostname/TLS, identity, egress, storage and operator boundary exists.
 4. Only after that separate authority exists, deploy an unregistered
@@ -282,8 +284,10 @@ release is claimed.
   service identity and network-policy evidence.
 - Activating or publishing a catalogue service remains hard-blocked. Raw protocol
   transcripts, deterministic local host fixtures and the pinned SDK clients do not
-  establish independent live major-host interoperability. The source-bound Claude
-  transport check establishes initialisation and listing only, not capability.
+  establish independent live major-host interoperability. Claude Code `2.1.241`
+  offers MCP `2025-11-25`: it fails the strict `2026-07-28` surface and establishes
+  initialisation and listing only through the constructor-only fallback, not
+  capability.
   Security, accessibility, governed ingress/storage admission, retention/disposal
   and host-specific lifecycle evidence remain activation gates.
 - Direct routes and MCP transports now exist on protected `main`, but the
@@ -293,16 +297,12 @@ release is claimed.
   repository-local matrix is non-live and cannot close issue #23 or issue #24;
   independent hosts, a live provider, authorised deployment and release evidence
   remain outstanding.
-- The historical protected-main Debian image retains three unresolved High findings.
-  The authorised combined UBI 10 and Node integration passed the complete repository
-  and exact image-assurance gates from clean commit
-  `f8d3210064a2fc88f85722d373f935b355c8d289`. That repository-only evidence
-  establishes the historical Debian package instances are absent from those exact
-  local bytes and gives the standalone Node runtime independent advisory coverage. It
-  cannot close the protected-main findings until the combined commit and the protected
-  pull-request and protected-main checks pass. No protected-source attestation exists
-  for the replacement yet, and every source change requires a new exact image build
-  and evidence set.
+- The historical Debian image findings are superseded for the accepted repository
+  candidate by exact protected-main UBI commit `dda0eb9`, whose producer and
+  independent archives were byte-identical and whose image, SBOM and evidence
+  subjects are attested. This is not a claim about a later source-changing
+  activation or release commit: every such commit requires a new exact image build,
+  scan, independent derivation, evidence replay and attestation set.
 - The accepted ONS adapter and reconciliation storage are local, explicitly injected
   components. The fixed 4,096-claim pre-publication index ceiling and accepted ledger
   event ceiling are local safety bounds, not deployment quotas. There is no
@@ -314,6 +314,24 @@ release is claimed.
   the open product.
 
 ## Latest evidence
+
+- Protected-main combined candidate acceptance on 24 August 2026: integration
+  [pull request 57](https://github.com/chris-page-gov/gis-ai-go/pull/57) and repair
+  [pull request 58](https://github.com/chris-page-gov/gis-ai-go/pull/58) produced
+  exact main commit `dda0eb9f776e64bcd45069e77b4acbcd4d495e01`.
+  [Run 32760872035](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32760872035)
+  passed repository assurance, gateway image assurance, independent derivation,
+  byte-identical verification and both provenance jobs;
+  [run 32760871684](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32760871684)
+  passed all three CodeQL analyses. Both derivations produced OCI manifest
+  `sha256:d08eea1ef3bd74bdba203d8d824cdc9dfac3553e51370ee6006f42c6db27b324`
+  and archive SHA-256
+  `62893bcf428dfe8736e75d53ed702df2141c5c82e0e81798fb43342ba9e323a2`.
+  GitHub attestations bind the
+  [OCI archive](https://github.com/chris-page-gov/gis-ai-go/attestations/42660140),
+  [SBOM](https://github.com/chris-page-gov/gis-ai-go/attestations/42660142) and
+  [evidence manifest](https://github.com/chris-page-gov/gis-ai-go/attestations/42660145).
+  The candidate is still unregistered and undeployed;
 
 - Combined integration local assurance on 24 August 2026: exact clean commit
   `f8d3210064a2fc88f85722d373f935b355c8d289` passed the complete repository and
@@ -357,6 +375,16 @@ release is claimed.
   that exact component and retained database, not a claim of no vulnerabilities. The
   candidate remains repository-only and blocked; no publication, provider call,
   deployment, registration, activation, tag or release is claimed;
+
+- Claude Code `2.1.241` current-protocol observation: the
+  [additive source-bound summary](tests/interoperability/evidence/claude-code-2.1.241-stdio-observation-2026-08-24.json)
+  records two credential-free `mcp list` attempts from exact protected-main commit
+  `dda0eb9f776e64bcd45069e77b4acbcd4d495e01`. The current client offered MCP
+  `2025-11-25`; the strict `2026-07-28` surface returned `-32022`, while the
+  constructor-only fallback completed initialisation and `tools/list`. Capability
+  and the independent-host gate remain unscored and incomplete. The private raw
+  telemetry remains local, and the earlier `2.1.204` schema and evidence hashes are
+  preserved separately;
 
 - Claude Code `2.1.204` protected-main legacy STDIO readiness: the
   [source-bound summary](tests/interoperability/evidence/claude-code-legacy-stdio-readiness-2026-08-23.json)

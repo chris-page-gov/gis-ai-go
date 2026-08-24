@@ -1,0 +1,954 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:qual-206-claude-code-stdio-observation:v1",
+  "title": "QUAL-206 Claude Code STDIO observation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "schema_contract",
+    "status",
+    "observed_on",
+    "source",
+    "host",
+    "protocol_target",
+    "historical_lineage",
+    "attempts",
+    "isolation",
+    "limitations",
+    "boundary"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gis-ai-go.qual-206-claude-code-stdio-observation.v1"
+    },
+    "schema_contract": {
+      "$ref": "#/$defs/schemaContract"
+    },
+    "status": {
+      "const": "strict-modern-not-ready-fallback-ready-capability-unscored"
+    },
+    "observed_on": {
+      "const": "2026-08-24"
+    },
+    "source": {
+      "$ref": "#/$defs/source"
+    },
+    "host": {
+      "$ref": "#/$defs/host"
+    },
+    "protocol_target": {
+      "$ref": "#/$defs/protocolTarget"
+    },
+    "historical_lineage": {
+      "$ref": "#/$defs/historicalLineage"
+    },
+    "attempts": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "prefixItems": [
+        {
+          "$ref": "#/$defs/modernAttempt"
+        },
+        {
+          "$ref": "#/$defs/fallbackAttempt"
+        }
+      ],
+      "items": false
+    },
+    "isolation": {
+      "$ref": "#/$defs/isolation"
+    },
+    "limitations": {
+      "$ref": "#/$defs/limitations"
+    },
+    "boundary": {
+      "const": "Accepted protected-main Claude Code protocol observation only. Claude Code 2.1.241 offered MCP 2025-11-25, so the strict 2026-07-28 STDIO surface correctly rejected it while the constructor-only fallback completed initialisation and tools/list. No model, tool call, resource read, exact-five production assembly, provider, remote HTTP host, registration, activation, deployment or release was exercised. Capability and the independent-host gate remain unscored and incomplete."
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "schemaContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "const": "schemas/qual-206-claude-code-stdio-observation.schema.json"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "sourceFile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^(?:apps|scripts)/(?!\\.{1,2}(?:/|$))[A-Za-z0-9._-]+(?:/(?!\\.{1,2}(?:/|$))[A-Za-z0-9._-]+)*$"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository",
+        "commit",
+        "tree",
+        "protected_main",
+        "version",
+        "detached_checkout",
+        "worktree_changes_uncommitted",
+        "production_registration",
+        "production_activation",
+        "public_endpoint_created",
+        "runtime_files",
+        "build"
+      ],
+      "properties": {
+        "repository": {
+          "const": "chris-page-gov/gis-ai-go"
+        },
+        "commit": {
+          "const": "dda0eb9f776e64bcd45069e77b4acbcd4d495e01"
+        },
+        "tree": {
+          "const": "258e6f3b3f62abccf04795e015f6961e06740fcf"
+        },
+        "protected_main": {
+          "const": true
+        },
+        "version": {
+          "const": "0.1.0"
+        },
+        "detached_checkout": {
+          "const": true
+        },
+        "worktree_changes_uncommitted": {
+          "const": false
+        },
+        "production_registration": {
+          "const": false
+        },
+        "production_activation": {
+          "const": false
+        },
+        "public_endpoint_created": {
+          "const": false
+        },
+        "runtime_files": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "prefixItems": [
+            {
+              "const": {
+                "path": "apps/mcp-gateway/src/mcp-server.ts",
+                "sha256": "e2c5cec027f3049d0a501b885a0ab6336d7e6059690df54ac7b257945807b454"
+              }
+            },
+            {
+              "const": {
+                "path": "apps/mcp-gateway/src/mcp-stdio.ts",
+                "sha256": "5e8d87020d1efe34b2b83940f60d2df5926f466c12473fffc156463c9a6cef30"
+              }
+            },
+            {
+              "const": {
+                "path": "scripts/qual_206_conformance_server.mjs",
+                "sha256": "aba0f4415bc9f94443be8b79eee06b03bdd275ca9854218dee30102c20a6778f"
+              }
+            },
+            {
+              "const": {
+                "path": "scripts/qual_206_legacy_conformance_server.mjs",
+                "sha256": "bf87bec24357d5fd6d419bd8b4374642ab46a2f3dfa6d9baebde46f7498edb9c"
+              }
+            },
+            {
+              "const": {
+                "path": "scripts/qual_206_telemetry_proxy.mjs",
+                "sha256": "3800e4458932ee1324ad03d64007f23f76f49682a6eabdc191ecf6eaccb501d5"
+              }
+            }
+          ],
+          "items": false
+        },
+        "build": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "command",
+            "dependencies_installed_with_frozen_lockfile",
+            "preflight_passed",
+            "loopback_permission_required",
+            "lockfile",
+            "compiled_entrypoints"
+          ],
+          "properties": {
+            "command": {
+              "const": "pnpm run test:interoperability"
+            },
+            "dependencies_installed_with_frozen_lockfile": {
+              "const": true
+            },
+            "preflight_passed": {
+              "const": true
+            },
+            "loopback_permission_required": {
+              "const": true
+            },
+            "lockfile": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "path",
+                "sha256"
+              ],
+              "properties": {
+                "path": {
+                  "const": "pnpm-lock.yaml"
+                },
+                "sha256": {
+                  "const": "640208aa66d26241514025b33dbde50bc14be7bbd33641eec9977e87699bb4ec"
+                }
+              }
+            },
+            "compiled_entrypoints": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 2,
+              "prefixItems": [
+                {
+                  "const": {
+                    "path": "apps/mcp-gateway/dist/src/mcp-server.js",
+                    "sha256": "71fdde3b45363d366b62e7c4219c2cc77efbfbfe9d9e5d110f656e76ee9d2ab1"
+                  }
+                },
+                {
+                  "const": {
+                    "path": "apps/mcp-gateway/dist/src/mcp-stdio.js",
+                    "sha256": "17a04b0b1f0a5549157c8e07119ac1d7a895b86d9a73312aaaa2561fd1e092e3"
+                  }
+                }
+              ],
+              "items": false
+            }
+          }
+        }
+      }
+    },
+    "host": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "version",
+        "platform",
+        "architecture",
+        "binary_sha256",
+        "command",
+        "update"
+      ],
+      "properties": {
+        "name": {
+          "const": "Claude Code"
+        },
+        "version": {
+          "const": "2.1.241"
+        },
+        "platform": {
+          "const": "darwin"
+        },
+        "architecture": {
+          "const": "arm64"
+        },
+        "binary_sha256": {
+          "const": "1495eb7c42d3b4451f5f1cd38b6d498d22a4a38c802bc2be5c1cf1795e64820d"
+        },
+        "command": {
+          "const": "mcp list"
+        },
+        "update": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "from_version",
+            "to_version",
+            "registry_package",
+            "registry_stable",
+            "registry_latest",
+            "latest_at_observation"
+          ],
+          "properties": {
+            "method": {
+              "const": "claude update"
+            },
+            "from_version": {
+              "const": "2.1.204"
+            },
+            "to_version": {
+              "const": "2.1.241"
+            },
+            "registry_package": {
+              "const": "@anthropic-ai/claude-code"
+            },
+            "registry_stable": {
+              "const": "2.1.231"
+            },
+            "registry_latest": {
+              "const": "2.1.241"
+            },
+            "latest_at_observation": {
+              "const": true
+            }
+          }
+        }
+      }
+    },
+    "protocolTarget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version",
+        "status_at_observation",
+        "source_id"
+      ],
+      "properties": {
+        "version": {
+          "const": "2026-07-28"
+        },
+        "status_at_observation": {
+          "const": "latest-published"
+        },
+        "source_id": {
+          "const": "S-MCP-SPEC"
+        }
+      }
+    },
+    "historicalLineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_sha256",
+        "evidence_sha256",
+        "relationship"
+      ],
+      "properties": {
+        "schema_sha256": {
+          "const": "5ce73d3d45c762112ac932407000b4379d07d92a9e54808227cd72e6050fd02a"
+        },
+        "evidence_sha256": {
+          "const": "a3d40e2013095baf977bad336366c0fb429a05b6a5a267c3e069595e4cdb1a6b"
+        },
+        "relationship": {
+          "const": "preserved-separate-not-superseded"
+        }
+      }
+    },
+    "requestFrame": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "method_label",
+        "frame_bytes",
+        "frame_sha256",
+        "parameters_bytes",
+        "parameters_sha256"
+      ],
+      "properties": {
+        "method_label": {
+          "enum": [
+            "other",
+            "tools/list"
+          ]
+        },
+        "frame_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1048576
+        },
+        "frame_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "parameters_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1048576
+        },
+        "parameters_sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "responseFrame": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "outcome",
+        "duration_ms",
+        "frame_bytes",
+        "frame_sha256"
+      ],
+      "properties": {
+        "outcome": {
+          "enum": [
+            "success",
+            "error"
+          ]
+        },
+        "error_code": {
+          "type": "integer"
+        },
+        "duration_ms": {
+          "type": "number",
+          "minimum": 0
+        },
+        "frame_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1048576
+        },
+        "frame_sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "outcome": {
+                "const": "error"
+              }
+            },
+            "required": [
+              "outcome"
+            ]
+          },
+          "then": {
+            "required": [
+              "error_code"
+            ]
+          },
+          "else": {
+            "not": {
+              "required": [
+                "error_code"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "telemetryBase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "node_version",
+        "source_commit",
+        "retained_private_bytes",
+        "retained_private_sha256",
+        "retained_private_mode",
+        "event_count",
+        "event_counts",
+        "initialize_request",
+        "initialize_response",
+        "invalid_frame_count",
+        "non_json_frame_count",
+        "truncated_frame_count",
+        "server_stderr_event_count",
+        "exit_code",
+        "pending_request_count",
+        "raw_content_published"
+      ],
+      "properties": {
+        "schema": {
+          "const": "gis-ai-go.qual-206-host-telemetry.v1"
+        },
+        "node_version": {
+          "const": "v26.7.0"
+        },
+        "source_commit": {
+          "const": "dda0eb9f776e64bcd45069e77b4acbcd4d495e01"
+        },
+        "retained_private_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000
+        },
+        "retained_private_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "retained_private_mode": {
+          "const": "0600"
+        },
+        "event_count": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 16
+        },
+        "event_counts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "session_start",
+            "request",
+            "response",
+            "session_end"
+          ],
+          "properties": {
+            "session_start": {
+              "const": 1
+            },
+            "request": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 4
+            },
+            "response": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 4
+            },
+            "session_end": {
+              "const": 1
+            }
+          }
+        },
+        "initialize_request": {
+          "$ref": "#/$defs/requestFrame"
+        },
+        "initialize_response": {
+          "$ref": "#/$defs/responseFrame"
+        },
+        "initialized_notification": {
+          "$ref": "#/$defs/requestFrame"
+        },
+        "tools_list_request": {
+          "$ref": "#/$defs/requestFrame"
+        },
+        "tools_list_response": {
+          "$ref": "#/$defs/responseFrame"
+        },
+        "invalid_frame_count": {
+          "const": 0
+        },
+        "non_json_frame_count": {
+          "const": 0
+        },
+        "truncated_frame_count": {
+          "const": 0
+        },
+        "server_stderr_event_count": {
+          "const": 0
+        },
+        "exit_code": {
+          "const": 0
+        },
+        "pending_request_count": {
+          "const": 0
+        },
+        "raw_content_published": {
+          "const": false
+        }
+      }
+    },
+    "modernAttempt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "server_surface",
+        "transport",
+        "client_requested_protocol",
+        "server_protocol",
+        "transport_readiness",
+        "capability",
+        "classification",
+        "host_result",
+        "error_code",
+        "initialize_success",
+        "tools_list_success",
+        "tool_call_observed",
+        "resource_read_observed",
+        "telemetry"
+      ],
+      "properties": {
+        "kind": {
+          "const": "strict-modern"
+        },
+        "server_surface": {
+          "const": "canonical-2026-07-28-conformance"
+        },
+        "transport": {
+          "const": "stdio"
+        },
+        "client_requested_protocol": {
+          "const": "2025-11-25"
+        },
+        "server_protocol": {
+          "const": "2026-07-28"
+        },
+        "transport_readiness": {
+          "const": "not-ready"
+        },
+        "capability": {
+          "const": "unscored"
+        },
+        "classification": {
+          "const": "legacy-initialise-rejected-by-modern-surface"
+        },
+        "host_result": {
+          "const": "Failed to connect"
+        },
+        "error_code": {
+          "const": -32022
+        },
+        "initialize_success": {
+          "const": false
+        },
+        "tools_list_success": {
+          "const": false
+        },
+        "tool_call_observed": {
+          "const": false
+        },
+        "resource_read_observed": {
+          "const": false
+        },
+        "telemetry": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/telemetryBase"
+            },
+            {
+              "properties": {
+                "event_count": {
+                  "const": 4
+                },
+                "event_counts": {
+                  "const": {
+                    "session_start": 1,
+                    "request": 1,
+                    "response": 1,
+                    "session_end": 1
+                  }
+                },
+                "initialize_request": {
+                  "properties": {
+                    "method_label": {
+                      "const": "other"
+                    }
+                  }
+                },
+                "initialize_response": {
+                  "properties": {
+                    "outcome": {
+                      "const": "error"
+                    },
+                    "error_code": {
+                      "const": -32022
+                    }
+                  }
+                }
+              },
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "initialized_notification"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "tools_list_request"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "tools_list_response"
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "fallbackAttempt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "server_surface",
+        "transport",
+        "client_requested_protocol",
+        "negotiated_protocol",
+        "transport_readiness",
+        "capability",
+        "classification",
+        "host_result",
+        "initialize_success",
+        "tools_list_success",
+        "tool_call_observed",
+        "resource_read_observed",
+        "telemetry"
+      ],
+      "properties": {
+        "kind": {
+          "const": "constructor-only-fallback"
+        },
+        "server_surface": {
+          "const": "test-only-legacy-conformance"
+        },
+        "transport": {
+          "const": "stdio"
+        },
+        "client_requested_protocol": {
+          "const": "2025-11-25"
+        },
+        "negotiated_protocol": {
+          "const": "2025-06-18"
+        },
+        "transport_readiness": {
+          "const": "ready"
+        },
+        "capability": {
+          "const": "unscored"
+        },
+        "classification": {
+          "const": "legacy-handshake-and-tool-list-pass"
+        },
+        "host_result": {
+          "const": "Connected"
+        },
+        "initialize_success": {
+          "const": true
+        },
+        "tools_list_success": {
+          "const": true
+        },
+        "tool_call_observed": {
+          "const": false
+        },
+        "resource_read_observed": {
+          "const": false
+        },
+        "telemetry": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/telemetryBase"
+            },
+            {
+              "required": [
+                "initialized_notification",
+                "tools_list_request",
+                "tools_list_response"
+              ],
+              "properties": {
+                "event_count": {
+                  "const": 7
+                },
+                "event_counts": {
+                  "const": {
+                    "session_start": 1,
+                    "request": 3,
+                    "response": 2,
+                    "session_end": 1
+                  }
+                },
+                "initialize_request": {
+                  "properties": {
+                    "method_label": {
+                      "const": "other"
+                    }
+                  }
+                },
+                "initialize_response": {
+                  "properties": {
+                    "outcome": {
+                      "const": "success"
+                    }
+                  }
+                },
+                "initialized_notification": {
+                  "allOf": [
+                    {
+                      "$ref": "#/$defs/requestFrame"
+                    },
+                    {
+                      "properties": {
+                        "method_label": {
+                          "const": "other"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "tools_list_request": {
+                  "allOf": [
+                    {
+                      "$ref": "#/$defs/requestFrame"
+                    },
+                    {
+                      "properties": {
+                        "method_label": {
+                          "const": "tools/list"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "tools_list_response": {
+                  "allOf": [
+                    {
+                      "$ref": "#/$defs/responseFrame"
+                    },
+                    {
+                      "properties": {
+                        "outcome": {
+                          "const": "success"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "isolation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "temporary_profiles",
+        "profile_root_mode",
+        "backup_directory_mode",
+        "primary_configuration_mode",
+        "generated_backup_modes",
+        "normal_profile_used",
+        "credential_variables_removed",
+        "mcp_child_environment_allowlisted",
+        "retained_private_logs",
+        "credential_value_pattern_matches",
+        "remaining_isolated_processes_after_cleanup",
+        "raw_host_logs_published"
+      ],
+      "properties": {
+        "temporary_profiles": {
+          "const": 2
+        },
+        "profile_root_mode": {
+          "const": "0700"
+        },
+        "backup_directory_mode": {
+          "const": "0755"
+        },
+        "primary_configuration_mode": {
+          "const": "0600"
+        },
+        "generated_backup_modes": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "prefixItems": [
+            {
+              "const": "0644"
+            },
+            {
+              "const": "0600"
+            }
+          ],
+          "items": false
+        },
+        "normal_profile_used": {
+          "const": false
+        },
+        "credential_variables_removed": {
+          "const": 5
+        },
+        "mcp_child_environment_allowlisted": {
+          "const": true
+        },
+        "retained_private_logs": {
+          "const": 2
+        },
+        "credential_value_pattern_matches": {
+          "const": 0
+        },
+        "remaining_isolated_processes_after_cleanup": {
+          "const": 0
+        },
+        "raw_host_logs_published": {
+          "const": false
+        }
+      }
+    },
+    "limitations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "modern_transport_ready",
+        "legacy_transport_ready",
+        "capability_result_claimed",
+        "independent_host_gate_completed",
+        "exact_five_assembly_exercised",
+        "model_task_requested",
+        "live_provider_called",
+        "remote_http_observed",
+        "activation_or_release_claimed"
+      ],
+      "properties": {
+        "modern_transport_ready": {
+          "const": false
+        },
+        "legacy_transport_ready": {
+          "const": true
+        },
+        "capability_result_claimed": {
+          "const": false
+        },
+        "independent_host_gate_completed": {
+          "const": false
+        },
+        "exact_five_assembly_exercised": {
+          "const": false
+        },
+        "model_task_requested": {
+          "const": false
+        },
+        "live_provider_called": {
+          "const": false
+        },
+        "remote_http_observed": {
+          "const": false
+        },
+        "activation_or_release_claimed": {
+          "const": false
+        }
+      }
+    }
+  }
+}

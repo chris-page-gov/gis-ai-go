@@ -1,0 +1,243 @@
+{
+  "schema": "gis-ai-go.qual-206-claude-code-stdio-observation.v1",
+  "schema_contract": {
+    "path": "schemas/qual-206-claude-code-stdio-observation.schema.json",
+    "sha256": "78b9a8071a6954028576f397c98dd0fc4b87dddbaf72654f6459407b280e2a9b"
+  },
+  "status": "strict-modern-not-ready-fallback-ready-capability-unscored",
+  "observed_on": "2026-08-24",
+  "source": {
+    "repository": "chris-page-gov/gis-ai-go",
+    "commit": "dda0eb9f776e64bcd45069e77b4acbcd4d495e01",
+    "tree": "258e6f3b3f62abccf04795e015f6961e06740fcf",
+    "protected_main": true,
+    "version": "0.1.0",
+    "detached_checkout": true,
+    "worktree_changes_uncommitted": false,
+    "production_registration": false,
+    "production_activation": false,
+    "public_endpoint_created": false,
+    "runtime_files": [
+      {
+        "path": "apps/mcp-gateway/src/mcp-server.ts",
+        "sha256": "e2c5cec027f3049d0a501b885a0ab6336d7e6059690df54ac7b257945807b454"
+      },
+      {
+        "path": "apps/mcp-gateway/src/mcp-stdio.ts",
+        "sha256": "5e8d87020d1efe34b2b83940f60d2df5926f466c12473fffc156463c9a6cef30"
+      },
+      {
+        "path": "scripts/qual_206_conformance_server.mjs",
+        "sha256": "aba0f4415bc9f94443be8b79eee06b03bdd275ca9854218dee30102c20a6778f"
+      },
+      {
+        "path": "scripts/qual_206_legacy_conformance_server.mjs",
+        "sha256": "bf87bec24357d5fd6d419bd8b4374642ab46a2f3dfa6d9baebde46f7498edb9c"
+      },
+      {
+        "path": "scripts/qual_206_telemetry_proxy.mjs",
+        "sha256": "3800e4458932ee1324ad03d64007f23f76f49682a6eabdc191ecf6eaccb501d5"
+      }
+    ],
+    "build": {
+      "command": "pnpm run test:interoperability",
+      "dependencies_installed_with_frozen_lockfile": true,
+      "preflight_passed": true,
+      "loopback_permission_required": true,
+      "lockfile": {
+        "path": "pnpm-lock.yaml",
+        "sha256": "640208aa66d26241514025b33dbde50bc14be7bbd33641eec9977e87699bb4ec"
+      },
+      "compiled_entrypoints": [
+        {
+          "path": "apps/mcp-gateway/dist/src/mcp-server.js",
+          "sha256": "71fdde3b45363d366b62e7c4219c2cc77efbfbfe9d9e5d110f656e76ee9d2ab1"
+        },
+        {
+          "path": "apps/mcp-gateway/dist/src/mcp-stdio.js",
+          "sha256": "17a04b0b1f0a5549157c8e07119ac1d7a895b86d9a73312aaaa2561fd1e092e3"
+        }
+      ]
+    }
+  },
+  "host": {
+    "name": "Claude Code",
+    "version": "2.1.241",
+    "platform": "darwin",
+    "architecture": "arm64",
+    "binary_sha256": "1495eb7c42d3b4451f5f1cd38b6d498d22a4a38c802bc2be5c1cf1795e64820d",
+    "command": "mcp list",
+    "update": {
+      "method": "claude update",
+      "from_version": "2.1.204",
+      "to_version": "2.1.241",
+      "registry_package": "@anthropic-ai/claude-code",
+      "registry_stable": "2.1.231",
+      "registry_latest": "2.1.241",
+      "latest_at_observation": true
+    }
+  },
+  "protocol_target": {
+    "version": "2026-07-28",
+    "status_at_observation": "latest-published",
+    "source_id": "S-MCP-SPEC"
+  },
+  "historical_lineage": {
+    "schema_sha256": "5ce73d3d45c762112ac932407000b4379d07d92a9e54808227cd72e6050fd02a",
+    "evidence_sha256": "a3d40e2013095baf977bad336366c0fb429a05b6a5a267c3e069595e4cdb1a6b",
+    "relationship": "preserved-separate-not-superseded"
+  },
+  "attempts": [
+    {
+      "kind": "strict-modern",
+      "server_surface": "canonical-2026-07-28-conformance",
+      "transport": "stdio",
+      "client_requested_protocol": "2025-11-25",
+      "server_protocol": "2026-07-28",
+      "transport_readiness": "not-ready",
+      "capability": "unscored",
+      "classification": "legacy-initialise-rejected-by-modern-surface",
+      "host_result": "Failed to connect",
+      "error_code": -32022,
+      "initialize_success": false,
+      "tools_list_success": false,
+      "tool_call_observed": false,
+      "resource_read_observed": false,
+      "telemetry": {
+        "schema": "gis-ai-go.qual-206-host-telemetry.v1",
+        "node_version": "v26.7.0",
+        "source_commit": "dda0eb9f776e64bcd45069e77b4acbcd4d495e01",
+        "retained_private_bytes": 1527,
+        "retained_private_sha256": "387e19ff71bddaabd8223bc7f6ed65a73440be37afc6d860e92c2fbd41367fab",
+        "retained_private_mode": "0600",
+        "event_count": 4,
+        "event_counts": {
+          "session_start": 1,
+          "request": 1,
+          "response": 1,
+          "session_end": 1
+        },
+        "initialize_request": {
+          "method_label": "other",
+          "frame_bytes": 323,
+          "frame_sha256": "414f9f230e1f6410b2fd08bfe2b53ee20c94dd2b2a5f866e32d5ab02eee96ede",
+          "parameters_bytes": 267,
+          "parameters_sha256": "3f07a31ea0c1b7e4e13c55d4024d3cdd51ca500733494d3f92907107f9a7d38b"
+        },
+        "initialize_response": {
+          "outcome": "error",
+          "error_code": -32022,
+          "duration_ms": 182.385334,
+          "frame_bytes": 162,
+          "frame_sha256": "0b17e091073c1d8bfd2df6decbaba2dfd2f57679333d352053faebf0f8d7cab3"
+        },
+        "invalid_frame_count": 0,
+        "non_json_frame_count": 0,
+        "truncated_frame_count": 0,
+        "server_stderr_event_count": 0,
+        "exit_code": 0,
+        "pending_request_count": 0,
+        "raw_content_published": false
+      }
+    },
+    {
+      "kind": "constructor-only-fallback",
+      "server_surface": "test-only-legacy-conformance",
+      "transport": "stdio",
+      "client_requested_protocol": "2025-11-25",
+      "negotiated_protocol": "2025-06-18",
+      "transport_readiness": "ready",
+      "capability": "unscored",
+      "classification": "legacy-handshake-and-tool-list-pass",
+      "host_result": "Connected",
+      "initialize_success": true,
+      "tools_list_success": true,
+      "tool_call_observed": false,
+      "resource_read_observed": false,
+      "telemetry": {
+        "schema": "gis-ai-go.qual-206-host-telemetry.v1",
+        "node_version": "v26.7.0",
+        "source_commit": "dda0eb9f776e64bcd45069e77b4acbcd4d495e01",
+        "retained_private_bytes": 2858,
+        "retained_private_sha256": "a82ef554dc8c33d34d5689f5ef736616564a38d057877d4fa72ec965e1ee9f24",
+        "retained_private_mode": "0600",
+        "event_count": 7,
+        "event_counts": {
+          "session_start": 1,
+          "request": 3,
+          "response": 2,
+          "session_end": 1
+        },
+        "initialize_request": {
+          "method_label": "other",
+          "frame_bytes": 323,
+          "frame_sha256": "414f9f230e1f6410b2fd08bfe2b53ee20c94dd2b2a5f866e32d5ab02eee96ede",
+          "parameters_bytes": 267,
+          "parameters_sha256": "3f07a31ea0c1b7e4e13c55d4024d3cdd51ca500733494d3f92907107f9a7d38b"
+        },
+        "initialize_response": {
+          "outcome": "success",
+          "duration_ms": 197.629584,
+          "frame_bytes": 391,
+          "frame_sha256": "a4f84e28cb3cacdbc16c13c870aa0797e2ca7c09bf43ad72947bcfbdb7b9a279"
+        },
+        "initialized_notification": {
+          "method_label": "other",
+          "frame_bytes": 54,
+          "frame_sha256": "1991440c743375cc3f711ec3788c732cfff71984933a8bf73701ff563427860d",
+          "parameters_bytes": 4,
+          "parameters_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+        },
+        "tools_list_request": {
+          "method_label": "tools/list",
+          "frame_bytes": 46,
+          "frame_sha256": "75f0c7627a35c7e96a0a88482622a0d1ec7e81c0eb5414a88ba7aab9450cf73b",
+          "parameters_bytes": 4,
+          "parameters_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+        },
+        "tools_list_response": {
+          "outcome": "success",
+          "duration_ms": 1.471875,
+          "frame_bytes": 47304,
+          "frame_sha256": "30b56ca69a8767fe393ceaf3c86d29ca91d3026f73255c56bff7616fd7ea7cb5"
+        },
+        "invalid_frame_count": 0,
+        "non_json_frame_count": 0,
+        "truncated_frame_count": 0,
+        "server_stderr_event_count": 0,
+        "exit_code": 0,
+        "pending_request_count": 0,
+        "raw_content_published": false
+      }
+    }
+  ],
+  "isolation": {
+    "temporary_profiles": 2,
+    "profile_root_mode": "0700",
+    "backup_directory_mode": "0755",
+    "primary_configuration_mode": "0600",
+    "generated_backup_modes": [
+      "0644",
+      "0600"
+    ],
+    "normal_profile_used": false,
+    "credential_variables_removed": 5,
+    "mcp_child_environment_allowlisted": true,
+    "retained_private_logs": 2,
+    "credential_value_pattern_matches": 0,
+    "remaining_isolated_processes_after_cleanup": 0,
+    "raw_host_logs_published": false
+  },
+  "limitations": {
+    "modern_transport_ready": false,
+    "legacy_transport_ready": true,
+    "capability_result_claimed": false,
+    "independent_host_gate_completed": false,
+    "exact_five_assembly_exercised": false,
+    "model_task_requested": false,
+    "live_provider_called": false,
+    "remote_http_observed": false,
+    "activation_or_release_claimed": false
+  },
+  "boundary": "Accepted protected-main Claude Code protocol observation only. Claude Code 2.1.241 offered MCP 2025-11-25, so the strict 2026-07-28 STDIO surface correctly rejected it while the constructor-only fallback completed initialisation and tools/list. No model, tool call, resource read, exact-five production assembly, provider, remote HTTP host, registration, activation, deployment or release was exercised. Capability and the independent-host gate remain unscored and incomplete."
+}

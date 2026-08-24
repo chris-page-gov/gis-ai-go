@@ -1,6 +1,6 @@
 # Current context
 
-Last updated: 23 August 2026
+Last updated: 24 August 2026
 
 ## Authority and reading order
 
@@ -42,7 +42,7 @@ whose accepted implementation commit is
 `a0e826384cf50d9d81b87489dbf3580e8e3602f7`. The Explorer is deployed and verified
 at <https://chris-page-gov.github.io/gis-ai-go/> from the later release commit
 recorded below. The latest protected-main repository hand-off is
-`30b575beb27ff805745a2864c1acf44392774046`; its unchanged runtime baseline is
+`dda0eb9f776e64bcd45069e77b4acbcd4d495e01`; its unchanged runtime baseline is
 `7fa8b720d3cbaa3e0a1ebfadf0fb355a7330a04c`. It contains the repository-only
 QUAL-206 preflight, completed trace and readiness integrity, one compile-time
 `candidate-unregistered` exact-five assembly, the bounded 23 August research intake,
@@ -284,6 +284,31 @@ commit. The constructor-only two-tool launcher completed initialisation and
 record and uncommitted exploratory record remain unchanged. No model authentication,
 model task, tool call, resource read, exact-five production assembly, live provider,
 remote HTTP host, registration, activation, deployment or release was exercised.
+
+The combined `v0.2.0` repository candidate merged through
+[pull request 57](https://github.com/chris-page-gov/gis-ai-go/pull/57), and its
+main-only independent-builder repair merged through
+[pull request 58](https://github.com/chris-page-gov/gis-ai-go/pull/58) as exact
+protected-main commit `dda0eb9f776e64bcd45069e77b4acbcd4d495e01`.
+[Run 32760872035](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32760872035)
+passed repository assurance, the producer and independent OCI derivations,
+byte-identical cross-verification, aggregate assurance and both provenance jobs;
+[run 32760871684](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32760871684)
+passed CodeQL for Actions, JavaScript/TypeScript and Python. Both derivations
+produced manifest
+`sha256:d08eea1ef3bd74bdba203d8d824cdc9dfac3553e51370ee6006f42c6db27b324`
+and archive SHA-256
+`62893bcf428dfe8736e75d53ed702df2141c5c82e0e81798fb43342ba9e323a2`.
+This accepts the remediated UBI repository image and its evidence; it does not
+activate, publish, deploy or release the service.
+
+An additive Claude Code `2.1.241` observation preserves the `2.1.204` evidence and
+records the current client's actual protocol boundary. The client offered MCP
+`2025-11-25`; the strict `2026-07-28` STDIO surface correctly returned `-32022`,
+while the constructor-only fallback completed initialisation and `tools/list`.
+Capability remains unscored. No model, operation, resource, provider or remote HTTP
+host was exercised, and this explained variance does not widen the production
+protocol boundary or complete the independent-host gate.
 
 ## Non-negotiable boundaries
 

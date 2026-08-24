@@ -36,6 +36,17 @@ host, exact-five production assembly, registration, activation, deployment or
 release was exercised. It does not alter the earlier modern-only `not_ready` record
 or upgrade the uncommitted exploratory fallback record.
 
+The later
+[`Claude Code 2.1.241 STDIO observation`](claude-code-2.1.241-stdio-observation-2026-08-24.json)
+preserves that historical record and binds two new credential-free `mcp list`
+attempts to exact protected-main commit
+`dda0eb9f776e64bcd45069e77b4acbcd4d495e01`. The current client offered MCP
+`2025-11-25`, so the canonical `2026-07-28` surface correctly returned `-32022`.
+The separately named constructor-only fallback completed initialisation and
+`tools/list`. This establishes only fallback transport readiness: the strict modern
+path is not ready, capability is unscored and the independent-host gate remains
+incomplete. Raw telemetry and disposable profiles remain private and local.
+
 The historical records continue to bind the unchanged ten-case
 [`qual_206_cases.json`](../qual_206_cases.json) bytes. The separate
 [`qual_206_cases_expansion.json`](../qual_206_cases_expansion.json) is design-time,
