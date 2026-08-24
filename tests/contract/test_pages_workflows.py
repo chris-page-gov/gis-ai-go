@@ -209,7 +209,13 @@ class PagesWorkflowTests(unittest.TestCase):
         self.assertIn("scripts/verify_gateway_oci.py", independent)
         self.assertIn('--expected-source-commit "$GITHUB_SHA"', independent)
         self.assertIn("--require-clean", independent)
-        self.assertIn("gis-ai-go-gateway-independent", independent)
+        independent_lines = [line.strip() for line in independent.splitlines()]
+        self.assertEqual(independent_lines.count("--name gis-ai-go-gateway \\"), 1)
+        self.assertEqual(
+            independent_lines.count("run: docker buildx rm gis-ai-go-gateway"),
+            1,
+        )
+        self.assertNotIn("gis-ai-go-gateway-independent", independent)
         self.assertIn(
             "moby/buildkit:buildx-stable-1@sha256:"
             "28a898719c18a33f4e8000685287fa36fd0dd9560c6440227d3a732d79bb41d8",
