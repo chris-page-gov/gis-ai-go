@@ -18,6 +18,31 @@ Run the deterministic, minimised-telemetry harness with:
 pnpm run test:interoperability
 ```
 
+## Local exact-five demonstration
+
+Run the concise, human-readable fixed-provider journey with:
+
+```bash
+pnpm run demo:local
+```
+
+For the version-labelled machine-readable JSON summary, use:
+
+```bash
+pnpm run demo:local -- --json
+```
+
+The separately named script drives only the strictly gated real-process fixture.
+It verifies the five candidate tools and three governed resources, calls every tool
+with public or deterministic fixture data, and exits after reporting
+`candidate-unregistered` and `production_registration=false`. It passes only two
+fixture controls and three parent-owned temporary-path variables to the child,
+reports whether the checkout is clean, opens no listener, changes no client registry
+and makes no live provider call. A tested preload guard blocks the Node APIs used by
+the live provider transport; operating-system network isolation is not enforced, so
+this is not a network sandbox. The shipped HTTP, STDIO and container entrypoints
+remain blocked.
+
 The [evaluation corpus](qual_206_cases.json) distinguishes public-safe behaviours
 derived from the exact source-hashed `mcp-geo` archive from candidate-specific
 assurance cases. Every historical case cites its source paths; current-candidate
