@@ -80,7 +80,9 @@ the run. Do not use `--bare`: the exact 2.1.245 client reports that bare mode do
 not read first-party login or keychain authentication. The harness therefore uses
 the normal login profile while excluding user and project settings, disabling
 built-in tools and failing unmatched permission requests closed. The private
-preflight checks the authentication method, but no subscription value is published
+preflight checks the authentication method. It also deliberately omits
+`CLAUDE_CODE_SIMPLE=1`: the exact 2.1.245 client treats that mode as logged out even
+when its normal macOS Keychain login is valid. No subscription value is published
 and this observation makes no billing or remaining-allocation claim.
 
 The alternative API-key route requires `ANTHROPIC_API_KEY` and an owner-supplied

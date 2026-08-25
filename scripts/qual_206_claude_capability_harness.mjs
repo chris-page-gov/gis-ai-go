@@ -738,7 +738,6 @@ function closedClaudeEnvironment(authKind, environment, extra = {}) {
     CLAUDE_CODE_DISABLE_CRON: "1",
     CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1",
     CLAUDE_CODE_SKIP_PROMPT_HISTORY: "1",
-    CLAUDE_CODE_SIMPLE: "1",
     ENABLE_CLAUDEAI_MCP_SERVERS: "false",
     MCP_TIMEOUT: "10000",
     MCP_TOOL_TIMEOUT: "60000",

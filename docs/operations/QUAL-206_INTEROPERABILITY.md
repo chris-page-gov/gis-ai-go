@@ -784,8 +784,10 @@ title and independently verified inline receipt in a closed structured response.
 The launcher supports the normal Claude first-party login and a separately bounded
 API-key route. Claude Code 2.1.245 does not use first-party or keychain
 authentication with `--bare`, so the first-party route deliberately omits that
-flag while retaining strict MCP configuration, `dontAsk`, one tool-use turn plus
-the final text-only turn, no session persistence and an empty disposable workspace.
+flag. It also omits `CLAUDE_CODE_SIMPLE=1`, because the exact client reports the
+normal macOS Keychain login as unavailable in that mode. The route retains strict
+MCP configuration, `dontAsk`, one tool-use turn plus the final text-only turn, no
+session persistence and an empty disposable workspace.
 The API-key route uses `--bare` and requires an explicit per-run budget. In both
 routes, recognised credential environment variables are removed before the MCP
 child starts. An identity-bound macOS Seatbelt profile denies all network access
