@@ -51,7 +51,14 @@
     "credential_environment_observed": {"const": false},
     "credential_environment_forwarded": {"const": false},
     "child_environment_mode": {"const": "closed-credential-free"},
-    "host_attribution": {"const": "immediate-parent-executable-only-unscored"},
+    "host_attribution": {
+      "enum": [
+        "immediate-parent-executable-only-unscored",
+        "outer-harness-spawn-executable"
+      ]
+    },
+    "mcp_subtree_network_access_allowed": {"const": false},
+    "mcp_subtree_network_sandbox": {"const": "macos-seatbelt-deny-network"},
     "fixture_arguments_match_observer_contract": {"const": true},
     "spawned_process_identity_verified": {"const": false},
     "direction": {
@@ -270,6 +277,20 @@
     },
     {
       "if": {
+        "properties": {
+          "host_attribution": {"const": "outer-harness-spawn-executable"}
+        },
+        "required": ["host_attribution"]
+      },
+      "then": {
+        "required": [
+          "mcp_subtree_network_access_allowed",
+          "mcp_subtree_network_sandbox"
+        ]
+      }
+    },
+    {
+      "if": {
         "anyOf": [
           {"required": ["direction"]}, {"required": ["frame_bytes"]},
           {"required": ["frame_sha256"]}
@@ -381,6 +402,21 @@
       },
       "then": {
         "properties": {"event": {"const": "lifecycle"}, "phase": {"const": "session-start"}},
+        "required": ["event", "phase"]
+      }
+    },
+    {
+      "if": {
+        "anyOf": [
+          {"required": ["mcp_subtree_network_access_allowed"]},
+          {"required": ["mcp_subtree_network_sandbox"]}
+        ]
+      },
+      "then": {
+        "properties": {
+          "event": {"const": "lifecycle"},
+          "phase": {"enum": ["session-start", "child-spawned"]}
+        },
         "required": ["event", "phase"]
       }
     },

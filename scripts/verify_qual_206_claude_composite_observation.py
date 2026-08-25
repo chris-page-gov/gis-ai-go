@@ -158,6 +158,10 @@ LIFECYCLE_FIELDS = {
         "temporary_state_removed",
     },
 }
+NETWORK_SANDBOX_FIELDS = {
+    "mcp_subtree_network_access_allowed",
+    "mcp_subtree_network_sandbox",
+}
 
 
 class VerificationError(ValueError):
@@ -516,6 +520,10 @@ def _require_exact_event_fields(event: dict[str, Any]) -> None:
     kind = event["event"]
     if kind == "lifecycle":
         expected = COMMON_EVENT_FIELDS | LIFECYCLE_FIELDS[event["phase"]]
+        if event["phase"] in {"session-start", "child-spawned"} and any(
+            name in event for name in NETWORK_SANDBOX_FIELDS
+        ):
+            expected |= NETWORK_SANDBOX_FIELDS
     else:
         expected = COMMON_EVENT_FIELDS | EVENT_FIELDS[kind]
     if set(event) != expected:
@@ -768,7 +776,13 @@ def _verify_streams(
         fail("zero-stderr successful stream summaries must not expose a digest")
 
 
-def _verify_audits(audits: list[dict[str, Any]]) -> None:
+def _verify_audits(
+    audits: list[dict[str, Any]],
+    *,
+    capability_sandbox: bool,
+    requests: list[dict[str, Any]],
+    responses: list[dict[str, Any]],
+) -> None:
     expected = (
         "provider-egress-guard-ready",
         "provider-egress-guard-summary",
@@ -776,6 +790,20 @@ def _verify_audits(audits: list[dict[str, Any]]) -> None:
     )
     if tuple(audit["audit_kind"] for audit in audits) != expected:
         fail("session does not contain the exact zero-provider audit sequence")
+    successful_response_ids = {
+        response["request_id_sha256"]
+        for response in responses
+        if response["request_method"] == "tools/call"
+        and response["outcome"] == "success"
+        and response["contract_valid"] is True
+    }
+    expected_ledger_events = sum(
+        request["operation"] == "catalogue.search"
+        and request["request_id_sha256"] in successful_response_ids
+        for request in requests
+    ) if capability_sandbox else 0
+    if expected_ledger_events not in {0, 1}:
+        fail("capability session exceeds the one-call ledger boundary")
     for audit in audits:
         if (
             audit["direction"] != "fixture-audit"
@@ -788,7 +816,7 @@ def _verify_audits(audits: list[dict[str, Any]]) -> None:
         elif kind == "provider-egress-guard-summary":
             expected_counts = (0, None, None, None, None)
         else:
-            expected_counts = (None, 0, 0, 0, 0)
+            expected_counts = (None, 0, 0, expected_ledger_events, 0)
         if (
             audit["guarded_api_invocation_count"],
             audit["provider_transport_calls"],
@@ -975,13 +1003,27 @@ def verify_session(
         or parent["bytes"] != expected_parent_bytes
     ):
         fail("session does not bind the expected immediate parent executable")
+    capability_sandbox = start["host_attribution"] == "outer-harness-spawn-executable"
     if (
         start["credential_environment_forwarded"] is not False
         or start["credential_environment_observed"] is not False
         or start["child_environment_mode"] != "closed-credential-free"
-        or start["host_attribution"] != "immediate-parent-executable-only-unscored"
+        or start["host_attribution"]
+        not in {
+            "immediate-parent-executable-only-unscored",
+            "outer-harness-spawn-executable",
+        }
     ):
         fail("session-start does not preserve its credential-free attribution boundary")
+    if capability_sandbox:
+        if (
+            start.get("mcp_subtree_network_access_allowed") is not False
+            or start.get("mcp_subtree_network_sandbox") != "macos-seatbelt-deny-network"
+            or child_spawned.get("mcp_subtree_network_access_allowed") is not False
+            or child_spawned.get("mcp_subtree_network_sandbox")
+            != "macos-seatbelt-deny-network"
+        ):
+            fail("capability session does not preserve its MCP subtree network sandbox")
 
     if end["request_count"] != len(requests):
         fail("session-end request count does not match the event log")
@@ -997,7 +1039,12 @@ def verify_session(
     _verify_request_response_contract(requests, responses)
     _verify_notifications(notifications, requests, responses)
     _verify_profile(end["session_profile"], requests, responses, notifications)
-    _verify_audits(audits)
+    _verify_audits(
+        audits,
+        capability_sandbox=capability_sandbox,
+        requests=requests,
+        responses=responses,
+    )
     _verify_streams(
         streams,
         requests=requests,

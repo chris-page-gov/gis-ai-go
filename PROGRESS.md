@@ -30,6 +30,10 @@ The supported target active set is exactly `catalogue.search`,
 - accept the separately verified MCP `2026-07-28` Claude Code `2.1.241` and
   `2.1.245` desktop-STDIO results as transport readiness only, with capability and
   exact-five source binding still false;
+- complete the separately gated Claude Code `2.1.245` `HOST-002` capability
+  harness, which advertises only `catalogue.search`, permits one exact call, checks
+  the inline receipt independently, retains raw material privately and can publish
+  only a path-free pass after the harness has merged to protected `main`;
 - retain the accepted fail-closed real-socket loopback HTTP exact-five preflight,
   whose owner-only raw capture remains local and whose independent path-free
   projection keeps remote-host acceptance false and capability unscored;

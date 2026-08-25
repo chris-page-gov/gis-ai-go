@@ -772,6 +772,40 @@ tool capability pass. No model task, tool call, resource read, exact-five journe
 provider, remote HTTP host, registration, activation, deployment or release was
 exercised. The next independent-host step remains the bounded capability pack.
 
+### Claude Code 2.1.245 bounded capability pack
+
+The capability pack is a separate, deliberately narrower continuation of the
+accepted readiness observation. It gives Claude Code one advertised MCP tool,
+`catalogue.search`, and no MCP resources or built-in tools. Four candidate
+operations are explicitly suspended before discovery. The model must make exactly
+one call with the frozen `QUAL-206-HOST-002` arguments and return the same record,
+title and independently verified inline receipt in a closed structured response.
+
+The launcher supports the normal Claude first-party login and a separately bounded
+API-key route. Claude Code 2.1.245 does not use first-party or keychain
+authentication with `--bare`, so the first-party route deliberately omits that
+flag while retaining strict MCP configuration, `dontAsk`, one tool-use turn plus
+the final text-only turn, no session persistence and an empty disposable workspace.
+The API-key route uses `--bare` and requires an explicit per-run budget. In both
+routes, recognised credential environment variables are removed before the MCP
+child starts. An identity-bound macOS Seatbelt profile denies all network access
+for that MCP subtree, including loopback, and a pre-run compatibility probe proves
+both the denial and durable evidence writes.
+
+The implementation must first pass repository assurance and merge to protected
+`main`. Only then may one authenticated model observation run from a clean detached
+checkout of that exact commit. Raw MCP events, Claude output, settings and local
+paths remain in an owner-only private directory. The offline verifier can publish
+only a path-free pass projection, in a separate evidence pull request. A failure
+remains private and cannot produce public capability evidence.
+
+See the
+[Claude HOST-002 capability runbook](QUAL-206_CLAUDE_CAPABILITY.md) for the exact
+boundary and procedure. A pass closes only the single model-mediated
+`catalogue.search` case. It does not establish exact-five model capability, remote
+HTTP interoperability, live-provider readiness, registration, activation,
+deployment or release.
+
 ## Historical failure-derived cases
 
 [`qual_206_cases.json`](../../tests/interoperability/qual_206_cases.json) contains
