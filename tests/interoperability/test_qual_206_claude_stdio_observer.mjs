@@ -479,7 +479,7 @@ test("probe and modern sessions allocate unique private slots and close manifest
   }
 });
 
-test("host SIGTERM after a complete probe or modern exchange closes safely", async (t) => {
+test("host SIGTERM or SIGINT after a complete exchange closes safely", async (t) => {
   const captureRoot = privateRoot(t);
   const runId = randomUUID();
   const probe = startObserver(captureRoot, runId);
@@ -507,14 +507,13 @@ test("host SIGTERM after a complete probe or modern exchange closes safely", asy
   const probeSignalStarted = process.hrtime.bigint();
   assert.equal(probe.child.kill("SIGTERM"), true);
   const modernSignalStarted = process.hrtime.bigint();
-  modern.child.stdin.end();
-  assert.equal(modern.child.kill("SIGTERM"), true);
+  assert.equal(modern.child.kill("SIGINT"), true);
   const completions = await Promise.all([
     withTimeout(probe.completion, "SIGTERM probe close").then((result) => ({
       elapsedMs: Number(process.hrtime.bigint() - probeSignalStarted) / 1_000_000,
       result,
     })),
-    withTimeout(modern.completion, "SIGTERM tools close").then((result) => ({
+    withTimeout(modern.completion, "SIGINT tools close").then((result) => ({
       elapsedMs: Number(process.hrtime.bigint() - modernSignalStarted) / 1_000_000,
       result,
     })),
@@ -544,8 +543,15 @@ test("host SIGTERM after a complete probe or modern exchange closes safely", asy
   );
   const stimuli = captures.map(({ events }) => events.at(-1).closure_stimulus);
   assert.ok(stimuli.includes("sigterm"));
+  assert.ok(stimuli.includes("sigint"));
   assert.ok(stimuli.every((value) =>
-    ["sigterm", "stdin-eof", "stdin-eof-and-sigterm"].includes(value)));
+    [
+      "sigint",
+      "sigterm",
+      "stdin-eof",
+      "stdin-eof-and-sigint",
+      "stdin-eof-and-sigterm",
+    ].includes(value)));
 });
 
 test("host SIGTERM before a complete request-response exchange fails closed", async (t) => {
@@ -582,6 +588,45 @@ test("host SIGTERM before a complete request-response exchange fails closed", as
     "incomplete-signal-version",
     "incomplete-private-request",
     "incomplete-private-reason",
+  ]) {
+    assert.equal(capture.text.includes(value), false);
+  }
+});
+
+test("host SIGINT before a complete request-response exchange fails closed", async (t) => {
+  const captureRoot = privateRoot(t);
+  const runId = randomUUID();
+  const observer = startObserver(captureRoot, runId);
+  await writeFrame(observer.child.stdin, {
+    jsonrpc: "2.0",
+    method: "notifications/cancelled",
+    params: {
+      _meta: modernMeta("incomplete-sigint-client", "incomplete-sigint-version"),
+      requestId: "incomplete-sigint-request",
+      reason: "incomplete-sigint-reason",
+    },
+  });
+  await waitForCapturedEvent(
+    captureRoot,
+    ({ event }) => event === "notification",
+    "incomplete SIGINT notification capture",
+  );
+  assert.equal(observer.child.kill("SIGINT"), true);
+  const result = await withTimeout(observer.completion, "incomplete SIGINT close");
+  assert.equal(result.code, 2, result.stderr);
+  const [slot] = readdirSync(captureRoot);
+  const capture = verifyCapture(join(captureRoot, slot), runId);
+  assert.equal(capture.manifest.session_profile, "invalid");
+  assert.equal(capture.events.at(-1).closure_stimulus, "none");
+  assert.ok(capture.events.some(
+    ({ event, classification }) =>
+      event === "anomaly" && classification === "observer-signal",
+  ));
+  for (const value of [
+    "incomplete-sigint-client",
+    "incomplete-sigint-version",
+    "incomplete-sigint-request",
+    "incomplete-sigint-reason",
   ]) {
     assert.equal(capture.text.includes(value), false);
   }

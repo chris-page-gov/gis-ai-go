@@ -713,7 +713,7 @@ function startObserver(options) {
   let responseOrdinal = 0;
   let sawLegacyInitialize = false;
   let hostInputEnded = false;
-  let hostSigtermObserved = false;
+  let hostCloseSignal = null;
   let fatalError = null;
   let closed = false;
 
@@ -1272,10 +1272,13 @@ function startObserver(options) {
         requestContexts.every(({ protocolClaim }) => protocolClaim === PROTOCOL_TARGET) &&
         responseOrdinal === requestOrdinal && responseContracts.length === requestOrdinal &&
         responseContracts.every(Boolean);
+      const hostSignalStimulus = hostCloseSignal === "SIGINT"
+        ? "sigint"
+        : hostCloseSignal === "SIGTERM" ? "sigterm" : null;
       const basePassed = code === 0 && signal === null && stderrEventCount === 0 &&
         streamsGraceful && auditComplete && runtimeMaterialsStable && sourceStable &&
         (counts.get("anomaly") ?? 0) === 0 &&
-        (hostInputEnded || hostSigtermObserved);
+        (hostInputEnded || hostSignalStimulus !== null);
       const sessionProfile = basePassed && probe
         ? "negotiation-probe"
         : basePassed && modern ? "modern-session" : "invalid";
@@ -1290,9 +1293,9 @@ function startObserver(options) {
         source_binding_ready: false,
         runtime_materials_stable: runtimeMaterialsStable,
         source_checkout_stable: sourceStable,
-        closure_stimulus: hostInputEnded && hostSigtermObserved
-          ? "stdin-eof-and-sigterm"
-          : hostSigtermObserved ? "sigterm" : hostInputEnded ? "stdin-eof" : "none",
+        closure_stimulus: hostInputEnded && hostSignalStimulus !== null
+          ? `stdin-eof-and-${hostSignalStimulus}`
+          : hostSignalStimulus ?? (hostInputEnded ? "stdin-eof" : "none"),
         exit_code: code,
         signal,
         request_count: requestOrdinal,
@@ -1362,9 +1365,8 @@ function startObserver(options) {
     }
   });
 
-  process.once("SIGINT", () => captureFatal("observer-signal"));
-  process.on("SIGTERM", () => {
-    if (hostSigtermObserved) {
+  function handleHostCloseSignal(signal) {
+    if (hostCloseSignal !== null) {
       gracefulChildCloser.begin();
       return;
     }
@@ -1377,7 +1379,7 @@ function startObserver(options) {
       captureFatal("observer-signal");
       return;
     }
-    hostSigtermObserved = true;
+    hostCloseSignal = signal;
     try {
       endStream("host-stdin", inputTap, true);
       process.stdin.pause();
@@ -1386,7 +1388,10 @@ function startObserver(options) {
     } catch {
       captureFatal("safe-host-close-failure");
     }
-  });
+  }
+
+  process.on("SIGINT", () => handleHostCloseSignal("SIGINT"));
+  process.on("SIGTERM", () => handleHostCloseSignal("SIGTERM"));
   return child;
 }
 

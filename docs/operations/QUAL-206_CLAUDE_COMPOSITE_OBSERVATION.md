@@ -60,6 +60,14 @@ call or third process. `capability_scored`, `host_capability` and
 `source_binding_ready` remain false constants. This proves bounded transport
 readiness only.
 
+Claude may dispose of a completed observer with `SIGTERM` or `SIGINT`. The
+observer accepts either signal only after every observed request has one matched,
+contract-valid response claiming MCP `2026-07-28`; it then applies the same
+sub-second child shutdown boundary. A signal before that point remains an anomaly
+and fails closed. The first failed-closed exact-main attempt established this
+distinction: the discovery child used `SIGTERM`, while the completed modern
+`tools/list` child used `SIGINT`.
+
 ## Repository assurance
 
 Build the gateway contracts, then run the observer and independent verifier tests:
