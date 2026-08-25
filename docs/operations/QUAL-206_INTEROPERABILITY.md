@@ -787,7 +787,10 @@ authentication with `--bare`, so the first-party route deliberately omits that
 flag. It also omits `CLAUDE_CODE_SIMPLE=1`, because the exact client reports the
 normal macOS Keychain login as unavailable in that mode. The route retains strict
 MCP configuration, `dontAsk`, one tool-use turn plus the final text-only turn, no
-session persistence and an empty disposable workspace.
+session persistence and an empty disposable workspace. It also pins the documented
+Claude v2 MCP runtime and automatic negotiation controls used by the accepted
+strict-modern readiness observation, so the model-task path cannot silently fall
+back to a legacy `initialize` handshake when evaluating the modern surface.
 The API-key route uses `--bare` and requires an explicit per-run budget. In both
 routes, recognised credential environment variables are removed before the MCP
 child starts. An identity-bound macOS Seatbelt profile denies all network access

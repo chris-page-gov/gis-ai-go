@@ -158,6 +158,8 @@ async function main() {
     optionValue(argumentsValue, "--permission-mode") !== "dontAsk" ||
     optionValue(argumentsValue, "--max-turns") !== "1" ||
     optionValue(argumentsValue, "--tools") !== "" ||
+    process.env.MCP_PROTOCOL_NEGOTIATION !== "auto" ||
+    process.env.MCP_SDK_GENERATION !== "v2" ||
     !argumentsValue.includes("--strict-mcp-config") ||
     !argumentsValue.includes("--no-session-persistence") ||
     !argumentsValue.includes("--disable-slash-commands") ||

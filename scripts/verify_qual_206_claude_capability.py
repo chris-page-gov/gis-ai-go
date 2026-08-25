@@ -127,6 +127,10 @@ RECOGNISED_CREDENTIAL_VARIABLES = (
     "GOOGLE_APPLICATION_CREDENTIALS",
     "AZURE_CLIENT_SECRET",
 )
+CLAUDE_CLIENT_ONLY_MCP_VARIABLES = (
+    "MCP_PROTOCOL_NEGOTIATION",
+    "MCP_SDK_GENERATION",
+)
 TRACKED_CAPABILITY_MATERIALS = {
     "package.json",
     "pnpm-lock.yaml",
@@ -735,7 +739,10 @@ def verify_private_configuration(
         fail("private MCP server definition is not the exact STDIO projection")
     unset_arguments = [
         value
-        for name in RECOGNISED_CREDENTIAL_VARIABLES
+        for name in (
+            *RECOGNISED_CREDENTIAL_VARIABLES,
+            *CLAUDE_CLIENT_ONLY_MCP_VARIABLES,
+        )
         for value in ("-u", name)
     ]
     args = server["args"]
@@ -749,7 +756,7 @@ def verify_private_configuration(
         "GIS_AI_GO_QUAL_206_HOST_ATTESTATION=outer-harness-spawn-executable",
     ]
     if args[: len(prefix)] != prefix:
-        fail("private MCP child does not unset the exact recognised credential set")
+        fail("private MCP child does not unset the exact closed variable set")
     tail = args[len(prefix) :]
     if len(tail) != 15:
         fail("private MCP observer command has an unexpected argument count")
