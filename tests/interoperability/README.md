@@ -122,5 +122,17 @@ main `dda0eb9f776e64bcd45069e77b4acbcd4d495e01`. Version `2.1.241` offered MCP
 `tools/list`. No model, operation, resource, provider or remote HTTP host was
 exercised. The earlier `2.1.204` record remains byte-exact and separate.
 
+The separately gated Claude Code 2.1.245 capability harness is covered by
+`tests.contract.test_qual_206_claude_capability`, and therefore by the complete
+repository check, with a fake parent client. That module invokes the exact Node
+harness regression file without changing the package-bound historical receipt set.
+It constrains the server to `catalogue.search`, no resources and no
+geospatial-provider egress; requires exactly one `QUAL-206-HOST-002` call;
+independently verifies the returned inline receipt; and requires Claude's final
+structured output to match that observed result. These tests prove the harness
+behaviour, not Claude capability. No live capability projection is added by the
+implementation change. See the
+[capability runbook](../../docs/operations/QUAL-206_CLAUDE_CAPABILITY.md).
+
 See the [QUAL-206 interoperability runbook](../../docs/operations/QUAL-206_INTEROPERABILITY.md)
 for repeatable ChatGPT secure-tunnel and independent-host procedures.

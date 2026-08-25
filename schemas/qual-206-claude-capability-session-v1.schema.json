@@ -1,0 +1,182 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:qual-206-claude-capability-session:v1",
+  "title": "QUAL-206 Claude HOST-002 private capability session",
+  "description": "Owner-only, allowlisted facts from one Claude-created MCP child session. A session never scores the model capability by itself.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "run_id",
+    "session_id",
+    "slot",
+    "source_commit",
+    "case_id",
+    "session_profile",
+    "protocol_session_status",
+    "capability_scored",
+    "mcp_subtree_network_access_allowed",
+    "mcp_subtree_network_sandbox",
+    "request",
+    "response"
+  ],
+  "properties": {
+    "schema": {"const": "gis-ai-go.qual-206-claude-capability-session.v1"},
+    "run_id": {"$ref": "#/$defs/uuidV4"},
+    "session_id": {"$ref": "#/$defs/uuidV4"},
+    "slot": {"enum": ["session-1", "session-2", "session-3"]},
+    "source_commit": {"$ref": "#/$defs/commit"},
+    "case_id": {"const": "QUAL-206-HOST-002"},
+    "session_profile": {
+      "enum": ["negotiation-probe", "modern-session", "invalid"]
+    },
+    "protocol_session_status": {"enum": ["passed", "failed"]},
+    "capability_scored": {"const": false},
+    "mcp_subtree_network_access_allowed": {"const": false},
+    "mcp_subtree_network_sandbox": {
+      "const": "macos-seatbelt-deny-network"
+    },
+    "request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "observed",
+        "valid",
+        "parameters_bytes",
+        "parameters_sha256",
+        "global_claim_bytes",
+        "global_claim_sha256"
+      ],
+      "properties": {
+        "observed": {"type": "boolean"},
+        "valid": {"$ref": "#/$defs/nullableBoolean"},
+        "parameters_bytes": {"$ref": "#/$defs/nullableBoundedBytes"},
+        "parameters_sha256": {"$ref": "#/$defs/nullableSha256"},
+        "global_claim_bytes": {"$ref": "#/$defs/nullableBoundedBytes"},
+        "global_claim_sha256": {"$ref": "#/$defs/nullableSha256"}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"observed": {"const": true}}, "required": ["observed"]},
+          "then": {
+            "properties": {
+              "valid": {"const": true},
+              "parameters_bytes": {"type": "integer", "minimum": 1, "maximum": 1048576},
+              "parameters_sha256": {"$ref": "#/$defs/sha256"},
+              "global_claim_bytes": {"type": "integer", "minimum": 1, "maximum": 1024},
+              "global_claim_sha256": {"$ref": "#/$defs/sha256"}
+            }
+          },
+          "else": {
+            "properties": {
+              "valid": {"type": "null"},
+              "parameters_bytes": {"type": "null"},
+              "parameters_sha256": {"type": "null"},
+              "global_claim_bytes": {"type": "null"},
+              "global_claim_sha256": {"type": "null"}
+            }
+          }
+        }
+      ]
+    },
+    "response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "observed",
+        "contract_valid",
+        "case_id",
+        "deterministic_result_valid",
+        "expected_record_id_match",
+        "expected_title_match",
+        "output_contract_valid",
+        "receipt_id",
+        "receipt_present",
+        "receipt_verification_valid",
+        "record_id",
+        "structured_plain_text_parity",
+        "title"
+      ],
+      "properties": {
+        "observed": {"type": "boolean"},
+        "contract_valid": {"$ref": "#/$defs/nullableBoolean"},
+        "case_id": {"oneOf": [{"const": "QUAL-206-HOST-002"}, {"type": "null"}]},
+        "deterministic_result_valid": {"$ref": "#/$defs/nullableBoolean"},
+        "expected_record_id_match": {"$ref": "#/$defs/nullableBoolean"},
+        "expected_title_match": {"$ref": "#/$defs/nullableBoolean"},
+        "output_contract_valid": {"$ref": "#/$defs/nullableBoolean"},
+        "receipt_id": {
+          "oneOf": [
+            {"type": "string", "pattern": "^gis-ai-go:evidence-receipt:sha256:[0-9a-f]{64}$"},
+            {"type": "null"}
+          ]
+        },
+        "receipt_present": {"$ref": "#/$defs/nullableBoolean"},
+        "receipt_verification_valid": {"$ref": "#/$defs/nullableBoolean"},
+        "record_id": {
+          "oneOf": [
+            {"const": "hmlr:dataset:inspire-index-polygons"},
+            {"type": "null"}
+          ]
+        },
+        "structured_plain_text_parity": {"$ref": "#/$defs/nullableBoolean"},
+        "title": {
+          "oneOf": [
+            {"const": "Index polygons spatial data (INSPIRE)"},
+            {"type": "null"}
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"observed": {"const": true}}, "required": ["observed"]},
+          "then": {
+            "properties": {
+              "contract_valid": {"type": "boolean"},
+              "case_id": {"const": "QUAL-206-HOST-002"},
+              "deterministic_result_valid": {"type": "boolean"},
+              "expected_record_id_match": {"type": "boolean"},
+              "expected_title_match": {"type": "boolean"},
+              "output_contract_valid": {"type": "boolean"},
+              "receipt_present": {"type": "boolean"},
+              "receipt_verification_valid": {"type": "boolean"},
+              "structured_plain_text_parity": {"type": "boolean"}
+            }
+          },
+          "else": {
+            "properties": {
+              "contract_valid": {"type": "null"},
+              "case_id": {"type": "null"},
+              "deterministic_result_valid": {"type": "null"},
+              "expected_record_id_match": {"type": "null"},
+              "expected_title_match": {"type": "null"},
+              "output_contract_valid": {"type": "null"},
+              "receipt_id": {"type": "null"},
+              "receipt_present": {"type": "null"},
+              "receipt_verification_valid": {"type": "null"},
+              "record_id": {"type": "null"},
+              "structured_plain_text_parity": {"type": "null"},
+              "title": {"type": "null"}
+            }
+          }
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "uuidV4": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "nullableSha256": {"oneOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]},
+    "nullableBoolean": {"oneOf": [{"type": "boolean"}, {"type": "null"}]},
+    "nullableBoundedBytes": {
+      "oneOf": [
+        {"type": "integer", "minimum": 1, "maximum": 1048576},
+        {"type": "null"}
+      ]
+    }
+  }
+}

@@ -27,7 +27,7 @@ const ENABLE_FLAG = "GIS_AI_GO_QUAL_206_EXACT_FIVE_STDIO";
 const SOURCE_COMMIT_VARIABLE = "GIS_AI_GO_QUAL_206_SOURCE_COMMIT";
 const AUTHORITY_ARGUMENT = "--exact-five-stdio-conformance-only";
 const FULL_COMMIT = /^[0-9a-f]{40}$/u;
-const SCENARIO_ARGUMENT = /^--scenario=([a-z.\-]+)$/u;
+const SCENARIO_ARGUMENT = /^--scenario=([a-z0-9.\-]+)$/u;
 const FIXED_ASSEMBLY_TIME = new Date("2026-08-24T08:00:00.000Z");
 const FIXED_LEDGER_TIME = new Date("2026-08-24T08:00:01.000Z");
 const FIXED_RECONCILIATION_TIME = new Date("2026-08-24T08:00:02.000Z");
@@ -42,6 +42,15 @@ const SCENARIOS = Object.freeze({
   active: Object.freeze({ lifecycle: ACTIVE_LIFECYCLE }),
   cancellation: Object.freeze({ lifecycle: ACTIVE_LIFECYCLE }),
   "independent-host": Object.freeze({ lifecycle: ACTIVE_LIFECYCLE }),
+  "claude-host-002": Object.freeze({
+    lifecycle: ACTIVE_LIFECYCLE,
+    suspendedTools: Object.freeze([
+      "catalogue.describe",
+      "selection.resolve",
+      "data.query",
+      "evidence.inspect",
+    ]),
+  }),
   unsupported: Object.freeze({ lifecycle: ACTIVE_LIFECYCLE }),
   "provider-discovery": Object.freeze({
     lifecycle: Object.freeze({
