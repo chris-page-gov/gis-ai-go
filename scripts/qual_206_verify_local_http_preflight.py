@@ -382,20 +382,24 @@ def validate_with_schema(
         fail(f"{label} failed its closed schema contract")
 
 
-def executable_state(path: Path) -> tuple[int, int, int, int, int, int, int]:
+ExecutableState = tuple[int, int, int, int, int, int, int, int]
+
+
+def executable_state(path: Path) -> ExecutableState:
     metadata = path.stat(follow_symlinks=False)
     return (
         metadata.st_dev,
         metadata.st_ino,
         metadata.st_mode,
         metadata.st_uid,
+        metadata.st_gid,
         metadata.st_nlink,
         metadata.st_size,
         metadata.st_mtime_ns,
     )
 
 
-def trusted_node_executable() -> tuple[Path, tuple[int, int, int, int, int, int, int]]:
+def trusted_node_executable() -> tuple[Path, ExecutableState]:
     selected = shutil.which("node")
     if selected is None:
         fail("Canonical exact-five schema validator requires Node.js")
@@ -410,11 +414,16 @@ def trusted_node_executable() -> tuple[Path, tuple[int, int, int, int, int, int,
         pass
     else:
         fail("Node.js executable must be outside the repository")
+    process_groups = {os.getegid(), *os.getgroups()}
     if (
         not executable.is_absolute()
         or not stat.S_ISREG(metadata.st_mode)
         or metadata.st_nlink < 1
-        or metadata.st_mode & 0o022
+        or metadata.st_mode & stat.S_IWOTH
+        or (
+            metadata.st_mode & stat.S_IWGRP
+            and metadata.st_gid in process_groups
+        )
         or not os.access(executable, os.X_OK)
     ):
         fail("Node.js executable is not a trusted regular executable")

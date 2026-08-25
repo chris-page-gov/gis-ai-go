@@ -715,15 +715,21 @@ class LocalHttpPreflightVerifierTest(unittest.TestCase):
         ):
             VERIFIER.trusted_node_executable()
 
-    def test_node_resolution_accepts_non_writable_foreign_owned_executable(self) -> None:
+    def test_node_resolution_accepts_foreign_group_writable_toolcache(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             executable = Path(directory).resolve() / "node"
             executable.write_bytes(b"synthetic executable")
-            executable.chmod(0o755)
-            foreign_uid = executable.stat().st_uid + 1
+            executable.chmod(0o775)
+            metadata = executable.stat()
             with (
                 mock.patch.object(VERIFIER.shutil, "which", return_value=str(executable)),
-                mock.patch.object(VERIFIER.os, "getuid", return_value=foreign_uid),
+                mock.patch.object(VERIFIER.os, "getuid", return_value=metadata.st_uid + 1),
+                mock.patch.object(VERIFIER.os, "getegid", return_value=metadata.st_gid + 1),
+                mock.patch.object(
+                    VERIFIER.os,
+                    "getgroups",
+                    return_value=[metadata.st_gid + 1],
+                ),
             ):
                 resolved, state = VERIFIER.trusted_node_executable()
             self.assertEqual(resolved, executable)
@@ -734,6 +740,20 @@ class LocalHttpPreflightVerifierTest(unittest.TestCase):
             executable = Path(directory).resolve() / "node"
             executable.write_bytes(b"synthetic executable")
             executable.chmod(0o775)
+            with (
+                mock.patch.object(VERIFIER.shutil, "which", return_value=str(executable)),
+                self.assertRaisesRegex(
+                    VERIFIER.VerificationError,
+                    "trusted regular executable",
+                ),
+            ):
+                VERIFIER.trusted_node_executable()
+
+    def test_node_resolution_rejects_world_writable_executable(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            executable = Path(directory).resolve() / "node"
+            executable.write_bytes(b"synthetic executable")
+            executable.chmod(0o777)
             with (
                 mock.patch.object(VERIFIER.shutil, "which", return_value=str(executable)),
                 self.assertRaisesRegex(
