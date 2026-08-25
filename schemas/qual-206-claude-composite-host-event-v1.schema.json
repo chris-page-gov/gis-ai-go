@@ -1,0 +1,525 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:qual-206-claude-composite-host-event:v1",
+  "title": "QUAL-206 Claude composite private host event",
+  "description": "One sanitised, hash-chained event observed by the direct child of a Claude host. The contract is private, unscored and makes no activation, deployment or release claim.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "run_id",
+    "session_id",
+    "slot",
+    "sequence",
+    "observed_at",
+    "event",
+    "previous_event_sha256",
+    "event_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "gis-ai-go.qual-206-claude-composite-host-event.v1"},
+    "run_id": {"$ref": "#/$defs/uuidV4"},
+    "session_id": {"$ref": "#/$defs/uuidV4"},
+    "slot": {"enum": ["session-1", "session-2", "session-3"]},
+    "sequence": {"type": "integer", "minimum": 0, "maximum": 511},
+    "observed_at": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{3})?Z$"
+    },
+    "event": {
+      "enum": ["lifecycle", "request", "notification", "response", "audit", "anomaly", "stream"]
+    },
+    "previous_event_sha256": {"$ref": "#/$defs/nullableSha256"},
+    "event_sha256": {"$ref": "#/$defs/sha256"},
+    "phase": {
+      "enum": ["session-start", "child-spawned", "child-exit", "session-end"]
+    },
+    "client": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,62}[a-z0-9])?$"
+    },
+    "source_commit": {"$ref": "#/$defs/sourceCommit"},
+    "protocol_target": {"const": "2026-07-28"},
+    "transport": {"const": "operating-system-stdio-pipes"},
+    "immediate_parent": {"$ref": "#/$defs/immediateParent"},
+    "source_checkout": {"$ref": "#/$defs/sourceCheckout"},
+    "observer_runtime": {"$ref": "#/$defs/observerRuntime"},
+    "capture_boundaries": {"$ref": "#/$defs/captureBoundaries"},
+    "credential_environment_observed": {"const": false},
+    "credential_environment_forwarded": {"const": false},
+    "child_environment_mode": {"const": "closed-credential-free"},
+    "host_attribution": {"const": "immediate-parent-executable-only-unscored"},
+    "fixture_arguments_match_observer_contract": {"const": true},
+    "spawned_process_identity_verified": {"const": false},
+    "direction": {
+      "enum": ["host-to-fixture", "fixture-to-host", "fixture-audit", "observer"]
+    },
+    "frame_bytes": {"type": "integer", "minimum": 0, "maximum": 1048576},
+    "frame_sha256": {"$ref": "#/$defs/sha256"},
+    "request_ordinal": {"$ref": "#/$defs/nonNegativeSafeInteger"},
+    "notification_ordinal": {"$ref": "#/$defs/nonNegativeSafeInteger"},
+    "response_ordinal": {"$ref": "#/$defs/nonNegativeSafeInteger"},
+    "request_id_sha256": {"$ref": "#/$defs/nullableSha256"},
+    "request_id_kind": {"$ref": "#/$defs/requestIdKind"},
+    "request_id_unique": {"type": "boolean"},
+    "target_request_id_sha256": {"$ref": "#/$defs/nullableSha256"},
+    "target_request_id_kind": {"$ref": "#/$defs/requestIdKind"},
+    "method": {"$ref": "#/$defs/method"},
+    "request_method": {"$ref": "#/$defs/requestMethod"},
+    "operation": {"$ref": "#/$defs/operation"},
+    "protocol_claim": {"enum": ["2026-07-28", "absent", "other"]},
+    "correlation": {"enum": ["matched", "duplicate", "orphan", "invalid-id"]},
+    "outcome": {"enum": ["success", "error", "invalid"]},
+    "error_code": {
+      "oneOf": [
+        {"type": "integer", "minimum": -2147483648, "maximum": 2147483647},
+        {"type": "null"}
+      ]
+    },
+    "duration_ms": {
+      "oneOf": [
+        {"type": "number", "minimum": 0, "maximum": 9007199254740991},
+        {"type": "null"}
+      ]
+    },
+    "semantic": {
+      "enum": [
+        "discover-pass",
+        "tools-list-pass",
+        "resources-list-pass",
+        "resource-templates-pass",
+        "resource-read-pass",
+        "tool-call-pass",
+        "prompts-unsupported",
+        "other-success",
+        "error",
+        "invalid-response"
+      ]
+    },
+    "contract_valid": {"type": "boolean"},
+    "audit_kind": {
+      "enum": [
+        "provider-egress-guard-ready",
+        "provider-egress-guard-blocked",
+        "provider-transport-started",
+        "provider-transport-aborted",
+        "provider-egress-guard-summary",
+        "session-summary",
+        "other"
+      ]
+    },
+    "ordinal": {"$ref": "#/$defs/nullableNonNegativeSafeInteger"},
+    "guarded_api_invocation_count": {"$ref": "#/$defs/nullableNonNegativeSafeInteger"},
+    "provider_transport_calls": {"$ref": "#/$defs/nullableNonNegativeSafeInteger"},
+    "aborted_provider_calls": {"$ref": "#/$defs/nullableNonNegativeSafeInteger"},
+    "ledger_event_count": {"$ref": "#/$defs/nullableNonNegativeSafeInteger"},
+    "reported_error_count": {"$ref": "#/$defs/nullableNonNegativeSafeInteger"},
+    "classification": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "stream_name": {"enum": ["host-stdin", "fixture-stdout", "fixture-audit", "fixture-stderr"]},
+    "stream_phase": {"const": "end"},
+    "bytes": {"$ref": "#/$defs/nonNegativeSafeInteger"},
+    "frames": {"$ref": "#/$defs/nonNegativeSafeInteger"},
+    "sha256": {"$ref": "#/$defs/nullableSha256"},
+    "graceful": {"type": "boolean"},
+    "exit_code": {
+      "oneOf": [
+        {"type": "integer", "minimum": 0, "maximum": 255},
+        {"type": "null"}
+      ]
+    },
+    "signal": {
+      "oneOf": [
+        {"type": "string", "minLength": 1, "maxLength": 32},
+        {"type": "null"}
+      ]
+    },
+    "session_profile": {"enum": ["negotiation-probe", "modern-session", "invalid"]},
+    "protocol_session_status": {"enum": ["passed", "failed"]},
+    "capability_scored": {"const": false},
+    "host_capability": {"const": false},
+    "source_binding_ready": {"const": false},
+    "runtime_materials_stable": {"type": "boolean"},
+    "source_checkout_stable": {"type": "boolean"},
+    "closure_stimulus": {
+      "enum": ["stdin-eof", "sigterm", "stdin-eof-and-sigterm", "none"]
+    },
+    "request_count": {"$ref": "#/$defs/nonNegativeSafeInteger"},
+    "response_count": {"$ref": "#/$defs/nonNegativeSafeInteger"},
+    "notification_count": {"$ref": "#/$defs/nonNegativeSafeInteger"},
+    "pending_request_count": {"$ref": "#/$defs/nonNegativeSafeInteger"},
+    "stderr_event_count": {"$ref": "#/$defs/nonNegativeSafeInteger"},
+    "stderr_bytes": {"type": "integer", "minimum": 0, "maximum": 65536},
+    "stderr_sha256": {"$ref": "#/$defs/nullableSha256"},
+    "anomaly_count": {"$ref": "#/$defs/nonNegativeSafeInteger"},
+    "prior_event_count": {"type": "integer", "minimum": 1, "maximum": 511},
+    "prior_event_log_bytes": {"type": "integer", "minimum": 1, "maximum": 8388608},
+    "prior_event_log_sha256": {"$ref": "#/$defs/sha256"},
+    "temporary_state_removed": {"const": true}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"event": {"const": "request"}}, "required": ["event"]},
+      "then": {
+        "required": [
+          "direction", "frame_bytes", "frame_sha256", "request_ordinal",
+          "request_id_sha256", "request_id_kind", "request_id_unique", "method",
+          "operation", "protocol_claim"
+        ]
+      }
+    },
+    {
+      "if": {"properties": {"event": {"const": "notification"}}, "required": ["event"]},
+      "then": {
+        "required": [
+          "direction", "frame_bytes", "frame_sha256", "notification_ordinal",
+          "method", "protocol_claim", "target_request_id_sha256", "target_request_id_kind"
+        ]
+      }
+    },
+    {
+      "if": {"properties": {"event": {"const": "response"}}, "required": ["event"]},
+      "then": {
+        "required": [
+          "direction", "frame_bytes", "frame_sha256", "response_ordinal",
+          "request_id_sha256", "request_id_kind", "correlation", "request_method",
+          "outcome", "error_code", "duration_ms", "semantic", "contract_valid"
+        ]
+      }
+    },
+    {
+      "if": {"properties": {"event": {"const": "audit"}}, "required": ["event"]},
+      "then": {
+        "required": [
+          "direction", "frame_bytes", "frame_sha256", "audit_kind", "contract_valid",
+          "ordinal", "guarded_api_invocation_count", "provider_transport_calls",
+          "aborted_provider_calls", "ledger_event_count", "reported_error_count"
+        ]
+      }
+    },
+    {
+      "if": {"properties": {"event": {"const": "anomaly"}}, "required": ["event"]},
+      "then": {"required": ["classification", "direction", "frame_bytes", "frame_sha256"]}
+    },
+    {
+      "if": {"properties": {"event": {"const": "stream"}}, "required": ["event"]},
+      "then": {"required": ["stream_name", "stream_phase", "bytes", "frames", "sha256", "graceful"]}
+    },
+    {
+      "if": {
+        "properties": {"event": {"const": "lifecycle"}, "phase": {"const": "session-start"}},
+        "required": ["event", "phase"]
+      },
+      "then": {
+        "required": [
+          "client", "source_commit", "protocol_target", "transport", "immediate_parent",
+          "source_checkout", "observer_runtime", "capture_boundaries",
+          "credential_environment_observed", "credential_environment_forwarded",
+          "child_environment_mode", "host_attribution"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {"event": {"const": "lifecycle"}, "phase": {"const": "child-spawned"}},
+        "required": ["event", "phase"]
+      },
+      "then": {"required": ["fixture_arguments_match_observer_contract", "spawned_process_identity_verified"]}
+    },
+    {
+      "if": {
+        "properties": {"event": {"const": "lifecycle"}, "phase": {"const": "child-exit"}},
+        "required": ["event", "phase"]
+      },
+      "then": {"required": ["exit_code", "signal"]}
+    },
+    {
+      "if": {
+        "properties": {"event": {"const": "lifecycle"}, "phase": {"const": "session-end"}},
+        "required": ["event", "phase"]
+      },
+      "then": {
+        "required": [
+          "session_profile", "protocol_session_status", "capability_scored",
+          "host_capability", "source_binding_ready", "runtime_materials_stable",
+          "source_checkout_stable", "closure_stimulus", "exit_code", "signal", "request_count",
+          "response_count", "notification_count", "pending_request_count",
+          "stderr_event_count", "stderr_bytes", "stderr_sha256", "anomaly_count",
+          "prior_event_count", "prior_event_log_bytes", "prior_event_log_sha256",
+          "temporary_state_removed"
+        ]
+      }
+    },
+    {
+      "if": {"properties": {"event": {"const": "lifecycle"}}, "required": ["event"]},
+      "then": {"required": ["phase"]}
+    },
+    {
+      "if": {
+        "anyOf": [
+          {"required": ["direction"]}, {"required": ["frame_bytes"]},
+          {"required": ["frame_sha256"]}
+        ]
+      },
+      "then": {
+        "properties": {
+          "event": {"enum": ["request", "notification", "response", "audit", "anomaly"]}
+        },
+        "required": ["event"]
+      }
+    },
+    {
+      "if": {
+        "anyOf": [
+          {"required": ["request_ordinal"]}, {"required": ["request_id_unique"]},
+          {"required": ["operation"]}
+        ]
+      },
+      "then": {"properties": {"event": {"const": "request"}}, "required": ["event"]}
+    },
+    {
+      "if": {
+        "anyOf": [
+          {"required": ["notification_ordinal"]},
+          {"required": ["target_request_id_sha256"]},
+          {"required": ["target_request_id_kind"]}
+        ]
+      },
+      "then": {"properties": {"event": {"const": "notification"}}, "required": ["event"]}
+    },
+    {
+      "if": {
+        "anyOf": [
+          {"required": ["response_ordinal"]}, {"required": ["correlation"]},
+          {"required": ["request_method"]}, {"required": ["outcome"]},
+          {"required": ["error_code"]}, {"required": ["duration_ms"]},
+          {"required": ["semantic"]}
+        ]
+      },
+      "then": {"properties": {"event": {"const": "response"}}, "required": ["event"]}
+    },
+    {
+      "if": {
+        "anyOf": [
+          {"required": ["audit_kind"]}, {"required": ["ordinal"]},
+          {"required": ["guarded_api_invocation_count"]},
+          {"required": ["provider_transport_calls"]},
+          {"required": ["aborted_provider_calls"]},
+          {"required": ["ledger_event_count"]}, {"required": ["reported_error_count"]}
+        ]
+      },
+      "then": {"properties": {"event": {"const": "audit"}}, "required": ["event"]}
+    },
+    {
+      "if": {"required": ["contract_valid"]},
+      "then": {
+        "properties": {"event": {"enum": ["response", "audit"]}},
+        "required": ["event"]
+      }
+    },
+    {
+      "if": {
+        "anyOf": [{"required": ["request_id_sha256"]}, {"required": ["request_id_kind"]}]
+      },
+      "then": {
+        "properties": {"event": {"enum": ["request", "response"]}},
+        "required": ["event"]
+      }
+    },
+    {
+      "if": {
+        "anyOf": [{"required": ["method"]}, {"required": ["protocol_claim"]}]
+      },
+      "then": {
+        "properties": {"event": {"enum": ["request", "notification"]}},
+        "required": ["event"]
+      }
+    },
+    {
+      "if": {"required": ["classification"]},
+      "then": {"properties": {"event": {"const": "anomaly"}}, "required": ["event"]}
+    },
+    {
+      "if": {
+        "anyOf": [
+          {"required": ["stream_name"]}, {"required": ["stream_phase"]},
+          {"required": ["bytes"]}, {"required": ["frames"]},
+          {"required": ["sha256"]}, {"required": ["graceful"]}
+        ]
+      },
+      "then": {"properties": {"event": {"const": "stream"}}, "required": ["event"]}
+    },
+    {
+      "if": {"required": ["phase"]},
+      "then": {"properties": {"event": {"const": "lifecycle"}}, "required": ["event"]}
+    },
+    {
+      "if": {
+        "anyOf": [
+          {"required": ["client"]}, {"required": ["source_commit"]},
+          {"required": ["protocol_target"]}, {"required": ["transport"]},
+          {"required": ["immediate_parent"]}, {"required": ["source_checkout"]},
+          {"required": ["observer_runtime"]}, {"required": ["capture_boundaries"]},
+          {"required": ["credential_environment_observed"]},
+          {"required": ["credential_environment_forwarded"]},
+          {"required": ["child_environment_mode"]}, {"required": ["host_attribution"]}
+        ]
+      },
+      "then": {
+        "properties": {"event": {"const": "lifecycle"}, "phase": {"const": "session-start"}},
+        "required": ["event", "phase"]
+      }
+    },
+    {
+      "if": {
+        "anyOf": [
+          {"required": ["fixture_arguments_match_observer_contract"]},
+          {"required": ["spawned_process_identity_verified"]}
+        ]
+      },
+      "then": {
+        "properties": {"event": {"const": "lifecycle"}, "phase": {"const": "child-spawned"}},
+        "required": ["event", "phase"]
+      }
+    },
+    {
+      "if": {
+        "anyOf": [{"required": ["exit_code"]}, {"required": ["signal"]}]
+      },
+      "then": {
+        "properties": {
+          "event": {"const": "lifecycle"},
+          "phase": {"enum": ["child-exit", "session-end"]}
+        },
+        "required": ["event", "phase"]
+      }
+    },
+    {
+      "if": {
+        "anyOf": [
+          {"required": ["session_profile"]}, {"required": ["protocol_session_status"]},
+          {"required": ["capability_scored"]}, {"required": ["host_capability"]},
+          {"required": ["source_binding_ready"]}, {"required": ["runtime_materials_stable"]},
+          {"required": ["source_checkout_stable"]}, {"required": ["closure_stimulus"]},
+          {"required": ["request_count"]}, {"required": ["response_count"]},
+          {"required": ["notification_count"]}, {"required": ["pending_request_count"]},
+          {"required": ["stderr_event_count"]}, {"required": ["stderr_bytes"]},
+          {"required": ["stderr_sha256"]}, {"required": ["anomaly_count"]},
+          {"required": ["prior_event_count"]}, {"required": ["prior_event_log_bytes"]},
+          {"required": ["prior_event_log_sha256"]}, {"required": ["temporary_state_removed"]}
+        ]
+      },
+      "then": {
+        "properties": {"event": {"const": "lifecycle"}, "phase": {"const": "session-end"}},
+        "required": ["event", "phase"]
+      }
+    }
+  ],
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "nullableSha256": {
+      "oneOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]
+    },
+    "uuidV4": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "sourceCommit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "nonNegativeSafeInteger": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "nullableNonNegativeSafeInteger": {
+      "oneOf": [{"$ref": "#/$defs/nonNegativeSafeInteger"}, {"type": "null"}]
+    },
+    "requestIdKind": {"enum": ["string", "integer", "invalid"]},
+    "method": {
+      "enum": [
+        "initialize", "notifications/cancelled", "notifications/initialized",
+        "prompts/list", "resources/list", "resources/read",
+        "resources/templates/list", "server/discover", "tools/call", "tools/list", "other"
+      ]
+    },
+    "requestMethod": {
+      "enum": [
+        "initialize", "notifications/cancelled", "notifications/initialized",
+        "prompts/list", "resources/list", "resources/read",
+        "resources/templates/list", "server/discover", "tools/call", "tools/list",
+        "other", "not-correlated"
+      ]
+    },
+    "operation": {
+      "enum": [
+        "catalogue.search", "catalogue.describe", "selection.resolve", "data.query",
+        "evidence.inspect", "other", "not-applicable"
+      ]
+    },
+    "immediateParent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pid", "bytes", "sha256"],
+      "properties": {
+        "pid": {"type": "integer", "minimum": 2, "maximum": 2147483647},
+        "bytes": {"type": "integer", "minimum": 1, "maximum": 536870912},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "sourceCheckout": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "detached_head", "head_matches_source_commit",
+        "local_origin_main_matches_source_commit", "working_tree_clean"
+      ],
+      "properties": {
+        "detached_head": {"type": "boolean"},
+        "head_matches_source_commit": {"type": "boolean"},
+        "local_origin_main_matches_source_commit": {"type": "boolean"},
+        "working_tree_clean": {"type": "boolean"}
+      }
+    },
+    "observerRuntime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "node_version", "node_executable_bytes", "node_executable_sha256",
+        "observer_source_sha256", "exact_collector_source_sha256",
+        "fixture_source_sha256", "provider_egress_guard_source_sha256", "command_sha256"
+      ],
+      "properties": {
+        "node_version": {"type": "string", "minLength": 2, "maxLength": 32},
+        "node_executable_bytes": {"type": "integer", "minimum": 1, "maximum": 536870912},
+        "node_executable_sha256": {"$ref": "#/$defs/sha256"},
+        "observer_source_sha256": {"$ref": "#/$defs/sha256"},
+        "exact_collector_source_sha256": {"$ref": "#/$defs/sha256"},
+        "fixture_source_sha256": {"$ref": "#/$defs/sha256"},
+        "provider_egress_guard_source_sha256": {"$ref": "#/$defs/sha256"},
+        "command_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "captureBoundaries": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "maximum_event_count", "maximum_event_log_bytes", "maximum_frame_bytes",
+        "maximum_idle_milliseconds", "maximum_session_milliseconds", "maximum_stderr_bytes"
+      ],
+      "properties": {
+        "maximum_event_count": {"const": 512},
+        "maximum_event_log_bytes": {"const": 8388608},
+        "maximum_frame_bytes": {"const": 1048576},
+        "maximum_idle_milliseconds": {"const": 30000},
+        "maximum_session_milliseconds": {"const": 120000},
+        "maximum_stderr_bytes": {"const": 65536}
+      }
+    }
+  }
+}

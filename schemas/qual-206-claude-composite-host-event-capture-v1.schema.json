@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:qual-206-claude-composite-host-event-capture:v1",
+  "title": "QUAL-206 Claude composite private host event capture",
+  "description": "The closed owner-only manifest for one Claude composite STDIO observation. It remains deliberately unscored.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "event_schema",
+    "run_id",
+    "client",
+    "source_commit",
+    "session_id",
+    "slot",
+    "status",
+    "session_profile",
+    "protocol_session_status",
+    "capability_scored",
+    "host_capability",
+    "source_binding_ready",
+    "event_log"
+  ],
+  "properties": {
+    "schema": {"const": "gis-ai-go.qual-206-claude-composite-host-event-capture.v1"},
+    "event_schema": {"const": "gis-ai-go.qual-206-claude-composite-host-event.v1"},
+    "run_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "client": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,62}[a-z0-9])?$"
+    },
+    "source_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "session_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "slot": {"enum": ["session-1", "session-2", "session-3"]},
+    "status": {"const": "complete"},
+    "session_profile": {"enum": ["negotiation-probe", "modern-session", "invalid"]},
+    "protocol_session_status": {"enum": ["passed", "failed"]},
+    "capability_scored": {"const": false},
+    "host_capability": {"const": false},
+    "source_binding_ready": {"const": false},
+    "event_log": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bytes", "event_count", "last_event_sha256", "sha256"],
+      "properties": {
+        "bytes": {"type": "integer", "minimum": 1, "maximum": 8388608},
+        "event_count": {"type": "integer", "minimum": 3, "maximum": 512},
+        "last_event_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"session_profile": {"const": "invalid"}}, "required": ["session_profile"]},
+      "then": {"properties": {"protocol_session_status": {"const": "failed"}}},
+      "else": {"properties": {"protocol_session_status": {"const": "passed"}}}
+    }
+  ]
+}
