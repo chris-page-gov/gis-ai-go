@@ -113,14 +113,20 @@ helper, extension host or shell is a different attribution and must be described
 such. Retain the raw capture privately and publish only a separately compiled,
 allowlisted projection.
 
+This single-session route is not suitable for Claude Code `2.1.241`. Its automatic
+modern STDIO negotiation launches a disposable `server/discover` process before
+the operational process, and normal host orchestration cannot reproduce the fixed
+14-request synthetic journey. Use the separate
+[Claude composite observation](QUAL-206_CLAUDE_COMPOSITE_OBSERVATION.md) without
+changing this exact conformance contract.
+
 ## Remaining acceptance work
 
-The next useful run is an isolated, real desktop-host session whose first request is
-`server/discover` and whose per-request `_meta` claims MCP `2026-07-28`. It must use
-this complete exact-five journey without altering the normal host configuration.
-The resulting capture remains unscored until the host process and complete runtime
-closure are source-bound and a separate public projection contract accepts that
-stronger evidence.
+The next use of this collector is an isolated desktop host that can run one process
+and deliberately drive the complete exact-five journey. Claude uses the additive
+two-process observation lane instead. Either result remains unscored until the host
+process and complete runtime closure are source-bound and a separate public
+projection contract accepts the stronger evidence.
 
 Remote HTTP, a live provider, public runtime identity and TLS, governed storage and
 recovery, operations, deployment, registry publication, activation and release all

@@ -21,9 +21,12 @@ The supported target active set is exactly `catalogue.search`,
   gate, but it does not predetermine a new isolated run;
 - preserve the accepted exact-five local demonstration on protected `main` and use
   its fixed-provider, temporary-state boundary for colleague-facing explanation;
-- retain the additive strict-modern summary compiler and implement the reviewed
-  private event-level collector and replay verifier whose synthetic client cannot
-  promote itself into an independent-host capability pass;
+- retain the protected-main strict-modern summary compiler, exact event collector
+  and replay verifier whose synthetic client cannot promote itself into an
+  independent-host capability pass;
+- add a separate bounded two-process observer and independent verifier for Claude
+  Code `2.1.241` automatic modern negotiation without changing the exact-sequence
+  collector or scoring host capability;
 - complete the remaining strict-modern independent desktop-STDIO and remote-HTTP
   host evidence; and
 - continue provider-neutral preparation, but stop before public provisioning or
@@ -264,7 +267,20 @@ or release is claimed.
   journey demonstrates the unregistered exact-five assembly, fixed ONS-shaped
   fixture response, temporary evidence state, structured/plain-text parity and
   provider-egress guard without a live provider call, public listener, deployment,
-  registration, activation or release; and
+  registration, activation or release;
+- the strict-modern summary compiler and private event-level capture merged through
+  [pull request 61](https://github.com/chris-page-gov/gis-ai-go/pull/61) and
+  [pull request 62](https://github.com/chris-page-gov/gis-ai-go/pull/62) as
+  protected-main commits `89ab8dc1c8198034b98b70bff3a6f37a50a79ccb` and
+  `2244c0c25a251c348c37c6dedfe045794dbea43f`. Protected-main
+  [run 32805755707](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32805755707)
+  passed repository, producer and independent gateway-image derivation, byte
+  comparison, attestation verification and provenance assurance, while
+  [run 32805755266](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32805755266)
+  passed CodeQL for Actions, JavaScript/TypeScript and Python. The exact collector
+  retains a fixed 14-request synthetic journey and cannot score its own host. It
+  remains private, path-free at the public boundary and separate from Claude's
+  two-process automatic-negotiation shape; and
 - acceptance requires both the complete local repository gate, which passes on this
   matrix tree, and the protected pull-request and protected-main checks. The local
   gate includes all TypeScript and Python tests, 27 real-browser tests,
@@ -273,12 +289,13 @@ or release is claimed.
 
 ## Next
 
-1. Integrate the versioned event-level exact-five collector, then use an isolated
-   desktop host whose first frame proves a valid `2026-07-28` opening. Re-test the
-   current Claude Code `2.1.241` binary without changing the normal host
-   configuration; preserve its earlier `2025-11-25` observation separately rather
-   than treating it as either a modern pass or a permanent client limitation.
-   Complete the bounded capability pack and remaining remote-HTTP host evidence.
+1. Integrate the additive Claude two-process observer and verifier, then use an
+   isolated credential-free `mcp list` run from exact protected `main` to test the
+   current Claude Code `2.1.241` automatic `2026-07-28` negotiation without changing
+   the normal host configuration. Preserve its earlier `2025-11-25` observation
+   separately rather than treating it as either a modern pass or a permanent client
+   limitation. Complete the bounded capability pack and remaining remote-HTTP host
+   evidence.
 2. Retain the exact protected-main UBI, independent-derivation and provenance
    evidence from runs `32760872035` and `32760871684`; rebuild and repeat it after
    every later source-changing activation or release commit.
