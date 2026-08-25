@@ -10,13 +10,17 @@
   four 20 August independent-host readiness attempts remain documented as not
   ready; a separate 23 August Claude Code legacy STDIO observation from exact
   protected-main bytes passed initialisation and tool listing, with capability
-  unscored;
+  unscored; exact Claude Code `2.1.245` now also has independently replayed
+  strict-modern STDIO transport readiness from protected `main`, with capability
+  still unscored;
   deterministic `HOST-015` application recovery passes locally but remains non-live
   and unscored; capability scoring and activation remain pending
 - reviewed source base: `66507f9a6e6c0da23a8af4682268f9362d93bc06`
 - local HTTP transport evidence source: protected `main` commit
   `066a9cb22f719d22e29c95cd99857ddf694c878e`
-- Claude transport-readiness source: protected `main` commit
+- latest Claude transport-readiness source: protected `main` commit
+  `e905c632724ecc9d13b13452fee37328e75cc2a4`
+- historical Claude legacy transport-readiness source: protected `main` commit
   `30b575beb27ff805745a2864c1acf44392774046`
 - legacy fallback integration base: protected `main` commit
   `5a7e441bfc754af2bf95ec49a5ec113951c7c0bf`
@@ -242,6 +246,8 @@ MCP registry for a conformance run.
 | Claude Code 2.1.204, modern-only seam, 20 August | Strict temporary MCP configuration and non-persistent session | `not_ready`: legacy `initialize` rejected `-32022`; capability unscored |
 | Claude Code 2.1.204, protected-main legacy seam, 23 August | Isolated `mcp list` transport check against the protected-main source named below | `ready`: legacy initialisation and `tools/list` passed; capability unscored |
 | Claude Code 2.1.241, strict modern and fallback seams, 24 August | Two credential-free `mcp list` checks against exact protected main `dda0eb9` | strict `2026-07-28` `not_ready`: client offered `2025-11-25` and received `-32022`; constructor-only fallback `ready`: initialisation and `tools/list` passed; capability unscored |
+| Claude Code 2.1.241, v2 automatic negotiation, 25 August | Two-session credential-free `mcp list` observation against exact protected main `c679b6f` | `ready`: `server/discover` and `tools/list` passed at `2026-07-28`; capability unscored |
+| Claude Code 2.1.245, v2 automatic negotiation, 25 August | Fresh two-session credential-free `mcp list` observation after the parent-identity repair reached exact protected main `e905c63` | `ready`: `server/discover` and `tools/list` passed at `2026-07-28`; capability unscored |
 | VS Code 1.134.0 | Temporary workspace and MCP registry; prove correct window attachment | `not_ready`: no GitHub token and no proved chat attachment; zero MCP traffic |
 | Official SDK client | HTTP and STDIO discovery, calls, resources and shutdown | Accepted on protected `main` |
 
@@ -741,6 +747,30 @@ observed client and configuration. It does not score a tool call, complete the
 exact-five operation journey or exercise a model, provider, remote HTTP host,
 registration, activation, deployment or release. Run the separately bounded
 capability pack before claiming independent-host capability.
+
+### Claude Code 2.1.245 protected-main readiness
+
+After the macOS parent-executable compatibility repair merged, a fresh isolated
+`claude mcp list` observation used exact protected-main commit
+`e905c632724ecc9d13b13452fee37328e75cc2a4`, tree
+`c611ba2d86dcefb541814e5cd4ab3345dd8745b6`. The exact arm64 Claude Code
+`2.1.245` binary was `376109392` bytes with SHA-256
+`9f7c2260251765a18d0b35198669dacc1912f6e8129a3b01f6b58d93365ff1f1`.
+It reported `Connected`.
+
+With the v2 runtime and automatic negotiation selected, one direct child completed
+`server/discover` and a separate direct child completed `tools/list`, both claiming
+MCP `2026-07-28`. Independent offline replay accepted both sessions. Every
+provider, egress, pending-request, anomaly, error and stderr counter was zero, and
+no observer or fixture remained. The path-free
+[`2.1.245 strict-modern readiness summary`](../../tests/interoperability/evidence/claude-code-2.1.245-modern-stdio-readiness-2026-08-25.json)
+binds the exact source and runtime materials to retained private-capture digests.
+The earlier `2.1.241` schema and readiness record remain byte-exact lineage.
+
+This is transport readiness for that exact client and configuration, not a model or
+tool capability pass. No model task, tool call, resource read, exact-five journey,
+provider, remote HTTP host, registration, activation, deployment or release was
+exercised. The next independent-host step remains the bounded capability pack.
 
 ## Historical failure-derived cases
 

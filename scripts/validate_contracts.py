@@ -881,6 +881,22 @@ def main() -> None:
             ],
         ),
         (
+            "qual-206-claude-composite-stdio-readiness-v2.schema.json",
+            [
+                (
+                    "tests/interoperability/evidence/"
+                    "claude-code-2.1.245-modern-stdio-readiness-2026-08-25.json",
+                    load_json(
+                        ROOT
+                        / "tests"
+                        / "interoperability"
+                        / "evidence"
+                        / "claude-code-2.1.245-modern-stdio-readiness-2026-08-25.json"
+                    ),
+                )
+            ],
+        ),
+        (
             "qual-206-local-http-transport-preflight.schema.json",
             [
                 (
