@@ -68,6 +68,36 @@ and fails closed. The first failed-closed exact-main attempt established this
 distinction: the discovery child used `SIGTERM`, while the completed modern
 `tools/list` child used `SIGINT`.
 
+## Accepted protected-main observation
+
+On 25 August 2026, one fresh credential-free `claude mcp list` observation ran
+from clean, detached protected-main commit
+`c679b6fd8fb702572da11043d492c3e9e953ad7a`, tree
+`db0d120a7cadc4e9afef79fcc0536c933e809ca4`. The source had already passed
+repository assurance, producer and independent gateway derivation, byte
+comparison, Pages and gateway provenance in GitHub Actions run `32814265378`,
+and CodeQL in run `32814265321`.
+
+Claude Code `2.1.241` reported `Connected`. The first direct child completed one
+contract-valid `server/discover` request claiming MCP `2026-07-28` and closed
+through `SIGTERM`. The second completed one contract-valid `tools/list` request
+claiming MCP `2026-07-28` and closed through `SIGINT`. Independent offline replay
+accepted exactly those two sessions. Both recorded zero provider transports,
+guarded API invocations, aborted provider calls, ledger events, reported errors,
+pending requests, anomalies and stderr; read-only process checks found no retained
+observer or fixture.
+
+The path-free
+[`public readiness summary`](../../tests/interoperability/evidence/claude-code-2.1.241-modern-stdio-readiness-2026-08-25.json)
+binds the exact source, runtime materials, private-log digests, source-by-source
+findings and claim boundary. Raw events, manifests, client output, profile data,
+run identities, session identities, PIDs and local paths remain owner-only and
+local. The result establishes strict-modern transport readiness only. It does not
+score capability, complete the exact-five operation journey or exercise a model,
+provider, remote HTTP host, registration, activation, deployment or release. The
+earlier default-negotiation result remains a separate historical record and is not
+relabelled.
+
 ## Repository assurance
 
 Build the gateway contracts, then run the observer and independent verifier tests:
@@ -78,7 +108,9 @@ pnpm --filter @gis-ai-go/mcp-gateway run build
 pnpm --filter @gis-ai-go/tool-registry run build
 node --test tests/interoperability/test_qual_206_claude_stdio_observer.mjs
 uv run --locked --cache-dir .uv-cache python -m unittest \
-  tests.contract.test_qual_206_claude_composite_observation
+  tests.contract.test_qual_206_claude_composite_observation \
+  tests.contract.test_qual_206_claude_composite_stdio_readiness
+pnpm run validate:contracts
 ```
 
 ## Prepare an isolated observation
