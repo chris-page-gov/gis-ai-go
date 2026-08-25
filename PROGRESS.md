@@ -1,6 +1,6 @@
 # Delivery progress
 
-Last updated: 24 August 2026
+Last updated: 25 August 2026
 
 ## Current outcome
 
@@ -18,6 +18,10 @@ The supported target active set is exactly `catalogue.search`,
 - preserve the source-bound Claude Code `2.1.204` result and the additive `2.1.241`
   protocol observation separately from capability scoring; `2.1.241` offers MCP
   `2025-11-25`, so it cannot close the strict `2026-07-28` desktop-host gate;
+- preserve the accepted exact-five local demonstration on protected `main` and use
+  its fixed-provider, temporary-state boundary for colleague-facing explanation;
+- prepare an additive strict-modern capture compiler that cannot promote a
+  summary-level real-host observation into a capability pass;
 - complete the remaining strict-modern independent desktop-STDIO and remote-HTTP
   host evidence; and
 - continue provider-neutral preparation, but stop before public provisioning or
@@ -247,6 +251,18 @@ or release is claimed.
   `not_ready` or exploratory records and exercised no model authentication, model task,
   tool call, resource read, exact-five production assembly, live provider, remote
   HTTP host, registration, activation, deployment or release; and
+- the colleague-facing exact-five local demonstration merged through
+  [pull request 60](https://github.com/chris-page-gov/gis-ai-go/pull/60) as
+  protected-main commit `0459a1c6559aa8394509ccdac18e275f6f567e86`. Protected-main
+  [run 32786878749](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32786878749)
+  passed repository, producer and independent OCI derivation, byte comparison and
+  provenance assurance, while
+  [run 32786878420](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32786878420)
+  passed CodeQL for Actions, JavaScript/TypeScript and Python. The real local STDIO
+  journey demonstrates the unregistered exact-five assembly, fixed ONS-shaped
+  fixture response, temporary evidence state, structured/plain-text parity and
+  provider-egress guard without a live provider call, public listener, deployment,
+  registration, activation or release; and
 - acceptance requires both the complete local repository gate, which passes on this
   matrix tree, and the protected pull-request and protected-main checks. The local
   gate includes all TypeScript and Python tests, 27 real-browser tests,
@@ -255,10 +271,11 @@ or release is claimed.
 
 ## Next
 
-1. Use a different independent desktop host whose first frame proves a valid
-   `2026-07-28` opening, then complete the bounded capability pack and remaining
-   remote-HTTP host evidence. Claude Code `2.1.241` is an explained legacy-only
-   transport result, not the modern host acceptance.
+1. Complete the versioned event-level exact-five collector, then use a different
+   independent desktop host whose first frame proves a valid `2026-07-28` opening.
+   Complete the bounded capability pack and remaining remote-HTTP host evidence.
+   Claude Code `2.1.241` is an explained legacy-only transport result, not the
+   modern host acceptance.
 2. Retain the exact protected-main UBI, independent-derivation and provenance
    evidence from runs `32760872035` and `32760871684`; rebuild and repeat it after
    every later source-changing activation or release commit.
@@ -314,6 +331,18 @@ or release is claimed.
   the open product.
 
 ## Latest evidence
+
+- QUAL-206 local demonstration acceptance: protected
+  [pull request 60](https://github.com/chris-page-gov/gis-ai-go/pull/60) merged as
+  `0459a1c6559aa8394509ccdac18e275f6f567e86`; protected-main repository, OCI,
+  byte-comparison and provenance assurance passed in
+  [run 32786878749](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32786878749),
+  and CodeQL passed in
+  [run 32786878420](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32786878420).
+  The repeatable local run uses real STDIO and the immutable unregistered exact-five
+  assembly, but only deterministic ONS-shaped fixture data and temporary state. It
+  records zero guarded provider-egress calls and makes no independent-host, live
+  provider, public endpoint, deployment, activation, registry or release claim;
 
 - Protected-main combined candidate acceptance on 24 August 2026: integration
   [pull request 57](https://github.com/chris-page-gov/gis-ai-go/pull/57) and repair

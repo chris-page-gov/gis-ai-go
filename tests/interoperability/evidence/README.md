@@ -52,3 +52,10 @@ The historical records continue to bind the unchanged ten-case
 [`qual_206_cases_expansion.json`](../qual_206_cases_expansion.json) is design-time,
 non-live and unscored; it is not a runtime input to those sessions and does not
 upgrade, relabel or replace their results.
+
+The additive strict-modern capture and public-evidence contracts are described in
+the
+[`QUAL-206 strict-modern evidence preparation` runbook](../../../docs/operations/QUAL-206_STRICT_MODERN_EVIDENCE.md).
+They retain private telemetry locally and compile only a minimised projection. The
+current summary-level contract cannot score a real host capability pass; that
+requires the separately versioned event-level collector described in the runbook.

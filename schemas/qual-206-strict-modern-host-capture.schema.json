@@ -1,0 +1,804 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:qual-206-strict-modern-host-capture:v1",
+  "title": "QUAL-206 strict-modern private host capture",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "capture_kind",
+    "observed_at",
+    "source",
+    "host",
+    "protocol",
+    "surface",
+    "corpus",
+    "isolation",
+    "telemetry",
+    "observation"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gis-ai-go.qual-206-strict-modern-host-capture.v1"
+    },
+    "capture_kind": {
+      "enum": ["synthetic-test-fixture", "observed-host-session"]
+    },
+    "observed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "$ref": "#/$defs/source"
+    },
+    "host": {
+      "$ref": "#/$defs/host"
+    },
+    "protocol": {
+      "$ref": "#/$defs/protocol"
+    },
+    "surface": {
+      "$ref": "#/$defs/surface"
+    },
+    "corpus": {
+      "$ref": "#/$defs/corpus"
+    },
+    "isolation": {
+      "$ref": "#/$defs/isolation"
+    },
+    "telemetry": {
+      "$ref": "#/$defs/telemetry"
+    },
+    "observation": {
+      "$ref": "#/$defs/observation"
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "safePath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 240,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.{1,2}(?:/|$))(?!.*\\\\)(?!.*//)[A-Za-z0-9._/-]+$"
+    },
+    "publicText": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 320,
+      "pattern": "^[^\\u0000-\\u001f\\u007f]+$"
+    },
+    "operation": {
+      "enum": [
+        "catalogue.search",
+        "catalogue.describe",
+        "selection.resolve",
+        "data.query",
+        "evidence.inspect"
+      ]
+    },
+    "resource": {
+      "enum": [
+        "catalogue.public",
+        "catalogue.record",
+        "evidence.receipt"
+      ]
+    },
+    "material": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "path", "sha256"],
+      "properties": {
+        "role": {
+          "enum": [
+            "build-receipt",
+            "capture-schema",
+            "compiler",
+            "evidence-schema",
+            "identity-helper",
+            "launcher",
+            "lockfile",
+            "manifest",
+            "compiled",
+            "provider-egress-guard",
+            "source",
+            "telemetry-wrapper"
+          ]
+        },
+        "path": {
+          "$ref": "#/$defs/safePath"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository",
+        "commit",
+        "tree",
+        "protected_main",
+        "detached_checkout",
+        "worktree_clean",
+        "product_version",
+        "materials"
+      ],
+      "properties": {
+        "repository": {
+          "const": "chris-page-gov/gis-ai-go"
+        },
+        "commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "tree": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "protected_main": {
+          "type": "boolean"
+        },
+        "detached_checkout": {
+          "type": "boolean"
+        },
+        "worktree_clean": {
+          "type": "boolean"
+        },
+        "product_version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?$"
+        },
+        "materials": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "items": {
+            "$ref": "#/$defs/material"
+          }
+        }
+      }
+    },
+    "binaryIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "sha256"],
+      "properties": {
+        "kind": {
+          "const": "binary"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "packageIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "name", "version", "sha256"],
+      "properties": {
+        "kind": {
+          "const": "package"
+        },
+        "name": {
+          "enum": [
+            "@anthropic-ai/claude-code",
+            "codex",
+            "chatgpt",
+            "generic-independent-mcp-host",
+            "synthetic-test-host"
+          ]
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9._+-]+$"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "serviceIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "sha256"],
+      "properties": {
+        "kind": {
+          "const": "service"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "host": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "version",
+        "platform",
+        "architecture",
+        "identity",
+        "probe",
+        "model_authentication_supplied",
+        "model_task_requested"
+      ],
+      "properties": {
+        "name": {
+          "enum": [
+            "claude-code",
+            "codex",
+            "chatgpt",
+            "generic-independent-mcp-host",
+            "synthetic-test-host"
+          ]
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9._+-]+$"
+        },
+        "platform": {
+          "enum": ["darwin", "linux", "windows", "hosted"]
+        },
+        "architecture": {
+          "enum": ["arm64", "x86_64", "other", "not-applicable"]
+        },
+        "identity": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/binaryIdentity"
+            },
+            {
+              "$ref": "#/$defs/packageIdentity"
+            },
+            {
+              "$ref": "#/$defs/serviceIdentity"
+            }
+          ]
+        },
+        "probe": {
+          "enum": ["mcp-list", "model-task", "manual-client"]
+        },
+        "model_authentication_supplied": {
+          "type": "boolean"
+        },
+        "model_task_requested": {
+          "type": "boolean"
+        }
+      }
+    },
+    "protocol": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "target_version",
+        "target_source_id",
+        "client_requested_version",
+        "server_supported_versions",
+        "negotiated_version"
+      ],
+      "properties": {
+        "target_version": {
+          "const": "2026-07-28"
+        },
+        "target_source_id": {
+          "const": "S-MCP-SPEC"
+        },
+        "client_requested_version": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        },
+        "server_supported_versions": {
+          "const": ["2026-07-28"]
+        },
+        "negotiated_version": {
+          "oneOf": [
+            {
+              "const": "2026-07-28"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "surface": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["assembly", "transport", "operations", "resources"],
+      "properties": {
+        "assembly": {
+          "const": "candidate-unregistered-exact-five"
+        },
+        "transport": {
+          "enum": ["stdio", "streamable-http"]
+        },
+        "operations": {
+          "const": [
+            "catalogue.search",
+            "catalogue.describe",
+            "selection.resolve",
+            "data.query",
+            "evidence.inspect"
+          ]
+        },
+        "resources": {
+          "const": [
+            "catalogue.public",
+            "catalogue.record",
+            "evidence.receipt"
+          ]
+        }
+      }
+    },
+    "corpusReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/safePath"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "corpus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["base", "expansion", "case_ids"],
+      "properties": {
+        "base": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/corpusReference"
+            },
+            {
+              "properties": {
+                "path": {
+                  "const": "tests/interoperability/qual_206_cases.json"
+                },
+                "sha256": {
+                  "const": "23ac9bc1a76d524bd0e250b11b9ba321b09e66bd5921f1463f50c150001cd389"
+                }
+              }
+            }
+          ]
+        },
+        "expansion": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/corpusReference"
+            },
+            {
+              "properties": {
+                "path": {
+                  "const": "tests/interoperability/qual_206_cases_expansion.json"
+                },
+                "sha256": {
+                  "const": "e70c21b371593c2dae863999745f1fecf2152ff80f0b025a1ccbec135b47f4af"
+                }
+              }
+            }
+          ]
+        },
+        "case_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 18,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^QUAL-206-HOST-0(?:0[1-9]|1[0-8])$"
+          }
+        }
+      }
+    },
+    "isolation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "temporary_profile",
+        "profile_root_mode",
+        "primary_configuration_mode",
+        "normal_profile_used",
+        "normal_profile_mutation_observed",
+        "credential_variables_removed_count",
+        "mcp_child_environment_allowlisted",
+        "credential_value_pattern_matches",
+        "remaining_processes_after_cleanup",
+        "raw_host_logs_published",
+        "os_network_isolation_enforced",
+        "provider_egress_guard_exercised"
+      ],
+      "properties": {
+        "temporary_profile": {
+          "const": true
+        },
+        "profile_root_mode": {
+          "const": "0700"
+        },
+        "primary_configuration_mode": {
+          "const": "0600"
+        },
+        "normal_profile_used": {
+          "const": false
+        },
+        "normal_profile_mutation_observed": {
+          "const": false
+        },
+        "credential_variables_removed_count": {
+          "type": "integer",
+          "minimum": 5,
+          "maximum": 64
+        },
+        "mcp_child_environment_allowlisted": {
+          "const": true
+        },
+        "credential_value_pattern_matches": {
+          "const": 0
+        },
+        "remaining_processes_after_cleanup": {
+          "const": 0
+        },
+        "raw_host_logs_published": {
+          "const": false
+        },
+        "os_network_isolation_enforced": {
+          "type": "boolean"
+        },
+        "provider_egress_guard_exercised": {
+          "type": "boolean"
+        }
+      }
+    },
+    "privateTelemetry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "bytes", "sha256", "mode"],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/safePath"
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8388608
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "mode": {
+          "const": "0600"
+        }
+      }
+    },
+    "telemetry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "retained_private",
+        "event_count",
+        "session_start_count",
+        "request_count",
+        "notification_count",
+        "response_count",
+        "session_end_count",
+        "anomaly_count",
+        "malformed_frame_count",
+        "non_json_frame_count",
+        "truncated_frame_count",
+        "server_stderr_count",
+        "pending_request_count",
+        "exit_code",
+        "raw_content_published"
+      ],
+      "properties": {
+        "schema": {
+          "const": "gis-ai-go.qual-206-host-capture-summary.v1"
+        },
+        "retained_private": {
+          "$ref": "#/$defs/privateTelemetry"
+        },
+        "event_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "session_start_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "request_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 50000
+        },
+        "notification_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 50000
+        },
+        "response_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 50000
+        },
+        "session_end_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "anomaly_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "malformed_frame_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "non_json_frame_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "truncated_frame_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "server_stderr_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "pending_request_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 50000
+        },
+        "exit_code": {
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 255
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "raw_content_published": {
+          "const": false
+        }
+      }
+    },
+    "stageObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["observed", "outcome", "error_code"],
+      "properties": {
+        "observed": {
+          "type": "boolean"
+        },
+        "outcome": {
+          "enum": ["success", "error", "not-observed"]
+        },
+        "error_code": {
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "toolsListObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["observed", "outcome", "operations", "error_code"],
+      "properties": {
+        "observed": {
+          "type": "boolean"
+        },
+        "outcome": {
+          "enum": ["success", "error", "not-observed"]
+        },
+        "operations": {
+          "type": "array",
+          "maxItems": 5,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/operation"
+          }
+        },
+        "error_code": {
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "resourcesListObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["observed", "outcome", "resources", "error_code"],
+      "properties": {
+        "observed": {
+          "type": "boolean"
+        },
+        "outcome": {
+          "enum": ["success", "error", "not-observed"]
+        },
+        "resources": {
+          "type": "array",
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/resource"
+          }
+        },
+        "error_code": {
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "toolResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "operation",
+        "outcome",
+        "structured_plain_text_parity",
+        "receipt_present",
+        "request_sha256",
+        "response_sha256"
+      ],
+      "properties": {
+        "operation": {
+          "$ref": "#/$defs/operation"
+        },
+        "outcome": {
+          "enum": ["success", "bounded-error", "cancelled"]
+        },
+        "structured_plain_text_parity": {
+          "enum": ["passed", "failed", "not-tested"]
+        },
+        "receipt_present": {
+          "type": "boolean"
+        },
+        "request_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "response_sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "resourceResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["resource", "outcome", "response_sha256"],
+      "properties": {
+        "resource": {
+          "$ref": "#/$defs/resource"
+        },
+        "outcome": {
+          "const": "success"
+        },
+        "response_sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "assertionObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["observed", "outcome"],
+      "properties": {
+        "observed": {
+          "type": "boolean"
+        },
+        "outcome": {
+          "enum": ["passed", "failed", "not-tested"]
+        }
+      }
+    },
+    "observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "host_report",
+        "initialize",
+        "initialized_notification_observed",
+        "tools_list",
+        "resources_list",
+        "tool_results",
+        "resource_results",
+        "cancellation",
+        "unsupported_traffic"
+      ],
+      "properties": {
+        "host_report": {
+          "enum": [
+            "connected",
+            "failed-to-connect",
+            "process-failed",
+            "authentication-failed",
+            "configuration-failed",
+            "not-observed"
+          ]
+        },
+        "initialize": {
+          "$ref": "#/$defs/stageObservation"
+        },
+        "initialized_notification_observed": {
+          "type": "boolean"
+        },
+        "tools_list": {
+          "$ref": "#/$defs/toolsListObservation"
+        },
+        "resources_list": {
+          "$ref": "#/$defs/resourcesListObservation"
+        },
+        "tool_results": {
+          "type": "array",
+          "maxItems": 5,
+          "items": {
+            "$ref": "#/$defs/toolResult"
+          }
+        },
+        "resource_results": {
+          "type": "array",
+          "maxItems": 3,
+          "items": {
+            "$ref": "#/$defs/resourceResult"
+          }
+        },
+        "cancellation": {
+          "$ref": "#/$defs/assertionObservation"
+        },
+        "unsupported_traffic": {
+          "$ref": "#/$defs/assertionObservation"
+        }
+      }
+    }
+  }
+}
