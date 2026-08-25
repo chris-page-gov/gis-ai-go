@@ -112,12 +112,16 @@ function dependencies(scenario = "positive") {
       ...nodeIdentity(),
       version: process.versions.node,
     }),
-    authStatus: () => ({
-      api_provider: "firstParty",
-      auth_method: "claude.ai",
-      logged_in: true,
-      subscription_type: "test-profile",
-    }),
+    authStatus: (_command, environment) => {
+      assert.equal(environment.CLAUDE_CODE_SIMPLE, undefined);
+      assert.equal(environment.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC, "1");
+      return {
+        api_provider: "firstParty",
+        auth_method: "claude.ai",
+        logged_in: true,
+        subscription_type: "test-profile",
+      };
+    },
     command: [realpathSync(process.execPath), FAKE],
     environment: closedEnvironment(),
     extraEnvironment: { QUAL_206_FAKE_CLAUDE_SCENARIO: scenario },
