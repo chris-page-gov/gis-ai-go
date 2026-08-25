@@ -715,6 +715,34 @@ class LocalHttpPreflightVerifierTest(unittest.TestCase):
         ):
             VERIFIER.trusted_node_executable()
 
+    def test_node_resolution_accepts_non_writable_foreign_owned_executable(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            executable = Path(directory).resolve() / "node"
+            executable.write_bytes(b"synthetic executable")
+            executable.chmod(0o755)
+            foreign_uid = executable.stat().st_uid + 1
+            with (
+                mock.patch.object(VERIFIER.shutil, "which", return_value=str(executable)),
+                mock.patch.object(VERIFIER.os, "getuid", return_value=foreign_uid),
+            ):
+                resolved, state = VERIFIER.trusted_node_executable()
+            self.assertEqual(resolved, executable)
+            self.assertEqual(state, VERIFIER.executable_state(executable))
+
+    def test_node_resolution_rejects_group_writable_executable(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            executable = Path(directory).resolve() / "node"
+            executable.write_bytes(b"synthetic executable")
+            executable.chmod(0o775)
+            with (
+                mock.patch.object(VERIFIER.shutil, "which", return_value=str(executable)),
+                self.assertRaisesRegex(
+                    VERIFIER.VerificationError,
+                    "trusted regular executable",
+                ),
+            ):
+                VERIFIER.trusted_node_executable()
+
     def test_source_material_binding_rejects_execution_mutation(self) -> None:
         captured = [
             {

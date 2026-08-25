@@ -413,7 +413,6 @@ def trusted_node_executable() -> tuple[Path, tuple[int, int, int, int, int, int,
     if (
         not executable.is_absolute()
         or not stat.S_ISREG(metadata.st_mode)
-        or metadata.st_uid not in {0, os.getuid()}
         or metadata.st_nlink < 1
         or metadata.st_mode & 0o022
         or not os.access(executable, os.X_OK)
