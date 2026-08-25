@@ -30,9 +30,9 @@ The supported target active set is exactly `catalogue.search`,
 - accept the separately verified MCP `2026-07-28` Claude desktop-STDIO result as
   transport readiness only, with capability and exact-five source binding still
   false;
-- add a fail-closed real-socket loopback HTTP exact-five preflight with owner-only
-  raw capture and independent path-free projection, while keeping remote-host and
-  model capability false;
+- retain the accepted fail-closed real-socket loopback HTTP exact-five preflight,
+  whose owner-only raw capture remains local and whose independent path-free
+  projection keeps remote-host acceptance false and capability unscored;
 - complete the remaining bounded desktop capability and remote-HTTP host evidence;
   and
 - continue provider-neutral preparation, but stop before public provisioning or
@@ -313,6 +313,23 @@ or release is claimed.
   summary records transport readiness only; capability, the exact-five operation
   journey, remote HTTP evidence, registration, activation, deployment and release
   remain incomplete; and
+- the exact-five local HTTP harness merged through
+  [pull request 66](https://github.com/chris-page-gov/gis-ai-go/pull/66) as
+  protected-main commit `066a9cb22f719d22e29c95cd99857ddf694c878e`, tree
+  `43116491557d53c4c0ad2d3a6768761ccf873df4`. Every protected-main CI job passed in
+  [run 32851616717](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32851616717),
+  including repository, image, independent-derivation, attestation and provenance
+  assurance. Every analysis in
+  [CodeQL run 32851615811](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32851615811)
+  also passed for Actions, JavaScript/TypeScript and Python. Its accepted
+  [path-free projection](tests/interoperability/evidence/local-http-transport-preflight-2026-08-25.json)
+  has SHA-256
+  `c227791068c662c64e14fa9ec354d8d8030e5cc2e3d64b0d8ff93101e1b67274` and records
+  14 requests, 13 responses, the exact five operations and three resource classes.
+  The owner-only private capture remains local and unpublished. This is loopback
+  HTTP transport preflight only: capability remains unscored, remote-host acceptance
+  is false, and no live provider, registration, activation, deployment or release
+  was exercised; and
 - acceptance requires both the complete local repository gate, which passes on this
   matrix tree, and the protected pull-request and protected-main checks. The local
   gate includes all TypeScript and Python tests, 27 real-browser tests,
@@ -321,11 +338,11 @@ or release is claimed.
 
 ## Next
 
-1. Preserve the verified Claude Code `2.1.241` strict-modern transport summary and
-   its separate historical default-negotiation record. Merge the local real-socket
-   HTTP harness, then capture its durable projection from the resulting exact
-   protected main. Complete the bounded capability pack and remaining remote-HTTP
-   host evidence without widening either transport result into a capability claim.
+1. Preserve the verified Claude Code `2.1.241` strict-modern transport summary, its
+   separate historical default-negotiation record and the accepted protected-main
+   loopback HTTP projection. Complete the bounded capability pack and remaining
+   remote-HTTP host evidence without widening any transport result into a capability
+   claim.
 2. Retain the exact protected-main UBI, independent-derivation and provenance
    evidence from runs `32760872035` and `32760871684`; rebuild and repeat it after
    every later source-changing activation or release commit.
@@ -363,9 +380,9 @@ or release is claimed.
   exact-five assembly is `candidate-unregistered`, production registration is
   false, the production/default capability arrays are empty, shipped readiness is
   `503`, and there is no public service deployment or activation override. The
-  repository-local matrix is non-live and cannot close issue #23 or issue #24;
-  independent hosts, a live provider, authorised deployment and release evidence
-  remain outstanding.
+  repository-local matrix and accepted loopback HTTP projection are non-live and
+  cannot close issue #23 or issue #24; independent hosts, a live provider,
+  authorised deployment and release evidence remain outstanding.
 - The historical Debian image findings are superseded for the accepted repository
   candidate by exact protected-main UBI commit `dda0eb9`, whose producer and
   independent archives were byte-identical and whose image, SBOM and evidence
@@ -383,6 +400,21 @@ or release is claimed.
   the open product.
 
 ## Latest evidence
+
+- QUAL-206 protected-main local HTTP transport preflight: the
+  [path-free projection](tests/interoperability/evidence/local-http-transport-preflight-2026-08-25.json)
+  binds protected-main commit `066a9cb22f719d22e29c95cd99857ddf694c878e`, tree
+  `43116491557d53c4c0ad2d3a6768761ccf873df4`, and has SHA-256
+  `c227791068c662c64e14fa9ec354d8d8030e5cc2e3d64b0d8ff93101e1b67274`.
+  Every job in
+  [CI run 32851616717](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32851616717)
+  and every analysis in
+  [CodeQL run 32851615811](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32851615811)
+  passed. The projection records 14 requests, 13 responses, the exact five
+  operations and three resource classes over one local IPv4 loopback listener. The
+  private capture remains local and unpublished. Capability is unscored,
+  remote-host acceptance is false and no live provider, registration, activation,
+  deployment or release was exercised;
 
 - QUAL-206 local demonstration acceptance: protected
   [pull request 60](https://github.com/chris-page-gov/gis-ai-go/pull/60) merged as

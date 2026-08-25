@@ -4,8 +4,9 @@
   the current final telemetry wrapper;
   a test-only real-process exact-five STDIO transcript, cancellation, unsupported
   traffic and all seven suspension scenarios pass locally with zero live-provider
-  calls; an additive test-only real-socket loopback HTTP journey and private-capture
-  replay also pass locally without claiming remote-host or model capability;
+  calls; the additive test-only real-socket loopback HTTP journey now has an
+  accepted path-free projection from exact protected `main`, without claiming
+  remote-host or model capability;
   four 20 August independent-host readiness attempts remain documented as not
   ready; a separate 23 August Claude Code legacy STDIO observation from exact
   protected-main bytes passed initialisation and tool listing, with capability
@@ -13,6 +14,8 @@
   deterministic `HOST-015` application recovery passes locally but remains non-live
   and unscored; capability scoring and activation remain pending
 - reviewed source base: `66507f9a6e6c0da23a8af4682268f9362d93bc06`
+- local HTTP transport evidence source: protected `main` commit
+  `066a9cb22f719d22e29c95cd99857ddf694c878e`
 - Claude transport-readiness source: protected `main` commit
   `30b575beb27ff805745a2864c1acf44392774046`
 - legacy fallback integration base: protected `main` commit
@@ -65,10 +68,14 @@ mechanism.
 The additive
 [local HTTP transport preflight](QUAL-206_LOCAL_HTTP_TRANSPORT_PREFLIGHT.md)
 drives the same exact-five journey through a test-only `127.0.0.1` listener. Its
-owner-only raw capture and independent offline verifier can produce a path-free
-projection only from a clean exact checkout. It does not exercise TLS, a public
-hostname, an independent remote host, a model, a live provider or a deployment, so
-it cannot close the remote-HTTP or capability gates.
+owner-only raw capture and independent offline verifier produced the accepted
+[path-free projection](../../tests/interoperability/evidence/local-http-transport-preflight-2026-08-25.json)
+from protected-main commit `066a9cb22f719d22e29c95cd99857ddf694c878e`,
+tree `43116491557d53c4c0ad2d3a6768761ccf873df4`. Its 14 requests and 13 responses
+cover the exact five operations and three resource classes. The private capture
+remains local and unpublished. This does not exercise TLS, a public hostname, an
+independent remote host, a model, a live provider or a deployment, so it cannot
+close the remote-HTTP or capability gates.
 
 ## Build the exact local candidate
 

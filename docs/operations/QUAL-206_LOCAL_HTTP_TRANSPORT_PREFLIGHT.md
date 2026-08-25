@@ -39,12 +39,15 @@ Claude Code and model capability remain `unscored`.
 
 The public contract also records `complete_runtime_source_binding: false`. The
 repository commit, tree and named runtime materials are bound, but the complete
-loaded third-party runtime closure is not yet captured. Do not widen this claim.
-The collector hashes the exact named material list immediately before child
-execution and again after the child has closed, including the ignored built HTTP
-runtime files and governed OKF manifest and bundle. The private capture retains
-both hashes. Replay requires the two observed hashes and the current pre/post
-replay hashes to remain equal.
+loaded runtime closure is not yet captured. In particular, the named material
+list omits some executed, ignored first-party gateway build outputs as well as the
+loaded third-party runtime closure. Do not widen this claim. The collector hashes
+the exact named material list immediately before child execution and again after
+the child has closed, including the two declared ignored built HTTP runtime files
+and governed OKF manifest and bundle. The private capture retains both hashes.
+Replay requires the two observed hashes and the current pre/post replay hashes to
+remain equal; that check covers only the named list and is not a complete runtime
+source binding.
 
 For a clean durable run, both collector and verifier use the fixed system Git
 executable with replacement objects, filesystem-monitor shortcuts and the
@@ -52,7 +55,9 @@ untracked cache disabled. They reject assume-unchanged, skip-worktree and
 filesystem-monitor index flags, and require every tracked named material to equal
 its blob in the recorded tree. The four declared derived OKF and built gateway
 files remain outside that tree comparison; they stay covered by the pre/post hash
-checks and by `complete_runtime_source_binding: false`.
+checks. Other executed first-party build outputs and third-party runtime bytes are
+outside the named set, which is why `complete_runtime_source_binding` remains
+`false`.
 
 ## Contracts and programmes
 
@@ -154,6 +159,29 @@ then rechecked and synchronised. An existing path is never overwritten, and a
 caught finalisation failure removes both the temporary entry and any final entry
 that still identifies the staged inode.
 
+### Accepted protected-main evidence
+
+The durable
+[`25 August 2026 public projection`](../../tests/interoperability/evidence/local-http-transport-preflight-2026-08-25.json)
+was captured and independently replayed from exact protected-main commit
+`066a9cb22f719d22e29c95cd99857ddf694c878e`, tree
+`43116491557d53c4c0ad2d3a6768761ccf873df4`. Its file SHA-256 is
+`c227791068c662c64e14fa9ec354d8d8030e5cc2e3d64b0d8ff93101e1b67274`.
+Every protected-main CI job passed in
+[run 32851616717](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32851616717),
+including repository, image, independent-derivation, attestation and provenance
+assurance. Every analysis in
+[CodeQL run 32851615811](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32851615811)
+also passed for Actions, JavaScript/TypeScript and Python.
+
+The accepted projection records exactly 14 requests and 13 responses over one
+ephemeral IPv4 loopback listener. It covers the exact five operations and three
+resource classes; the response-free request is the deliberately aborted second
+`data.query`. The owner-only private capture remains local and unpublished. This
+acceptance does not widen the claim: it is local HTTP transport preflight only,
+with remote-host acceptance false, Claude Code and model capability unscored, and
+no live provider, registration, activation, deployment or release exercised.
+
 ## Evidence handling
 
 Keep the private capture outside the repository at an owner-controlled private
@@ -166,10 +194,10 @@ review, confirm that it contains no absolute path, hostname, port, endpoint or r
 idempotency key. The verifier performs these checks, but review the projection as
 well.
 
-No accepted public evidence instance is committed by this development change.
-Capture and project again after the harness itself has reached exact protected
-main; otherwise the evidence would bind the predecessor commit rather than the
-implemented lane.
+The accepted public projection is the path-free instance linked above. Do not
+commit the private capture or treat its local retention as deployment evidence.
+Repeat the complete protected-main capture and replay procedure after any harness
+or runtime-material change rather than relabelling the accepted bytes.
 
 ## Stop conditions
 

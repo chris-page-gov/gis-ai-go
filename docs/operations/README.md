@@ -14,7 +14,10 @@ v2 recovery. The current inspection candidate returns a dedicated verifiable v3
 receipt for the inspection call itself without persisting it or adding a ledger
 event. Its deterministic, non-live and unscored `QUAL-206-HOST-015` case passes
 locally. The repository-only QUAL-206 preflight is accepted on protected `main`, but
-its evaluation receipts remain non-live, unscored and incomplete for release.
+its evaluation receipts remain non-live, unscored and incomplete for release. A
+separate protected-main projection proves the exact-five journey over one real IPv4
+loopback listener only; remote-host acceptance is false and capability remains
+unscored.
 Default capability lists remain empty, activation and publication remain blocked,
 and no public MCP service or API is deployed.
 
@@ -39,6 +42,7 @@ and no public MCP service or API is deployed.
 - [TOOLS-205 governed candidate assembly](TOOLS-205_GOVERNED_CANDIDATE_ASSEMBLY.md)
 - [QUAL-206 host interoperability and secure-tunnel runbook](QUAL-206_INTEROPERABILITY.md)
 - [QUAL-206 local demonstration](QUAL-206_LOCAL_DEMONSTRATION.md)
+- [QUAL-206 local HTTP transport preflight](QUAL-206_LOCAL_HTTP_TRANSPORT_PREFLIGHT.md)
 - [QUAL-206 strict-modern evidence preparation](QUAL-206_STRICT_MODERN_EVIDENCE.md)
 - [QUAL-206 strict-modern private event capture](QUAL-206_STRICT_MODERN_EVENT_CAPTURE.md)
 - [QUAL-206 Claude composite STDIO observation](QUAL-206_CLAUDE_COMPOSITE_OBSERVATION.md)
