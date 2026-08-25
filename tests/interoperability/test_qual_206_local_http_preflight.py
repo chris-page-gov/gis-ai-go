@@ -129,6 +129,33 @@ class LocalHttpPreflightVerifierTest(unittest.TestCase):
         return {"paths": paths, "components": {"schemas": schemas}}, tools
 
     @staticmethod
+    def schema_digest_manifest_fixture(
+        tools: list[dict[str, object]],
+    ) -> dict[str, object]:
+        by_operation = {tool["name"]: tool for tool in tools}
+        return {
+            "schema": VERIFIER.CANONICAL_SCHEMA_DIGEST_MANIFEST_ID,
+            "algorithm": VERIFIER.CANONICAL_SCHEMA_DIGEST_ALGORITHM,
+            "domain": VERIFIER.CANONICAL_SCHEMA_DIGEST_DOMAIN,
+            "operations": [
+                {
+                    "operation": operation,
+                    "input_schema_sha256": VERIFIER.canonical_tool_schema_sha256(
+                        operation,
+                        "input",
+                        by_operation[operation]["inputSchema"],
+                    ),
+                    "output_schema_sha256": VERIFIER.canonical_tool_schema_sha256(
+                        operation,
+                        "output",
+                        by_operation[operation]["outputSchema"],
+                    ),
+                }
+                for operation in VERIFIER.EXACT_OPERATIONS
+            ],
+        }
+
+    @staticmethod
     def idempotency_evidence_fixture() -> tuple[
         tuple[dict[str, object], dict[str, object]],
         dict[str, str],
@@ -284,7 +311,7 @@ class LocalHttpPreflightVerifierTest(unittest.TestCase):
         self.assertEqual(material_contracts["maxItems"], len(material_paths))
         self.assertEqual(material_paths, VERIFIER.SOURCE_MATERIAL_PATHS)
         self.assertIn(
-            "scripts/qual_206_validate_local_http_schemas.mjs",
+            "schemas/qual-206-exact-five-tool-schema-digests.v1.json",
             material_paths,
         )
 
@@ -708,60 +735,98 @@ class LocalHttpPreflightVerifierTest(unittest.TestCase):
                     recorded_tree,
                 )
 
-    def test_node_resolution_rejects_repository_executable(self) -> None:
-        with (
-            mock.patch.object(VERIFIER.shutil, "which", return_value=str(MODULE_PATH)),
-            self.assertRaisesRegex(VERIFIER.VerificationError, "outside the repository"),
-        ):
-            VERIFIER.trusted_node_executable()
-
-    def test_node_resolution_accepts_foreign_group_writable_toolcache(self) -> None:
+    def test_canonical_schema_validation_uses_manifest_without_node_process(
+        self,
+    ) -> None:
+        _, tools = self.openapi_fixture()
+        manifest = self.schema_digest_manifest_fixture(tools)
         with tempfile.TemporaryDirectory() as directory:
-            executable = Path(directory).resolve() / "node"
-            executable.write_bytes(b"synthetic executable")
-            executable.chmod(0o775)
-            metadata = executable.stat()
+            path = Path(directory) / "schema-digests.json"
+            path.write_text(json.dumps(manifest), encoding="utf-8")
             with (
-                mock.patch.object(VERIFIER.shutil, "which", return_value=str(executable)),
-                mock.patch.object(VERIFIER.os, "getuid", return_value=metadata.st_uid + 1),
-                mock.patch.object(VERIFIER.os, "getegid", return_value=metadata.st_gid + 1),
                 mock.patch.object(
-                    VERIFIER.os,
-                    "getgroups",
-                    return_value=[metadata.st_gid + 1],
+                    VERIFIER,
+                    "CANONICAL_SCHEMA_DIGEST_MANIFEST_PATH",
+                    path,
                 ),
+                mock.patch.dict(os.environ, {"PATH": ""}),
+                mock.patch.object(
+                    VERIFIER.subprocess,
+                    "run",
+                    side_effect=AssertionError("unexpected child process"),
+                ) as run,
             ):
-                resolved, state = VERIFIER.trusted_node_executable()
-            self.assertEqual(resolved, executable)
-            self.assertEqual(state, VERIFIER.executable_state(executable))
+                VERIFIER.validate_canonical_tool_schemas(tools)
+            run.assert_not_called()
 
-    def test_node_resolution_rejects_group_writable_executable(self) -> None:
+    def test_canonical_schema_validation_rejects_input_and_output_drift(self) -> None:
+        _, tools = self.openapi_fixture()
+        manifest = self.schema_digest_manifest_fixture(tools)
         with tempfile.TemporaryDirectory() as directory:
-            executable = Path(directory).resolve() / "node"
-            executable.write_bytes(b"synthetic executable")
-            executable.chmod(0o775)
-            with (
-                mock.patch.object(VERIFIER.shutil, "which", return_value=str(executable)),
-                self.assertRaisesRegex(
-                    VERIFIER.VerificationError,
-                    "trusted regular executable",
-                ),
-            ):
-                VERIFIER.trusted_node_executable()
+            path = Path(directory) / "schema-digests.json"
+            path.write_text(json.dumps(manifest), encoding="utf-8")
+            for member in ("inputSchema", "outputSchema"):
+                changed = deepcopy(tools)
+                changed[0][member]["description"] = f"changed {member}"
+                with (
+                    self.subTest(member=member),
+                    mock.patch.object(
+                        VERIFIER,
+                        "CANONICAL_SCHEMA_DIGEST_MANIFEST_PATH",
+                        path,
+                    ),
+                    self.assertRaisesRegex(
+                        VERIFIER.VerificationError,
+                        "differ from the canonical exact-five schemas",
+                    ),
+                ):
+                    VERIFIER.validate_canonical_tool_schemas(changed)
 
-    def test_node_resolution_rejects_world_writable_executable(self) -> None:
+    def test_canonical_schema_manifest_is_closed_and_ordered(self) -> None:
+        _, tools = self.openapi_fixture()
+        original = self.schema_digest_manifest_fixture(tools)
+        mutations = {
+            "extra member": lambda value: value.__setitem__("unexpected", True),
+            "wrong domain": lambda value: value.__setitem__("domain", "wrong"),
+            "wrong order": lambda value: value["operations"].reverse(),
+            "invalid digest": lambda value: value["operations"][0].__setitem__(
+                "input_schema_sha256",
+                "A" * 64,
+            ),
+            "missing operation": lambda value: value["operations"].pop(),
+        }
         with tempfile.TemporaryDirectory() as directory:
-            executable = Path(directory).resolve() / "node"
-            executable.write_bytes(b"synthetic executable")
-            executable.chmod(0o777)
-            with (
-                mock.patch.object(VERIFIER.shutil, "which", return_value=str(executable)),
-                self.assertRaisesRegex(
-                    VERIFIER.VerificationError,
-                    "trusted regular executable",
-                ),
+            path = Path(directory) / "schema-digests.json"
+            for label, mutate in mutations.items():
+                changed = deepcopy(original)
+                mutate(changed)
+                path.write_text(json.dumps(changed), encoding="utf-8")
+                with (
+                    self.subTest(mutation=label),
+                    mock.patch.object(
+                        VERIFIER,
+                        "CANONICAL_SCHEMA_DIGEST_MANIFEST_PATH",
+                        path,
+                    ),
+                    self.assertRaises(VERIFIER.VerificationError),
+                ):
+                    VERIFIER.validate_canonical_tool_schemas(tools)
+
+    def test_canonical_schema_digest_ignores_object_member_order(self) -> None:
+        _, tools = self.openapi_fixture()
+        manifest = self.schema_digest_manifest_fixture(tools)
+        reordered = deepcopy(tools)
+        schema = reordered[0]["inputSchema"]
+        reordered[0]["inputSchema"] = dict(reversed(tuple(schema.items())))
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "schema-digests.json"
+            path.write_text(json.dumps(manifest), encoding="utf-8")
+            with mock.patch.object(
+                VERIFIER,
+                "CANONICAL_SCHEMA_DIGEST_MANIFEST_PATH",
+                path,
             ):
-                VERIFIER.trusted_node_executable()
+                VERIFIER.validate_canonical_tool_schemas(reordered)
 
     def test_source_material_binding_rejects_execution_mutation(self) -> None:
         captured = [

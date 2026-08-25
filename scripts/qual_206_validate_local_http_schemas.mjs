@@ -2,14 +2,25 @@
 
 import {
   advertisedToolSchemasExact,
+  expectedToolSchemaDigests,
 } from "./qual_206_exact_five_event_collector.mjs";
 
 const MAX_INPUT_BYTES = 1_048_576;
-const AUTHORITY_ARGUMENT = "--stdin-tools-list-only";
+const TOOLS_AUTHORITY_ARGUMENT = "--stdin-tools-list-only";
+const DIGESTS_AUTHORITY_ARGUMENT = "--print-schema-digests";
 
 async function main() {
-  if (process.argv.length !== 3 || process.argv[2] !== AUTHORITY_ARGUMENT) {
-    throw new Error(`Usage: ${AUTHORITY_ARGUMENT}`);
+  if (
+    process.argv.length !== 3 ||
+    ![TOOLS_AUTHORITY_ARGUMENT, DIGESTS_AUTHORITY_ARGUMENT].includes(process.argv[2])
+  ) {
+    throw new Error(
+      `Usage: ${TOOLS_AUTHORITY_ARGUMENT} | ${DIGESTS_AUTHORITY_ARGUMENT}`,
+    );
+  }
+  if (process.argv[2] === DIGESTS_AUTHORITY_ARGUMENT) {
+    process.stdout.write(`${JSON.stringify(expectedToolSchemaDigests())}\n`);
+    return 0;
   }
   const chunks = [];
   let bytes = 0;

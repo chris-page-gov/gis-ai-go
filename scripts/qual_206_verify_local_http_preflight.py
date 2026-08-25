@@ -10,7 +10,6 @@ import math
 import os
 import re
 import secrets
-import shutil
 import stat
 import subprocess
 import sys
@@ -37,17 +36,24 @@ EXACT_GUARDED_APIS = (
 )
 OBSERVATION_DOMAIN = "gis-ai-go.qual-206-local-http-transport-preflight.observation.v1"
 DOMAIN_PREFIX = f"GIS-AI-GO\0{OBSERVATION_DOMAIN}\0v1\0".encode()
-CANONICAL_SCHEMA_VALIDATOR_RELATIVE = Path(
-    "scripts/qual_206_validate_local_http_schemas.mjs"
+CANONICAL_SCHEMA_DIGEST_MANIFEST_RELATIVE = Path(
+    "schemas/qual-206-exact-five-tool-schema-digests.v1.json"
 )
-CANONICAL_SCHEMA_VALIDATION_ID = "gis-ai-go.qual-206-local-http-schema-validation.v1"
+CANONICAL_SCHEMA_DIGEST_MANIFEST_PATH = (
+    ROOT / CANONICAL_SCHEMA_DIGEST_MANIFEST_RELATIVE
+)
+CANONICAL_SCHEMA_DIGEST_MANIFEST_ID = (
+    "gis-ai-go.qual-206-exact-five-tool-schema-digests.v1"
+)
+CANONICAL_SCHEMA_DIGEST_ALGORITHM = "sha256"
+CANONICAL_SCHEMA_DIGEST_DOMAIN = "gis-ai-go.qual-206-exact-five-tool-schema.v1"
 GIT_EXECUTABLE = Path("/usr/bin/git")
 MAX_CAPTURE_BYTES = 16 * 1_048_576
 MAX_SCHEMA_BYTES = 1_048_576
-MAX_SCHEMA_VALIDATOR_OUTPUT_BYTES = 4_096
 MAX_MATERIAL_BYTES = 16 * 1_048_576
 MAX_PUBLIC_BYTES = 1_048_576
 FULL_GIT_OBJECT = re.compile(r"^[0-9a-f]{40}$")
+SHA256_HEX = re.compile(r"^[0-9a-f]{64}$")
 RECEIPT_ID = re.compile(r"^gis-ai-go:evidence-receipt:sha256:[0-9a-f]{64}$")
 RECORD_ID = re.compile(r"^gis-ai-go:public-evidence-record:sha256:[0-9a-f]{64}$")
 LEDGER_EVENT_ID = re.compile(r"^gis-ai-go:evidence-ledger-event:sha256:[0-9a-f]{64}$")
@@ -171,7 +177,7 @@ CANONICAL_DIGEST_PREFIX = b"GIS-AI-GO\0canonical-json\0sha256\0v1\0"
 SOURCE_MATERIAL_PATHS = (
     "scripts/qual_206_local_http_preflight.mjs",
     "scripts/qual_206_verify_local_http_preflight.py",
-    str(CANONICAL_SCHEMA_VALIDATOR_RELATIVE),
+    str(CANONICAL_SCHEMA_DIGEST_MANIFEST_RELATIVE),
     str(PUBLIC_SCHEMA_RELATIVE),
     str(PRIVATE_SCHEMA_RELATIVE),
     "artifacts/okf/manifest.json",
@@ -382,56 +388,59 @@ def validate_with_schema(
         fail(f"{label} failed its closed schema contract")
 
 
-ExecutableState = tuple[int, int, int, int, int, int, int, int]
+def canonical_tool_schema_sha256(
+    operation: str,
+    direction: str,
+    schema: dict[str, Any],
+) -> str:
+    material = (
+        f"GIS-AI-GO\0{CANONICAL_SCHEMA_DIGEST_DOMAIN}\0"
+        f"{operation}\0{direction}\0{canonical_json(schema)}"
+    ).encode()
+    return sha256(material)
 
 
-def executable_state(path: Path) -> ExecutableState:
-    metadata = path.stat(follow_symlinks=False)
-    return (
-        metadata.st_dev,
-        metadata.st_ino,
-        metadata.st_mode,
-        metadata.st_uid,
-        metadata.st_gid,
-        metadata.st_nlink,
-        metadata.st_size,
-        metadata.st_mtime_ns,
+def canonical_tool_schema_manifest() -> dict[str, Any]:
+    manifest = parse_json_bytes(
+        bounded_regular_file(
+            CANONICAL_SCHEMA_DIGEST_MANIFEST_PATH,
+            MAX_SCHEMA_BYTES,
+            "Canonical exact-five schema digest manifest",
+        ),
+        "Canonical exact-five schema digest manifest",
     )
-
-
-def trusted_node_executable() -> tuple[Path, ExecutableState]:
-    selected = shutil.which("node")
-    if selected is None:
-        fail("Canonical exact-five schema validator requires Node.js")
-    try:
-        executable = Path(selected).resolve(strict=True)
-        metadata = executable.stat(follow_symlinks=False)
-    except OSError as error:
-        raise VerificationError("Node.js executable identity could not be verified") from error
-    try:
-        executable.relative_to(ROOT)
-    except ValueError:
-        pass
-    else:
-        fail("Node.js executable must be outside the repository")
-    process_groups = {os.getegid(), *os.getgroups()}
+    exact_keys(
+        manifest,
+        {"schema", "algorithm", "domain", "operations"},
+        "Canonical exact-five schema digest manifest",
+    )
     if (
-        not executable.is_absolute()
-        or not stat.S_ISREG(metadata.st_mode)
-        or metadata.st_nlink < 1
-        or metadata.st_mode & stat.S_IWOTH
-        or (
-            metadata.st_mode & stat.S_IWGRP
-            and metadata.st_gid in process_groups
-        )
-        or not os.access(executable, os.X_OK)
+        manifest["schema"] != CANONICAL_SCHEMA_DIGEST_MANIFEST_ID
+        or manifest["algorithm"] != CANONICAL_SCHEMA_DIGEST_ALGORITHM
+        or manifest["domain"] != CANONICAL_SCHEMA_DIGEST_DOMAIN
+        or not isinstance(manifest["operations"], list)
+        or len(manifest["operations"]) != len(EXACT_OPERATIONS)
     ):
-        fail("Node.js executable is not a trusted regular executable")
-    return executable, executable_state(executable)
+        fail("Canonical exact-five schema digest manifest failed its closed contract")
+    for expected_operation, entry in zip(EXACT_OPERATIONS, manifest["operations"]):
+        exact_keys(
+            entry,
+            {"operation", "input_schema_sha256", "output_schema_sha256"},
+            "Canonical exact-five schema digest manifest operation",
+        )
+        if (
+            entry["operation"] != expected_operation
+            or not isinstance(entry["input_schema_sha256"], str)
+            or not SHA256_HEX.fullmatch(entry["input_schema_sha256"])
+            or not isinstance(entry["output_schema_sha256"], str)
+            or not SHA256_HEX.fullmatch(entry["output_schema_sha256"])
+        ):
+            fail("Canonical exact-five schema digest manifest failed its closed contract")
+    return manifest
 
 
 def validate_canonical_tool_schemas(tools: list[Any]) -> None:
-    """Compare advertised schemas with the canonical exact-five schema material."""
+    """Compare advertised schemas with the source-bound exact-five digest manifest."""
     try:
         tool_bytes = json.dumps(
             tools,
@@ -441,56 +450,50 @@ def validate_canonical_tool_schemas(tools: list[Any]) -> None:
     except (TypeError, ValueError, RecursionError) as error:
         raise VerificationError("Advertised tool schemas are not bounded JSON") from error
     if len(tool_bytes) < 1 or len(tool_bytes) > MAX_SCHEMA_BYTES:
-        fail("Advertised tool schemas are outside the canonical validator byte bound")
-    validator = ROOT / CANONICAL_SCHEMA_VALIDATOR_RELATIVE
-    node, node_before = trusted_node_executable()
-    environment = {
-        "CI": "1",
-        "LANG": "C",
-        "LC_ALL": "C",
-        "NO_COLOR": "1",
-        "TZ": "UTC",
-    }
-    try:
-        completed = subprocess.run(
-            [str(node), str(validator), "--stdin-tools-list-only"],
-            cwd=ROOT,
-            check=False,
-            input=tool_bytes,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            env=environment,
-            timeout=10,
+        fail("Advertised tool schemas are outside the canonical digest byte bound")
+    if not isinstance(tools, list) or len(tools) != len(EXACT_OPERATIONS):
+        fail(
+            "Advertised input or output schemas differ from the canonical exact-five schemas"
         )
-    except (OSError, subprocess.SubprocessError) as error:
-        raise VerificationError(
-            "Canonical exact-five schema validator could not be executed"
-        ) from error
-    try:
-        node_after = executable_state(node)
-    except OSError as error:
-        raise VerificationError("Node.js executable identity could not be rechecked") from error
-    if node_after != node_before:
-        fail("Node.js executable changed during canonical schema validation")
-    if (
-        len(completed.stdout) > MAX_SCHEMA_VALIDATOR_OUTPUT_BYTES
-        or len(completed.stderr) > MAX_SCHEMA_VALIDATOR_OUTPUT_BYTES
-    ):
-        fail("Canonical exact-five schema validator exceeded its output bound")
-    if completed.stderr != b"":
-        fail("Canonical exact-five schema validator wrote to stderr")
-    result = parse_json_bytes(completed.stdout, "Canonical exact-five schema validation")
-    exact_keys(
-        result,
-        {"schema", "valid"},
-        "Canonical exact-five schema validation",
-    )
-    if (
-        result["schema"] != CANONICAL_SCHEMA_VALIDATION_ID
-        or result["valid"] is not True
-        or completed.returncode != 0
-    ):
-        fail("Advertised input or output schemas differ from the canonical exact-five schemas")
+    by_operation: dict[str, dict[str, Any]] = {}
+    for tool in tools:
+        if (
+            not isinstance(tool, dict)
+            or not isinstance(tool.get("name"), str)
+            or tool["name"] in by_operation
+            or not isinstance(tool.get("inputSchema"), dict)
+            or not isinstance(tool.get("outputSchema"), dict)
+        ):
+            fail(
+                "Advertised input or output schemas differ from the canonical exact-five schemas"
+            )
+        by_operation[tool["name"]] = tool
+    if set(by_operation) != set(EXACT_OPERATIONS):
+        fail(
+            "Advertised input or output schemas differ from the canonical exact-five schemas"
+        )
+
+    manifest = canonical_tool_schema_manifest()
+    for entry in manifest["operations"]:
+        operation = entry["operation"]
+        tool = by_operation[operation]
+        if (
+            canonical_tool_schema_sha256(
+                operation,
+                "input",
+                tool["inputSchema"],
+            )
+            != entry["input_schema_sha256"]
+            or canonical_tool_schema_sha256(
+                operation,
+                "output",
+                tool["outputSchema"],
+            )
+            != entry["output_schema_sha256"]
+        ):
+            fail(
+                "Advertised input or output schemas differ from the canonical exact-five schemas"
+            )
 
 
 def object_member(value: Any, key: str, label: str) -> dict[str, Any]:

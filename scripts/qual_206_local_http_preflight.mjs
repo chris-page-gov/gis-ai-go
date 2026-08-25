@@ -86,7 +86,7 @@ const GIT_CONFIG_ARGUMENTS = Object.freeze([
 const SOURCE_MATERIAL_PATHS = Object.freeze([
   "scripts/qual_206_local_http_preflight.mjs",
   "scripts/qual_206_verify_local_http_preflight.py",
-  "scripts/qual_206_validate_local_http_schemas.mjs",
+  "schemas/qual-206-exact-five-tool-schema-digests.v1.json",
   "schemas/qual-206-local-http-transport-preflight.schema.json",
   "schemas/qual-206-local-http-private-capture-v1.schema.json",
   "artifacts/okf/manifest.json",

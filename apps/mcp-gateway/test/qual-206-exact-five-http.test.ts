@@ -1098,7 +1098,7 @@ test(
   async () => {
     const result = await runExternalLocalHttpSuite();
     assert.equal(result.stderr, "");
-    assert.match(result.stdout, /\btests 10\b/u);
-    assert.match(result.stdout, /\bpass 10\b/u);
+    assert.match(result.stdout, /\btests 11\b/u);
+    assert.match(result.stdout, /\bpass 11\b/u);
   },
 );

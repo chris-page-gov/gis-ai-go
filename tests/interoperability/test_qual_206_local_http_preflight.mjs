@@ -27,6 +27,11 @@ import {
 } from "../../packages/evidence/dist/src/index.js";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
+const SCHEMA_DIGEST_MANIFEST_PATH = join(
+  ROOT,
+  "schemas",
+  "qual-206-exact-five-tool-schema-digests.v1.json",
+);
 const EXACT_OPERATIONS = Object.freeze([
   "catalogue.search",
   "catalogue.describe",
@@ -35,6 +40,24 @@ const EXACT_OPERATIONS = Object.freeze([
   "evidence.inspect",
 ]);
 const SCHEMA_VALIDATION_ID = "gis-ai-go.qual-206-local-http-schema-validation.v1";
+
+function printSchemaDigests(...additionalArguments) {
+  return spawnSync(
+    process.execPath,
+    [
+      "scripts/qual_206_validate_local_http_schemas.mjs",
+      "--print-schema-digests",
+      ...additionalArguments,
+    ],
+    {
+      cwd: ROOT,
+      encoding: "utf8",
+      env: { ...process.env, CI: "1", NO_COLOR: "1" },
+      stdio: ["ignore", "pipe", "pipe"],
+      timeout: 10_000,
+    },
+  );
+}
 
 function validateAdvertisedToolSchemas(tools) {
   return spawnSync(
@@ -92,6 +115,26 @@ function replayPrivateCapture(capture) {
     },
   );
 }
+
+test("derives the committed exact-five schema digest manifest from runtime constants", () => {
+  const manifest = JSON.parse(readFileSync(SCHEMA_DIGEST_MANIFEST_PATH, "utf8"));
+  const result = printSchemaDigests();
+  assert.equal(result.error, undefined);
+  assert.equal(result.signal, null);
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.stderr, "");
+  assert.equal(result.stdout, `${JSON.stringify(manifest)}\n`);
+
+  const extraArgument = printSchemaDigests("unexpected");
+  assert.equal(extraArgument.error, undefined);
+  assert.equal(extraArgument.signal, null);
+  assert.equal(extraArgument.status, 2);
+  assert.equal(extraArgument.stdout, "");
+  assert.equal(
+    extraArgument.stderr,
+    "QUAL-206 local HTTP schema validation failed closed.\n",
+  );
+});
 
 test(
   "captures the exact-five synthetic capability journey through a real loopback HTTP socket",

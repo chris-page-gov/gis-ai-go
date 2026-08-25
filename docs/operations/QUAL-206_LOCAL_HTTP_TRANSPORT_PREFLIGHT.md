@@ -63,21 +63,22 @@ checks and by `complete_runtime_source_binding: false`.
 - Real-socket collector: `scripts/qual_206_local_http_preflight.mjs`
 - Offline replay verifier:
   `scripts/qual_206_verify_local_http_preflight.py`
-- Canonical exact-five schema bridge:
-  `scripts/qual_206_validate_local_http_schemas.mjs`
+- Immutable canonical schema-digest manifest:
+  `schemas/qual-206-exact-five-tool-schema-digests.v1.json`
 - Test-only child launcher:
   `apps/mcp-gateway/test/fixtures/qual-206-exact-five-http-server.mjs`
 
 The collector reuses the same output contracts and deterministic fixture facts as
 the canonical exact-five STDIO lane. The verifier independently parses the raw
-JSON-RPC and audit bytes. It passes the raw `tools/list` result through a bounded
-offline bridge to the canonical exact-five comparator, so both advertised input
-and output schemas must equal the canonical material before any result is
-accepted. It then validates tool outputs, compares resource content with the
-governed OKF artefact, checks evidence references, recomputes both captured
-idempotency-key digests independently and recomputes all published facts. The
-public projection retains only the successful/aborted booleans; neither raw keys
-nor their digests are published.
+JSON-RPC and audit bytes. Python independently checks all ten domain-separated
+canonical schema identities against the immutable committed manifest before any
+result is accepted. Node tests bind that manifest to `EXPECTED_TOOL_SCHEMAS`.
+Replay launches no external Node process and does not weaken executable trust. It
+then validates tool outputs, compares resource content with the governed OKF
+artefact, checks evidence references, recomputes both captured idempotency-key
+digests independently and recomputes all published facts. The public projection
+retains only the successful/aborted booleans; neither raw keys nor their digests
+are published.
 
 ## Focused development gate
 

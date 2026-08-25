@@ -342,7 +342,7 @@
           "prefixItems": [
             {"allOf": [{"$ref": "#/$defs/material"}, {"properties": {"path": {"const": "scripts/qual_206_local_http_preflight.mjs"}}}]},
             {"allOf": [{"$ref": "#/$defs/material"}, {"properties": {"path": {"const": "scripts/qual_206_verify_local_http_preflight.py"}}}]},
-            {"allOf": [{"$ref": "#/$defs/material"}, {"properties": {"path": {"const": "scripts/qual_206_validate_local_http_schemas.mjs"}}}]},
+            {"allOf": [{"$ref": "#/$defs/material"}, {"properties": {"path": {"const": "schemas/qual-206-exact-five-tool-schema-digests.v1.json"}}}]},
             {"allOf": [{"$ref": "#/$defs/material"}, {"properties": {"path": {"const": "schemas/qual-206-local-http-transport-preflight.schema.json"}}}]},
             {"allOf": [{"$ref": "#/$defs/material"}, {"properties": {"path": {"const": "schemas/qual-206-local-http-private-capture-v1.schema.json"}}}]},
             {"allOf": [{"$ref": "#/$defs/material"}, {"properties": {"path": {"const": "artifacts/okf/manifest.json"}}}]},
