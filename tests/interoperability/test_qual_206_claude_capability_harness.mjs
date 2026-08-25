@@ -115,6 +115,8 @@ function dependencies(scenario = "positive") {
     authStatus: (_command, environment) => {
       assert.equal(environment.CLAUDE_CODE_SIMPLE, undefined);
       assert.equal(environment.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC, "1");
+      assert.equal(environment.MCP_PROTOCOL_NEGOTIATION, "auto");
+      assert.equal(environment.MCP_SDK_GENERATION, "v2");
       return {
         api_provider: "firstParty",
         auth_method: "claude.ai",
@@ -259,6 +261,16 @@ macRuntimeTest(POSITIVE_TEST_NAME, async (t) => {
   for (const credential of CREDENTIALS) {
     const index = server.args.indexOf(credential);
     assert.ok(index > 0 && server.args[index - 1] === "-u", credential);
+  }
+  for (const clientOnlyVariable of [
+    "MCP_PROTOCOL_NEGOTIATION",
+    "MCP_SDK_GENERATION",
+  ]) {
+    const index = server.args.indexOf(clientOnlyVariable);
+    assert.ok(
+      index > 0 && server.args[index - 1] === "-u",
+      clientOnlyVariable,
+    );
   }
 });
 

@@ -18,6 +18,7 @@ The launcher and observer enforce all of these conditions:
 - a clean detached checkout whose `HEAD` is the exact local `origin/main` commit;
 - the accepted Claude Code `2.1.245` executable identity;
 - the pinned current model identifier `claude-sonnet-5`;
+- the documented Claude v2 MCP runtime with automatic modern/legacy-era probing;
 - one MCP server advertising only `catalogue.search` and no resources;
 - no Claude built-in tools, `dontAsk` permission mode, one tool-use turn and the
   required final text-only turn;
@@ -74,6 +75,14 @@ The preferred route uses the repository owner's normal Claude first-party login.
 Run `claude auth login` interactively if `claude auth status --json` says that the
 client is logged out. This user action is required because the harness neither
 handles nor stores login credentials.
+
+Claude Code has separate MCP runtime generations and negotiation modes. The
+capability launcher pins `MCP_SDK_GENERATION=v2` and
+`MCP_PROTOCOL_NEGOTIATION=auto`, matching the accepted strict-modern transport
+observation. This keeps `server/discover` and the final MCP `2026-07-28` session
+available on the model-task path; it is invocation-local configuration, not a
+gateway activation switch and is not forwarded into the fixture's closed child
+environment.
 
 For first-party login authentication, unset recognised credential variables before
 the run. Do not use `--bare`: the exact 2.1.245 client reports that bare mode does

@@ -129,6 +129,10 @@ const RECOGNISED_CREDENTIAL_VARIABLES = Object.freeze([
   "GOOGLE_APPLICATION_CREDENTIALS",
   "AZURE_CLIENT_SECRET",
 ]);
+const CLAUDE_CLIENT_ONLY_MCP_VARIABLES = Object.freeze([
+  "MCP_PROTOCOL_NEGOTIATION",
+  "MCP_SDK_GENERATION",
+]);
 const SAFE_PARENT_ENVIRONMENT = Object.freeze([
   "HOME",
   "LANG",
@@ -739,6 +743,8 @@ function closedClaudeEnvironment(authKind, environment, extra = {}) {
     CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1",
     CLAUDE_CODE_SKIP_PROMPT_HISTORY: "1",
     ENABLE_CLAUDEAI_MCP_SERVERS: "false",
+    MCP_PROTOCOL_NEGOTIATION: "auto",
+    MCP_SDK_GENERATION: "v2",
     MCP_TIMEOUT: "10000",
     MCP_TOOL_TIMEOUT: "60000",
     ...extra,
@@ -860,7 +866,10 @@ function mcpConfiguration(
           "-p",
           NETWORK_SANDBOX_PROFILE,
           "/usr/bin/env",
-          ...RECOGNISED_CREDENTIAL_VARIABLES.flatMap((name) => ["-u", name]),
+          ...[
+            ...RECOGNISED_CREDENTIAL_VARIABLES,
+            ...CLAUDE_CLIENT_ONLY_MCP_VARIABLES,
+          ].flatMap((name) => ["-u", name]),
           `${CAPTURE_FLAG}=1`,
           `${NETWORK_SANDBOX_FLAG}=${NETWORK_SANDBOX}`,
           `${HOST_ATTESTATION_FLAG}=${HOST_ATTESTATION}`,

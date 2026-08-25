@@ -72,6 +72,10 @@ const HOST_ATTESTATION = "outer-harness-spawn-executable";
 const CAPTURE_FLAG = "GIS_AI_GO_QUAL_206_EVENT_CAPTURE";
 const SERVER_FLAG = "GIS_AI_GO_QUAL_206_EXACT_FIVE_STDIO";
 const SOURCE_COMMIT_VARIABLE = "GIS_AI_GO_QUAL_206_SOURCE_COMMIT";
+const CLAUDE_CLIENT_ONLY_MCP_VARIABLES = Object.freeze([
+  "MCP_PROTOCOL_NEGOTIATION",
+  "MCP_SDK_GENERATION",
+]);
 const SERVER_AUTHORITY = "--exact-five-stdio-conformance-only";
 const READINESS_SCENARIO = "independent-host";
 const CAPABILITY_SCENARIO = "claude-host-002";
@@ -1056,6 +1060,11 @@ function startObserver(options) {
     process.env[HOST_ATTESTATION_VARIABLE] !== HOST_ATTESTATION
   )) {
     fail("capability observation requires its bounded outer controls");
+  }
+  if (capabilityMode && CLAUDE_CLIENT_ONLY_MCP_VARIABLES.some(
+    (name) => process.env[name] !== undefined,
+  )) {
+    fail("capability observer received a Claude-client-only MCP variable");
   }
   const scenario = capabilityMode ? CAPABILITY_SCENARIO : READINESS_SCENARIO;
   const rootBefore = validatePrivateDirectory(options.captureRoot, "capture root");
