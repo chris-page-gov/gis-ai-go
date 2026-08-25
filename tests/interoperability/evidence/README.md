@@ -62,6 +62,23 @@ was used. The 24 August default-negotiation observation remains byte-exact and i
 not relabelled; raw logs, profile data and process identities remain private and
 local.
 
+The additive
+[`Claude Code 2.1.245 strict-modern STDIO readiness summary`](claude-code-2.1.245-modern-stdio-readiness-2026-08-25.json)
+records a fresh observation after the macOS parent-executable binding repair reached
+protected `main` at commit `e905c632724ecc9d13b13452fee37328e75cc2a4`, tree
+`c611ba2d86dcefb541814e5cd4ab3345dd8745b6`. The exact installed binary reported
+`2.1.245 (Claude Code)` and `Connected`. The same two-session MCP `2026-07-28`
+journey passed independent replay with zero provider traffic, pending requests,
+anomalies or stderr. Repository, gateway-image and provenance assurance passed in
+[run 32868256571](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32868256571),
+and all CodeQL analyses passed in
+[run 32868252219](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32868252219).
+The public projection is path-free and preserves the 2.1.241 schema and evidence
+digests as historical lineage. It proves transport readiness only: capability,
+the exact-five journey, remote HTTP evidence, provider use, registration,
+activation, deployment and release remain incomplete or unexercised. Raw capture,
+client output, profile data and local identities remain owner-only and unpublished.
+
 The
 [`protected-main local HTTP transport preflight`](local-http-transport-preflight-2026-08-25.json)
 is a separate path-free projection from exact protected-main commit

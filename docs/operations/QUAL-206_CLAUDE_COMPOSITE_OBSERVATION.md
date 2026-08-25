@@ -4,19 +4,19 @@ This runbook covers a private, credential-free transport observation of Claude
 Code against the inactive strict-modern GIS AI GO fixture. It does not replace the
 exact 14-request conformance journey and does not score host capability.
 
-The accepted Claude Code `2.1.241` evidence supports MCP `2026-07-28`, but its
-modern STDIO negotiation uses two direct child processes. The first is a disposable
-`server/discover` probe; the second is the modern session. A single-process
-collector with fixed output paths cannot represent that behaviour safely. The
-locally installed `2.1.245` binary retains those protocol markers but changes the
-macOS process-name evidence described below.
+The accepted Claude Code `2.1.241` and `2.1.245` evidence supports MCP
+`2026-07-28`, but modern STDIO negotiation uses two direct child processes. The
+first is a disposable `server/discover` probe; the second is the modern session. A
+single-process collector with fixed output paths cannot represent that behaviour
+safely. Version `2.1.245` also changes the macOS process-name evidence described
+below.
 
 ## Source-by-source decision matrix
 
 | Source | Supported finding | Implementation consequence | Disposition |
 | --- | --- | --- | --- |
 | Local Claude Code `2.1.241` binary | The binary contains the final `2026-07-28` protocol, `server/discover` handling and automatic negotiation. In automatic mode it launches a disposable discovery process before the modern session. | Capture two direct Claude children under one run identity; do not reuse fixed output paths. | Supported and implemented additively. |
-| Local Claude Code `2.1.245` binary and failed-closed preflight | On macOS, `ps -o comm=` now reports the immediate parent as the basename `claude`, rather than the absolute versioned executable path used by `2.1.241`. The binary still contains the `2026-07-28`, `server/discover`, v2 and automatic-negotiation markers. | Treat `ps` as the first bounded process-name check. Enumerate that exact PID's mapped `txt` files with fixed `/usr/sbin/lsof`, bind each candidate's device, inode and size to the reopened canonical regular file, then accept only one whose byte length and SHA-256 equal the independently supplied expected identity. | Compatibility repair implemented; a new protected-main observation is still required and no `2.1.245` readiness claim is made here. |
+| Local Claude Code `2.1.245` binary, failed-closed preflight and accepted rerun | On macOS, `ps -o comm=` now reports the immediate parent as the basename `claude`, rather than the absolute versioned executable path used by `2.1.241`. The binary retains the `2026-07-28`, `server/discover`, v2 and automatic-negotiation markers. | Treat `ps` as the first bounded process-name check. Enumerate that exact PID's mapped `txt` files with fixed `/usr/sbin/lsof`, bind each candidate's device, inode and size to the reopened canonical regular file, then accept only one whose byte length and SHA-256 equal the independently supplied expected identity. | Compatibility repair merged and independently replayed from protected `main`; transport readiness accepted with capability unscored. |
 | [Official Claude MCP runtime documentation](https://code.claude.com/docs/en/mcp#MCP-client-runtimes) | The v2 runtime is available from Claude Code `2.1.232`; modern STDIO negotiation is selected with `MCP_PROTOCOL_NEGOTIATION=auto`. | Pin `MCP_SDK_GENERATION=v2` and `MCP_PROTOCOL_NEGOTIATION=auto` in the isolated observation environment. | Supported and required for this observation. |
 | [Official Claude environment-variable reference](https://code.claude.com/docs/en/env-vars) | Claude runtime and non-essential traffic controls can be set per invocation. | Use a disposable profile and an allowlisted invocation environment; do not change normal Claude settings. | Supported and required for isolation. |
 | [MCP `2026-07-28` release](https://blog.modelcontextprotocol.io/posts/2026-07-28/) | `server/discover` is the optional stateless opening for the final protocol. | Require one successful negotiation probe and a second session with no legacy `initialize`. | Supported protocol target. |
@@ -42,9 +42,10 @@ The private diagnostic established that the same immediate PID had the versioned
 binary mapped as a text executable. The repair uses `lsof` only to discover bounded
 candidate mappings. Each reopened path must retain that mapping's device, inode and
 size throughout stable hashing; the pre-recorded byte length and digest remain
-authoritative, and zero or more than one matching canonical file fails closed. Do
-not relabel that diagnostic as transport readiness. Run a fresh observation with a
-new root and run identity only after this repair reaches protected `main`.
+authoritative, and zero or more than one matching canonical file fails closed. The
+failed diagnostic remains private and is not relabelled as transport readiness. The
+accepted rerun described below used a new private root and run identity only after
+the repair reached protected `main`.
 
 ## Composite observation contract
 
@@ -84,7 +85,7 @@ and fails closed. The first failed-closed exact-main attempt established this
 distinction: the discovery child used `SIGTERM`, while the completed modern
 `tools/list` child used `SIGINT`.
 
-## Accepted protected-main observation
+## Accepted 2.1.241 protected-main observation
 
 On 25 August 2026, one fresh credential-free `claude mcp list` observation ran
 from clean, detached protected-main commit
@@ -114,6 +115,36 @@ provider, remote HTTP host, registration, activation, deployment or release. The
 earlier default-negotiation result remains a separate historical record and is not
 relabelled.
 
+## Accepted 2.1.245 protected-main observation
+
+On 25 August 2026, a further credential-free `claude mcp list` observation ran
+from clean, detached protected-main commit
+`e905c632724ecc9d13b13452fee37328e75cc2a4`, tree
+`c611ba2d86dcefb541814e5cd4ab3345dd8745b6`, after the macOS parent-identity
+repair merged. That source passed repository assurance, producer and independent
+gateway derivation, byte comparison, Pages and gateway provenance in GitHub
+Actions run `32868256571`, and CodeQL in run `32868252219`.
+
+The exact Claude Code `2.1.245` binary was `376109392` bytes with SHA-256
+`9f7c2260251765a18d0b35198669dacc1912f6e8129a3b01f6b58d93365ff1f1`.
+It reported `Connected`. Independent offline replay accepted one contract-valid
+MCP `2026-07-28` `server/discover` probe and one separate contract-valid
+`tools/list` session. Both sessions recorded zero provider transports, guarded API
+invocations, aborted calls, ledger events, reported errors, pending requests,
+anomalies and stderr. No observer or fixture process remained.
+
+The invocation used a disposable profile, a closed credential-free child
+environment and the documented controls for non-essential traffic, background
+tasks, tool search, claude.ai MCP servers and subprocess credential scrubbing. The
+path-free
+[`2.1.245 public readiness summary`](../../tests/interoperability/evidence/claude-code-2.1.245-modern-stdio-readiness-2026-08-25.json)
+publishes only allowlisted fields and digests. Raw events, manifests, client output,
+profile data, run and session identities, process IDs and local paths remain
+owner-only and local. This is strict-modern STDIO transport readiness only. It
+does not score capability or exercise an exact-five journey, model task, tool call,
+resource read, provider, remote HTTP host, registration, activation, deployment or
+release. The accepted 2.1.241 result remains byte-exact historical lineage.
+
 ## Repository assurance
 
 Build the gateway contracts, then run the observer and independent verifier tests:
@@ -125,7 +156,8 @@ pnpm --filter @gis-ai-go/tool-registry run build
 node --test tests/interoperability/test_qual_206_claude_stdio_observer.mjs
 uv run --locked --cache-dir .uv-cache python -m unittest \
   tests.contract.test_qual_206_claude_composite_observation \
-  tests.contract.test_qual_206_claude_composite_stdio_readiness
+  tests.contract.test_qual_206_claude_composite_stdio_readiness \
+  tests.contract.test_qual_206_claude_composite_stdio_readiness_v2
 pnpm run validate:contracts
 ```
 

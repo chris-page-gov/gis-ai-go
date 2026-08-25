@@ -16,20 +16,20 @@ The supported target active set is exactly `catalogue.search`,
 - retain the repository-local STDIO and client/version matrix bound to the
   protected-main v3 inspection-receipt runtime as preflight only;
 - preserve the source-bound Claude Code `2.1.204` result and the additive `2.1.241`
-  protocol observation separately from capability scoring; that exact observation
-  offered MCP `2025-11-25` and cannot close the strict `2026-07-28` desktop-host
-  gate, and remains a byte-exact historical default-negotiation record;
+  default-negotiation observation separately from capability scoring; that exact
+  observation offered MCP `2025-11-25` and cannot close the strict `2026-07-28`
+  desktop-host gate, and remains a byte-exact historical record;
 - preserve the accepted exact-five local demonstration on protected `main` and use
   its fixed-provider, temporary-state boundary for colleague-facing explanation;
 - retain the protected-main strict-modern summary compiler, exact event collector
   and replay verifier whose synthetic client cannot promote itself into an
   independent-host capability pass;
 - retain the merged bounded two-process observer and independent verifier for
-  Claude Code `2.1.241` automatic modern negotiation without changing the
-  exact-sequence collector or scoring host capability;
-- accept the separately verified MCP `2026-07-28` Claude desktop-STDIO result as
-  transport readiness only, with capability and exact-five source binding still
-  false;
+  Claude Code automatic modern negotiation without changing the exact-sequence
+  collector or scoring host capability;
+- accept the separately verified MCP `2026-07-28` Claude Code `2.1.241` and
+  `2.1.245` desktop-STDIO results as transport readiness only, with capability and
+  exact-five source binding still false;
 - retain the accepted fail-closed real-socket loopback HTTP exact-five preflight,
   whose owner-only raw capture remains local and whose independent path-free
   projection keeps remote-host acceptance false and capability unscored;
@@ -338,11 +338,11 @@ or release is claimed.
 
 ## Next
 
-1. Preserve the verified Claude Code `2.1.241` strict-modern transport summary, its
-   separate historical default-negotiation record and the accepted protected-main
-   loopback HTTP projection. Complete the bounded capability pack and remaining
-   remote-HTTP host evidence without widening any transport result into a capability
-   claim.
+1. Preserve the verified Claude Code `2.1.241` and `2.1.245` strict-modern transport
+   summaries, the separate historical default-negotiation record and the accepted
+   protected-main loopback HTTP projection. Complete the bounded capability pack
+   and remaining remote-HTTP host evidence without widening any transport result
+   into a capability claim.
 2. Retain the exact protected-main UBI, independent-derivation and provenance
    evidence from runs `32760872035` and `32760871684`; rebuild and repeat it after
    every later source-changing activation or release commit.
@@ -370,10 +370,10 @@ or release is claimed.
   transcripts, deterministic local host fixtures and the pinned SDK clients do not
   establish independent live major-host capability. The retained 24 August Claude
   Code `2.1.241` default-negotiation observation remains an explained historical
-  `2025-11-25` result. The separate 25 August v2 automatic-negotiation observation
-  establishes strict MCP `2026-07-28` desktop-STDIO transport readiness, but it made
-  no model task or tool call and does not complete the capability pack or remote-HTTP
-  host evidence.
+  `2025-11-25` result. The separate 25 August v2 automatic-negotiation observations
+  for exact Claude Code `2.1.241` and `2.1.245` establish strict MCP `2026-07-28`
+  desktop-STDIO transport readiness, but neither involved a model task or tool
+  call, and neither completes the capability pack or remote-HTTP host evidence.
   Security, accessibility, governed ingress/storage admission, retention/disposal
   and host-specific lifecycle evidence remain activation gates.
 - Direct routes and MCP transports now exist on protected `main`, but the
@@ -488,6 +488,19 @@ or release is claimed.
   that exact component and retained database, not a claim of no vulnerabilities. The
   candidate remains repository-only and blocked; no publication, provider call,
   deployment, registration, activation, tag or release is claimed;
+
+- Claude Code `2.1.245` strict-modern STDIO readiness: the
+  [path-free source-bound summary](tests/interoperability/evidence/claude-code-2.1.245-modern-stdio-readiness-2026-08-25.json)
+  records a credential-free `mcp list` observation after the macOS parent-identity
+  repair reached exact protected-main commit
+  `e905c632724ecc9d13b13452fee37328e75cc2a4`. Claude completed a contract-valid
+  MCP `2026-07-28` `server/discover` probe and a separate successful `tools/list`
+  session. Independent replay accepted both, all provider, egress, pending-request,
+  anomaly, error and stderr counters were zero, and no observer or fixture remained.
+  This is transport readiness only: capability, exact-five operations and
+  remote-HTTP evidence remain incomplete. The raw capture and client output remain
+  owner-only and local, while the 2.1.241 schema and result remain byte-exact
+  historical lineage;
 
 - Claude Code `2.1.241` strict-modern STDIO readiness: the
   [path-free source-bound summary](tests/interoperability/evidence/claude-code-2.1.241-modern-stdio-readiness-2026-08-25.json)
