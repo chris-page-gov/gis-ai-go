@@ -5,12 +5,21 @@ gateway has empty production activation arrays and readiness remains `503`.
 
 QUAL-206 may exercise the explicit local host-conformance seam with exactly
 `catalogue.search`, `catalogue.describe`, the public catalogue resource and the
-record resource. The gateway test suite also starts a separately named, test-only
-real subprocess around the unregistered governed assembly. That fixture discovers
-the exact five candidate operations, reads the catalogue and evidence resources,
-uses only an injected deterministic provider response and exercises all seven
-suspension scenarios through operating-system pipes. Neither seam is production
-activation or a public MCP service.
+record resource. The gateway test suite also starts separately named, test-only
+real subprocesses around the unregistered governed assembly. The fixtures discover
+the exact five candidate operations, read the catalogue and evidence resources,
+use only an injected deterministic provider response and exercise all seven
+suspension scenarios through operating-system pipes and a loopback HTTP listener.
+Neither seam is production activation or a public MCP service.
+
+The real-socket HTTP collector and its independent private-capture replay are
+described in the
+[local HTTP transport preflight runbook](../../docs/operations/QUAL-206_LOCAL_HTTP_TRANSPORT_PREFLIGHT.md).
+The resulting classification remains local, non-live and capability-unscored;
+remote-host acceptance is false.
+The normal gateway suite also routes the owner-only capture and independent
+verifier regressions, including safe Git object resolution, atomic public-output
+finalisation and process-group cleanup for a timed-out nested runner.
 
 Run the deterministic, minimised-telemetry harness with:
 

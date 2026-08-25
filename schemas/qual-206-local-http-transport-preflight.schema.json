@@ -1,0 +1,471 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:qual-206-local-http-transport-preflight:v1",
+  "title": "QUAL-206 local HTTP transport preflight",
+  "description": "A closed, path-free public projection of one real-socket loopback HTTP transport preflight. It cannot score a model or independent remote host.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "schema_contract",
+    "evidence_classification",
+    "status",
+    "observed_at",
+    "source",
+    "runtime",
+    "transport",
+    "candidate",
+    "journey",
+    "validation",
+    "execution",
+    "claims",
+    "verification",
+    "limitations",
+    "boundary"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gis-ai-go.qual-206-local-http-transport-preflight.v1"
+    },
+    "schema_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {
+          "const": "schemas/qual-206-local-http-transport-preflight.schema.json"
+        },
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "evidence_classification": {
+      "const": "local-http-transport-preflight"
+    },
+    "status": {
+      "const": "loopback-http-transport-pass-capability-unscored"
+    },
+    "observed_at": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["started", "completed"],
+      "properties": {
+        "started": {"type": "string", "format": "date-time"},
+        "completed": {"type": "string", "format": "date-time"}
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository",
+        "commit",
+        "tree",
+        "checkout_scope",
+        "working_tree_clean",
+        "complete_runtime_source_binding"
+      ],
+      "properties": {
+        "repository": {"const": "chris-page-gov/gis-ai-go"},
+        "commit": {"$ref": "#/$defs/gitObject"},
+        "tree": {"$ref": "#/$defs/gitObject"},
+        "checkout_scope": {"const": "local-worktree"},
+        "working_tree_clean": {"const": true},
+        "complete_runtime_source_binding": {"const": false}
+      }
+    },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["node_version", "mcp_server_version", "fixture_process"],
+      "properties": {
+        "node_version": {"type": "string", "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$"},
+        "mcp_server_version": {"const": "2.0.0"},
+        "fixture_process": {"const": "direct-child"}
+      }
+    },
+    "transport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "protocol",
+        "protocol_version",
+        "address_class",
+        "ephemeral_port",
+        "listener_created",
+        "listener_closed",
+        "tls_exercised",
+        "endpoint_published",
+        "request_count",
+        "response_count",
+        "remote_host_acceptance"
+      ],
+      "properties": {
+        "kind": {"const": "operating-system-loopback-http"},
+        "protocol": {"const": "http"},
+        "protocol_version": {"const": "2026-07-28"},
+        "address_class": {"const": "ipv4-loopback"},
+        "ephemeral_port": {"const": true},
+        "listener_created": {"const": true},
+        "listener_closed": {"const": true},
+        "tls_exercised": {"const": false},
+        "endpoint_published": {"const": false},
+        "request_count": {"const": 14},
+        "response_count": {"const": 13},
+        "remote_host_acceptance": {"const": false}
+      }
+    },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "state",
+        "production_registration",
+        "operations",
+        "resources"
+      ],
+      "properties": {
+        "state": {"const": "candidate-unregistered"},
+        "production_registration": {"const": false},
+        "operations": {"$ref": "#/$defs/exactOperations"},
+        "resources": {"$ref": "#/$defs/exactResources"}
+      }
+    },
+    "journey": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requests",
+        "tool_checks",
+        "resource_checks",
+        "cancellation",
+        "unsupported_method"
+      ],
+      "properties": {
+        "requests": {
+          "type": "array",
+          "minItems": 14,
+          "maxItems": 14,
+          "prefixItems": [
+            {"allOf": [{"$ref": "#/$defs/requestCheck"}, {"properties": {"ordinal": {"const": 1}, "method": {"const": "server/discover"}, "subject": {"const": "not-applicable"}, "semantic": {"const": "discover-pass"}, "response_sha256": {"$ref": "#/$defs/sha256"}, "response_bytes": {"type": "integer", "minimum": 1}}}]},
+            {"allOf": [{"$ref": "#/$defs/requestCheck"}, {"properties": {"ordinal": {"const": 2}, "method": {"const": "tools/list"}, "subject": {"const": "not-applicable"}, "semantic": {"const": "tools-list-pass"}, "response_sha256": {"$ref": "#/$defs/sha256"}, "response_bytes": {"type": "integer", "minimum": 1}}}]},
+            {"allOf": [{"$ref": "#/$defs/requestCheck"}, {"properties": {"ordinal": {"const": 3}, "method": {"const": "resources/list"}, "subject": {"const": "not-applicable"}, "semantic": {"const": "resources-list-pass"}, "response_sha256": {"$ref": "#/$defs/sha256"}, "response_bytes": {"type": "integer", "minimum": 1}}}]},
+            {"allOf": [{"$ref": "#/$defs/requestCheck"}, {"properties": {"ordinal": {"const": 4}, "method": {"const": "resources/templates/list"}, "subject": {"const": "not-applicable"}, "semantic": {"const": "resource-templates-pass"}, "response_sha256": {"$ref": "#/$defs/sha256"}, "response_bytes": {"type": "integer", "minimum": 1}}}]},
+            {"allOf": [{"$ref": "#/$defs/requestCheck"}, {"properties": {"ordinal": {"const": 5}, "method": {"const": "resources/read"}, "subject": {"const": "catalogue.public"}, "semantic": {"const": "resource-read-pass"}, "response_sha256": {"$ref": "#/$defs/sha256"}, "response_bytes": {"type": "integer", "minimum": 1}}}]},
+            {"allOf": [{"$ref": "#/$defs/requestCheck"}, {"properties": {"ordinal": {"const": 6}, "method": {"const": "resources/read"}, "subject": {"const": "catalogue.record"}, "semantic": {"const": "resource-read-pass"}, "response_sha256": {"$ref": "#/$defs/sha256"}, "response_bytes": {"type": "integer", "minimum": 1}}}]},
+            {"allOf": [{"$ref": "#/$defs/requestCheck"}, {"properties": {"ordinal": {"const": 7}, "method": {"const": "tools/call"}, "subject": {"const": "catalogue.search"}, "semantic": {"const": "tool-success-pass"}, "response_sha256": {"$ref": "#/$defs/sha256"}, "response_bytes": {"type": "integer", "minimum": 1}}}]},
+            {"allOf": [{"$ref": "#/$defs/requestCheck"}, {"properties": {"ordinal": {"const": 8}, "method": {"const": "tools/call"}, "subject": {"const": "catalogue.describe"}, "semantic": {"const": "tool-success-pass"}, "response_sha256": {"$ref": "#/$defs/sha256"}, "response_bytes": {"type": "integer", "minimum": 1}}}]},
+            {"allOf": [{"$ref": "#/$defs/requestCheck"}, {"properties": {"ordinal": {"const": 9}, "method": {"const": "tools/call"}, "subject": {"const": "selection.resolve"}, "semantic": {"const": "tool-success-pass"}, "response_sha256": {"$ref": "#/$defs/sha256"}, "response_bytes": {"type": "integer", "minimum": 1}}}]},
+            {"allOf": [{"$ref": "#/$defs/requestCheck"}, {"properties": {"ordinal": {"const": 10}, "method": {"const": "tools/call"}, "subject": {"const": "data.query"}, "semantic": {"const": "tool-success-pass"}, "response_sha256": {"$ref": "#/$defs/sha256"}, "response_bytes": {"type": "integer", "minimum": 1}}}]},
+            {"allOf": [{"$ref": "#/$defs/requestCheck"}, {"properties": {"ordinal": {"const": 11}, "method": {"const": "tools/call"}, "subject": {"const": "evidence.inspect"}, "semantic": {"const": "tool-success-pass"}, "response_sha256": {"$ref": "#/$defs/sha256"}, "response_bytes": {"type": "integer", "minimum": 1}}}]},
+            {"allOf": [{"$ref": "#/$defs/requestCheck"}, {"properties": {"ordinal": {"const": 12}, "method": {"const": "resources/read"}, "subject": {"const": "evidence.receipt"}, "semantic": {"const": "resource-read-pass"}, "response_sha256": {"$ref": "#/$defs/sha256"}, "response_bytes": {"type": "integer", "minimum": 1}}}]},
+            {"allOf": [{"$ref": "#/$defs/requestCheck"}, {"properties": {"ordinal": {"const": 13}, "method": {"const": "tools/call"}, "subject": {"const": "data.query"}, "semantic": {"const": "client-aborted-no-completed-evidence"}, "response_sha256": {"type": "null"}, "response_bytes": {"const": 0}}}]},
+            {"allOf": [{"$ref": "#/$defs/requestCheck"}, {"properties": {"ordinal": {"const": 14}, "method": {"const": "prompts/list"}, "subject": {"const": "not-applicable"}, "semantic": {"const": "expected-method-not-found"}, "response_sha256": {"$ref": "#/$defs/sha256"}, "response_bytes": {"type": "integer", "minimum": 1}}}]}
+          ],
+          "items": false
+        },
+        "tool_checks": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "prefixItems": [
+            {"allOf": [{"$ref": "#/$defs/toolCheck"}, {"properties": {"operation": {"const": "catalogue.search"}}}]},
+            {"allOf": [{"$ref": "#/$defs/toolCheck"}, {"properties": {"operation": {"const": "catalogue.describe"}}}]},
+            {"allOf": [{"$ref": "#/$defs/toolCheck"}, {"properties": {"operation": {"const": "selection.resolve"}}}]},
+            {"allOf": [{"$ref": "#/$defs/toolCheck"}, {"properties": {"operation": {"const": "data.query"}}}]},
+            {"allOf": [{"$ref": "#/$defs/toolCheck"}, {"properties": {"operation": {"const": "evidence.inspect"}}}]}
+          ],
+          "items": false
+        },
+        "resource_checks": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "prefixItems": [
+            {"allOf": [{"$ref": "#/$defs/resourceCheck"}, {"properties": {"resource": {"const": "catalogue.public"}}}]},
+            {"allOf": [{"$ref": "#/$defs/resourceCheck"}, {"properties": {"resource": {"const": "catalogue.record"}}}]},
+            {"allOf": [{"$ref": "#/$defs/resourceCheck"}, {"properties": {"resource": {"const": "evidence.receipt"}}}]}
+          ],
+          "items": false
+        },
+        "cancellation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "mechanism",
+            "provider_started",
+            "provider_aborted",
+            "response_observed",
+            "successful_request_completed_evidence_created",
+            "completed_evidence_created",
+            "private_idempotency_attribution_replayed"
+          ],
+          "properties": {
+            "mechanism": {"const": "http-request-abort-signal"},
+            "provider_started": {"const": true},
+            "provider_aborted": {"const": true},
+            "response_observed": {"const": false},
+            "successful_request_completed_evidence_created": {"const": true},
+            "completed_evidence_created": {"const": false},
+            "private_idempotency_attribution_replayed": {"const": true}
+          }
+        },
+        "unsupported_method": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["method", "error_code", "error_message", "contract_valid"],
+          "properties": {
+            "method": {"const": "prompts/list"},
+            "error_code": {"const": -32601},
+            "error_message": {"const": "Method not found"},
+            "contract_valid": {"const": true}
+          }
+        }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "canonical_tool_schema_validator",
+        "protocol_discovery_exact",
+        "operation_set_exact",
+        "tool_schemas_exact",
+        "resource_set_exact",
+        "resource_template_set_exact",
+        "openapi_callable_contract_exact",
+        "readiness_operation_parity",
+        "all_tool_results_contract_valid",
+        "all_tool_results_structured_plain_text_parity",
+        "all_tools_direct_api_operation_parity",
+        "all_resource_results_contract_valid",
+        "guarded_provider_egress_invocations",
+        "unexpected_audit_events",
+        "stdout_bytes",
+        "stderr_bytes"
+      ],
+      "properties": {
+        "canonical_tool_schema_validator": {
+          "const": "scripts/qual_206_exact_five_event_collector.mjs#advertisedToolSchemasExact"
+        },
+        "protocol_discovery_exact": {"const": true},
+        "operation_set_exact": {"const": true},
+        "tool_schemas_exact": {"const": true},
+        "resource_set_exact": {"const": true},
+        "resource_template_set_exact": {"const": true},
+        "openapi_callable_contract_exact": {"const": true},
+        "readiness_operation_parity": {"const": true},
+        "all_tool_results_contract_valid": {"const": true},
+        "all_tool_results_structured_plain_text_parity": {"const": true},
+        "all_tools_direct_api_operation_parity": {"const": true},
+        "all_resource_results_contract_valid": {"const": true},
+        "guarded_provider_egress_invocations": {"const": 0},
+        "unexpected_audit_events": {"const": 0},
+        "stdout_bytes": {"const": 0},
+        "stderr_bytes": {"const": 0}
+      }
+    },
+    "execution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tool_calls",
+        "resource_reads",
+        "provider_transport_calls",
+        "aborted_provider_calls",
+        "ledger_events",
+        "reported_errors"
+      ],
+      "properties": {
+        "tool_calls": {"const": 6},
+        "resource_reads": {"const": 3},
+        "provider_transport_calls": {"const": 2},
+        "aborted_provider_calls": {"const": 1},
+        "ledger_events": {"const": 4},
+        "reported_errors": {"const": 0}
+      }
+    },
+    "claims": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "transport_preflight",
+        "claude_code_capability",
+        "model_capability",
+        "live_provider_readiness",
+        "remote_host_acceptance",
+        "registration_performed",
+        "activation_performed",
+        "deployment_performed",
+        "release_performed"
+      ],
+      "properties": {
+        "transport_preflight": {"const": true},
+        "claude_code_capability": {"const": "unscored"},
+        "model_capability": {"const": "unscored"},
+        "live_provider_readiness": {"const": "not-exercised"},
+        "remote_host_acceptance": {"const": false},
+        "registration_performed": {"const": false},
+        "activation_performed": {"const": false},
+        "deployment_performed": {"const": false},
+        "release_performed": {"const": false}
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "offline_verifier_path",
+        "source_materials",
+        "private_capture_schema_path",
+        "private_capture_sha256",
+        "private_capture_replayed",
+        "private_capture_published",
+        "observation_sha256",
+        "schema_verified",
+        "public_projection_path_free"
+      ],
+      "properties": {
+        "offline_verifier_path": {
+          "const": "scripts/qual_206_verify_local_http_preflight.py"
+        },
+        "private_capture_schema_path": {
+          "const": "schemas/qual-206-local-http-private-capture-v1.schema.json"
+        },
+        "private_capture_sha256": {"$ref": "#/$defs/sha256"},
+        "private_capture_replayed": {"const": true},
+        "private_capture_published": {"const": false},
+        "source_materials": {
+          "type": "array",
+          "minItems": 12,
+          "maxItems": 12,
+          "prefixItems": [
+            {"allOf": [{"$ref": "#/$defs/material"}, {"properties": {"path": {"const": "scripts/qual_206_local_http_preflight.mjs"}}}]},
+            {"allOf": [{"$ref": "#/$defs/material"}, {"properties": {"path": {"const": "scripts/qual_206_verify_local_http_preflight.py"}}}]},
+            {"allOf": [{"$ref": "#/$defs/material"}, {"properties": {"path": {"const": "scripts/qual_206_validate_local_http_schemas.mjs"}}}]},
+            {"allOf": [{"$ref": "#/$defs/material"}, {"properties": {"path": {"const": "schemas/qual-206-local-http-transport-preflight.schema.json"}}}]},
+            {"allOf": [{"$ref": "#/$defs/material"}, {"properties": {"path": {"const": "schemas/qual-206-local-http-private-capture-v1.schema.json"}}}]},
+            {"allOf": [{"$ref": "#/$defs/material"}, {"properties": {"path": {"const": "artifacts/okf/manifest.json"}}}]},
+            {"allOf": [{"$ref": "#/$defs/material"}, {"properties": {"path": {"const": "artifacts/okf/okf-bundle.json"}}}]},
+            {"allOf": [{"$ref": "#/$defs/material"}, {"properties": {"path": {"const": "scripts/qual_206_exact_five_event_collector.mjs"}}}]},
+            {"allOf": [{"$ref": "#/$defs/material"}, {"properties": {"path": {"const": "tests/interoperability/fixtures/qual_206_provider_egress_guard.mjs"}}}]},
+            {"allOf": [{"$ref": "#/$defs/material"}, {"properties": {"path": {"const": "apps/mcp-gateway/test/fixtures/qual-206-exact-five-http-server.mjs"}}}]},
+            {"allOf": [{"$ref": "#/$defs/material"}, {"properties": {"path": {"const": "apps/mcp-gateway/dist/src/mcp-http.js"}}}]},
+            {"allOf": [{"$ref": "#/$defs/material"}, {"properties": {"path": {"const": "apps/mcp-gateway/dist/src/mcp-server.js"}}}]}
+          ],
+          "items": false
+        },
+        "observation_sha256": {"$ref": "#/$defs/sha256"},
+        "schema_verified": {"const": true},
+        "public_projection_path_free": {"const": true}
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "prefixItems": [
+        {"const": "The listener accepted requests only on the local IPv4 loopback interface."},
+        {"const": "No TLS, secure tunnel, public hostname or independent remote host was exercised."},
+        {"const": "The client was a deterministic synthetic harness; no model client or Claude Code task was exercised."},
+        {"const": "Only the deterministic fixture provider was used; no live provider, external network or provider credential was exercised."},
+        {"const": "This preflight does not authorise or prove registration, activation, deployment or release."}
+      ],
+      "items": false
+    },
+    "boundary": {
+      "const": "Local operating-system loopback HTTP transport preflight only. A deterministic synthetic client completed the exact-five MCP 2026-07-28 discovery, listing, resource, tool, cancellation and unsupported-method journey over one ephemeral local socket. Remote-host acceptance is false; Claude Code and model capability remain unscored; no live provider was exercised; and no registration, activation, deployment or release was performed."
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "gitObject": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "exactOperations": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "prefixItems": [
+        {"const": "catalogue.search"},
+        {"const": "catalogue.describe"},
+        {"const": "selection.resolve"},
+        {"const": "data.query"},
+        {"const": "evidence.inspect"}
+      ],
+      "items": false
+    },
+    "exactResources": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "prefixItems": [
+        {"const": "catalogue.public"},
+        {"const": "catalogue.record"},
+        {"const": "evidence.receipt"}
+      ],
+      "items": false
+    },
+    "requestCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ordinal",
+        "method",
+        "subject",
+        "semantic",
+        "request_bytes",
+        "request_sha256",
+        "response_bytes",
+        "response_sha256",
+        "contract_valid"
+      ],
+      "properties": {
+        "ordinal": {"type": "integer", "minimum": 1, "maximum": 14},
+        "method": {"type": "string"},
+        "subject": {"type": "string"},
+        "semantic": {"type": "string"},
+        "request_bytes": {"type": "integer", "minimum": 1, "maximum": 65536},
+        "request_sha256": {"$ref": "#/$defs/sha256"},
+        "response_bytes": {"type": "integer", "minimum": 0, "maximum": 1048576},
+        "response_sha256": {"oneOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]},
+        "contract_valid": {"const": true}
+      }
+    },
+    "toolCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["operation", "output_contract_valid", "structured_plain_text_parity", "direct_api_operation_parity", "deterministic_result_valid", "receipt_present"],
+      "properties": {
+        "operation": {"type": "string"},
+        "output_contract_valid": {"const": true},
+        "structured_plain_text_parity": {"const": true},
+        "direct_api_operation_parity": {"const": true},
+        "deterministic_result_valid": {"const": true},
+        "receipt_present": {"const": true}
+      }
+    },
+    "resourceCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["resource", "content_contract_valid", "deterministic_result_valid"],
+      "properties": {
+        "resource": {"type": "string"},
+        "content_contract_valid": {"const": true},
+        "deterministic_result_valid": {"const": true}
+      }
+    },
+    "material": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9._/-]+$"
+        },
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    }
+  }
+}

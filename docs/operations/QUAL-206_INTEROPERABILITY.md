@@ -4,7 +4,8 @@
   the current final telemetry wrapper;
   a test-only real-process exact-five STDIO transcript, cancellation, unsupported
   traffic and all seven suspension scenarios pass locally with zero live-provider
-  calls;
+  calls; an additive test-only real-socket loopback HTTP journey and private-capture
+  replay also pass locally without claiming remote-host or model capability;
   four 20 August independent-host readiness attempts remain documented as not
   ready; a separate 23 August Claude Code legacy STDIO observation from exact
   protected-main bytes passed initialisation and tool listing, with capability
@@ -60,6 +61,14 @@ structured/plain-text parity. Separate subprocesses prove cancellation, unsuppor
 traffic and all seven subtractive suspension scenarios. This fixture is not a
 shipped entrypoint, manual host procedure, live-provider result or activation
 mechanism.
+
+The additive
+[local HTTP transport preflight](QUAL-206_LOCAL_HTTP_TRANSPORT_PREFLIGHT.md)
+drives the same exact-five journey through a test-only `127.0.0.1` listener. Its
+owner-only raw capture and independent offline verifier can produce a path-free
+projection only from a clean exact checkout. It does not exercise TLS, a public
+hostname, an independent remote host, a model, a live provider or a deployment, so
+it cannot close the remote-HTTP or capability gates.
 
 ## Build the exact local candidate
 
