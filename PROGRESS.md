@@ -30,6 +30,9 @@ The supported target active set is exactly `catalogue.search`,
 - accept the separately verified MCP `2026-07-28` Claude desktop-STDIO result as
   transport readiness only, with capability and exact-five source binding still
   false;
+- add a fail-closed real-socket loopback HTTP exact-five preflight with owner-only
+  raw capture and independent path-free projection, while keeping remote-host and
+  model capability false;
 - complete the remaining bounded desktop capability and remote-HTTP host evidence;
   and
 - continue provider-neutral preparation, but stop before public provisioning or
@@ -295,14 +298,21 @@ or release is claimed.
   while
   [run 32814265321](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32814265321)
   passed CodeQL for Actions, JavaScript/TypeScript and Python; and
-- a fresh credential-free `claude mcp list` observation from that exact protected
-  `main` completed one contract-valid MCP `2026-07-28` `server/discover` probe and
-  one separate contract-valid `tools/list` session. Independent offline replay
-  accepted both sessions with zero provider calls, pending requests, anomalies or
-  stderr, and no observer or fixture remained. The path-free public summary records
-  transport readiness only; capability, the exact-five operation journey, remote
-  HTTP evidence, registration, activation, deployment and release remain incomplete;
-  and
+- a fresh credential-free `claude mcp list` observation completed one
+  contract-valid MCP `2026-07-28` `server/discover` probe and one separate
+  contract-valid `tools/list` session. Independent offline replay accepted both
+  sessions with zero provider calls, pending requests, anomalies or stderr, and no
+  observer or fixture remained. The evidence merged through
+  [pull request 65](https://github.com/chris-page-gov/gis-ai-go/pull/65) as
+  protected-main commit `5967825a27224d51558b57a5cb583d4baa610810`.
+  [Run 32819344456](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32819344456)
+  passed repository, producer and independent gateway-image derivation, byte
+  comparison, attestation verification, Pages and gateway provenance assurance;
+  [run 32819344472](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32819344472)
+  passed CodeQL for Actions, JavaScript/TypeScript and Python. The path-free public
+  summary records transport readiness only; capability, the exact-five operation
+  journey, remote HTTP evidence, registration, activation, deployment and release
+  remain incomplete; and
 - acceptance requires both the complete local repository gate, which passes on this
   matrix tree, and the protected pull-request and protected-main checks. The local
   gate includes all TypeScript and Python tests, 27 real-browser tests,
@@ -312,9 +322,10 @@ or release is claimed.
 ## Next
 
 1. Preserve the verified Claude Code `2.1.241` strict-modern transport summary and
-   its separate historical default-negotiation record. Complete the bounded
-   capability pack and remaining remote-HTTP host evidence without widening the
-   accepted transport result into a capability claim.
+   its separate historical default-negotiation record. Merge the local real-socket
+   HTTP harness, then capture its durable projection from the resulting exact
+   protected main. Complete the bounded capability pack and remaining remote-HTTP
+   host evidence without widening either transport result into a capability claim.
 2. Retain the exact protected-main UBI, independent-derivation and provenance
    evidence from runs `32760872035` and `32760871684`; rebuild and repeat it after
    every later source-changing activation or release commit.

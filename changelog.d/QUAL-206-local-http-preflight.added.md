@@ -1,0 +1,1 @@
+- Added a fail-closed exact-five local HTTP transport preflight, real-socket fixture and independent evidence verification with tree-bound source provenance, atomic no-overwrite public output and process-tree cleanup, without promoting it to remote-host or model-capability acceptance.

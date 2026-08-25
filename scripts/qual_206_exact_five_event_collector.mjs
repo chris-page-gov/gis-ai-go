@@ -89,6 +89,10 @@ const RAW_IDEMPOTENCY_KEY_TEXT = /gis-ai-go:ik:v1:[0-9a-f]{64}/u;
 const NESTED_PERCENT_ESCAPE = /%(?:25)*([0-9a-f]{2})/giu;
 const RECEIPT_ID = /^gis-ai-go:evidence-receipt:sha256:[0-9a-f]{64}$/u;
 const SCENARIO = "independent-host";
+const TOOL_SCHEMA_DIGEST_MANIFEST_SCHEMA =
+  "gis-ai-go.qual-206-exact-five-tool-schema-digests.v1";
+const TOOL_SCHEMA_DIGEST_ALGORITHM = "sha256";
+const TOOL_SCHEMA_DIGEST_DOMAIN = "gis-ai-go.qual-206-exact-five-tool-schema.v1";
 const EXACT_OPERATIONS = Object.freeze([
   "catalogue.search",
   "catalogue.describe",
@@ -135,6 +139,38 @@ const EXPECTED_TOOL_SCHEMAS = Object.freeze({
     outputSchema: MCP_EVIDENCE_OUTPUT_SCHEMAS["evidence.inspect"],
   }),
 });
+
+function expectedToolSchemaDigest(operation, direction, schema) {
+  const material =
+    `GIS-AI-GO\0${TOOL_SCHEMA_DIGEST_DOMAIN}\0${operation}\0${direction}\0` +
+    canonicalJson(schema);
+  return createHash("sha256").update(material, "utf8").digest("hex");
+}
+
+export function expectedToolSchemaDigests() {
+  return Object.freeze({
+    schema: TOOL_SCHEMA_DIGEST_MANIFEST_SCHEMA,
+    algorithm: TOOL_SCHEMA_DIGEST_ALGORITHM,
+    domain: TOOL_SCHEMA_DIGEST_DOMAIN,
+    operations: Object.freeze(EXACT_OPERATIONS.map((operation) => {
+      const schemas = EXPECTED_TOOL_SCHEMAS[operation];
+      return Object.freeze({
+        operation,
+        input_schema_sha256: expectedToolSchemaDigest(
+          operation,
+          "input",
+          schemas.inputSchema,
+        ),
+        output_schema_sha256: expectedToolSchemaDigest(
+          operation,
+          "output",
+          schemas.outputSchema,
+        ),
+      });
+    })),
+  });
+}
+
 const jsonSchemaValidator = new AjvJsonSchemaValidator();
 const TOOL_OUTPUT_VALIDATORS = Object.freeze(Object.fromEntries(
   Object.entries(EXPECTED_TOOL_SCHEMAS).map(([operation, schemas]) => [

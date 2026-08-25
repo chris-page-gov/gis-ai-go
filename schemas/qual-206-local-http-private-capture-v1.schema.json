@@ -1,0 +1,194 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:qual-206-local-http-private-capture:v1",
+  "title": "QUAL-206 local HTTP private capture",
+  "description": "Owner-only raw JSON-RPC, OpenAPI and audit material for independent replay of the synthetic local HTTP capability journey. This contract is private and makes no model, remote-host, provider, deployment or release claim.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "observed_at",
+    "source",
+    "source_materials",
+    "runtime",
+    "fixture",
+    "requests",
+    "openapi",
+    "readiness",
+    "audit_lines",
+    "child"
+  ],
+  "properties": {
+    "schema": {"const": "gis-ai-go.qual-206-local-http-private-capture.v1"},
+    "observed_at": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["started", "completed"],
+      "properties": {
+        "started": {"type": "string", "format": "date-time"},
+        "completed": {"type": "string", "format": "date-time"}
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository", "commit", "tree", "working_tree_clean"],
+      "properties": {
+        "repository": {"const": "chris-page-gov/gis-ai-go"},
+        "commit": {"$ref": "#/$defs/gitObject"},
+        "tree": {"$ref": "#/$defs/gitObject"},
+        "working_tree_clean": {"type": "boolean"}
+      }
+    },
+    "source_materials": {
+      "type": "array",
+      "minItems": 12,
+      "maxItems": 12,
+      "prefixItems": [
+        {"allOf": [{"$ref": "#/$defs/executedMaterial"}, {"properties": {"path": {"const": "scripts/qual_206_local_http_preflight.mjs"}}}]},
+        {"allOf": [{"$ref": "#/$defs/executedMaterial"}, {"properties": {"path": {"const": "scripts/qual_206_verify_local_http_preflight.py"}}}]},
+        {"allOf": [{"$ref": "#/$defs/executedMaterial"}, {"properties": {"path": {"const": "schemas/qual-206-exact-five-tool-schema-digests.v1.json"}}}]},
+        {"allOf": [{"$ref": "#/$defs/executedMaterial"}, {"properties": {"path": {"const": "schemas/qual-206-local-http-transport-preflight.schema.json"}}}]},
+        {"allOf": [{"$ref": "#/$defs/executedMaterial"}, {"properties": {"path": {"const": "schemas/qual-206-local-http-private-capture-v1.schema.json"}}}]},
+        {"allOf": [{"$ref": "#/$defs/executedMaterial"}, {"properties": {"path": {"const": "artifacts/okf/manifest.json"}}}]},
+        {"allOf": [{"$ref": "#/$defs/executedMaterial"}, {"properties": {"path": {"const": "artifacts/okf/okf-bundle.json"}}}]},
+        {"allOf": [{"$ref": "#/$defs/executedMaterial"}, {"properties": {"path": {"const": "scripts/qual_206_exact_five_event_collector.mjs"}}}]},
+        {"allOf": [{"$ref": "#/$defs/executedMaterial"}, {"properties": {"path": {"const": "tests/interoperability/fixtures/qual_206_provider_egress_guard.mjs"}}}]},
+        {"allOf": [{"$ref": "#/$defs/executedMaterial"}, {"properties": {"path": {"const": "apps/mcp-gateway/test/fixtures/qual-206-exact-five-http-server.mjs"}}}]},
+        {"allOf": [{"$ref": "#/$defs/executedMaterial"}, {"properties": {"path": {"const": "apps/mcp-gateway/dist/src/mcp-http.js"}}}]},
+        {"allOf": [{"$ref": "#/$defs/executedMaterial"}, {"properties": {"path": {"const": "apps/mcp-gateway/dist/src/mcp-server.js"}}}]}
+      ],
+      "items": false
+    },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["node_version", "mcp_server_version"],
+      "properties": {
+        "node_version": {"type": "string", "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$"},
+        "mcp_server_version": {"const": "2.0.0"}
+      }
+    },
+    "fixture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scenario",
+        "transport",
+        "host",
+        "port",
+        "state",
+        "production_registration"
+      ],
+      "properties": {
+        "scenario": {"const": "capability-pack"},
+        "transport": {"const": "operating-system-loopback-http"},
+        "host": {"const": "127.0.0.1"},
+        "port": {"type": "integer", "minimum": 1, "maximum": 65535},
+        "state": {"const": "candidate-unregistered"},
+        "production_registration": {"const": false}
+      }
+    },
+    "requests": {
+      "type": "array",
+      "minItems": 14,
+      "maxItems": 14,
+      "prefixItems": [
+        {"allOf": [{"$ref": "#/$defs/capturedRequest"}, {"properties": {"ordinal": {"const": 1}, "transport_outcome": {"const": "response"}}}]},
+        {"allOf": [{"$ref": "#/$defs/capturedRequest"}, {"properties": {"ordinal": {"const": 2}, "transport_outcome": {"const": "response"}}}]},
+        {"allOf": [{"$ref": "#/$defs/capturedRequest"}, {"properties": {"ordinal": {"const": 3}, "transport_outcome": {"const": "response"}}}]},
+        {"allOf": [{"$ref": "#/$defs/capturedRequest"}, {"properties": {"ordinal": {"const": 4}, "transport_outcome": {"const": "response"}}}]},
+        {"allOf": [{"$ref": "#/$defs/capturedRequest"}, {"properties": {"ordinal": {"const": 5}, "transport_outcome": {"const": "response"}}}]},
+        {"allOf": [{"$ref": "#/$defs/capturedRequest"}, {"properties": {"ordinal": {"const": 6}, "transport_outcome": {"const": "response"}}}]},
+        {"allOf": [{"$ref": "#/$defs/capturedRequest"}, {"properties": {"ordinal": {"const": 7}, "transport_outcome": {"const": "response"}}}]},
+        {"allOf": [{"$ref": "#/$defs/capturedRequest"}, {"properties": {"ordinal": {"const": 8}, "transport_outcome": {"const": "response"}}}]},
+        {"allOf": [{"$ref": "#/$defs/capturedRequest"}, {"properties": {"ordinal": {"const": 9}, "transport_outcome": {"const": "response"}}}]},
+        {"allOf": [{"$ref": "#/$defs/capturedRequest"}, {"properties": {"ordinal": {"const": 10}, "transport_outcome": {"const": "response"}}}]},
+        {"allOf": [{"$ref": "#/$defs/capturedRequest"}, {"properties": {"ordinal": {"const": 11}, "transport_outcome": {"const": "response"}}}]},
+        {"allOf": [{"$ref": "#/$defs/capturedRequest"}, {"properties": {"ordinal": {"const": 12}, "transport_outcome": {"const": "response"}}}]},
+        {"allOf": [{"$ref": "#/$defs/capturedRequest"}, {"properties": {"ordinal": {"const": 13}, "transport_outcome": {"const": "client-aborted"}, "response_json": {"type": "null"}, "response_bytes": {"const": 0}}}]},
+        {"allOf": [{"$ref": "#/$defs/capturedRequest"}, {"properties": {"ordinal": {"const": 14}, "transport_outcome": {"const": "response"}}}]}
+      ],
+      "items": false
+    },
+    "openapi": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["http_status", "content_type", "response_bytes", "response_json"],
+      "properties": {
+        "http_status": {"const": 200},
+        "content_type": {"const": "application/json"},
+        "response_bytes": {"type": "integer", "minimum": 1, "maximum": 4194304},
+        "response_json": {"type": "string", "minLength": 1, "maxLength": 4194304}
+      }
+    },
+    "readiness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["http_status", "content_type", "response_bytes", "response_json"],
+      "properties": {
+        "http_status": {"const": 200},
+        "content_type": {"const": "application/json"},
+        "response_bytes": {"type": "integer", "minimum": 1, "maximum": 65536},
+        "response_json": {"type": "string", "minLength": 1, "maxLength": 65536}
+      }
+    },
+    "audit_lines": {
+      "type": "array",
+      "minItems": 9,
+      "maxItems": 9,
+      "items": {"type": "string", "minLength": 1, "maxLength": 65536}
+    },
+    "child": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["exit_code", "signal", "stdout", "stderr", "audit_stream_complete"],
+      "properties": {
+        "exit_code": {"const": 0},
+        "signal": {"type": "null"},
+        "stdout": {"const": ""},
+        "stderr": {"const": ""},
+        "audit_stream_complete": {"const": true}
+      }
+    }
+  },
+  "$defs": {
+    "gitObject": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "executedMaterial": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256_before_execution", "sha256_after_execution"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9._/-]+$"
+        },
+        "sha256_before_execution": {"$ref": "#/$defs/sha256"},
+        "sha256_after_execution": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "capturedRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ordinal",
+        "request_json",
+        "request_bytes",
+        "response_json",
+        "response_bytes",
+        "transport_outcome"
+      ],
+      "properties": {
+        "ordinal": {"type": "integer", "minimum": 1, "maximum": 14},
+        "request_json": {"type": "string", "minLength": 1, "maxLength": 65536},
+        "request_bytes": {"type": "integer", "minimum": 1, "maximum": 65536},
+        "response_json": {"oneOf": [{"type": "string", "minLength": 1, "maxLength": 1048576}, {"type": "null"}]},
+        "response_bytes": {"type": "integer", "minimum": 0, "maximum": 1048576},
+        "transport_outcome": {"enum": ["response", "client-aborted"]}
+      }
+    }
+  }
+}

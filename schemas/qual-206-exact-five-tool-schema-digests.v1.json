@@ -1,0 +1,32 @@
+{
+  "schema": "gis-ai-go.qual-206-exact-five-tool-schema-digests.v1",
+  "algorithm": "sha256",
+  "domain": "gis-ai-go.qual-206-exact-five-tool-schema.v1",
+  "operations": [
+    {
+      "operation": "catalogue.search",
+      "input_schema_sha256": "95df389e203d3cc9e2a5a00f910a9fb76cb165c7ddeaf1023386788b41f50a5c",
+      "output_schema_sha256": "6296ef35730473d0ee67fee23534747429f2f09b3d5eef60357c8f6562614819"
+    },
+    {
+      "operation": "catalogue.describe",
+      "input_schema_sha256": "840f0828cd2e2e69492f5d81e2cf833a3853869197b49f73af448dad202abf5c",
+      "output_schema_sha256": "2efc436a9657bf388647ea0c727f15060875cc82c21f12827430465ae07460cb"
+    },
+    {
+      "operation": "selection.resolve",
+      "input_schema_sha256": "f17cd9e2e42939b9e47b3d62b2bc505957acd8d90eb7797cc2f93b16572703b4",
+      "output_schema_sha256": "1014e908ae8281b9e69a281a8a6c0c7528c3fb34848667ec3fc21897d0065b5b"
+    },
+    {
+      "operation": "data.query",
+      "input_schema_sha256": "e0937ef60b7778f5663d19ef6ae7e2f7d4adbb6e0eecb1686392bfdd03580ed7",
+      "output_schema_sha256": "dbc92e219f575cf2fe61f3f3e61f1ccd4c41a0dc27cf3c0726ec50a9e9ebe853"
+    },
+    {
+      "operation": "evidence.inspect",
+      "input_schema_sha256": "adda18ec4b5087e66113829648c3ee02554e9fa45b69b7940d5cc2debe5f2f83",
+      "output_schema_sha256": "c53cf4cee362663510f1d3f4a2538436d74dfe8cbe63922fc4ba8b4ea7cd76b1"
+    }
+  ]
+}
