@@ -1,0 +1,297 @@
+{
+  "schema": "gis-ai-go.qual-206-claude-composite-stdio-readiness.v1",
+  "schema_contract": {
+    "path": "schemas/qual-206-claude-composite-stdio-readiness.schema.json",
+    "sha256": "0999efbed9c9b4267370cf9ee0b66dfe9c36824b2b6ab9d76c3af1f87bfed930"
+  },
+  "status": "strict-modern-transport-readiness-pass-capability-unscored",
+  "observed_at": {
+    "started": "2026-08-25T06:11:58.916Z",
+    "completed": "2026-08-25T06:11:59.889Z"
+  },
+  "source": {
+    "repository": "chris-page-gov/gis-ai-go",
+    "commit": "c679b6fd8fb702572da11043d492c3e9e953ad7a",
+    "tree": "db0d120a7cadc4e9afef79fcc0536c933e809ca4",
+    "version": "0.1.0",
+    "protected_main": true,
+    "detached_checkout": true,
+    "working_tree_clean": true,
+    "local_origin_main_matched": true,
+    "assurance": {
+      "ci_run_id": 32814265378,
+      "codeql_run_id": 32814265321,
+      "repository_assurance_passed": true,
+      "gateway_image_assurance_passed": true,
+      "independent_gateway_derivation_passed": true,
+      "gateway_byte_comparison_passed": true,
+      "pages_provenance_recorded": true,
+      "gateway_provenance_recorded": true,
+      "codeql_passed": true
+    },
+    "production_registration": false,
+    "production_activation": false,
+    "public_endpoint_created": false,
+    "deployment_performed": false,
+    "release_performed": false
+  },
+  "host": {
+    "name": "Claude Code",
+    "version": "2.1.241",
+    "platform": "darwin",
+    "architecture": "arm64",
+    "binary_bytes": 325055632,
+    "binary_sha256": "1495eb7c42d3b4451f5f1cd38b6d498d22a4a38c802bc2be5c1cf1795e64820d",
+    "binary_path_published": false,
+    "command": "mcp list",
+    "host_result": "Connected",
+    "transport_readiness": "ready",
+    "capability": "unscored",
+    "model_authentication_supplied": false,
+    "model_task_requested": false,
+    "node_runtime": {
+      "version": "v26.7.0",
+      "executable_bytes": 50320,
+      "executable_sha256": "1ef99ea25fe70c9b67e7efe768ef8ee22148d3cabc703db6131b57aeb617d040",
+      "path_published": false
+    }
+  },
+  "protocol_target": {
+    "version": "2026-07-28",
+    "source_id": "S-MCP-SPEC",
+    "client_runtime": "v2",
+    "stdio_negotiation": "auto",
+    "direct_child_sessions": 2,
+    "legacy_initialize_observed": false
+  },
+  "documentation_sources": [
+    {
+      "id": "S-CLAUDE-MCP-RUNTIME",
+      "uri": "https://code.claude.com/docs/en/mcp#MCP-client-runtimes",
+      "retrieved_on": "2026-08-25",
+      "supported_finding": "Claude Code 2.1.232 or later provides the v2 MCP runtime; STDIO modern-protocol discovery requires automatic negotiation."
+    },
+    {
+      "id": "S-CLAUDE-ENVIRONMENT",
+      "uri": "https://code.claude.com/docs/en/env-vars",
+      "retrieved_on": "2026-08-25",
+      "supported_finding": "Claude Code exposes documented controls for non-essential traffic, background tasks, tool search, claude.ai MCP servers and subprocess credential scrubbing."
+    },
+    {
+      "id": "S-MCP-SPEC",
+      "uri": "https://modelcontextprotocol.io/specification/2026-07-28",
+      "retrieved_on": "2026-08-25",
+      "supported_finding": "MCP 2026-07-28 is the strict-modern protocol target exercised by the observation."
+    }
+  ],
+  "runtime_materials": [
+    {
+      "path": "scripts/qual_206_claude_stdio_observer.mjs",
+      "sha256": "a2ff43f7b478d7395ffd2b1db128284f43d25e610e436dbb2ddf9b538a764b84"
+    },
+    {
+      "path": "scripts/qual_206_exact_five_event_collector.mjs",
+      "sha256": "53f09a79cd427ca8edde2d14d4e6abcdca9df18f98d55a1ad40fc30f8f8ac795"
+    },
+    {
+      "path": "tests/interoperability/fixtures/qual_206_strict_modern_event_server.mjs",
+      "sha256": "04e274f89dc6abbb97b445e12a38a45588bd1273dbd318c0bdadb9cac6d97a98"
+    },
+    {
+      "path": "tests/interoperability/fixtures/qual_206_provider_egress_guard.mjs",
+      "sha256": "f34757b6c7c555adb37a2d5fffbb164a264a689fe603e12f25703fea8d46eafe"
+    },
+    {
+      "path": "scripts/verify_qual_206_claude_composite_observation.py",
+      "sha256": "79fd56d43ae8b644089e205a2d8fb3b0e448232a266eb00c47693f844d7fe90d"
+    },
+    {
+      "path": "schemas/qual-206-claude-composite-host-event-v1.schema.json",
+      "sha256": "3fa5d43594309ce6674da8f596ef7b55405f82a38db85458a1bbfe5b02af4dc4"
+    },
+    {
+      "path": "schemas/qual-206-claude-composite-host-event-capture-v1.schema.json",
+      "sha256": "9e8df35db3910104019d2319643a37de0dc28d6d239c8532e28c08668d162082"
+    }
+  ],
+  "sessions": [
+    {
+      "slot": "session-1",
+      "profile": "negotiation-probe",
+      "started_at": "2026-08-25T06:11:58.916Z",
+      "completed_at": "2026-08-25T06:11:59.203Z",
+      "protocol_session_status": "passed",
+      "request": {
+        "method": "server/discover",
+        "protocol_claim": "2026-07-28",
+        "request_id_kind": "string",
+        "request_id_unique": true,
+        "frame_bytes": 441,
+        "frame_sha256": "500da5f764072cc3fb71f52aebbecac2d9dc2a13f78c6fa7af8a3fbddc51791b"
+      },
+      "response": {
+        "request_method": "server/discover",
+        "outcome": "success",
+        "error_code": null,
+        "correlation": "matched",
+        "contract_valid": true,
+        "semantic": "discover-pass",
+        "duration_ms": 225.891,
+        "frame_bytes": 606,
+        "frame_sha256": "ddcbbb84d2d658b089c640c85f97b6f240b5f44d90435b37c148f5d2de68e475"
+      },
+      "closure_stimulus": "sigterm",
+      "exit_code": 0,
+      "signal": null,
+      "request_count": 1,
+      "response_count": 1,
+      "pending_request_count": 0,
+      "anomaly_count": 0,
+      "stderr_bytes": 0,
+      "stderr_event_count": 0,
+      "temporary_state_removed": true,
+      "runtime_materials_stable": true,
+      "source_checkout_stable": true,
+      "audit_counters": {
+        "guarded_api_invocations": 0,
+        "provider_transport_calls": 0,
+        "aborted_provider_calls": 0,
+        "ledger_events": 0,
+        "reported_errors": 0
+      },
+      "retained_private_evidence": {
+        "manifest_bytes": 727,
+        "manifest_sha256": "fc48f6999fa14ee9e2ddb7705ac15e22b49d8f5f9f023a660c117a10a0ac40ba",
+        "event_log_bytes": 10074,
+        "event_count": 13,
+        "last_event_sha256": "927301163f92d719f0540a24b354e41bb57407d1fd4bc9e196cb384d98f6cf3d",
+        "event_log_sha256": "f63689a0be0ede2d716bfd95ddc32462b748950c5149e45749c001ebe14f8152",
+        "raw_content_published": false
+      }
+    },
+    {
+      "slot": "session-2",
+      "profile": "modern-session",
+      "started_at": "2026-08-25T06:11:59.608Z",
+      "completed_at": "2026-08-25T06:11:59.889Z",
+      "protocol_session_status": "passed",
+      "request": {
+        "method": "tools/list",
+        "protocol_claim": "2026-07-28",
+        "request_id_kind": "integer",
+        "request_id_unique": true,
+        "frame_bytes": 412,
+        "frame_sha256": "f8a5e6c1658b62a3594bfb9b4f7e7d7b5eaafd8a7ca51901435ba803117a08e5"
+      },
+      "response": {
+        "request_method": "tools/list",
+        "outcome": "success",
+        "error_code": null,
+        "correlation": "matched",
+        "contract_valid": true,
+        "semantic": "tools-list-pass",
+        "duration_ms": 226.326792,
+        "frame_bytes": 146625,
+        "frame_sha256": "14c103b7e0c93d3851b22d6b2a4de3d497437f438fc940dae6a2dc0bc2ecb85a"
+      },
+      "closure_stimulus": "sigint",
+      "exit_code": 0,
+      "signal": null,
+      "request_count": 1,
+      "response_count": 1,
+      "pending_request_count": 0,
+      "anomaly_count": 0,
+      "stderr_bytes": 0,
+      "stderr_event_count": 0,
+      "temporary_state_removed": true,
+      "runtime_materials_stable": true,
+      "source_checkout_stable": true,
+      "audit_counters": {
+        "guarded_api_invocations": 0,
+        "provider_transport_calls": 0,
+        "aborted_provider_calls": 0,
+        "ledger_events": 0,
+        "reported_errors": 0
+      },
+      "retained_private_evidence": {
+        "manifest_bytes": 724,
+        "manifest_sha256": "0ceb0acc46fd35d9bd78e86d9c2a3f648e54b2e0a34c7d777efcb050cf009207",
+        "event_log_bytes": 10073,
+        "event_count": 13,
+        "last_event_sha256": "4fb102b9b7fa0932c403ab404de51fec947656299fd2c07b954408fb621dcf80",
+        "event_log_sha256": "0441f1353711f9b220334ff91627d4091590826e6eda158b80d48716caa3d1b8",
+        "raw_content_published": false
+      }
+    }
+  ],
+  "verification": {
+    "verifier_path": "scripts/verify_qual_206_claude_composite_observation.py",
+    "verifier_sha256": "79fd56d43ae8b644089e205a2d8fb3b0e448232a266eb00c47693f844d7fe90d",
+    "result": "passed",
+    "session_count": 2,
+    "negotiation_probe_request_count": 1,
+    "modern_session_request_count": 1,
+    "capture_verified_before_projection": true,
+    "remaining_observer_processes": 0,
+    "remaining_fixture_processes": 0,
+    "private_archive_owner_only": true,
+    "public_projection_path_free": true
+  },
+  "isolation": {
+    "disposable_profile": true,
+    "profile_root_mode": "0700",
+    "primary_configuration_mode": "0600",
+    "normal_profile_used": false,
+    "managed_settings_file_present": false,
+    "managed_mcp_file_present": false,
+    "managed_settings_drop_in_present": false,
+    "managed_preferences_domain_present": false,
+    "parent_environment_allowlisted": true,
+    "recognised_parent_credential_variables_present": 0,
+    "mcp_child_environment": "closed-credential-free",
+    "nonessential_traffic_disabled": true,
+    "background_tasks_disabled": true,
+    "tool_search_disabled": true,
+    "claude_ai_mcp_servers_disabled": true,
+    "discovery_cache_disabled": true,
+    "subprocess_credential_scrub_enabled": true,
+    "provider_egress_guard_enabled": true,
+    "private_client_output": {
+      "bytes": 872,
+      "sha256": "2516008ca4a849d0227b0db5aed712b6304fcc17aaa7ce2e0fd6efc0b0cb846f",
+      "mode": "0600",
+      "published": false
+    },
+    "raw_host_logs_published": false
+  },
+  "historical_lineage": {
+    "relationship": "preserved-historical-default-negotiation-result-not-relabelled",
+    "preserved_artifacts": [
+      {
+        "path": "schemas/qual-206-claude-code-stdio-observation.schema.json",
+        "sha256": "78b9a8071a6954028576f397c98dd0fc4b87dddbaf72654f6459407b280e2a9b"
+      },
+      {
+        "path": "tests/interoperability/evidence/claude-code-2.1.241-stdio-observation-2026-08-24.json",
+        "sha256": "d2cd72b7f16a0bafd8a7190b87b14f150b7fa975f6d70f5e779eb9ddf5f92478"
+      }
+    ]
+  },
+  "limitations": {
+    "strict_modern_transport_ready": true,
+    "capability_result_claimed": false,
+    "independent_host_capability_gate_completed": false,
+    "source_binding_ready": false,
+    "exact_five_operation_journey_exercised": false,
+    "model_task_requested": false,
+    "tool_call_observed": false,
+    "resource_read_observed": false,
+    "live_provider_called": false,
+    "remote_http_observed": false,
+    "registration_performed": false,
+    "activation_performed": false,
+    "deployment_performed": false,
+    "release_performed": false
+  },
+  "boundary": "Accepted protected-main Claude Code 2.1.241 strict-modern STDIO transport-readiness evidence only. In v2 automatic negotiation, Claude completed a contract-valid MCP 2026-07-28 server/discover probe and a separate tools/list session. No model task, tool call, resource read, exact-five operation journey, provider, remote HTTP host, registration, activation, deployment or release was exercised. Capability remains unscored, and the independent-host capability and exact-five source-binding gates remain incomplete."
+}

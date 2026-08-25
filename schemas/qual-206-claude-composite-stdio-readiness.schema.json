@@ -1,0 +1,629 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:qual-206-claude-composite-stdio-readiness:v1",
+  "title": "QUAL-206 Claude Code strict-modern STDIO readiness",
+  "description": "A closed, path-free public projection of one verified two-session Claude Code transport observation. It cannot score host capability.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "schema_contract",
+    "status",
+    "observed_at",
+    "source",
+    "host",
+    "protocol_target",
+    "documentation_sources",
+    "runtime_materials",
+    "sessions",
+    "verification",
+    "isolation",
+    "historical_lineage",
+    "limitations",
+    "boundary"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gis-ai-go.qual-206-claude-composite-stdio-readiness.v1"
+    },
+    "schema_contract": {
+      "$ref": "#/$defs/schemaContract"
+    },
+    "status": {
+      "const": "strict-modern-transport-readiness-pass-capability-unscored"
+    },
+    "observed_at": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["started", "completed"],
+      "properties": {
+        "started": {"const": "2026-08-25T06:11:58.916Z"},
+        "completed": {"const": "2026-08-25T06:11:59.889Z"}
+      }
+    },
+    "source": {
+      "$ref": "#/$defs/source"
+    },
+    "host": {
+      "$ref": "#/$defs/host"
+    },
+    "protocol_target": {
+      "$ref": "#/$defs/protocolTarget"
+    },
+    "documentation_sources": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "prefixItems": [
+        {
+          "const": {
+            "id": "S-CLAUDE-MCP-RUNTIME",
+            "uri": "https://code.claude.com/docs/en/mcp#MCP-client-runtimes",
+            "retrieved_on": "2026-08-25",
+            "supported_finding": "Claude Code 2.1.232 or later provides the v2 MCP runtime; STDIO modern-protocol discovery requires automatic negotiation."
+          }
+        },
+        {
+          "const": {
+            "id": "S-CLAUDE-ENVIRONMENT",
+            "uri": "https://code.claude.com/docs/en/env-vars",
+            "retrieved_on": "2026-08-25",
+            "supported_finding": "Claude Code exposes documented controls for non-essential traffic, background tasks, tool search, claude.ai MCP servers and subprocess credential scrubbing."
+          }
+        },
+        {
+          "const": {
+            "id": "S-MCP-SPEC",
+            "uri": "https://modelcontextprotocol.io/specification/2026-07-28",
+            "retrieved_on": "2026-08-25",
+            "supported_finding": "MCP 2026-07-28 is the strict-modern protocol target exercised by the observation."
+          }
+        }
+      ],
+      "items": false
+    },
+    "runtime_materials": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "prefixItems": [
+        {"const": {"path": "scripts/qual_206_claude_stdio_observer.mjs", "sha256": "a2ff43f7b478d7395ffd2b1db128284f43d25e610e436dbb2ddf9b538a764b84"}},
+        {"const": {"path": "scripts/qual_206_exact_five_event_collector.mjs", "sha256": "53f09a79cd427ca8edde2d14d4e6abcdca9df18f98d55a1ad40fc30f8f8ac795"}},
+        {"const": {"path": "tests/interoperability/fixtures/qual_206_strict_modern_event_server.mjs", "sha256": "04e274f89dc6abbb97b445e12a38a45588bd1273dbd318c0bdadb9cac6d97a98"}},
+        {"const": {"path": "tests/interoperability/fixtures/qual_206_provider_egress_guard.mjs", "sha256": "f34757b6c7c555adb37a2d5fffbb164a264a689fe603e12f25703fea8d46eafe"}},
+        {"const": {"path": "scripts/verify_qual_206_claude_composite_observation.py", "sha256": "79fd56d43ae8b644089e205a2d8fb3b0e448232a266eb00c47693f844d7fe90d"}},
+        {"const": {"path": "schemas/qual-206-claude-composite-host-event-v1.schema.json", "sha256": "3fa5d43594309ce6674da8f596ef7b55405f82a38db85458a1bbfe5b02af4dc4"}},
+        {"const": {"path": "schemas/qual-206-claude-composite-host-event-capture-v1.schema.json", "sha256": "9e8df35db3910104019d2319643a37de0dc28d6d239c8532e28c08668d162082"}}
+      ],
+      "items": false
+    },
+    "sessions": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "prefixItems": [
+        {
+          "allOf": [
+            {"$ref": "#/$defs/session"},
+            {
+              "properties": {
+                "slot": {"const": "session-1"},
+                "profile": {"const": "negotiation-probe"},
+                "started_at": {"const": "2026-08-25T06:11:58.916Z"},
+                "completed_at": {"const": "2026-08-25T06:11:59.203Z"},
+                "request": {
+                  "properties": {
+                    "method": {"const": "server/discover"},
+                    "request_id_kind": {"const": "string"},
+                    "frame_bytes": {"const": 441},
+                    "frame_sha256": {"const": "500da5f764072cc3fb71f52aebbecac2d9dc2a13f78c6fa7af8a3fbddc51791b"}
+                  }
+                },
+                "response": {
+                  "properties": {
+                    "request_method": {"const": "server/discover"},
+                    "semantic": {"const": "discover-pass"},
+                    "duration_ms": {"const": 225.891},
+                    "frame_bytes": {"const": 606},
+                    "frame_sha256": {"const": "ddcbbb84d2d658b089c640c85f97b6f240b5f44d90435b37c148f5d2de68e475"}
+                  }
+                },
+                "closure_stimulus": {"const": "sigterm"},
+                "retained_private_evidence": {
+                  "properties": {
+                    "manifest_bytes": {"const": 727},
+                    "manifest_sha256": {"const": "fc48f6999fa14ee9e2ddb7705ac15e22b49d8f5f9f023a660c117a10a0ac40ba"},
+                    "event_log_bytes": {"const": 10074},
+                    "event_count": {"const": 13},
+                    "last_event_sha256": {"const": "927301163f92d719f0540a24b354e41bb57407d1fd4bc9e196cb384d98f6cf3d"},
+                    "event_log_sha256": {"const": "f63689a0be0ede2d716bfd95ddc32462b748950c5149e45749c001ebe14f8152"}
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {"$ref": "#/$defs/session"},
+            {
+              "properties": {
+                "slot": {"const": "session-2"},
+                "profile": {"const": "modern-session"},
+                "started_at": {"const": "2026-08-25T06:11:59.608Z"},
+                "completed_at": {"const": "2026-08-25T06:11:59.889Z"},
+                "request": {
+                  "properties": {
+                    "method": {"const": "tools/list"},
+                    "request_id_kind": {"const": "integer"},
+                    "frame_bytes": {"const": 412},
+                    "frame_sha256": {"const": "f8a5e6c1658b62a3594bfb9b4f7e7d7b5eaafd8a7ca51901435ba803117a08e5"}
+                  }
+                },
+                "response": {
+                  "properties": {
+                    "request_method": {"const": "tools/list"},
+                    "semantic": {"const": "tools-list-pass"},
+                    "duration_ms": {"const": 226.326792},
+                    "frame_bytes": {"const": 146625},
+                    "frame_sha256": {"const": "14c103b7e0c93d3851b22d6b2a4de3d497437f438fc940dae6a2dc0bc2ecb85a"}
+                  }
+                },
+                "closure_stimulus": {"const": "sigint"},
+                "retained_private_evidence": {
+                  "properties": {
+                    "manifest_bytes": {"const": 724},
+                    "manifest_sha256": {"const": "0ceb0acc46fd35d9bd78e86d9c2a3f648e54b2e0a34c7d777efcb050cf009207"},
+                    "event_log_bytes": {"const": 10073},
+                    "event_count": {"const": 13},
+                    "last_event_sha256": {"const": "4fb102b9b7fa0932c403ab404de51fec947656299fd2c07b954408fb621dcf80"},
+                    "event_log_sha256": {"const": "0441f1353711f9b220334ff91627d4091590826e6eda158b80d48716caa3d1b8"}
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "items": false
+    },
+    "verification": {
+      "$ref": "#/$defs/verification"
+    },
+    "isolation": {
+      "$ref": "#/$defs/isolation"
+    },
+    "historical_lineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["relationship", "preserved_artifacts"],
+      "properties": {
+        "relationship": {
+          "const": "preserved-historical-default-negotiation-result-not-relabelled"
+        },
+        "preserved_artifacts": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "prefixItems": [
+            {"const": {"path": "schemas/qual-206-claude-code-stdio-observation.schema.json", "sha256": "78b9a8071a6954028576f397c98dd0fc4b87dddbaf72654f6459407b280e2a9b"}},
+            {"const": {"path": "tests/interoperability/evidence/claude-code-2.1.241-stdio-observation-2026-08-24.json", "sha256": "d2cd72b7f16a0bafd8a7190b87b14f150b7fa975f6d70f5e779eb9ddf5f92478"}}
+          ],
+          "items": false
+        }
+      }
+    },
+    "limitations": {
+      "$ref": "#/$defs/limitations"
+    },
+    "boundary": {
+      "const": "Accepted protected-main Claude Code 2.1.241 strict-modern STDIO transport-readiness evidence only. In v2 automatic negotiation, Claude completed a contract-valid MCP 2026-07-28 server/discover probe and a separate tools/list session. No model task, tool call, resource read, exact-five operation journey, provider, remote HTTP host, registration, activation, deployment or release was exercised. Capability remains unscored, and the independent-host capability and exact-five source-binding gates remain incomplete."
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "schemaContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {
+          "const": "schemas/qual-206-claude-composite-stdio-readiness.schema.json"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository",
+        "commit",
+        "tree",
+        "version",
+        "protected_main",
+        "detached_checkout",
+        "working_tree_clean",
+        "local_origin_main_matched",
+        "assurance",
+        "production_registration",
+        "production_activation",
+        "public_endpoint_created",
+        "deployment_performed",
+        "release_performed"
+      ],
+      "properties": {
+        "repository": {"const": "chris-page-gov/gis-ai-go"},
+        "commit": {"const": "c679b6fd8fb702572da11043d492c3e9e953ad7a"},
+        "tree": {"const": "db0d120a7cadc4e9afef79fcc0536c933e809ca4"},
+        "version": {"const": "0.1.0"},
+        "protected_main": {"const": true},
+        "detached_checkout": {"const": true},
+        "working_tree_clean": {"const": true},
+        "local_origin_main_matched": {"const": true},
+        "assurance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "ci_run_id",
+            "codeql_run_id",
+            "repository_assurance_passed",
+            "gateway_image_assurance_passed",
+            "independent_gateway_derivation_passed",
+            "gateway_byte_comparison_passed",
+            "pages_provenance_recorded",
+            "gateway_provenance_recorded",
+            "codeql_passed"
+          ],
+          "properties": {
+            "ci_run_id": {"const": 32814265378},
+            "codeql_run_id": {"const": 32814265321},
+            "repository_assurance_passed": {"const": true},
+            "gateway_image_assurance_passed": {"const": true},
+            "independent_gateway_derivation_passed": {"const": true},
+            "gateway_byte_comparison_passed": {"const": true},
+            "pages_provenance_recorded": {"const": true},
+            "gateway_provenance_recorded": {"const": true},
+            "codeql_passed": {"const": true}
+          }
+        },
+        "production_registration": {"const": false},
+        "production_activation": {"const": false},
+        "public_endpoint_created": {"const": false},
+        "deployment_performed": {"const": false},
+        "release_performed": {"const": false}
+      }
+    },
+    "host": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "version",
+        "platform",
+        "architecture",
+        "binary_bytes",
+        "binary_sha256",
+        "binary_path_published",
+        "command",
+        "host_result",
+        "transport_readiness",
+        "capability",
+        "model_authentication_supplied",
+        "model_task_requested",
+        "node_runtime"
+      ],
+      "properties": {
+        "name": {"const": "Claude Code"},
+        "version": {"const": "2.1.241"},
+        "platform": {"const": "darwin"},
+        "architecture": {"const": "arm64"},
+        "binary_bytes": {"const": 325055632},
+        "binary_sha256": {"const": "1495eb7c42d3b4451f5f1cd38b6d498d22a4a38c802bc2be5c1cf1795e64820d"},
+        "binary_path_published": {"const": false},
+        "command": {"const": "mcp list"},
+        "host_result": {"const": "Connected"},
+        "transport_readiness": {"const": "ready"},
+        "capability": {"const": "unscored"},
+        "model_authentication_supplied": {"const": false},
+        "model_task_requested": {"const": false},
+        "node_runtime": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["version", "executable_bytes", "executable_sha256", "path_published"],
+          "properties": {
+            "version": {"const": "v26.7.0"},
+            "executable_bytes": {"const": 50320},
+            "executable_sha256": {"const": "1ef99ea25fe70c9b67e7efe768ef8ee22148d3cabc703db6131b57aeb617d040"},
+            "path_published": {"const": false}
+          }
+        }
+      }
+    },
+    "protocolTarget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version",
+        "source_id",
+        "client_runtime",
+        "stdio_negotiation",
+        "direct_child_sessions",
+        "legacy_initialize_observed"
+      ],
+      "properties": {
+        "version": {"const": "2026-07-28"},
+        "source_id": {"const": "S-MCP-SPEC"},
+        "client_runtime": {"const": "v2"},
+        "stdio_negotiation": {"const": "auto"},
+        "direct_child_sessions": {"const": 2},
+        "legacy_initialize_observed": {"const": false}
+      }
+    },
+    "request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "method",
+        "protocol_claim",
+        "request_id_kind",
+        "request_id_unique",
+        "frame_bytes",
+        "frame_sha256"
+      ],
+      "properties": {
+        "method": {"enum": ["server/discover", "tools/list"]},
+        "protocol_claim": {"const": "2026-07-28"},
+        "request_id_kind": {"enum": ["string", "integer"]},
+        "request_id_unique": {"const": true},
+        "frame_bytes": {"type": "integer", "minimum": 1, "maximum": 1048576},
+        "frame_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "request_method",
+        "outcome",
+        "error_code",
+        "correlation",
+        "contract_valid",
+        "semantic",
+        "duration_ms",
+        "frame_bytes",
+        "frame_sha256"
+      ],
+      "properties": {
+        "request_method": {"enum": ["server/discover", "tools/list"]},
+        "outcome": {"const": "success"},
+        "error_code": {"type": "null"},
+        "correlation": {"const": "matched"},
+        "contract_valid": {"const": true},
+        "semantic": {"enum": ["discover-pass", "tools-list-pass"]},
+        "duration_ms": {"type": "number", "minimum": 0, "maximum": 120000},
+        "frame_bytes": {"type": "integer", "minimum": 1, "maximum": 1048576},
+        "frame_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "auditCounters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "guarded_api_invocations",
+        "provider_transport_calls",
+        "aborted_provider_calls",
+        "ledger_events",
+        "reported_errors"
+      ],
+      "properties": {
+        "guarded_api_invocations": {"const": 0},
+        "provider_transport_calls": {"const": 0},
+        "aborted_provider_calls": {"const": 0},
+        "ledger_events": {"const": 0},
+        "reported_errors": {"const": 0}
+      }
+    },
+    "retainedPrivateEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "manifest_bytes",
+        "manifest_sha256",
+        "event_log_bytes",
+        "event_count",
+        "last_event_sha256",
+        "event_log_sha256",
+        "raw_content_published"
+      ],
+      "properties": {
+        "manifest_bytes": {"type": "integer", "minimum": 1, "maximum": 65536},
+        "manifest_sha256": {"$ref": "#/$defs/sha256"},
+        "event_log_bytes": {"type": "integer", "minimum": 1, "maximum": 8388608},
+        "event_count": {"type": "integer", "minimum": 3, "maximum": 512},
+        "last_event_sha256": {"$ref": "#/$defs/sha256"},
+        "event_log_sha256": {"$ref": "#/$defs/sha256"},
+        "raw_content_published": {"const": false}
+      }
+    },
+    "session": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "slot",
+        "profile",
+        "started_at",
+        "completed_at",
+        "protocol_session_status",
+        "request",
+        "response",
+        "closure_stimulus",
+        "exit_code",
+        "signal",
+        "request_count",
+        "response_count",
+        "pending_request_count",
+        "anomaly_count",
+        "stderr_bytes",
+        "stderr_event_count",
+        "temporary_state_removed",
+        "runtime_materials_stable",
+        "source_checkout_stable",
+        "audit_counters",
+        "retained_private_evidence"
+      ],
+      "properties": {
+        "slot": {"enum": ["session-1", "session-2"]},
+        "profile": {"enum": ["negotiation-probe", "modern-session"]},
+        "started_at": {"type": "string", "format": "date-time"},
+        "completed_at": {"type": "string", "format": "date-time"},
+        "protocol_session_status": {"const": "passed"},
+        "request": {"$ref": "#/$defs/request"},
+        "response": {"$ref": "#/$defs/response"},
+        "closure_stimulus": {"enum": ["sigterm", "sigint"]},
+        "exit_code": {"const": 0},
+        "signal": {"type": "null"},
+        "request_count": {"const": 1},
+        "response_count": {"const": 1},
+        "pending_request_count": {"const": 0},
+        "anomaly_count": {"const": 0},
+        "stderr_bytes": {"const": 0},
+        "stderr_event_count": {"const": 0},
+        "temporary_state_removed": {"const": true},
+        "runtime_materials_stable": {"const": true},
+        "source_checkout_stable": {"const": true},
+        "audit_counters": {"$ref": "#/$defs/auditCounters"},
+        "retained_private_evidence": {"$ref": "#/$defs/retainedPrivateEvidence"}
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "verifier_path",
+        "verifier_sha256",
+        "result",
+        "session_count",
+        "negotiation_probe_request_count",
+        "modern_session_request_count",
+        "capture_verified_before_projection",
+        "remaining_observer_processes",
+        "remaining_fixture_processes",
+        "private_archive_owner_only",
+        "public_projection_path_free"
+      ],
+      "properties": {
+        "verifier_path": {"const": "scripts/verify_qual_206_claude_composite_observation.py"},
+        "verifier_sha256": {"const": "79fd56d43ae8b644089e205a2d8fb3b0e448232a266eb00c47693f844d7fe90d"},
+        "result": {"const": "passed"},
+        "session_count": {"const": 2},
+        "negotiation_probe_request_count": {"const": 1},
+        "modern_session_request_count": {"const": 1},
+        "capture_verified_before_projection": {"const": true},
+        "remaining_observer_processes": {"const": 0},
+        "remaining_fixture_processes": {"const": 0},
+        "private_archive_owner_only": {"const": true},
+        "public_projection_path_free": {"const": true}
+      }
+    },
+    "isolation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "disposable_profile",
+        "profile_root_mode",
+        "primary_configuration_mode",
+        "normal_profile_used",
+        "managed_settings_file_present",
+        "managed_mcp_file_present",
+        "managed_settings_drop_in_present",
+        "managed_preferences_domain_present",
+        "parent_environment_allowlisted",
+        "recognised_parent_credential_variables_present",
+        "mcp_child_environment",
+        "nonessential_traffic_disabled",
+        "background_tasks_disabled",
+        "tool_search_disabled",
+        "claude_ai_mcp_servers_disabled",
+        "discovery_cache_disabled",
+        "subprocess_credential_scrub_enabled",
+        "provider_egress_guard_enabled",
+        "private_client_output",
+        "raw_host_logs_published"
+      ],
+      "properties": {
+        "disposable_profile": {"const": true},
+        "profile_root_mode": {"const": "0700"},
+        "primary_configuration_mode": {"const": "0600"},
+        "normal_profile_used": {"const": false},
+        "managed_settings_file_present": {"const": false},
+        "managed_mcp_file_present": {"const": false},
+        "managed_settings_drop_in_present": {"const": false},
+        "managed_preferences_domain_present": {"const": false},
+        "parent_environment_allowlisted": {"const": true},
+        "recognised_parent_credential_variables_present": {"const": 0},
+        "mcp_child_environment": {"const": "closed-credential-free"},
+        "nonessential_traffic_disabled": {"const": true},
+        "background_tasks_disabled": {"const": true},
+        "tool_search_disabled": {"const": true},
+        "claude_ai_mcp_servers_disabled": {"const": true},
+        "discovery_cache_disabled": {"const": true},
+        "subprocess_credential_scrub_enabled": {"const": true},
+        "provider_egress_guard_enabled": {"const": true},
+        "private_client_output": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["bytes", "sha256", "mode", "published"],
+          "properties": {
+            "bytes": {"const": 872},
+            "sha256": {"const": "2516008ca4a849d0227b0db5aed712b6304fcc17aaa7ce2e0fd6efc0b0cb846f"},
+            "mode": {"const": "0600"},
+            "published": {"const": false}
+          }
+        },
+        "raw_host_logs_published": {"const": false}
+      }
+    },
+    "limitations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "strict_modern_transport_ready",
+        "capability_result_claimed",
+        "independent_host_capability_gate_completed",
+        "source_binding_ready",
+        "exact_five_operation_journey_exercised",
+        "model_task_requested",
+        "tool_call_observed",
+        "resource_read_observed",
+        "live_provider_called",
+        "remote_http_observed",
+        "registration_performed",
+        "activation_performed",
+        "deployment_performed",
+        "release_performed"
+      ],
+      "properties": {
+        "strict_modern_transport_ready": {"const": true},
+        "capability_result_claimed": {"const": false},
+        "independent_host_capability_gate_completed": {"const": false},
+        "source_binding_ready": {"const": false},
+        "exact_five_operation_journey_exercised": {"const": false},
+        "model_task_requested": {"const": false},
+        "tool_call_observed": {"const": false},
+        "resource_read_observed": {"const": false},
+        "live_provider_called": {"const": false},
+        "remote_http_observed": {"const": false},
+        "registration_performed": {"const": false},
+        "activation_performed": {"const": false},
+        "deployment_performed": {"const": false},
+        "release_performed": {"const": false}
+      }
+    }
+  }
+}

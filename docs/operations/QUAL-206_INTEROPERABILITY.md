@@ -699,9 +699,32 @@ This is an explained client-version variance, not modern-protocol or capability
 acceptance. It exercised no model task, tool call, resource read, exact-five
 assembly, live provider, remote HTTP host, registration, activation, deployment or
 release. Do not widen the shipped protocol boundary to make this host appear
-compatible. A different independent desktop host must first prove
-`server/discover` or another valid `2026-07-28` opening before running the bounded
-capability pack.
+compatible. That historical default-negotiation result remains unchanged.
+
+### Claude Code v2 automatic-negotiation readiness
+
+A later isolated `claude mcp list` run selected Claude Code's documented v2 client
+runtime and automatic STDIO negotiation. It used a new disposable profile, an
+allowlisted parent environment with no recognised credential variable, a closed
+credential-free MCP child environment and exact protected-main commit
+`c679b6fd8fb702572da11043d492c3e9e953ad7a`. The first direct child completed one
+contract-valid MCP `2026-07-28` `server/discover` probe. The second completed one
+contract-valid MCP `2026-07-28` `tools/list` request. Claude reported `Connected`.
+
+The independent offline verifier accepted both sessions, including Claude's safe
+post-response `SIGTERM` and `SIGINT` disposal, and rejected any claim widening.
+Provider transports, guarded API invocations, aborted calls, ledger events,
+reported errors, pending requests, anomalies and stderr were all zero. No scoped
+observer or fixture process remained. The closed, path-free
+[`strict-modern readiness summary`](../../tests/interoperability/evidence/claude-code-2.1.241-modern-stdio-readiness-2026-08-25.json)
+binds the source, runtime hashes and retained private-log digests without publishing
+raw content, local identities or paths.
+
+This establishes strict-modern desktop STDIO transport readiness for the exact
+observed client and configuration. It does not score a tool call, complete the
+exact-five operation journey or exercise a model, provider, remote HTTP host,
+registration, activation, deployment or release. Run the separately bounded
+capability pack before claiming independent-host capability.
 
 ## Historical failure-derived cases
 

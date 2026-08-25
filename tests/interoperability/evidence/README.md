@@ -47,6 +47,21 @@ The separately named constructor-only fallback completed initialisation and
 path is not ready, capability is unscored and the independent-host gate remains
 incomplete. Raw telemetry and disposable profiles remain private and local.
 
+The subsequent
+[`Claude Code 2.1.241 strict-modern STDIO readiness summary`](claude-code-2.1.241-modern-stdio-readiness-2026-08-25.json)
+records a fresh, credential-free `mcp list` observation from clean, detached,
+protected-main commit `c679b6fd8fb702572da11043d492c3e9e953ad7a`. With the
+documented v2 runtime and automatic STDIO negotiation selected, Claude completed a
+contract-valid MCP `2026-07-28` `server/discover` probe and a separate successful
+`tools/list` session. Both sessions passed independent offline replay with zero
+provider calls, pending requests, anomalies or stderr, and no observer or fixture
+process remained. This establishes strict-modern transport readiness only:
+capability is unscored, the exact-five operation journey was not exercised and no
+model, provider, remote HTTP host, registration, activation, deployment or release
+was used. The 24 August default-negotiation observation remains byte-exact and is
+not relabelled; raw logs, profile data and process identities remain private and
+local.
+
 The historical records continue to bind the unchanged ten-case
 [`qual_206_cases.json`](../qual_206_cases.json) bytes. The separate
 [`qual_206_cases_expansion.json`](../qual_206_cases_expansion.json) is design-time,

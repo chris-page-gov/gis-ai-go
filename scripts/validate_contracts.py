@@ -865,6 +865,22 @@ def main() -> None:
             ],
         ),
         (
+            "qual-206-claude-composite-stdio-readiness.schema.json",
+            [
+                (
+                    "tests/interoperability/evidence/"
+                    "claude-code-2.1.241-modern-stdio-readiness-2026-08-25.json",
+                    load_json(
+                        ROOT
+                        / "tests"
+                        / "interoperability"
+                        / "evidence"
+                        / "claude-code-2.1.241-modern-stdio-readiness-2026-08-25.json"
+                    ),
+                )
+            ],
+        ),
+        (
             "decision.schema.json",
             [
                 (record["id"], record)
