@@ -757,6 +757,14 @@ class Qual206ClaudeCompositeObservationTests(unittest.TestCase):
         with self.assertRaisesRegex(VERIFIER.VerificationError, "clean, complete"):
             self.verify(root)
 
+    def test_accepts_safe_sigint_close(self) -> None:
+        root = self.write_root(second={"closure_stimulus": "sigint"})
+        self.verify(root)
+
+    def test_accepts_safe_stdin_eof_and_sigint_close(self) -> None:
+        root = self.write_root(second={"closure_stimulus": "stdin-eof-and-sigint"})
+        self.verify(root)
+
     def test_rejects_legacy_notification_and_host_traffic_after_child_exit(self) -> None:
         cases = {
             "legacy notification": {

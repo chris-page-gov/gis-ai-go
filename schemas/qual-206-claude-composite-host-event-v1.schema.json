@@ -149,7 +149,14 @@
     "runtime_materials_stable": {"type": "boolean"},
     "source_checkout_stable": {"type": "boolean"},
     "closure_stimulus": {
-      "enum": ["stdin-eof", "sigterm", "stdin-eof-and-sigterm", "none"]
+      "enum": [
+        "stdin-eof",
+        "sigint",
+        "sigterm",
+        "stdin-eof-and-sigint",
+        "stdin-eof-and-sigterm",
+        "none"
+      ]
     },
     "request_count": {"$ref": "#/$defs/nonNegativeSafeInteger"},
     "response_count": {"$ref": "#/$defs/nonNegativeSafeInteger"},

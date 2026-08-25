@@ -535,7 +535,13 @@ def _require_clean_session_end(end: dict[str, Any]) -> None:
         or end["runtime_materials_stable"] is not True
         or end["source_checkout_stable"] is not True
         or end["closure_stimulus"]
-        not in {"stdin-eof", "sigterm", "stdin-eof-and-sigterm"}
+        not in {
+            "stdin-eof",
+            "sigint",
+            "sigterm",
+            "stdin-eof-and-sigint",
+            "stdin-eof-and-sigterm",
+        }
         or end["temporary_state_removed"] is not True
     ):
         fail("session-end does not describe one clean, complete observation")
