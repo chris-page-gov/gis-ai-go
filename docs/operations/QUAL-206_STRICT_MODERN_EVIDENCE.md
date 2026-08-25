@@ -84,14 +84,19 @@ uv run --locked --cache-dir .uv-cache python \
 if the output already exists. Keep the private input outside the repository and do
 not commit it.
 
-## Remaining acceptance work
+## Event-level successor
 
-A versioned event-level collector must independently validate one complete session:
-the exact opening sequence, request and response pairing, unique identifiers,
-allowed methods, exact-five operations, resources, cancellation, unsupported
-traffic, close, process exit and stderr. It must bind the actual host executable and
-deterministic runtime build. Only that later collector and compiler can support a
-real-host capability result.
+The repository now contains the separate
+[strict-modern private event collector](QUAL-206_STRICT_MODERN_EVENT_CAPTURE.md).
+It validates one complete exact-five session at event level and has a separate
+read-only replay verifier. Its current end-to-end client is deliberately synthetic,
+and its source-binding and capability fields are fixed false because the installed
+third-party runtime closure is incomplete. It therefore does not change or promote
+the summary compiler's evidence.
+
+An isolated independent desktop host must still complete that exact journey. A later
+public projection contract must accept only the stronger, fully source-bound event
+capture before any real-host capability result can be scored.
 
 Separate governed evidence is still required for remote HTTP, a live provider,
 public runtime identity and TLS, storage and recovery, operations, deployment,

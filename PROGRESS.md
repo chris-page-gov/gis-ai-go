@@ -16,12 +16,14 @@ The supported target active set is exactly `catalogue.search`,
 - retain the repository-local STDIO and client/version matrix bound to the
   protected-main v3 inspection-receipt runtime as preflight only;
 - preserve the source-bound Claude Code `2.1.204` result and the additive `2.1.241`
-  protocol observation separately from capability scoring; `2.1.241` offers MCP
-  `2025-11-25`, so it cannot close the strict `2026-07-28` desktop-host gate;
+  protocol observation separately from capability scoring; that exact observation
+  offered MCP `2025-11-25` and cannot close the strict `2026-07-28` desktop-host
+  gate, but it does not predetermine a new isolated run;
 - preserve the accepted exact-five local demonstration on protected `main` and use
   its fixed-provider, temporary-state boundary for colleague-facing explanation;
-- prepare an additive strict-modern capture compiler that cannot promote a
-  summary-level real-host observation into a capability pass;
+- retain the additive strict-modern summary compiler and implement the reviewed
+  private event-level collector and replay verifier whose synthetic client cannot
+  promote itself into an independent-host capability pass;
 - complete the remaining strict-modern independent desktop-STDIO and remote-HTTP
   host evidence; and
 - continue provider-neutral preparation, but stop before public provisioning or
@@ -271,11 +273,12 @@ or release is claimed.
 
 ## Next
 
-1. Complete the versioned event-level exact-five collector, then use a different
-   independent desktop host whose first frame proves a valid `2026-07-28` opening.
+1. Integrate the versioned event-level exact-five collector, then use an isolated
+   desktop host whose first frame proves a valid `2026-07-28` opening. Re-test the
+   current Claude Code `2.1.241` binary without changing the normal host
+   configuration; preserve its earlier `2025-11-25` observation separately rather
+   than treating it as either a modern pass or a permanent client limitation.
    Complete the bounded capability pack and remaining remote-HTTP host evidence.
-   Claude Code `2.1.241` is an explained legacy-only transport result, not the
-   modern host acceptance.
 2. Retain the exact protected-main UBI, independent-derivation and provenance
    evidence from runs `32760872035` and `32760871684`; rebuild and repeat it after
    every later source-changing activation or release commit.
@@ -301,10 +304,11 @@ or release is claimed.
   service identity and network-policy evidence.
 - Activating or publishing a catalogue service remains hard-blocked. Raw protocol
   transcripts, deterministic local host fixtures and the pinned SDK clients do not
-  establish independent live major-host interoperability. Claude Code `2.1.241`
-  offers MCP `2025-11-25`: it fails the strict `2026-07-28` surface and establishes
-  initialisation and listing only through the constructor-only fallback, not
-  capability.
+  establish independent live major-host interoperability. The retained Claude Code
+  `2.1.241` observation offered MCP `2025-11-25`: that run failed the strict
+  `2026-07-28` surface and established initialisation and listing only through the
+  constructor-only fallback, not capability. A new isolated event-level run is
+  required to test the client's current modern opening behaviour.
   Security, accessibility, governed ingress/storage admission, retention/disposal
   and host-specific lifecycle evidence remain activation gates.
 - Direct routes and MCP transports now exist on protected `main`, but the
