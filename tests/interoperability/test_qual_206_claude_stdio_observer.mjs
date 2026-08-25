@@ -100,8 +100,8 @@ function executableIdentity() {
   });
 }
 
-function executableMapping() {
-  const path = realpathSync(process.execPath);
+function regularFileMapping(pathValue) {
+  const path = realpathSync(pathValue);
   const state = lstatSync(path, { bigint: true });
   return Object.freeze({
     bytes: state.size.toString(),
@@ -109,6 +109,10 @@ function executableMapping() {
     inode: state.ino.toString(),
     path,
   });
+}
+
+function executableMapping() {
+  return regularFileMapping(process.execPath);
 }
 
 function privateRoot(t) {
@@ -271,6 +275,7 @@ function writeRawFrame(stream, value) {
 test("Darwin text mappings bind one expected executable when ps reports a basename", () => {
   const parentPid = 42_849;
   const executable = executableMapping();
+  const other = regularFileMapping(EVENT_SCHEMA_PATH);
   const mappings = parseDarwinTextExecutableMappings(
     parentPid,
     [
@@ -281,21 +286,16 @@ test("Darwin text mappings bind one expected executable when ps reports a basena
       `i${executable.inode}`,
       `n${executable.path}`,
       "ftxt",
-      "D0x1000011",
-      "s2374000",
-      "i1152921500312573276",
-      "n/usr/lib/dyld",
+      `D${other.device}`,
+      `s${other.bytes}`,
+      `i${other.inode}`,
+      `n${other.path}`,
       "",
     ].join("\n"),
   );
   assert.deepEqual(mappings, [
     executable,
-    {
-      bytes: "2374000",
-      device: "0x1000011",
-      inode: "1152921500312573276",
-      path: "/usr/lib/dyld",
-    },
+    other,
   ]);
 
   const expected = executableIdentity();
