@@ -881,6 +881,22 @@ def main() -> None:
             ],
         ),
         (
+            "qual-206-local-http-transport-preflight.schema.json",
+            [
+                (
+                    "tests/interoperability/evidence/"
+                    "local-http-transport-preflight-2026-08-25.json",
+                    load_json(
+                        ROOT
+                        / "tests"
+                        / "interoperability"
+                        / "evidence"
+                        / "local-http-transport-preflight-2026-08-25.json"
+                    ),
+                )
+            ],
+        ),
+        (
             "decision.schema.json",
             [
                 (record["id"], record)

@@ -1,0 +1,393 @@
+{
+  "schema": "gis-ai-go.qual-206-local-http-transport-preflight.v1",
+  "schema_contract": {
+    "path": "schemas/qual-206-local-http-transport-preflight.schema.json",
+    "sha256": "f5c0ea1778101db8fd9a301dea163c5ad05d2c1a56ab944addd955738e2b9a22"
+  },
+  "evidence_classification": "local-http-transport-preflight",
+  "status": "loopback-http-transport-pass-capability-unscored",
+  "observed_at": {
+    "started": "2026-08-25T13:27:07.245Z",
+    "completed": "2026-08-25T13:27:07.951Z"
+  },
+  "source": {
+    "repository": "chris-page-gov/gis-ai-go",
+    "commit": "066a9cb22f719d22e29c95cd99857ddf694c878e",
+    "tree": "43116491557d53c4c0ad2d3a6768761ccf873df4",
+    "checkout_scope": "local-worktree",
+    "working_tree_clean": true,
+    "complete_runtime_source_binding": false
+  },
+  "runtime": {
+    "node_version": "v26.7.0",
+    "mcp_server_version": "2.0.0",
+    "fixture_process": "direct-child"
+  },
+  "transport": {
+    "kind": "operating-system-loopback-http",
+    "protocol": "http",
+    "protocol_version": "2026-07-28",
+    "address_class": "ipv4-loopback",
+    "ephemeral_port": true,
+    "listener_created": true,
+    "listener_closed": true,
+    "tls_exercised": false,
+    "endpoint_published": false,
+    "request_count": 14,
+    "response_count": 13,
+    "remote_host_acceptance": false
+  },
+  "candidate": {
+    "state": "candidate-unregistered",
+    "production_registration": false,
+    "operations": [
+      "catalogue.search",
+      "catalogue.describe",
+      "selection.resolve",
+      "data.query",
+      "evidence.inspect"
+    ],
+    "resources": [
+      "catalogue.public",
+      "catalogue.record",
+      "evidence.receipt"
+    ]
+  },
+  "journey": {
+    "requests": [
+      {
+        "ordinal": 1,
+        "method": "server/discover",
+        "subject": "not-applicable",
+        "semantic": "discover-pass",
+        "request_bytes": 272,
+        "request_sha256": "7e6697a054380de8e3e99601605ab4d0f491e0f7fedff412c7263ae4959c7a8e",
+        "response_bytes": 581,
+        "response_sha256": "ca37183df53bf93f0b286fc1c7bd2e841f79343ea6899587fae56d43d95eac27",
+        "contract_valid": true
+      },
+      {
+        "ordinal": 2,
+        "method": "tools/list",
+        "subject": "not-applicable",
+        "semantic": "tools-list-pass",
+        "request_bytes": 267,
+        "request_sha256": "d7cc7a3c32b74c6864011d15f98d3316c033553e064291cf6ff5f717eeea7078",
+        "response_bytes": 146624,
+        "response_sha256": "ecc446d394daaf35d831fc4812b8f83c888deb9db02e7c4b2ee96506fe729009",
+        "contract_valid": true
+      },
+      {
+        "ordinal": 3,
+        "method": "resources/list",
+        "subject": "not-applicable",
+        "semantic": "resources-list-pass",
+        "request_bytes": 271,
+        "request_sha256": "290c6e4588f595d6d71d00170410fa05ad073560784cd7f161e5e30c3b4d1d75",
+        "response_bytes": 541,
+        "response_sha256": "827b23c1cd45371a02c3656b02dae5b9dbeba8129428203f770ad8fa3037880b",
+        "contract_valid": true
+      },
+      {
+        "ordinal": 4,
+        "method": "resources/templates/list",
+        "subject": "not-applicable",
+        "semantic": "resource-templates-pass",
+        "request_bytes": 281,
+        "request_sha256": "c6ba9b98f09a65c47776a716efe12e94fa44c390cec4b3afadb803db6a2786b8",
+        "response_bytes": 882,
+        "response_sha256": "caafe9cbb9d259ab0ef84c42bf71cb75a4eb3d02c11e4997f6c0cb6a2c6ac01e",
+        "contract_valid": true
+      },
+      {
+        "ordinal": 5,
+        "method": "resources/read",
+        "subject": "catalogue.public",
+        "semantic": "resource-read-pass",
+        "request_bytes": 308,
+        "request_sha256": "d36591fb3f17ed4225d4520502f81605e8a3e063c25c19463bbe5b37d623cb63",
+        "response_bytes": 72297,
+        "response_sha256": "531873fd4e2a6ed246be529c849c8717bbf0ac650768ced83ee83ddad6a23e4d",
+        "contract_valid": true
+      },
+      {
+        "ordinal": 6,
+        "method": "resources/read",
+        "subject": "catalogue.record",
+        "semantic": "resource-read-pass",
+        "request_bytes": 317,
+        "request_sha256": "299348e6ee5efd40a5019f7f043e7a5b1c36fbd767fd00b5f12de895c3e29519",
+        "response_bytes": 3322,
+        "response_sha256": "6c94f9fd4d834786fc118745c83c6d43b1343aacb2932cbe5bbe4b3904ee8611",
+        "contract_valid": true
+      },
+      {
+        "ordinal": 7,
+        "method": "tools/call",
+        "subject": "catalogue.search",
+        "semantic": "tool-success-pass",
+        "request_bytes": 336,
+        "request_sha256": "4ea6f6884ca460c254431ef7f3a0b439992abf3bbf6c6a2abd236173efb8c438",
+        "response_bytes": 17580,
+        "response_sha256": "4f69ef88e107802afee2457f93db8f8154a83d3d170045c9232e3dd20f1c3b6c",
+        "contract_valid": true
+      },
+      {
+        "ordinal": 8,
+        "method": "tools/call",
+        "subject": "catalogue.describe",
+        "semantic": "tool-success-pass",
+        "request_bytes": 332,
+        "request_sha256": "0d96b4eeabbff62e4d7640862913e8e3f9d121f80568f0a5f4700e49cdd24330",
+        "response_bytes": 19256,
+        "response_sha256": "bd168571f8bf462c92a24bb151ce017e3875f282e7b5c57e6e4240381345c427",
+        "contract_valid": true
+      },
+      {
+        "ordinal": 9,
+        "method": "tools/call",
+        "subject": "selection.resolve",
+        "semantic": "tool-success-pass",
+        "request_bytes": 687,
+        "request_sha256": "9402336838fb3ab2043790e7cec1c2b4edfe9ca735e23306bb692e616672c2a2",
+        "response_bytes": 18484,
+        "response_sha256": "f72ac0aa2abf4712d175ce561b1cfb3dadd7076b278632bba40dd243ed52f3ac",
+        "contract_valid": true
+      },
+      {
+        "ordinal": 10,
+        "method": "tools/call",
+        "subject": "data.query",
+        "semantic": "tool-success-pass",
+        "request_bytes": 906,
+        "request_sha256": "488d5b8f05ad760874477e504b98f70571d8ffb1df92c81f37f018cea5e4ff09",
+        "response_bytes": 14178,
+        "response_sha256": "07f433f81f746735d3af5fbfdc0dcaa328bf901b1b7aa40d7164073137d7150f",
+        "contract_valid": true
+      },
+      {
+        "ordinal": 11,
+        "method": "tools/call",
+        "subject": "evidence.inspect",
+        "semantic": "tool-success-pass",
+        "request_bytes": 422,
+        "request_sha256": "9c3170479c8319d4b4defb7d1b647b79fbf48988cceacd24dc6c8d472670fab0",
+        "response_bytes": 20572,
+        "response_sha256": "ff124df3bf422778ecc69447fdf808635221727ae02d22260dcc3f01aa1b095e",
+        "contract_valid": true
+      },
+      {
+        "ordinal": 12,
+        "method": "resources/read",
+        "subject": "evidence.receipt",
+        "semantic": "resource-read-pass",
+        "request_bytes": 415,
+        "request_sha256": "d38c4ad6e3dffff382f51e814d08a0da008c35dde62bea3dc27e533166461930",
+        "response_bytes": 10984,
+        "response_sha256": "ca5fdf1dd7699a0f662993fe3508a8f3364c3db66fc50ecfc650586d50cd0903",
+        "contract_valid": true
+      },
+      {
+        "ordinal": 13,
+        "method": "tools/call",
+        "subject": "data.query",
+        "semantic": "client-aborted-no-completed-evidence",
+        "request_bytes": 906,
+        "request_sha256": "c61d22b3364653f03ad50949f3403ac822f202378e32cc13eee45e1c32c9bba1",
+        "response_bytes": 0,
+        "response_sha256": null,
+        "contract_valid": true
+      },
+      {
+        "ordinal": 14,
+        "method": "prompts/list",
+        "subject": "not-applicable",
+        "semantic": "expected-method-not-found",
+        "request_bytes": 270,
+        "request_sha256": "d93df2f2890b80136b26a0c068116dd9916a06eab9d190bcad3a819bb826c36d",
+        "response_bytes": 78,
+        "response_sha256": "c66dc112491b2042c9a30432906eb27d404d169d002d6841986647f193895de0",
+        "contract_valid": true
+      }
+    ],
+    "tool_checks": [
+      {
+        "operation": "catalogue.search",
+        "output_contract_valid": true,
+        "structured_plain_text_parity": true,
+        "direct_api_operation_parity": true,
+        "deterministic_result_valid": true,
+        "receipt_present": true
+      },
+      {
+        "operation": "catalogue.describe",
+        "output_contract_valid": true,
+        "structured_plain_text_parity": true,
+        "direct_api_operation_parity": true,
+        "deterministic_result_valid": true,
+        "receipt_present": true
+      },
+      {
+        "operation": "selection.resolve",
+        "output_contract_valid": true,
+        "structured_plain_text_parity": true,
+        "direct_api_operation_parity": true,
+        "deterministic_result_valid": true,
+        "receipt_present": true
+      },
+      {
+        "operation": "data.query",
+        "output_contract_valid": true,
+        "structured_plain_text_parity": true,
+        "direct_api_operation_parity": true,
+        "deterministic_result_valid": true,
+        "receipt_present": true
+      },
+      {
+        "operation": "evidence.inspect",
+        "output_contract_valid": true,
+        "structured_plain_text_parity": true,
+        "direct_api_operation_parity": true,
+        "deterministic_result_valid": true,
+        "receipt_present": true
+      }
+    ],
+    "resource_checks": [
+      {
+        "resource": "catalogue.public",
+        "content_contract_valid": true,
+        "deterministic_result_valid": true
+      },
+      {
+        "resource": "catalogue.record",
+        "content_contract_valid": true,
+        "deterministic_result_valid": true
+      },
+      {
+        "resource": "evidence.receipt",
+        "content_contract_valid": true,
+        "deterministic_result_valid": true
+      }
+    ],
+    "cancellation": {
+      "mechanism": "http-request-abort-signal",
+      "provider_started": true,
+      "provider_aborted": true,
+      "response_observed": false,
+      "successful_request_completed_evidence_created": true,
+      "completed_evidence_created": false,
+      "private_idempotency_attribution_replayed": true
+    },
+    "unsupported_method": {
+      "method": "prompts/list",
+      "error_code": -32601,
+      "error_message": "Method not found",
+      "contract_valid": true
+    }
+  },
+  "validation": {
+    "canonical_tool_schema_validator": "scripts/qual_206_exact_five_event_collector.mjs#advertisedToolSchemasExact",
+    "protocol_discovery_exact": true,
+    "operation_set_exact": true,
+    "tool_schemas_exact": true,
+    "resource_set_exact": true,
+    "resource_template_set_exact": true,
+    "openapi_callable_contract_exact": true,
+    "readiness_operation_parity": true,
+    "all_tool_results_contract_valid": true,
+    "all_tool_results_structured_plain_text_parity": true,
+    "all_tools_direct_api_operation_parity": true,
+    "all_resource_results_contract_valid": true,
+    "guarded_provider_egress_invocations": 0,
+    "unexpected_audit_events": 0,
+    "stdout_bytes": 0,
+    "stderr_bytes": 0
+  },
+  "execution": {
+    "tool_calls": 6,
+    "resource_reads": 3,
+    "provider_transport_calls": 2,
+    "aborted_provider_calls": 1,
+    "ledger_events": 4,
+    "reported_errors": 0
+  },
+  "claims": {
+    "transport_preflight": true,
+    "claude_code_capability": "unscored",
+    "model_capability": "unscored",
+    "live_provider_readiness": "not-exercised",
+    "remote_host_acceptance": false,
+    "registration_performed": false,
+    "activation_performed": false,
+    "deployment_performed": false,
+    "release_performed": false
+  },
+  "verification": {
+    "offline_verifier_path": "scripts/qual_206_verify_local_http_preflight.py",
+    "source_materials": [
+      {
+        "path": "scripts/qual_206_local_http_preflight.mjs",
+        "sha256": "431cdcd920204739f87dc0be3dd072d78022f541a290db6ca86d8b259056a952"
+      },
+      {
+        "path": "scripts/qual_206_verify_local_http_preflight.py",
+        "sha256": "c9ed65df029697690997f4a2c88c59ea43b96ec35e3571eba21adf3b9983728c"
+      },
+      {
+        "path": "schemas/qual-206-exact-five-tool-schema-digests.v1.json",
+        "sha256": "f7ac2b507108f01bbb21af6daca31e84da66cc285ccb10e0d329b8e919a79963"
+      },
+      {
+        "path": "schemas/qual-206-local-http-transport-preflight.schema.json",
+        "sha256": "f5c0ea1778101db8fd9a301dea163c5ad05d2c1a56ab944addd955738e2b9a22"
+      },
+      {
+        "path": "schemas/qual-206-local-http-private-capture-v1.schema.json",
+        "sha256": "047812056e2083e018ee3c880c7e6654a994b41be35df6b42cd1f1be5d8bcfb5"
+      },
+      {
+        "path": "artifacts/okf/manifest.json",
+        "sha256": "f7aa8d35b994f7c1a095fdaf2d9ab82791147ea7baf5e209fe7153e72ca4b2b1"
+      },
+      {
+        "path": "artifacts/okf/okf-bundle.json",
+        "sha256": "e9d753c4d44b4566a37c495b3ac092c3767a900d71b245a307967e6cd9457c4b"
+      },
+      {
+        "path": "scripts/qual_206_exact_five_event_collector.mjs",
+        "sha256": "be45d157c3daed81267e03be34b02eeb8fb006d8889f436ee531e315fba6bdc0"
+      },
+      {
+        "path": "tests/interoperability/fixtures/qual_206_provider_egress_guard.mjs",
+        "sha256": "f34757b6c7c555adb37a2d5fffbb164a264a689fe603e12f25703fea8d46eafe"
+      },
+      {
+        "path": "apps/mcp-gateway/test/fixtures/qual-206-exact-five-http-server.mjs",
+        "sha256": "8c901f7e40d40079ac103f065fb907bc55b1ddc7817328517b83c98ace069c1c"
+      },
+      {
+        "path": "apps/mcp-gateway/dist/src/mcp-http.js",
+        "sha256": "6f58d8950da56d3def292d451e797af60add404c291c45503ba9e04a354bbf01"
+      },
+      {
+        "path": "apps/mcp-gateway/dist/src/mcp-server.js",
+        "sha256": "71fdde3b45363d366b62e7c4219c2cc77efbfbfe9d9e5d110f656e76ee9d2ab1"
+      }
+    ],
+    "private_capture_schema_path": "schemas/qual-206-local-http-private-capture-v1.schema.json",
+    "private_capture_sha256": "df9298ebf4d8b5686fe9c48a9fa337c930d0471b262face5b4df29d7404189ee",
+    "private_capture_replayed": true,
+    "private_capture_published": false,
+    "observation_sha256": "e8851d85abb39654d5da5e495c223bbd6395692e38f1c3b02897d3bece10ffe5",
+    "schema_verified": true,
+    "public_projection_path_free": true
+  },
+  "limitations": [
+    "The listener accepted requests only on the local IPv4 loopback interface.",
+    "No TLS, secure tunnel, public hostname or independent remote host was exercised.",
+    "The client was a deterministic synthetic harness; no model client or Claude Code task was exercised.",
+    "Only the deterministic fixture provider was used; no live provider, external network or provider credential was exercised.",
+    "This preflight does not authorise or prove registration, activation, deployment or release."
+  ],
+  "boundary": "Local operating-system loopback HTTP transport preflight only. A deterministic synthetic client completed the exact-five MCP 2026-07-28 discovery, listing, resource, tool, cancellation and unsupported-method journey over one ephemeral local socket. Remote-host acceptance is false; Claude Code and model capability remain unscored; no live provider was exercised; and no registration, activation, deployment or release was performed."
+}

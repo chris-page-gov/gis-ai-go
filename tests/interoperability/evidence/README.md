@@ -62,6 +62,27 @@ was used. The 24 August default-negotiation observation remains byte-exact and i
 not relabelled; raw logs, profile data and process identities remain private and
 local.
 
+The
+[`protected-main local HTTP transport preflight`](local-http-transport-preflight-2026-08-25.json)
+is a separate path-free projection from exact protected-main commit
+`066a9cb22f719d22e29c95cd99857ddf694c878e`, tree
+`43116491557d53c4c0ad2d3a6768761ccf873df4`. A deterministic synthetic client
+completed 14 requests and received 13 responses over one ephemeral IPv4 loopback
+listener, covering the exact five operations and three resource classes; the one
+response-free request is the deliberately aborted second `data.query`. The
+projection SHA-256 is
+`c227791068c662c64e14fa9ec354d8d8030e5cc2e3d64b0d8ff93101e1b67274`.
+Every protected-main CI job passed in
+[run 32851616717](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32851616717),
+including repository, image, independent-derivation, attestation and provenance
+assurance. Every analysis in
+[CodeQL run 32851615811](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32851615811)
+also passed for Actions, JavaScript/TypeScript and Python. The owner-only private
+capture remains local and unpublished. This is loopback HTTP transport preflight
+only: remote-host acceptance remains false, Claude Code and model capability remain
+unscored, and no live provider, registration, activation, deployment or release was
+exercised.
+
 The historical records continue to bind the unchanged ten-case
 [`qual_206_cases.json`](../qual_206_cases.json) bytes. The separate
 [`qual_206_cases_expansion.json`](../qual_206_cases_expansion.json) is design-time,
