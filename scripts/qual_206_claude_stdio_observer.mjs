@@ -402,11 +402,141 @@ function fsyncDirectory(path) {
   }
 }
 
-function immediateParentExecutable() {
+export function parseDarwinTextExecutableMappings(parentPid, output) {
+  if (!Number.isSafeInteger(parentPid) || parentPid <= 1) {
+    fail("the Darwin parent process identifier is invalid");
+  }
+  if (
+    typeof output !== "string" || output.length === 0 || output.length > 65_536 ||
+    output.includes("\0")
+  ) {
+    fail("the Darwin parent text-file listing is invalid");
+  }
+  const lines = output.trimEnd().split("\n");
+  if (lines.shift() !== `p${String(parentPid)}` || lines.length === 0) {
+    fail("the Darwin parent text-file listing does not bind the expected process");
+  }
+  const mappings = [];
+  let mapping = null;
+
+  function finishMapping() {
+    if (mapping === null) return;
+    if (!exactKeys(mapping, ["bytes", "device", "inode", "path"])) {
+      fail("the Darwin parent text-file listing has an incomplete mapping");
+    }
+    mappings.push(Object.freeze(mapping));
+    mapping = null;
+  }
+
+  for (const line of lines) {
+    if (line === "ftxt") {
+      finishMapping();
+      mapping = {};
+      continue;
+    }
+    if (mapping === null || line.length < 2) {
+      fail("the Darwin parent text-file listing has an unexpected shape");
+    }
+    const value = line.slice(1);
+    let name;
+    if (line.startsWith("D") && /^0x[0-9a-f]+$/u.test(value)) {
+      name = "device";
+    } else if (line.startsWith("i") && /^[1-9][0-9]*$/u.test(value)) {
+      name = "inode";
+    } else if (line.startsWith("s") && /^[1-9][0-9]*$/u.test(value)) {
+      if (BigInt(value) > BigInt(MAX_EXECUTABLE_BYTES)) {
+        fail("the Darwin parent text-file listing contains an oversized mapping");
+      }
+      name = "bytes";
+    } else if (line.startsWith("n") && isAbsolute(value)) {
+      name = "path";
+    } else {
+      fail("the Darwin parent text-file listing contains an invalid field");
+    }
+    if (Object.hasOwn(mapping, name)) {
+      fail("the Darwin parent text-file listing contains a duplicate field");
+    }
+    mapping[name] = value;
+  }
+  finishMapping();
+  if (mappings.length === 0) {
+    fail("the Darwin parent text-file listing contains no executable candidates");
+  }
+  return Object.freeze(mappings);
+}
+
+function sameBigIntFileState(left, right) {
+  return left.dev === right.dev && left.ino === right.ino &&
+    left.mode === right.mode && left.uid === right.uid &&
+    left.nlink === right.nlink && left.size === right.size &&
+    left.mtimeNs === right.mtimeNs;
+}
+
+function mappingMatchesFileState(mapping, state) {
+  return mapping.device === `0x${state.dev.toString(16)}` &&
+    mapping.inode === state.ino.toString() &&
+    mapping.bytes === state.size.toString();
+}
+
+export function selectExpectedParentExecutable(candidatesValue, expectedSha256, expectedBytes) {
+  if (
+    !Array.isArray(candidatesValue) || candidatesValue.length === 0 ||
+    !SHA256.test(expectedSha256) ||
+    !Number.isSafeInteger(expectedBytes) || expectedBytes <= 0 ||
+    expectedBytes > MAX_EXECUTABLE_BYTES
+  ) {
+    fail("the expected parent executable selection is invalid");
+  }
+  const candidates = new Map();
+  for (const candidate of candidatesValue) {
+    const mapping = plainRecord(candidate) ? candidate : null;
+    const path = mapping === null ? candidate : mapping.path;
+    if (
+      (mapping !== null && !exactKeys(mapping, ["bytes", "device", "inode", "path"])) ||
+      typeof path !== "string" || !isAbsolute(path)
+    ) {
+      fail("a parent executable candidate path is invalid");
+    }
+    const resolved = realpathSync(path);
+    if (candidates.has(resolved)) continue;
+    const before = lstatSync(resolved, { bigint: true });
+    if (!before.isFile() || before.size !== BigInt(expectedBytes)) continue;
+    if (mapping !== null && !mappingMatchesFileState(mapping, before)) continue;
+    const measurement = hashStableRegularFile(
+      resolved,
+      "immediate parent executable candidate",
+    );
+    const after = lstatSync(resolved, { bigint: true });
+    if (
+      mapping !== null &&
+      (!sameBigIntFileState(before, after) || !mappingMatchesFileState(mapping, after))
+    ) {
+      fail("the mapped parent executable candidate changed during verification");
+    }
+    if (
+      measurement.bytes === expectedBytes &&
+      measurement.sha256 === expectedSha256
+    ) {
+      candidates.set(resolved, measurement);
+    }
+  }
+  if (candidates.size !== 1) {
+    fail("the immediate parent executable does not have one expected identity");
+  }
+  return candidates.values().next().value;
+}
+
+function immediateParentExecutable(expectedSha256, expectedBytes) {
   if (!Number.isSafeInteger(process.ppid) || process.ppid <= 1) {
     fail("the immediate parent process cannot be identified");
   }
-  if (process.platform === "linux") return realpathSync(`/proc/${process.ppid}/exe`);
+  if (process.platform === "linux") {
+    return selectExpectedParentExecutable(
+      [realpathSync(`/proc/${process.ppid}/exe`)],
+      expectedSha256,
+      expectedBytes,
+    );
+  }
   if (process.platform === "darwin") {
     const output = execFileSync(
       "/bin/ps",
@@ -418,10 +548,31 @@ function immediateParentExecutable() {
         timeout: 5_000,
       },
     ).trim();
-    if (!isAbsolute(output) || output.includes("\0") || output.includes("\n")) {
-      fail("the immediate parent executable path is not absolute and singular");
+    if (output.length === 0 || output.includes("\0") || output.includes("\n")) {
+      fail("the immediate parent executable name is not singular");
     }
-    return realpathSync(output);
+    const textFiles = execFileSync(
+      "/usr/sbin/lsof",
+      ["-a", "-p", String(process.ppid), "-d", "txt", "-FpfnDsi"],
+      {
+        encoding: "utf8",
+        env: { LANG: "C", LC_ALL: "C", PATH: "/usr/bin:/bin:/usr/sbin" },
+        maxBuffer: 65_536,
+        timeout: 5_000,
+      },
+    );
+    let mappings = parseDarwinTextExecutableMappings(process.ppid, textFiles);
+    if (isAbsolute(output)) {
+      const expectedPath = realpathSync(output);
+      mappings = mappings.filter((mapping) => {
+        try {
+          return realpathSync(mapping.path) === expectedPath;
+        } catch {
+          return false;
+        }
+      });
+    }
+    return selectExpectedParentExecutable(mappings, expectedSha256, expectedBytes);
   }
   fail(`immediate parent executable binding is unsupported on ${process.platform}`);
 }
@@ -674,9 +825,9 @@ function startObserver(options) {
     fail("observer environment contains a recognised credential variable");
   }
   const source = sourceCheckoutFacts(options.sourceCommit);
-  const parent = hashStableRegularFile(
-    immediateParentExecutable(),
-    "immediate parent executable",
+  const parent = immediateParentExecutable(
+    options.expectedParentSha256,
+    options.expectedParentBytes,
   );
   if (
     parent.sha256 !== options.expectedParentSha256 ||
