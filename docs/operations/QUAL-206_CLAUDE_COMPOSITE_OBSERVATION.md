@@ -4,16 +4,19 @@ This runbook covers a private, credential-free transport observation of Claude
 Code against the inactive strict-modern GIS AI GO fixture. It does not replace the
 exact 14-request conformance journey and does not score host capability.
 
-Claude Code `2.1.241` supports MCP `2026-07-28`, but its modern STDIO negotiation
-uses two direct child processes. The first is a disposable `server/discover` probe;
-the second is the modern session. A single-process collector with fixed output
-paths cannot represent that behaviour safely.
+The accepted Claude Code `2.1.241` evidence supports MCP `2026-07-28`, but its
+modern STDIO negotiation uses two direct child processes. The first is a disposable
+`server/discover` probe; the second is the modern session. A single-process
+collector with fixed output paths cannot represent that behaviour safely. The
+locally installed `2.1.245` binary retains those protocol markers but changes the
+macOS process-name evidence described below.
 
 ## Source-by-source decision matrix
 
 | Source | Supported finding | Implementation consequence | Disposition |
 | --- | --- | --- | --- |
 | Local Claude Code `2.1.241` binary | The binary contains the final `2026-07-28` protocol, `server/discover` handling and automatic negotiation. In automatic mode it launches a disposable discovery process before the modern session. | Capture two direct Claude children under one run identity; do not reuse fixed output paths. | Supported and implemented additively. |
+| Local Claude Code `2.1.245` binary and failed-closed preflight | On macOS, `ps -o comm=` now reports the immediate parent as the basename `claude`, rather than the absolute versioned executable path used by `2.1.241`. The binary still contains the `2026-07-28`, `server/discover`, v2 and automatic-negotiation markers. | Treat `ps` as the first bounded process-name check. Enumerate that exact PID's mapped `txt` files with fixed `/usr/sbin/lsof`, bind each candidate's device, inode and size to the reopened canonical regular file, then accept only one whose byte length and SHA-256 equal the independently supplied expected identity. | Compatibility repair implemented; a new protected-main observation is still required and no `2.1.245` readiness claim is made here. |
 | [Official Claude MCP runtime documentation](https://code.claude.com/docs/en/mcp#MCP-client-runtimes) | The v2 runtime is available from Claude Code `2.1.232`; modern STDIO negotiation is selected with `MCP_PROTOCOL_NEGOTIATION=auto`. | Pin `MCP_SDK_GENERATION=v2` and `MCP_PROTOCOL_NEGOTIATION=auto` in the isolated observation environment. | Supported and required for this observation. |
 | [Official Claude environment-variable reference](https://code.claude.com/docs/en/env-vars) | Claude runtime and non-essential traffic controls can be set per invocation. | Use a disposable profile and an allowlisted invocation environment; do not change normal Claude settings. | Supported and required for isolation. |
 | [MCP `2026-07-28` release](https://blog.modelcontextprotocol.io/posts/2026-07-28/) | `server/discover` is the optional stateless opening for the final protocol. | Require one successful negotiation probe and a second session with no legacy `initialize`. | Supported protocol target. |
@@ -29,6 +32,19 @@ The local binary observed during preflight was:
 
 Recompute those values immediately before every observation. A changed binary is a
 new host candidate and must not be accepted under these values.
+
+The installed `2.1.245` candidate measured on 25 August 2026 has version
+`2.1.245 (Claude Code)`, byte length `376109392` and SHA-256
+`9f7c2260251765a18d0b35198669dacc1912f6e8129a3b01f6b58d93365ff1f1`.
+Its first credential-free preflight failed closed before allocating an observer
+capture because the previous macOS check required `ps` to return an absolute path.
+The private diagnostic established that the same immediate PID had the versioned
+binary mapped as a text executable. The repair uses `lsof` only to discover bounded
+candidate mappings. Each reopened path must retain that mapping's device, inode and
+size throughout stable hashing; the pre-recorded byte length and digest remain
+authoritative, and zero or more than one matching canonical file fails closed. Do
+not relabel that diagnostic as transport readiness. Run a fresh observation with a
+new root and run identity only after this repair reaches protected `main`.
 
 ## Composite observation contract
 
@@ -135,7 +151,7 @@ identity values:
         "--claude-composite-observation-only",
         "--capture-root", "<PRIVATE_CAPTURE_ROOT>",
         "--run-id", "<RUN_UUID>",
-        "--client", "claude-code-2.1.241",
+        "--client", "<CLAUDE_CLIENT_VERSION>",
         "--source-commit", "<PROTECTED_MAIN_COMMIT>",
         "--expected-parent-sha256", "<CLAUDE_EXECUTABLE_SHA256>",
         "--expected-parent-bytes", "<CLAUDE_EXECUTABLE_BYTES>"

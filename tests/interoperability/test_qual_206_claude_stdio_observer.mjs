@@ -30,6 +30,8 @@ import {
   GRACEFUL_CLOSE_KILL_MILLISECONDS,
   GRACEFUL_CLOSE_TERM_MILLISECONDS,
   parseClaudeObserverArguments,
+  parseDarwinTextExecutableMappings,
+  selectExpectedParentExecutable,
 } from "../../scripts/qual_206_claude_stdio_observer.mjs";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
@@ -95,6 +97,17 @@ function executableIdentity() {
   return Object.freeze({
     bytes: statSync(executable).size,
     sha256: createHash("sha256").update(readFileSync(executable)).digest("hex"),
+  });
+}
+
+function executableMapping() {
+  const path = realpathSync(process.execPath);
+  const state = lstatSync(path, { bigint: true });
+  return Object.freeze({
+    bytes: state.size.toString(),
+    device: `0x${state.dev.toString(16)}`,
+    inode: state.ino.toString(),
+    path,
   });
 }
 
@@ -254,6 +267,100 @@ function writeRawFrame(stream, value) {
     });
   });
 }
+
+test("Darwin text mappings bind one expected executable when ps reports a basename", () => {
+  const parentPid = 42_849;
+  const executable = executableMapping();
+  const mappings = parseDarwinTextExecutableMappings(
+    parentPid,
+    [
+      `p${String(parentPid)}`,
+      "ftxt",
+      `D${executable.device}`,
+      `s${executable.bytes}`,
+      `i${executable.inode}`,
+      `n${executable.path}`,
+      "ftxt",
+      "D0x1000011",
+      "s2374000",
+      "i1152921500312573276",
+      "n/usr/lib/dyld",
+      "",
+    ].join("\n"),
+  );
+  assert.deepEqual(mappings, [
+    executable,
+    {
+      bytes: "2374000",
+      device: "0x1000011",
+      inode: "1152921500312573276",
+      path: "/usr/lib/dyld",
+    },
+  ]);
+
+  const expected = executableIdentity();
+  assert.deepEqual(
+    selectExpectedParentExecutable(mappings, expected.sha256, expected.bytes),
+    expected,
+  );
+  assert.throws(
+    () => selectExpectedParentExecutable(mappings, "0".repeat(64), expected.bytes),
+    /does not have one expected identity/u,
+  );
+});
+
+test("Darwin text mapping parsing rejects process and path ambiguity", () => {
+  assert.throws(
+    () => parseDarwinTextExecutableMappings(
+      42_849,
+      "p42848\nftxt\nD0x1\ns1\ni1\nn/usr/bin/claude\n",
+    ),
+    /does not bind the expected process/u,
+  );
+  assert.throws(
+    () => parseDarwinTextExecutableMappings(
+      42_849,
+      "p42849\nftxt\nD0x1\ns1\ni1\nnclaude\n",
+    ),
+    /invalid field/u,
+  );
+  assert.throws(
+    () => parseDarwinTextExecutableMappings(42_849, "p42849\nn/usr/bin/claude\n"),
+    /unexpected shape/u,
+  );
+});
+
+test("mapped executable selection rejects a pathname with the wrong mapped inode", () => {
+  const executable = executableMapping();
+  const expected = executableIdentity();
+  assert.throws(
+    () => selectExpectedParentExecutable(
+      [{ ...executable, inode: String(BigInt(executable.inode) + 1n) }],
+      expected.sha256,
+      expected.bytes,
+    ),
+    /does not have one expected identity/u,
+  );
+});
+
+test("parent executable selection rejects two matching mapped files", (t) => {
+  const root = privateRoot(t);
+  const executable = readFileSync(realpathSync(process.execPath));
+  const first = join(root, "first-parent");
+  const second = join(root, "second-parent");
+  writeFileSync(first, executable, { mode: 0o600 });
+  writeFileSync(second, executable, { mode: 0o600 });
+  const expected = executableIdentity();
+
+  assert.throws(
+    () => selectExpectedParentExecutable(
+      [first, second],
+      expected.sha256,
+      expected.bytes,
+    ),
+    /does not have one expected identity/u,
+  );
+});
 
 function readEvents(path) {
   return readFileSync(path, "utf8")
