@@ -52,6 +52,7 @@ Representative current decisions are:
 | --- | --- | --- |
 | QUAL-206 harness or fixture | Repository assurance | All existing checks run |
 | QUAL-206 schema | Repository and gateway derivation chain | All existing checks run |
+| Locked OKF research input | Repository and gateway derivation chain | All existing checks run |
 | Documentation | Repository assurance | All existing checks run |
 | Workflow, lock or toolchain | Full assurance | All existing checks run |
 | Unknown path | Full assurance | All existing checks run |
@@ -77,6 +78,24 @@ following:
 
 The next optimisation decision should use retained shadow plans and full-run
 outcomes, not assumptions about filenames alone.
+
+The planner and map in a pull-request head are untrusted while that pull request
+can change them. Shadow reporting may execute that candidate safely because it
+cannot skip verification. Before enforcement, the workflow must instead execute
+the planner and map from the trusted pull-request base, compare that result with
+the candidate head, and select full assurance if either result is missing, fails
+or disagrees. Workflow, planner, map and routing-test changes must themselves
+select full assurance under the base policy. A revised policy becomes eligible
+only after it has merged under full checks and passed exact-main verification; it
+must never govern its own pull request. Workflow ownership must also be protected
+through CODEOWNERS or an equivalent repository ruleset.
+
+The OKF source lock is part of the dependency contract. Its three research-pack
+JSON inputs are not ordinary documentation: `scripts/build_okf.py` consumes them
+to create the deterministic projection used by Explorer and the gateway image.
+Contract tests therefore require every path in `okf/source-lock.json` to select
+both repository and gateway-image assurance, including rename handling and a
+mutation test which removes a mapping entry.
 
 ## Expected time effect
 

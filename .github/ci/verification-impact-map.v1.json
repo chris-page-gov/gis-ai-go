@@ -149,6 +149,9 @@
       "id": "governed-okf-publication",
       "description": "Canonical OKF inputs affect the Explorer and gateway catalogue.",
       "patterns": [
+        "docs/research/2026-08-19/research-pack/data/providers.json",
+        "docs/research/2026-08-19/research-pack/data/sources.json",
+        "docs/research/2026-08-19/research-pack/data/workflows.json",
         "docs/source-ledger/**",
         "okf/**",
         "providers/**",
