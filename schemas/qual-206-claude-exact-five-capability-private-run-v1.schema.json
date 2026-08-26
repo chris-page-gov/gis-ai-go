@@ -1,0 +1,390 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:qual-206-claude-exact-five-capability-private-run:v1",
+  "title": "QUAL-206 Claude exact-five private capability run",
+  "description": "Closed owner-only manifest for one bounded Claude exact-five-v1 attempt.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "run_id", "profile", "source", "case", "host", "execution",
+    "private_files", "isolation", "runtime_binding"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gis-ai-go.qual-206-claude-exact-five-capability-private-run.v1"
+    },
+    "run_id": {"$ref": "#/$defs/uuidV4"},
+    "profile": {"const": "exact-five-v1"},
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "commit", "tree", "repository_origin", "local_origin_main_match",
+        "protected_main_verification"
+      ],
+      "properties": {
+        "commit": {"$ref": "#/$defs/commit"},
+        "tree": {"$ref": "#/$defs/commit"},
+        "repository_origin": {
+          "const": "https://github.com/chris-page-gov/gis-ai-go.git"
+        },
+        "local_origin_main_match": {"const": true},
+        "protected_main_verification": {"const": "external-publication-gate"}
+      }
+    },
+    "case": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "corpus_bytes", "corpus_sha256", "prompt_bytes", "prompt_sha256",
+        "prompt_text_repeated_in_projection"
+      ],
+      "properties": {
+        "id": {"const": "QUAL-206-CLAUDE-EXACT-FIVE-V1"},
+        "corpus_bytes": {"$ref": "#/$defs/positiveBytes"},
+        "corpus_sha256": {"$ref": "#/$defs/sha256"},
+        "prompt_bytes": {"$ref": "#/$defs/positiveBytes"},
+        "prompt_sha256": {"$ref": "#/$defs/sha256"},
+        "prompt_text_repeated_in_projection": {"const": false}
+      }
+    },
+    "host": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name", "version", "executable_bytes", "executable_sha256",
+        "model_requested", "auth_kind", "api_budget_usd", "auth_preflight"
+      ],
+      "properties": {
+        "name": {"const": "Claude Code"},
+        "version": {"const": "2.1.245"},
+        "executable_bytes": {"const": 376109392},
+        "executable_sha256": {
+          "const": "9f7c2260251765a18d0b35198669dacc1912f6e8129a3b01f6b58d93365ff1f1"
+        },
+        "model_requested": {"const": "claude-sonnet-5"},
+        "auth_kind": {"enum": ["first-party-login", "api-key"]},
+        "api_budget_usd": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^(?:0\\.(?:0[1-9]|[1-9][0-9]?)|[1-9][0-9]{0,2}(?:\\.[0-9]{1,2})?)$"
+            },
+            {"type": "null"}
+          ]
+        },
+        "auth_preflight": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["logged_in", "api_provider", "auth_method", "subscription_type"],
+          "properties": {
+            "logged_in": {"const": true},
+            "api_provider": {"const": "firstParty"},
+            "auth_method": {
+              "type": "string", "minLength": 1, "maxLength": 64,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._ -]{0,63}$"
+            },
+            "subscription_type": {
+              "oneOf": [
+                {
+                  "type": "string", "minLength": 1, "maxLength": 64,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._ -]{0,63}$"
+                },
+                {"type": "null"}
+              ]
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"auth_kind": {"const": "first-party-login"}},
+            "required": ["auth_kind"]
+          },
+          "then": {
+            "properties": {
+              "api_budget_usd": {"type": "null"},
+              "auth_preflight": {
+                "properties": {
+                  "auth_method": {"const": "claude.ai"},
+                  "subscription_type": {"type": "string"}
+                }
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "api_budget_usd": {"type": "string"},
+              "auth_preflight": {
+                "properties": {
+                  "auth_method": {"const": "api-key-environment"},
+                  "subscription_type": {"type": "null"}
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "execution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "started_at", "finished_at", "command_sha256", "exit_code", "signal",
+        "interrupted_signal", "harness_classification", "stdout", "stderr",
+        "output_schema_sha256", "built_in_tools_available", "allowed_mcp_tools",
+        "permission_mode", "session_persistence", "maximum_turns", "effort",
+        "process_group_absent", "spawned_process_executable_attested"
+      ],
+      "properties": {
+        "started_at": {"$ref": "#/$defs/dateTime"},
+        "finished_at": {"$ref": "#/$defs/dateTime"},
+        "command_sha256": {"$ref": "#/$defs/sha256"},
+        "exit_code": {
+          "oneOf": [
+            {"type": "integer", "minimum": 0, "maximum": 255},
+            {"type": "null"}
+          ]
+        },
+        "signal": {
+          "oneOf": [
+            {"type": "string", "minLength": 1, "maxLength": 32},
+            {"type": "null"}
+          ]
+        },
+        "interrupted_signal": {
+          "oneOf": [{"enum": ["SIGINT", "SIGTERM", "SIGHUP"]}, {"type": "null"}]
+        },
+        "harness_classification": {
+          "oneOf": [
+            {
+              "enum": [
+                "client-spawn-error", "launcher-sighup", "launcher-sigint",
+                "launcher-sigterm", "process-group-cleanup-failed",
+                "process-group-survived-client-exit", "run-timeout",
+                "spawned-executable-attestation-failed", "stderr-capture-stream-failed",
+                "stderr-capture-write-failed", "stderr-limit-exceeded",
+                "stdin-stream-failed", "stdout-capture-stream-failed",
+                "stdout-capture-write-failed", "stdout-limit-exceeded"
+              ]
+            },
+            {"type": "null"}
+          ]
+        },
+        "stdout": {"$ref": "#/$defs/capturedFile"},
+        "stderr": {"$ref": "#/$defs/capturedFile"},
+        "output_schema_sha256": {"$ref": "#/$defs/sha256"},
+        "built_in_tools_available": {"const": false},
+        "allowed_mcp_tools": {
+          "const": [
+            "mcp__gis-ai-go-qual-206-exact-five-v1__catalogue_search",
+            "mcp__gis-ai-go-qual-206-exact-five-v1__catalogue_describe",
+            "mcp__gis-ai-go-qual-206-exact-five-v1__selection_resolve",
+            "mcp__gis-ai-go-qual-206-exact-five-v1__data_query",
+            "mcp__gis-ai-go-qual-206-exact-five-v1__evidence_inspect"
+          ]
+        },
+        "permission_mode": {"const": "dontAsk"},
+        "session_persistence": {"const": false},
+        "maximum_turns": {"const": 6},
+        "effort": {"const": "low"},
+        "process_group_absent": {"type": "boolean"},
+        "spawned_process_executable_attested": {"type": "boolean"}
+      }
+    },
+    "private_files": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mcp_config", "settings", "stdout", "stderr", "observer_directory"],
+      "properties": {
+        "mcp_config": {"$ref": "#/$defs/namedFile"},
+        "settings": {"$ref": "#/$defs/namedFile"},
+        "stdout": {"$ref": "#/$defs/namedCapturedFile"},
+        "stderr": {"$ref": "#/$defs/namedCapturedFile"},
+        "observer_directory": {"const": "observer"}
+      }
+    },
+    "isolation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "private_root_mode", "private_file_mode", "workspace_empty",
+        "mcp_subtree_network_access_allowed", "mcp_subtree_network_sandbox",
+        "mcp_child_recognised_credentials_forwarded", "raw_material_published"
+      ],
+      "properties": {
+        "private_root_mode": {"const": "0700"},
+        "private_file_mode": {"const": "0600"},
+        "workspace_empty": {"const": true},
+        "mcp_subtree_network_access_allowed": {"const": false},
+        "mcp_subtree_network_sandbox": {"const": "macos-seatbelt-deny-network"},
+        "mcp_child_recognised_credentials_forwarded": {"const": false},
+        "raw_material_published": {"const": false}
+      }
+    },
+    "runtime_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tracked_source_materials", "generated_first_party_closure",
+        "installed_dependency_closure", "node_runtime", "network_sandbox",
+        "network_sandbox_probe", "complete_first_party_generated_closure_binding",
+        "third_party_runtime_binding", "complete_runtime_source_binding",
+        "dependency_materials_stable", "runtime_materials_stable",
+        "source_checkout_stable"
+      ],
+      "properties": {
+        "tracked_source_materials": {
+          "type": "array", "minItems": 18, "maxItems": 18, "uniqueItems": true,
+          "items": {"$ref": "#/$defs/trackedMaterial"}
+        },
+        "generated_first_party_closure": {"$ref": "#/$defs/generatedClosure"},
+        "installed_dependency_closure": {"$ref": "#/$defs/dependencyClosure"},
+        "node_runtime": {"$ref": "#/$defs/nodeRuntime"},
+        "network_sandbox": {"$ref": "#/$defs/networkSandbox"},
+        "network_sandbox_probe": {"$ref": "#/$defs/networkSandboxProbe"},
+        "complete_first_party_generated_closure_binding": {"const": false},
+        "third_party_runtime_binding": {
+          "const": "installed-closure-digest-plus-pnpm-lockfile"
+        },
+        "complete_runtime_source_binding": {"const": false},
+        "dependency_materials_stable": {"const": true},
+        "runtime_materials_stable": {"const": true},
+        "source_checkout_stable": {"const": true}
+      }
+    }
+  },
+  "$defs": {
+    "uuidV4": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "positiveBytes": {"type": "integer", "minimum": 1, "maximum": 536870912},
+    "dateTime": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{3})?Z$"
+    },
+    "capturedFile": {
+      "type": "object", "additionalProperties": false,
+      "required": ["bytes", "limit_exceeded", "sha256"],
+      "properties": {
+        "bytes": {"type": "integer", "minimum": 0, "maximum": 8388608},
+        "limit_exceeded": {"type": "boolean"},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "namedFile": {
+      "type": "object", "additionalProperties": false,
+      "required": ["name", "bytes", "sha256"],
+      "properties": {
+        "name": {"enum": ["mcp.json", "settings.json"]},
+        "bytes": {"$ref": "#/$defs/positiveBytes"},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "namedCapturedFile": {
+      "type": "object", "additionalProperties": false,
+      "required": ["name", "bytes", "limit_exceeded", "sha256"],
+      "properties": {
+        "name": {"enum": ["stdout.json", "stderr.log"]},
+        "bytes": {"type": "integer", "minimum": 0, "maximum": 8388608},
+        "limit_exceeded": {"type": "boolean"},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "trackedMaterial": {
+      "type": "object", "additionalProperties": false,
+      "required": ["bytes", "path", "sha256"],
+      "properties": {
+        "bytes": {"$ref": "#/$defs/positiveBytes"},
+        "path": {
+          "enum": [
+            "package.json",
+            "pnpm-lock.yaml",
+            "schemas/qual-206-claude-exact-five-capability-evidence-v1.schema.json",
+            "schemas/qual-206-claude-exact-five-capability-private-run-v1.schema.json",
+            "schemas/qual-206-claude-exact-five-capability-session-v1.schema.json",
+            "schemas/qual-206-claude-composite-host-event-capture-v1.schema.json",
+            "schemas/qual-206-claude-composite-host-event-v1.schema.json",
+            "scripts/qual_206_claude_capability_harness.mjs",
+            "scripts/qual_206_claude_exact_five_capability_harness.mjs",
+            "scripts/qual_206_claude_runtime_closure.mjs",
+            "scripts/qual_206_claude_stdio_observer.mjs",
+            "scripts/qual_206_exact_five_event_collector.mjs",
+            "scripts/verify_qual_206_claude_exact_five_capability.py",
+            "scripts/verify_qual_206_claude_exact_five_results.mjs",
+            "scripts/verify_qual_206_claude_composite_observation.py",
+            "tests/interoperability/fixtures/qual_206_claude_exact_five_profile.v1.json",
+            "tests/interoperability/fixtures/qual_206_provider_egress_guard.mjs",
+            "tests/interoperability/fixtures/qual_206_strict_modern_event_server.mjs"
+          ]
+        },
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "generatedClosure": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "bytes", "file_count", "manifest_sha256", "reference_manifest_sha256",
+        "reference_matches_current"
+      ],
+      "properties": {
+        "bytes": {"type": "integer", "minimum": 1, "maximum": 536870912},
+        "file_count": {"type": "integer", "minimum": 1, "maximum": 4096},
+        "manifest_sha256": {"$ref": "#/$defs/sha256"},
+        "reference_manifest_sha256": {"$ref": "#/$defs/sha256"},
+        "reference_matches_current": {"const": true}
+      }
+    },
+    "dependencyClosure": {
+      "type": "object", "additionalProperties": false,
+      "required": ["bytes", "entry_count", "manifest_sha256"],
+      "properties": {
+        "bytes": {"type": "integer", "minimum": 1, "maximum": 1073741824},
+        "entry_count": {"type": "integer", "minimum": 1, "maximum": 20000},
+        "manifest_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "nodeRuntime": {
+      "type": "object", "additionalProperties": false,
+      "required": ["bytes", "path", "sha256", "version"],
+      "properties": {
+        "bytes": {"const": 50320},
+        "path": {"type": "string", "minLength": 1, "maxLength": 1024, "pattern": "^/"},
+        "sha256": {
+          "const": "1ef99ea25fe70c9b67e7efe768ef8ee22148d3cabc703db6131b57aeb617d040"
+        },
+        "version": {"const": "26.7.0"}
+      }
+    },
+    "networkSandbox": {
+      "type": "object", "additionalProperties": false,
+      "required": ["bytes", "path", "profile_sha256", "sha256"],
+      "properties": {
+        "bytes": {"const": 102560},
+        "path": {"const": "/usr/bin/sandbox-exec"},
+        "profile_sha256": {
+          "const": "0a5222386587bf836d30a070bd759c0194f999bf5503ba76c6c0f8cb84b19db2"
+        },
+        "sha256": {
+          "const": "8290e4be7387a0df83cd1559e86afd880464f269450573d012795761fe298f16"
+        }
+      }
+    },
+    "networkSandboxProbe": {
+      "type": "object", "additionalProperties": false,
+      "required": ["fsync_pass", "loopback_denied", "probe_script_sha256"],
+      "properties": {
+        "fsync_pass": {"const": true},
+        "loopback_denied": {"const": true},
+        "probe_script_sha256": {
+          "const": "c6540fbbb22b0c3b965a6ce5dceb81eb2064e99ceb324c122db31ad6f0a8f426"
+        }
+      }
+    }
+  }
+}

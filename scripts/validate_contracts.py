@@ -913,6 +913,18 @@ def main() -> None:
             ],
         ),
         (
+            "qual-206-claude-exact-five-capability-private-run-v1.schema.json",
+            [],
+        ),
+        (
+            "qual-206-claude-exact-five-capability-session-v1.schema.json",
+            [],
+        ),
+        (
+            "qual-206-claude-exact-five-capability-evidence-v1.schema.json",
+            [],
+        ),
+        (
             "qual-206-local-http-transport-preflight.schema.json",
             [
                 (
