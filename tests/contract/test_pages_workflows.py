@@ -93,7 +93,7 @@ class PagesWorkflowTests(unittest.TestCase):
 
     def test_ci_impact_map_job_identifiers_cannot_drift_from_the_workflow(self) -> None:
         impact_map = json.loads(
-            (ROOT / ".github/ci/verification-impact-map.v1.json").read_text(
+            (ROOT / ".github/ci/verification-impact-map.v2.json").read_text(
                 encoding="utf-8"
             )
         )
@@ -135,11 +135,12 @@ class PagesWorkflowTests(unittest.TestCase):
         self.assertIn("name: CI impact plan (shadow)", impact)
         self.assertIn("fetch-depth: 0", impact)
         self.assertIn("scripts/plan_ci_impact.py", impact)
+        self.assertIn('--repository-root "$GITHUB_WORKSPACE"', impact)
         self.assertIn("impact_event='pull_request'", impact)
         self.assertIn("impact_event='push_main'", impact)
         self.assertIn('--event "$impact_event"', impact)
         impact_map = (
-            ROOT / ".github/ci/verification-impact-map.v1.json"
+            ROOT / ".github/ci/verification-impact-map.v2.json"
         ).read_text(encoding="utf-8")
         self.assertIn('"mode": "shadow"', impact_map)
         self.assertIn("All current assurance jobs still run", impact)
@@ -187,6 +188,41 @@ class PagesWorkflowTests(unittest.TestCase):
             CI_WORKFLOW.index("\n  gateway_image:\n"),
             CI_WORKFLOW.index("\n  assurance:\n"),
         )
+
+    def test_ci_gateway_image_scalar_is_closed_fail_full_shadow_output(self) -> None:
+        impact = CI_WORKFLOW.split("\n  ci_impact_shadow:\n", 1)[1].split(
+            "\n  repository_assurance:\n", 1
+        )[0]
+        default_name = "- name: Default gateway image routing to fail-full"
+        checkout_name = "- name: Check out impact-planning source"
+        plan_name = "- name: Produce fail-closed shadow impact plan"
+        self.assertLess(impact.index(default_name), impact.index(checkout_name))
+        self.assertLess(impact.index(default_name), impact.index(plan_name))
+        self.assertIn("id: fail_full", impact)
+        self.assertIn(
+            "run: printf 'gateway_image_required=true\\n' >> \"$GITHUB_OUTPUT\"",
+            impact,
+        )
+        self.assertIn(
+            "gateway_image_required: "
+            "${{ steps.plan.outputs.gateway_image_required || "
+            "steps.fail_full.outputs.gateway_image_required }}",
+            impact,
+        )
+        self.assertIn("if .gateway_image_required == true then \"true\"", impact)
+        self.assertIn("elif .gateway_image_required == false then \"false\"", impact)
+        self.assertIn(
+            'else error("gateway_image_required must be a boolean")', impact
+        )
+        self.assertIn("printf 'gateway_image_required=%s\\n'", impact)
+        self.assertNotRegex(
+            CI_WORKFLOW,
+            r"(?m)^\s*if:.*needs\.ci_impact_shadow\.outputs\.gateway_image_required",
+        )
+        assurance = CI_WORKFLOW.split("\n  assurance:\n", 1)[1].split(
+            "\n  provenance:\n", 1
+        )[0]
+        self.assertNotIn("gateway_image_required", assurance)
 
     def test_ci_gateway_uploads_only_complete_successful_evidence(self) -> None:
         gateway = CI_WORKFLOW.split("\n  gateway_image:\n", 1)[1].split(

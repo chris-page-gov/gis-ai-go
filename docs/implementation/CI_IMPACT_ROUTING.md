@@ -24,7 +24,7 @@ coalesces protected-main runs.
 ## Shadow planner contract
 
 The versioned map at
-`.github/ci/verification-impact-map.v1.json` declares selectable lanes, their
+`.github/ci/verification-impact-map.v2.json` declares selectable lanes, their
 dependencies and repository-path rules. `scripts/plan_ci_impact.py` reads the exact
 event-base-to-head Git change inventory, filters recommendations to lanes that run
 for that pull-request or protected-main event, and emits canonical JSON. The output
@@ -34,7 +34,23 @@ records:
 - every changed path and matching rule;
 - dependency-expanded lane decisions;
 - unmatched paths; and
-- whether a full plan was selected.
+- whether a full plan was selected; and
+- the closed Boolean `gateway_image_required` decision.
+
+The Boolean remains a Boolean in the canonical plan. Only the workflow output
+boundary converts it to the exact string `true` or `false`. Before candidate-head
+planning starts, the workflow publishes `true` as its fail-full default. It replaces
+that default only after the candidate plan exists and `jq` has proved the field is
+exactly a JSON Boolean. A missing planner result, missing field or any other scalar
+therefore cannot become a skip recommendation.
+
+The planner accepts an explicit `--repository-root`. Its script bytes can therefore
+come from a separately checked-out policy source while the Git inventory, map and
+new output remain bounded to the named worktree. The root must be a real directory
+and the exact Git top level; nested directories and symbolic-link aliases fail
+closed. This interface is preparation for trusted-base evaluation. The current
+workflow still runs the planner and map from the candidate head, so its output is
+diagnostic only and does not control any job.
 
 The planner is fail closed. An invalid map, missing commit, malformed or unsafe
 path, unknown Git status, empty change set or unmatched path selects full assurance
@@ -96,6 +112,29 @@ to create the deterministic projection used by Explorer and the gateway image.
 Contract tests therefore require every path in `okf/source-lock.json` to select
 both repository and gateway-image assurance, including rename handling and a
 mutation test which removes a mapping entry.
+
+The v2 contract test evaluates every path tracked at its introduction: all 832 had
+an explicit rule, and each of the 235 tracked files admitted to the gateway build
+context required gateway-image assurance. The assertions retain those baseline
+lower bounds and automatically evaluate newly tracked paths, so an unmapped new path
+or an image-context omission fails before routing can be promoted.
+
+## Trusted agreement stage
+
+The next routing pull request may add a separately reviewed trusted-base/candidate
+agreement, but v2 does not claim that boundary is present. That later workflow must:
+
+1. obtain the planner and map from the pull request's trusted base commit without
+   executing candidate-controlled preparation;
+2. evaluate the same exact base-to-candidate inventory with both policies;
+3. accept `false` only when both closed outputs are exactly `false`;
+4. use `true` for missing, malformed, failed or disagreeing results; and
+5. keep workflow, planner, map and routing-test changes on full assurance under the
+   trusted base policy.
+
+Until that agreement is implemented and separately accepted, the workflow does not
+use `gateway_image_required` in a job condition. The stable aggregator still
+requires the planner, repository and gateway-image producers to succeed.
 
 ## Expected time effect
 
