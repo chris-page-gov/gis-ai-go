@@ -214,6 +214,41 @@ macRuntimeTest("fake Claude completes the closed exact-five-v1 journey", async (
   );
 });
 
+macRuntimeTest(
+  "fake Claude may negotiate and call across the accepted two-session shape",
+  async (t) => {
+    const root = privateRoot(t);
+    const { manifest } = await runClaudeExactFiveCapability(
+      options(root),
+      dependencies("split-sessions"),
+    );
+    assert.equal(manifest.execution.exit_code, 0, JSON.stringify({
+      classification: manifest.execution.harness_classification,
+      signal: manifest.execution.signal,
+      stderr: readFileSync(join(root, "stderr.log"), "utf8"),
+      observer: readdirSync(join(root, "observer")).sort(),
+    }));
+    assert.deepEqual(readdirSync(join(root, "observer")).sort(), [
+      "exact-five-v1.claim.json",
+      "session-1",
+      "session-2",
+    ]);
+    const first = JSON.parse(readFileSync(
+      join(root, "observer", "session-1", "exact-five-results.json"),
+      "utf8",
+    ));
+    const second = JSON.parse(readFileSync(
+      join(root, "observer", "session-2", "exact-five-results.json"),
+      "utf8",
+    ));
+    assert.deepEqual(first.results.map(({ method }) => method), ["server/discover"]);
+    assert.deepEqual(second.results.map(({ method }) => method), [
+      "tools/list",
+      ...OPERATIONS.map(() => "tools/call"),
+    ]);
+  },
+);
+
 for (const scenario of [
   "wrong-order",
   "wrong-arguments",

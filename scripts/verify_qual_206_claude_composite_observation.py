@@ -780,16 +780,24 @@ def _verify_audits(
     audits: list[dict[str, Any]],
     *,
     capability_sandbox: bool,
+    exact_five_capability: bool,
     requests: list[dict[str, Any]],
     responses: list[dict[str, Any]],
 ) -> None:
-    expected = (
+    zero_provider_expected = (
         "provider-egress-guard-ready",
         "provider-egress-guard-summary",
         "session-summary",
     )
+    exact_five_expected = (
+        "provider-egress-guard-ready",
+        "provider-transport-started",
+        "provider-egress-guard-summary",
+        "session-summary",
+    )
+    expected = exact_five_expected if exact_five_capability else zero_provider_expected
     if tuple(audit["audit_kind"] for audit in audits) != expected:
-        fail("session does not contain the exact zero-provider audit sequence")
+        fail("session does not contain its exact closed audit sequence")
     successful_response_ids = {
         response["request_id_sha256"]
         for response in responses
@@ -797,13 +805,30 @@ def _verify_audits(
         and response["outcome"] == "success"
         and response["contract_valid"] is True
     }
-    expected_ledger_events = sum(
-        request["operation"] == "catalogue.search"
-        and request["request_id_sha256"] in successful_response_ids
-        for request in requests
-    ) if capability_sandbox else 0
-    if expected_ledger_events not in {0, 1}:
-        fail("capability session exceeds the one-call ledger boundary")
+    if exact_five_capability:
+        successful_operations = [
+            request["operation"]
+            for request in requests
+            if request["method"] == "tools/call"
+            and request["request_id_sha256"] in successful_response_ids
+        ]
+        if successful_operations != [
+            "catalogue.search",
+            "catalogue.describe",
+            "selection.resolve",
+            "data.query",
+            "evidence.inspect",
+        ]:
+            fail("exact-five capability session does not contain five successful calls")
+        expected_ledger_events = 4
+    else:
+        expected_ledger_events = sum(
+            request["operation"] == "catalogue.search"
+            and request["request_id_sha256"] in successful_response_ids
+            for request in requests
+        ) if capability_sandbox else 0
+        if expected_ledger_events not in {0, 1}:
+            fail("capability session exceeds the one-call ledger boundary")
     for audit in audits:
         if (
             audit["direction"] != "fixture-audit"
@@ -813,17 +838,27 @@ def _verify_audits(
         kind = audit["audit_kind"]
         if kind == "provider-egress-guard-ready":
             expected_counts = (None, None, None, None, None)
+        elif kind == "provider-transport-started":
+            expected_counts = (None, None, None, None, None)
         elif kind == "provider-egress-guard-summary":
             expected_counts = (0, None, None, None, None)
         else:
-            expected_counts = (None, 0, 0, expected_ledger_events, 0)
+            expected_counts = (
+                None,
+                1 if exact_five_capability else 0,
+                0,
+                expected_ledger_events,
+                0,
+            )
         if (
             audit["guarded_api_invocation_count"],
             audit["provider_transport_calls"],
             audit["aborted_provider_calls"],
             audit["ledger_event_count"],
             audit["reported_error_count"],
-        ) != expected_counts or audit["ordinal"] is not None:
+        ) != expected_counts or audit["ordinal"] != (
+            1 if kind == "provider-transport-started" else None
+        ):
             fail("session reports provider activity or an unsafe audit projection")
 
 
@@ -838,6 +873,7 @@ def verify_session(
     expected_source_commit: str,
     expected_parent_sha256: str,
     expected_parent_bytes: int,
+    exact_five_capability: bool = False,
 ) -> SessionResult:
     if event_file.identity == manifest_file.identity:
         fail("event log and manifest must be distinct files")
@@ -1042,6 +1078,7 @@ def verify_session(
     _verify_audits(
         audits,
         capability_sandbox=capability_sandbox,
+        exact_five_capability=exact_five_capability,
         requests=requests,
         responses=responses,
     )

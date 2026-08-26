@@ -59,6 +59,9 @@ export const TRACKED_CAPABILITY_MATERIALS = Object.freeze([
 export const TRACKED_EXACT_FIVE_CAPABILITY_MATERIALS = Object.freeze([
   "package.json",
   "pnpm-lock.yaml",
+  "schemas/qual-206-claude-exact-five-capability-evidence-v1.schema.json",
+  "schemas/qual-206-claude-exact-five-capability-private-run-v1.schema.json",
+  "schemas/qual-206-claude-exact-five-capability-session-v1.schema.json",
   "schemas/qual-206-claude-composite-host-event-capture-v1.schema.json",
   "schemas/qual-206-claude-composite-host-event-v1.schema.json",
   "scripts/qual_206_claude_capability_harness.mjs",
@@ -66,6 +69,8 @@ export const TRACKED_EXACT_FIVE_CAPABILITY_MATERIALS = Object.freeze([
   "scripts/qual_206_claude_runtime_closure.mjs",
   "scripts/qual_206_claude_stdio_observer.mjs",
   "scripts/qual_206_exact_five_event_collector.mjs",
+  "scripts/verify_qual_206_claude_exact_five_capability.py",
+  "scripts/verify_qual_206_claude_exact_five_results.mjs",
   "scripts/verify_qual_206_claude_composite_observation.py",
   "tests/interoperability/fixtures/qual_206_claude_exact_five_profile.v1.json",
   "tests/interoperability/fixtures/qual_206_provider_egress_guard.mjs",

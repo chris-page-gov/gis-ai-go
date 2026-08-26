@@ -100,6 +100,7 @@ const CAPABILITY_CLAIM_FILE = "catalogue-search.claim.json";
 const CAPABILITY_SUMMARY_FILE = "capability.json";
 const EXACT_FIVE_CAPABILITY_CLAIM_FILE = "exact-five-v1.claim.json";
 const EXACT_FIVE_CAPABILITY_SUMMARY_FILE = "exact-five-capability.json";
+const EXACT_FIVE_CAPABILITY_RESULT_MATERIAL_FILE = "exact-five-results.json";
 const SAFE_GIT_OPTIONS = Object.freeze([
   "-c",
   "core.fsmonitor=false",
@@ -445,6 +446,7 @@ function openPrivateCaptureFile(path, slotState) {
       "manifest.json",
       CAPABILITY_SUMMARY_FILE,
       EXACT_FIVE_CAPABILITY_SUMMARY_FILE,
+      EXACT_FIVE_CAPABILITY_RESULT_MATERIAL_FILE,
     ].includes(basename(path))
   ) {
     fail("private capture filename is invalid");
@@ -727,6 +729,8 @@ function immediateParentExecutable(expectedSha256, expectedBytes) {
         encoding: "utf8",
         env: { LANG: "C", LC_ALL: "C", PATH: "/usr/bin:/bin:/usr/sbin" },
         maxBuffer: 65_536,
+        // lsof can warn about unrelated Time Machine mounts; never leak those paths.
+        stdio: ["ignore", "pipe", "ignore"],
         timeout: 5_000,
       },
     );
@@ -1395,6 +1399,7 @@ function startObserver(options) {
   let capabilityResponseValid = null;
   const exactFiveRequests = [];
   const exactFiveResponses = [];
+  const exactFiveResultEnvelopes = [];
   let exactFiveSearchReceiptId = null;
 
   function emit(event, fields) {
@@ -1756,6 +1761,17 @@ function startObserver(options) {
         }
       }
     }
+    if (
+      exactFiveCapabilityMode && context !== undefined &&
+      ["server/discover", "tools/list", "tools/call"].includes(context.method)
+    ) {
+      exactFiveResultEnvelopes.push({
+        ordinal: exactFiveResultEnvelopes.length,
+        method: context.method,
+        operation: context.operation,
+        result: Object.hasOwn(message, "result") ? message.result : null,
+      });
+    }
     const duration = context === undefined
       ? null
       : Number(process.hrtime.bigint() - context.started) / 1_000_000;
@@ -1855,9 +1871,17 @@ function startObserver(options) {
             ) &&
             exactArray(value.suspensions, []) &&
             (!exactFiveCapabilityMode || (
-              value.provider_transport_calls === 1 &&
-              value.aborted_provider_calls === 0 &&
-              value.ledger_event_count === 4
+              (
+                exactFiveRequests.length === 0 &&
+                value.provider_transport_calls === 0 &&
+                value.aborted_provider_calls === 0 &&
+                value.ledger_event_count === 0
+              ) || (
+                exactFiveRequests.length === EXACT_OPERATIONS.length &&
+                value.provider_transport_calls === 1 &&
+                value.aborted_provider_calls === 0 &&
+                value.ledger_event_count === 4
+              )
             ))) &&
         Number.isSafeInteger(value.provider_transport_calls) &&
         value.provider_transport_calls >= 0 &&
@@ -2065,7 +2089,18 @@ function startObserver(options) {
       const hostSignalStimulus = hostCloseSignal === "SIGINT"
         ? "sigint"
         : hostCloseSignal === "SIGTERM" ? "sigterm" : null;
-      const exactFiveCapabilityComplete = !exactFiveCapabilityMode || (
+      const exactFiveMethods = requestContexts.map(({ method }) => method);
+      const exactFiveAllowedMethodSequences = [
+        ["server/discover"],
+        ["tools/list"],
+        ["server/discover", "tools/list"],
+        ["tools/list", ...EXACT_OPERATIONS.map(() => "tools/call")],
+        ["server/discover", "tools/list", ...EXACT_OPERATIONS.map(() => "tools/call")],
+      ];
+      const exactFiveMethodSequenceValid = exactFiveAllowedMethodSequences.some(
+        (expected) => canonicalJson(expected) === canonicalJson(exactFiveMethods),
+      );
+      const exactFiveCallsComplete =
         exactFiveRequests.length === EXACT_OPERATIONS.length &&
         exactFiveResponses.length === EXACT_OPERATIONS.length &&
         exactFiveRequests.every((request, index) =>
@@ -2079,7 +2114,12 @@ function startObserver(options) {
           response.structured_plain_text_parity === true
         ) &&
         exactFiveResponses.at(-1)?.inspection_relationship_valid === true &&
-        exactFiveResponses.at(-1)?.inspected_receipt_id === exactFiveSearchReceiptId
+        exactFiveResponses.at(-1)?.inspected_receipt_id === exactFiveSearchReceiptId;
+      const exactFiveAuxiliaryComplete = exactFiveRequests.length === 0 &&
+        exactFiveResponses.length === 0;
+      const exactFiveCapabilityComplete = !exactFiveCapabilityMode || (
+        exactFiveMethodSequenceValid &&
+        (exactFiveCallsComplete || exactFiveAuxiliaryComplete)
       );
       const basePassed = code === 0 && signal === null && stderrEventCount === 0 &&
         streamsGraceful && auditComplete && runtimeMaterialsStable && sourceStable &&
@@ -2151,6 +2191,47 @@ function startObserver(options) {
         sha256Bytes(encodedManifest),
       );
       if (capabilityMode) {
+        let exactFiveResultMaterial = null;
+        if (exactFiveCapabilityMode) {
+          const resultMaterialPath = join(
+            slot.path,
+            EXACT_FIVE_CAPABILITY_RESULT_MATERIAL_FILE,
+          );
+          const resultMaterialDescriptor = openPrivateCaptureFile(
+            resultMaterialPath,
+            slot.state,
+          );
+          try {
+            const encodedResultMaterial = Buffer.from(
+              `${canonicalJson({
+                schema:
+                  "gis-ai-go.qual-206-claude-exact-five-result-material.v1",
+                profile: "exact-five-v1",
+                run_id: options.runId,
+                session_id: sessionId,
+                results: exactFiveResultEnvelopes,
+              })}\n`,
+              "utf8",
+            );
+            if (encodedResultMaterial.length > 6 * 1_048_576) {
+              fail("exact-five result material exceeds its private byte boundary");
+            }
+            writeAll(resultMaterialDescriptor, encodedResultMaterial);
+            verifyPrivateCaptureFile(
+              resultMaterialDescriptor,
+              resultMaterialPath,
+              encodedResultMaterial.length,
+              sha256Bytes(encodedResultMaterial),
+            );
+            exactFiveResultMaterial = Object.freeze({
+              bytes: encodedResultMaterial.length,
+              name: EXACT_FIVE_CAPABILITY_RESULT_MATERIAL_FILE,
+              sha256: sha256Bytes(encodedResultMaterial),
+            });
+          } finally {
+            closeSync(resultMaterialDescriptor);
+          }
+        }
         const capabilityPath = join(
           slot.path,
           host002CapabilityMode
@@ -2217,6 +2298,7 @@ function startObserver(options) {
                   bytes: capabilityClaim?.bytes ?? null,
                   sha256: capabilityClaim?.sha256 ?? null,
                 },
+                result_material: exactFiveResultMaterial,
                 operations: exactFiveResponses.map((response, index) => ({
                   ordinal: index,
                   request: exactFiveRequests[index] ?? null,

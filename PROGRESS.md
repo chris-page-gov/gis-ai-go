@@ -41,6 +41,12 @@ The supported target active set is exactly `catalogue.search`,
   model-mediated `catalogue.search` capability pass; keep exact-five model
   capability, remote HTTP, live geospatial-provider use, registry publication,
   activation, deployment and release false and open;
+- retain the additive `exact-five-v1` private/session/public schemas and offline
+  verifier candidate, which independently rechecks the retained canonical result
+  bodies, five operation-specific receipts, search-to-inspection relation, exact
+  request and method closure, Claude final output and process/runtime closure. Its
+  fake one-session and accepted two-session shapes pass; no live Claude exact-five
+  observation or public projection has been made;
 - retain the accepted fail-closed real-socket loopback HTTP exact-five preflight,
   whose owner-only raw capture remains local and whose independent path-free
   projection keeps remote-host acceptance false and capability unscored;

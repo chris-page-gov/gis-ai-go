@@ -142,13 +142,16 @@ async function stopSession(session, clean = true) {
   }
 }
 
-async function discover(request) {
+async function discoverServer(request) {
   const discovery = await request("server/discover", meta());
   if (JSON.stringify(discovery.capabilities) !== JSON.stringify({
     tools: { listChanged: false },
   })) {
     fail("fake Claude observed a widened capability set");
   }
+}
+
+async function listTools(request) {
   const listing = await request("tools/list", meta());
   const listedOperations = listing.tools?.map(({ name }) => name);
   if (
@@ -159,6 +162,11 @@ async function discover(request) {
       listedOperations,
     )}`);
   }
+}
+
+async function discover(request) {
+  await discoverServer(request);
+  await listTools(request);
 }
 
 async function main() {
@@ -198,11 +206,24 @@ async function main() {
     fail("fake Claude received a widened MCP configuration");
   }
   const server = servers[0][1];
+  if (SCENARIO === "split-sessions") {
+    const discoverySession = startSession(server);
+    let discoveryError = null;
+    try {
+      await discoverServer(discoverySession.request);
+    } catch (error) {
+      discoveryError = error;
+      throw error;
+    } finally {
+      await stopSession(discoverySession, discoveryError === null);
+    }
+  }
   const session = startSession(server);
   const receipts = {};
   let sessionError = null;
   try {
-    await discover(session.request);
+    if (SCENARIO === "split-sessions") await listTools(session.request);
+    else await discover(session.request);
     const calls = PROFILE.operations.map((operation) => ({ ...operation }));
     if (SCENARIO === "wrong-order") [calls[0], calls[1]] = [calls[1], calls[0]];
     for (const operation of calls) {
@@ -232,7 +253,10 @@ async function main() {
     sessionError = error;
     throw error;
   } finally {
-    await stopSession(session, SCENARIO === "positive" && sessionError === null);
+    await stopSession(
+      session,
+      ["positive", "split-sessions"].includes(SCENARIO) && sessionError === null,
+    );
   }
 
   process.stdout.write(JSON.stringify({

@@ -4,8 +4,10 @@
 
 This additive pack prepares a bounded Claude Code `2.1.245` observation of the
 complete deterministic exact-five journey over local MCP `2026-07-28` STDIO. It
-has regression coverage but has not been used for a live Claude observation.
-There is no accepted public exact-five capability evidence yet.
+now includes closed private-run, per-session and minimised public-evidence schemas,
+plus an offline verifier and adversarial regression coverage. It has not been used
+for a live Claude observation. There is no accepted public exact-five capability
+evidence yet.
 
 The existing QUAL-206-HOST-002 schemas, verifier and evidence remain unchanged.
 That accepted one-tool observation continues to prove only `catalogue.search`.
@@ -47,20 +49,37 @@ The separate launcher:
 - rejects missing, duplicated, reordered or altered calls, including inspection
   of any receipt other than the search receipt.
 
-The fake-client suite exercises one complete success path and four adversarial
-paths: wrong order, wrong arguments, a duplicate call and a substituted inspection
-receipt. Each adversarial path is classified as
-`capability-evidence-request-invalid` by the observer.
+The CLI's `--max-turns 6` ceiling is distinct from the expected successful JSON
+report of `num_turns: 7`; the verifier checks both fields and records the semantic
+distinction. It accepts only one closed call session and the observed bounded
+negotiation variants. This includes the accepted two-session shape in which the
+first session performs `server/discover` and the second performs `tools/list` then
+the five ordered calls.
+
+Each exact-five observer session retains one canonical, owner-only and size-bounded
+result file locally. The offline Node verifier rechecks the discovery and listing
+surface, full structured response bodies, plain-text parity, output contracts and
+all five operation-specific cryptographic receipts. It also proves that the
+inspection target is the search receipt while the inspection call has its own
+distinct receipt. The Python verifier independently binds that result verification
+to the request-event chain, source/runtime closure, final Claude structured output,
+process cleanup and provider audit.
+
+The fake-client suites exercise the complete one-session and two-session success
+paths, plus wrong order, wrong arguments, a duplicate call, a substituted
+inspection receipt and a cryptographically invalid receipt. Offline projection
+tests additionally reject result reordering, duplication, body-parity failure,
+inspection-relationship substitution, extra protocol methods, changed request
+digests, conflated turn counts, inflated claims and private-data leakage.
 
 ## Publication boundary
 
-Do not treat the private harness result as evidence. A further additive slice
-must supply closed exact-five private-run, session and public-projection schemas,
-an offline verifier and projection regression tests. Only after that slice has
-merged and passed protected-main checks may one separately authorised live
+Do not treat the private harness result as evidence. Only after this verifier slice
+has merged and passed protected-main checks may one separately authorised live
 observation be run from exact protected `main`. Raw prompts, responses, paths,
-process details and private logs must remain local; only a successful minimised
-verifier projection may enter the public evidence directory.
+process details, costs, identifiers and private logs must remain local. Only a
+successful, schema-valid and minimised verifier projection may enter the public
+evidence directory. Failed or incomplete projections are not publishable.
 
 This pack does not establish remote HTTP interoperability, live provider use,
 registry publication, activation, deployment or release.
