@@ -244,7 +244,7 @@ await harness.runClaudeCapability({
     output = json.loads(stdout_path.read_text(encoding="utf-8"))
     output.update(
         {
-            "num_turns": 2,
+            "num_turns": 3,
             "usage": {
                 "input_tokens": 3,
                 "cache_creation_input_tokens": 5,
@@ -343,7 +343,7 @@ def public_projection() -> dict[str, object]:
             "model_usage_observed": True,
             "input_tokens": 12,
             "output_tokens": 7,
-            "num_turns": 2,
+            "num_turns": 3,
             "client_exit_code": 0,
         },
         "isolation": {
@@ -515,7 +515,7 @@ class ClaudeCapabilityContractsTest(unittest.TestCase):
             ("unverified receipt", ("result", "receipt_verification_valid"), False),
             ("model mismatch", ("result", "model_output_match"), False),
             ("zero model input", ("result", "input_tokens"), 0),
-            ("extra model turn", ("result", "num_turns"), 3),
+            ("reported-turn under-count", ("result", "num_turns"), 2),
             ("second call", ("transport", "tool_call_count"), 2),
             ("built-in tools", ("isolation", "built_in_tools_available"), True),
             ("turn ceiling drift", ("isolation", "maximum_turns"), 1),
@@ -739,7 +739,7 @@ class ClaudeCapabilityContractsTest(unittest.TestCase):
                 "subtype": "success",
                 "is_error": False,
                 "permission_denials": [],
-                "num_turns": 2,
+                "num_turns": 3,
                 "usage": {
                     "input_tokens": 3,
                     "cache_creation_input_tokens": 5,
@@ -831,9 +831,15 @@ class ClaudeCapabilityContractsTest(unittest.TestCase):
             ):
                 zero_input["modelUsage"]["claude-sonnet-5"][name] = 0
             invalid_outputs.append(("positive input usage", zero_input))
+            too_few_turns = copy.deepcopy(output)
+            too_few_turns["num_turns"] = 2
+            invalid_outputs.append(("exact reported-turn lifecycle", too_few_turns))
+            non_integer_turns = copy.deepcopy(output)
+            non_integer_turns["num_turns"] = 3.0
+            invalid_outputs.append(("integer reported-turn count", non_integer_turns))
             extra_turn = copy.deepcopy(output)
-            extra_turn["num_turns"] = 3
-            invalid_outputs.append(("exact two-turn lifecycle", extra_turn))
+            extra_turn["num_turns"] = 4
+            invalid_outputs.append(("extra reported turn", extra_turn))
             for label, invalid in invalid_outputs:
                 with self.subTest(label=label):
                     invalid_raw = json.dumps(invalid, separators=(",", ":")).encode()
