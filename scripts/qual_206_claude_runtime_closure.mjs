@@ -56,6 +56,22 @@ export const TRACKED_CAPABILITY_MATERIALS = Object.freeze([
   "tests/interoperability/qual_206_cases.json",
 ]);
 
+export const TRACKED_EXACT_FIVE_CAPABILITY_MATERIALS = Object.freeze([
+  "package.json",
+  "pnpm-lock.yaml",
+  "schemas/qual-206-claude-composite-host-event-capture-v1.schema.json",
+  "schemas/qual-206-claude-composite-host-event-v1.schema.json",
+  "scripts/qual_206_claude_capability_harness.mjs",
+  "scripts/qual_206_claude_exact_five_capability_harness.mjs",
+  "scripts/qual_206_claude_runtime_closure.mjs",
+  "scripts/qual_206_claude_stdio_observer.mjs",
+  "scripts/qual_206_exact_five_event_collector.mjs",
+  "scripts/verify_qual_206_claude_composite_observation.py",
+  "tests/interoperability/fixtures/qual_206_claude_exact_five_profile.v1.json",
+  "tests/interoperability/fixtures/qual_206_provider_egress_guard.mjs",
+  "tests/interoperability/fixtures/qual_206_strict_modern_event_server.mjs",
+]);
+
 export const INSTALLED_DEPENDENCY_ROOTS = Object.freeze([
   "node_modules",
   "apps/mcp-gateway/node_modules",

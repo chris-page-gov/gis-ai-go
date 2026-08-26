@@ -34,6 +34,8 @@ import {
   MCP_CATALOGUE_INPUT_SCHEMAS,
   MCP_CATALOGUE_OUTPUT_SCHEMAS,
 } from "../apps/mcp-gateway/dist/src/mcp-server.js";
+import { PUBLIC_ONS_DATA_QUERY_PARAMETERS } from
+  "../apps/mcp-gateway/dist/src/data-query-application.js";
 import {
   advertisedToolSchemasExact,
   BoundedLineTap,
@@ -65,6 +67,8 @@ const PROVIDER_EGRESS_GUARD = join(
 
 const READINESS_AUTHORITY = "--claude-composite-observation-only";
 const CAPABILITY_AUTHORITY = "--claude-host-002-capability-observation-only";
+const EXACT_FIVE_CAPABILITY_AUTHORITY =
+  "--claude-exact-five-v1-capability-observation-only";
 const NETWORK_SANDBOX_VARIABLE = "GIS_AI_GO_QUAL_206_MCP_NETWORK_SANDBOX";
 const NETWORK_SANDBOX = "macos-seatbelt-deny-network";
 const HOST_ATTESTATION_VARIABLE = "GIS_AI_GO_QUAL_206_HOST_ATTESTATION";
@@ -79,9 +83,12 @@ const CLAUDE_CLIENT_ONLY_MCP_VARIABLES = Object.freeze([
 const SERVER_AUTHORITY = "--exact-five-stdio-conformance-only";
 const READINESS_SCENARIO = "independent-host";
 const CAPABILITY_SCENARIO = "claude-host-002";
+const EXACT_FIVE_CAPABILITY_SCENARIO = "claude-exact-five-v1";
 const CAPABILITY_CASE_ID = "QUAL-206-HOST-002";
 const CAPABILITY_CLAIM_FILE = "catalogue-search.claim.json";
 const CAPABILITY_SUMMARY_FILE = "capability.json";
+const EXACT_FIVE_CAPABILITY_CLAIM_FILE = "exact-five-v1.claim.json";
+const EXACT_FIVE_CAPABILITY_SUMMARY_FILE = "exact-five-capability.json";
 const SAFE_GIT_OPTIONS = Object.freeze([
   "-c",
   "core.fsmonitor=false",
@@ -117,6 +124,44 @@ const EXACT_OPERATIONS = Object.freeze([
   "selection.resolve",
   "data.query",
   "evidence.inspect",
+]);
+const EXACT_FIVE_REQUESTS = Object.freeze([
+  Object.freeze({
+    name: "catalogue.search",
+    arguments: Object.freeze({ query: "INSPIRE", limit: 1 }),
+  }),
+  Object.freeze({
+    name: "catalogue.describe",
+    arguments: Object.freeze({ record_id: "LR-Q003" }),
+  }),
+  Object.freeze({
+    name: "selection.resolve",
+    arguments: Object.freeze({
+      question: "Weekly deaths for England in week 24 of 2026, all causes",
+      candidate_record_ids: Object.freeze(["PV-ONS-DATA"]),
+      constraints: Object.freeze({
+        profile_ids: Object.freeze(["PV-ONS-DATA"]),
+        provider_ids: Object.freeze(["ons-data-api"]),
+        dataset_ids: Object.freeze(["weekly-deaths-region"]),
+        editions: Object.freeze(["time-series"]),
+        versions: Object.freeze(["121"]),
+        dimensions: Object.freeze({
+          time: Object.freeze(["2026"]),
+          geography: Object.freeze(["E92000001"]),
+          week: Object.freeze(["week-24"]),
+          causeofdeath: Object.freeze(["all-causes"]),
+        }),
+      }),
+    }),
+  }),
+  Object.freeze({
+    name: "data.query",
+    arguments: Object.freeze({
+      schema: "gis-ai-go.data-query-request.v1",
+      idempotency_key: `gis-ai-go:ik:v1:${"9".repeat(64)}`,
+      parameters: PUBLIC_ONS_DATA_QUERY_PARAMETERS,
+    }),
+  }),
 ]);
 const EXACT_RESOURCES = Object.freeze([
   "catalogue.public",
@@ -256,10 +301,15 @@ export function parseClaudeObserverArguments(argv, environment = process.env) {
   }
   const mode = argv[0] === READINESS_AUTHORITY
     ? "readiness"
-    : argv[0] === CAPABILITY_AUTHORITY ? "host-002-capability" : null;
+    : argv[0] === CAPABILITY_AUTHORITY
+      ? "host-002-capability"
+      : argv[0] === EXACT_FIVE_CAPABILITY_AUTHORITY
+        ? "exact-five-capability"
+        : null;
   if (argv.length !== 13 || mode === null) {
     fail(
-      `usage: ${READINESS_AUTHORITY}|${CAPABILITY_AUTHORITY} ` +
+      `usage: ${READINESS_AUTHORITY}|${CAPABILITY_AUTHORITY}|` +
+        `${EXACT_FIVE_CAPABILITY_AUTHORITY} ` +
         "--capture-root ABS --run-id UUID --client LABEL " +
         "--source-commit COMMIT --expected-parent-sha256 SHA256 " +
         "--expected-parent-bytes BYTES",
@@ -339,6 +389,12 @@ function allocateSessionSlot(captureRoot, mode) {
       validateCapabilityClaim(join(captureRoot, entry));
       continue;
     }
+    if (
+      mode === "exact-five-capability" && entry === EXACT_FIVE_CAPABILITY_CLAIM_FILE
+    ) {
+      validateCapabilityClaim(join(captureRoot, entry));
+      continue;
+    }
     if (!SLOT_NAMES.includes(entry)) {
       fail("capture root contains an entry outside the three fixed session slots");
     }
@@ -373,7 +429,12 @@ function allocateSessionSlot(captureRoot, mode) {
 function openPrivateCaptureFile(path, slotState) {
   if (
     dirname(path) === path ||
-    !["events.jsonl", "manifest.json", CAPABILITY_SUMMARY_FILE].includes(basename(path))
+    ![
+      "events.jsonl",
+      "manifest.json",
+      CAPABILITY_SUMMARY_FILE,
+      EXACT_FIVE_CAPABILITY_SUMMARY_FILE,
+    ].includes(basename(path))
   ) {
     fail("private capture filename is invalid");
   }
@@ -464,8 +525,8 @@ function fsyncDirectory(path) {
   }
 }
 
-function claimCapabilityCall(captureRoot, rootState, claim) {
-  const path = join(captureRoot, CAPABILITY_CLAIM_FILE);
+function claimCapabilityCall(captureRoot, rootState, claim, claimFile = CAPABILITY_CLAIM_FILE) {
+  const path = join(captureRoot, claimFile);
   const rootBefore = lstatSync(captureRoot);
   if (
     rootBefore.dev !== rootState.dev || rootBefore.ino !== rootState.ino ||
@@ -819,6 +880,43 @@ export function capabilitySearchRequest(message) {
   });
 }
 
+export function exactFiveCapabilityRequest(message, ordinal, searchReceiptId = null) {
+  const protocolValid = capabilityProtocolMetaValid(message?.params?._meta);
+  const clientAttributionValid = capabilityClientAttributionValid(message?.params?._meta);
+  const expected = ordinal < EXACT_FIVE_REQUESTS.length
+    ? EXACT_FIVE_REQUESTS[ordinal]
+    : ordinal === EXACT_FIVE_REQUESTS.length
+      ? Object.freeze({
+          name: "evidence.inspect",
+          arguments: Object.freeze({ receipt_id: searchReceiptId }),
+        })
+      : null;
+  const argumentsValue = message?.params?.arguments;
+  const evidenceRequestValid = expected !== null &&
+    message?.method === "tools/call" &&
+    exactKeys(message.params, ["_meta", "arguments", "name"]) &&
+    message.params.name === expected.name &&
+    canonicalJson(argumentsValue) === canonicalJson(expected.arguments) &&
+    (ordinal !== EXACT_FIVE_REQUESTS.length ||
+      (typeof searchReceiptId === "string" &&
+        /^gis-ai-go:evidence-receipt:sha256:[0-9a-f]{64}$/u.test(searchReceiptId)));
+  const encoded = Buffer.from(
+    canonicalJson(plainRecord(argumentsValue) ? argumentsValue : null),
+    "utf8",
+  );
+  return Object.freeze({
+    bytes: encoded.length,
+    client_attribution_valid: clientAttributionValid,
+    evidence_request_valid: evidenceRequestValid,
+    expected_operation: expected?.name ?? null,
+    operation: typeof message?.params?.name === "string" ? message.params.name : null,
+    ordinal,
+    protocol_valid: protocolValid,
+    sha256: sha256Bytes(encoded),
+    valid: protocolValid && clientAttributionValid && evidenceRequestValid,
+  });
+}
+
 function singleCapabilityToolSchemasExact(tools) {
   if (!Array.isArray(tools) || tools.length !== 1) return false;
   const tool = tools[0];
@@ -904,6 +1002,46 @@ export function capabilitySearchResult(result) {
   });
 }
 
+export function exactFiveCapabilityResult(operation, result, searchReceiptId = null) {
+  const structured = result?.structuredContent;
+  const parity = plainRecord(structured) && Array.isArray(result?.content) &&
+    result.content.length === 1 && exactKeys(result.content[0], ["text", "type"]) &&
+    result.content[0].type === "text" &&
+    result.content[0].text === JSON.stringify(structured);
+  const envelopeValid = exactKeys(
+    result,
+    ["_meta", "content", "resultType", "structuredContent"],
+  ) && completeResultMetadataValid(result);
+  const outputContractValid = EXACT_OPERATIONS.includes(operation) &&
+    toolOutputContractValid(operation, structured);
+  const receiptId = typeof structured?.evidence_receipt?.receipt_id === "string" &&
+    /^gis-ai-go:evidence-receipt:sha256:[0-9a-f]{64}$/u.test(
+      structured.evidence_receipt.receipt_id,
+    )
+    ? structured.evidence_receipt.receipt_id
+    : null;
+  const inspectedReceiptId = operation === "evidence.inspect" &&
+    typeof structured?.data?.record?.receipt?.receipt_id === "string"
+    ? structured.data.record.receipt.receipt_id
+    : null;
+  const inspectionRelationshipValid = operation !== "evidence.inspect" ||
+    (searchReceiptId !== null && inspectedReceiptId === searchReceiptId);
+  const valid = envelopeValid && parity && outputContractValid && receiptId !== null &&
+    inspectionRelationshipValid;
+  return Object.freeze({
+    valid,
+    summary: Object.freeze({
+      inspection_relationship_valid: inspectionRelationshipValid,
+      inspected_receipt_id: inspectedReceiptId,
+      operation,
+      output_contract_valid: outputContractValid,
+      receipt_id: receiptId,
+      receipt_present: receiptId !== null,
+      structured_plain_text_parity: parity,
+    }),
+  });
+}
+
 function classifyResourceUri(value) {
   if (value === "gis-ai-go://catalogue/public") return "catalogue.public";
   if (typeof value === "string" &&
@@ -940,7 +1078,9 @@ function analyseResponse(context, message, mode) {
   }
   const result = message.result;
   if (context?.method === "server/discover") {
-    const expectedCapabilities = mode === "host-002-capability"
+    const toolsOnlyCapability = mode === "host-002-capability" ||
+      mode === "exact-five-capability";
+    const expectedCapabilities = toolsOnlyCapability
       ? { tools: { listChanged: false } }
       : {
           resources: { listChanged: false, subscribe: false },
@@ -976,7 +1116,7 @@ function analyseResponse(context, message, mode) {
   if (context?.method === "resources/list") {
     const resources = Array.isArray(result?.resources) ? result.resources : [];
     const contractValid = cacheableCompleteResultValid(result, ["resources"]) &&
-      (mode === "host-002-capability"
+      (mode === "host-002-capability" || mode === "exact-five-capability"
         ? resources.length === 0
         : resources.length === 1 &&
           classifyResourceUri(resources[0]?.uri) === "catalogue.public");
@@ -1003,7 +1143,7 @@ function analyseResponse(context, message, mode) {
     const contractValid = cacheableCompleteResultValid(
       result,
       ["resourceTemplates"],
-    ) && (mode === "host-002-capability"
+    ) && (mode === "host-002-capability" || mode === "exact-five-capability"
       ? labels.length === 0
       : exactArray([...labels].sort(), ["catalogue.record", "evidence.receipt"]));
     return {
@@ -1045,6 +1185,20 @@ function analyseResponse(context, message, mode) {
         semantic: capability.valid ? "tool-call-pass" : "other-success",
       };
     }
+    if (mode === "exact-five-capability") {
+      const capability = exactFiveCapabilityResult(
+        context.operation,
+        result,
+        context.searchReceiptId ?? null,
+      );
+      return {
+        capability: capability.summary,
+        contractValid: capability.valid,
+        errorCode: null,
+        outcome: "success",
+        semantic: capability.valid ? "tool-call-pass" : "other-success",
+      };
+    }
     const structured = result?.structuredContent;
     const parity = Array.isArray(result?.content) && result.content.length === 1 &&
       exactKeys(result.content[0], ["text", "type"]) &&
@@ -1072,7 +1226,9 @@ function analyseResponse(context, message, mode) {
 
 function startObserver(options) {
   process.umask(0o077);
-  const capabilityMode = options.mode === "host-002-capability";
+  const host002CapabilityMode = options.mode === "host-002-capability";
+  const exactFiveCapabilityMode = options.mode === "exact-five-capability";
+  const capabilityMode = host002CapabilityMode || exactFiveCapabilityMode;
   if (capabilityMode && (
     process.env[NETWORK_SANDBOX_VARIABLE] !== NETWORK_SANDBOX ||
     process.env[HOST_ATTESTATION_VARIABLE] !== HOST_ATTESTATION
@@ -1084,7 +1240,11 @@ function startObserver(options) {
   )) {
     fail("capability observer received a Claude-client-only MCP variable");
   }
-  const scenario = capabilityMode ? CAPABILITY_SCENARIO : READINESS_SCENARIO;
+  const scenario = host002CapabilityMode
+    ? CAPABILITY_SCENARIO
+    : exactFiveCapabilityMode
+      ? EXACT_FIVE_CAPABILITY_SCENARIO
+      : READINESS_SCENARIO;
   const rootBefore = validatePrivateDirectory(options.captureRoot, "capture root");
   if (RECOGNISED_CREDENTIAL_VARIABLES.some((name) => process.env[name] !== undefined)) {
     fail("observer environment contains a recognised credential variable");
@@ -1141,6 +1301,9 @@ function startObserver(options) {
   let capabilityRequest = null;
   let capabilityResponse = null;
   let capabilityResponseValid = null;
+  const exactFiveRequests = [];
+  const exactFiveResponses = [];
+  let exactFiveSearchReceiptId = null;
 
   function emit(event, fields) {
     if (closed) fail("event log is already closed");
@@ -1355,7 +1518,13 @@ function startObserver(options) {
         return;
       }
       if (method === "tools/call") {
-        const request = capabilitySearchRequest(message);
+        const request = host002CapabilityMode
+          ? capabilitySearchRequest(message)
+          : exactFiveCapabilityRequest(
+              message,
+              exactFiveRequests.length,
+              exactFiveSearchReceiptId,
+            );
         if (!request.valid) {
           const classification = !request.protocol_valid
             ? "capability-protocol-metadata-invalid"
@@ -1365,22 +1534,40 @@ function startObserver(options) {
           captureFatal(classification, base);
           return;
         }
-        if (capabilityRequest !== null) {
+        if (host002CapabilityMode && capabilityRequest !== null) {
           captureFatal("capability-second-call-in-session", base);
           return;
         }
-        try {
-          capabilityClaim = claimCapabilityCall(options.captureRoot, rootBefore, {
-            schema: "gis-ai-go.qual-206-claude-capability-call-claim.v1",
-            case_id: CAPABILITY_CASE_ID,
-            run_id: options.runId,
-            session_id: sessionId,
-          });
-        } catch {
-          captureFatal("capability-call-already-claimed", base);
-          return;
+        if (capabilityClaim === null) {
+          try {
+            capabilityClaim = claimCapabilityCall(
+              options.captureRoot,
+              rootBefore,
+              host002CapabilityMode
+                ? {
+                    schema: "gis-ai-go.qual-206-claude-capability-call-claim.v1",
+                    case_id: CAPABILITY_CASE_ID,
+                    run_id: options.runId,
+                    session_id: sessionId,
+                  }
+                : {
+                    schema:
+                      "gis-ai-go.qual-206-claude-exact-five-capability-claim.v1",
+                    profile: "exact-five-v1",
+                    run_id: options.runId,
+                    session_id: sessionId,
+                  },
+              host002CapabilityMode
+                ? CAPABILITY_CLAIM_FILE
+                : EXACT_FIVE_CAPABILITY_CLAIM_FILE,
+            );
+          } catch {
+            captureFatal("capability-call-already-claimed", base);
+            return;
+          }
         }
-        capabilityRequest = request;
+        if (host002CapabilityMode) capabilityRequest = request;
+        else exactFiveRequests.push(request);
       }
     }
     if (!Object.hasOwn(message, "id")) {
@@ -1404,6 +1591,10 @@ function startObserver(options) {
       method,
       operation: operationLabel(message),
       protocolClaim: claim,
+      searchReceiptId: exactFiveCapabilityMode &&
+        message?.params?.name === "evidence.inspect"
+        ? exactFiveSearchReceiptId
+        : null,
       started: process.hrtime.bigint(),
     };
     emit("request", {
@@ -1462,8 +1653,16 @@ function startObserver(options) {
     }
     const analysis = analyseResponse(context, message, options.mode);
     if (capabilityMode && context?.method === "tools/call") {
-      capabilityResponse = analysis.capability ?? null;
-      capabilityResponseValid = analysis.contractValid;
+      if (host002CapabilityMode) {
+        capabilityResponse = analysis.capability ?? null;
+        capabilityResponseValid = analysis.contractValid;
+      } else {
+        const summary = analysis.capability ?? null;
+        exactFiveResponses.push(summary);
+        if (context.operation === "catalogue.search" && analysis.contractValid) {
+          exactFiveSearchReceiptId = summary?.receipt_id ?? null;
+        }
+      }
     }
     const duration = context === undefined
       ? null
@@ -1547,7 +1746,7 @@ function startObserver(options) {
         value.transport === "operating-system-stdio-pipes" &&
         value.state === "candidate-unregistered" &&
         value.production_registration === false &&
-        (capabilityMode
+        (host002CapabilityMode
           ? exactArray(value.operations, ["catalogue.search"]) &&
             exactArray(value.resources, []) &&
             canonicalJson(value.suspensions) === canonicalJson([
@@ -1558,8 +1757,16 @@ function startObserver(options) {
             ]) && value.provider_transport_calls === 0 &&
             value.aborted_provider_calls === 0 && value.ledger_event_count <= 1
           : exactArray(value.operations, EXACT_OPERATIONS) &&
-            exactArray(value.resources, EXACT_RESOURCES) &&
-            exactArray(value.suspensions, [])) &&
+            exactArray(
+              value.resources,
+              exactFiveCapabilityMode ? [] : EXACT_RESOURCES,
+            ) &&
+            exactArray(value.suspensions, []) &&
+            (!exactFiveCapabilityMode || (
+              value.provider_transport_calls === 1 &&
+              value.aborted_provider_calls === 0 &&
+              value.ledger_event_count === 4
+            ))) &&
         Number.isSafeInteger(value.provider_transport_calls) &&
         value.provider_transport_calls >= 0 &&
         Number.isSafeInteger(value.aborted_provider_calls) &&
@@ -1766,9 +1973,25 @@ function startObserver(options) {
       const hostSignalStimulus = hostCloseSignal === "SIGINT"
         ? "sigint"
         : hostCloseSignal === "SIGTERM" ? "sigterm" : null;
+      const exactFiveCapabilityComplete = !exactFiveCapabilityMode || (
+        exactFiveRequests.length === EXACT_OPERATIONS.length &&
+        exactFiveResponses.length === EXACT_OPERATIONS.length &&
+        exactFiveRequests.every((request, index) =>
+          request.valid === true && request.operation === EXACT_OPERATIONS[index]
+        ) &&
+        exactFiveResponses.every((response, index) =>
+          response?.operation === EXACT_OPERATIONS[index] &&
+          response.output_contract_valid === true &&
+          response.receipt_present === true &&
+          response.structured_plain_text_parity === true
+        ) &&
+        exactFiveResponses.at(-1)?.inspection_relationship_valid === true &&
+        exactFiveResponses.at(-1)?.inspected_receipt_id === exactFiveSearchReceiptId
+      );
       const basePassed = code === 0 && signal === null && stderrEventCount === 0 &&
         streamsGraceful && auditComplete && runtimeMaterialsStable && sourceStable &&
         (counts.get("anomaly") ?? 0) === 0 &&
+        exactFiveCapabilityComplete &&
         (hostInputEnded || hostSignalStimulus !== null);
       const sessionProfile = basePassed && probe
         ? "negotiation-probe"
@@ -1835,49 +2058,85 @@ function startObserver(options) {
         sha256Bytes(encodedManifest),
       );
       if (capabilityMode) {
-        const capabilityPath = join(slot.path, CAPABILITY_SUMMARY_FILE);
+        const capabilityPath = join(
+          slot.path,
+          host002CapabilityMode
+            ? CAPABILITY_SUMMARY_FILE
+            : EXACT_FIVE_CAPABILITY_SUMMARY_FILE,
+        );
         const capabilityDescriptor = openPrivateCaptureFile(capabilityPath, slot.state);
         try {
-          const capabilitySummary = {
-            schema: "gis-ai-go.qual-206-claude-capability-session.v1",
-            run_id: options.runId,
-            session_id: sessionId,
-            slot: slot.slot,
-            source_commit: options.sourceCommit,
-            case_id: CAPABILITY_CASE_ID,
-            session_profile: sessionProfile,
-            protocol_session_status: passed ? "passed" : "failed",
-            capability_scored: false,
-            mcp_subtree_network_access_allowed: false,
-            mcp_subtree_network_sandbox: NETWORK_SANDBOX,
-            request: {
-              observed: capabilityRequest !== null,
-              valid: capabilityRequest?.valid ?? null,
-              parameters_bytes: capabilityRequest?.bytes ?? null,
-              parameters_sha256: capabilityRequest?.sha256 ?? null,
-              global_claim_bytes: capabilityClaim?.bytes ?? null,
-              global_claim_sha256: capabilityClaim?.sha256 ?? null,
-            },
-            response: {
-              observed: capabilityResponse !== null,
-              contract_valid: capabilityResponseValid,
-              case_id: capabilityResponse?.case_id ?? null,
-              deterministic_result_valid:
-                capabilityResponse?.deterministic_result_valid ?? null,
-              expected_record_id_match:
-                capabilityResponse?.expected_record_id_match ?? null,
-              expected_title_match: capabilityResponse?.expected_title_match ?? null,
-              output_contract_valid: capabilityResponse?.output_contract_valid ?? null,
-              receipt_id: capabilityResponse?.receipt_id ?? null,
-              receipt_present: capabilityResponse?.receipt_present ?? null,
-              receipt_verification_valid:
-                capabilityResponse?.receipt_verification_valid ?? null,
-              record_id: capabilityResponse?.record_id ?? null,
-              structured_plain_text_parity:
-                capabilityResponse?.structured_plain_text_parity ?? null,
-              title: capabilityResponse?.title ?? null,
-            },
-          };
+          const capabilitySummary = host002CapabilityMode
+            ? {
+                schema: "gis-ai-go.qual-206-claude-capability-session.v1",
+                run_id: options.runId,
+                session_id: sessionId,
+                slot: slot.slot,
+                source_commit: options.sourceCommit,
+                case_id: CAPABILITY_CASE_ID,
+                session_profile: sessionProfile,
+                protocol_session_status: passed ? "passed" : "failed",
+                capability_scored: false,
+                mcp_subtree_network_access_allowed: false,
+                mcp_subtree_network_sandbox: NETWORK_SANDBOX,
+                request: {
+                  observed: capabilityRequest !== null,
+                  valid: capabilityRequest?.valid ?? null,
+                  parameters_bytes: capabilityRequest?.bytes ?? null,
+                  parameters_sha256: capabilityRequest?.sha256 ?? null,
+                  global_claim_bytes: capabilityClaim?.bytes ?? null,
+                  global_claim_sha256: capabilityClaim?.sha256 ?? null,
+                },
+                response: {
+                  observed: capabilityResponse !== null,
+                  contract_valid: capabilityResponseValid,
+                  case_id: capabilityResponse?.case_id ?? null,
+                  deterministic_result_valid:
+                    capabilityResponse?.deterministic_result_valid ?? null,
+                  expected_record_id_match:
+                    capabilityResponse?.expected_record_id_match ?? null,
+                  expected_title_match: capabilityResponse?.expected_title_match ?? null,
+                  output_contract_valid: capabilityResponse?.output_contract_valid ?? null,
+                  receipt_id: capabilityResponse?.receipt_id ?? null,
+                  receipt_present: capabilityResponse?.receipt_present ?? null,
+                  receipt_verification_valid:
+                    capabilityResponse?.receipt_verification_valid ?? null,
+                  record_id: capabilityResponse?.record_id ?? null,
+                  structured_plain_text_parity:
+                    capabilityResponse?.structured_plain_text_parity ?? null,
+                  title: capabilityResponse?.title ?? null,
+                },
+              }
+            : {
+                schema:
+                  "gis-ai-go.qual-206-claude-exact-five-capability-session.v1",
+                run_id: options.runId,
+                session_id: sessionId,
+                slot: slot.slot,
+                source_commit: options.sourceCommit,
+                profile: "exact-five-v1",
+                session_profile: sessionProfile,
+                protocol_session_status: passed ? "passed" : "failed",
+                capability_scored: false,
+                mcp_subtree_network_access_allowed: false,
+                mcp_subtree_network_sandbox: NETWORK_SANDBOX,
+                global_claim: {
+                  bytes: capabilityClaim?.bytes ?? null,
+                  sha256: capabilityClaim?.sha256 ?? null,
+                },
+                operations: exactFiveResponses.map((response, index) => ({
+                  ordinal: index,
+                  request: exactFiveRequests[index] ?? null,
+                  response,
+                })),
+                inspection_relationship: {
+                  search_receipt_id: exactFiveSearchReceiptId,
+                  inspected_receipt_id:
+                    exactFiveResponses.at(-1)?.inspected_receipt_id ?? null,
+                  valid:
+                    exactFiveResponses.at(-1)?.inspection_relationship_valid ?? false,
+                },
+              };
           const encodedCapability = Buffer.from(
             `${canonicalJson(capabilitySummary)}\n`,
             "utf8",

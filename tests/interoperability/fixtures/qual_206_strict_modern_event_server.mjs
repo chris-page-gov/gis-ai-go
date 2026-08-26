@@ -15,9 +15,13 @@ import {
 } from "../../../packages/provider-adapter-sdk/dist/src/index.js";
 import { loadCatalogueSnapshot } from
   "../../../apps/mcp-gateway/dist/src/catalogue-snapshot.js";
-import { createGovernedCandidateAssembly } from
+import {
+  createGovernedCandidateAssembly,
+  governedCandidateAssemblyBindings,
+  verifyGovernedCandidateOperation,
+} from
   "../../../apps/mcp-gateway/dist/src/governed-assembly.js";
-import { startGovernedCandidateStdio } from
+import { startCatalogueStdio, startGovernedCandidateStdio } from
   "../../../apps/mcp-gateway/dist/src/mcp-stdio.js";
 
 // This additive fixture leaves the accepted exact-five fixture byte-exact because
@@ -50,6 +54,10 @@ const SCENARIOS = Object.freeze({
       "data.query",
       "evidence.inspect",
     ]),
+  }),
+  "claude-exact-five-v1": Object.freeze({
+    lifecycle: ACTIVE_LIFECYCLE,
+    toolsOnly: true,
   }),
   unsupported: Object.freeze({ lifecycle: ACTIVE_LIFECYCLE }),
   "provider-discovery": Object.freeze({
@@ -299,12 +307,28 @@ const assembly = createGovernedCandidateAssembly({
     : { suspendedTools: scenario.suspendedTools }),
 });
 
-const handle = startGovernedCandidateStdio(assembly, {
+const stdioOptions = {
   createRequestContext: (operation) => REQUEST_CONTEXTS[operation],
   onerror: () => {
     reportedErrors += 1;
   },
-});
+};
+const handle = scenario.toolsOnly === true
+  ? (() => {
+      const bindings = governedCandidateAssemblyBindings(assembly);
+      return startCatalogueStdio({
+        ...stdioOptions,
+        application: bindings.catalogueApplication,
+        evidenceApplication: bindings.evidenceApplication,
+        selectionApplication: bindings.selectionApplication,
+        dataQueryApplication: bindings.dataQueryApplication,
+        snapshot: bindings.snapshot,
+        enabledOperations: assembly.mcpOperations,
+        enabledResources: [],
+        readinessGuard: (operation) => verifyGovernedCandidateOperation(assembly, operation),
+      });
+    })()
+  : startGovernedCandidateStdio(assembly, stdioOptions);
 
 let closing = false;
 async function close() {
@@ -326,7 +350,7 @@ process.once("exit", () => {
       state: assembly.state,
       production_registration: assembly.productionRegistration,
       operations: assembly.operations,
-      resources: assembly.mcpResources,
+      resources: scenario.toolsOnly === true ? [] : assembly.mcpResources,
       suspensions: assembly.suspensions,
       provider_transport_calls: providerTransportCalls,
       aborted_provider_calls: abortedProviderCalls,

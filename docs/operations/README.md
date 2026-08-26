@@ -47,6 +47,7 @@ and no public MCP service or API is deployed.
 - [QUAL-206 strict-modern private event capture](QUAL-206_STRICT_MODERN_EVENT_CAPTURE.md)
 - [QUAL-206 Claude composite STDIO observation](QUAL-206_CLAUDE_COMPOSITE_OBSERVATION.md)
 - [QUAL-206 Claude HOST-002 capability observation](QUAL-206_CLAUDE_CAPABILITY.md)
+- [QUAL-206 Claude exact-five capability pack](QUAL-206_CLAUDE_EXACT_FIVE_CAPABILITY.md)
 - [QUAL-206 Stage 2 release threat record](../threat-model/QUAL-206_STAGE_2_RELEASE.md)
 - [QUAL-206 gateway image vulnerability disposition](QUAL-206_IMAGE_VULNERABILITY_DISPOSITION.md)
 - [TOOLS-205 inactive public-read v2 contracts](TOOLS-205_PUBLIC_READ_V2_CONTRACTS.md)

@@ -546,6 +546,7 @@ class ClaudeCapabilityContractsTest(unittest.TestCase):
                 "node",
                 "--test",
                 "tests/interoperability/test_qual_206_claude_capability_harness.mjs",
+                "tests/interoperability/test_qual_206_claude_exact_five_capability_harness.mjs",
             ],
             cwd=ROOT,
             check=False,
@@ -569,10 +570,10 @@ class ClaudeCapabilityContractsTest(unittest.TestCase):
             )
         }
         expected = {
-            "tests": 16,
-            "pass": 16 if sys.platform == "darwin" else 4,
+            "tests": 22,
+            "pass": 22 if sys.platform == "darwin" else 5,
             "fail": 0,
-            "skipped": 0 if sys.platform == "darwin" else 12,
+            "skipped": 0 if sys.platform == "darwin" else 17,
         }
         self.assertEqual(summary, expected, completed.stdout)
 
