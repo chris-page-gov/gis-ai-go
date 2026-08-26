@@ -19,7 +19,9 @@ The launcher and observer enforce all of these conditions:
 - the accepted Claude Code `2.1.245` executable identity;
 - the pinned current model identifier `claude-sonnet-5`;
 - the documented Claude v2 MCP runtime with automatic modern/legacy-era probing;
-- one MCP server advertising only `catalogue.search` and no resources;
+- one MCP server advertising only canonical operation `catalogue.search` and no
+  resources, with the exact Claude permission alias
+  `mcp__gis-ai-go-qual-206-host-002__catalogue_search`;
 - no Claude built-in tools, `dontAsk` permission mode, one tool-use turn and the
   required final text-only turn;
 - exactly one call with `{"query":"INSPIRE","limit":1}` across all MCP child
@@ -83,6 +85,14 @@ observation. This keeps `server/discover` and the final MCP `2026-07-28` session
 available on the model-task path; it is invocation-local configuration, not a
 gateway activation switch and is not forwarded into the fixture's closed child
 environment.
+
+Claude Code `2.1.245` normalises the dot in the advertised `catalogue.search`
+operation to an underscore on its permission surface. The launcher therefore
+allowlists the exact host-facing alias
+`mcp__gis-ai-go-qual-206-host-002__catalogue_search`, while the MCP wire request,
+observer contract and evidence continue to use the canonical `catalogue.search`
+name. The regression fixture checks both the command-line and settings allowlists
+so these two namespaces cannot silently diverge again.
 
 For first-party login authentication, unset recognised credential variables before
 the run. Do not use `--bare`: the exact 2.1.245 client reports that bare mode does

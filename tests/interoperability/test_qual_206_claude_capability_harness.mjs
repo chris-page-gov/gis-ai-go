@@ -222,7 +222,7 @@ macRuntimeTest(POSITIVE_TEST_NAME, async (t) => {
   assert.equal(manifest.execution.harness_classification, null);
   assert.equal(manifest.execution.built_in_tools_available, false);
   assert.equal(manifest.execution.allowed_mcp_tool,
-    "mcp__gis-ai-go-qual-206-host-002__catalogue.search");
+    "mcp__gis-ai-go-qual-206-host-002__catalogue_search");
   assert.equal(manifest.host.auth_preflight.auth_method, "claude.ai");
   assert.equal(manifest.host.api_budget_usd, null);
   assert.deepEqual(readdirSync(join(root, "observer")).sort(), [

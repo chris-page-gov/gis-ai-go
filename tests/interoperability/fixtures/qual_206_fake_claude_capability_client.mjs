@@ -6,6 +6,8 @@ import { readFileSync } from "node:fs";
 const EXPECTED_PROMPT =
   "Search the public catalogue for INSPIRE and return the first record with its " +
   "inline evidence receipt.\n";
+const EXPECTED_PERMISSION_TOOL =
+  "mcp__gis-ai-go-qual-206-host-002__catalogue_search";
 const SCENARIO = process.env.QUAL_206_FAKE_CLAUDE_SCENARIO ?? "positive";
 
 function fail(message) {
@@ -153,11 +155,17 @@ async function discover(request) {
 async function main() {
   const argumentsValue = process.argv.slice(2);
   const mcpPath = optionValue(argumentsValue, "--mcp-config");
+  const settingsPath = optionValue(argumentsValue, "--settings");
+  const settings = JSON.parse(readFileSync(settingsPath, "utf8"));
   if (
     optionValue(argumentsValue, "--output-format") !== "json" ||
     optionValue(argumentsValue, "--permission-mode") !== "dontAsk" ||
     optionValue(argumentsValue, "--max-turns") !== "1" ||
     optionValue(argumentsValue, "--tools") !== "" ||
+    optionValue(argumentsValue, "--allowedTools") !== EXPECTED_PERMISSION_TOOL ||
+    settings.permissions?.defaultMode !== "dontAsk" ||
+    JSON.stringify(settings.permissions?.allow) !==
+      JSON.stringify([EXPECTED_PERMISSION_TOOL]) ||
     process.env.MCP_PROTOCOL_NEGOTIATION !== "auto" ||
     process.env.MCP_SDK_GENERATION !== "v2" ||
     !argumentsValue.includes("--strict-mcp-config") ||

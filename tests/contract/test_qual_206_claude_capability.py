@@ -607,7 +607,7 @@ class ClaudeCapabilityContractsTest(unittest.TestCase):
                 "stderr": {"bytes": 0, "limit_exceeded": False, "sha256": SHA},
                 "output_schema_sha256": SHA,
                 "built_in_tools_available": False,
-                "allowed_mcp_tool": "mcp__gis-ai-go-qual-206-host-002__catalogue.search",
+                "allowed_mcp_tool": "mcp__gis-ai-go-qual-206-host-002__catalogue_search",
                 "permission_mode": "dontAsk",
                 "session_persistence": False,
                 "maximum_turns": 1,

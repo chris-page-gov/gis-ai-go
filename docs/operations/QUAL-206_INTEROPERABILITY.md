@@ -791,6 +791,9 @@ session persistence and an empty disposable workspace. It also pins the document
 Claude v2 MCP runtime and automatic negotiation controls used by the accepted
 strict-modern readiness observation, so the model-task path cannot silently fall
 back to a legacy `initialize` handshake when evaluating the modern surface.
+The launcher maps canonical `catalogue.search` to Claude's permission-facing
+`mcp__gis-ai-go-qual-206-host-002__catalogue_search` alias and regression-checks
+that exact allowlist without changing the MCP wire operation.
 The API-key route uses `--bare` and requires an explicit per-run budget. In both
 routes, recognised credential environment variables are removed before the MCP
 child starts. An identity-bound macOS Seatbelt profile denies all network access

@@ -222,7 +222,7 @@
         "output_schema_sha256": {"$ref": "#/$defs/sha256"},
         "built_in_tools_available": {"const": false},
         "allowed_mcp_tool": {
-          "const": "mcp__gis-ai-go-qual-206-host-002__catalogue.search"
+          "const": "mcp__gis-ai-go-qual-206-host-002__catalogue_search"
         },
         "permission_mode": {"const": "dontAsk"},
         "session_persistence": {"const": false},
