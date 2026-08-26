@@ -1,0 +1,72 @@
+{
+  "schema": "gis-ai-go.qual-206-claude-capability-profile.v1",
+  "profile": "exact-five-v1",
+  "transport": "operating-system-stdio-pipes",
+  "protocol": "2026-07-28",
+  "server_name": "gis-ai-go-qual-206-exact-five-v1",
+  "built_in_tools": [],
+  "resources": [],
+  "network_access_allowed": false,
+  "operations": [
+    {
+      "ordinal": 0,
+      "name": "catalogue.search",
+      "arguments": {"query": "INSPIRE", "limit": 1}
+    },
+    {
+      "ordinal": 1,
+      "name": "catalogue.describe",
+      "arguments": {"record_id": "LR-Q003"}
+    },
+    {
+      "ordinal": 2,
+      "name": "selection.resolve",
+      "arguments": {
+        "question": "Weekly deaths for England in week 24 of 2026, all causes",
+        "candidate_record_ids": ["PV-ONS-DATA"],
+        "constraints": {
+          "profile_ids": ["PV-ONS-DATA"],
+          "provider_ids": ["ons-data-api"],
+          "dataset_ids": ["weekly-deaths-region"],
+          "editions": ["time-series"],
+          "versions": ["121"],
+          "dimensions": {
+            "time": ["2026"],
+            "geography": ["E92000001"],
+            "week": ["week-24"],
+            "causeofdeath": ["all-causes"]
+          }
+        }
+      }
+    },
+    {
+      "ordinal": 3,
+      "name": "data.query",
+      "arguments": {
+        "schema": "gis-ai-go.data-query-request.v1",
+        "idempotency_key": "gis-ai-go:ik:v1:9999999999999999999999999999999999999999999999999999999999999999",
+        "parameters": {
+          "schema": "gis-ai-go.data-query-parameters.v1",
+          "resource_id": "gis-ai-go:public-read-resource:sha256:c7130712a40d75e71bcf0259792404389bea2e549adf6733f34d491f83e99f68",
+          "dataset": {
+            "id": "weekly-deaths-region",
+            "edition": "time-series",
+            "version": "121"
+          },
+          "selections": [
+            {"dimension": "time", "option": "2026"},
+            {"dimension": "geography", "option": "E92000001"},
+            {"dimension": "week", "option": "week-24"},
+            {"dimension": "causeofdeath", "option": "all-causes"}
+          ],
+          "limit": 1
+        }
+      }
+    },
+    {
+      "ordinal": 4,
+      "name": "evidence.inspect",
+      "arguments_from": "catalogue.search.evidence_receipt.receipt_id"
+    }
+  ]
+}
