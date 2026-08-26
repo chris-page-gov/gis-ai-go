@@ -1,0 +1,131 @@
+{
+  "schema": "gis-ai-go.qual-206-claude-capability-evidence.v1",
+  "status": "capability_pass",
+  "observed_at": "2026-08-26T07:11:24.404Z",
+  "source": {
+    "repository": "chris-page-gov/gis-ai-go",
+    "repository_origin": "https://github.com/chris-page-gov/gis-ai-go.git",
+    "commit": "5837bd65a482e90238c466673318f007e305c744",
+    "tree": "d68d0cdb12fd555fbb41da0d6d4aba23a69ef44f",
+    "version": "0.1.0",
+    "local_origin_main_match": true,
+    "protected_main_verification": "external-publication-gate",
+    "production_activation": false
+  },
+  "host": {
+    "name": "Claude Code",
+    "version": "2.1.245",
+    "executable_bytes": 376109392,
+    "executable_sha256": "9f7c2260251765a18d0b35198669dacc1912f6e8129a3b01f6b58d93365ff1f1",
+    "model_requested": "claude-sonnet-5",
+    "auth_kind": "first-party-login",
+    "auth_preflight": {
+      "logged_in": true,
+      "api_provider": "firstParty",
+      "auth_method": "claude.ai",
+      "subscription_type_observed": true
+    },
+    "model_provider_usage_observed": true,
+    "guarded_provider_api_invocations": 0
+  },
+  "case": {
+    "id": "QUAL-206-HOST-002",
+    "capability": "catalogue_search",
+    "corpus_sha256": "23ac9bc1a76d524bd0e250b11b9ba321b09e66bd5921f1463f50c150001cd389",
+    "prompt_sha256": "e0f33896a8980656f503bd32f5b99caea1783df8f5c0e82f258676eaa82a46f2",
+    "required_tool": "catalogue.search",
+    "prompt_text_repeated_in_projection": false
+  },
+  "transport": {
+    "protocol": "2026-07-28",
+    "kind": "operating-system-stdio-pipes",
+    "session_count": 2,
+    "request_count": 3,
+    "response_count": 3,
+    "tool_call_count": 1,
+    "only_catalogue_search_advertised": true,
+    "resources_advertised": 0,
+    "provider_egress_guard_calls": 0
+  },
+  "result": {
+    "classification": "capability_pass",
+    "capability": "passed",
+    "record_id": "hmlr:dataset:inspire-index-polygons",
+    "title": "Index polygons spatial data (INSPIRE)",
+    "receipt_id": "gis-ai-go:evidence-receipt:sha256:65c13a14a1f7e0a8c6a2b80c8cce01da1049495203a07c4a9c8e4eb34d4cf867",
+    "receipt_verification_valid": true,
+    "model_output_match": true,
+    "model_reported": "claude-sonnet-5",
+    "model_usage_observed": true,
+    "input_tokens": 7631,
+    "output_tokens": 409,
+    "num_turns": 3,
+    "client_exit_code": 0
+  },
+  "isolation": {
+    "built_in_tools_available": false,
+    "allowed_mcp_tool_count": 1,
+    "claude_permission_alias": "mcp__gis-ai-go-qual-206-host-002__catalogue_search",
+    "permission_mode": "dontAsk",
+    "session_persistence": false,
+    "maximum_turns": 2,
+    "mcp_subtree_network_access_allowed": false,
+    "mcp_subtree_network_sandbox": "macos-seatbelt-deny-network",
+    "mcp_child_recognised_credentials_forwarded": false,
+    "raw_host_output_published": false
+  },
+  "runtime_binding": {
+    "tracked_source_material_count": 16,
+    "generated_first_party_closure": {
+      "bytes": 2266018,
+      "file_count": 278,
+      "manifest_sha256": "cd89eddbb721f17df8ff47f29c513c227ecd3416bc48f2305ff9063736366f57",
+      "reference_manifest_sha256": "cd89eddbb721f17df8ff47f29c513c227ecd3416bc48f2305ff9063736366f57",
+      "reference_matches_current": true
+    },
+    "installed_dependency_closure": {
+      "bytes": 137176452,
+      "entry_count": 5396,
+      "manifest_sha256": "e11b94b3f3d62988651daace0a57d5e240945dd3732e0fabb6958202270bd497"
+    },
+    "node_runtime": {
+      "bytes": 50320,
+      "sha256": "1ef99ea25fe70c9b67e7efe768ef8ee22148d3cabc703db6131b57aeb617d040",
+      "version": "26.7.0"
+    },
+    "network_sandbox": {
+      "bytes": 102560,
+      "profile_sha256": "0a5222386587bf836d30a070bd759c0194f999bf5503ba76c6c0f8cb84b19db2",
+      "sha256": "8290e4be7387a0df83cd1559e86afd880464f269450573d012795761fe298f16"
+    },
+    "network_sandbox_probe": {
+      "fsync_pass": true,
+      "loopback_denied": true,
+      "probe_script_sha256": "c6540fbbb22b0c3b965a6ce5dceb81eb2064e99ceb324c122db31ad6f0a8f426"
+    },
+    "complete_first_party_generated_closure_binding": false,
+    "third_party_runtime_binding": "installed-closure-digest-plus-pnpm-lockfile",
+    "complete_runtime_source_binding": false,
+    "dependency_materials_stable": true,
+    "runtime_materials_stable": true,
+    "source_checkout_stable": true
+  },
+  "claims": {
+    "host_002_catalogue_search": true,
+    "exact_five_model_capability": false,
+    "remote_http_interoperability": false,
+    "live_geospatial_provider": false,
+    "registry_publication": false,
+    "activation": false,
+    "deployment": false,
+    "release": false
+  },
+  "private_capture": {
+    "retained": true,
+    "published": false,
+    "manifest_sha256": "6ea8fd87c0bc77f4c7d209adfff62f6f0988116849e4e40f4eeafd1eeb724da3",
+    "stdout_sha256": "af8c906c6532cee5167fda3a37efd83172bb259311519e766d64475a6b798fee",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "boundary": "One bounded Claude Code 2.1.245 model-mediated catalogue.search observation for QUAL-206-HOST-002 over local MCP 2026-07-28 STDIO. This does not prove exact-five model capability, remote HTTP interoperability, a live geospatial provider, registry publication, activation, deployment or release."
+}
