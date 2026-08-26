@@ -22,8 +22,8 @@ The launcher and observer enforce all of these conditions:
 - one MCP server advertising only canonical operation `catalogue.search` and no
   resources, with the exact Claude permission alias
   `mcp__gis-ai-go-qual-206-host-002__catalogue_search`;
-- no Claude built-in tools, `dontAsk` permission mode, one tool-use turn and the
-  required final text-only turn;
+- no Claude built-in tools, `dontAsk` permission mode and a two-turn ceiling for
+  the single tool-use round trip and its required final text-only turn;
 - exactly one call with `{"query":"INSPIRE","limit":1}` across all MCP child
   sessions;
 - no recognised credential environment variable forwarded to the MCP child and
@@ -40,6 +40,15 @@ The server uses the repository's deterministic public fixture. Only model-provid
 traffic is expected outside the local machine; one tool-use lifecycle can involve
 more than one provider API request. The model can reach the provider, but the MCP
 observer and fixture subtree cannot reach any network, including loopback.
+
+Claude Code [documents `--max-turns`](https://code.claude.com/docs/en/cli-usage)
+as an error-producing ceiling on agentic turns.
+An exact `2.1.245` observation showed that a ceiling of one ended with
+`error_max_turns` after the valid MCP result, before Claude could emit the required
+structured final response. Two is therefore the smallest candidate ceiling
+consistent with the required two-turn result; the post-merge bounded observation
+must prove completion before any public evidence is written. The independent
+global claim still permits exactly one MCP tool call.
 
 The harness rebuilds the enumerated generated first-party runtime closure from an
 isolated archive of the accepted source and requires an exact closure match. It

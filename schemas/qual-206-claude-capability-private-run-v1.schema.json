@@ -226,7 +226,7 @@
         },
         "permission_mode": {"const": "dontAsk"},
         "session_persistence": {"const": false},
-        "maximum_turns": {"const": 1},
+        "maximum_turns": {"const": 2},
         "effort": {"const": "low"},
         "process_group_absent": {"type": "boolean"},
         "spawned_process_executable_attested": {"type": "boolean"}

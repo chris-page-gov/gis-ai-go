@@ -162,7 +162,7 @@ async function main() {
   if (
     optionValue(argumentsValue, "--output-format") !== "json" ||
     optionValue(argumentsValue, "--permission-mode") !== "dontAsk" ||
-    optionValue(argumentsValue, "--max-turns") !== "1" ||
+    optionValue(argumentsValue, "--max-turns") !== "2" ||
     optionValue(argumentsValue, "--tools") !== "" ||
     optionValue(argumentsValue, "--allowedTools") !== EXPECTED_PERMISSION_TOOL ||
     settings.permissions?.defaultMode !== "dontAsk" ||
