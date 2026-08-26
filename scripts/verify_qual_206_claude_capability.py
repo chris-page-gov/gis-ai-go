@@ -1298,6 +1298,7 @@ def verify_and_project(
         "isolation": {
             "built_in_tools_available": False,
             "allowed_mcp_tool_count": 1,
+            "claude_permission_alias": manifest["execution"]["allowed_mcp_tool"],
             "permission_mode": "dontAsk",
             "session_persistence": False,
             "maximum_turns": 1,

@@ -793,7 +793,15 @@ strict-modern readiness observation, so the model-task path cannot silently fall
 back to a legacy `initialize` handshake when evaluating the modern surface.
 The launcher maps canonical `catalogue.search` to Claude's permission-facing
 `mcp__gis-ai-go-qual-206-host-002__catalogue_search` alias and regression-checks
-that exact allowlist without changing the MCP wire operation.
+that exact allowlist without changing the MCP wire operation. The canonical name
+conforms to the MCP `2026-07-28` tool-name guidance; the alias builder rejects
+out-of-guidance canonical names and dot-to-underscore collisions. The observer
+also treats request `_meta` as the standard's open extension object: it requires
+the two core protocol fields, allows syntactically valid additional client
+metadata, and keeps the optional self-reported client information separate from
+executable attestation. The exact first-call evidence predicate rejects
+multi-round-trip `requestState` and `inputResponses` parameters because this
+observer never produces an `input_required` result.
 The API-key route uses `--bare` and requires an explicit per-run budget. In both
 routes, recognised credential environment variables are removed before the MCP
 child starts. An identity-bound macOS Seatbelt profile denies all network access

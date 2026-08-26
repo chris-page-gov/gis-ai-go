@@ -33,7 +33,10 @@ The supported target active set is exactly `catalogue.search`,
 - complete the separately gated Claude Code `2.1.245` `HOST-002` capability
   harness, which advertises only `catalogue.search`, permits one exact call, checks
   the inline receipt independently, retains raw material privately and can publish
-  only a path-free pass after the harness has merged to protected `main`;
+  only a path-free pass after the harness has merged to protected `main`; retain
+  the standards-conformant dotted MCP wire name separately from Claude's
+  underscored permission alias, reject alias collisions and allow open MCP request
+  metadata while keeping attribution and exact-case evidence predicates closed;
 - retain the accepted fail-closed real-socket loopback HTTP exact-five preflight,
   whose owner-only raw capture remains local and whose independent path-free
   projection keeps remote-host acceptance false and capability unscored;
