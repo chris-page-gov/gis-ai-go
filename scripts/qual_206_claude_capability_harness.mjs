@@ -45,7 +45,10 @@ const HOST_ATTESTATION_FLAG = "GIS_AI_GO_QUAL_206_HOST_ATTESTATION";
 const ENABLE_FLAG = "GIS_AI_GO_QUAL_206_CLAUDE_CAPABILITY";
 const CASE_ID = "QUAL-206-HOST-002";
 const SERVER_NAME = "gis-ai-go-qual-206-host-002";
-const TOOL_NAME = `mcp__${SERVER_NAME}__catalogue.search`;
+// Claude Code 2.1.245 normalises the canonical MCP operation separator on its
+// permission surface.
+// The observer continues to advertise and enforce the wire name `catalogue.search`.
+const CLAUDE_PERMISSION_TOOL_NAME = `mcp__${SERVER_NAME}__catalogue_search`;
 const PINNED_MODEL = "claude-sonnet-5";
 const NETWORK_SANDBOX = "macos-seatbelt-deny-network";
 const HOST_ATTESTATION = "outer-harness-spawn-executable";
@@ -826,7 +829,7 @@ function claudeArguments(options, mcpPath, settingsPath) {
     "--tools",
     "",
     "--allowedTools",
-    TOOL_NAME,
+    CLAUDE_PERMISSION_TOOL_NAME,
     "--permission-mode",
     "dontAsk",
     "--disable-slash-commands",
@@ -902,7 +905,7 @@ function emptySettings() {
     enableAllProjectMcpServers: false,
     enabledMcpjsonServers: Object.freeze([SERVER_NAME]),
     permissions: Object.freeze({
-      allow: Object.freeze([TOOL_NAME]),
+      allow: Object.freeze([CLAUDE_PERMISSION_TOOL_NAME]),
       deny: Object.freeze([]),
       defaultMode: "dontAsk",
     }),
@@ -1335,7 +1338,7 @@ export async function runClaudeCapability(
       stderr: result.stderr,
       output_schema_sha256: sha256Bytes(Buffer.from(canonicalJson(OUTPUT_SCHEMA), "utf8")),
       built_in_tools_available: false,
-      allowed_mcp_tool: TOOL_NAME,
+      allowed_mcp_tool: CLAUDE_PERMISSION_TOOL_NAME,
       permission_mode: "dontAsk",
       session_persistence: false,
       maximum_turns: 1,

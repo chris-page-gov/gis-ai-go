@@ -716,7 +716,7 @@ def verify_private_configuration(
         "enableAllProjectMcpServers": False,
         "enabledMcpjsonServers": ["gis-ai-go-qual-206-host-002"],
         "permissions": {
-            "allow": ["mcp__gis-ai-go-qual-206-host-002__catalogue.search"],
+            "allow": ["mcp__gis-ai-go-qual-206-host-002__catalogue_search"],
             "deny": [],
             "defaultMode": "dontAsk",
         },
