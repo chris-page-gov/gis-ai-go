@@ -6,9 +6,72 @@ on:
       - main
   pull_request:
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 permissions: {}
 
 jobs:
+  ci_impact_shadow:
+    name: CI impact plan (shadow)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      force_full: ${{ steps.plan.outputs.force_full }}
+      plan_sha256: ${{ steps.plan.outputs.plan_sha256 }}
+      selected_lanes: ${{ steps.plan.outputs.selected_lanes }}
+    permissions:
+      contents: read
+    steps:
+      - name: Check out impact-planning source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Produce fail-closed shadow impact plan
+        id: plan
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PUSH_BASE_SHA: ${{ github.event.before }}
+        run: |
+          case "$GITHUB_EVENT_NAME" in
+            pull_request) base_sha="$PR_BASE_SHA"; impact_event='pull_request' ;;
+            push) base_sha="$PUSH_BASE_SHA"; impact_event='push_main' ;;
+            *) echo 'Unsupported CI impact event' >&2; exit 1 ;;
+          esac
+          python3 scripts/plan_ci_impact.py \
+            --base "$base_sha" \
+            --head "$GITHUB_SHA" \
+            --event "$impact_event" \
+            --map .github/ci/verification-impact-map.v1.json \
+            --output artifacts/ci/impact-plan.json
+          plan_sha256="$(sha256sum artifacts/ci/impact-plan.json | cut -d ' ' -f 1)"
+          force_full="$(jq -r '.force_full' artifacts/ci/impact-plan.json)"
+          selected_lanes="$(jq -c '.selected_lanes' artifacts/ci/impact-plan.json)"
+          printf 'plan_sha256=%s\n' "$plan_sha256" >> "$GITHUB_OUTPUT"
+          printf 'force_full=%s\n' "$force_full" >> "$GITHUB_OUTPUT"
+          printf 'selected_lanes=%s\n' "$selected_lanes" >> "$GITHUB_OUTPUT"
+          {
+            printf '### CI impact plan (shadow)\n\n'
+            printf 'All current assurance jobs still run; this plan cannot skip a check.\n\n'
+            printf -- '- Plan SHA-256: `%s`\n' "$plan_sha256"
+            printf -- '- Force full: `%s`\n' "$force_full"
+            printf -- '- Selected lanes:\n'
+            jq -r '.selected_lanes[] | "  - `" + . + "`"' \
+              artifacts/ci/impact-plan.json
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload shadow impact plan
+        if: success()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ci-impact-plan-${{ github.sha }}
+          path: artifacts/ci/impact-plan.json
+          if-no-files-found: error
+          retention-days: 30
+
   repository_assurance:
     name: Repository assurance
     runs-on: ubuntu-24.04
@@ -122,7 +185,6 @@ jobs:
 
   gateway_image:
     name: Gateway image assurance
-    needs: repository_assurance
     runs-on: ubuntu-24.04
     timeout-minutes: 50
     outputs:
@@ -193,6 +255,7 @@ jobs:
     name: assurance
     if: always()
     needs:
+      - ci_impact_shadow
       - repository_assurance
       - gateway_image
     runs-on: ubuntu-24.04
@@ -201,11 +264,14 @@ jobs:
     steps:
       - name: Require all assurance producers to succeed
         env:
+          CI_IMPACT_SHADOW_RESULT: ${{ needs.ci_impact_shadow.result }}
           GATEWAY_IMAGE_RESULT: ${{ needs.gateway_image.result }}
           REPOSITORY_ASSURANCE_RESULT: ${{ needs.repository_assurance.result }}
         run: |
-          if [[ "$REPOSITORY_ASSURANCE_RESULT" != 'success' ]] || \
+          if [[ "$CI_IMPACT_SHADOW_RESULT" != 'success' ]] || \
+             [[ "$REPOSITORY_ASSURANCE_RESULT" != 'success' ]] || \
              [[ "$GATEWAY_IMAGE_RESULT" != 'success' ]]; then
+            printf 'CI impact plan (shadow): %s\n' "$CI_IMPACT_SHADOW_RESULT" >&2
             printf 'Repository assurance: %s\n' "$REPOSITORY_ASSURANCE_RESULT" >&2
             printf 'Gateway image assurance: %s\n' "$GATEWAY_IMAGE_RESULT" >&2
             exit 1
@@ -272,7 +338,6 @@ jobs:
   gateway_independent_image:
     name: Independent gateway image derivation
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-    needs: repository_assurance
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     outputs:
