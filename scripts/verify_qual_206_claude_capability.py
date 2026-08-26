@@ -1301,7 +1301,7 @@ def verify_and_project(
             "claude_permission_alias": manifest["execution"]["allowed_mcp_tool"],
             "permission_mode": "dontAsk",
             "session_persistence": False,
-            "maximum_turns": 1,
+            "maximum_turns": 2,
             "mcp_subtree_network_access_allowed": False,
             "mcp_subtree_network_sandbox": NETWORK_SANDBOX,
             "mcp_child_recognised_credentials_forwarded": False,

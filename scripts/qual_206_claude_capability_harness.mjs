@@ -151,6 +151,7 @@ const MAX_STDOUT_BYTES = 8 * 1_048_576;
 const MAX_STDERR_BYTES = 1_048_576;
 const MAX_RUN_MILLISECONDS = 180_000;
 const MAX_BUILD_MILLISECONDS = 300_000;
+const MAXIMUM_AGENTIC_TURNS = 2;
 const OUTPUT_SCHEMA = Object.freeze({
   type: "object",
   additionalProperties: false,
@@ -879,7 +880,7 @@ function claudeArguments(options, mcpPath, settingsPath) {
     "--effort",
     "low",
     "--max-turns",
-    "1",
+    String(MAXIMUM_AGENTIC_TURNS),
     "--system-prompt",
     SYSTEM_PROMPT,
   ];
@@ -1377,7 +1378,7 @@ export async function runClaudeCapability(
       allowed_mcp_tool: CLAUDE_PERMISSION_TOOL_NAME,
       permission_mode: "dontAsk",
       session_persistence: false,
-      maximum_turns: 1,
+      maximum_turns: MAXIMUM_AGENTIC_TURNS,
       effort: "low",
     },
     private_files: {

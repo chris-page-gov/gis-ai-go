@@ -234,7 +234,7 @@
         },
         "permission_mode": {"const": "dontAsk"},
         "session_persistence": {"const": false},
-        "maximum_turns": {"const": 1},
+        "maximum_turns": {"const": 2},
         "mcp_subtree_network_access_allowed": {"const": false},
         "mcp_subtree_network_sandbox": {
           "const": "macos-seatbelt-deny-network"
