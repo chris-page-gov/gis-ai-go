@@ -19,11 +19,14 @@ from plan_ci_impact import (  # noqa: E402
     changed_paths_between,
     load_impact_map,
     plan_for_paths,
+    resolve_repository_root,
     write_new_output,
 )
+from gateway_image import CONTEXT_FILES, CONTEXT_ROOTS  # noqa: E402
 
 
-MAP_PATH = ROOT / ".github" / "ci" / "verification-impact-map.v1.json"
+MAP_RELATIVE_PATH = Path(".github/ci/verification-impact-map.v2.json")
+MAP_PATH = ROOT / MAP_RELATIVE_PATH
 SOURCE_LOCK_PATH = ROOT / "okf" / "source-lock.json"
 BASE = "1" * 40
 HEAD = "2" * 40
@@ -36,6 +39,19 @@ RESEARCH_OKF_INPUTS = (
 LOCKED_OKF_INPUTS = tuple(
     item["path"]
     for item in json.loads(SOURCE_LOCK_PATH.read_text(encoding="utf-8"))["inputs"]
+)
+TRACKED_PATHS = tuple(
+    path.decode("utf-8")
+    for path in subprocess.check_output(
+        ("git", "ls-files", "--cached", "-z"), cwd=ROOT
+    ).split(b"\0")
+    if path
+)
+GATEWAY_CONTEXT_PATHS = tuple(
+    path
+    for path in TRACKED_PATHS
+    if path in CONTEXT_FILES
+    or any(path == root or path.startswith(f"{root}/") for root in CONTEXT_ROOTS)
 )
 
 
@@ -67,9 +83,70 @@ class CiImpactPlanTests(unittest.TestCase):
                 f"locked OKF input {path!r} did not select repository and image assurance",
             )
 
+    def test_plan_v2_is_closed_and_uses_a_boolean_gateway_scalar(self) -> None:
+        plan = self.plan("docs/implementation/ROADMAP.md")
+        self.assertEqual(
+            set(plan),
+            {
+                "always_run",
+                "applicable_lanes",
+                "base_commit",
+                "changed_path_count",
+                "changed_paths",
+                "enforced",
+                "event",
+                "force_full",
+                "force_full_rule_ids",
+                "gateway_image_required",
+                "head_commit",
+                "lane_decisions",
+                "map_sha256",
+                "matched_rule_ids",
+                "matches",
+                "mode",
+                "reason",
+                "schema",
+                "selected_lanes",
+                "unmatched_paths",
+            },
+        )
+        self.assertEqual(plan["schema"], "gis-ai-go.ci-impact-plan.v2")
+        self.assertEqual(plan["mode"], "shadow")
+        self.assertIs(plan["enforced"], False)
+        self.assertIs(type(plan["gateway_image_required"]), bool)
+        self.assertIs(plan["gateway_image_required"], False)
+        self.assertEqual(
+            plan["lane_decisions"],
+            {
+                "gateway-provenance": False,
+                "gateway_attestation_verification": False,
+                "gateway_image": False,
+                "gateway_independent_image": False,
+                "provenance": False,
+                "repository_assurance": True,
+            },
+        )
+        self.assertIn(b'"gateway_image_required":false', canonical_json_bytes(plan))
+
+    def test_every_current_tracked_path_has_an_explicit_fail_closed_route(self) -> None:
+        self.assertGreaterEqual(len(TRACKED_PATHS), 832)
+        for path in TRACKED_PATHS:
+            with self.subTest(path=path):
+                self.assertEqual(self.plan(path)["unmatched_paths"], [])
+
+    def test_every_current_gateway_context_path_requires_image_assurance(self) -> None:
+        self.assertGreaterEqual(len(GATEWAY_CONTEXT_PATHS), 235)
+        omitted: list[str] = []
+        for path in GATEWAY_CONTEXT_PATHS:
+            plan = self.plan(path)
+            if plan["gateway_image_required"] is not True:
+                omitted.append(path)
+        self.assertEqual(omitted, [])
+
     def test_qual_harness_change_selects_repository_assurance_only(self) -> None:
         plan = self.plan("scripts/qual_206_claude_capability_harness.mjs")
         self.assertFalse(plan["force_full"])
+        self.assertIs(plan["gateway_image_required"], False)
         self.assertEqual(plan["reason"], "matched-rules")
         self.assertEqual(plan["selected_lanes"], ["repository_assurance"])
         self.assertEqual(
@@ -80,6 +157,7 @@ class CiImpactPlanTests(unittest.TestCase):
     def test_qual_schema_also_selects_the_gateway_derivation_chain(self) -> None:
         plan = self.plan("schemas/qual-206-claude-capability-evidence-v1.schema.json")
         self.assertFalse(plan["force_full"])
+        self.assertIs(plan["gateway_image_required"], True)
         self.assertEqual(
             plan["selected_lanes"],
             [
@@ -92,6 +170,7 @@ class CiImpactPlanTests(unittest.TestCase):
     def test_documentation_change_selects_repository_assurance_only(self) -> None:
         plan = self.plan("docs/implementation/ROADMAP.md")
         self.assertFalse(plan["force_full"])
+        self.assertIs(plan["gateway_image_required"], False)
         self.assertEqual(plan["selected_lanes"], ["repository_assurance"])
         self.assertEqual(plan["matched_rule_ids"], ["documentation-and-governance"])
 
@@ -154,6 +233,7 @@ class CiImpactPlanTests(unittest.TestCase):
     def test_global_workflow_change_selects_every_lane(self) -> None:
         plan = self.plan(".github/workflows/ci.yml")
         self.assertTrue(plan["force_full"])
+        self.assertIs(plan["gateway_image_required"], True)
         self.assertEqual(plan["reason"], "force-full-rule")
         self.assertEqual(
             plan["selected_lanes"], ["gateway_image", "repository_assurance"]
@@ -163,6 +243,7 @@ class CiImpactPlanTests(unittest.TestCase):
     def test_unknown_path_fails_closed_to_every_lane(self) -> None:
         plan = self.plan("future-component/source/new-runtime.ts")
         self.assertTrue(plan["force_full"])
+        self.assertIs(plan["gateway_image_required"], True)
         self.assertEqual(plan["reason"], "unmatched-path")
         self.assertEqual(plan["unmatched_paths"], ["future-component/source/new-runtime.ts"])
         self.assertEqual(
@@ -172,6 +253,7 @@ class CiImpactPlanTests(unittest.TestCase):
     def test_empty_change_set_fails_closed_to_every_lane(self) -> None:
         plan = self.plan()
         self.assertTrue(plan["force_full"])
+        self.assertIs(plan["gateway_image_required"], True)
         self.assertEqual(plan["reason"], "empty-change-set")
         self.assertEqual(
             plan["selected_lanes"], ["gateway_image", "repository_assurance"]
@@ -212,6 +294,7 @@ class CiImpactPlanTests(unittest.TestCase):
         )
         self.assertEqual(plan["reason"], "protected-main-exact-commit")
         self.assertTrue(plan["force_full"])
+        self.assertIs(plan["gateway_image_required"], True)
 
     def test_push_main_documentation_plan_retains_full_exact_commit_evidence(self) -> None:
         plan = plan_for_paths(
@@ -237,6 +320,20 @@ class CiImpactPlanTests(unittest.TestCase):
             path = Path(directory) / "map.json"
             path.write_text(json.dumps(document), encoding="utf-8")
             with self.assertRaisesRegex(ImpactPlanError, "must select full assurance"):
+                load_impact_map(path)
+
+    def test_map_requires_gateway_image_for_both_planning_events(self) -> None:
+        document = json.loads(MAP_PATH.read_text(encoding="utf-8"))
+        lane = next(
+            item for item in document["lanes"] if item["id"] == "gateway_image"
+        )
+        lane["events"] = ["push_main"]
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "map.json"
+            path.write_text(json.dumps(document), encoding="utf-8")
+            with self.assertRaisesRegex(
+                ImpactPlanError, "must be available for pull requests"
+            ):
                 load_impact_map(path)
 
     def test_map_rejects_duplicate_keys_and_non_standard_constants(self) -> None:
@@ -351,6 +448,86 @@ class CiImpactPlanTests(unittest.TestCase):
                 event="pull_request",
             )
             self.assertTrue(REQUIRED_OKF_PR_LANES.issubset(set(plan["selected_lanes"])))
+
+    def test_cli_plans_an_explicit_repository_root_independent_of_script_location(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            subprocess.run(("git", "init", "-q"), cwd=root, check=True)
+            subprocess.run(
+                ("git", "config", "user.email", "ci-impact@example.invalid"),
+                cwd=root,
+                check=True,
+            )
+            subprocess.run(
+                ("git", "config", "user.name", "CI impact test"),
+                cwd=root,
+                check=True,
+            )
+            map_path = root / MAP_RELATIVE_PATH
+            map_path.parent.mkdir(parents=True)
+            map_path.write_bytes(MAP_PATH.read_bytes())
+            document = root / "docs" / "example.md"
+            document.parent.mkdir()
+            document.write_text("first\n", encoding="utf-8")
+            subprocess.run(("git", "add", "."), cwd=root, check=True)
+            subprocess.run(("git", "commit", "-qm", "base"), cwd=root, check=True)
+            base = subprocess.check_output(("git", "rev-parse", "HEAD"), cwd=root).decode(
+                "ascii"
+            ).strip()
+            document.write_text("second\n", encoding="utf-8")
+            subprocess.run(("git", "add", "docs/example.md"), cwd=root, check=True)
+            subprocess.run(("git", "commit", "-qm", "head"), cwd=root, check=True)
+            head = subprocess.check_output(("git", "rev-parse", "HEAD"), cwd=root).decode(
+                "ascii"
+            ).strip()
+
+            result = subprocess.run(
+                (
+                    sys.executable,
+                    str(SCRIPTS / "plan_ci_impact.py"),
+                    "--base",
+                    base,
+                    "--head",
+                    head,
+                    "--repository-root",
+                    str(root),
+                    "--event",
+                    "pull_request",
+                    "--map",
+                    MAP_RELATIVE_PATH.as_posix(),
+                    "--output",
+                    "artifacts/ci/impact-plan.json",
+                ),
+                cwd=ROOT,
+                check=True,
+                capture_output=True,
+            )
+            plan = json.loads(result.stdout)
+            self.assertEqual(plan["changed_paths"], ["docs/example.md"])
+            self.assertIs(plan["gateway_image_required"], False)
+            self.assertEqual(
+                (root / "artifacts/ci/impact-plan.json").read_bytes(),
+                canonical_json_bytes(plan),
+            )
+
+    def test_repository_root_rejects_nested_and_linked_aliases(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            subprocess.run(("git", "init", "-q"), cwd=root, check=True)
+            nested = root / "nested"
+            nested.mkdir()
+            self.assertEqual(resolve_repository_root(root), root)
+            with self.assertRaisesRegex(ImpactPlanError, "exact Git worktree root"):
+                resolve_repository_root(nested)
+            linked = root.parent / f"{root.name}-linked"
+            linked.symlink_to(root, target_is_directory=True)
+            try:
+                with self.assertRaisesRegex(ImpactPlanError, "real directory"):
+                    resolve_repository_root(linked)
+            finally:
+                linked.unlink()
 
     def test_output_is_new_and_repository_relative(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

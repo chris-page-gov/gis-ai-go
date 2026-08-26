@@ -19,11 +19,16 @@ jobs:
     timeout-minutes: 5
     outputs:
       force_full: ${{ steps.plan.outputs.force_full }}
+      gateway_image_required: ${{ steps.plan.outputs.gateway_image_required || steps.fail_full.outputs.gateway_image_required }}
       plan_sha256: ${{ steps.plan.outputs.plan_sha256 }}
       selected_lanes: ${{ steps.plan.outputs.selected_lanes }}
     permissions:
       contents: read
     steps:
+      - name: Default gateway image routing to fail-full
+        id: fail_full
+        run: printf 'gateway_image_required=true\n' >> "$GITHUB_OUTPUT"
+
       - name: Check out impact-planning source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -44,20 +49,32 @@ jobs:
           python3 scripts/plan_ci_impact.py \
             --base "$base_sha" \
             --head "$GITHUB_SHA" \
+            --repository-root "$GITHUB_WORKSPACE" \
             --event "$impact_event" \
-            --map .github/ci/verification-impact-map.v1.json \
+            --map .github/ci/verification-impact-map.v2.json \
             --output artifacts/ci/impact-plan.json
           plan_sha256="$(sha256sum artifacts/ci/impact-plan.json | cut -d ' ' -f 1)"
           force_full="$(jq -r '.force_full' artifacts/ci/impact-plan.json)"
+          gateway_image_required="$(
+            jq -er '
+              if .gateway_image_required == true then "true"
+              elif .gateway_image_required == false then "false"
+              else error("gateway_image_required must be a boolean")
+              end
+            ' artifacts/ci/impact-plan.json
+          )"
           selected_lanes="$(jq -c '.selected_lanes' artifacts/ci/impact-plan.json)"
           printf 'plan_sha256=%s\n' "$plan_sha256" >> "$GITHUB_OUTPUT"
           printf 'force_full=%s\n' "$force_full" >> "$GITHUB_OUTPUT"
+          printf 'gateway_image_required=%s\n' "$gateway_image_required" >> "$GITHUB_OUTPUT"
           printf 'selected_lanes=%s\n' "$selected_lanes" >> "$GITHUB_OUTPUT"
           {
             printf '### CI impact plan (shadow)\n\n'
             printf 'All current assurance jobs still run; this plan cannot skip a check.\n\n'
             printf -- '- Plan SHA-256: `%s`\n' "$plan_sha256"
             printf -- '- Force full: `%s`\n' "$force_full"
+            printf -- '- Gateway image required (candidate-head shadow): `%s`\n' \
+              "$gateway_image_required"
             printf -- '- Selected lanes:\n'
             jq -r '.selected_lanes[] | "  - `" + . + "`"' \
               artifacts/ci/impact-plan.json

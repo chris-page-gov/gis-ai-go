@@ -16,9 +16,10 @@ from typing import Any, Sequence
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_MAP = Path(".github/ci/verification-impact-map.v1.json")
-MAP_SCHEMA = "gis-ai-go.ci-impact-map.v1"
-PLAN_SCHEMA = "gis-ai-go.ci-impact-plan.v1"
+DEFAULT_MAP = Path(".github/ci/verification-impact-map.v2.json")
+MAP_SCHEMA = "gis-ai-go.ci-impact-map.v2"
+PLAN_SCHEMA = "gis-ai-go.ci-impact-plan.v2"
+GATEWAY_IMAGE_LANE = "gateway_image"
 COMMIT = re.compile(r"^[0-9a-f]{40}$")
 LANE_ID = re.compile(r"^[a-z][a-z0-9_-]*$")
 RULE_ID = re.compile(r"^[a-z][a-z0-9-]*$")
@@ -221,7 +222,7 @@ def load_impact_map(path: Path) -> ImpactMap:
     if root["schema"] != MAP_SCHEMA:
         raise ImpactPlanError(f"unsupported impact map schema: {root['schema']!r}")
     if root["mode"] != "shadow":
-        raise ImpactPlanError("the first impact-map version must remain in shadow mode")
+        raise ImpactPlanError("the impact map must remain in shadow mode until separately promoted")
     if root["unknown_path_policy"] != "full":
         raise ImpactPlanError("unknown paths must select full assurance")
     if root["push_main_policy"] != "full_exact_commit":
@@ -268,6 +269,15 @@ def load_impact_map(path: Path) -> ImpactMap:
     if len(lane_ids) != len(set(lane_ids)):
         raise ImpactPlanError("lane identifiers must be unique")
     _validate_dependency_graph(lane_tuple)
+    gateway_image_lane = next(
+        (lane for lane in lane_tuple if lane.lane_id == GATEWAY_IMAGE_LANE), None
+    )
+    if gateway_image_lane is None:
+        raise ImpactPlanError("the gateway_image lane is required")
+    if set(gateway_image_lane.events) != ALLOWED_EVENTS:
+        raise ImpactPlanError(
+            "the gateway_image lane must be available for pull requests and protected main"
+        )
 
     full_lanes = _string_list(root["full_lanes"], "full_lanes", maximum=32)
     if full_lanes != lane_ids:
@@ -406,6 +416,7 @@ def plan_for_paths(
     lane_decisions = {
         lane.lane_id: lane.lane_id in selected_lanes for lane in impact_map.lanes
     }
+    gateway_image_required = GATEWAY_IMAGE_LANE in selected_lanes
     return {
         "schema": PLAN_SCHEMA,
         "mode": "shadow",
@@ -426,6 +437,7 @@ def plan_for_paths(
         "applicable_lanes": list(applicable_lanes),
         "selected_lanes": list(selected_lanes),
         "lane_decisions": lane_decisions,
+        "gateway_image_required": gateway_image_required,
     }
 
 
@@ -518,6 +530,29 @@ def _repository_file(root: Path, relative: Path, label: str) -> Path:
     return target
 
 
+def resolve_repository_root(path: Path) -> Path:
+    """Resolve one explicit, real Git worktree root for planning."""
+
+    logical = Path(os.path.abspath(path))
+    try:
+        metadata = logical.lstat()
+    except FileNotFoundError as error:
+        raise ImpactPlanError("repository root is missing") from error
+    if stat.S_ISLNK(metadata.st_mode) or not stat.S_ISDIR(metadata.st_mode):
+        raise ImpactPlanError("repository root must be a real directory, not a link")
+    root = logical.resolve()
+    if root != logical:
+        raise ImpactPlanError("repository root must not use a symbolic-link alias")
+    try:
+        raw_top_level = _run_git(root, ("rev-parse", "--show-toplevel"))
+        top_level = Path(raw_top_level.decode("utf-8").strip()).resolve()
+    except (UnicodeDecodeError, OSError) as error:
+        raise ImpactPlanError("repository root could not be resolved as UTF-8") from error
+    if top_level != root:
+        raise ImpactPlanError("repository root must be the exact Git worktree root")
+    return root
+
+
 def write_new_output(root: Path, relative: Path, payload: bytes) -> Path:
     target = _repository_file(root, relative, "output path")
     relative_parent = target.parent.relative_to(root)
@@ -551,6 +586,12 @@ def main(argv: Sequence[str] | None = None) -> None:
     parser.add_argument("--base", required=True, help="full event base commit")
     parser.add_argument("--head", required=True, help="full checked-out head commit")
     parser.add_argument(
+        "--repository-root",
+        type=Path,
+        default=ROOT,
+        help="explicit Git worktree root whose base-to-head change is planned",
+    )
+    parser.add_argument(
         "--event",
         required=True,
         choices=sorted(ALLOWED_EVENTS),
@@ -571,9 +612,10 @@ def main(argv: Sequence[str] | None = None) -> None:
     arguments = parser.parse_args(argv)
 
     try:
-        map_path = _repository_file(ROOT, arguments.map, "impact map path")
+        repository_root = resolve_repository_root(arguments.repository_root)
+        map_path = _repository_file(repository_root, arguments.map, "impact map path")
         impact_map = load_impact_map(map_path)
-        paths = changed_paths_between(ROOT, arguments.base, arguments.head)
+        paths = changed_paths_between(repository_root, arguments.base, arguments.head)
         plan = plan_for_paths(
             impact_map,
             paths,
@@ -582,7 +624,7 @@ def main(argv: Sequence[str] | None = None) -> None:
             event=arguments.event,
         )
         payload = canonical_json_bytes(plan)
-        write_new_output(ROOT, arguments.output, payload)
+        write_new_output(repository_root, arguments.output, payload)
     except (ImpactPlanError, OSError) as error:
         raise SystemExit(f"CI impact planning failed closed: {error}") from error
     print(payload.decode("utf-8"), end="")
