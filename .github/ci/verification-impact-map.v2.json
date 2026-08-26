@@ -1,5 +1,5 @@
 {
-  "schema": "gis-ai-go.ci-impact-map.v1",
+  "schema": "gis-ai-go.ci-impact-map.v2",
   "mode": "shadow",
   "unknown_path_policy": "full",
   "push_main_policy": "full_exact_commit",
