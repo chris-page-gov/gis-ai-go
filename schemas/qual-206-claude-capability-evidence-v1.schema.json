@@ -217,6 +217,7 @@
       "required": [
         "built_in_tools_available",
         "allowed_mcp_tool_count",
+        "claude_permission_alias",
         "permission_mode",
         "session_persistence",
         "maximum_turns",
@@ -228,6 +229,9 @@
       "properties": {
         "built_in_tools_available": {"const": false},
         "allowed_mcp_tool_count": {"const": 1},
+        "claude_permission_alias": {
+          "const": "mcp__gis-ai-go-qual-206-host-002__catalogue_search"
+        },
         "permission_mode": {"const": "dontAsk"},
         "session_persistence": {"const": false},
         "maximum_turns": {"const": 1},

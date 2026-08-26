@@ -349,6 +349,9 @@ def public_projection() -> dict[str, object]:
         "isolation": {
             "built_in_tools_available": False,
             "allowed_mcp_tool_count": 1,
+            "claude_permission_alias": (
+                "mcp__gis-ai-go-qual-206-host-002__catalogue_search"
+            ),
             "permission_mode": "dontAsk",
             "session_persistence": False,
             "maximum_turns": 1,
@@ -494,8 +497,8 @@ class ClaudeCapabilityContractsTest(unittest.TestCase):
             )
         }
         expected = {
-            "tests": 14,
-            "pass": 14 if sys.platform == "darwin" else 2,
+            "tests": 16,
+            "pass": 16 if sys.platform == "darwin" else 4,
             "fail": 0,
             "skipped": 0 if sys.platform == "darwin" else 12,
         }
@@ -515,6 +518,11 @@ class ClaudeCapabilityContractsTest(unittest.TestCase):
             ("extra model turn", ("result", "num_turns"), 3),
             ("second call", ("transport", "tool_call_count"), 2),
             ("built-in tools", ("isolation", "built_in_tools_available"), True),
+            (
+                "permission alias drift",
+                ("isolation", "claude_permission_alias"),
+                "mcp__gis-ai-go-qual-206-host-002__catalogue.search",
+            ),
             (
                 "network access inflation",
                 ("isolation", "mcp_subtree_network_access_allowed"),

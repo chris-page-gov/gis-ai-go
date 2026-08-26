@@ -92,7 +92,25 @@ allowlists the exact host-facing alias
 `mcp__gis-ai-go-qual-206-host-002__catalogue_search`, while the MCP wire request,
 observer contract and evidence continue to use the canonical `catalogue.search`
 name. The regression fixture checks both the command-line and settings allowlists
-so these two namespaces cannot silently diverge again.
+so these two namespaces cannot silently diverge again. The alias builder applies
+the current MCP tool-name guidance—1 to 128 ASCII letters, digits, underscores,
+hyphens and dots—and rejects any canonical-name collision after Claude's observed
+dot-to-underscore transformation. `catalogue.search` therefore remains the public
+protocol name; `catalogue_search` is not a replacement API.
+
+MCP request `_meta` is an open extension object. The observer requires the core
+`io.modelcontextprotocol/protocolVersion` and
+`io.modelcontextprotocol/clientCapabilities` fields and permits additional client
+metadata whose keys follow the standard prefix-and-name grammar, instead of
+treating the object as a closed record. The optional
+`io.modelcontextprotocol/clientInfo` is checked separately as an observation
+attribution predicate; it is not trusted as a security identity, which remains
+bound to the independently measured Claude executable. This first-and-only call
+still requires exact top-level parameters and rejects `requestState` or
+`inputResponses`, because the observer never issues an `input_required` result.
+See the official
+[tool-name guidance](https://modelcontextprotocol.io/specification/2026-07-28/server/tools)
+and [`_meta` rules](https://modelcontextprotocol.io/specification/2026-07-28/basic#_meta).
 
 For first-party login authentication, unset recognised credential variables before
 the run. Do not use `--bare`: the exact 2.1.245 client reports that bare mode does

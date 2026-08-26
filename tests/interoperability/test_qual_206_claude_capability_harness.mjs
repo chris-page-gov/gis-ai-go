@@ -15,11 +15,15 @@ import { join, resolve } from "node:path";
 import test from "node:test";
 
 import {
+  buildClaudePermissionAliasMap,
   expectedNetworkSandboxProbeEvidence,
   parseClaudeCapabilityArguments,
   runClaudeCapability,
   verifyNetworkSandboxCompatibility,
 } from "../../scripts/qual_206_claude_capability_harness.mjs";
+import {
+  capabilitySearchRequest,
+} from "../../scripts/qual_206_claude_stdio_observer.mjs";
 import {
   dependencyLinkTargetAllowed,
   measureGeneratedRuntimeClosure,
@@ -180,6 +184,117 @@ test("production arguments distinguish first-party login from API spend", () => 
   assert.throws(() => parseClaudeCapabilityArguments(base, {}), /refusing/u);
 });
 
+test("Claude permission aliases preserve canonical MCP names and reject collisions", () => {
+  assert.deepEqual(
+    buildClaudePermissionAliasMap("gis-ai-go", ["catalogue.search", "data.query"]),
+    {
+      "catalogue.search": "mcp__gis-ai-go__catalogue_search",
+      "data.query": "mcp__gis-ai-go__data_query",
+    },
+  );
+  assert.throws(
+    () => buildClaudePermissionAliasMap(
+      "gis-ai-go",
+      ["catalogue.search", "catalogue_search"],
+    ),
+    /permission alias collision/u,
+  );
+  assert.throws(
+    () => buildClaudePermissionAliasMap("gis-ai-go", ["catalogue/search"]),
+    /MCP 2026-07-28 naming guidance/u,
+  );
+  const prototypeName = buildClaudePermissionAliasMap("gis-ai-go", ["__proto__"]);
+  assert.equal(Object.hasOwn(prototypeName, "__proto__"), true);
+  assert.equal(prototypeName["__proto__"], "mcp__gis-ai-go____proto__");
+});
+
+test("Claude capability calls accept bounded extension metadata", () => {
+  const request = capabilitySearchRequest({
+    jsonrpc: "2.0",
+    id: 1,
+    method: "tools/call",
+    params: {
+      name: "catalogue.search",
+      arguments: { query: "INSPIRE", limit: 1 },
+      _meta: {
+        "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+        "io.modelcontextprotocol/clientCapabilities": {},
+        "io.modelcontextprotocol/clientInfo": {
+          name: "Claude Code",
+          version: "2.1.245",
+          title: "Claude Code",
+        },
+        "com.anthropic/toolUseId": "bounded-test-value",
+      },
+    },
+  });
+  assert.equal(request.valid, true);
+  assert.equal(request.protocol_valid, true);
+  assert.equal(request.client_attribution_valid, true);
+  assert.equal(request.evidence_request_valid, true);
+  assert.equal(
+    capabilitySearchRequest({
+      method: "tools/call",
+      params: {
+        name: "catalogue.search",
+        arguments: { query: "INSPIRE", limit: 1 },
+        _meta: {
+          "io.modelcontextprotocol/clientCapabilities": {},
+          "io.modelcontextprotocol/clientInfo": { name: "Claude Code", version: "2.1.245" },
+        },
+      },
+    }).valid,
+    false,
+  );
+  const unattributed = capabilitySearchRequest({
+    method: "tools/call",
+    params: {
+      name: "catalogue.search",
+      arguments: { query: "INSPIRE", limit: 1 },
+      _meta: {
+        "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+        "io.modelcontextprotocol/clientCapabilities": {},
+      },
+    },
+  });
+  assert.equal(unattributed.protocol_valid, true);
+  assert.equal(unattributed.client_attribution_valid, false);
+  assert.equal(unattributed.valid, false);
+
+  const invalidMetaKey = capabilitySearchRequest({
+    method: "tools/call",
+    params: {
+      name: "catalogue.search",
+      arguments: { query: "INSPIRE", limit: 1 },
+      _meta: {
+        "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+        "io.modelcontextprotocol/clientCapabilities": {},
+        "io.modelcontextprotocol/clientInfo": { name: "Claude Code", version: "2.1.245" },
+        "not a valid meta key": "rejected",
+      },
+    },
+  });
+  assert.equal(invalidMetaKey.protocol_valid, false);
+  assert.equal(invalidMetaKey.valid, false);
+
+  const unexpectedParams = capabilitySearchRequest({
+    method: "tools/call",
+    params: {
+      name: "catalogue.search",
+      arguments: { query: "INSPIRE", limit: 1 },
+      requestState: "unbound-state",
+      _meta: {
+        "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+        "io.modelcontextprotocol/clientCapabilities": {},
+        "io.modelcontextprotocol/clientInfo": { name: "Claude Code", version: "2.1.245" },
+      },
+    },
+  });
+  assert.equal(unexpectedParams.protocol_valid, true);
+  assert.equal(unexpectedParams.evidence_request_valid, false);
+  assert.equal(unexpectedParams.valid, false);
+});
+
 test("dependency links stay inside measured dependencies or exact workspaces", () => {
   const root = "/private/tmp/gis-ai-go-dependency-link-rule";
   assert.equal(
@@ -331,8 +446,8 @@ macRuntimeTest("a valid call in a later MCP session is rejected by the global cl
 });
 
 for (const [scenario, anomaly] of [
-  ["wrong-query", "capability-request-invalid"],
-  ["wrong-operation", "capability-request-invalid"],
+  ["wrong-query", "capability-evidence-request-invalid"],
+  ["wrong-operation", "capability-evidence-request-invalid"],
 ]) {
   macRuntimeTest(`${scenario} cannot create a valid capability observation`, async (t) => {
     const root = privateRoot(t);

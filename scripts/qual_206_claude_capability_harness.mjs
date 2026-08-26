@@ -45,10 +45,9 @@ const HOST_ATTESTATION_FLAG = "GIS_AI_GO_QUAL_206_HOST_ATTESTATION";
 const ENABLE_FLAG = "GIS_AI_GO_QUAL_206_CLAUDE_CAPABILITY";
 const CASE_ID = "QUAL-206-HOST-002";
 const SERVER_NAME = "gis-ai-go-qual-206-host-002";
-// Claude Code 2.1.245 normalises the canonical MCP operation separator on its
-// permission surface.
-// The observer continues to advertise and enforce the wire name `catalogue.search`.
-const CLAUDE_PERMISSION_TOOL_NAME = `mcp__${SERVER_NAME}__catalogue_search`;
+const CANONICAL_CAPABILITY_TOOL_NAME = "catalogue.search";
+const MCP_TOOL_NAME = /^[A-Za-z0-9_.-]{1,128}$/u;
+const CLAUDE_PERMISSION_SEGMENT_CHARACTER = /[^A-Za-z0-9_-]/gu;
 const PINNED_MODEL = "claude-sonnet-5";
 const NETWORK_SANDBOX = "macos-seatbelt-deny-network";
 const HOST_ATTESTATION = "outer-harness-spawn-executable";
@@ -175,6 +174,43 @@ const SYSTEM_PROMPT =
 function fail(message) {
   throw new Error(message);
 }
+
+export function buildClaudePermissionAliasMap(serverName, canonicalToolNames) {
+  if (
+    typeof serverName !== "string" || !/^[A-Za-z0-9_-]{1,128}$/u.test(serverName) ||
+    !Array.isArray(canonicalToolNames) || canonicalToolNames.length < 1
+  ) {
+    fail("Claude permission alias inputs are invalid");
+  }
+  const aliasEntries = [];
+  const canonicalNames = new Set();
+  const canonicalByAlias = new Map();
+  for (const canonicalName of canonicalToolNames) {
+    if (typeof canonicalName !== "string" || !MCP_TOOL_NAME.test(canonicalName)) {
+      fail("canonical tool name does not follow MCP 2026-07-28 naming guidance");
+    }
+    if (canonicalNames.has(canonicalName)) {
+      fail("canonical Claude permission tool name is duplicated");
+    }
+    // Claude Code 2.1.245 empirically replaces the MCP dot separator with an
+    // underscore on its permission surface. The MCP wire name remains unchanged.
+    const segment = canonicalName.replace(CLAUDE_PERMISSION_SEGMENT_CHARACTER, "_");
+    const alias = `mcp__${serverName}__${segment}`;
+    const existing = canonicalByAlias.get(alias);
+    if (existing !== undefined) {
+      fail(`Claude permission alias collision between ${existing} and ${canonicalName}`);
+    }
+    canonicalNames.add(canonicalName);
+    canonicalByAlias.set(alias, canonicalName);
+    aliasEntries.push([canonicalName, alias]);
+  }
+  return Object.freeze(Object.fromEntries(aliasEntries));
+}
+
+const CLAUDE_PERMISSION_TOOL_NAME = buildClaudePermissionAliasMap(
+  SERVER_NAME,
+  [CANONICAL_CAPABILITY_TOOL_NAME],
+)[CANONICAL_CAPABILITY_TOOL_NAME];
 
 function sha256Bytes(value) {
   return createHash("sha256").update(value).digest("hex");

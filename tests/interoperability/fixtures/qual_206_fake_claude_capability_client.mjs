@@ -48,7 +48,9 @@ function meta(extra = {}) {
       "io.modelcontextprotocol/clientInfo": {
         name: "qual-206-fake-claude",
         version: "2.1.245",
+        title: "QUAL-206 fake Claude",
       },
+      "com.anthropic/toolUseId": "qual-206-bounded-test",
     },
   };
 }

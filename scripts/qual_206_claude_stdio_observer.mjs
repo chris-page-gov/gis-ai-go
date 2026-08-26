@@ -109,6 +109,8 @@ const SHA256 = /^[0-9a-f]{64}$/u;
 const UUID_V4 =
   /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/u;
 const CLIENT_LABEL = /^[a-z0-9](?:[a-z0-9._-]{0,62}[a-z0-9])?$/u;
+const META_PREFIX_LABEL = /^[A-Za-z](?:[A-Za-z0-9-]*[A-Za-z0-9])?$/u;
+const META_NAME = /^(?:[A-Za-z0-9](?:[A-Za-z0-9._-]*[A-Za-z0-9])?)?$/u;
 const EXACT_OPERATIONS = Object.freeze([
   "catalogue.search",
   "catalogue.describe",
@@ -216,6 +218,16 @@ function exactKeys(value, expected) {
     Object.keys(value).sort(),
     [...expected].sort(),
   );
+}
+
+function validMetaKey(value) {
+  if (typeof value !== "string") return false;
+  const parts = value.split("/");
+  if (parts.length === 1) return META_NAME.test(value);
+  if (parts.length !== 2 || parts[0].length === 0 || !META_NAME.test(parts[1])) {
+    return false;
+  }
+  return parts[0].split(".").every((label) => META_PREFIX_LABEL.test(label));
 }
 
 function sha256Bytes(value) {
@@ -766,17 +778,19 @@ function validResponseShape(message) {
   );
 }
 
-function capabilityMetaValid(value) {
-  const clientInfo = value?.["io.modelcontextprotocol/clientInfo"];
+function capabilityProtocolMetaValid(value) {
   return plainRecord(value) &&
-    exactKeys(value, [
-      "io.modelcontextprotocol/clientCapabilities",
-      "io.modelcontextprotocol/clientInfo",
-      "io.modelcontextprotocol/protocolVersion",
-    ]) &&
+    Object.keys(value).every((key) => validMetaKey(key)) &&
+    Object.hasOwn(value, "io.modelcontextprotocol/clientCapabilities") &&
+    Object.hasOwn(value, "io.modelcontextprotocol/protocolVersion") &&
     value["io.modelcontextprotocol/protocolVersion"] === PROTOCOL_TARGET &&
-    plainRecord(value["io.modelcontextprotocol/clientCapabilities"]) &&
-    exactKeys(clientInfo, ["name", "version"]) &&
+    plainRecord(value["io.modelcontextprotocol/clientCapabilities"]);
+}
+
+function capabilityClientAttributionValid(value) {
+  const clientInfo = value?.["io.modelcontextprotocol/clientInfo"];
+  return plainRecord(clientInfo) && Object.hasOwn(clientInfo, "name") &&
+    Object.hasOwn(clientInfo, "version") &&
     typeof clientInfo.name === "string" && clientInfo.name.length >= 1 &&
     clientInfo.name.length <= 128 && typeof clientInfo.version === "string" &&
     clientInfo.version.length >= 1 && clientInfo.version.length <= 64;
@@ -784,20 +798,24 @@ function capabilityMetaValid(value) {
 
 export function capabilitySearchRequest(message) {
   const argumentsValue = message?.params?.arguments;
-  const valid = message?.method === "tools/call" &&
+  const protocolValid = capabilityProtocolMetaValid(message?.params?._meta);
+  const clientAttributionValid = capabilityClientAttributionValid(message?.params?._meta);
+  const evidenceRequestValid = message?.method === "tools/call" &&
     exactKeys(message.params, ["_meta", "arguments", "name"]) &&
     message.params.name === "catalogue.search" &&
     exactKeys(argumentsValue, ["limit", "query"]) &&
-    argumentsValue.query === "INSPIRE" && argumentsValue.limit === 1 &&
-    capabilityMetaValid(message.params._meta);
+    argumentsValue.query === "INSPIRE" && argumentsValue.limit === 1;
   const encoded = Buffer.from(
     canonicalJson(plainRecord(argumentsValue) ? argumentsValue : null),
     "utf8",
   );
   return Object.freeze({
     bytes: encoded.length,
+    client_attribution_valid: clientAttributionValid,
+    evidence_request_valid: evidenceRequestValid,
+    protocol_valid: protocolValid,
     sha256: sha256Bytes(encoded),
-    valid,
+    valid: protocolValid && clientAttributionValid && evidenceRequestValid,
   });
 }
 
@@ -1339,7 +1357,12 @@ function startObserver(options) {
       if (method === "tools/call") {
         const request = capabilitySearchRequest(message);
         if (!request.valid) {
-          captureFatal("capability-request-invalid", base);
+          const classification = !request.protocol_valid
+            ? "capability-protocol-metadata-invalid"
+            : !request.client_attribution_valid
+              ? "capability-client-attribution-invalid"
+              : "capability-evidence-request-invalid";
+          captureFatal(classification, base);
           return;
         }
         if (capabilityRequest !== null) {
