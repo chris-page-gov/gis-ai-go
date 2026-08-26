@@ -236,7 +236,7 @@ async function main() {
     subtype: "success",
     is_error: false,
     permission_denials: [],
-    num_turns: 2,
+    num_turns: 3,
     duration_ms: 400,
     duration_api_ms: 300,
     result: "The governed catalogue result is available in structured_output.",

@@ -33,6 +33,7 @@ EVIDENCE_DIRECTORY = ROOT / "tests/interoperability/evidence"
 CORPUS = ROOT / "tests/interoperability/qual_206_cases.json"
 OBSERVER = ROOT / "scripts/qual_206_claude_stdio_observer.mjs"
 PINNED_MODEL = "claude-sonnet-5"
+EXPECTED_REPORTED_TURNS = 3
 CANONICAL_REPOSITORY_ORIGIN = "https://github.com/chris-page-gov/gis-ai-go.git"
 ALLOWED_REPOSITORY_ORIGINS = {
     CANONICAL_REPOSITORY_ORIGIN,
@@ -1143,6 +1144,8 @@ def verify_output(
     num_turns = output.get("num_turns")
     if any(value is None for value in aggregate_counts + model_counts):
         fail("Claude final output does not contain bounded model usage")
+    if type(num_turns) is not int or num_turns != EXPECTED_REPORTED_TURNS:
+        fail("Claude final output reported an unexpected bounded turn count")
     bounded_aggregate = [int(value) for value in aggregate_counts]
     bounded_model = [int(value) for value in model_counts]
     if (
@@ -1162,8 +1165,6 @@ def verify_output(
         or sum(bounded_aggregate[:3]) <= 0
         or sum(bounded_aggregate[:3]) > 10_000_000
         or bounded_aggregate[3] <= 0
-        or isinstance(num_turns, bool)
-        or num_turns != 2
     ):
         fail("Claude final structured output does not match the verified MCP result")
     return {
