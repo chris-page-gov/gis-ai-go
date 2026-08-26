@@ -24,9 +24,16 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import {
   canonicalJson,
   domainSeparatedSha256,
+  PUBLIC_READ_ONS_RESOURCE,
+  verifyEvidenceInspectionReceipt,
   verifyInlineReceipt,
+  verifyPublicReadReceipt,
 } from "../packages/evidence/dist/src/index.js";
-import { PUBLIC_CATALOGUE_POLICY } from
+import {
+  PUBLIC_CATALOGUE_POLICY,
+  PUBLIC_EVIDENCE_INSPECTION_POLICY,
+  PUBLIC_READ_POLICY,
+} from
   "../packages/policy-client/dist/src/index.js";
 import { parseStrictJson } from
   "../packages/provider-adapter-sdk/dist/src/index.js";
@@ -84,6 +91,10 @@ const SERVER_AUTHORITY = "--exact-five-stdio-conformance-only";
 const READINESS_SCENARIO = "independent-host";
 const CAPABILITY_SCENARIO = "claude-host-002";
 const EXACT_FIVE_CAPABILITY_SCENARIO = "claude-exact-five-v1";
+const EXACT_FIVE_TAMPERED_RECEIPT_SCENARIO =
+  "claude-exact-five-v1-tampered-receipt";
+const EXACT_FIVE_TAMPERED_RECEIPT_TEST_VARIABLE =
+  "GIS_AI_GO_QUAL_206_EXACT_FIVE_TAMPERED_RECEIPT_TEST_ONLY";
 const CAPABILITY_CASE_ID = "QUAL-206-HOST-002";
 const CAPABILITY_CLAIM_FILE = "catalogue-search.claim.json";
 const CAPABILITY_SUMMARY_FILE = "capability.json";
@@ -1026,8 +1037,86 @@ export function exactFiveCapabilityResult(operation, result, searchReceiptId = n
     : null;
   const inspectionRelationshipValid = operation !== "evidence.inspect" ||
     (searchReceiptId !== null && inspectedReceiptId === searchReceiptId);
+  let receiptVerificationValid = false;
+  if (plainRecord(structured) && plainRecord(structured.evidence_receipt)) {
+    const {
+      evidence_receipt: receipt,
+      evidence_storage: _storage,
+      ...resultCore
+    } = structured;
+    try {
+      if (operation === "catalogue.search") {
+        receiptVerificationValid = verifyInlineReceipt(receipt, {
+          normalisedParameters: {
+            query: "inspire",
+            facets: {
+              types: [],
+              authority: [],
+              access: [],
+              rights: [],
+              freshness: [],
+              tags: [],
+            },
+            limit: 1,
+            offset: 0,
+          },
+          resultCore,
+          publicPolicy: PUBLIC_CATALOGUE_POLICY,
+          expectedCatalogue: resultCore.catalogue,
+          licenceObligations: receipt.licence_obligations,
+        }).valid === true;
+      } else if (operation === "catalogue.describe") {
+        receiptVerificationValid = verifyInlineReceipt(receipt, {
+          normalisedParameters: {
+            record_id: "LR-Q003",
+            include: ["relationships", "sources"],
+          },
+          resultCore,
+          publicPolicy: PUBLIC_CATALOGUE_POLICY,
+          expectedCatalogue: resultCore.catalogue,
+          licenceObligations: receipt.licence_obligations,
+        }).valid === true;
+      } else if (operation === "selection.resolve") {
+        receiptVerificationValid = verifyPublicReadReceipt(receipt, {
+          normalisedParameters: {
+            schema: "gis-ai-go.selection-resolve-parameters.v1",
+            profile_id: PUBLIC_READ_ONS_RESOURCE.profile.id,
+            provider_id: PUBLIC_READ_ONS_RESOURCE.provider.id,
+            dataset: {
+              id: PUBLIC_READ_ONS_RESOURCE.dataset.id,
+              edition: PUBLIC_READ_ONS_RESOURCE.dataset.edition,
+              version: PUBLIC_READ_ONS_RESOURCE.dataset.version,
+            },
+            selections: PUBLIC_READ_ONS_RESOURCE.selections,
+          },
+          resultCore,
+          publicPolicy: PUBLIC_READ_POLICY,
+          expectedResource: PUBLIC_READ_ONS_RESOURCE,
+        }).valid === true;
+      } else if (operation === "data.query") {
+        receiptVerificationValid = verifyPublicReadReceipt(receipt, {
+          normalisedParameters: PUBLIC_ONS_DATA_QUERY_PARAMETERS,
+          resultCore,
+          publicPolicy: PUBLIC_READ_POLICY,
+          expectedResource: PUBLIC_READ_ONS_RESOURCE,
+        }).valid === true;
+      } else if (operation === "evidence.inspect" && searchReceiptId !== null) {
+        receiptVerificationValid = verifyEvidenceInspectionReceipt(receipt, {
+          lookupMaterial: {
+            schema: "gis-ai-go.evidence-inspect-lookup.v3",
+            kind: "receipt-id",
+            receipt_id: searchReceiptId,
+          },
+          publicPolicy: PUBLIC_EVIDENCE_INSPECTION_POLICY,
+          resultCore,
+        }).valid === true;
+      }
+    } catch {
+      receiptVerificationValid = false;
+    }
+  }
   const valid = envelopeValid && parity && outputContractValid && receiptId !== null &&
-    inspectionRelationshipValid;
+    receiptVerificationValid && inspectionRelationshipValid;
   return Object.freeze({
     valid,
     summary: Object.freeze({
@@ -1037,6 +1126,7 @@ export function exactFiveCapabilityResult(operation, result, searchReceiptId = n
       output_contract_valid: outputContractValid,
       receipt_id: receiptId,
       receipt_present: receiptId !== null,
+      receipt_verification_valid: receiptVerificationValid,
       structured_plain_text_parity: parity,
     }),
   });
@@ -1243,7 +1333,9 @@ function startObserver(options) {
   const scenario = host002CapabilityMode
     ? CAPABILITY_SCENARIO
     : exactFiveCapabilityMode
-      ? EXACT_FIVE_CAPABILITY_SCENARIO
+      ? process.env[EXACT_FIVE_TAMPERED_RECEIPT_TEST_VARIABLE] === "1"
+        ? EXACT_FIVE_TAMPERED_RECEIPT_SCENARIO
+        : EXACT_FIVE_CAPABILITY_SCENARIO
       : READINESS_SCENARIO;
   const rootBefore = validatePrivateDirectory(options.captureRoot, "capture root");
   if (RECOGNISED_CREDENTIAL_VARIABLES.some((name) => process.env[name] !== undefined)) {
@@ -1983,6 +2075,7 @@ function startObserver(options) {
           response?.operation === EXACT_OPERATIONS[index] &&
           response.output_contract_valid === true &&
           response.receipt_present === true &&
+          response.receipt_verification_valid === true &&
           response.structured_plain_text_parity === true
         ) &&
         exactFiveResponses.at(-1)?.inspection_relationship_valid === true &&

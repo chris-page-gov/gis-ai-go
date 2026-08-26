@@ -111,6 +111,9 @@ function dependencies(scenario = "positive") {
     environment,
     extraEnvironment: {
       QUAL_206_FAKE_CLAUDE_EXACT_FIVE_SCENARIO: scenario,
+      ...(scenario === "tampered-receipt"
+        ? { GIS_AI_GO_QUAL_206_EXACT_FIVE_TAMPERED_RECEIPT_TEST_ONLY: "1" }
+        : {}),
     },
     maximumMilliseconds: 30_000,
     networkSandboxProbe: expectedNetworkSandboxProbeEvidence(),
@@ -187,6 +190,7 @@ macRuntimeTest("fake Claude completes the closed exact-five-v1 journey", async (
   assert.equal(summary.operations.length, 5);
   assert.ok(summary.operations.every(({ request, response }) =>
     request.valid === true && response.receipt_present === true &&
+    response.receipt_verification_valid === true &&
     response.output_contract_valid === true &&
     response.structured_plain_text_parity === true
   ));
@@ -197,6 +201,13 @@ macRuntimeTest("fake Claude completes the closed exact-five-v1 journey", async (
   );
   const output = JSON.parse(readFileSync(join(root, "stdout.json"), "utf8"));
   assert.deepEqual(output.structured_output.operation_order, OPERATIONS);
+  assert.deepEqual(
+    output.structured_output.receipt_ids,
+    Object.fromEntries(summary.operations.map(({ response }) => [
+      response.operation,
+      response.receipt_id,
+    ])),
+  );
   assert.equal(
     output.structured_output.inspected_search_receipt_id,
     summary.inspection_relationship.search_receipt_id,
@@ -223,3 +234,26 @@ for (const scenario of [
     assert.match(events, /capability-evidence-request-invalid/u);
   });
 }
+
+macRuntimeTest("a cryptographically invalid inline receipt fails closed", async (t) => {
+  const root = privateRoot(t);
+  const { manifest } = await runClaudeExactFiveCapability(
+    options(root),
+    dependencies("tampered-receipt"),
+  );
+  assert.notEqual(manifest.execution.exit_code, 0);
+  const events = readFileSync(
+    join(root, "observer", "session-1", "events.jsonl"),
+    "utf8",
+  );
+  assert.match(events, /response-contract-invalid/u);
+  const summary = JSON.parse(readFileSync(
+    join(root, "observer", "session-1", "exact-five-capability.json"),
+    "utf8",
+  ));
+  const describe = summary.operations.find(
+    ({ response }) => response?.operation === "catalogue.describe",
+  );
+  assert.equal(describe.response.receipt_present, true);
+  assert.equal(describe.response.receipt_verification_valid, false);
+});

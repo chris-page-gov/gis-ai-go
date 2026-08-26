@@ -59,6 +59,11 @@ const SCENARIOS = Object.freeze({
     lifecycle: ACTIVE_LIFECYCLE,
     toolsOnly: true,
   }),
+  "claude-exact-five-v1-tampered-receipt": Object.freeze({
+    lifecycle: ACTIVE_LIFECYCLE,
+    toolsOnly: true,
+    tamperedReceiptOperation: "catalogue.describe",
+  }),
   unsupported: Object.freeze({ lifecycle: ACTIVE_LIFECYCLE }),
   "provider-discovery": Object.freeze({
     lifecycle: Object.freeze({
@@ -316,9 +321,22 @@ const stdioOptions = {
 const handle = scenario.toolsOnly === true
   ? (() => {
       const bindings = governedCandidateAssemblyBindings(assembly);
+      const catalogueApplication = scenario.tamperedReceiptOperation === undefined
+        ? bindings.catalogueApplication
+        : Object.freeze({
+            search: bindings.catalogueApplication.search,
+            describe: (...parameters) => {
+              const result = structuredClone(
+                bindings.catalogueApplication.describe(...parameters),
+              );
+              result.evidence_receipt.receipt_id =
+                `gis-ai-go:evidence-receipt:sha256:${"0".repeat(64)}`;
+              return result;
+            },
+          });
       return startCatalogueStdio({
         ...stdioOptions,
-        application: bindings.catalogueApplication,
+        application: catalogueApplication,
         evidenceApplication: bindings.evidenceApplication,
         selectionApplication: bindings.selectionApplication,
         dataQueryApplication: bindings.dataQueryApplication,
