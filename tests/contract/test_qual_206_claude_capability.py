@@ -25,6 +25,13 @@ import verify_qual_206_claude_capability as verifier  # noqa: E402
 PUBLIC_SCHEMA_PATH = (
     ROOT / "schemas/qual-206-claude-capability-evidence-v1.schema.json"
 )
+PUBLIC_EVIDENCE_PATH = (
+    ROOT
+    / "tests"
+    / "interoperability"
+    / "evidence"
+    / "claude-code-2.1.245-host-002-capability-2026-08-26.json"
+)
 PRIVATE_SCHEMA_PATH = (
     ROOT / "schemas/qual-206-claude-capability-private-run-v1.schema.json"
 )
@@ -36,6 +43,9 @@ COMMIT = "b" * 40
 TREE = "c" * 40
 RECEIPT = f"gis-ai-go:evidence-receipt:sha256:{'d' * 64}"
 TRACKED = sorted(verifier.TRACKED_CAPABILITY_MATERIALS)
+PUBLIC_SOURCE_COMMIT = "5837bd65a482e90238c466673318f007e305c744"
+PUBLIC_SOURCE_TREE = "d68d0cdb12fd555fbb41da0d6d4aba23a69ef44f"
+PUBLIC_EVIDENCE_SHA256 = "558a2a5a337dc2c601b982c11e644390e68c858342b0fe28f9b40bf68d740ebb"
 BOUNDARY = (
     "One bounded Claude Code 2.1.245 model-mediated catalogue.search observation "
     "for QUAL-206-HOST-002 over local MCP 2026-07-28 STDIO. This does not "
@@ -58,12 +68,74 @@ RECOGNISED_CREDENTIAL_VARIABLES = (
     "GOOGLE_APPLICATION_CREDENTIALS",
     "AZURE_CLIENT_SECRET",
 )
+PUBLIC_EVIDENCE_FORBIDDEN = re.compile(
+    r"(?:"
+    r"/Users/|/home/|/Volumes/|/private/tmp/|file://|"
+    r"[A-Za-z]:\\\\Users\\\\|"
+    r"\bsk-[A-Za-z0-9_-]{8,}|\bgh[opusr]_[A-Za-z0-9]{8,}|"
+    r"\bxox[baprs]-[A-Za-z0-9-]{8,}|\bAKIA[0-9A-Z]{16}|"
+    r"\bBearer\s+[A-Za-z0-9._~-]+|"
+    r"OPENAI_API_KEY|CODEX_API_KEY|ANTHROPIC_API_KEY|ANTHROPIC_AUTH_TOKEN|"
+    r"CLAUDE_CODE_OAUTH_TOKEN|"
+    r"https?://(?:chatgpt\.com/c/|claude\.ai/chat/)|"
+    r"\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-"
+    r"[0-9a-f]{12}\b"
+    r")",
+    re.IGNORECASE,
+)
+FORBIDDEN_PUBLIC_FIELD_NAMES = {
+    "arguments",
+    "credential",
+    "environment",
+    "local_path",
+    "mcp_config",
+    "pid",
+    "process_id",
+    "prompt",
+    "prompt_text",
+    "raw_content",
+    "response_body",
+    "settings",
+    "subscription_type",
+    "user_identity",
+}
 
 
 def validator(path: Path) -> Draft202012Validator:
     schema = json.loads(path.read_text(encoding="utf-8"))
     Draft202012Validator.check_schema(schema)
     return Draft202012Validator(schema, format_checker=FormatChecker())
+
+
+def sha256_bytes(value: bytes) -> str:
+    return hashlib.sha256(value).hexdigest()
+
+
+def git_output(*arguments: str) -> str:
+    return subprocess.check_output(
+        [
+            "git",
+            "-c",
+            "core.fsmonitor=false",
+            "-c",
+            "core.hooksPath=/dev/null",
+            *arguments,
+        ],
+        cwd=ROOT,
+        text=True,
+    ).strip()
+
+
+def nested_field_names(value: Any) -> set[str]:
+    if isinstance(value, dict):
+        return set(value) | {
+            name
+            for child in value.values()
+            for name in nested_field_names(child)
+        }
+    if isinstance(value, list):
+        return {name for child in value for name in nested_field_names(child)}
+    return set()
 
 
 def fake_host_validator(
@@ -920,13 +992,70 @@ class ClaudeCapabilityContractsTest(unittest.TestCase):
         after = sorted((ROOT / "tests/interoperability/evidence").iterdir())
         self.assertEqual(after, before)
 
-    def test_no_public_observation_is_added_by_the_harness_implementation(self) -> None:
+    def test_public_evidence_is_exactly_registered_and_minimised(self) -> None:
         matches = sorted(
             (ROOT / "tests/interoperability/evidence").glob(
                 "claude-code-2.1.245-host-002-capability-*.json"
             )
         )
-        self.assertEqual(matches, [])
+        self.assertEqual(matches, [PUBLIC_EVIDENCE_PATH])
+
+        raw = PUBLIC_EVIDENCE_PATH.read_bytes()
+        document = json.loads(raw)
+        self.assertEqual(sha256_bytes(raw), PUBLIC_EVIDENCE_SHA256)
+        self.assertEqual(list(validator(PUBLIC_SCHEMA_PATH).iter_errors(document)), [])
+
+        self.assertEqual(document["source"]["commit"], PUBLIC_SOURCE_COMMIT)
+        self.assertEqual(document["source"]["tree"], PUBLIC_SOURCE_TREE)
+        self.assertEqual(
+            git_output("rev-parse", f"{PUBLIC_SOURCE_COMMIT}^{{tree}}"),
+            PUBLIC_SOURCE_TREE,
+        )
+        ancestry = subprocess.run(
+            [
+                "git",
+                "-c",
+                "core.fsmonitor=false",
+                "-c",
+                "core.hooksPath=/dev/null",
+                "merge-base",
+                "--is-ancestor",
+                PUBLIC_SOURCE_COMMIT,
+                "HEAD",
+            ],
+            cwd=ROOT,
+            check=False,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        self.assertEqual(ancestry.returncode, 0)
+
+        self.assertEqual(
+            document["claims"],
+            {
+                "host_002_catalogue_search": True,
+                "exact_five_model_capability": False,
+                "remote_http_interoperability": False,
+                "live_geospatial_provider": False,
+                "registry_publication": False,
+                "activation": False,
+                "deployment": False,
+                "release": False,
+            },
+        )
+        self.assertEqual(document["transport"]["tool_call_count"], 1)
+        self.assertEqual(document["transport"]["protocol"], "2026-07-28")
+        self.assertEqual(document["result"]["classification"], "capability_pass")
+        self.assertTrue(document["result"]["receipt_verification_valid"])
+        self.assertEqual(document["result"]["num_turns"], 3)
+        self.assertEqual(document["isolation"]["maximum_turns"], 2)
+        self.assertFalse(document["isolation"]["built_in_tools_available"])
+        self.assertFalse(document["isolation"]["mcp_subtree_network_access_allowed"])
+        self.assertFalse(document["private_capture"]["published"])
+
+        rendered = raw.decode("utf-8")
+        self.assertIsNone(PUBLIC_EVIDENCE_FORBIDDEN.search(rendered))
+        self.assertFalse(nested_field_names(document) & FORBIDDEN_PUBLIC_FIELD_NAMES)
 
 
 if __name__ == "__main__":

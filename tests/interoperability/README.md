@@ -130,8 +130,20 @@ It constrains the server to `catalogue.search`, no resources and no
 geospatial-provider egress; requires exactly one `QUAL-206-HOST-002` call;
 independently verifies the returned inline receipt; and requires Claude's final
 structured output to match that observed result. These tests prove the harness
-behaviour, not Claude capability. No live capability projection is added by the
-implementation change. See the
+behaviour, not Claude capability. The implementation change itself added no live
+capability projection. A later independent verifier produced the accepted,
+path-free
+[Claude Code 2.1.245 HOST-002 projection](evidence/claude-code-2.1.245-host-002-capability-2026-08-26.json)
+from exact protected-main commit
+`5837bd65a482e90238c466673318f007e305c744`, tree
+`d68d0cdb12fd555fbb41da0d6d4aba23a69ef44f`, with SHA-256
+`558a2a5a337dc2c601b982c11e644390e68c858342b0fe28f9b40bf68d740ebb`.
+It records one model-mediated canonical `catalogue.search` call through MCP
+`2026-07-28`, using Claude Code `2.1.245` and reported model
+`claude-sonnet-5`, under a CLI ceiling of two and exact final host
+`num_turns: 3`. It does not establish exact-five model capability, remote HTTP
+interoperability, a live geospatial provider, registry publication, activation,
+deployment or release. See the
 [capability runbook](../../docs/operations/QUAL-206_CLAUDE_CAPABILITY.md).
 
 See the [QUAL-206 interoperability runbook](../../docs/operations/QUAL-206_INTEROPERABILITY.md)

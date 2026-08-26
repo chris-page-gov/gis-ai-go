@@ -1,6 +1,6 @@
 # Delivery progress
 
-Last updated: 25 August 2026
+Last updated: 26 August 2026
 
 ## Current outcome
 
@@ -27,20 +27,25 @@ The supported target active set is exactly `catalogue.search`,
 - retain the merged bounded two-process observer and independent verifier for
   Claude Code automatic modern negotiation without changing the exact-sequence
   collector or scoring host capability;
-- accept the separately verified MCP `2026-07-28` Claude Code `2.1.241` and
-  `2.1.245` desktop-STDIO results as transport readiness only, with capability and
-  exact-five source binding still false;
-- complete the separately gated Claude Code `2.1.245` `HOST-002` capability
+- preserve the separately verified MCP `2026-07-28` Claude Code `2.1.241` and
+  `2.1.245` desktop-STDIO transport-readiness results without relabelling them;
+- retain the separately gated Claude Code `2.1.245` `HOST-002` capability
   harness, which advertises only `catalogue.search`, permits one exact call, checks
   the inline receipt independently, retains raw material privately and can publish
   only a path-free pass after the harness has merged to protected `main`; retain
   the standards-conformant dotted MCP wire name separately from Claude's
   underscored permission alias, reject alias collisions and allow open MCP request
   metadata while keeping attribution and exact-case evidence predicates closed;
+- accept the verifier-produced `HOST-002` projection from exact protected-main
+  commit `5837bd65a482e90238c466673318f007e305c744` as one bounded
+  model-mediated `catalogue.search` capability pass; keep exact-five model
+  capability, remote HTTP, live geospatial-provider use, registry publication,
+  activation, deployment and release false and open;
 - retain the accepted fail-closed real-socket loopback HTTP exact-five preflight,
   whose owner-only raw capture remains local and whose independent path-free
   projection keeps remote-host acceptance false and capability unscored;
-- complete the remaining bounded desktop capability and remote-HTTP host evidence;
+- complete the remaining exact-five desktop capability and remote-HTTP host
+  evidence;
   and
 - continue provider-neutral preparation, but stop before public provisioning or
   spend until a provider account, numeric monthly ceiling and operational hosting
@@ -346,10 +351,10 @@ or release is claimed.
 ## Next
 
 1. Preserve the verified Claude Code `2.1.241` and `2.1.245` strict-modern transport
-   summaries, the separate historical default-negotiation record and the accepted
-   protected-main loopback HTTP projection. Complete the bounded capability pack
-   and remaining remote-HTTP host evidence without widening any transport result
-   into a capability claim.
+   summaries, the separate historical default-negotiation record, the accepted
+   one-case `HOST-002` capability projection and the protected-main loopback HTTP
+   projection. Complete the exact-five desktop capability and remaining remote-HTTP
+   host evidence without widening any narrow result.
 2. Retain the exact protected-main UBI, independent-derivation and provenance
    evidence from runs `32760872035` and `32760871684`; rebuild and repeat it after
    every later source-changing activation or release commit.
@@ -380,7 +385,9 @@ or release is claimed.
   `2025-11-25` result. The separate 25 August v2 automatic-negotiation observations
   for exact Claude Code `2.1.241` and `2.1.245` establish strict MCP `2026-07-28`
   desktop-STDIO transport readiness, but neither involved a model task or tool
-  call, and neither completes the capability pack or remote-HTTP host evidence.
+  call. The later accepted `HOST-002` projection scores one bounded
+  `catalogue.search` case only; exact-five model capability and remote-HTTP host
+  evidence remain incomplete.
   Security, accessibility, governed ingress/storage admission, retention/disposal
   and host-specific lifecycle evidence remain activation gates.
 - Direct routes and MCP transports now exist on protected `main`, but the
@@ -495,6 +502,25 @@ or release is claimed.
   that exact component and retained database, not a claim of no vulnerabilities. The
   candidate remains repository-only and blocked; no publication, provider call,
   deployment, registration, activation, tag or release is claimed;
+
+- Claude Code `2.1.245` bounded `HOST-002` capability: the verifier-produced
+  [path-free projection](tests/interoperability/evidence/claude-code-2.1.245-host-002-capability-2026-08-26.json)
+  binds exact protected-main commit
+  `5837bd65a482e90238c466673318f007e305c744`, tree
+  `d68d0cdb12fd555fbb41da0d6d4aba23a69ef44f`, with SHA-256
+  `558a2a5a337dc2c601b982c11e644390e68c858342b0fe28f9b40bf68d740ebb`.
+  Exact-main
+  [run 32941380816](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32941380816)
+  passed repository, producer and independent gateway-image derivation, byte
+  comparison, attestation verification, Pages and gateway provenance assurance;
+  [CodeQL run 32941380576](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32941380576)
+  passed Actions, JavaScript/TypeScript and Python analysis. Claude Code `2.1.245`,
+  reporting model `claude-sonnet-5`, made exactly one canonical MCP `2026-07-28`
+  `catalogue.search` call and returned the same independently verified inline
+  receipt. The CLI ceiling was two agentic turns and the exact final host report
+  was `num_turns: 3`. Raw capture remains owner-only and local. Exact-five model
+  capability, remote HTTP interoperability, live geospatial-provider use, registry
+  publication, activation, deployment and release remain false and open;
 
 - Claude Code `2.1.245` strict-modern STDIO readiness: the
   [path-free source-bound summary](tests/interoperability/evidence/claude-code-2.1.245-modern-stdio-readiness-2026-08-25.json)

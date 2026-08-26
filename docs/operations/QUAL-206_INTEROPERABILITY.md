@@ -11,15 +11,19 @@
   ready; a separate 23 August Claude Code legacy STDIO observation from exact
   protected-main bytes passed initialisation and tool listing, with capability
   unscored; exact Claude Code `2.1.245` now also has independently replayed
-  strict-modern STDIO transport readiness from protected `main`, with capability
-  still unscored;
+  strict-modern STDIO transport readiness from protected `main`; a later bounded
+  `HOST-002` observation from exact protected-main bytes passed one model-mediated
+  canonical `catalogue.search` call and independent receipt verification;
   deterministic `HOST-015` application recovery passes locally but remains non-live
-  and unscored; capability scoring and activation remain pending
+  and unscored; exact-five model capability, remote HTTP evidence and activation
+  remain pending
 - reviewed source base: `66507f9a6e6c0da23a8af4682268f9362d93bc06`
 - local HTTP transport evidence source: protected `main` commit
   `066a9cb22f719d22e29c95cd99857ddf694c878e`
 - latest Claude transport-readiness source: protected `main` commit
   `e905c632724ecc9d13b13452fee37328e75cc2a4`
+- accepted Claude `HOST-002` capability source: protected `main` commit
+  `5837bd65a482e90238c466673318f007e305c744`
 - historical Claude legacy transport-readiness source: protected `main` commit
   `30b575beb27ff805745a2864c1acf44392774046`
 - legacy fallback integration base: protected `main` commit
@@ -248,6 +252,7 @@ MCP registry for a conformance run.
 | Claude Code 2.1.241, strict modern and fallback seams, 24 August | Two credential-free `mcp list` checks against exact protected main `dda0eb9` | strict `2026-07-28` `not_ready`: client offered `2025-11-25` and received `-32022`; constructor-only fallback `ready`: initialisation and `tools/list` passed; capability unscored |
 | Claude Code 2.1.241, v2 automatic negotiation, 25 August | Two-session credential-free `mcp list` observation against exact protected main `c679b6f` | `ready`: `server/discover` and `tools/list` passed at `2026-07-28`; capability unscored |
 | Claude Code 2.1.245, v2 automatic negotiation, 25 August | Fresh two-session credential-free `mcp list` observation after the parent-identity repair reached exact protected main `e905c63` | `ready`: `server/discover` and `tools/list` passed at `2026-07-28`; capability unscored |
+| Claude Code 2.1.245, bounded `HOST-002`, 26 August | One model-mediated `catalogue.search` call from exact protected main `5837bd6`, with independent receipt verification | `capability_pass` for the one bounded MCP `2026-07-28` case; exact-five and remote HTTP remain open |
 | VS Code 1.134.0 | Temporary workspace and MCP registry; prove correct window attachment | `not_ready`: no GitHub token and no proved chat attachment; zero MCP traffic |
 | Official SDK client | HTTP and STDIO discovery, calls, resources and shutdown | Accepted on protected `main` |
 
@@ -677,12 +682,12 @@ constructor-only two-tool conformance seam, not the exact-five unregistered
 production assembly. No model task, tool call, resource read, live provider,
 remote HTTP host, registration, activation, deployment or release was exercised.
 
-This new record does not change either historical result. The 20 August
+This record does not change either historical result. The 20 August
 modern-only attempt remains `not_ready` because it received `-32022`, and the
-uncommitted fallback observation remains exploratory. Complete a separately
-authorised, bounded model task before scoring Claude capability, and complete the
-remaining independent desktop and remote HTTP evidence before claiming the full
-independent-host gate.
+uncommitted fallback observation remains exploratory. The later accepted
+`HOST-002` projection scores only its separately authorised bounded
+`catalogue.search` case. Complete the remaining exact-five desktop and remote HTTP
+evidence before claiming the full independent-host gate.
 
 This fallback is local-only. Do not attach it to the existing ChatGPT tunnel,
 change that tunnel's profile, publish its address, activate a production tool or
@@ -745,8 +750,8 @@ raw content, local identities or paths.
 This establishes strict-modern desktop STDIO transport readiness for the exact
 observed client and configuration. It does not score a tool call, complete the
 exact-five operation journey or exercise a model, provider, remote HTTP host,
-registration, activation, deployment or release. Run the separately bounded
-capability pack before claiming independent-host capability.
+registration, activation, deployment or release. The later bounded `HOST-002`
+capability pass is a separate record and does not widen this readiness result.
 
 ### Claude Code 2.1.245 protected-main readiness
 
@@ -767,10 +772,9 @@ no observer or fixture remained. The path-free
 binds the exact source and runtime materials to retained private-capture digests.
 The earlier `2.1.241` schema and readiness record remain byte-exact lineage.
 
-This is transport readiness for that exact client and configuration, not a model or
-tool capability pass. No model task, tool call, resource read, exact-five journey,
-provider, remote HTTP host, registration, activation, deployment or release was
-exercised. The next independent-host step remains the bounded capability pack.
+This remains the transport-readiness record for that exact client and
+configuration; it is not retroactively relabelled. The separately bounded
+`HOST-002` capability projection below records the later model-mediated result.
 
 ### Claude Code 2.1.245 bounded capability pack
 
@@ -815,9 +819,25 @@ paths remain in an owner-only private directory. The offline verifier can publis
 only a path-free pass projection, in a separate evidence pull request. A failure
 remains private and cannot produce public capability evidence.
 
+The accepted verifier-produced
+[`Claude Code 2.1.245 HOST-002 capability projection`](../../tests/interoperability/evidence/claude-code-2.1.245-host-002-capability-2026-08-26.json)
+binds exact protected-main commit
+`5837bd65a482e90238c466673318f007e305c744`, tree
+`d68d0cdb12fd555fbb41da0d6d4aba23a69ef44f`. Its SHA-256 is
+`558a2a5a337dc2c601b982c11e644390e68c858342b0fe28f9b40bf68d740ebb`.
+Exact-main
+[CI run 32941380816](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32941380816)
+and
+[CodeQL run 32941380576](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32941380576)
+passed. Claude Code `2.1.245`, reporting model `claude-sonnet-5`, made exactly one
+canonical `catalogue.search` call over MCP `2026-07-28` and returned the same
+independently verified receipt. The CLI ceiling was two agentic turns and the exact
+final host report was `num_turns: 3`; these are different counters. Raw capture
+remains local and owner-only.
+
 See the
 [Claude HOST-002 capability runbook](QUAL-206_CLAUDE_CAPABILITY.md) for the exact
-boundary and procedure. A pass closes only the single model-mediated
+boundary and procedure. The accepted pass closes only the single model-mediated
 `catalogue.search` case. It does not establish exact-five model capability, remote
 HTTP interoperability, live-provider readiness, registration, activation,
 deployment or release.

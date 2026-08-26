@@ -897,6 +897,22 @@ def main() -> None:
             ],
         ),
         (
+            "qual-206-claude-capability-evidence-v1.schema.json",
+            [
+                (
+                    "tests/interoperability/evidence/"
+                    "claude-code-2.1.245-host-002-capability-2026-08-26.json",
+                    load_json(
+                        ROOT
+                        / "tests"
+                        / "interoperability"
+                        / "evidence"
+                        / "claude-code-2.1.245-host-002-capability-2026-08-26.json"
+                    ),
+                )
+            ],
+        ),
+        (
             "qual-206-local-http-transport-preflight.schema.json",
             [
                 (

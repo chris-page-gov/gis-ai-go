@@ -11,6 +11,29 @@ interoperability, a live geospatial provider, registry publication, deployment o
 release. The external SSD and the separately relocated `mcp-geo` ONS cache are not
 used.
 
+## Accepted evidence
+
+The verifier-produced
+[`Claude Code 2.1.245 HOST-002 capability projection`](../../tests/interoperability/evidence/claude-code-2.1.245-host-002-capability-2026-08-26.json)
+records a pass from exact protected-main commit
+`5837bd65a482e90238c466673318f007e305c744`, tree
+`d68d0cdb12fd555fbb41da0d6d4aba23a69ef44f`. Its SHA-256 is
+`558a2a5a337dc2c601b982c11e644390e68c858342b0fe28f9b40bf68d740ebb`.
+Every exact-main CI job passed in
+[run 32941380816](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32941380816),
+and every analysis passed in
+[CodeQL run 32941380576](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32941380576).
+
+Claude Code `2.1.245`, reporting model `claude-sonnet-5`, completed MCP
+`2026-07-28` case `QUAL-206-HOST-002` with exactly one canonical
+`catalogue.search` call and a valid independently checked receipt. The accepted
+projection records a two-agentic-turn CLI ceiling and exact final host
+`num_turns: 3`; the counters are not interchangeable. This is one bounded
+capability pass only. Exact-five model capability, remote HTTP interoperability,
+live geospatial-provider use, registry publication, activation, deployment and
+release remain explicitly false and open. The raw observation remains local and
+owner-only.
+
 ## Closed observation boundary
 
 The launcher and observer enforce all of these conditions:

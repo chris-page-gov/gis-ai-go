@@ -79,6 +79,26 @@ the exact-five journey, remote HTTP evidence, provider use, registration,
 activation, deployment and release remain incomplete or unexercised. Raw capture,
 client output, profile data and local identities remain owner-only and unpublished.
 
+The separate
+[`Claude Code 2.1.245 HOST-002 capability projection`](claude-code-2.1.245-host-002-capability-2026-08-26.json)
+is a verifier-produced, path-free pass from exact protected-main commit
+`5837bd65a482e90238c466673318f007e305c744`, tree
+`d68d0cdb12fd555fbb41da0d6d4aba23a69ef44f`, with projection SHA-256
+`558a2a5a337dc2c601b982c11e644390e68c858342b0fe28f9b40bf68d740ebb`.
+Every exact-main CI job passed in
+[run 32941380816](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32941380816),
+and every analysis passed in
+[CodeQL run 32941380576](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32941380576).
+Claude Code `2.1.245`, reporting model `claude-sonnet-5`, completed MCP
+`2026-07-28` case `QUAL-206-HOST-002` with exactly one canonical
+`catalogue.search` call and a valid independently checked receipt. The CLI ceiling
+was two agentic turns while the exact final host report was `num_turns: 3`; these
+are distinct counters. This closes only that one bounded capability case. The
+projection explicitly keeps exact-five model capability, remote HTTP
+interoperability, live geospatial-provider use, registry publication, activation,
+deployment and release false. Raw Claude and MCP capture remains owner-only and
+local.
+
 The
 [`protected-main local HTTP transport preflight`](local-http-transport-preflight-2026-08-25.json)
 is a separate path-free projection from exact protected-main commit
