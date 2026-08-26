@@ -21,6 +21,13 @@ tests, source/link/research integrity, secret scanning, diagrams and SBOM genera
 Feature work adds affected browser, accessibility, protocol, policy, provider and
 deployment tests to the same required gate or a separately required stable check.
 
+Independent assurance producers may run in parallel, but the stable `assurance`
+aggregator must fail closed unless every required producer succeeds. The current
+[CI impact planner](CI_IMPACT_ROUTING.md) is shadow-only: it records a versioned,
+dependency-expanded recommendation while every existing check still runs. Unknown
+paths select full assurance, and no planner output may control job execution until
+the documented promotion gate is separately accepted.
+
 Pinned dependencies and GitHub Actions remain mandatory. A dependency change must
 update lock files, regenerate the SBOM, record the reason and pass the relevant
 same-pattern tests.

@@ -1,0 +1,263 @@
+{
+  "schema": "gis-ai-go.ci-impact-map.v1",
+  "mode": "shadow",
+  "unknown_path_policy": "full",
+  "push_main_policy": "full_exact_commit",
+  "always_run": [
+    "assurance",
+    "ci_impact_shadow"
+  ],
+  "lanes": [
+    {
+      "id": "gateway_attestation_verification",
+      "description": "Replays and cross-checks the protected-main gateway evidence.",
+      "events": [
+        "push_main"
+      ],
+      "depends_on": [
+        "gateway_image",
+        "gateway_independent_image",
+        "repository_assurance"
+      ]
+    },
+    {
+      "id": "gateway_image",
+      "description": "Builds, scans and verifies the primary gateway image evidence.",
+      "events": [
+        "pull_request",
+        "push_main"
+      ],
+      "depends_on": []
+    },
+    {
+      "id": "gateway_independent_image",
+      "description": "Builds the independent protected-main gateway derivation.",
+      "events": [
+        "push_main"
+      ],
+      "depends_on": []
+    },
+    {
+      "id": "gateway-provenance",
+      "description": "Attests verified gateway image subjects on protected main.",
+      "events": [
+        "push_main"
+      ],
+      "depends_on": [
+        "gateway_attestation_verification",
+        "gateway_image",
+        "gateway_independent_image",
+        "repository_assurance"
+      ]
+    },
+    {
+      "id": "provenance",
+      "description": "Attests an immutable Pages source archive on protected main.",
+      "events": [
+        "push_main"
+      ],
+      "depends_on": [
+        "repository_assurance"
+      ]
+    },
+    {
+      "id": "repository_assurance",
+      "description": "Runs the complete locked repository assurance gate.",
+      "events": [
+        "pull_request",
+        "push_main"
+      ],
+      "depends_on": []
+    }
+  ],
+  "full_lanes": [
+    "gateway-provenance",
+    "gateway_attestation_verification",
+    "gateway_image",
+    "gateway_independent_image",
+    "provenance",
+    "repository_assurance"
+  ],
+  "rules": [
+    {
+      "id": "global-assurance-control",
+      "description": "Toolchain, workflow and planner changes require every lane.",
+      "patterns": [
+        ".dockerignore",
+        ".github/**",
+        ".nvmrc",
+        "VERSION",
+        "package.json",
+        "pnpm-lock.yaml",
+        "pnpm-workspace.yaml",
+        "pyproject.toml",
+        "scripts/plan_ci_impact.py",
+        "tests/contract/test_ci_impact_plan.py",
+        "tsconfig.base.json",
+        "uv.lock"
+      ],
+      "lanes": [
+        "gateway-provenance",
+        "gateway_attestation_verification",
+        "gateway_image",
+        "gateway_independent_image",
+        "provenance",
+        "repository_assurance"
+      ],
+      "force_full": true
+    },
+    {
+      "id": "gateway-assurance-tooling",
+      "description": "Gateway tooling changes affect image assurance.",
+      "patterns": [
+        "deploy/gateway/**",
+        "infra/**",
+        "scripts/check_gateway_*.py",
+        "scripts/gateway_*.py",
+        "scripts/generate_gateway_image_sbom.py",
+        "scripts/node_runtime_advisory.py",
+        "scripts/package_gateway_oci.py",
+        "scripts/run_gateway_image_assurance.py",
+        "scripts/scan_gateway_image.py",
+        "scripts/verify_gateway_*.py",
+        "tests/contract/test_gateway_*.py"
+      ],
+      "lanes": [
+        "gateway-provenance",
+        "repository_assurance"
+      ],
+      "force_full": false
+    },
+    {
+      "id": "gateway-build-context",
+      "description": "Runtime source and contracts enter the governed gateway image.",
+      "patterns": [
+        "LICENSE",
+        "THIRD_PARTY.md",
+        "apps/mcp-gateway/**",
+        "packages/**",
+        "profiles/**",
+        "schemas/**"
+      ],
+      "lanes": [
+        "gateway-provenance",
+        "repository_assurance"
+      ],
+      "force_full": false
+    },
+    {
+      "id": "governed-okf-publication",
+      "description": "Canonical OKF inputs affect the Explorer and gateway catalogue.",
+      "patterns": [
+        "docs/source-ledger/**",
+        "okf/**",
+        "providers/**",
+        "scripts/build_okf.py"
+      ],
+      "lanes": [
+        "gateway-provenance",
+        "provenance",
+        "repository_assurance"
+      ],
+      "force_full": false
+    },
+    {
+      "id": "public-explorer-publication",
+      "description": "Explorer source, browser checks and Pages packaging affect the static product.",
+      "patterns": [
+        "apps/public-explorer/**",
+        "scripts/check_release_reproducibility.py",
+        "scripts/package_pages.py",
+        "scripts/stage_pages_payload.py",
+        "scripts/verify_pages_archive.py",
+        "tests/accessibility/**"
+      ],
+      "lanes": [
+        "provenance",
+        "repository_assurance"
+      ],
+      "force_full": false
+    },
+    {
+      "id": "qual-206-evidence",
+      "description": "QUAL-206 harness, fixture and evidence changes require repository assurance.",
+      "patterns": [
+        "changelog.d/QUAL-206-*",
+        "docs/operations/QUAL-206_*",
+        "evaluation/qual-206-*",
+        "scripts/compile_qual_206_*.py",
+        "scripts/qual_206_*",
+        "scripts/verify_qual_206_*.py",
+        "tests/contract/test_qual_206_*.py",
+        "tests/interoperability/**"
+      ],
+      "lanes": [
+        "repository_assurance"
+      ],
+      "force_full": false
+    },
+    {
+      "id": "documentation-and-governance",
+      "description": "Documentation changes retain source, link and secret assurance.",
+      "patterns": [
+        "AGENTS.md",
+        "CHANGELOG.md",
+        "CODE_OF_CONDUCT.md",
+        "CONTEXT.md",
+        "CONTRIBUTING.md",
+        "GOVERNANCE.md",
+        "PROGRESS.md",
+        "README.md",
+        "RELEASE_NOTES/**",
+        "SECURITY.md",
+        "architecture/**",
+        "changelog.d/**",
+        "docs/**"
+      ],
+      "lanes": [
+        "repository_assurance"
+      ],
+      "force_full": false
+    },
+    {
+      "id": "repository-runtime-and-policy",
+      "description": "Execution, policy and workflow source uses the complete repository gate.",
+      "patterns": [
+        "deploy/**",
+        "evaluation/**",
+        "policies/**",
+        "services/**",
+        "workflows/**"
+      ],
+      "lanes": [
+        "repository_assurance"
+      ],
+      "force_full": false
+    },
+    {
+      "id": "repository-tests-and-tooling",
+      "description": "Repository tests and non-image tooling retain the complete repository gate.",
+      "patterns": [
+        "scripts/**",
+        "tests/**"
+      ],
+      "lanes": [
+        "repository_assurance"
+      ],
+      "force_full": false
+    },
+    {
+      "id": "repository-control-files",
+      "description": "Repository control files retain the complete repository gate.",
+      "patterns": [
+        ".editorconfig",
+        ".gitattributes",
+        ".gitignore"
+      ],
+      "lanes": [
+        "repository_assurance"
+      ],
+      "force_full": false
+    }
+  ]
+}

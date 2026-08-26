@@ -76,7 +76,51 @@ class PagesWorkflowTests(unittest.TestCase):
         )
         self.assertNotIn("contents: write", CI_WORKFLOW + PAGES_WORKFLOW)
 
+    def test_ci_cancels_only_superseded_pull_request_runs(self) -> None:
+        concurrency = CI_WORKFLOW.split("\nconcurrency:\n", 1)[1].split(
+            "\npermissions: {}", 1
+        )[0]
+        self.assertIn(
+            "group: ci-${{ github.workflow }}-"
+            "${{ github.event.pull_request.number || github.run_id }}",
+            concurrency,
+        )
+        self.assertIn(
+            "cancel-in-progress: ${{ github.event_name == 'pull_request' }}",
+            concurrency,
+        )
+        self.assertNotIn("github.ref", concurrency)
+
+    def test_ci_impact_map_job_identifiers_cannot_drift_from_the_workflow(self) -> None:
+        impact_map = json.loads(
+            (ROOT / ".github/ci/verification-impact-map.v1.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        mapped_lanes = {lane["id"] for lane in impact_map["lanes"]}
+        always_run = set(impact_map["always_run"])
+        jobs = CI_WORKFLOW.split("\njobs:\n", 1)[1]
+        workflow_jobs = set(
+            re.findall(r"^  ([a-z][a-z0-9_-]*):$", jobs, re.MULTILINE)
+        )
+        self.assertEqual(
+            mapped_lanes,
+            {
+                "gateway-provenance",
+                "gateway_attestation_verification",
+                "gateway_image",
+                "gateway_independent_image",
+                "provenance",
+                "repository_assurance",
+            },
+        )
+        self.assertEqual(always_run, {"assurance", "ci_impact_shadow"})
+        self.assertEqual(workflow_jobs, mapped_lanes | always_run)
+
     def test_ci_exposes_one_stable_assurance_gate_for_both_producers(self) -> None:
+        impact = CI_WORKFLOW.split("\n  ci_impact_shadow:\n", 1)[1].split(
+            "\n  repository_assurance:\n", 1
+        )[0]
         repository = CI_WORKFLOW.split("\n  repository_assurance:\n", 1)[1].split(
             "\n  gateway_image:\n", 1
         )[0]
@@ -88,18 +132,35 @@ class PagesWorkflowTests(unittest.TestCase):
         )[0]
 
         self.assertEqual(CI_WORKFLOW.count("\n  assurance:\n"), 1)
+        self.assertIn("name: CI impact plan (shadow)", impact)
+        self.assertIn("fetch-depth: 0", impact)
+        self.assertIn("scripts/plan_ci_impact.py", impact)
+        self.assertIn("impact_event='pull_request'", impact)
+        self.assertIn("impact_event='push_main'", impact)
+        self.assertIn('--event "$impact_event"', impact)
+        impact_map = (
+            ROOT / ".github/ci/verification-impact-map.v1.json"
+        ).read_text(encoding="utf-8")
+        self.assertIn('"mode": "shadow"', impact_map)
+        self.assertIn("All current assurance jobs still run", impact)
+        self.assertNotIn("needs.ci_impact_shadow.outputs", CI_WORKFLOW)
         self.assertIn("name: Repository assurance", repository)
         self.assertIn("timeout-minutes: 20", repository)
         self.assertIn("name: Gateway image assurance", gateway)
-        self.assertIn("needs: repository_assurance", gateway)
+        self.assertNotIn("needs: repository_assurance", gateway)
         self.assertIn("timeout-minutes: 50", gateway)
         self.assertNotIn("\n  gateway-image:\n", CI_WORKFLOW)
 
         self.assertIn("name: assurance", assurance)
         self.assertIn("if: always()", assurance)
         self.assertIn("permissions: {}", assurance)
+        self.assertIn("- ci_impact_shadow", assurance)
         self.assertIn("- repository_assurance", assurance)
         self.assertIn("- gateway_image", assurance)
+        self.assertIn(
+            "CI_IMPACT_SHADOW_RESULT: ${{ needs.ci_impact_shadow.result }}",
+            assurance,
+        )
         self.assertIn(
             "REPOSITORY_ASSURANCE_RESULT: ${{ needs.repository_assurance.result }}",
             assurance,
@@ -110,9 +171,14 @@ class PagesWorkflowTests(unittest.TestCase):
         self.assertIn(
             '[[ "$REPOSITORY_ASSURANCE_RESULT" != \'success\' ]]', assurance
         )
+        self.assertIn('[[ "$CI_IMPACT_SHADOW_RESULT" != \'success\' ]]', assurance)
         self.assertIn('[[ "$GATEWAY_IMAGE_RESULT" != \'success\' ]]', assurance)
         self.assertIn("exit 1", assurance)
 
+        self.assertLess(
+            CI_WORKFLOW.index("\n  ci_impact_shadow:\n"),
+            CI_WORKFLOW.index("\n  repository_assurance:\n"),
+        )
         self.assertLess(
             CI_WORKFLOW.index("\n  repository_assurance:\n"),
             CI_WORKFLOW.index("\n  gateway_image:\n"),
@@ -194,7 +260,7 @@ class PagesWorkflowTests(unittest.TestCase):
         independent = CI_WORKFLOW.split(
             "\n  gateway_independent_image:\n", 1
         )[1].split("\n  gateway_attestation_verification:\n", 1)[0]
-        self.assertIn("needs: repository_assurance", independent)
+        self.assertNotIn("needs: repository_assurance", independent)
         self.assertIn("timeout-minutes: 30", independent)
         self.assertIn("permissions:\n      contents: read", independent)
         self.assertNotIn("actions: read", independent)
