@@ -181,10 +181,12 @@
         "model_usage_observed": {"const": true},
         "input_tokens": {"type": "integer", "minimum": 1, "maximum": 10000000},
         "output_tokens": {"type": "integer", "minimum": 1, "maximum": 1000000},
-        "claude_cli_reported_turns": {"const": 7},
-        "agentic_turn_limit": {"const": 6},
+        "claude_cli_reported_turns": {
+          "type": "integer", "minimum": 3, "maximum": 8
+        },
+        "agentic_turn_limit": {"const": 7},
         "turn_count_semantics": {
-          "const": "claude-cli-reported-turns-includes-final-result-after-six-agentic-turn-maximum"
+          "const": "claude-cli-reported-total-turns-at-most-seven-tool-use-round-trips-plus-one-final-turn"
         },
         "client_exit_code": {"const": 0}
       }
@@ -212,7 +214,7 @@
         },
         "permission_mode": {"const": "dontAsk"},
         "session_persistence": {"const": false},
-        "maximum_agentic_turns": {"const": 6},
+        "maximum_agentic_turns": {"const": 7},
         "mcp_subtree_network_access_allowed": {"const": false},
         "mcp_subtree_network_sandbox": {"const": "macos-seatbelt-deny-network"},
         "mcp_child_recognised_credentials_forwarded": {"const": false},

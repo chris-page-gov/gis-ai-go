@@ -5,9 +5,12 @@
 This additive pack prepares a bounded Claude Code `2.1.245` observation of the
 complete deterministic exact-five journey over local MCP `2026-07-28` STDIO. It
 now includes closed private-run, per-session and minimised public-evidence schemas,
-plus an offline verifier and adversarial regression coverage. It has not been used
-for a live Claude observation. There is no accepted public exact-five capability
-evidence yet.
+plus an offline verifier and adversarial regression coverage. Two bounded
+protected-main observations on 27 August 2026 completed the first four operations
+but produced the final structured answer before calling `evidence.inspect`. Both
+private runs were rejected because Claude reused the inspected search receipt as
+if it were the inspection call's own receipt. No public projection was written and
+there is no accepted public exact-five capability evidence yet.
 
 The existing QUAL-206-HOST-002 schemas, verifier and evidence remain unchanged.
 That accepted one-tool observation continues to prove only `catalogue.search`.
@@ -33,6 +36,15 @@ Claude's permission surface uses the five observed underscore aliases, such as
 continues to use the canonical dotted names. Alias generation rejects invalid MCP
 names and any collision caused by the dot-to-underscore conversion.
 
+The model instruction now makes the final dependency explicit: after `data.query`,
+Claude must call `evidence.inspect`, wait for its response and copy the inspection
+call's own distinct receipt before producing structured output. The search receipt
+may be reused only as the inspection input and `inspected_search_receipt_id`; it
+must not be substituted for the inspection call's receipt. No receipt may be
+inferred, invented or calculated. The existing five-call evidence predicates remain
+unchanged and fail closed; the independent verifier additionally rejects a
+non-`end_turn` terminal state.
+
 ## Isolation and fail-closed behaviour
 
 The separate launcher:
@@ -45,16 +57,21 @@ The separate launcher:
   closure before execution;
 - retains the existing MCP-subtree Seatbelt network denial and credential
   removal;
-- permits at most six agentic turns; and
+- permits at most seven agentic turns; and
 - rejects missing, duplicated, reordered or altered calls, including inspection
   of any receipt other than the search receipt.
 
-The CLI's `--max-turns 6` ceiling is distinct from the expected successful JSON
-report of `num_turns: 7`; the verifier checks both fields and records the semantic
-distinction. It accepts only one closed call session and the observed bounded
-negotiation variants. This includes the accepted two-session shape in which the
-first session performs `server/discover` and the second performs `tools/list` then
-the five ordered calls.
+The CLI's `--max-turns 7` ceiling allows the fifth call after the observed
+four-call cut-off. Anthropic [defines that ceiling](https://code.claude.com/docs/en/agent-sdk/agent-loop)
+as a maximum number of tool-use round trips, while `num_turns` reports the total
+actually taken and includes a final no-tool turn. The verifier therefore accepts
+between three and eight reported turns rather than treating the ceiling as a
+target. The lower bound follows from the search-to-inspection dependency plus the
+final no-tool turn. It also requires an `end_turn` terminal state, so a
+success-shaped `tool_use` result cannot be accepted. It accepts only one closed
+call session and the observed bounded negotiation variants. This includes the
+accepted two-session shape in which the first session performs `server/discover`
+and the second performs `tools/list` then the five ordered calls.
 
 Each exact-five observer session retains one canonical, owner-only and size-bounded
 result file locally. The offline Node verifier rechecks the discovery and listing
@@ -66,11 +83,12 @@ to the request-event chain, source/runtime closure, final Claude structured outp
 process cleanup and provider audit.
 
 The fake-client suites exercise the complete one-session and two-session success
-paths, plus wrong order, wrong arguments, a duplicate call, a substituted
-inspection receipt and a cryptographically invalid receipt. Offline projection
-tests additionally reject result reordering, duplication, body-parity failure,
-inspection-relationship substitution, extra protocol methods, changed request
-digests, conflated turn counts, inflated claims and private-data leakage.
+paths, the observed four-call `tool_use` termination, wrong order, wrong arguments,
+a duplicate call, a substituted inspection receipt and a cryptographically
+invalid receipt. Offline projection tests additionally reject result reordering,
+duplication, body-parity failure, inspection-relationship substitution, extra
+protocol methods, changed request digests, out-of-bound turn counts,
+non-`end_turn` results, inflated claims and private-data leakage.
 
 ## Publication boundary
 

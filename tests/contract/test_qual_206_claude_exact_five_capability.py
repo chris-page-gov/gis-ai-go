@@ -342,7 +342,7 @@ class ClaudeExactFiveCapabilityContractsTest(unittest.TestCase):
                 projection["transport"]["guarded_provider_api_invocations"], 0
             )
             self.assertEqual(projection["result"]["claude_cli_reported_turns"], 7)
-            self.assertEqual(projection["result"]["agentic_turn_limit"], 6)
+            self.assertEqual(projection["result"]["agentic_turn_limit"], 7)
             receipts = [
                 item["receipt_id"] for item in projection["result"]["operation_receipts"]
             ]
@@ -461,8 +461,11 @@ class ClaudeExactFiveCapabilityContractsTest(unittest.TestCase):
             remote["claims"]["remote_http_interoperability"] = True
             mutations.append(("remote HTTP inflation", remote))
             turns = copy.deepcopy(projection)
-            turns["result"]["claude_cli_reported_turns"] = 6
-            mutations.append(("CLI/agentic turn conflation", turns))
+            turns["result"]["claude_cli_reported_turns"] = 9
+            mutations.append(("reported turn bound inflation", turns))
+            too_few_turns = copy.deepcopy(projection)
+            too_few_turns["result"]["claude_cli_reported_turns"] = 2
+            mutations.append(("reported turn bound deflation", too_few_turns))
             order = copy.deepcopy(projection)
             order["result"]["operation_order"][0:2] = reversed(
                 order["result"]["operation_order"][0:2]
@@ -538,7 +541,7 @@ class ClaudeExactFiveCapabilityContractsTest(unittest.TestCase):
             original_manifest = manifest_path.read_bytes()
             try:
                 output = json.loads(original_output)
-                output["num_turns"] = 6
+                output["num_turns"] = 9
                 output_path.write_bytes(
                     json.dumps(output, separators=(",", ":")).encode()
                 )
@@ -559,6 +562,107 @@ class ClaudeExactFiveCapabilityContractsTest(unittest.TestCase):
                 manifest_path.write_bytes(original_manifest)
                 os.chmod(output_path, 0o600)
                 os.chmod(manifest_path, 0o600)
+
+            try:
+                output = json.loads(original_output)
+                output["num_turns"] = 2
+                output_path.write_bytes(
+                    json.dumps(output, separators=(",", ":")).encode()
+                )
+                os.chmod(output_path, 0o600)
+                rebind_stdout(capture)
+                with self.assertRaisesRegex(
+                    verifier.ExactFiveCapabilityVerificationError,
+                    "reported turns",
+                ):
+                    verifier.verify_and_project(
+                        capture,
+                        source_verifier=fake_source_boundary,
+                        private_validator=private_check,
+                        public_validator=public_check,
+                    )
+            finally:
+                output_path.write_bytes(original_output)
+                manifest_path.write_bytes(original_manifest)
+                os.chmod(output_path, 0o600)
+                os.chmod(manifest_path, 0o600)
+
+            try:
+                output = json.loads(original_output)
+                output["stop_reason"] = "tool_use"
+                output_path.write_bytes(
+                    json.dumps(output, separators=(",", ":")).encode()
+                )
+                os.chmod(output_path, 0o600)
+                rebind_stdout(capture)
+                with self.assertRaisesRegex(
+                    verifier.ExactFiveCapabilityVerificationError,
+                    "end_turn terminal state",
+                ):
+                    verifier.verify_and_project(
+                        capture,
+                        source_verifier=fake_source_boundary,
+                        private_validator=private_check,
+                        public_validator=public_check,
+                    )
+            finally:
+                output_path.write_bytes(original_output)
+                manifest_path.write_bytes(original_manifest)
+                os.chmod(output_path, 0o600)
+                os.chmod(manifest_path, 0o600)
+        evidence_after = sorted((ROOT / "tests/interoperability/evidence").iterdir())
+        self.assertEqual(evidence_after, evidence_before)
+
+    @unittest.skipUnless(
+        sys.platform == "darwin",
+        "the accepted Claude exact-five runtime uses macOS Seatbelt",
+    )
+    def test_four_call_tool_use_terminal_is_rejected(self) -> None:
+        evidence_before = sorted((ROOT / "tests/interoperability/evidence").iterdir())
+        with tempfile.TemporaryDirectory(dir="/private/tmp") as value:
+            capture = Path(value) / "capture"
+            capture.mkdir(mode=0o700)
+            os.chmod(capture, 0o700)
+            executable_bytes, executable_sha256 = create_fake_capture(
+                capture,
+                scenario="premature-tool-use",
+            )
+            output = json.loads((capture / "stdout.json").read_text(encoding="utf-8"))
+            self.assertEqual(output["subtype"], "success")
+            self.assertIs(output["is_error"], False)
+            self.assertEqual(output["stop_reason"], "tool_use")
+            self.assertEqual(output["num_turns"], 6)
+            self.assertEqual(output["structured_output"]["operation_order"], OPERATIONS)
+            summary = json.loads(
+                (
+                    capture
+                    / "observer/session-2/exact-five-capability.json"
+                ).read_text(encoding="utf-8")
+            )
+            self.assertEqual(len(summary["operations"]), 4)
+            self.assertEqual(
+                [item["request"]["operation"] for item in summary["operations"]],
+                OPERATIONS[:4],
+            )
+            self.assertEqual(summary["protocol_session_status"], "failed")
+            with self.assertRaisesRegex(
+                verifier.ExactFiveCapabilityVerificationError,
+                "session-end does not describe one clean, complete observation",
+            ):
+                verifier.verify_and_project(
+                    capture,
+                    source_verifier=fake_source_boundary,
+                    private_validator=fake_host_validator(
+                        PRIVATE_SCHEMA,
+                        executable_bytes=executable_bytes,
+                        executable_sha256=executable_sha256,
+                    ),
+                    public_validator=fake_host_validator(
+                        PUBLIC_SCHEMA,
+                        executable_bytes=executable_bytes,
+                        executable_sha256=executable_sha256,
+                    ),
+                )
         evidence_after = sorted((ROOT / "tests/interoperability/evidence").iterdir())
         self.assertEqual(evidence_after, evidence_before)
 
