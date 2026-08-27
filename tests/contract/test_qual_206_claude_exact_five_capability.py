@@ -341,8 +341,8 @@ class ClaudeExactFiveCapabilityContractsTest(unittest.TestCase):
             self.assertEqual(
                 projection["transport"]["guarded_provider_api_invocations"], 0
             )
-            self.assertEqual(projection["result"]["claude_cli_reported_turns"], 7)
-            self.assertEqual(projection["result"]["agentic_turn_limit"], 7)
+            self.assertEqual(projection["result"]["claude_cli_reported_turns"], 9)
+            self.assertEqual(projection["result"]["agentic_turn_limit"], 8)
             receipts = [
                 item["receipt_id"] for item in projection["result"]["operation_receipts"]
             ]
@@ -461,7 +461,7 @@ class ClaudeExactFiveCapabilityContractsTest(unittest.TestCase):
             remote["claims"]["remote_http_interoperability"] = True
             mutations.append(("remote HTTP inflation", remote))
             turns = copy.deepcopy(projection)
-            turns["result"]["claude_cli_reported_turns"] = 9
+            turns["result"]["claude_cli_reported_turns"] = 10
             mutations.append(("reported turn bound inflation", turns))
             too_few_turns = copy.deepcopy(projection)
             too_few_turns["result"]["claude_cli_reported_turns"] = 2
@@ -541,7 +541,7 @@ class ClaudeExactFiveCapabilityContractsTest(unittest.TestCase):
             original_manifest = manifest_path.read_bytes()
             try:
                 output = json.loads(original_output)
-                output["num_turns"] = 9
+                output["num_turns"] = 10
                 output_path.write_bytes(
                     json.dumps(output, separators=(",", ":")).encode()
                 )
@@ -631,7 +631,7 @@ class ClaudeExactFiveCapabilityContractsTest(unittest.TestCase):
             self.assertEqual(output["subtype"], "success")
             self.assertIs(output["is_error"], False)
             self.assertEqual(output["stop_reason"], "tool_use")
-            self.assertEqual(output["num_turns"], 6)
+            self.assertEqual(output["num_turns"], 7)
             self.assertEqual(output["structured_output"]["operation_order"], OPERATIONS)
             summary = json.loads(
                 (

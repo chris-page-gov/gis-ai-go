@@ -198,7 +198,7 @@ macRuntimeTest("fake Claude completes the closed exact-five-v1 journey", async (
     "gis-ai-go.qual-206-claude-exact-five-capability-private-run.v1");
   assert.equal(manifest.profile, "exact-five-v1");
   assert.equal(manifest.execution.built_in_tools_available, false);
-  assert.equal(manifest.execution.maximum_turns, 7);
+  assert.equal(manifest.execution.maximum_turns, 8);
   assert.equal(manifest.isolation.mcp_subtree_network_access_allowed, false);
   assert.deepEqual(readdirSync(join(root, "observer")).sort(), [
     "exact-five-v1.claim.json",
@@ -222,7 +222,7 @@ macRuntimeTest("fake Claude completes the closed exact-five-v1 journey", async (
     summary.inspection_relationship.search_receipt_id,
   );
   const output = JSON.parse(readFileSync(join(root, "stdout.json"), "utf8"));
-  assert.equal(output.num_turns, 7);
+  assert.equal(output.num_turns, 9);
   assert.deepEqual(output.structured_output.operation_order, OPERATIONS);
   assert.deepEqual(
     output.structured_output.receipt_ids,
@@ -250,7 +250,7 @@ macRuntimeTest(
     assert.equal(output.subtype, "success");
     assert.equal(output.is_error, false);
     assert.equal(output.stop_reason, "tool_use");
-    assert.equal(output.num_turns, 6);
+    assert.equal(output.num_turns, 7);
     assert.deepEqual(output.structured_output.operation_order, OPERATIONS);
     assert.deepEqual(readdirSync(join(root, "observer")).sort(), [
       "exact-five-v1.claim.json",

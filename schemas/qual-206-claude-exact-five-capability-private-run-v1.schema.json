@@ -187,7 +187,7 @@
         },
         "permission_mode": {"const": "dontAsk"},
         "session_persistence": {"const": false},
-        "maximum_turns": {"const": 7},
+        "maximum_turns": {"const": 8},
         "effort": {"const": "low"},
         "process_group_absent": {"type": "boolean"},
         "spawned_process_executable_attested": {"type": "boolean"}
