@@ -27,7 +27,23 @@ search-to-inspection relationship. The real CLI result reported
 `subtype: "success"` and a schema-valid `structured_output`. Publication was
 correctly withheld because the verifier still encoded the earlier assumption that
 only `stop_reason: "end_turn"` could be terminal success. No public projection was
-written and there is no accepted public exact-five capability evidence yet.
+written from that observation, which remains private and unpromoted.
+
+The terminal-state correction subsequently merged through
+[pull request 87](https://github.com/chris-page-gov/gis-ai-go/pull/87) as exact
+protected-main commit `029a9d5c7efcafcd45941194394384ee6c578fe9`, tree
+`96f75d96b1e0680465494834ddad8661539cbd62`. Every exact-main CI job passed in
+[run 33114396425](https://github.com/chris-page-gov/gis-ai-go/actions/runs/33114396425),
+and every CodeQL analysis passed in
+[run 33114396546](https://github.com/chris-page-gov/gis-ai-go/actions/runs/33114396546).
+A fresh bounded observation from those exact bytes completed the five ordered calls
+at reported turn 7. Independent verification accepted all five distinct receipts,
+every output contract, structured/plain-text parity, the search-to-inspection
+relationship and the documented structured terminal form. The minimised
+[public projection](../../tests/interoperability/evidence/claude-code-2.1.245-exact-five-capability-2026-08-27.json)
+has SHA-256
+`06311b896963503bd7f6f88d32d34edfda52afb49b3d9e5b6c05eaed3230f0a6`.
+This closes only local STDIO exact-five model capability.
 
 The dedicated QUAL-206-HOST-002 capability schemas, verifier outcome and evidence
 remain unchanged. The shared composite event schema and verifier gain only optional
@@ -166,14 +182,15 @@ four-call `tool_use` regressions remain failures.
 
 ## Publication boundary
 
-Do not treat the private harness result or the withheld post-projection observation
-as public evidence. The terminal-state correction must first merge and pass
-protected-main checks. A new bounded observation from that exact protected `main`
-must then complete all five calls and every independent verifier gate before any
-public capability projection may be written. Raw prompts, responses, paths, process
-details, costs, identifiers and private logs must remain local. Only a successful,
-schema-valid and minimised verifier projection may enter the public evidence
-directory. Failed or incomplete projections are not publishable.
+Do not treat the private harness result, earlier incomplete observations or the
+withheld first post-projection observation as public evidence. The accepted public
+projection comes only from the fresh run after the terminal-state correction passed
+protected-main checks. It records two sessions, seven requests and responses, five
+ordered tool calls, zero resource reads, one deterministic synthetic-provider
+transport call and zero guarded live-provider API invocations. Raw prompts,
+responses, paths, raw process details, private run/session/process identifiers,
+costs and private logs must remain local. Failed or incomplete projections remain
+unpublishable.
 
-This pack does not establish remote HTTP interoperability, live provider use,
-registry publication, activation, deployment or release.
+This accepted result does not establish remote HTTP interoperability, live provider
+use, registry publication, activation, deployment or release.

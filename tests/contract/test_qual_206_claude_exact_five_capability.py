@@ -30,6 +30,22 @@ SESSION_SCHEMA = (
 PUBLIC_SCHEMA = (
     ROOT / "schemas/qual-206-claude-exact-five-capability-evidence-v1.schema.json"
 )
+PUBLIC_EVIDENCE_PATH = (
+    ROOT
+    / "tests"
+    / "interoperability"
+    / "evidence"
+    / "claude-code-2.1.245-exact-five-capability-2026-08-27.json"
+)
+PUBLIC_SOURCE_COMMIT = "029a9d5c7efcafcd45941194394384ee6c578fe9"
+PUBLIC_SOURCE_TREE = "96f75d96b1e0680465494834ddad8661539cbd62"
+PUBLIC_EVIDENCE_SHA256 = "06311b896963503bd7f6f88d32d34edfda52afb49b3d9e5b6c05eaed3230f0a6"
+PUBLIC_BOUNDARY = (
+    "One bounded Claude Code 2.1.245 model-mediated exact-five-v1 observation over "
+    "local MCP 2026-07-28 STDIO with a deterministic synthetic provider fixture. "
+    "This does not prove remote HTTP interoperability, a live geospatial provider, "
+    "registry publication, activation, deployment or release."
+)
 OPERATIONS = list(verifier.OPERATIONS)
 FORBIDDEN_PUBLIC = re.compile(
     r"(?:/Users/|/home/|/Volumes/|/private/tmp/|/tmp/|/var/folders/|"
@@ -894,13 +910,81 @@ class ClaudeExactFiveCapabilityContractsTest(unittest.TestCase):
         evidence_after = sorted((ROOT / "tests/interoperability/evidence").iterdir())
         self.assertEqual(evidence_after, evidence_before)
 
-    def test_no_exact_five_public_evidence_is_registered_before_a_live_run(self) -> None:
+    def test_public_evidence_is_exactly_registered_and_minimised(self) -> None:
         matches = sorted(
             (ROOT / "tests/interoperability/evidence").glob(
                 "claude-code-2.1.245-exact-five-capability-*.json"
             )
         )
-        self.assertEqual(matches, [])
+        self.assertEqual(matches, [PUBLIC_EVIDENCE_PATH])
+
+        raw = PUBLIC_EVIDENCE_PATH.read_bytes()
+        document = json.loads(raw)
+        self.assertEqual(hashlib.sha256(raw).hexdigest(), PUBLIC_EVIDENCE_SHA256)
+        self.assertEqual(list(validator(PUBLIC_SCHEMA).iter_errors(document)), [])
+
+        self.assertEqual(document["source"]["commit"], PUBLIC_SOURCE_COMMIT)
+        self.assertEqual(document["source"]["tree"], PUBLIC_SOURCE_TREE)
+        recorded_tree = subprocess.check_output(
+            ["git", "rev-parse", f"{PUBLIC_SOURCE_COMMIT}^{{tree}}"],
+            cwd=ROOT,
+            text=True,
+        ).strip()
+        self.assertEqual(recorded_tree, PUBLIC_SOURCE_TREE)
+        ancestry = subprocess.run(
+            ["git", "merge-base", "--is-ancestor", PUBLIC_SOURCE_COMMIT, "HEAD"],
+            cwd=ROOT,
+            check=False,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        self.assertEqual(ancestry.returncode, 0)
+
+        self.assertEqual(
+            document["claims"],
+            {
+                "local_stdio_exact_five_model_capability": True,
+                "remote_http_interoperability": False,
+                "live_geospatial_provider": False,
+                "registry_publication": False,
+                "activation": False,
+                "deployment": False,
+                "release": False,
+            },
+        )
+        self.assertEqual(document["transport"]["protocol"], "2026-07-28")
+        self.assertEqual(document["transport"]["session_count"], 2)
+        self.assertEqual(document["transport"]["request_count"], 7)
+        self.assertEqual(document["transport"]["response_count"], 7)
+        self.assertEqual(document["transport"]["tool_call_count"], 5)
+        self.assertEqual(document["transport"]["resource_read_count"], 0)
+        self.assertEqual(document["transport"]["resources_advertised"], 0)
+        self.assertEqual(document["transport"]["provider_transport_calls"], 1)
+        self.assertEqual(document["transport"]["guarded_provider_api_invocations"], 0)
+        self.assertEqual(document["result"]["classification"], "capability_pass")
+        self.assertEqual(document["result"]["operation_order"], OPERATIONS)
+        receipts = document["result"]["operation_receipts"]
+        self.assertEqual([item["operation"] for item in receipts], OPERATIONS)
+        self.assertEqual(len({item["receipt_id"] for item in receipts}), 5)
+        self.assertTrue(all(item["output_contract_valid"] for item in receipts))
+        self.assertTrue(all(item["receipt_verification_valid"] for item in receipts))
+        self.assertTrue(all(item["structured_plain_text_parity"] for item in receipts))
+        self.assertTrue(document["result"]["inspection_relationship"]["valid"])
+        self.assertTrue(document["result"]["independent_result_verification"])
+        self.assertTrue(document["result"]["model_output_match"])
+        self.assertEqual(document["result"]["claude_cli_reported_turns"], 7)
+        self.assertEqual(document["result"]["claude_cli_stop_reason"], "tool_use")
+        self.assertEqual(document["result"]["claude_cli_terminal_reason"], "completed")
+        self.assertEqual(document["result"]["agentic_turn_limit"], 10)
+        self.assertFalse(document["isolation"]["built_in_tools_available"])
+        self.assertFalse(document["isolation"]["mcp_subtree_network_access_allowed"])
+        self.assertTrue(document["private_capture"]["retained"])
+        self.assertFalse(document["private_capture"]["published"])
+        self.assertEqual(document["boundary"], PUBLIC_BOUNDARY)
+
+        rendered = raw.decode("utf-8")
+        self.assertIsNone(FORBIDDEN_PUBLIC.search(rendered))
+        self.assertFalse(nested_field_names(document) & FORBIDDEN_FIELDS)
 
     @unittest.skipUnless(
         sys.platform == "darwin",

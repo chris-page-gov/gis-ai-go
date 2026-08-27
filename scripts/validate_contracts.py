@@ -922,7 +922,19 @@ def main() -> None:
         ),
         (
             "qual-206-claude-exact-five-capability-evidence-v1.schema.json",
-            [],
+            [
+                (
+                    "tests/interoperability/evidence/"
+                    "claude-code-2.1.245-exact-five-capability-2026-08-27.json",
+                    load_json(
+                        ROOT
+                        / "tests"
+                        / "interoperability"
+                        / "evidence"
+                        / "claude-code-2.1.245-exact-five-capability-2026-08-27.json"
+                    ),
+                )
+            ],
         ),
         (
             "qual-206-local-http-transport-preflight.schema.json",

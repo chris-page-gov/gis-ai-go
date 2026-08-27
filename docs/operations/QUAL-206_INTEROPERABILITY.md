@@ -14,9 +14,10 @@
   strict-modern STDIO transport readiness from protected `main`; a later bounded
   `HOST-002` observation from exact protected-main bytes passed one model-mediated
   canonical `catalogue.search` call and independent receipt verification;
+  a fresh bounded exact-five observation from later exact protected-main bytes
+  passed all five ordered local STDIO calls and independent verification;
   deterministic `HOST-015` application recovery passes locally but remains non-live
-  and unscored; exact-five model capability, remote HTTP evidence and activation
-  remain pending
+  and unscored; remote HTTP evidence and activation remain pending
 - reviewed source base: `66507f9a6e6c0da23a8af4682268f9362d93bc06`
 - local HTTP transport evidence source: protected `main` commit
   `066a9cb22f719d22e29c95cd99857ddf694c878e`
@@ -24,6 +25,8 @@
   `e905c632724ecc9d13b13452fee37328e75cc2a4`
 - accepted Claude `HOST-002` capability source: protected `main` commit
   `5837bd65a482e90238c466673318f007e305c744`
+- accepted Claude exact-five capability source: protected `main` commit
+  `029a9d5c7efcafcd45941194394384ee6c578fe9`
 - historical Claude legacy transport-readiness source: protected `main` commit
   `30b575beb27ff805745a2864c1acf44392774046`
 - legacy fallback integration base: protected `main` commit
@@ -84,6 +87,19 @@ cover the exact five operations and three resource classes. The private capture
 remains local and unpublished. This does not exercise TLS, a public hostname, an
 independent remote host, a model, a live provider or a deployment, so it cannot
 close the remote-HTTP or capability gates.
+
+The separate verifier-produced
+[Claude Code exact-five projection](../../tests/interoperability/evidence/claude-code-2.1.245-exact-five-capability-2026-08-27.json)
+binds protected-main commit `029a9d5c7efcafcd45941194394384ee6c578fe9`, tree
+`96f75d96b1e0680465494834ddad8661539cbd62`, with SHA-256
+`06311b896963503bd7f6f88d32d34edfda52afb49b3d9e5b6c05eaed3230f0a6`.
+Claude Code `2.1.245`, reporting model `claude-sonnet-5`, completed all five ordered
+MCP `2026-07-28` calls over local STDIO at reported turn 7. Every result contract,
+distinct receipt, structured/plain-text parity check and the inspection relationship
+passed independent verification. The deterministic fixture made one synthetic
+provider transport call and zero guarded live-provider API invocations. This closes
+local STDIO exact-five model capability only; remote HTTP and every production gate
+remain open.
 
 ## Build the exact local candidate
 
@@ -253,6 +269,7 @@ MCP registry for a conformance run.
 | Claude Code 2.1.241, v2 automatic negotiation, 25 August | Two-session credential-free `mcp list` observation against exact protected main `c679b6f` | `ready`: `server/discover` and `tools/list` passed at `2026-07-28`; capability unscored |
 | Claude Code 2.1.245, v2 automatic negotiation, 25 August | Fresh two-session credential-free `mcp list` observation after the parent-identity repair reached exact protected main `e905c63` | `ready`: `server/discover` and `tools/list` passed at `2026-07-28`; capability unscored |
 | Claude Code 2.1.245, bounded `HOST-002`, 26 August | One model-mediated `catalogue.search` call from exact protected main `5837bd6`, with independent receipt verification | `capability_pass` for the one bounded MCP `2026-07-28` case; exact-five and remote HTTP remain open |
+| Claude Code 2.1.245, bounded exact-five, 27 August | Five ordered model-mediated calls from exact protected main `029a9d5`, with independent contract, receipt, parity and relationship verification | `capability_pass` for local MCP `2026-07-28` STDIO exact-five; remote HTTP remains open |
 | VS Code 1.134.0 | Temporary workspace and MCP registry; prove correct window attachment | `not_ready`: no GitHub token and no proved chat attachment; zero MCP traffic |
 | Official SDK client | HTTP and STDIO discovery, calls, resources and shutdown | Accepted on protected `main` |
 
@@ -686,8 +703,9 @@ This record does not change either historical result. The 20 August
 modern-only attempt remains `not_ready` because it received `-32022`, and the
 uncommitted fallback observation remains exploratory. The later accepted
 `HOST-002` projection scores only its separately authorised bounded
-`catalogue.search` case. Complete the remaining exact-five desktop and remote HTTP
-evidence before claiming the full independent-host gate.
+`catalogue.search` case. The later exact-five projection separately closes local
+desktop STDIO model capability. Complete the remaining remote HTTP evidence before
+claiming the full independent-host gate.
 
 This fallback is local-only. Do not attach it to the existing ChatGPT tunnel,
 change that tunnel's profile, publish its address, activate a production tool or
@@ -841,6 +859,31 @@ boundary and procedure. The accepted pass closes only the single model-mediated
 `catalogue.search` case. It does not establish exact-five model capability, remote
 HTTP interoperability, live-provider readiness, registration, activation,
 deployment or release.
+
+The later verifier-produced
+[`Claude Code 2.1.245 exact-five capability projection`](../../tests/interoperability/evidence/claude-code-2.1.245-exact-five-capability-2026-08-27.json)
+binds exact protected-main commit
+`029a9d5c7efcafcd45941194394384ee6c578fe9`, tree
+`96f75d96b1e0680465494834ddad8661539cbd62`. Its SHA-256 is
+`06311b896963503bd7f6f88d32d34edfda52afb49b3d9e5b6c05eaed3230f0a6`.
+Exact-main
+[CI run 33114396425](https://github.com/chris-page-gov/gis-ai-go/actions/runs/33114396425)
+and
+[CodeQL run 33114396546](https://github.com/chris-page-gov/gis-ai-go/actions/runs/33114396546)
+passed before the fresh observation. Claude Code `2.1.245`, reporting model
+`claude-sonnet-5`, completed all five ordered local STDIO calls over MCP
+`2026-07-28`, with seven requests and responses across two sessions. The final host
+result reported `stop_reason: "tool_use"`, `terminal_reason: "completed"` and seven
+turns. Independent verification accepted five distinct receipts, every output
+contract and parity check, and the search-to-inspection relationship. Raw capture
+remains local and owner-only. The deterministic fixture made one synthetic provider
+transport call and zero guarded live-provider API invocations.
+
+This closes local STDIO exact-five model capability only. It does not establish
+remote HTTP interoperability, live-provider readiness, registry publication, activation,
+deployment or release. See the
+[exact-five capability runbook](QUAL-206_CLAUDE_EXACT_FIVE_CAPABILITY.md) for the
+closed profile, terminal predicate and publication boundary.
 
 ## Historical failure-derived cases
 
