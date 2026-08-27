@@ -5,23 +5,25 @@
 This additive pack prepares a bounded Claude Code `2.1.245` observation of the
 complete deterministic exact-five journey over local MCP `2026-07-28` STDIO. It
 now includes closed private-run, per-session and minimised public-evidence schemas,
-plus an offline verifier and adversarial regression coverage. Four bounded
-protected-main observations on 27 August 2026 completed the first four operations
-but did not complete `evidence.inspect`. The first two produced the final structured
-answer early. The third used the seven-agentic-turn ceiling at exact commit
-`d2f3e72858272dbfe3f79a83d290d622977c65e6`; Claude reported turn 7 with a
-`tool_use` terminal state before the fifth request was dispatched. Those first three
-private runs were rejected because their final output reused the inspected search
-receipt as if it were the inspection call's own receipt. The fourth used the
-eight-agentic-turn ceiling at exact commit
-`b9e777a9ed3744dd7291c0cd69347dd07aab2672`; Claude reported turn 8 in
-`tool_use` state after the same four calls. Its structured output supplied a distinct
-fifth receipt-shaped value, but there was no observed `evidence.inspect` request or
-response, so independent result verification rejected it. No public projection was
-written and there is no accepted public exact-five capability evidence yet.
+plus an offline verifier and adversarial regression coverage. Bounded
+protected-main observations on 27 August 2026 with configured maximums of seven
+and eight turns still stopped after four calls, before `evidence.inspect`. A later
+observation with a ten-turn ceiling completed at reported turn 7 with an `end_turn`
+terminal state, but again made only the first four calls. The MCP wire-level
+`tools/list` response contained all five tools, while Claude's model-facing set
+contained only four and omitted `evidence.inspect`.
 
-The existing QUAL-206-HOST-002 schemas, verifier and evidence remain unchanged.
-That accepted one-tool observation continues to prove only `catalogue.search`.
+Of the five canonical input schemas, `evidence.inspect` alone uses the existing
+v1/v2 top-level `oneOf` and `$defs` structure. That is an observed compatibility
+correlation and the basis of a narrowly testable hypothesis; it does not prove
+that Claude's schema parser caused the omission. Independent result verification
+rejected every incomplete observation. No public projection was written and there
+is no accepted public exact-five capability evidence yet.
+
+The dedicated QUAL-206-HOST-002 capability schemas, verifier outcome and evidence
+remain unchanged. The shared composite event schema and verifier gain only optional
+presented-response fields, which remain forbidden for HOST-002. That accepted
+one-tool observation continues to prove only `catalogue.search`.
 
 ## Closed profile
 
@@ -71,10 +73,10 @@ The separate launcher:
 
 The exact protected-main observations above establish that both `--max-turns 7`
 and `--max-turns 8` can stop in `tool_use` state after the first four calls. The
-`--max-turns 10` ceiling is the smallest conservative boundary that reserves two
-further native CLI turns of headroom beyond the observed turn-8 stop. This allows
-the next bounded observation to attempt the fifth request-result and required final
-response without assigning that work to particular reported turns. Anthropic
+later `--max-turns 10` observation completed at reported turn 7 with `end_turn`,
+but still exposed only four model-facing tools and made only those four calls. The
+turn boundary is therefore retained as a conservative bound, not treated as the
+current explanation for the missing fifth call. Anthropic
 [documents `max_turns`](https://code.claude.com/docs/en/agent-sdk/agent-loop) as a
 maximum number of tool-use round trips and describes the final no-tool response as
 an additional turn. However, the exact native CLI observations at configured
@@ -90,18 +92,42 @@ session and the observed bounded negotiation variants. This includes the accepte
 two-session shape in which the first session performs `server/discover` and the
 second performs `tools/list` then the five ordered calls.
 
+## Observer-only compatibility projection
+
+The `exact-five-v1` observer now validates the complete canonical five-tool
+`tools/list` response before deriving a fresh, model-facing presentation. That
+presentation changes only the `evidence.inspect` input schema: it uses the existing
+closed v1 branch, which requires `receipt_id` and rejects additional properties,
+instead of presenting the canonical top-level v1/v2 union. The five canonical tool
+names and the other four complete tool definitions remain unchanged. Any missing,
+additional, duplicated or input/output-schema-changed tool fails closed. Independent
+verification also proves that every field outside the single projected
+`evidence.inspect` input schema is identical to the captured canonical listing.
+
+This projection is confined to the bounded Claude exact-five observer. It does not
+change the canonical gateway, OpenAPI, direct HTTP, MCP HTTP, ordinary MCP STDIO or
+the v2 reconciliation contract. The observer binds separate, domain-separated
+digests for the complete canonical tool set and the complete presented tool set,
+without mutating the captured canonical response. Its private event trace records
+separate byte counts and digests for the canonical fixture output and host-facing
+projection, and binds a reproducible digest of the exact presented result. This
+keeps both forms attributable and prevents a presentation-only compatibility
+measure from being mistaken for a production contract change.
+
 Each exact-five observer session retains one canonical, owner-only and size-bounded
 result file locally. The offline Node verifier rechecks the discovery and listing
-surface, full structured response bodies, plain-text parity, output contracts and
-all five operation-specific cryptographic receipts. It also proves that the
+surface, both full tool-set digests, full structured response bodies, plain-text
+parity, output contracts and all five operation-specific cryptographic receipts. It
+also proves that the
 inspection target is the search receipt while the inspection call has its own
 distinct receipt. The Python verifier independently binds that result verification
 to the request-event chain, source/runtime closure, final Claude structured output,
 process cleanup and provider audit.
 
 The fake-client suites exercise the complete one-session and two-session success
-paths, both observed turn-7 and turn-8 four-call `tool_use` terminations, wrong
-order, wrong arguments,
+paths, both observed turn-7 and turn-8 four-call `tool_use` terminations, the
+observer-only v1 presentation and separate domain-separated canonical and presented
+tool-set digests, wrong order, wrong arguments,
 a duplicate call, a substituted inspection receipt and a cryptographically
 invalid receipt. Offline projection tests additionally reject result reordering,
 duplication, body-parity failure, inspection-relationship substitution, extra
@@ -110,12 +136,13 @@ non-`end_turn` results, inflated claims and private-data leakage.
 
 ## Publication boundary
 
-Do not treat the private harness result as evidence. Only after this verifier slice
-has merged and passed protected-main checks may one separately authorised live
-observation be run from exact protected `main`. Raw prompts, responses, paths,
-process details, costs, identifiers and private logs must remain local. Only a
-successful, schema-valid and minimised verifier projection may enter the public
-evidence directory. Failed or incomplete projections are not publishable.
+Do not treat the private harness result as evidence. No public capability projection
+may be written until this observer projection has merged and passed protected-main
+checks and a new bounded observation from exact protected `main` completes all five
+calls and every independent verifier gate. Raw prompts, responses, paths, process
+details, costs, identifiers and private logs must remain local. Only a successful,
+schema-valid and minimised verifier projection may enter the public evidence
+directory. Failed or incomplete projections are not publishable.
 
 This pack does not establish remote HTTP interoperability, live provider use,
 registry publication, activation, deployment or release.

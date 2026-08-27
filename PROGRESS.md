@@ -45,21 +45,23 @@ The supported target active set is exactly `catalogue.search`,
   verifier candidate, which independently rechecks the retained canonical result
   bodies, five operation-specific receipts, search-to-inspection relation, exact
   request and method closure, Claude final output and process/runtime closure. Its
-  fake one-session and accepted two-session shapes pass. Two bounded protected-main
-  observations on 27 August 2026 stopped after four valid calls, before
-  `evidence.inspect`, and falsely reused the search receipt in their final output;
-  the verifier rejected both and wrote no public projection. A third bounded run
-  from exact protected-main commit `d2f3e72858272dbfe3f79a83d290d622977c65e6`
-  reached reported turn 7 in `tool_use` state after the same first four calls, so
-  the fifth request was not dispatched and the verifier again wrote no projection.
-  A fourth bounded run from exact protected-main commit
-  `b9e777a9ed3744dd7291c0cd69347dd07aab2672` reached reported turn 8 in
-  `tool_use` state after the same four calls. Its final output supplied a distinct
-  fifth receipt-shaped value without a corresponding request or response, so
-  independent verification rejected it and wrote no projection. Retain the exact
-  five-call and `end_turn` gates, increase the bounded agentic ceiling to ten with
-  a corresponding maximum of 11 reported turns, and re-observe only after that
-  evidence-supported change passes protected `main`;
+  fake one-session and accepted two-session shapes pass. Bounded protected-main
+  observations on 27 August 2026 with maximums of seven and eight turns still
+  stopped after four valid calls, before `evidence.inspect`. A later observation
+  with a ten-turn ceiling completed at reported turn 7 with `end_turn`, but the
+  observer again recorded only the first four calls. Its wire-level `tools/list`
+  contained all five canonical tools while Claude's model-facing set contained only
+  four and omitted `evidence.inspect`. That tool alone used the canonical v1/v2
+  top-level `oneOf` and `$defs` input schema. Treat this as an observed compatibility
+  correlation and a testable hypothesis, not proof of Claude parser causation;
+  retain the exact five-call and `end_turn` gates. Present only the existing closed
+  v1 `receipt_id` schema through a narrowly scoped exact-five observer projection,
+  while leaving the canonical gateway, OpenAPI, HTTP, ordinary STDIO and v2
+  reconciliation contracts unchanged. Bind the complete canonical and presented
+  tool sets with separate, domain-separated digests. Write no public capability
+  projection until this change passes protected-main checks and a new bounded
+  observation passes every
+  independent verifier gate;
 - retain the accepted fail-closed real-socket loopback HTTP exact-five preflight,
   whose owner-only raw capture remains local and whose independent path-free
   projection keeps remote-host acceptance false and capability unscored;

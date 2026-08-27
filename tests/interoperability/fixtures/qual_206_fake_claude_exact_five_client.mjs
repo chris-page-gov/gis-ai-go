@@ -162,6 +162,23 @@ async function listTools(request) {
       listedOperations,
     )}`);
   }
+  const evidenceInput = listing.tools.find(
+    ({ name }) => name === "evidence.inspect",
+  )?.inputSchema;
+  if (
+    evidenceInput?.type !== "object" ||
+    evidenceInput.additionalProperties !== false ||
+    JSON.stringify(evidenceInput.required) !== JSON.stringify(["receipt_id"]) ||
+    Object.keys(evidenceInput.properties ?? {}).join("\0") !== "receipt_id" ||
+    evidenceInput.properties.receipt_id?.type !== "string" ||
+    evidenceInput.properties.receipt_id?.pattern !==
+      "^gis-ai-go:evidence-receipt:sha256:[0-9a-f]{64}$" ||
+    Object.hasOwn(evidenceInput, "oneOf") ||
+    Object.hasOwn(evidenceInput, "$defs") ||
+    Object.hasOwn(evidenceInput, "$ref")
+  ) {
+    fail("fake Claude did not receive the closed evidence.inspect v1 schema");
+  }
 }
 
 async function discover(request) {

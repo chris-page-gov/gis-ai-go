@@ -584,6 +584,9 @@ export const catalogueSearchResultJsonSchema = catalogueOperationResultSchema(
 export const catalogueDescribeResultJsonSchema = catalogueOperationResultSchema(
   "catalogue.describe",
 );
+export const evidenceInspectRequestV1JsonSchema = deepFreeze(
+  cloneJson(evidenceInspectRequestSchema),
+);
 export const evidenceInspectRequestJsonSchema = deepFreeze(
   evidenceOperationRequestJsonSchema(),
 );

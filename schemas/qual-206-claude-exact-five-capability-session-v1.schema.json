@@ -9,7 +9,8 @@
     "schema", "run_id", "session_id", "slot", "source_commit", "profile",
     "session_profile", "protocol_session_status", "capability_scored",
     "mcp_subtree_network_access_allowed", "mcp_subtree_network_sandbox",
-    "global_claim", "result_material", "operations", "inspection_relationship"
+    "global_claim", "tool_schema_projection", "result_material", "operations",
+    "inspection_relationship"
   ],
   "properties": {
     "schema": {
@@ -41,6 +42,12 @@
       "oneOf": [
         {"properties": {"bytes": {"type": "integer"}, "sha256": {"type": "string"}}},
         {"properties": {"bytes": {"type": "null"}, "sha256": {"type": "null"}}}
+      ]
+    },
+    "tool_schema_projection": {
+      "oneOf": [
+        {"$ref": "#/$defs/toolSchemaProjection"},
+        {"type": "null"}
       ]
     },
     "result_material": {
@@ -83,6 +90,32 @@
     },
     "nullableReceipt": {
       "oneOf": [{"$ref": "#/$defs/receipt"}, {"type": "null"}]
+    },
+    "toolSchemaProjection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema", "profile", "projection_id", "source_operation",
+        "canonical_contract", "presented_contract", "changed_operations",
+        "canonical_tools_sha256", "presented_tools_sha256"
+      ],
+      "properties": {
+        "schema": {
+          "const": "gis-ai-go.qual-206-claude-exact-five-tool-projection.v1"
+        },
+        "profile": {"const": "exact-five-v1"},
+        "projection_id": {"const": "evidence-inspect-receipt-id-v1"},
+        "source_operation": {"const": "evidence.inspect"},
+        "canonical_contract": {
+          "const": "urn:gis-ai-go:schema:evidence-inspect-operation-request:v1"
+        },
+        "presented_contract": {
+          "const": "urn:gis-ai-go:schema:evidence-inspect-request:v1"
+        },
+        "changed_operations": {"const": ["evidence.inspect"]},
+        "canonical_tools_sha256": {"$ref": "#/$defs/sha256"},
+        "presented_tools_sha256": {"$ref": "#/$defs/sha256"}
+      }
     },
     "operationName": {
       "enum": [

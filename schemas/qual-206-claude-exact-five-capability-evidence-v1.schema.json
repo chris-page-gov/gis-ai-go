@@ -117,7 +117,7 @@
         "protocol", "kind", "session_count", "request_count", "response_count",
         "tool_call_count", "resource_read_count", "resources_advertised",
         "provider_transport_calls", "aborted_provider_calls", "ledger_event_count",
-        "guarded_provider_api_invocations"
+        "guarded_provider_api_invocations", "tool_schema_projection"
       ],
       "properties": {
         "protocol": {"const": "2026-07-28"},
@@ -131,7 +131,8 @@
         "provider_transport_calls": {"const": 1},
         "aborted_provider_calls": {"const": 0},
         "ledger_event_count": {"const": 4},
-        "guarded_provider_api_invocations": {"const": 0}
+        "guarded_provider_api_invocations": {"const": 0},
+        "tool_schema_projection": {"$ref": "#/$defs/toolSchemaProjection"}
       }
     },
     "result": {
@@ -300,6 +301,32 @@
         "catalogue.search", "catalogue.describe", "selection.resolve", "data.query",
         "evidence.inspect"
       ]
+    },
+    "toolSchemaProjection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema", "profile", "projection_id", "source_operation",
+        "canonical_contract", "presented_contract", "changed_operations",
+        "canonical_tools_sha256", "presented_tools_sha256"
+      ],
+      "properties": {
+        "schema": {
+          "const": "gis-ai-go.qual-206-claude-exact-five-tool-projection.v1"
+        },
+        "profile": {"const": "exact-five-v1"},
+        "projection_id": {"const": "evidence-inspect-receipt-id-v1"},
+        "source_operation": {"const": "evidence.inspect"},
+        "canonical_contract": {
+          "const": "urn:gis-ai-go:schema:evidence-inspect-operation-request:v1"
+        },
+        "presented_contract": {
+          "const": "urn:gis-ai-go:schema:evidence-inspect-request:v1"
+        },
+        "changed_operations": {"const": ["evidence.inspect"]},
+        "canonical_tools_sha256": {"$ref": "#/$defs/sha256"},
+        "presented_tools_sha256": {"$ref": "#/$defs/sha256"}
+      }
     },
     "operationReceipt": {
       "type": "object", "additionalProperties": false,

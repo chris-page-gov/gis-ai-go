@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "urn:gis-ai-go:schema:qual-206-claude-composite-host-event:v1",
   "title": "QUAL-206 Claude composite private host event",
-  "description": "One sanitised, hash-chained event observed by the direct child of a Claude host. The contract is private, unscored and makes no activation, deployment or release claim.",
+  "description": "One sanitised, hash-chained event observed by the direct child of a Claude host. Response frame fields bind the canonical fixture output; optional presented fields separately bind an exact-five observer projection sent to the host. The contract is private, unscored and makes no activation, deployment or release claim.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -66,6 +66,14 @@
     },
     "frame_bytes": {"type": "integer", "minimum": 0, "maximum": 1048576},
     "frame_sha256": {"$ref": "#/$defs/sha256"},
+    "presented_direction": {"const": "observer-to-host"},
+    "presented_frame_bytes": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1048576
+    },
+    "presented_frame_sha256": {"$ref": "#/$defs/sha256"},
+    "presented_result_sha256": {"$ref": "#/$defs/sha256"},
     "request_ordinal": {"$ref": "#/$defs/nonNegativeSafeInteger"},
     "notification_ordinal": {"$ref": "#/$defs/nonNegativeSafeInteger"},
     "response_ordinal": {"$ref": "#/$defs/nonNegativeSafeInteger"},
@@ -332,6 +340,23 @@
         ]
       },
       "then": {"properties": {"event": {"const": "response"}}, "required": ["event"]}
+    },
+    {
+      "if": {
+        "anyOf": [
+          {"required": ["presented_direction"]},
+          {"required": ["presented_frame_bytes"]},
+          {"required": ["presented_frame_sha256"]},
+          {"required": ["presented_result_sha256"]}
+        ]
+      },
+      "then": {
+        "properties": {"event": {"const": "response"}},
+        "required": [
+          "event", "presented_direction", "presented_frame_bytes",
+          "presented_frame_sha256", "presented_result_sha256"
+        ]
+      }
     },
     {
       "if": {
