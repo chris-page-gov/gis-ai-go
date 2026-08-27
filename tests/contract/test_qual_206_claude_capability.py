@@ -570,10 +570,10 @@ class ClaudeCapabilityContractsTest(unittest.TestCase):
             )
         }
         expected = {
-            "tests": 25,
-            "pass": 25 if sys.platform == "darwin" else 5,
+            "tests": 26,
+            "pass": 26 if sys.platform == "darwin" else 5,
             "fail": 0,
-            "skipped": 0 if sys.platform == "darwin" else 20,
+            "skipped": 0 if sys.platform == "darwin" else 21,
         }
         self.assertEqual(summary, expected, completed.stdout)
 

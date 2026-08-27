@@ -198,7 +198,7 @@ macRuntimeTest("fake Claude completes the closed exact-five-v1 journey", async (
     "gis-ai-go.qual-206-claude-exact-five-capability-private-run.v1");
   assert.equal(manifest.profile, "exact-five-v1");
   assert.equal(manifest.execution.built_in_tools_available, false);
-  assert.equal(manifest.execution.maximum_turns, 8);
+  assert.equal(manifest.execution.maximum_turns, 10);
   assert.equal(manifest.isolation.mcp_subtree_network_access_allowed, false);
   assert.deepEqual(readdirSync(join(root, "observer")).sort(), [
     "exact-five-v1.claim.json",
@@ -222,7 +222,7 @@ macRuntimeTest("fake Claude completes the closed exact-five-v1 journey", async (
     summary.inspection_relationship.search_receipt_id,
   );
   const output = JSON.parse(readFileSync(join(root, "stdout.json"), "utf8"));
-  assert.equal(output.num_turns, 9);
+  assert.equal(output.num_turns, 11);
   assert.deepEqual(output.structured_output.operation_order, OPERATIONS);
   assert.deepEqual(
     output.structured_output.receipt_ids,
@@ -237,52 +237,58 @@ macRuntimeTest("fake Claude completes the closed exact-five-v1 journey", async (
   );
 });
 
-macRuntimeTest(
-  "a four-call tool-use terminal remains failed private material",
-  async (t) => {
-    const root = privateRoot(t);
-    const { manifest } = await runClaudeExactFiveCapability(
-      options(root),
-      dependencies("premature-tool-use"),
-    );
-    assert.equal(manifest.execution.exit_code, 0);
-    const output = JSON.parse(readFileSync(join(root, "stdout.json"), "utf8"));
-    assert.equal(output.subtype, "success");
-    assert.equal(output.is_error, false);
-    assert.equal(output.stop_reason, "tool_use");
-    assert.equal(output.num_turns, 7);
-    assert.deepEqual(output.structured_output.operation_order, OPERATIONS);
-    assert.deepEqual(readdirSync(join(root, "observer")).sort(), [
-      "exact-five-v1.claim.json",
-      "session-1",
-      "session-2",
-    ]);
-    const summary = JSON.parse(readFileSync(
-      join(root, "observer", "session-2", "exact-five-capability.json"),
-      "utf8",
-    ));
-    assert.equal(summary.session_profile, "invalid");
-    assert.equal(summary.protocol_session_status, "failed");
-    assert.equal(summary.operations.length, 4);
-    assert.deepEqual(
-      summary.operations.map(({ request }) => request.operation),
-      OPERATIONS.slice(0, 4),
-    );
-    assert.equal(
-      output.structured_output.receipt_ids["evidence.inspect"],
-      output.structured_output.receipt_ids["catalogue.search"],
-    );
-    const events = readFileSync(
-      join(root, "observer", "session-2", "events.jsonl"),
-      "utf8",
-    ).trim().split("\n").map((line) => JSON.parse(line));
-    const calls = events.filter(({ event, method }) =>
-      event === "request" && method === "tools/call"
-    ).map(({ operation }) => operation);
-    assert.deepEqual(calls, OPERATIONS.slice(0, 4));
-    assert.equal(calls.includes("evidence.inspect"), false);
-  },
-);
+for (const [scenario, expectedTurns, reusesSearchReceipt] of [
+  ["premature-tool-use-seven", 7, true],
+  ["premature-tool-use", 8, false],
+]) {
+  macRuntimeTest(
+    `a four-call tool-use terminal at turn ${expectedTurns} remains failed private material`,
+    async (t) => {
+      const root = privateRoot(t);
+      const { manifest } = await runClaudeExactFiveCapability(
+        options(root),
+        dependencies(scenario),
+      );
+      assert.equal(manifest.execution.exit_code, 0);
+      const output = JSON.parse(readFileSync(join(root, "stdout.json"), "utf8"));
+      assert.equal(output.subtype, "success");
+      assert.equal(output.is_error, false);
+      assert.equal(output.stop_reason, "tool_use");
+      assert.equal(output.num_turns, expectedTurns);
+      assert.deepEqual(output.structured_output.operation_order, OPERATIONS);
+      assert.deepEqual(readdirSync(join(root, "observer")).sort(), [
+        "exact-five-v1.claim.json",
+        "session-1",
+        "session-2",
+      ]);
+      const summary = JSON.parse(readFileSync(
+        join(root, "observer", "session-2", "exact-five-capability.json"),
+        "utf8",
+      ));
+      assert.equal(summary.session_profile, "invalid");
+      assert.equal(summary.protocol_session_status, "failed");
+      assert.equal(summary.operations.length, 4);
+      assert.deepEqual(
+        summary.operations.map(({ request }) => request.operation),
+        OPERATIONS.slice(0, 4),
+      );
+      assert.equal(
+        output.structured_output.receipt_ids["evidence.inspect"] ===
+          output.structured_output.receipt_ids["catalogue.search"],
+        reusesSearchReceipt,
+      );
+      const events = readFileSync(
+        join(root, "observer", "session-2", "events.jsonl"),
+        "utf8",
+      ).trim().split("\n").map((line) => JSON.parse(line));
+      const calls = events.filter(({ event, method }) =>
+        event === "request" && method === "tools/call"
+      ).map(({ operation }) => operation);
+      assert.deepEqual(calls, OPERATIONS.slice(0, 4));
+      assert.equal(calls.includes("evidence.inspect"), false);
+    },
+  );
+}
 
 macRuntimeTest(
   "fake Claude may negotiate and call across the accepted two-session shape",
