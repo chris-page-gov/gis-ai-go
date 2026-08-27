@@ -227,7 +227,9 @@ async function main() {
     "premature-tool-use",
     "premature-tool-use-seven",
   ].includes(SCENARIO);
-  const splitSessions = SCENARIO === "split-sessions" || prematureToolUse;
+  const completeToolUse = SCENARIO === "complete-tool-use";
+  const splitSessions = ["split-sessions", "complete-tool-use"].includes(SCENARIO) ||
+    prematureToolUse;
   if (splitSessions) {
     const discoverySession = startSession(server);
     let discoveryError = null;
@@ -278,7 +280,8 @@ async function main() {
   } finally {
     await stopSession(
       session,
-      ["positive", "split-sessions"].includes(SCENARIO) && sessionError === null,
+      ["positive", "split-sessions", "complete-tool-use"].includes(SCENARIO) &&
+        sessionError === null,
     );
   }
 
@@ -293,13 +296,14 @@ async function main() {
     subtype: "success",
     is_error: false,
     permission_denials: [],
-    num_turns: SCENARIO === "premature-tool-use-seven" ? 7 :
+    num_turns: ["complete-tool-use", "premature-tool-use-seven"].includes(SCENARIO) ? 7 :
       SCENARIO === "premature-tool-use" ? 8 : 11,
     duration_ms: 800,
     duration_api_ms: 700,
     result: "The exact-five-v1 result is available in structured_output.",
     session_id: "00000000-0000-4000-8000-000000000005",
-    stop_reason: prematureToolUse ? "tool_use" : "end_turn",
+    stop_reason: prematureToolUse || completeToolUse ? "tool_use" : "end_turn",
+    terminal_reason: "completed",
     total_cost_usd: 0.01,
     usage: {
       input_tokens: 256,

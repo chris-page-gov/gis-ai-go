@@ -17,8 +17,17 @@ Of the five canonical input schemas, `evidence.inspect` alone uses the existing
 v1/v2 top-level `oneOf` and `$defs` structure. That is an observed compatibility
 correlation and the basis of a narrowly testable hypothesis; it does not prove
 that Claude's schema parser caused the omission. Independent result verification
-rejected every incomplete observation. No public projection was written and there
-is no accepted public exact-five capability evidence yet.
+rejected every incomplete observation.
+
+The first bounded post-projection observation from exact protected `main` then
+completed all five ordered calls. Independent checks validated every result
+contract and receipt, structured-content and plain-text parity, and the required
+search-to-inspection relationship. The real CLI result reported
+`stop_reason: "tool_use"` and `terminal_reason: "completed"`, with
+`subtype: "success"` and a schema-valid `structured_output`. Publication was
+correctly withheld because the verifier still encoded the earlier assumption that
+only `stop_reason: "end_turn"` could be terminal success. No public projection was
+written and there is no accepted public exact-five capability evidence yet.
 
 The dedicated QUAL-206-HOST-002 capability schemas, verifier outcome and evidence
 remain unchanged. The shared composite event schema and verifier gain only optional
@@ -52,8 +61,8 @@ call's own distinct receipt before producing structured output. The search recei
 may be reused only as the inspection input and `inspected_search_receipt_id`; it
 must not be substituted for the inspection call's receipt. No receipt may be
 inferred, invented or calculated. The existing five-call evidence predicates remain
-unchanged and fail closed; the independent verifier additionally rejects a
-non-`end_turn` terminal state.
+unchanged and fail closed. The terminal-state correction described below does not
+weaken any call, result, receipt or inspection predicate.
 
 ## Isolation and fail-closed behaviour
 
@@ -86,11 +95,10 @@ therefore bounded metadata here, not evidence of how many MCP calls occurred. Th
 observer's request-result trace remains authoritative. The accepted one-tool
 observation used a ceiling of two and reported three turns after its final response,
 so the verifier accepts between three and 11 reported turns rather than treating
-the ceiling as a target. It still requires an `end_turn` terminal state, so a
-success-shaped `tool_use` result cannot be accepted. It accepts only one closed call
-session and the observed bounded negotiation variants. This includes the accepted
-two-session shape in which the first session performs `server/discover` and the
-second performs `tools/list` then the five ordered calls.
+the ceiling as a target. It accepts only one closed call session and the observed
+bounded negotiation variants. This includes the accepted two-session shape in which
+the first session performs `server/discover` and the second performs `tools/list`
+then the five ordered calls.
 
 ## Observer-only compatibility projection
 
@@ -132,14 +140,37 @@ a duplicate call, a substituted inspection receipt and a cryptographically
 invalid receipt. Offline projection tests additionally reject result reordering,
 duplication, body-parity failure, inspection-relationship substitution, extra
 protocol methods, changed request digests, out-of-bound turn counts,
-non-`end_turn` results, inflated claims and private-data leakage.
+invalid terminal combinations, inflated claims and private-data leakage.
+
+## Structured-output terminal state
+
+Anthropic's
+[Agent SDK structured-output guidance](https://code.claude.com/docs/en/agent-sdk/structured-outputs)
+defines its successful TypeScript result predicate as `subtype: "success"` with a
+present `structured_output`. It does not use `stop_reason: "end_turn"` as part of
+that predicate. Its
+[TypeScript SDK result contract](https://code.claude.com/docs/en/agent-sdk/typescript)
+defines `terminal_reason` separately as the reason the agent loop ended, including
+the value `completed`. The first real post-projection CLI observation matched that
+documented structured-output shape and reported `terminal_reason: "completed"`,
+despite retaining `stop_reason: "tool_use"` after the fifth MCP call.
+
+The correction is deliberately narrow. It retains `end_turn` as an ordinary
+successful stop reason and permits `tool_use` only for the observed
+structured-output terminal form: the result must have `subtype: "success"`,
+`is_error: false`, a schema-valid `structured_output` and
+`terminal_reason: "completed"`; the process must close cleanly; and every existing
+exact-five call, contract, receipt and inspection check must already have passed.
+`tool_use` alone is not evidence of completion. In particular, both historical
+four-call `tool_use` regressions remain failures.
 
 ## Publication boundary
 
-Do not treat the private harness result as evidence. No public capability projection
-may be written until this observer projection has merged and passed protected-main
-checks and a new bounded observation from exact protected `main` completes all five
-calls and every independent verifier gate. Raw prompts, responses, paths, process
+Do not treat the private harness result or the withheld post-projection observation
+as public evidence. The terminal-state correction must first merge and pass
+protected-main checks. A new bounded observation from that exact protected `main`
+must then complete all five calls and every independent verifier gate before any
+public capability projection may be written. Raw prompts, responses, paths, process
 details, costs, identifiers and private logs must remain local. Only a successful,
 schema-valid and minimised verifier projection may enter the public evidence
 directory. Failed or incomplete projections are not publishable.

@@ -58,10 +58,21 @@ The supported target active set is exactly `catalogue.search`,
   v1 `receipt_id` schema through a narrowly scoped exact-five observer projection,
   while leaving the canonical gateway, OpenAPI, HTTP, ordinary STDIO and v2
   reconciliation contracts unchanged. Bind the complete canonical and presented
-  tool sets with separate, domain-separated digests. Write no public capability
-  projection until this change passes protected-main checks and a new bounded
-  observation passes every
-  independent verifier gate;
+  tool sets with separate, domain-separated digests;
+- record that the first bounded post-projection observation from exact protected
+  `main` completed all five calls, with every contract, receipt and inspection
+  relation independently valid. The real CLI result reported
+  `stop_reason: "tool_use"`, `terminal_reason: "completed"`,
+  `subtype: "success"` and a schema-valid `structured_output`. Publication was
+  correctly withheld because the verifier still assumed terminal success required
+  `end_turn`. Align only that predicate with Anthropic's documented Agent SDK
+  structured-output success shape: retain `end_turn`, and accept `tool_use` only
+  when the result is successful and structured, the terminal reason is `completed`,
+  the process closes cleanly and every existing exact-five verifier gate passes.
+  Keep the four-call `tool_use` regressions rejected. Do not promote the withheld
+  run retrospectively; require this correction to pass protected-main checks and a
+  new bounded observation from that exact protected `main` before writing any
+  public capability projection;
 - retain the accepted fail-closed real-socket loopback HTTP exact-five preflight,
   whose owner-only raw capture remains local and whose independent path-free
   projection keeps remote-host acceptance false and capability unscored;

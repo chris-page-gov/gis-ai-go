@@ -269,6 +269,9 @@ macRuntimeTest("fake Claude completes the closed exact-five-v1 journey", async (
   );
   const output = JSON.parse(readFileSync(join(root, "stdout.json"), "utf8"));
   assert.equal(output.num_turns, 11);
+  assert.equal(output.stop_reason, "end_turn");
+  assert.equal(output.terminal_reason, "completed");
+  assert.equal(Object.hasOwn(output, "deferred_tool_use"), false);
   assert.deepEqual(output.structured_output.operation_order, OPERATIONS);
   assert.deepEqual(
     output.structured_output.receipt_ids,
@@ -282,6 +285,35 @@ macRuntimeTest("fake Claude completes the closed exact-five-v1 journey", async (
     summary.inspection_relationship.search_receipt_id,
   );
 });
+
+macRuntimeTest(
+  "a completed structured-output tool-use terminal retains all five verified calls",
+  async (t) => {
+    const root = privateRoot(t);
+    const { manifest } = await runClaudeExactFiveCapability(
+      options(root),
+      dependencies("complete-tool-use"),
+    );
+    assert.equal(manifest.execution.exit_code, 0);
+    assert.equal(manifest.execution.harness_classification, null);
+    assert.equal(manifest.execution.process_group_absent, true);
+    const output = JSON.parse(readFileSync(join(root, "stdout.json"), "utf8"));
+    assert.equal(output.stop_reason, "tool_use");
+    assert.equal(output.terminal_reason, "completed");
+    assert.equal(Object.hasOwn(output, "deferred_tool_use"), false);
+    assert.equal(output.num_turns, 7);
+    assert.deepEqual(output.structured_output.operation_order, OPERATIONS);
+    const summary = JSON.parse(readFileSync(
+      join(root, "observer", "session-2", "exact-five-capability.json"),
+      "utf8",
+    ));
+    assert.equal(summary.protocol_session_status, "passed");
+    assert.deepEqual(
+      summary.operations.map(({ request }) => request.operation),
+      OPERATIONS,
+    );
+  },
+);
 
 for (const [scenario, expectedTurns, reusesSearchReceipt] of [
   ["premature-tool-use-seven", 7, true],
@@ -300,6 +332,8 @@ for (const [scenario, expectedTurns, reusesSearchReceipt] of [
       assert.equal(output.subtype, "success");
       assert.equal(output.is_error, false);
       assert.equal(output.stop_reason, "tool_use");
+      assert.equal(output.terminal_reason, "completed");
+      assert.equal(Object.hasOwn(output, "deferred_tool_use"), false);
       assert.equal(output.num_turns, expectedTurns);
       assert.deepEqual(output.structured_output.operation_order, OPERATIONS);
       assert.deepEqual(readdirSync(join(root, "observer")).sort(), [

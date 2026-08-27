@@ -350,6 +350,10 @@ class ClaudeExactFiveCapabilityContractsTest(unittest.TestCase):
                 schema_projection["presented_tools_sha256"],
             )
             self.assertEqual(projection["result"]["claude_cli_reported_turns"], 11)
+            self.assertEqual(projection["result"]["claude_cli_stop_reason"], "end_turn")
+            self.assertEqual(
+                projection["result"]["claude_cli_terminal_reason"], "completed"
+            )
             self.assertEqual(projection["result"]["agentic_turn_limit"], 10)
             receipts = [
                 item["receipt_id"] for item in projection["result"]["operation_receipts"]
@@ -503,6 +507,15 @@ class ClaudeExactFiveCapabilityContractsTest(unittest.TestCase):
             too_few_turns = copy.deepcopy(projection)
             too_few_turns["result"]["claude_cli_reported_turns"] = 2
             mutations.append(("reported turn bound deflation", too_few_turns))
+            stop_reason = copy.deepcopy(projection)
+            stop_reason["result"]["claude_cli_stop_reason"] = "maximum_turns"
+            mutations.append(("unaccepted stop reason", stop_reason))
+            terminal_reason = copy.deepcopy(projection)
+            terminal_reason["result"]["claude_cli_terminal_reason"] = "maximum_turns"
+            mutations.append(("incomplete terminal reason", terminal_reason))
+            missing_terminal_reason = copy.deepcopy(projection)
+            del missing_terminal_reason["result"]["claude_cli_terminal_reason"]
+            mutations.append(("missing terminal reason", missing_terminal_reason))
             order = copy.deepcopy(projection)
             order["result"]["operation_order"][0:2] = reversed(
                 order["result"]["operation_order"][0:2]
@@ -664,6 +677,7 @@ class ClaudeExactFiveCapabilityContractsTest(unittest.TestCase):
             try:
                 output = json.loads(original_output)
                 output["stop_reason"] = "tool_use"
+                output["terminal_reason"] = "maximum_turns"
                 output_path.write_bytes(
                     json.dumps(output, separators=(",", ":")).encode()
                 )
@@ -671,7 +685,7 @@ class ClaudeExactFiveCapabilityContractsTest(unittest.TestCase):
                 rebind_stdout(capture)
                 with self.assertRaisesRegex(
                     verifier.ExactFiveCapabilityVerificationError,
-                    "end_turn terminal state",
+                    "completed terminal reason",
                 ):
                     verifier.verify_and_project(
                         capture,
@@ -684,6 +698,133 @@ class ClaudeExactFiveCapabilityContractsTest(unittest.TestCase):
                 manifest_path.write_bytes(original_manifest)
                 os.chmod(output_path, 0o600)
                 os.chmod(manifest_path, 0o600)
+        evidence_after = sorted((ROOT / "tests/interoperability/evidence").iterdir())
+        self.assertEqual(evidence_after, evidence_before)
+
+    @unittest.skipUnless(
+        sys.platform == "darwin",
+        "the accepted Claude exact-five runtime uses macOS Seatbelt",
+    )
+    def test_completed_tool_use_terminal_with_all_five_calls_projects(self) -> None:
+        evidence_before = sorted((ROOT / "tests/interoperability/evidence").iterdir())
+        with tempfile.TemporaryDirectory(dir="/private/tmp") as value:
+            capture = Path(value) / "capture"
+            capture.mkdir(mode=0o700)
+            os.chmod(capture, 0o700)
+            executable_bytes, executable_sha256 = create_fake_capture(
+                capture,
+                scenario="complete-tool-use",
+            )
+            private_check = fake_host_validator(
+                PRIVATE_SCHEMA,
+                executable_bytes=executable_bytes,
+                executable_sha256=executable_sha256,
+            )
+            public_check = fake_host_validator(
+                PUBLIC_SCHEMA,
+                executable_bytes=executable_bytes,
+                executable_sha256=executable_sha256,
+            )
+            output_path = capture / "stdout.json"
+            manifest_path = capture / "run-manifest.json"
+            output = json.loads(output_path.read_text(encoding="utf-8"))
+            self.assertEqual(output["stop_reason"], "tool_use")
+            self.assertEqual(output["terminal_reason"], "completed")
+            self.assertNotIn("deferred_tool_use", output)
+            self.assertEqual(output["num_turns"], 7)
+            projection = verifier.verify_and_project(
+                capture,
+                source_verifier=fake_source_boundary,
+                private_validator=private_check,
+                public_validator=public_check,
+            )
+            self.assertEqual(projection["status"], "capability_pass")
+            self.assertEqual(projection["transport"]["tool_call_count"], 5)
+            self.assertEqual(projection["result"]["claude_cli_stop_reason"], "tool_use")
+            self.assertEqual(
+                projection["result"]["claude_cli_terminal_reason"], "completed"
+            )
+
+            original_output = output_path.read_bytes()
+            original_manifest = manifest_path.read_bytes()
+            output["terminal_reason"] = "maximum_turns"
+            output_path.write_bytes(json.dumps(output, separators=(",", ":")).encode())
+            os.chmod(output_path, 0o600)
+            rebind_stdout(capture)
+            with self.assertRaisesRegex(
+                verifier.ExactFiveCapabilityVerificationError,
+                "completed terminal reason",
+            ):
+                verifier.verify_and_project(
+                    capture,
+                    source_verifier=fake_source_boundary,
+                    private_validator=private_check,
+                    public_validator=public_check,
+                )
+            output_path.write_bytes(original_output)
+            manifest_path.write_bytes(original_manifest)
+            os.chmod(output_path, 0o600)
+            os.chmod(manifest_path, 0o600)
+
+            output = json.loads(original_output)
+            output["stop_reason"] = "maximum_turns"
+            output_path.write_bytes(json.dumps(output, separators=(",", ":")).encode())
+            os.chmod(output_path, 0o600)
+            rebind_stdout(capture)
+            with self.assertRaisesRegex(
+                verifier.ExactFiveCapabilityVerificationError,
+                "accepted end_turn or tool_use stop reason",
+            ):
+                verifier.verify_and_project(
+                    capture,
+                    source_verifier=fake_source_boundary,
+                    private_validator=private_check,
+                    public_validator=public_check,
+                )
+            output_path.write_bytes(original_output)
+            manifest_path.write_bytes(original_manifest)
+            os.chmod(output_path, 0o600)
+            os.chmod(manifest_path, 0o600)
+
+            output = json.loads(original_output)
+            del output["terminal_reason"]
+            output_path.write_bytes(json.dumps(output, separators=(",", ":")).encode())
+            os.chmod(output_path, 0o600)
+            rebind_stdout(capture)
+            with self.assertRaisesRegex(
+                verifier.ExactFiveCapabilityVerificationError,
+                "completed terminal reason",
+            ):
+                verifier.verify_and_project(
+                    capture,
+                    source_verifier=fake_source_boundary,
+                    private_validator=private_check,
+                    public_validator=public_check,
+                )
+            output_path.write_bytes(original_output)
+            manifest_path.write_bytes(original_manifest)
+            os.chmod(output_path, 0o600)
+            os.chmod(manifest_path, 0o600)
+
+            output = json.loads(original_output)
+            output["deferred_tool_use"] = True
+            output_path.write_bytes(json.dumps(output, separators=(",", ":")).encode())
+            os.chmod(output_path, 0o600)
+            rebind_stdout(capture)
+            with self.assertRaisesRegex(
+                verifier.ExactFiveCapabilityVerificationError,
+                "retained deferred tool use",
+            ):
+                verifier.verify_and_project(
+                    capture,
+                    source_verifier=fake_source_boundary,
+                    private_validator=private_check,
+                    public_validator=public_check,
+                )
+            output_path.write_bytes(original_output)
+            manifest_path.write_bytes(original_manifest)
+            os.chmod(output_path, 0o600)
+            os.chmod(manifest_path, 0o600)
         evidence_after = sorted((ROOT / "tests/interoperability/evidence").iterdir())
         self.assertEqual(evidence_after, evidence_before)
 
@@ -712,6 +853,7 @@ class ClaudeExactFiveCapabilityContractsTest(unittest.TestCase):
                     self.assertEqual(output["subtype"], "success")
                     self.assertIs(output["is_error"], False)
                     self.assertEqual(output["stop_reason"], "tool_use")
+                    self.assertEqual(output["terminal_reason"], "completed")
                     self.assertEqual(output["num_turns"], expected_turns)
                     self.assertEqual(
                         output["structured_output"]["operation_order"], OPERATIONS
