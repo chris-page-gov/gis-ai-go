@@ -48,10 +48,13 @@ The supported target active set is exactly `catalogue.search`,
   fake one-session and accepted two-session shapes pass. Two bounded protected-main
   observations on 27 August 2026 stopped after four valid calls, before
   `evidence.inspect`, and falsely reused the search receipt in their final output;
-  the verifier rejected both and wrote no public projection. Correct the model's
-  premature-completion instruction, allow the fifth call with a seven-turn ceiling,
-  require an `end_turn` terminal state, and re-observe only after those changes pass
-  protected `main`;
+  the verifier rejected both and wrote no public projection. A third bounded run
+  from exact protected-main commit `d2f3e72858272dbfe3f79a83d290d622977c65e6`
+  reached reported turn 7 in `tool_use` state after the same first four calls, so
+  the fifth request was not dispatched and the verifier again wrote no projection.
+  Retain the explicit fifth-call instruction and `end_turn` requirement, increase
+  the agentic ceiling to eight with a corresponding maximum of nine reported turns,
+  and re-observe only after that evidence-supported change passes protected `main`;
 - retain the accepted fail-closed real-socket loopback HTTP exact-five preflight,
   whose owner-only raw capture remains local and whose independent path-free
   projection keeps remote-host acceptance false and capability unscored;

@@ -177,7 +177,7 @@ async function main() {
   if (
     optionValue(argumentsValue, "--output-format") !== "json" ||
     optionValue(argumentsValue, "--permission-mode") !== "dontAsk" ||
-    optionValue(argumentsValue, "--max-turns") !== "7" ||
+    optionValue(argumentsValue, "--max-turns") !== "8" ||
     optionValue(argumentsValue, "--tools") !== "" ||
     JSON.stringify(optionValues(
       argumentsValue,
@@ -270,7 +270,7 @@ async function main() {
     subtype: "success",
     is_error: false,
     permission_denials: [],
-    num_turns: SCENARIO === "premature-tool-use" ? 6 : 7,
+    num_turns: SCENARIO === "premature-tool-use" ? 7 : 9,
     duration_ms: 800,
     duration_api_ms: 700,
     result: "The exact-five-v1 result is available in structured_output.",

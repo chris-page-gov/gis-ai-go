@@ -47,11 +47,11 @@ PROFILE_ID = "exact-five-v1"
 CASE_ID = "QUAL-206-CLAUDE-EXACT-FIVE-V1"
 SERVER_NAME = "gis-ai-go-qual-206-exact-five-v1"
 PROTOCOL = "2026-07-28"
-MAXIMUM_AGENTIC_TURNS = 7
+MAXIMUM_AGENTIC_TURNS = 8
 MINIMUM_CLAUDE_REPORTED_TURNS = 3
 MAXIMUM_CLAUDE_REPORTED_TURNS = MAXIMUM_AGENTIC_TURNS + 1
 TURN_COUNT_SEMANTICS = (
-    "claude-cli-reported-total-turns-at-most-seven-tool-use-round-trips-plus-one-final-turn"
+    "claude-cli-reported-total-turns-at-most-eight-tool-use-round-trips-plus-one-final-turn"
 )
 OPERATIONS = (
     "catalogue.search",
