@@ -266,7 +266,7 @@ export const CLAUDE_EXACT_FIVE_CAPABILITY_PROFILE = Object.freeze({
   caseId: "QUAL-206-CLAUDE-EXACT-FIVE-V1",
   clientLabel: "claude-code-2.1.245-exact-five-v1",
   manifestSchema: "gis-ai-go.qual-206-claude-exact-five-capability-private-run.v1",
-  maximumTurns: 8,
+  maximumTurns: 10,
   outputSchema: EXACT_FIVE_OUTPUT_SCHEMA,
   permissionAliases: Object.freeze(Object.values(buildClaudePermissionAliasMap(
     "gis-ai-go-qual-206-exact-five-v1",

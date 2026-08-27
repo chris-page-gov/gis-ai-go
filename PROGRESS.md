@@ -52,9 +52,14 @@ The supported target active set is exactly `catalogue.search`,
   from exact protected-main commit `d2f3e72858272dbfe3f79a83d290d622977c65e6`
   reached reported turn 7 in `tool_use` state after the same first four calls, so
   the fifth request was not dispatched and the verifier again wrote no projection.
-  Retain the explicit fifth-call instruction and `end_turn` requirement, increase
-  the agentic ceiling to eight with a corresponding maximum of nine reported turns,
-  and re-observe only after that evidence-supported change passes protected `main`;
+  A fourth bounded run from exact protected-main commit
+  `b9e777a9ed3744dd7291c0cd69347dd07aab2672` reached reported turn 8 in
+  `tool_use` state after the same four calls. Its final output supplied a distinct
+  fifth receipt-shaped value without a corresponding request or response, so
+  independent verification rejected it and wrote no projection. Retain the exact
+  five-call and `end_turn` gates, increase the bounded agentic ceiling to ten with
+  a corresponding maximum of 11 reported turns, and re-observe only after that
+  evidence-supported change passes protected `main`;
 - retain the accepted fail-closed real-socket loopback HTTP exact-five preflight,
   whose owner-only raw capture remains local and whose independent path-free
   projection keeps remote-host acceptance false and capability unscored;

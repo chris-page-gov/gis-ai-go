@@ -5,15 +5,20 @@
 This additive pack prepares a bounded Claude Code `2.1.245` observation of the
 complete deterministic exact-five journey over local MCP `2026-07-28` STDIO. It
 now includes closed private-run, per-session and minimised public-evidence schemas,
-plus an offline verifier and adversarial regression coverage. Three bounded
+plus an offline verifier and adversarial regression coverage. Four bounded
 protected-main observations on 27 August 2026 completed the first four operations
 but did not complete `evidence.inspect`. The first two produced the final structured
 answer early. The third used the seven-agentic-turn ceiling at exact commit
 `d2f3e72858272dbfe3f79a83d290d622977c65e6`; Claude reported turn 7 with a
-`tool_use` terminal state before the fifth request was dispatched. All three private
-runs were rejected because their final output reused the inspected search receipt
-as if it were the inspection call's own receipt. No public projection was written
-and there is no accepted public exact-five capability evidence yet.
+`tool_use` terminal state before the fifth request was dispatched. Those first three
+private runs were rejected because their final output reused the inspected search
+receipt as if it were the inspection call's own receipt. The fourth used the
+eight-agentic-turn ceiling at exact commit
+`b9e777a9ed3744dd7291c0cd69347dd07aab2672`; Claude reported turn 8 in
+`tool_use` state after the same four calls. Its structured output supplied a distinct
+fifth receipt-shaped value, but there was no observed `evidence.inspect` request or
+response, so independent result verification rejected it. No public projection was
+written and there is no accepted public exact-five capability evidence yet.
 
 The existing QUAL-206-HOST-002 schemas, verifier and evidence remain unchanged.
 That accepted one-tool observation continues to prove only `catalogue.search`.
@@ -60,23 +65,30 @@ The separate launcher:
   closure before execution;
 - retains the existing MCP-subtree Seatbelt network denial and credential
   removal;
-- permits at most eight agentic turns; and
+- permits at most ten bounded agentic turns; and
 - rejects missing, duplicated, reordered or altered calls, including inspection
   of any receipt other than the search receipt.
 
-The exact protected-main observation above establishes that `--max-turns 7` can
-stop in `tool_use` state before the fifth request is dispatched. The `--max-turns 8`
-ceiling reserves one additional bounded tool-use round trip. Anthropic
-[defines that ceiling](https://code.claude.com/docs/en/agent-sdk/agent-loop) as a
-maximum number of tool-use round trips, while `num_turns` reports the total actually
-taken and includes a final no-tool turn. The verifier therefore accepts between
-three and nine reported turns rather than treating the ceiling as a target. The
-lower bound follows from the search-to-inspection dependency plus the final no-tool
-turn. It still requires an `end_turn` terminal state, so a success-shaped
-`tool_use` result cannot be accepted. It accepts only one closed call session and
-the observed bounded negotiation variants. This includes the accepted two-session
-shape in which the first session performs `server/discover` and the second performs
-`tools/list` then the five ordered calls.
+The exact protected-main observations above establish that both `--max-turns 7`
+and `--max-turns 8` can stop in `tool_use` state after the first four calls. The
+`--max-turns 10` ceiling is the smallest conservative boundary that reserves two
+further native CLI turns of headroom beyond the observed turn-8 stop. This allows
+the next bounded observation to attempt the fifth request-result and required final
+response without assigning that work to particular reported turns. Anthropic
+[documents `max_turns`](https://code.claude.com/docs/en/agent-sdk/agent-loop) as a
+maximum number of tool-use round trips and describes the final no-tool response as
+an additional turn. However, the exact native CLI observations at configured
+ceilings of seven and eight each reported the configured ceiling while the observer
+recorded only four calls. Configured `max_turns` and reported `num_turns` are
+therefore bounded metadata here, not evidence of how many MCP calls occurred. The
+observer's request-result trace remains authoritative. The accepted one-tool
+observation used a ceiling of two and reported three turns after its final response,
+so the verifier accepts between three and 11 reported turns rather than treating
+the ceiling as a target. It still requires an `end_turn` terminal state, so a
+success-shaped `tool_use` result cannot be accepted. It accepts only one closed call
+session and the observed bounded negotiation variants. This includes the accepted
+two-session shape in which the first session performs `server/discover` and the
+second performs `tools/list` then the five ordered calls.
 
 Each exact-five observer session retains one canonical, owner-only and size-bounded
 result file locally. The offline Node verifier rechecks the discovery and listing
@@ -88,7 +100,8 @@ to the request-event chain, source/runtime closure, final Claude structured outp
 process cleanup and provider audit.
 
 The fake-client suites exercise the complete one-session and two-session success
-paths, the observed four-call `tool_use` termination, wrong order, wrong arguments,
+paths, both observed turn-7 and turn-8 four-call `tool_use` terminations, wrong
+order, wrong arguments,
 a duplicate call, a substituted inspection receipt and a cryptographically
 invalid receipt. Offline projection tests additionally reject result reordering,
 duplication, body-parity failure, inspection-relationship substitution, extra
