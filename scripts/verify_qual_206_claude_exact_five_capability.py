@@ -47,10 +47,11 @@ PROFILE_ID = "exact-five-v1"
 CASE_ID = "QUAL-206-CLAUDE-EXACT-FIVE-V1"
 SERVER_NAME = "gis-ai-go-qual-206-exact-five-v1"
 PROTOCOL = "2026-07-28"
-MAXIMUM_AGENTIC_TURNS = 6
-EXPECTED_CLAUDE_REPORTED_TURNS = 7
+MAXIMUM_AGENTIC_TURNS = 7
+MINIMUM_CLAUDE_REPORTED_TURNS = 3
+MAXIMUM_CLAUDE_REPORTED_TURNS = MAXIMUM_AGENTIC_TURNS + 1
 TURN_COUNT_SEMANTICS = (
-    "claude-cli-reported-turns-includes-final-result-after-six-agentic-turn-maximum"
+    "claude-cli-reported-total-turns-at-most-seven-tool-use-round-trips-plus-one-final-turn"
 )
 OPERATIONS = (
     "catalogue.search",
@@ -153,7 +154,10 @@ def fail(message: str) -> NoReturn:
 def _host_call(function: Callable[..., Any], *args: Any, **kwargs: Any) -> Any:
     try:
         return function(*args, **kwargs)
-    except host002.CapabilityVerificationError as error:
+    except (
+        host002.CapabilityVerificationError,
+        composite.VerificationError,
+    ) as error:
         raise ExactFiveCapabilityVerificationError(str(error)) from error
 
 
@@ -1037,10 +1041,13 @@ def verify_output(
     bounded_model = [int(value) for value in model_counts]
     if (
         type(num_turns) is not int
-        or num_turns != EXPECTED_CLAUDE_REPORTED_TURNS
+        or num_turns < MINIMUM_CLAUDE_REPORTED_TURNS
+        or num_turns > MAXIMUM_CLAUDE_REPORTED_TURNS
         or execution["maximum_turns"] != MAXIMUM_AGENTIC_TURNS
     ):
-        fail("Claude CLI reported turns do not match the bounded agentic-turn semantics")
+        fail("Claude CLI reported turns fall outside the bounded turn semantics")
+    if output.get("stop_reason") != "end_turn":
+        fail("Claude final output did not end with an end_turn terminal state")
     if (
         output.get("type") != "result"
         or output.get("is_error") is not False

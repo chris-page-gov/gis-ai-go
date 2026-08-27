@@ -177,7 +177,7 @@ async function main() {
   if (
     optionValue(argumentsValue, "--output-format") !== "json" ||
     optionValue(argumentsValue, "--permission-mode") !== "dontAsk" ||
-    optionValue(argumentsValue, "--max-turns") !== "6" ||
+    optionValue(argumentsValue, "--max-turns") !== "7" ||
     optionValue(argumentsValue, "--tools") !== "" ||
     JSON.stringify(optionValues(
       argumentsValue,
@@ -206,7 +206,8 @@ async function main() {
     fail("fake Claude received a widened MCP configuration");
   }
   const server = servers[0][1];
-  if (SCENARIO === "split-sessions") {
+  const splitSessions = ["split-sessions", "premature-tool-use"].includes(SCENARIO);
+  if (splitSessions) {
     const discoverySession = startSession(server);
     let discoveryError = null;
     try {
@@ -222,9 +223,10 @@ async function main() {
   const receipts = {};
   let sessionError = null;
   try {
-    if (SCENARIO === "split-sessions") await listTools(session.request);
+    if (splitSessions) await listTools(session.request);
     else await discover(session.request);
     const calls = PROFILE.operations.map((operation) => ({ ...operation }));
+    if (SCENARIO === "premature-tool-use") calls.pop();
     if (SCENARIO === "wrong-order") [calls[0], calls[1]] = [calls[1], calls[0]];
     for (const operation of calls) {
       const argumentsValue = operation.name === "evidence.inspect"
@@ -259,17 +261,21 @@ async function main() {
     );
   }
 
+  if (SCENARIO === "premature-tool-use") {
+    receipts["evidence.inspect"] = receipts["catalogue.search"];
+  }
+
   process.stdout.write(JSON.stringify({
     type: "result",
     subtype: "success",
     is_error: false,
     permission_denials: [],
-    num_turns: 7,
+    num_turns: SCENARIO === "premature-tool-use" ? 6 : 7,
     duration_ms: 800,
     duration_api_ms: 700,
     result: "The exact-five-v1 result is available in structured_output.",
     session_id: "00000000-0000-4000-8000-000000000005",
-    stop_reason: "end_turn",
+    stop_reason: SCENARIO === "premature-tool-use" ? "tool_use" : "end_turn",
     total_cost_usd: 0.01,
     usage: {
       input_tokens: 256,

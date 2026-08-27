@@ -1,6 +1,6 @@
 # Delivery progress
 
-Last updated: 26 August 2026
+Last updated: 27 August 2026
 
 ## Current outcome
 
@@ -45,8 +45,13 @@ The supported target active set is exactly `catalogue.search`,
   verifier candidate, which independently rechecks the retained canonical result
   bodies, five operation-specific receipts, search-to-inspection relation, exact
   request and method closure, Claude final output and process/runtime closure. Its
-  fake one-session and accepted two-session shapes pass; no live Claude exact-five
-  observation or public projection has been made;
+  fake one-session and accepted two-session shapes pass. Two bounded protected-main
+  observations on 27 August 2026 stopped after four valid calls, before
+  `evidence.inspect`, and falsely reused the search receipt in their final output;
+  the verifier rejected both and wrote no public projection. Correct the model's
+  premature-completion instruction, allow the fifth call with a seven-turn ceiling,
+  require an `end_turn` terminal state, and re-observe only after those changes pass
+  protected `main`;
 - retain the accepted fail-closed real-socket loopback HTTP exact-five preflight,
   whose owner-only raw capture remains local and whose independent path-free
   projection keeps remote-host acceptance false and capability unscored;
