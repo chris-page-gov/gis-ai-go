@@ -38,11 +38,12 @@ The supported target active set is exactly `catalogue.search`,
   metadata while keeping attribution and exact-case evidence predicates closed;
 - accept the verifier-produced `HOST-002` projection from exact protected-main
   commit `5837bd65a482e90238c466673318f007e305c744` as one bounded
-  model-mediated `catalogue.search` capability pass; keep exact-five model
-  capability, remote HTTP, live geospatial-provider use, registry publication,
-  activation, deployment and release false and open;
+  model-mediated `catalogue.search` capability pass. That narrow projection does
+  not establish exact-five model capability; keep remote HTTP, live
+  geospatial-provider use, registry publication, activation, deployment and release
+  false and open;
 - retain the additive `exact-five-v1` private/session/public schemas and offline
-  verifier candidate, which independently rechecks the retained canonical result
+  verifier, which independently rechecks the retained canonical result
   bodies, five operation-specific receipts, search-to-inspection relation, exact
   request and method closure, Claude final output and process/runtime closure. Its
   fake one-session and accepted two-session shapes pass. Bounded protected-main
@@ -53,8 +54,8 @@ The supported target active set is exactly `catalogue.search`,
   contained all five canonical tools while Claude's model-facing set contained only
   four and omitted `evidence.inspect`. That tool alone used the canonical v1/v2
   top-level `oneOf` and `$defs` input schema. Treat this as an observed compatibility
-  correlation and a testable hypothesis, not proof of Claude parser causation;
-  retain the exact five-call and `end_turn` gates. Present only the existing closed
+  correlation and a testable hypothesis, not proof of Claude parser causation.
+  Present only the existing closed
   v1 `receipt_id` schema through a narrowly scoped exact-five observer projection,
   while leaving the canonical gateway, OpenAPI, HTTP, ordinary STDIO and v2
   reconciliation contracts unchanged. Bind the complete canonical and presented
@@ -69,15 +70,25 @@ The supported target active set is exactly `catalogue.search`,
   structured-output success shape: retain `end_turn`, and accept `tool_use` only
   when the result is successful and structured, the terminal reason is `completed`,
   the process closes cleanly and every existing exact-five verifier gate passes.
-  Keep the four-call `tool_use` regressions rejected. Do not promote the withheld
-  run retrospectively; require this correction to pass protected-main checks and a
-  new bounded observation from that exact protected `main` before writing any
-  public capability projection;
+  Keep the four-call `tool_use` regressions rejected and the withheld run private
+  and unpromoted;
+- record that the terminal-state correction merged through
+  [pull request 87](https://github.com/chris-page-gov/gis-ai-go/pull/87) as exact
+  protected-main commit `029a9d5c7efcafcd45941194394384ee6c578fe9`, tree
+  `96f75d96b1e0680465494834ddad8661539cbd62`, with every exact-main CI job and
+  CodeQL analysis passing. Accept the fresh verifier-produced
+  [exact-five projection](tests/interoperability/evidence/claude-code-2.1.245-exact-five-capability-2026-08-27.json)
+  with SHA-256
+  `06311b896963503bd7f6f88d32d34edfda52afb49b3d9e5b6c05eaed3230f0a6`.
+  It records all five ordered local STDIO calls at reported turn 7, with every
+  contract, distinct receipt, parity check and inspection relation independently
+  valid. This closes local STDIO exact-five model capability only. Raw capture
+  remains local and owner-only; remote HTTP, live-provider use, registry publication,
+  activation, deployment and release remain false and open;
 - retain the accepted fail-closed real-socket loopback HTTP exact-five preflight,
   whose owner-only raw capture remains local and whose independent path-free
   projection keeps remote-host acceptance false and capability unscored;
-- complete the remaining exact-five desktop capability and remote-HTTP host
-  evidence;
+- complete the remaining remote-HTTP host evidence;
   and
 - continue provider-neutral preparation, but stop before public provisioning or
   spend until a provider account, numeric monthly ceiling and operational hosting
@@ -384,9 +395,9 @@ or release is claimed.
 
 1. Preserve the verified Claude Code `2.1.241` and `2.1.245` strict-modern transport
    summaries, the separate historical default-negotiation record, the accepted
-   one-case `HOST-002` capability projection and the protected-main loopback HTTP
-   projection. Complete the exact-five desktop capability and remaining remote-HTTP
-   host evidence without widening any narrow result.
+   one-case `HOST-002` capability projection, the exact-five local STDIO capability
+   projection and the protected-main loopback HTTP projection. Complete the remaining
+   remote-HTTP host evidence without widening any narrow result.
 2. Retain the exact protected-main UBI, independent-derivation and provenance
    evidence from runs `32760872035` and `32760871684`; rebuild and repeat it after
    every later source-changing activation or release commit.
@@ -418,8 +429,9 @@ or release is claimed.
   for exact Claude Code `2.1.241` and `2.1.245` establish strict MCP `2026-07-28`
   desktop-STDIO transport readiness, but neither involved a model task or tool
   call. The later accepted `HOST-002` projection scores one bounded
-  `catalogue.search` case only; exact-five model capability and remote-HTTP host
-  evidence remain incomplete.
+  `catalogue.search` case only. A separate fresh protected-main observation now
+  passes all five ordered local STDIO calls; remote-HTTP host evidence remains
+  incomplete.
   Security, accessibility, governed ingress/storage admission, retention/disposal
   and host-specific lifecycle evidence remain activation gates.
 - Direct routes and MCP transports now exist on protected `main`, but the
@@ -446,6 +458,25 @@ or release is claimed.
   the open product.
 
 ## Latest evidence
+
+- Claude Code `2.1.245` bounded exact-five capability: the fresh verifier-produced
+  [path-free projection](tests/interoperability/evidence/claude-code-2.1.245-exact-five-capability-2026-08-27.json)
+  binds exact protected-main commit
+  `029a9d5c7efcafcd45941194394384ee6c578fe9`, tree
+  `96f75d96b1e0680465494834ddad8661539cbd62`, with SHA-256
+  `06311b896963503bd7f6f88d32d34edfda52afb49b3d9e5b6c05eaed3230f0a6`.
+  Every job in
+  [CI run 33114396425](https://github.com/chris-page-gov/gis-ai-go/actions/runs/33114396425)
+  and every analysis in
+  [CodeQL run 33114396546](https://github.com/chris-page-gov/gis-ai-go/actions/runs/33114396546)
+  passed. Claude Code `2.1.245`, reporting model `claude-sonnet-5`, made the five
+  ordered MCP `2026-07-28` calls over local STDIO at reported turn 7. Independent
+  verification accepted every output contract, five distinct receipts,
+  structured/plain-text parity and the search-to-inspection relationship. The
+  deterministic fixture made one synthetic provider transport call and zero guarded
+  live-provider API invocations. Raw capture remains owner-only and local. This
+  closes local STDIO exact-five model capability only; remote HTTP, live-provider
+  use, registry publication, activation, deployment and release remain false;
 
 - QUAL-206 protected-main local HTTP transport preflight: the
   [path-free projection](tests/interoperability/evidence/local-http-transport-preflight-2026-08-25.json)
@@ -550,9 +581,11 @@ or release is claimed.
   reporting model `claude-sonnet-5`, made exactly one canonical MCP `2026-07-28`
   `catalogue.search` call and returned the same independently verified inline
   receipt. The CLI ceiling was two agentic turns and the exact final host report
-  was `num_turns: 3`. Raw capture remains owner-only and local. Exact-five model
-  capability, remote HTTP interoperability, live geospatial-provider use, registry
-  publication, activation, deployment and release remain false and open;
+  was `num_turns: 3`. Raw capture remains owner-only and local. That narrow
+  projection alone does not establish exact-five model capability; the separate
+  later projection above does. Remote HTTP interoperability, live
+  geospatial-provider use, registry publication, activation, deployment and release
+  remain false and open;
 
 - Claude Code `2.1.245` strict-modern STDIO readiness: the
   [path-free source-bound summary](tests/interoperability/evidence/claude-code-2.1.245-modern-stdio-readiness-2026-08-25.json)
@@ -562,10 +595,10 @@ or release is claimed.
   MCP `2026-07-28` `server/discover` probe and a separate successful `tools/list`
   session. Independent replay accepted both, all provider, egress, pending-request,
   anomaly, error and stderr counters were zero, and no observer or fixture remained.
-  This is transport readiness only: capability, exact-five operations and
-  remote-HTTP evidence remain incomplete. The raw capture and client output remain
-  owner-only and local, while the 2.1.241 schema and result remain byte-exact
-  historical lineage;
+  This readiness record by itself does not establish capability or exact-five; the
+  later projection above does. Remote-HTTP evidence remains incomplete. The raw
+  capture and client output remain owner-only and local, while the 2.1.241 schema
+  and result remain byte-exact historical lineage;
 
 - Claude Code `2.1.241` strict-modern STDIO readiness: the
   [path-free source-bound summary](tests/interoperability/evidence/claude-code-2.1.241-modern-stdio-readiness-2026-08-25.json)
@@ -575,9 +608,9 @@ or release is claimed.
   `2026-07-28` `server/discover` probe and a separate successful `tools/list`
   session. Independent offline replay accepted both sessions with zero provider
   calls, pending requests, anomalies or stderr, and read-only process checks found
-  no retained observer or fixture. This is transport readiness only: capability,
-  exact-five operations and remote-HTTP evidence remain incomplete. Raw captures
-  remain owner-only and local;
+  no retained observer or fixture. That 2.1.241 observation itself establishes
+  transport readiness only, not capability or exact-five; remote-HTTP evidence
+  remains incomplete. Raw captures remain owner-only and local;
 
 - Claude Code `2.1.241` historical default-negotiation observation: the
   [additive source-bound summary](tests/interoperability/evidence/claude-code-2.1.241-stdio-observation-2026-08-24.json)

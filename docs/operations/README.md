@@ -16,8 +16,11 @@ event. Its deterministic, non-live and unscored `QUAL-206-HOST-015` case passes
 locally. The repository-only QUAL-206 preflight is accepted on protected `main`, but
 its evaluation receipts remain non-live, unscored and incomplete for release. A
 separate protected-main projection proves the exact-five journey over one real IPv4
-loopback listener only; remote-host acceptance is false and capability remains
-unscored.
+loopback listener only; that HTTP result remains capability-unscored and remote-host
+acceptance is false. A later protected-main Claude Code projection separately
+passes all five ordered calls over local MCP `2026-07-28` STDIO. It closes local
+STDIO model capability only; remote HTTP, live-provider and production gates remain
+open.
 Default capability lists remain empty, activation and publication remain blocked,
 and no public MCP service or API is deployed.
 

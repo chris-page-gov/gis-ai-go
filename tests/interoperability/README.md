@@ -17,6 +17,9 @@ described in the
 [local HTTP transport preflight runbook](../../docs/operations/QUAL-206_LOCAL_HTTP_TRANSPORT_PREFLIGHT.md).
 The resulting classification remains local, non-live and capability-unscored;
 remote-host acceptance is false.
+The separate accepted Claude Code exact-five projection closes local STDIO model
+capability only; it does not upgrade this HTTP result or close remote-host
+acceptance.
 The normal gateway suite also routes the owner-only capture and independent
 verifier regressions, including safe Git object resolution, atomic public-output
 finalisation and process-group cleanup for a timed-out nested runner.
@@ -145,6 +148,21 @@ It records one model-mediated canonical `catalogue.search` call through MCP
 interoperability, a live geospatial provider, registry publication, activation,
 deployment or release. See the
 [capability runbook](../../docs/operations/QUAL-206_CLAUDE_CAPABILITY.md).
+
+The later verifier-produced
+[Claude Code 2.1.245 exact-five projection](evidence/claude-code-2.1.245-exact-five-capability-2026-08-27.json)
+binds exact protected-main commit
+`029a9d5c7efcafcd45941194394384ee6c578fe9`, tree
+`96f75d96b1e0680465494834ddad8661539cbd62`, with SHA-256
+`06311b896963503bd7f6f88d32d34edfda52afb49b3d9e5b6c05eaed3230f0a6`.
+Claude Code `2.1.245`, reporting model `claude-sonnet-5`, made the five ordered
+MCP `2026-07-28` calls over local STDIO at reported turn 7. Independent verification
+accepted every output contract, five distinct receipts, structured/plain-text
+parity and the search-to-inspection relationship. The deterministic fixture made
+one synthetic provider transport call and zero guarded live-provider API
+invocations. Raw capture remains owner-only and local. This closes local STDIO
+exact-five model capability only; remote HTTP, live-provider use, registry publication,
+activation, deployment and release remain false.
 
 See the [QUAL-206 interoperability runbook](../../docs/operations/QUAL-206_INTEROPERABILITY.md)
 for repeatable ChatGPT secure-tunnel and independent-host procedures.

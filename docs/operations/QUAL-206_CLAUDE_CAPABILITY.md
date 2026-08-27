@@ -29,10 +29,12 @@ Claude Code `2.1.245`, reporting model `claude-sonnet-5`, completed MCP
 `catalogue.search` call and a valid independently checked receipt. The accepted
 projection records a two-agentic-turn CLI ceiling and exact final host
 `num_turns: 3`; the counters are not interchangeable. This is one bounded
-capability pass only. Exact-five model capability, remote HTTP interoperability,
-live geospatial-provider use, registry publication, activation, deployment and
-release remain explicitly false and open. The raw observation remains local and
-owner-only.
+capability pass only. That projection itself keeps exact-five model capability,
+remote HTTP interoperability, live geospatial-provider use, registry publication,
+activation, deployment and release explicitly false. A separate later
+[exact-five projection](../../tests/interoperability/evidence/claude-code-2.1.245-exact-five-capability-2026-08-27.json)
+closes local STDIO exact-five model capability only; all the other boundaries
+remain false and open. The raw observation remains local and owner-only.
 
 ## Closed observation boundary
 

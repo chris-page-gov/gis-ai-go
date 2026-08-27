@@ -99,6 +99,26 @@ interoperability, live geospatial-provider use, registry publication, activation
 deployment and release false. Raw Claude and MCP capture remains owner-only and
 local.
 
+The later
+[`Claude Code 2.1.245 exact-five capability projection`](claude-code-2.1.245-exact-five-capability-2026-08-27.json)
+is a fresh verifier-produced pass from exact protected-main commit
+`029a9d5c7efcafcd45941194394384ee6c578fe9`, tree
+`96f75d96b1e0680465494834ddad8661539cbd62`, with projection SHA-256
+`06311b896963503bd7f6f88d32d34edfda52afb49b3d9e5b6c05eaed3230f0a6`.
+Every exact-main CI job passed in
+[run 33114396425](https://github.com/chris-page-gov/gis-ai-go/actions/runs/33114396425),
+and every analysis passed in
+[CodeQL run 33114396546](https://github.com/chris-page-gov/gis-ai-go/actions/runs/33114396546).
+Claude Code `2.1.245`, reporting model `claude-sonnet-5`, completed the five ordered
+MCP `2026-07-28` calls over local STDIO. The verifier accepted all five distinct
+receipts, every result contract, structured/plain-text parity, the inspection
+relationship and the documented `tool_use` plus `completed` terminal form at
+reported turn 7. The deterministic fixture made one synthetic provider transport
+call and zero guarded live-provider API invocations. This closes local STDIO
+exact-five model capability only. Remote HTTP interoperability, a live geospatial
+provider, registry publication, activation, deployment and release remain false.
+Raw capture remains owner-only and local.
+
 The
 [`protected-main local HTTP transport preflight`](local-http-transport-preflight-2026-08-25.json)
 is a separate path-free projection from exact protected-main commit
