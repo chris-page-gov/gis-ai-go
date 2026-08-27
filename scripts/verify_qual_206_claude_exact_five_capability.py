@@ -1095,8 +1095,17 @@ def verify_output(
         or execution["maximum_turns"] != MAXIMUM_AGENTIC_TURNS
     ):
         fail("Claude CLI reported turns fall outside the bounded turn semantics")
-    if output.get("stop_reason") != "end_turn":
-        fail("Claude final output did not end with an end_turn terminal state")
+    stop_reason = output.get("stop_reason")
+    terminal_reason = output.get("terminal_reason")
+    if terminal_reason != "completed":
+        fail("Claude final output did not report a completed terminal reason")
+    if stop_reason not in {"end_turn", "tool_use"}:
+        fail(
+            "Claude final output did not use an accepted end_turn or tool_use "
+            "stop reason"
+        )
+    if "deferred_tool_use" in output:
+        fail("Claude final output retained deferred tool use")
     if (
         output.get("type") != "result"
         or output.get("is_error") is not False
@@ -1124,6 +1133,8 @@ def verify_output(
         "input_tokens": sum(bounded_aggregate[:3]),
         "output_tokens": bounded_aggregate[3],
         "claude_cli_reported_turns": num_turns,
+        "claude_cli_stop_reason": stop_reason,
+        "claude_cli_terminal_reason": terminal_reason,
         "agentic_turn_limit": execution["maximum_turns"],
         "turn_count_semantics": TURN_COUNT_SEMANTICS,
     }

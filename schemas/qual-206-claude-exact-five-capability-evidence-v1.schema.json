@@ -142,8 +142,9 @@
         "operation_receipts", "inspection_relationship",
         "independent_result_verification", "model_output_match", "model_reported",
         "model_usage_observed", "input_tokens", "output_tokens",
-        "claude_cli_reported_turns", "agentic_turn_limit", "turn_count_semantics",
-        "client_exit_code"
+        "claude_cli_reported_turns", "claude_cli_stop_reason",
+        "claude_cli_terminal_reason", "agentic_turn_limit",
+        "turn_count_semantics", "client_exit_code"
       ],
       "properties": {
         "classification": {"const": "capability_pass"},
@@ -185,6 +186,8 @@
         "claude_cli_reported_turns": {
           "type": "integer", "minimum": 3, "maximum": 11
         },
+        "claude_cli_stop_reason": {"enum": ["end_turn", "tool_use"]},
+        "claude_cli_terminal_reason": {"const": "completed"},
         "agentic_turn_limit": {"const": 10},
         "turn_count_semantics": {
           "const": "claude-code-2.1.245-cli-configured-max-turns-ten-reported-num-turns-at-most-eleven"
