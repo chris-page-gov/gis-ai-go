@@ -571,6 +571,27 @@ def verify_event_log(
         for response in responses
     ):
         fail(f"{slot} contains an invalid or uncorrelated response")
+    requests_by_digest = {
+        request["request_id_sha256"]: request for request in requests
+    }
+    presented_fields = {
+        "presented_direction",
+        "presented_frame_bytes",
+        "presented_frame_sha256",
+        "presented_result_sha256",
+    }
+    for response in responses:
+        request = requests_by_digest.get(response["request_id_sha256"])
+        has_presented_fields = bool(set(response) & presented_fields)
+        if request is not None and request["method"] == "tools/list":
+            if (
+                not presented_fields <= set(response)
+                or response["presented_direction"] != "observer-to-host"
+                or response["presented_frame_sha256"] == response["frame_sha256"]
+            ):
+                fail(f"{slot} does not bind its host-facing tools projection")
+        elif has_presented_fields:
+            fail(f"{slot} projects a response other than tools/list")
     audits = [event for event in events if event["event"] == "audit"]
     audit_kinds = [event["audit_kind"] for event in audits]
     no_operation_audits = [
@@ -669,6 +690,8 @@ def independently_verify_results(
         "discovery_count",
         "tools_list_count",
         "resources_advertised",
+        "tool_schema_projection",
+        "presented_tools_result_sha256",
         "operation_order",
         "operations",
         "inspection_relationship",
@@ -782,6 +805,7 @@ def verify_sessions(
             expected_parent_sha256=run_manifest["host"]["executable_sha256"],
             expected_parent_bytes=run_manifest["host"]["executable_bytes"],
             exact_five_capability=bool(summary.get("operations")),
+            allow_presented_tools_projection=True,
         )
         event_manifest = strict_object(
             manifest_raw,
@@ -817,7 +841,7 @@ def verify_sessions(
         ):
             fail(f"{slot} has inconsistent run or session identity")
         seen_session_ids.add(summary["session_id"])
-        _events, methods, operations, audit = verify_event_log(
+        events, methods, operations, audit = verify_event_log(
             event_raw,
             event_manifest,
             slot=slot,
@@ -832,11 +856,33 @@ def verify_sessions(
             result_raw,
             node_path=run_manifest["runtime_binding"]["node_runtime"]["path"],
         )
+        presented_responses = [
+            event
+            for event in events
+            if event["event"] == "response" and "presented_result_sha256" in event
+        ]
+        presented_result_sha256 = independently_verified[
+            "presented_tools_result_sha256"
+        ]
+        if (
+            (independently_verified["tools_list_count"] == 0 and (
+                presented_responses or presented_result_sha256 is not None
+            ))
+            or (independently_verified["tools_list_count"] == 1 and (
+                len(presented_responses) != 1
+                or presented_result_sha256 is None
+                or presented_responses[0]["presented_result_sha256"]
+                != presented_result_sha256
+            ))
+        ):
+            fail(f"{slot} event trace does not bind the independently verified projection")
         if (
             independently_verified["run_id"] != run_manifest["run_id"]
             or independently_verified["session_id"] != summary["session_id"]
             or independently_verified["profile"] != PROFILE_ID
             or independently_verified["resources_advertised"] != 0
+            or independently_verified["tool_schema_projection"]
+            != summary["tool_schema_projection"]
         ):
             fail(f"{slot} independent listing and result context is invalid")
         protocol_facts.update(
@@ -870,6 +916,9 @@ def verify_sessions(
         or independent["session_id"] != call["session_id"]
         or independent["profile"] != PROFILE_ID
         or independent["operation_order"] != list(OPERATIONS)
+        or independent["tool_schema_projection"] is None
+        or independent["tool_schema_projection"]["canonical_tools_sha256"]
+        == independent["tool_schema_projection"]["presented_tools_sha256"]
     ):
         fail("the exact-five claim or independent result context is invalid")
     operation_summaries = call["operations"]
@@ -1198,6 +1247,7 @@ def verify_and_project(
             "guarded_provider_api_invocations": audit[
                 "guarded_provider_api_invocations"
             ],
+            "tool_schema_projection": independent["tool_schema_projection"],
         },
         "result": {
             "classification": "capability_pass",

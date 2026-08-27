@@ -33,6 +33,8 @@ import { parseStrictJson } from
 import { PUBLIC_ONS_DATA_QUERY_PARAMETERS } from
   "../apps/mcp-gateway/dist/src/data-query-application.js";
 import { gatewayMetadata } from "../apps/mcp-gateway/dist/src/metadata.js";
+import { evidenceInspectRequestV1JsonSchema } from
+  "../apps/mcp-gateway/dist/src/openapi.js";
 import {
   MCP_CATALOGUE_INPUT_SCHEMAS,
   MCP_CATALOGUE_OUTPUT_SCHEMAS,
@@ -93,6 +95,11 @@ const TOOL_SCHEMA_DIGEST_MANIFEST_SCHEMA =
   "gis-ai-go.qual-206-exact-five-tool-schema-digests.v1";
 const TOOL_SCHEMA_DIGEST_ALGORITHM = "sha256";
 const TOOL_SCHEMA_DIGEST_DOMAIN = "gis-ai-go.qual-206-exact-five-tool-schema.v1";
+const CLAUDE_TOOL_PROJECTION_SCHEMA =
+  "gis-ai-go.qual-206-claude-exact-five-tool-projection.v1";
+const CLAUDE_TOOL_PROJECTION_ID = "evidence-inspect-receipt-id-v1";
+const CLAUDE_TOOL_SET_DIGEST_DOMAIN =
+  "gis-ai-go.qual-206-claude-exact-five-presented-tools.v1";
 const EXACT_OPERATIONS = Object.freeze([
   "catalogue.search",
   "catalogue.describe",
@@ -136,6 +143,14 @@ const EXPECTED_TOOL_SCHEMAS = Object.freeze({
     inputSchema: expectedAdvertisedInputSchema(
       MCP_EVIDENCE_INPUT_SCHEMAS["evidence.inspect"],
     ),
+    outputSchema: MCP_EVIDENCE_OUTPUT_SCHEMAS["evidence.inspect"],
+  }),
+});
+
+const EXPECTED_CLAUDE_PROJECTED_TOOL_SCHEMAS = Object.freeze({
+  ...EXPECTED_TOOL_SCHEMAS,
+  "evidence.inspect": Object.freeze({
+    inputSchema: evidenceInspectRequestV1JsonSchema,
     outputSchema: MCP_EVIDENCE_OUTPUT_SCHEMAS["evidence.inspect"],
   }),
 });
@@ -658,6 +673,90 @@ export function advertisedToolSchemasExact(tools) {
       plainRecord(tool.outputSchema) &&
       canonicalJson(tool.inputSchema) === canonicalJson(expected.inputSchema) &&
       canonicalJson(tool.outputSchema) === canonicalJson(expected.outputSchema);
+  });
+}
+
+export function claudeProjectedToolSchemasExact(tools) {
+  if (!Array.isArray(tools)) return false;
+  if (!exactUniqueSet(tools.map((tool) => tool?.name), EXACT_OPERATIONS)) {
+    return false;
+  }
+  return tools.every((tool) => {
+    if (!plainRecord(tool)) return false;
+    const expected = EXPECTED_CLAUDE_PROJECTED_TOOL_SCHEMAS[tool.name];
+    return expected !== undefined &&
+      plainRecord(tool.inputSchema) &&
+      plainRecord(tool.outputSchema) &&
+      canonicalJson(tool.inputSchema) === canonicalJson(expected.inputSchema) &&
+      canonicalJson(tool.outputSchema) === canonicalJson(expected.outputSchema);
+  });
+}
+
+function claudeToolSetDigest(tools) {
+  return domainSeparatedSha256(CLAUDE_TOOL_SET_DIGEST_DOMAIN, tools);
+}
+
+export function projectClaudeExactFiveTools(tools) {
+  if (!advertisedToolSchemasExact(tools)) {
+    fail("Claude exact-five projection requires the unchanged canonical five tools");
+  }
+  const canonicalBefore = canonicalJson(tools);
+  const projectedTools = tools.map((tool) => {
+    const clone = parseStrictJson(canonicalJson(tool));
+    return tool.name === "evidence.inspect"
+      ? {
+          ...clone,
+          inputSchema: parseStrictJson(canonicalJson(evidenceInspectRequestV1JsonSchema)),
+        }
+      : clone;
+  });
+  if (canonicalJson(tools) !== canonicalBefore) {
+    fail("Claude exact-five projection mutated the canonical tool listing");
+  }
+  if (!claudeProjectedToolSchemasExact(projectedTools)) {
+    fail("Claude exact-five projection did not produce the closed v1 tool listing");
+  }
+  const changedOperations = EXACT_OPERATIONS.filter((operation) => {
+    const canonical = tools.find((tool) => tool.name === operation);
+    const presented = projectedTools.find((tool) => tool.name === operation);
+    return canonicalJson(canonical) !== canonicalJson(presented);
+  });
+  const canonicalEvidence = tools.find((tool) => tool.name === "evidence.inspect");
+  const projectedEvidence = projectedTools.find(
+    (tool) => tool.name === "evidence.inspect",
+  );
+  const {
+    inputSchema: _canonicalInputSchema,
+    ...canonicalEvidenceSurface
+  } = canonicalEvidence;
+  const {
+    inputSchema: _projectedInputSchema,
+    ...projectedEvidenceSurface
+  } = projectedEvidence;
+  if (
+    canonicalJson(changedOperations) !== canonicalJson(["evidence.inspect"]) ||
+    canonicalJson(canonicalEvidenceSurface) !== canonicalJson(projectedEvidenceSurface)
+  ) {
+    fail("Claude exact-five projection changed more than the v1 evidence input schema");
+  }
+  const binding = Object.freeze({
+    schema: CLAUDE_TOOL_PROJECTION_SCHEMA,
+    profile: "exact-five-v1",
+    projection_id: CLAUDE_TOOL_PROJECTION_ID,
+    source_operation: "evidence.inspect",
+    canonical_contract:
+      "urn:gis-ai-go:schema:evidence-inspect-operation-request:v1",
+    presented_contract: "urn:gis-ai-go:schema:evidence-inspect-request:v1",
+    changed_operations: Object.freeze(["evidence.inspect"]),
+    canonical_tools_sha256: claudeToolSetDigest(tools),
+    presented_tools_sha256: claudeToolSetDigest(projectedTools),
+  });
+  if (binding.canonical_tools_sha256 === binding.presented_tools_sha256) {
+    fail("Claude exact-five projection did not change the presented schema digest");
+  }
+  return Object.freeze({
+    tools: Object.freeze(projectedTools),
+    binding,
   });
 }
 

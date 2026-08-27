@@ -990,6 +990,64 @@ class ClaudeCapabilityContractsTest(unittest.TestCase):
             self.assertTrue(projection["result"]["model_usage_observed"])
             self.assertEqual(projection["transport"]["tool_call_count"], 1)
             self.assertFalse(projection["claims"]["deployment"])
+
+            session = next(
+                path
+                for path in sorted((root / "observer").glob("session-*"))
+                if '"request_method":"tools/list"'
+                in (path / "events.jsonl").read_text(encoding="utf-8")
+            )
+            event_path = session / "events.jsonl"
+            manifest_path = session / "manifest.json"
+            original_events = event_path.read_bytes()
+            original_manifest = manifest_path.read_bytes()
+            try:
+                events = [
+                    json.loads(line)
+                    for line in original_events.decode("utf-8").splitlines()
+                ]
+                response = next(
+                    event
+                    for event in events
+                    if event["event"] == "response"
+                    and event["request_method"] == "tools/list"
+                )
+                response.update(
+                    {
+                        "presented_direction": "observer-to-host",
+                        "presented_frame_bytes": response["frame_bytes"] + 1,
+                        "presented_frame_sha256": "1" * 64,
+                        "presented_result_sha256": "2" * 64,
+                    }
+                )
+                event_path.write_bytes(
+                    b"".join(verifier.canonical_line(event) for event in events)
+                )
+                os.chmod(event_path, 0o600)
+                rebind_fake_event_capture(root)
+                with self.assertRaisesRegex(
+                    (verifier.CapabilityVerificationError, verifier.composite.VerificationError),
+                    "exact closed projection",
+                ):
+                    verifier.verify_and_project(
+                        root,
+                        source_verifier=test_source_boundary,
+                        private_validator=fake_host_validator(
+                            PRIVATE_SCHEMA_PATH,
+                            executable_bytes=executable_bytes,
+                            executable_sha256=executable_sha256,
+                        ),
+                        public_validator=fake_host_validator(
+                            PUBLIC_SCHEMA_PATH,
+                            executable_bytes=executable_bytes,
+                            executable_sha256=executable_sha256,
+                        ),
+                    )
+            finally:
+                event_path.write_bytes(original_events)
+                manifest_path.write_bytes(original_manifest)
+                os.chmod(event_path, 0o600)
+                os.chmod(manifest_path, 0o600)
         after = sorted((ROOT / "tests/interoperability/evidence").iterdir())
         self.assertEqual(after, before)
 

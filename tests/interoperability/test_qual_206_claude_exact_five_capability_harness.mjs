@@ -218,6 +218,52 @@ macRuntimeTest("fake Claude completes the closed exact-five-v1 journey", async (
   ));
   assert.equal(summary.inspection_relationship.valid, true);
   assert.equal(
+    summary.tool_schema_projection.schema,
+    "gis-ai-go.qual-206-claude-exact-five-tool-projection.v1",
+  );
+  assert.deepEqual(
+    summary.tool_schema_projection.changed_operations,
+    ["evidence.inspect"],
+  );
+  assert.notEqual(
+    summary.tool_schema_projection.canonical_tools_sha256,
+    summary.tool_schema_projection.presented_tools_sha256,
+  );
+  const resultMaterial = JSON.parse(readFileSync(
+    join(root, "observer", "session-1", "exact-five-results.json"),
+    "utf8",
+  ));
+  assert.deepEqual(
+    resultMaterial.tool_schema_projection,
+    summary.tool_schema_projection,
+  );
+  const canonicalEvidenceInput = resultMaterial.results.find(
+    ({ method }) => method === "tools/list",
+  ).result.tools.find(({ name }) => name === "evidence.inspect").inputSchema;
+  assert.equal(Array.isArray(canonicalEvidenceInput.oneOf), true);
+  assert.equal(typeof canonicalEvidenceInput.$defs, "object");
+  assert.equal(Object.hasOwn(canonicalEvidenceInput, "properties"), false);
+  const presentedEvidenceInput = resultMaterial.presented_tools_result.tools.find(
+    ({ name }) => name === "evidence.inspect",
+  ).inputSchema;
+  assert.deepEqual(presentedEvidenceInput.required, ["receipt_id"]);
+  assert.equal(presentedEvidenceInput.additionalProperties, false);
+  assert.equal(Object.hasOwn(presentedEvidenceInput, "oneOf"), false);
+  assert.equal(Object.hasOwn(presentedEvidenceInput, "$defs"), false);
+  const events = readFileSync(
+    join(root, "observer", "session-1", "events.jsonl"),
+    "utf8",
+  ).trim().split("\n").map((line) => JSON.parse(line));
+  const presentedResponse = events.find(({ event, request_method: method }) =>
+    event === "response" && method === "tools/list"
+  );
+  assert.equal(presentedResponse.presented_direction, "observer-to-host");
+  assert.notEqual(
+    presentedResponse.presented_frame_sha256,
+    presentedResponse.frame_sha256,
+  );
+  assert.match(presentedResponse.presented_result_sha256, /^[0-9a-f]{64}$/u);
+  assert.equal(
     summary.inspection_relationship.inspected_receipt_id,
     summary.inspection_relationship.search_receipt_id,
   );
@@ -318,10 +364,12 @@ macRuntimeTest(
       "utf8",
     ));
     assert.deepEqual(first.results.map(({ method }) => method), ["server/discover"]);
+    assert.equal(first.tool_schema_projection, null);
     assert.deepEqual(second.results.map(({ method }) => method), [
       "tools/list",
       ...OPERATIONS.map(() => "tools/call"),
     ]);
+    assert.notEqual(second.tool_schema_projection, null);
   },
 );
 

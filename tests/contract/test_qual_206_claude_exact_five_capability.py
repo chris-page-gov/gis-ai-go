@@ -341,6 +341,14 @@ class ClaudeExactFiveCapabilityContractsTest(unittest.TestCase):
             self.assertEqual(
                 projection["transport"]["guarded_provider_api_invocations"], 0
             )
+            schema_projection = projection["transport"]["tool_schema_projection"]
+            self.assertEqual(
+                schema_projection["changed_operations"], ["evidence.inspect"]
+            )
+            self.assertNotEqual(
+                schema_projection["canonical_tools_sha256"],
+                schema_projection["presented_tools_sha256"],
+            )
             self.assertEqual(projection["result"]["claude_cli_reported_turns"], 11)
             self.assertEqual(projection["result"]["agentic_turn_limit"], 10)
             receipts = [
@@ -395,6 +403,16 @@ class ClaudeExactFiveCapabilityContractsTest(unittest.TestCase):
             for entries, discoveries, listings, calls in split_results:
                 split = {
                     **complete_material,
+                    "tool_schema_projection": (
+                        complete_material["tool_schema_projection"]
+                        if listings
+                        else None
+                    ),
+                    "presented_tools_result": (
+                        complete_material["presented_tools_result"]
+                        if listings
+                        else None
+                    ),
                     "results": [
                         {**entry, "ordinal": ordinal}
                         for ordinal, entry in enumerate(entries)
@@ -443,6 +461,25 @@ class ClaudeExactFiveCapabilityContractsTest(unittest.TestCase):
             extra_method = copy.deepcopy(complete_material)
             extra_method["results"][0]["method"] = "resources/list"
             independent_mutations.append(("extra allowed method", extra_method))
+            changed_projection_digest = copy.deepcopy(complete_material)
+            changed_projection_digest["tool_schema_projection"][
+                "presented_tools_sha256"
+            ] = "0" * 64
+            independent_mutations.append(
+                ("presented tool projection digest", changed_projection_digest)
+            )
+            changed_presented_result = copy.deepcopy(complete_material)
+            presented_evidence = next(
+                tool
+                for tool in changed_presented_result["presented_tools_result"]["tools"]
+                if tool["name"] == "evidence.inspect"
+            )
+            presented_evidence["inputSchema"]["properties"]["receipt_id"][
+                "type"
+            ] = "number"
+            independent_mutations.append(
+                ("host-facing presented tool result", changed_presented_result)
+            )
             for label, changed in independent_mutations:
                 with self.subTest(independent_result_mutation=label):
                     with self.assertRaisesRegex(
@@ -515,6 +552,43 @@ class ClaudeExactFiveCapabilityContractsTest(unittest.TestCase):
                 summary_path.write_bytes(original_summary)
                 os.chmod(result_path, 0o600)
                 os.chmod(summary_path, 0o600)
+
+            event_path = capture / "observer/session-1/events.jsonl"
+            event_manifest_path = capture / "observer/session-1/manifest.json"
+            original_events = event_path.read_bytes()
+            original_event_manifest = event_manifest_path.read_bytes()
+            try:
+                events = [
+                    json.loads(line)
+                    for line in original_events.decode("utf-8").splitlines()
+                ]
+                presented = next(
+                    event
+                    for event in events
+                    if event["event"] == "response"
+                    and event["request_method"] == "tools/list"
+                )
+                presented["presented_result_sha256"] = "0" * 64
+                event_path.write_bytes(
+                    b"".join(verifier.canonical_line(event) for event in events)
+                )
+                os.chmod(event_path, 0o600)
+                rebind_fake_event_capture(capture)
+                with self.assertRaisesRegex(
+                    verifier.ExactFiveCapabilityVerificationError,
+                    "event trace does not bind the independently verified projection",
+                ):
+                    verifier.verify_and_project(
+                        capture,
+                        source_verifier=fake_source_boundary,
+                        private_validator=private_check,
+                        public_validator=public_check,
+                    )
+            finally:
+                event_path.write_bytes(original_events)
+                event_manifest_path.write_bytes(original_event_manifest)
+                os.chmod(event_path, 0o600)
+                os.chmod(event_manifest_path, 0o600)
 
             original_summary = summary_path.read_bytes()
             try:

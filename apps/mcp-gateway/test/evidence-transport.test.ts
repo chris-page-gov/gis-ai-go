@@ -47,6 +47,7 @@ import { startCatalogueStdio } from "../src/mcp-stdio.js";
 import {
   EVIDENCE_OPERATION_JSON_SCHEMAS,
   createCatalogueOpenApiDocument,
+  evidenceInspectRequestV1JsonSchema,
 } from "../src/openapi.js";
 
 const SOURCE_CATALOGUE = fileURLToPath(
@@ -413,6 +414,13 @@ test("publishes self-contained exact evidence schemas only on the explicit route
     MCP_EVIDENCE_OUTPUT_SCHEMAS["evidence.inspect"],
     EVIDENCE_OPERATION_JSON_SCHEMAS["evidence.inspect"].outputSchema,
   );
+  assert.equal(Object.isFrozen(evidenceInspectRequestV1JsonSchema), true);
+  assert.equal(
+    evidenceInspectRequestV1JsonSchema.$id,
+    "urn:gis-ai-go:schema:evidence-inspect-request:v1",
+  );
+  assert.deepEqual(evidenceInspectRequestV1JsonSchema.required, ["receipt_id"]);
+  assert.equal(Object.hasOwn(evidenceInspectRequestV1JsonSchema, "oneOf"), false);
   const serialised = JSON.stringify(
     EVIDENCE_OPERATION_JSON_SCHEMAS["evidence.inspect"].outputSchema,
   );

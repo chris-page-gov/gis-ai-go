@@ -343,7 +343,7 @@
       }
     },
     {
-      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:9c45e75ae9d53dc7a3245ad2124f98ec5c67c3ba6012811d739fc076740b4ce3",
+      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:a93d182a65d4463fb4433e750e02bb5c5425ac7e037c741102810af8a0175a05",
       "label": "public-read-transport",
       "command": [
         "node",
@@ -389,7 +389,7 @@
         },
         {
           "path": "apps/mcp-gateway/src/openapi.ts",
-          "sha256": "a994730b80bb5043eb1ce8d4904a4c90a95ce6feef6c5f65a0013bde781ddcd9"
+          "sha256": "eea0d791f776316ffa837cc90cdf10b0a585594ee2e14b0e4a2a029e40307204"
         },
         {
           "path": "apps/mcp-gateway/src/problem.ts",
@@ -423,7 +423,7 @@
       }
     },
     {
-      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:2dc50f9f184e38ee09764b5402afb5359ad265dc9be27b57140641c335a32202",
+      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:9d532668c50a1f402c7f770dca6d94e94c50374175a4ea5bb3c912b9351b41cc",
       "label": "http-application",
       "command": [
         "node",
@@ -452,7 +452,7 @@
         },
         {
           "path": "apps/mcp-gateway/src/openapi.ts",
-          "sha256": "a994730b80bb5043eb1ce8d4904a4c90a95ce6feef6c5f65a0013bde781ddcd9"
+          "sha256": "eea0d791f776316ffa837cc90cdf10b0a585594ee2e14b0e4a2a029e40307204"
         },
         {
           "path": "apps/mcp-gateway/test/http-app.test.ts",
@@ -567,7 +567,7 @@
       }
     },
     {
-      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:a0a16726af51f225fa5096d59bc2cebd15723aa745c17f8cefb9e907e451a2d6",
+      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:7ee6664ff4d564389305c706bf8a6562fe66e85e6ffe9102e85d9330c2f6a8d2",
       "label": "governed-candidate-assembly",
       "command": [
         "node",
@@ -627,7 +627,7 @@
         },
         {
           "path": "apps/mcp-gateway/src/openapi.ts",
-          "sha256": "a994730b80bb5043eb1ce8d4904a4c90a95ce6feef6c5f65a0013bde781ddcd9"
+          "sha256": "eea0d791f776316ffa837cc90cdf10b0a585594ee2e14b0e4a2a029e40307204"
         },
         {
           "path": "apps/mcp-gateway/src/readiness-integrity.ts",
@@ -1007,7 +1007,7 @@
   ],
   "receipts": [
     {
-      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:eb71c37f7ed06c30b4ffc1236523fe7a55f4b5c2fbb3d6b69948f12dfc273048",
+      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:6ee365b06f1b86ae5fd9c0e1dfea7948d81ab5d67861e282388332086cd8ae68",
       "case": {
         "id": "E01",
         "title": "Anonymous discovery of open boundaries and statistics",
@@ -1024,7 +1024,7 @@
         "gis-ai-go:qual-206-local-suite-evidence:sha256:abc1e780398ca4a1dfcddd3b07e0e8b1cd1be4a48f8e8c7b11fbe9e8bd5bb5f4",
         "gis-ai-go:qual-206-local-suite-evidence:sha256:67deccaa73e4c1800bf19842230aec3cbd4ebf2370d295bf970b08c9008267cf",
         "gis-ai-go:qual-206-local-suite-evidence:sha256:dd2fd84f094f138136cefefa163fb0e8cc07e5ef040fc1976696a5a60ce3716c",
-        "gis-ai-go:qual-206-local-suite-evidence:sha256:9c45e75ae9d53dc7a3245ad2124f98ec5c67c3ba6012811d739fc076740b4ce3"
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:a93d182a65d4463fb4433e750e02bb5c5425ac7e037c741102810af8a0175a05"
       ],
       "local_assertions": [
         {
@@ -1128,7 +1128,7 @@
       "boundary": "Repository-only deterministic evidence. It is non-live and unscored, does not complete the research case, and does not authorise activation, deployment, registration or release."
     },
     {
-      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:77abd1822d125218619b7c8b23f3e281d779e84707aa455f037aef7bf2b5d263",
+      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:d51f23ebd52ea526370708d695cdf84e72decc547a7ac1423b4e059ab82256ea",
       "case": {
         "id": "E13",
         "title": "Host without Apps receives complete non-visual result",
@@ -1141,10 +1141,10 @@
         "case_complete": false
       },
       "evidence_suite_ids": [
-        "gis-ai-go:qual-206-local-suite-evidence:sha256:9c45e75ae9d53dc7a3245ad2124f98ec5c67c3ba6012811d739fc076740b4ce3",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:a93d182a65d4463fb4433e750e02bb5c5425ac7e037c741102810af8a0175a05",
         "gis-ai-go:qual-206-local-suite-evidence:sha256:947f99dc098a44cef96cc5e3e4d58ddcdf9c85d3129f9ada7f554531e01f6360",
         "gis-ai-go:qual-206-local-suite-evidence:sha256:c4a8318e7d357eefdca763442098cf736430cc23afc0af638c3f7ef2fabee47c",
-        "gis-ai-go:qual-206-local-suite-evidence:sha256:a0a16726af51f225fa5096d59bc2cebd15723aa745c17f8cefb9e907e451a2d6"
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:7ee6664ff4d564389305c706bf8a6562fe66e85e6ffe9102e85d9330c2f6a8d2"
       ],
       "local_assertions": [
         {
@@ -1170,7 +1170,7 @@
       "boundary": "Repository-only deterministic evidence. It is non-live and unscored, does not complete the research case, and does not authorise activation, deployment, registration or release."
     },
     {
-      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:fb6cfadb0c54a46ec7eafb5d658e3049a049f3e2f7ae5f6f351233e936e6601a",
+      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:30b17e95b6e6a3257af56de3cda06fe0f369ee42e8d5004ac59887365355b427",
       "case": {
         "id": "E15",
         "title": "WebMCP-incapable agent follows linked OKF/API",
@@ -1184,7 +1184,7 @@
       },
       "evidence_suite_ids": [
         "gis-ai-go:qual-206-local-suite-evidence:sha256:95c3a7a665a51e17b99701e77e20f4a01fe80cf2aaa2e64ba525f4af60ab749a",
-        "gis-ai-go:qual-206-local-suite-evidence:sha256:2dc50f9f184e38ee09764b5402afb5359ad265dc9be27b57140641c335a32202",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:9d532668c50a1f402c7f770dca6d94e94c50374175a4ea5bb3c912b9351b41cc",
         "gis-ai-go:qual-206-local-suite-evidence:sha256:e77747d71dca4dd3959cdc56f31efb36b963d9644bdd9e0b64658217f6e6f458"
       ],
       "local_assertions": [
@@ -1245,7 +1245,7 @@
       "boundary": "Repository-only deterministic evidence. It is non-live and unscored, does not complete the research case, and does not authorise activation, deployment, registration or release."
     },
     {
-      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:2a9b1bb43fea93370b2dd6e92ddc669ea1d5817bff9f68c1f888cc3ee0beaf9a",
+      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:146cfba65584c869cfdba55c71c1e4ef86c712084cf28181c0996273ac249201",
       "case": {
         "id": "E20",
         "title": "Emergency tool/provider suspension",
@@ -1263,11 +1263,11 @@
         "gis-ai-go:qual-206-local-suite-evidence:sha256:ae2dab10f753903ed8ec2f7d41c4899700314c54a60fef61bec58153902789a2",
         "gis-ai-go:qual-206-local-suite-evidence:sha256:cf3f70a8c7be0d0d520eaf4795dcf4b5298ddb099cd3fcc3e46fc118e9b7754c",
         "gis-ai-go:qual-206-local-suite-evidence:sha256:67deccaa73e4c1800bf19842230aec3cbd4ebf2370d295bf970b08c9008267cf",
-        "gis-ai-go:qual-206-local-suite-evidence:sha256:2dc50f9f184e38ee09764b5402afb5359ad265dc9be27b57140641c335a32202",
-        "gis-ai-go:qual-206-local-suite-evidence:sha256:9c45e75ae9d53dc7a3245ad2124f98ec5c67c3ba6012811d739fc076740b4ce3",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:9d532668c50a1f402c7f770dca6d94e94c50374175a4ea5bb3c912b9351b41cc",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:a93d182a65d4463fb4433e750e02bb5c5425ac7e037c741102810af8a0175a05",
         "gis-ai-go:qual-206-local-suite-evidence:sha256:05642d0fef2071a619a05519c248235d4cb50df4320bb60b5f40ac993284cf73",
         "gis-ai-go:qual-206-local-suite-evidence:sha256:d0ed19b248c94f6b36a71007b5d0c3e4df80732c53a006800442aa8fc045fb6c",
-        "gis-ai-go:qual-206-local-suite-evidence:sha256:a0a16726af51f225fa5096d59bc2cebd15723aa745c17f8cefb9e907e451a2d6"
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:7ee6664ff4d564389305c706bf8a6562fe66e85e6ffe9102e85d9330c2f6a8d2"
       ],
       "local_assertions": [
         {
@@ -1310,5 +1310,5 @@
     "complete_case_evaluation": false
   },
   "boundary": "Repository-only deterministic evidence. It is non-live and unscored, does not complete the research case, and does not authorise activation, deployment, registration or release.",
-  "set_id": "gis-ai-go:qual-206-local-evaluation-set:sha256:49dfd60c7eb6205d32efede4bfea3333d5e3a1c3979061166e18b228c6a4c63e"
+  "set_id": "gis-ai-go:qual-206-local-evaluation-set:sha256:37caed8beaaa09053fea739bacbbaeb8e5bdf56c1b8453417492d07d4ec5e9f5"
 }

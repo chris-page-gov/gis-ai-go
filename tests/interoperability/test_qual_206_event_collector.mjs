@@ -35,8 +35,10 @@ import {
   advertisedToolSchemasExact,
   BoundedLineTap,
   cacheableCompleteResultValid,
+  claudeProjectedToolSchemasExact,
   nextCapturedStderrBytes,
   parseArguments,
+  projectClaudeExactFiveTools,
   requestId,
   resourceContentContractValid,
   resourceFacts,
@@ -189,6 +191,154 @@ function result(reply) {
   assert.notEqual(reply.result, null);
   return reply.result;
 }
+
+function canonicalExactFiveTools() {
+  return EXACT_OPERATIONS.map((name) => ({
+    name,
+    description: `Canonical test contract for ${name}`,
+    inputSchema: structuredClone(EXPECTED_SCHEMAS[name].inputSchema),
+    outputSchema: structuredClone(EXPECTED_SCHEMAS[name].outputSchema),
+  }));
+}
+
+function schemaContainsKeyword(value, keyword) {
+  if (Array.isArray(value)) {
+    return value.some((item) => schemaContainsKeyword(item, keyword));
+  }
+  if (value === null || typeof value !== "object") return false;
+  return Object.entries(value).some(
+    ([key, item]) => key === keyword || schemaContainsKeyword(item, keyword),
+  );
+}
+
+function ordinaryJson(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+test(
+  "projects the canonical exact five into one deterministic closed Claude v1 view",
+  () => {
+    const canonical = canonicalExactFiveTools();
+    const canonicalBefore = structuredClone(canonical);
+
+    assert.equal(advertisedToolSchemasExact(canonical), true);
+    assert.equal(claudeProjectedToolSchemasExact(canonical), false);
+
+    const first = projectClaudeExactFiveTools(canonical);
+    const second = projectClaudeExactFiveTools(canonical);
+    assert.deepEqual(first, second);
+    assert.deepEqual(canonical, canonicalBefore);
+    assert.equal(first.tools.length, 5);
+    assert.deepEqual(
+      first.tools.map(({ name }) => name),
+      EXACT_OPERATIONS,
+    );
+    assert.deepEqual(first.binding.changed_operations, ["evidence.inspect"]);
+
+    for (const canonicalTool of canonical) {
+      const projectedTool = first.tools.find(
+        ({ name }) => name === canonicalTool.name,
+      );
+      assert.notEqual(projectedTool, undefined);
+      if (canonicalTool.name !== "evidence.inspect") {
+        assert.deepEqual(ordinaryJson(projectedTool), canonicalTool);
+        continue;
+      }
+      const {
+        inputSchema: canonicalInputSchema,
+        ...canonicalSurface
+      } = canonicalTool;
+      const {
+        inputSchema: projectedInputSchema,
+        ...projectedSurface
+      } = projectedTool;
+      assert.deepEqual(ordinaryJson(projectedSurface), canonicalSurface);
+      assert.notDeepEqual(projectedInputSchema, canonicalInputSchema);
+      assert.equal(projectedInputSchema.type, "object");
+      assert.equal(projectedInputSchema.additionalProperties, false);
+      assert.deepEqual(projectedInputSchema.required, ["receipt_id"]);
+      assert.deepEqual(Object.keys(projectedInputSchema.properties), ["receipt_id"]);
+      assert.equal(projectedInputSchema.properties.receipt_id.type, "string");
+      assert.equal(
+        projectedInputSchema.properties.receipt_id.pattern,
+        "^gis-ai-go:evidence-receipt:sha256:[0-9a-f]{64}$",
+      );
+      for (const keyword of ["oneOf", "$defs", "$ref"]) {
+        assert.equal(schemaContainsKeyword(projectedInputSchema, keyword), false);
+      }
+    }
+
+    assert.equal(advertisedToolSchemasExact(first.tools), false);
+    assert.equal(claudeProjectedToolSchemasExact(first.tools), true);
+  },
+);
+
+test(
+  "fails closed on missing, extra, duplicate or schema-drifted projection inputs",
+  () => {
+    const canonical = canonicalExactFiveTools();
+    const projected = projectClaudeExactFiveTools(canonical).tools;
+    const malformedCanonicalSets = {
+      missing: canonical.slice(0, -1),
+      extra: [
+        ...canonical,
+        {
+          ...structuredClone(canonical[0]),
+          name: "unexpected.operation",
+        },
+      ],
+      duplicate: [
+        ...canonical.slice(0, -1),
+        structuredClone(canonical[0]),
+      ],
+      "schema drift": canonical.map((tool, index) => index === 0
+        ? {
+            ...structuredClone(tool),
+            inputSchema: { ...structuredClone(tool.inputSchema), drift: true },
+          }
+        : structuredClone(tool)),
+    };
+    const malformedProjectedSets = {
+      missing: projected.slice(0, -1),
+      extra: [
+        ...projected,
+        {
+          ...structuredClone(projected[0]),
+          name: "unexpected.operation",
+        },
+      ],
+      duplicate: [
+        ...projected.slice(0, -1),
+        structuredClone(projected[0]),
+      ],
+      "schema drift": projected.map((tool) => tool.name === "evidence.inspect"
+        ? {
+            ...structuredClone(tool),
+            inputSchema: { ...structuredClone(tool.inputSchema), drift: true },
+          }
+        : structuredClone(tool)),
+    };
+
+    for (const [classification, tools] of Object.entries(malformedCanonicalSets)) {
+      assert.equal(
+        advertisedToolSchemasExact(tools),
+        false,
+        `canonical checker accepted ${classification}`,
+      );
+      assert.throws(
+        () => projectClaudeExactFiveTools(tools),
+        /requires the unchanged canonical five tools/u,
+      );
+    }
+    for (const [classification, tools] of Object.entries(malformedProjectedSets)) {
+      assert.equal(
+        claudeProjectedToolSchemasExact(tools),
+        false,
+        `projected checker accepted ${classification}`,
+      );
+    }
+  },
+);
 
 function assertToolParity(reply, operation) {
   const called = result(reply);

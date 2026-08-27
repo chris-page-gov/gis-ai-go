@@ -110,6 +110,12 @@ EVENT_FIELDS = {
     "anomaly": {"classification", "direction", "frame_bytes", "frame_sha256"},
     "stream": {"stream_name", "stream_phase", "bytes", "frames", "sha256", "graceful"},
 }
+PRESENTED_RESPONSE_FIELDS = {
+    "presented_direction",
+    "presented_frame_bytes",
+    "presented_frame_sha256",
+    "presented_result_sha256",
+}
 LIFECYCLE_FIELDS = {
     "session-start": {
         "phase",
@@ -516,7 +522,11 @@ def _require_boolean(mapping: dict[str, Any], name: str, expected: bool) -> None
         fail(f"{name} has an invalid composite-observation value")
 
 
-def _require_exact_event_fields(event: dict[str, Any]) -> None:
+def _require_exact_event_fields(
+    event: dict[str, Any],
+    *,
+    allow_presented_tools_projection: bool = False,
+) -> None:
     kind = event["event"]
     if kind == "lifecycle":
         expected = COMMON_EVENT_FIELDS | LIFECYCLE_FIELDS[event["phase"]]
@@ -526,6 +536,12 @@ def _require_exact_event_fields(event: dict[str, Any]) -> None:
             expected |= NETWORK_SANDBOX_FIELDS
     else:
         expected = COMMON_EVENT_FIELDS | EVENT_FIELDS[kind]
+        if (
+            allow_presented_tools_projection
+            and kind == "response"
+            and set(event) & PRESENTED_RESPONSE_FIELDS
+        ):
+            expected |= PRESENTED_RESPONSE_FIELDS
     if set(event) != expected:
         fail(f"{kind} event does not contain its exact closed projection")
 
@@ -561,6 +577,8 @@ def _require_clean_session_end(end: dict[str, Any]) -> None:
 def _verify_request_response_contract(
     requests: list[dict[str, Any]],
     responses: list[dict[str, Any]],
+    *,
+    allow_presented_tools_projection: bool = False,
 ) -> None:
     expected_semantics = {
         "server/discover": "discover-pass",
@@ -596,6 +614,7 @@ def _verify_request_response_contract(
     for ordinal, response in enumerate(responses):
         digest = response["request_id_sha256"]
         request = request_by_digest.get(digest)
+        presented_fields = set(response) & PRESENTED_RESPONSE_FIELDS
         expected_semantic = (
             expected_semantics.get(request["method"]) if request is not None else None
         )
@@ -616,6 +635,15 @@ def _verify_request_response_contract(
             or response["semantic"] != expected_semantic
         ):
             fail("response projection is not one contract-valid correlated success")
+        if allow_presented_tools_projection and request["method"] == "tools/list":
+            if (
+                presented_fields != PRESENTED_RESPONSE_FIELDS
+                or response["presented_direction"] != "observer-to-host"
+                or response["presented_frame_sha256"] == response["frame_sha256"]
+            ):
+                fail("tools/list response does not bind one distinct host presentation")
+        elif presented_fields:
+            fail("response contains an unauthorised host presentation")
         seen.add(digest)
 
 
@@ -874,6 +902,7 @@ def verify_session(
     expected_parent_sha256: str,
     expected_parent_bytes: int,
     exact_five_capability: bool = False,
+    allow_presented_tools_projection: bool = False,
 ) -> SessionResult:
     if event_file.identity == manifest_file.identity:
         fail("event log and manifest must be distinct files")
@@ -912,7 +941,10 @@ def verify_session(
         if canonical_json_bytes(event) != body:
             fail(f"{slot} event {index} is not canonical JSON")
         validate_instance(event_validator, event, label=f"{slot} event {index}")
-        _require_exact_event_fields(event)
+        _require_exact_event_fields(
+            event,
+            allow_presented_tools_projection=allow_presented_tools_projection,
+        )
         if event["sequence"] != index:
             fail("event log does not have a consecutive sequence")
         if event["previous_event_sha256"] != previous_hash:
@@ -1072,7 +1104,11 @@ def verify_session(
     _require_clean_session_end(end)
     if anomalies:
         fail("successful composite observation must not contain anomalies")
-    _verify_request_response_contract(requests, responses)
+    _verify_request_response_contract(
+        requests,
+        responses,
+        allow_presented_tools_projection=allow_presented_tools_projection,
+    )
     _verify_notifications(notifications, requests, responses)
     _verify_profile(end["session_profile"], requests, responses, notifications)
     _verify_audits(

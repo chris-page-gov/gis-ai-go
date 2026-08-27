@@ -50,6 +50,7 @@ import {
   completeResultMetadataValid,
   hashStableRegularFile,
   nextCapturedStderrBytes,
+  projectClaudeExactFiveTools,
   requestId,
   toolOutputContractValid,
 } from "./qual_206_exact_five_event_collector.mjs";
@@ -109,6 +110,8 @@ const SAFE_GIT_OPTIONS = Object.freeze([
 ]);
 const EVENT_SCHEMA = "gis-ai-go.qual-206-claude-composite-host-event.v1";
 const EVENT_DOMAIN = EVENT_SCHEMA;
+const PRESENTED_TOOLS_RESULT_DOMAIN =
+  "gis-ai-go.qual-206-claude-exact-five-presented-result.v1";
 const MANIFEST_SCHEMA =
   "gis-ai-go.qual-206-claude-composite-host-event-capture.v1";
 const PROTOCOL_TARGET = "2026-07-28";
@@ -1401,6 +1404,9 @@ function startObserver(options) {
   const exactFiveResponses = [];
   const exactFiveResultEnvelopes = [];
   let exactFiveSearchReceiptId = null;
+  let exactFiveToolProjection = null;
+  let exactFivePresentedToolsResult = null;
+  let hostOutputBackpressured = false;
 
   function emit(event, fields) {
     if (closed) fail("event log is already closed");
@@ -1721,6 +1727,30 @@ function startObserver(options) {
     pending.set(id.digest, context);
   }
 
+  function writeHostBytes(encoded) {
+    if (!process.stdout.write(encoded) && !hostOutputBackpressured) {
+      hostOutputBackpressured = true;
+      child.stdout.pause();
+      process.stdout.once("drain", () => {
+        hostOutputBackpressured = false;
+        if (fatalError === null) child.stdout.resume();
+      });
+    }
+  }
+
+  function forwardExactFiveServerFrame(frame) {
+    const encoded = Buffer.concat([frame, Buffer.from("\n", "utf8")]);
+    if (encoded.length > MAX_FRAME_BYTES) {
+      captureFatal("projected-frame-bound-exceeded", {
+        direction: "observer-to-host",
+        frame_bytes: encoded.length,
+        frame_sha256: sha256Bytes(frame),
+      });
+      return;
+    }
+    writeHostBytes(encoded);
+  }
+
   function serverFrame(frame, wireBytes) {
     const base = {
       direction: "fixture-to-host",
@@ -1749,6 +1779,33 @@ function startObserver(options) {
       correlation = "orphan";
     }
     const analysis = analyseResponse(context, message, options.mode);
+    let hostFrame = frame;
+    if (
+      exactFiveCapabilityMode && context?.method !== "tools/list" &&
+      wireBytes !== frame.length + 1
+    ) {
+      captureFatal("noncanonical-exact-five-fixture-frame", base);
+      return;
+    }
+    if (
+      exactFiveCapabilityMode && context?.method === "tools/list" &&
+      analysis.contractValid
+    ) {
+      const projection = projectClaudeExactFiveTools(message.result.tools);
+      if (exactFiveToolProjection !== null) {
+        captureFatal("duplicate-exact-five-tool-projection", base);
+        return;
+      }
+      exactFiveToolProjection = projection.binding;
+      exactFivePresentedToolsResult = parseStrictJson(canonicalJson({
+        ...message.result,
+        tools: projection.tools,
+      }));
+      hostFrame = Buffer.from(canonicalJson({
+        ...message,
+        result: exactFivePresentedToolsResult,
+      }), "utf8");
+    }
     if (capabilityMode && context?.method === "tools/call") {
       if (host002CapabilityMode) {
         capabilityResponse = analysis.capability ?? null;
@@ -1775,8 +1832,21 @@ function startObserver(options) {
     const duration = context === undefined
       ? null
       : Number(process.hrtime.bigint() - context.started) / 1_000_000;
+    const presentedResponse = exactFiveCapabilityMode &&
+      context?.method === "tools/list" && analysis.contractValid
+      ? {
+          presented_direction: "observer-to-host",
+          presented_frame_bytes: hostFrame.length + 1,
+          presented_frame_sha256: sha256Bytes(hostFrame),
+          presented_result_sha256: domainSeparatedSha256(
+            PRESENTED_TOOLS_RESULT_DOMAIN,
+            exactFivePresentedToolsResult,
+          ),
+        }
+      : {};
     emit("response", {
       ...base,
+      ...presentedResponse,
       response_ordinal: responseOrdinal,
       request_id_sha256: id.digest,
       request_id_kind: id.kind,
@@ -1793,6 +1863,9 @@ function startObserver(options) {
     if (!shapeValid) captureFatal("invalid-server-response-shape", base);
     else if (correlation !== "matched") captureFatal(`response-${correlation}`, base);
     else if (!analysis.contractValid) captureFatal("response-contract-invalid", base);
+    if (fatalError === null && exactFiveCapabilityMode) {
+      forwardExactFiveServerFrame(hostFrame);
+    }
   }
 
   function auditFrame(frame, wireBytes) {
@@ -2012,12 +2085,7 @@ function startObserver(options) {
   child.stdout.on("data", guarded("fixture-stdout-failure", (chunk) => {
     resetIdleDeadline();
     outputTap.push(chunk);
-    if (fatalError === null && !process.stdout.write(chunk)) {
-      child.stdout.pause();
-      process.stdout.once("drain", () => {
-        if (fatalError === null) child.stdout.resume();
-      });
-    }
+    if (fatalError === null && !exactFiveCapabilityMode) writeHostBytes(chunk);
   }));
   child.stdout.once("end", guarded("fixture-stdout-end-failure", () => {
     endStream("fixture-stdout", outputTap, true);
@@ -2117,9 +2185,19 @@ function startObserver(options) {
         exactFiveResponses.at(-1)?.inspected_receipt_id === exactFiveSearchReceiptId;
       const exactFiveAuxiliaryComplete = exactFiveRequests.length === 0 &&
         exactFiveResponses.length === 0;
+      const exactFiveToolsListCount = exactFiveMethods.filter(
+        (method) => method === "tools/list",
+      ).length;
+      const exactFiveProjectionComplete = !exactFiveCapabilityMode || (
+        (exactFiveToolsListCount === 0 && exactFiveToolProjection === null &&
+          exactFivePresentedToolsResult === null) ||
+        (exactFiveToolsListCount === 1 && exactFiveToolProjection !== null &&
+          exactFivePresentedToolsResult !== null)
+      );
       const exactFiveCapabilityComplete = !exactFiveCapabilityMode || (
         exactFiveMethodSequenceValid &&
-        (exactFiveCallsComplete || exactFiveAuxiliaryComplete)
+        (exactFiveCallsComplete || exactFiveAuxiliaryComplete) &&
+        exactFiveProjectionComplete
       );
       const basePassed = code === 0 && signal === null && stderrEventCount === 0 &&
         streamsGraceful && auditComplete && runtimeMaterialsStable && sourceStable &&
@@ -2209,6 +2287,8 @@ function startObserver(options) {
                 profile: "exact-five-v1",
                 run_id: options.runId,
                 session_id: sessionId,
+                tool_schema_projection: exactFiveToolProjection,
+                presented_tools_result: exactFivePresentedToolsResult,
                 results: exactFiveResultEnvelopes,
               })}\n`,
               "utf8",
@@ -2298,6 +2378,7 @@ function startObserver(options) {
                   bytes: capabilityClaim?.bytes ?? null,
                   sha256: capabilityClaim?.sha256 ?? null,
                 },
+                tool_schema_projection: exactFiveToolProjection,
                 result_material: exactFiveResultMaterial,
                 operations: exactFiveResponses.map((response, index) => ({
                   ordinal: index,
