@@ -388,7 +388,11 @@ capture and operator records have been persisted.
 
 Hash the private conversation identifier locally; pass only the SHA-256 digest to
 the finaliser. Use UTC timestamps from the private operator record for the bounded
-observation window. Then create the immutable private run manifest:
+host observation window. The ready `before` and `after` status observations must
+bracket those timestamps and every host protocol request and response. Observer
+startup and readiness audit events may precede the host window; managed teardown,
+stream closure and summary events may follow it. Then create the immutable private
+run manifest:
 
 ```bash
 .venv/bin/python \

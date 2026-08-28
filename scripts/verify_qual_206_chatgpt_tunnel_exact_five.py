@@ -62,6 +62,7 @@ NETWORK_SANDBOX = "macos-seatbelt-deny-network"
 NETWORK_SANDBOX_PROFILE_SHA256 = (
     "0a5222386587bf836d30a070bd759c0194f999bf5503ba76c6c0f8cb84b19db2"
 )
+FIXTURE_SERVER_AUTHORITY = "--exact-five-stdio-conformance-only"
 OPERATIONS = (
     "catalogue.search",
     "catalogue.describe",
@@ -190,6 +191,21 @@ def canonical_bytes(value: Any) -> bytes:
 
 def canonical_line(value: dict[str, Any]) -> bytes:
     return canonical_bytes(value) + b"\n"
+
+
+def expected_fixture_command_sha256(runtime_digests: dict[str, str]) -> str:
+    """Bind the observer's inner network-denied fixture command independently."""
+    return sha256_bytes(canonical_bytes([
+        host002.EXPECTED_SANDBOX_EXEC_SHA256,
+        "-p",
+        host002.NETWORK_SANDBOX_PROFILE,
+        EXPECTED_NODE_SHA256,
+        "--import",
+        runtime_digests["provider_egress_guard_source_sha256"],
+        runtime_digests["fixture_source_sha256"],
+        FIXTURE_SERVER_AUTHORITY,
+        f"--scenario={SCENARIO}",
+    ]))
 
 
 def event_digest(value: dict[str, Any]) -> str:
@@ -562,7 +578,7 @@ def verify_event_log(
     parent_identity: dict[str, Any],
     runtime_digests: dict[str, str],
     runtime_closure: dict[str, Any],
-    mcp_command_sha256: str,
+    fixture_command_sha256: str,
     event_validator: Draft202012Validator,
 ) -> tuple[list[dict[str, Any]], Counter[str], Counter[str], dict[str, int]]:
     if not raw or not raw.endswith(b"\n") or raw.endswith(b"\r\n"):
@@ -647,7 +663,7 @@ def verify_event_log(
             for field, digest in runtime_digests.items()
         )
         or start["runtime_closure"] != runtime_closure
-        or start["observer_runtime"]["command_sha256"] != mcp_command_sha256
+        or start["observer_runtime"]["command_sha256"] != fixture_command_sha256
         or start["credential_environment_observed"] is not False
         or start["credential_environment_forwarded"] is not False
         or start["mcp_child_network_access_allowed"] is not False
@@ -792,11 +808,17 @@ def verify_event_observation_window(
     if not events:
         fail("the session event window is empty")
     observed = [parse_time(event["observed_at"]) for event in events]
-    if (
-        any(value < started or value > finished for value in observed)
-        or any(left > right for left, right in zip(observed, observed[1:]))
+    if any(left > right for left, right in zip(observed, observed[1:])):
+        fail("session events are not monotonic")
+    protocol_events = [
+        event for event in events
+        if event["event"] in {"request", "response", "notification"}
+    ]
+    if not protocol_events or any(
+        not started <= parse_time(event["observed_at"]) <= finished
+        for event in protocol_events
     ):
-        fail("session events are not monotonic within the declared observation window")
+        fail("session protocol events are outside the declared observation window")
 
 
 def verify_request_argument_bindings(
@@ -837,7 +859,7 @@ def verify_sessions(
     node_path: str,
     parent_identity: dict[str, Any],
     runtime_closure: dict[str, Any],
-    mcp_command_sha256: str,
+    fixture_command_sha256: str,
     event_validator: Draft202012Validator | None = None,
 ) -> tuple[dict[str, Any], Counter[str], Counter[str], Counter[str], int]:
     session_names = sorted(
@@ -929,7 +951,7 @@ def verify_sessions(
             parent_identity=parent_identity,
             runtime_digests=runtime_digests,
             runtime_closure=runtime_closure,
-            mcp_command_sha256=mcp_command_sha256,
+            fixture_command_sha256=fixture_command_sha256,
             event_validator=event_check,
         )
         verify_event_observation_window(
@@ -1142,6 +1164,7 @@ def verify_and_project(
     (source_verifier or verify_source)(manifest)
     _profile, profile_arguments, profile_sha256 = load_profile()
     runtime_digests = source_runtime_digests(profile_sha256)
+    fixture_command_sha256 = expected_fixture_command_sha256(runtime_digests)
     runtime_closure = (
         runtime_reproducer(
             manifest["source"]["commit"],
@@ -1169,7 +1192,7 @@ def verify_and_project(
             "sha256": manifest["tunnel_client"]["binary_sha256"],
         },
         runtime_closure,
-        mcp_command_sha256,
+        fixture_command_sha256,
         event_validator,
     )
     if (
