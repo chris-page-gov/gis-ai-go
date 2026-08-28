@@ -1,7 +1,7 @@
 # QUAL-206 host interoperability and secure-tunnel runbook
 
-- status: local conformance and four ChatGPT secure-tunnel probes passed, including
-  the current final telemetry wrapper;
+- status: local conformance and four historical ChatGPT secure-tunnel probes passed,
+  including the current final telemetry wrapper;
   a test-only real-process exact-five STDIO transcript, cancellation, unsupported
   traffic and all seven suspension scenarios pass locally with zero live-provider
   calls; the additive test-only real-socket loopback HTTP journey now has an
@@ -16,10 +16,12 @@
   canonical `catalogue.search` call and independent receipt verification;
   a fresh bounded exact-five observation from later exact protected-main bytes
   passed all five ordered local STDIO calls and independent verification;
-  a separate ChatGPT secure-tunnel exact-five evidence pack now pins the current
-  reviewed tunnel client and closed verifier but contains no live observation;
+  a separate ChatGPT secure-tunnel exact-five observation from exact protected-main
+  source passed all five ordered calls and independent verification, producing an
+  accepted path-free `capability_pass` projection;
   deterministic `HOST-015` application recovery passes locally but remains non-live
-  and unscored; remote HTTP evidence and activation remain pending
+  and unscored; direct public Streamable HTTP/TLS evidence and activation remain
+  pending
 - reviewed source base: `66507f9a6e6c0da23a8af4682268f9362d93bc06`
 - local HTTP transport evidence source: protected `main` commit
   `066a9cb22f719d22e29c95cd99857ddf694c878e`
@@ -29,6 +31,10 @@
   `5837bd65a482e90238c466673318f007e305c744`
 - accepted Claude exact-five capability source: protected `main` commit
   `029a9d5c7efcafcd45941194394384ee6c578fe9`
+- accepted ChatGPT exact-five capability source: protected `main` commit
+  `d8fb8728b0d02afc79b28cf72625ee899d3eb325`
+- accepted ChatGPT exact-five evidence publication: protected `main` commit
+  `060e0198f6c2663a5c9964d8bfb484eeed0d8e5f`
 - historical Claude legacy transport-readiness source: protected `main` commit
   `30b575beb27ff805745a2864c1acf44392774046`
 - legacy fallback integration base: protected `main` commit
@@ -100,8 +106,26 @@ MCP `2026-07-28` calls over local STDIO at reported turn 7. Every result contrac
 distinct receipt, structured/plain-text parity check and the inspection relationship
 passed independent verification. The deterministic fixture made one synthetic
 provider transport call and zero guarded live-provider API invocations. This closes
-local STDIO exact-five model capability only; remote HTTP and every production gate
-remain open.
+local STDIO exact-five model capability only; direct public Streamable HTTP/TLS and
+every production gate remain open.
+
+The independently verified
+[ChatGPT secure-tunnel exact-five projection](../../tests/interoperability/evidence/chatgpt-tunnel-exact-five-2026-08-28.json)
+records `capability_pass` from exact protected-main source commit
+`d8fb8728b0d02afc79b28cf72625ee899d3eb325`, tree
+`fa3a2bc2f9e7be576510f76a7a989c80cd54df42`. The verifier-produced projection
+records the observation at `2026-08-28T22:17:50.190Z` and has SHA-256
+`e394466801e78f1eaa024cd01c1109ec21d0accbe517e546e18bc45e6eb5a1c9`
+and merged through
+[pull request 95](https://github.com/chris-page-gov/gis-ai-go/pull/95) as
+protected-main evidence commit `060e0198f6c2663a5c9964d8bfb484eeed0d8e5f`.
+ChatGPT made all five ordered MCP `2026-07-28` calls in one call-bearing session
+through the reviewed OpenAI secure tunnel to a network-denied deterministic local
+STDIO child. Every result contract, distinct receipt, structured/plain-text parity
+check and the inspection relationship passed independent verification. This closes
+only that secure-tunnel remote-host capability: direct public Streamable HTTP/TLS,
+live-provider use, registry publication, activation, deployment and release remain
+false.
 
 ## Build the exact local candidate
 
@@ -158,12 +182,11 @@ path-free summary and checksums; retain the detailed JSONL locally.
 
 ## OpenAI secure tunnel and ChatGPT
 
-The new
+The
 [ChatGPT secure-tunnel exact-five runbook](QUAL-206_CHATGPT_TUNNEL_EXACT_FIVE.md)
-defines the post-merge, one-observation procedure. Its implementation bytes are an
-evidence pack only: they do not establish a new ChatGPT capability result. The lane
-is a remote ChatGPT host through the OpenAI secure tunnel to a local STDIO child; it
-is not a direct public Streamable HTTP/TLS endpoint.
+records the accepted result and defines the repeat procedure. The lane is a remote
+ChatGPT host through the OpenAI secure tunnel to a local STDIO child; it is not a
+direct public Streamable HTTP/TLS endpoint.
 
 ### Historical verified client
 
@@ -178,10 +201,10 @@ The live probe used official `openai/tunnel-client` `v0.0.12`:
 
 Verify downloaded bytes against the release's `SHA256SUMS.txt` before use.
 
-### Current reviewed client for the exact-five pack
+### Current reviewed client for the exact-five observation
 
-The future exact-five observation must use official `openai/tunnel-client`
-`v0.0.13`, released after the historical probes. The pack pins:
+The accepted exact-five observation used official `openai/tunnel-client` `v0.0.13`,
+released after the historical probes. The evidence pack pins:
 
 - release archive SHA-256:
   `15abf165f06050af642c948ba6bd6c905191dc5420a9422dadde2b49d892e2c6`;
@@ -206,7 +229,12 @@ configuration, enable raw HTTP logging or commit it. Creating or changing a tunn
 requires an authorised Platform session or organisation admin key; the runtime
 project key alone cannot do administrative tunnel CRUD.
 
-### Create and connect
+### Historical create-and-connect context
+
+The steps below record the connection context used for the accepted observation.
+For any repeat, follow
+[the exact-five runbook](QUAL-206_CHATGPT_TUNNEL_EXACT_FIVE.md) as the normative
+procedure and re-verify the current OpenAI interface before changing the app.
 
 1. In the OpenAI Platform, open **Settings → Organisation → Tunnels**.
 2. Create a tunnel with a descriptive, non-secret name, select the intended
@@ -230,8 +258,9 @@ tunnel-client runtimes connect \
 7. Choose **Plugins → Create app → Tunnel**, select the exact tunnel, select
    **No Auth** for this anonymous-open local catalogue, acknowledge the unreviewed
    connector warning, create the app and connect it.
-8. Inspect the app before use. It must advertise only the two expected read actions
-   with the exact closed input schemas.
+8. Inspect the app before use. It must advertise exactly the five canonical actions
+   `catalogue.search`, `catalogue.describe`, `selection.resolve`, `data.query` and
+   `evidence.inspect`, each with its exact closed input schema.
 
 The current authorised proof used:
 
@@ -286,7 +315,7 @@ MCP registry for a conformance run.
 
 | Host | Required test | Current evidence state |
 | --- | --- | --- |
-| ChatGPT | Secure tunnel, discovery, search, receipt and text fallback | Four probes passed; latest run binds the final wrapper and current receipt |
+| ChatGPT | Secure tunnel and five ordered MCP `2026-07-28` calls with receipt and relationship verification | `capability_pass` from exact protected main `d8fb872`; the path-free projection merged as `060e019`; direct public Streamable HTTP/TLS remains open |
 | Codex CLI 0.146.1 | Isolated non-interactive STDIO search and inline evidence | `not_ready`: legacy `2025-06-18` initialisation rejected `-32022`; capability unscored |
 | Antigravity IDE 1.107.0 | Temporary profile, STDIO discovery, search, resource and fallback | `not_ready`: isolated profile signed out and server directory unavailable; zero MCP traffic |
 | Claude Code 2.1.204, modern-only seam, 20 August | Strict temporary MCP configuration and non-persistent session | `not_ready`: legacy `initialize` rejected `-32022`; capability unscored |
@@ -295,7 +324,7 @@ MCP registry for a conformance run.
 | Claude Code 2.1.241, v2 automatic negotiation, 25 August | Two-session credential-free `mcp list` observation against exact protected main `c679b6f` | `ready`: `server/discover` and `tools/list` passed at `2026-07-28`; capability unscored |
 | Claude Code 2.1.245, v2 automatic negotiation, 25 August | Fresh two-session credential-free `mcp list` observation after the parent-identity repair reached exact protected main `e905c63` | `ready`: `server/discover` and `tools/list` passed at `2026-07-28`; capability unscored |
 | Claude Code 2.1.245, bounded `HOST-002`, 26 August | One model-mediated `catalogue.search` call from exact protected main `5837bd6`, with independent receipt verification | `capability_pass` for the one bounded MCP `2026-07-28` case; exact-five and remote HTTP remain open |
-| Claude Code 2.1.245, bounded exact-five, 27 August | Five ordered model-mediated calls from exact protected main `029a9d5`, with independent contract, receipt, parity and relationship verification | `capability_pass` for local MCP `2026-07-28` STDIO exact-five; remote HTTP remains open |
+| Claude Code 2.1.245, bounded exact-five, 27 August | Five ordered model-mediated calls from exact protected main `029a9d5`, with independent contract, receipt, parity and relationship verification | `capability_pass` for local MCP `2026-07-28` STDIO exact-five; direct public Streamable HTTP/TLS remains open |
 | VS Code 1.134.0 | Temporary workspace and MCP registry; prove correct window attachment | `not_ready`: no GitHub token and no proved chat attachment; zero MCP traffic |
 | Official SDK client | HTTP and STDIO discovery, calls, resources and shutdown | Accepted on protected `main` |
 
@@ -730,7 +759,8 @@ modern-only attempt remains `not_ready` because it received `-32022`, and the
 uncommitted fallback observation remains exploratory. The later accepted
 `HOST-002` projection scores only its separately authorised bounded
 `catalogue.search` case. The later exact-five projection separately closes local
-desktop STDIO model capability. Complete the remaining remote HTTP evidence before
+desktop STDIO model capability. Complete the remaining direct public Streamable
+HTTP/TLS evidence before
 claiming the full independent-host gate.
 
 This fallback is local-only. Do not attach it to the existing ChatGPT tunnel,
@@ -906,8 +936,8 @@ remains local and owner-only. The deterministic fixture made one synthetic provi
 transport call and zero guarded live-provider API invocations.
 
 This closes local STDIO exact-five model capability only. It does not establish
-remote HTTP interoperability, live-provider readiness, registry publication, activation,
-deployment or release. See the
+direct public Streamable HTTP/TLS interoperability, live-provider readiness,
+registry publication, activation, deployment or release. See the
 [exact-five capability runbook](QUAL-206_CLAUDE_EXACT_FIVE_CAPABILITY.md) for the
 closed profile, terminal predicate and publication boundary.
 

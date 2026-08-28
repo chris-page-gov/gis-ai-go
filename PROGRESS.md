@@ -1,6 +1,6 @@
 # Delivery progress
 
-Last updated: 27 August 2026
+Last updated: 28 August 2026
 
 ## Current outcome
 
@@ -85,22 +85,25 @@ The supported target active set is exactly `catalogue.search`,
   valid. This closes local STDIO exact-five model capability only. Raw capture
   remains local and owner-only; remote HTTP, live-provider use, registry publication,
   activation, deployment and release remain false and open;
-- prepare one separate fail-closed ChatGPT exact-five remote-host observation through
-  the OpenAI secure tunnel to a local STDIO child. The pack pins reviewed
-  tunnel-client `v0.0.13`, isolates the observer and deterministic fixture from
-  recognised credentials, denies the fixture network access, permits up to eight
-  contiguous discovery/session
-  slots while requiring every call in one claimed session, attests remote and local
-  tunnel health before and after the host run, binds the generated and dependency
-  closures, requires credential-free stopped-state evidence, and can publish only a
-  verifier-built path-free pass. Merge and verify the pack before making the bounded
-  observation from a fresh clean detached protected-main checkout. These
-  implementation bytes contain no new ChatGPT result and do not close direct public
-  Streamable HTTP/TLS, live-provider, registry, activation, deployment or release;
+- accept the verifier-produced
+  [ChatGPT exact-five projection](tests/interoperability/evidence/chatgpt-tunnel-exact-five-2026-08-28.json)
+  from exact protected-main source commit
+  `d8fb8728b0d02afc79b28cf72625ee899d3eb325`, tree
+  `fa3a2bc2f9e7be576510f76a7a989c80cd54df42`. The verifier-produced projection
+  records the observation at `2026-08-28T22:17:50.190Z`; it merged through
+  [pull request 95](https://github.com/chris-page-gov/gis-ai-go/pull/95) as
+  protected-main evidence commit `060e0198f6c2663a5c9964d8bfb484eeed0d8e5f`.
+  It records `capability_pass` for one ChatGPT remote-host observation through the
+  reviewed OpenAI secure tunnel to a network-denied deterministic local STDIO child,
+  with all five ordered MCP `2026-07-28` calls and receipts independently valid.
+  The private capture remains local and owner-only. This closes only that narrow
+  remote-host-through-secure-tunnel capability; direct public Streamable HTTP/TLS,
+  live-provider use, registry publication, activation, deployment and release remain
+  false and open;
 - retain the accepted fail-closed real-socket loopback HTTP exact-five preflight,
   whose owner-only raw capture remains local and whose independent path-free
   projection keeps remote-host acceptance false and capability unscored;
-- complete the remaining remote-HTTP host evidence;
+- complete the remaining direct public Streamable HTTP/TLS host evidence;
   and
 - continue provider-neutral preparation, but stop before public provisioning or
   spend until a provider account, numeric monthly ceiling and operational hosting
@@ -378,7 +381,8 @@ or release is claimed.
   [run 32819344472](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32819344472)
   passed CodeQL for Actions, JavaScript/TypeScript and Python. The path-free public
   summary records transport readiness only; capability, the exact-five operation
-  journey, remote HTTP evidence, registration, activation, deployment and release
+  journey, direct public Streamable HTTP/TLS evidence, registration, activation,
+  deployment and release
   remain incomplete; and
 - the exact-five local HTTP harness merged through
   [pull request 66](https://github.com/chris-page-gov/gis-ai-go/pull/66) as
@@ -408,8 +412,9 @@ or release is claimed.
 1. Preserve the verified Claude Code `2.1.241` and `2.1.245` strict-modern transport
    summaries, the separate historical default-negotiation record, the accepted
    one-case `HOST-002` capability projection, the exact-five local STDIO capability
-   projection and the protected-main loopback HTTP projection. Complete the remaining
-   remote-HTTP host evidence without widening any narrow result.
+   projection, the accepted ChatGPT secure-tunnel exact-five projection and the
+   protected-main loopback HTTP projection. Complete the remaining direct public
+   Streamable HTTP/TLS host evidence without widening any narrow result.
 2. Retain the exact protected-main UBI, independent-derivation and provenance
    evidence from runs `32760872035` and `32760871684`; rebuild and repeat it after
    every later source-changing activation or release commit.
@@ -433,26 +438,28 @@ or release is claimed.
 - The gateway assertion is a typed private hand-off, not workload authentication or
   a signed policy decision. Any non-loopback deployment remains blocked on explicit
   service identity and network-policy evidence.
-- Activating or publishing a catalogue service remains hard-blocked. Raw protocol
-  transcripts, deterministic local host fixtures and the pinned SDK clients do not
-  establish independent live major-host capability. The retained 24 August Claude
+- Activating or publishing a catalogue service remains hard-blocked. The accepted
+  ChatGPT exact-five projection establishes one remote host through the OpenAI secure
+  tunnel, but not a direct public Streamable HTTP/TLS service or live-provider use.
+  The retained 24 August Claude
   Code `2.1.241` default-negotiation observation remains an explained historical
   `2025-11-25` result. The separate 25 August v2 automatic-negotiation observations
   for exact Claude Code `2.1.241` and `2.1.245` establish strict MCP `2026-07-28`
   desktop-STDIO transport readiness, but neither involved a model task or tool
   call. The later accepted `HOST-002` projection scores one bounded
-  `catalogue.search` case only. A separate fresh protected-main observation now
-  passes all five ordered local STDIO calls; remote-HTTP host evidence remains
-  incomplete.
+  `catalogue.search` case only. A separate fresh protected-main observation passes
+  all five ordered local STDIO calls. Direct public Streamable HTTP/TLS host evidence
+  remains incomplete.
   Security, accessibility, governed ingress/storage admission, retention/disposal
   and host-specific lifecycle evidence remain activation gates.
 - Direct routes and MCP transports now exist on protected `main`, but the
   exact-five assembly is `candidate-unregistered`, production registration is
   false, the production/default capability arrays are empty, shipped readiness is
   `503`, and there is no public service deployment or activation override. The
-  repository-local matrix and accepted loopback HTTP projection are non-live and
-  cannot close issue #23 or issue #24; independent hosts, a live provider,
-  authorised deployment and release evidence remain outstanding.
+  repository-local matrix and accepted loopback HTTP projection are non-live. The
+  accepted ChatGPT secure-tunnel result is not a public service endpoint and cannot
+  establish live-provider, deployment or release readiness; those evidence gates
+  remain outstanding.
 - The historical Debian image findings are superseded for the accepted repository
   candidate by exact protected-main UBI commit `dda0eb9`, whose producer and
   independent archives were byte-identical and whose image, SBOM and evidence
@@ -470,6 +477,24 @@ or release is claimed.
   the open product.
 
 ## Latest evidence
+
+- ChatGPT exact-five remote-host capability through the OpenAI secure tunnel: the
+  verifier-produced
+  [path-free projection](tests/interoperability/evidence/chatgpt-tunnel-exact-five-2026-08-28.json)
+  binds exact protected-main source commit
+  `d8fb8728b0d02afc79b28cf72625ee899d3eb325`, tree
+  `fa3a2bc2f9e7be576510f76a7a989c80cd54df42`, and records the observation at
+  `2026-08-28T22:17:50.190Z`. The evidence file has
+  SHA-256 `e394466801e78f1eaa024cd01c1109ec21d0accbe517e546e18bc45e6eb5a1c9`
+  and merged through
+  [pull request 95](https://github.com/chris-page-gov/gis-ai-go/pull/95) as
+  protected-main evidence commit `060e0198f6c2663a5c9964d8bfb484eeed0d8e5f`.
+  It records one call-bearing session, five ordered MCP `2026-07-28` calls, five
+  independently valid receipts, structured/plain-text parity and a valid
+  search-to-inspection relationship. The deterministic fixture made one synthetic
+  provider transport call and zero guarded live-provider API invocations. The result
+  is `capability_pass`; direct public Streamable HTTP/TLS, live-provider use,
+  registry publication, activation, deployment and release remain false;
 
 - Claude Code `2.1.245` bounded exact-five capability: the fresh verifier-produced
   [path-free projection](tests/interoperability/evidence/claude-code-2.1.245-exact-five-capability-2026-08-27.json)
@@ -621,8 +646,8 @@ or release is claimed.
   session. Independent offline replay accepted both sessions with zero provider
   calls, pending requests, anomalies or stderr, and read-only process checks found
   no retained observer or fixture. That 2.1.241 observation itself establishes
-  transport readiness only, not capability or exact-five; remote-HTTP evidence
-  remains incomplete. Raw captures remain owner-only and local;
+  transport readiness only, not capability or exact-five; direct public Streamable
+  HTTP/TLS evidence remains incomplete. Raw captures remain owner-only and local;
 
 - Claude Code `2.1.241` historical default-negotiation observation: the
   [additive source-bound summary](tests/interoperability/evidence/claude-code-2.1.241-stdio-observation-2026-08-24.json)
