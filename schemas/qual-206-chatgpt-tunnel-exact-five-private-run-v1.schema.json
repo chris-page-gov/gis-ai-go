@@ -93,8 +93,7 @@
         "app_id": {"const": "asdk_app_6a873f853628819184bccb4a9b961576"},
         "app_version_id": {
           "type": "string",
-          "pattern": "^asdk_app_v_[a-z0-9]{32}$",
-          "not": {"const": "asdk_app_v_6a873f85363081918f25a5aeaee98159"}
+          "pattern": "^asdk_app_v_[a-z0-9]{32}$"
         },
         "displayed_model": {
           "type": "string", "minLength": 1, "maxLength": 128,

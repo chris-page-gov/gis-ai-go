@@ -206,6 +206,43 @@ class ChatGptTunnelPortableContractTests(unittest.TestCase):
             hashlib.sha256(private_raw).hexdigest(),
         )
 
+    def test_request_ids_may_be_reused_only_after_the_response(self) -> None:
+        digest = "a" * 64
+        serial = [
+            {"event": "request", "request_id_sha256": digest},
+            {"event": "response", "request_id_sha256": digest},
+            {"event": "request", "request_id_sha256": digest},
+            {"event": "response", "request_id_sha256": digest},
+        ]
+        self.assertEqual(
+            len(verifier.correlate_request_response_events(serial, "session-1")),
+            2,
+        )
+        with self.assertRaisesRegex(
+            verifier.TunnelExactFiveVerificationError,
+            "in-flight request identity",
+        ):
+            verifier.correlate_request_response_events(
+                [serial[0], serial[2]], "session-1"
+            )
+        with self.assertRaisesRegex(
+            verifier.TunnelExactFiveVerificationError,
+            "orphan or duplicate response",
+        ):
+            verifier.correlate_request_response_events(
+                [serial[0], serial[1], serial[3]], "session-1"
+            )
+
+    def test_developer_version_id_is_not_used_as_tool_surface_evidence(self) -> None:
+        for schema_path, source in (
+            (verifier.PRIVATE_SCHEMA, self.fixture["private_run"]),
+            (verifier.PUBLIC_SCHEMA, self.fixture["public_evidence"]),
+        ):
+            observed = copy.deepcopy(source)
+            observed["host"]["app_version_id"] = HISTORICAL_APP_VERSION
+            with self.subTest(schema=schema_path.name):
+                self.assertEqual(list(validator(schema_path).iter_errors(observed)), [])
+
     def test_request_arguments_bind_events_summaries_and_frozen_profile(self) -> None:
         session = self.fixture["sessions"][1]
         requests = [
@@ -494,7 +531,7 @@ class ChatGptTunnelExactFiveContractTests(unittest.TestCase):
     def _request(
         cls,
         process: subprocess.Popen[str],
-        request_id: str,
+        request_id: str | int,
         method: str,
         parameters: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
@@ -553,13 +590,13 @@ class ChatGptTunnelExactFiveContractTests(unittest.TestCase):
         cls._finish(discovery)
 
         exact_five = cls._start_observer()
-        listing = cls._request(exact_five, "list-1", "tools/list")
+        listing = cls._request(exact_five, 0, "tools/list")
         if sorted(tool["name"] for tool in listing["tools"]) != sorted(
             verifier.OPERATIONS
         ):
             raise AssertionError("the fake canonical tool listing changed")
         search_receipt: str | None = None
-        for index, operation in enumerate(cls.profile["operations"]):
+        for operation in cls.profile["operations"]:
             arguments = (
                 {"receipt_id": search_receipt}
                 if operation["name"] == "evidence.inspect"
@@ -567,7 +604,7 @@ class ChatGptTunnelExactFiveContractTests(unittest.TestCase):
             )
             result = cls._request(
                 exact_five,
-                f"call-{index + 1}",
+                0,
                 "tools/call",
                 {"name": operation["name"], "arguments": arguments},
             )
@@ -1140,9 +1177,9 @@ process.stdout.write(`${JSON.stringify([ready, stopped])}\n`);
             (self.case / "run-manifest.json").read_text(encoding="utf-8")
         )
         mutations: list[tuple[str, dict[str, Any]]] = []
-        historical = copy.deepcopy(manifest)
-        historical["host"]["app_version_id"] = HISTORICAL_APP_VERSION
-        mutations.append(("historical app version", historical))
+        malformed_version = copy.deepcopy(manifest)
+        malformed_version["host"]["app_version_id"] = "asdk_app_v_invalid"
+        mutations.append(("malformed app version", malformed_version))
         direct_http = copy.deepcopy(manifest)
         direct_http["claims"]["direct_public_streamable_http_tls"] = True
         mutations.append(("direct public HTTP", direct_http))
@@ -1168,9 +1205,9 @@ process.stdout.write(`${JSON.stringify([ready, stopped])}\n`);
         endpoint = copy.deepcopy(projection)
         endpoint["tunnel"]["endpoint"] = "https://example.invalid/mcp"
         mutations.append(("endpoint", endpoint))
-        historical = copy.deepcopy(projection)
-        historical["host"]["app_version_id"] = HISTORICAL_APP_VERSION
-        mutations.append(("historical app version", historical))
+        malformed_version = copy.deepcopy(projection)
+        malformed_version["host"]["app_version_id"] = "asdk_app_v_invalid"
+        mutations.append(("malformed app version", malformed_version))
         direct_http = copy.deepcopy(projection)
         direct_http["claims"]["direct_public_streamable_http_tls"] = True
         mutations.append(("direct public HTTP", direct_http))
