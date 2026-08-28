@@ -305,7 +305,7 @@ async function finish(observer) {
 
 async function finishAsTunnelClient(observer) {
   if (!observer.child.stdin.writableEnded) observer.child.stdin.end();
-  setImmediate(() => observer.child.kill("SIGTERM"));
+  observer.child.kill("SIGTERM");
   return await withTimeout(observer.completion, "tunnel-client observer completion");
 }
 
@@ -493,7 +493,7 @@ macRuntimeTest("the reviewed macOS sandbox denies a node:net loopback connection
   });
 });
 
-macRuntimeTest("v0.0.13 close-stdin then SIGTERM is a clean tunnel teardown", async (t) => {
+macRuntimeTest("v0.0.13 immediate close-stdin then SIGTERM is a clean teardown", async (t) => {
   const captureRoot = privateRoot(t);
   const observer = startObserver(t, captureRoot, randomUUID());
   await request(observer, "discover-1", "server/discover");

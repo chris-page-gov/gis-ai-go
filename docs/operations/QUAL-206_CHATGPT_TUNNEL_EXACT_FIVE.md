@@ -357,6 +357,18 @@ Stop the exact managed alias before finalisation:
   --operator-root "$QUAL206_OPERATOR_ROOT"
 ```
 
+Run this immediately after the second ready-status attestation. Do not wait for the
+persistent ChatGPT transport to close itself: it remains open after the fifth
+response and would reach the fail-closed inter-frame deadline.
+
+The pinned tunnel client closes the managed child stdin and requests `SIGTERM`
+without an intervening delay. The observer therefore allows 250 milliseconds for
+the already-requested EOF to reach Node after the signal callback. It still requires
+that EOF before accepting teardown. A standalone or earlier `SIGTERM`, a missing
+EOF, a partial frame, an incomplete call or any request still in flight remains a
+fatal anomaly. This bounded delivery grace changes no call, result, receipt or
+publication predicate.
+
 The stop is local and credential-free. It re-verifies the pinned tunnel-client
 bytes, requires the exact profile and command digest, and writes
 `tunnel-status-stopped.json`. That envelope must show the process stopped, health
