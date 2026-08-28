@@ -257,7 +257,10 @@
         "previous_event_sha256": {"$ref": "#/$defs/nullableSha256"},
         "event_sha256": {"$ref": "#/$defs/sha256"},
         "phase": {"const": "parent-teardown-signal"},
-        "signal": {"const": "SIGTERM"},
+        "signal": {
+          "const": "SIGTERM",
+          "description": "The first causal parent teardown signal; a later duplicate v0.0.13 managed-stop SIGTERM is absorbed rather than emitted as another lifecycle event."
+        },
         "stdin_closed_before_signal": {"type": "boolean"},
         "stdin_eof_observed_within_grace": {"type": "boolean"},
         "immediate_parent_verified": {"const": true}
@@ -329,6 +332,7 @@
         "runtime_materials_stable": {"type": "boolean"},
         "runtime_closures_stable": {"const": true},
         "closure_stimulus": {
+          "description": "The canonical causal teardown relationship, not a count of duplicate transport signals.",
           "enum": [
             "stdin-eof", "sigint", "sigterm", "stdin-eof-and-sigint",
             "stdin-eof-and-sigterm", "sigterm-then-stdin-eof", "none"

@@ -320,6 +320,14 @@ async function finishWithSignalBeforeEof(observer) {
   return await withTimeout(observer.completion, "signal-first observer completion");
 }
 
+async function finishWithForwardedThenManagedTunnelStop(observer) {
+  assert.equal(observer.child.kill("SIGTERM"), true);
+  await waitMilliseconds(25);
+  if (!observer.child.stdin.writableEnded) observer.child.stdin.end();
+  assert.equal(observer.child.kill("SIGTERM"), true);
+  return await withTimeout(observer.completion, "two-signal observer completion");
+}
+
 function sessionEvents(captureRoot, slot) {
   return readFileSync(join(captureRoot, slot, "events.jsonl"), "utf8")
     .trim()
@@ -569,12 +577,58 @@ macRuntimeTest("SIGTERM followed by EOF within grace is a clean truthful teardow
   );
 });
 
+macRuntimeTest(
+  "forwarded SIGTERM then managed EOF and duplicate SIGTERM closes cleanly",
+  async (t) => {
+    const captureRoot = privateRoot(t);
+    const observer = startObserver(t, captureRoot, randomUUID());
+    await request(observer, "discover-1", "server/discover");
+    const completion = await finishWithForwardedThenManagedTunnelStop(observer);
+    assert.deepEqual(completion, { code: 0, signal: null, stderr: "" });
+    const events = sessionEvents(captureRoot, "session-1");
+    const teardown = events.find(({ phase }) => phase === "parent-teardown-signal");
+    assert.deepEqual({
+      signal: teardown?.signal,
+      stdin_closed_before_signal: teardown?.stdin_closed_before_signal,
+      stdin_eof_observed_within_grace: teardown?.stdin_eof_observed_within_grace,
+      closure_stimulus: events.find(({ phase }) => phase === "session-end")
+        ?.closure_stimulus,
+    }, {
+      signal: "SIGTERM",
+      stdin_closed_before_signal: false,
+      stdin_eof_observed_within_grace: true,
+      closure_stimulus: "sigterm-then-stdin-eof",
+    });
+  },
+);
+
 macRuntimeTest("SIGTERM without stdin EOF fails closed after the bounded grace", async (t) => {
   const captureRoot = privateRoot(t);
   const observer = startObserver(t, captureRoot, randomUUID());
   await request(observer, "discover-1", "server/discover");
   observer.child.kill("SIGTERM");
   const completion = await withTimeout(observer.completion, "premature SIGTERM rejection");
+  assert.equal(completion.code, 2, completion.stderr);
+  assert.deepEqual(
+    anomalyClassifications(captureRoot, "session-1"),
+    ["premature-parent-sigterm"],
+  );
+  const events = sessionEvents(captureRoot, "session-1");
+  assert.equal(events.some(({ phase }) => phase === "parent-teardown-signal"), false);
+  assert.equal(
+    events.find(({ phase }) => phase === "session-end")?.protocol_session_status,
+    "failed",
+  );
+});
+
+macRuntimeTest("duplicate SIGTERM without stdin EOF still fails closed", async (t) => {
+  const captureRoot = privateRoot(t);
+  const observer = startObserver(t, captureRoot, randomUUID());
+  await request(observer, "discover-1", "server/discover");
+  assert.equal(observer.child.kill("SIGTERM"), true);
+  await waitMilliseconds(25);
+  assert.equal(observer.child.kill("SIGTERM"), true);
+  const completion = await withTimeout(observer.completion, "duplicate SIGTERM rejection");
   assert.equal(completion.code, 2, completion.stderr);
   assert.deepEqual(
     anomalyClassifications(captureRoot, "session-1"),
@@ -705,7 +759,7 @@ macRuntimeTest(
     /^gis-ai-go:evidence-receipt:sha256:[0-9a-f]{64}$/u,
   );
   assert.deepEqual(
-    await finishWithSignalBeforeEof(exactFive),
+    await finishWithForwardedThenManagedTunnelStop(exactFive),
     { code: 0, signal: null, stderr: "" },
   );
 

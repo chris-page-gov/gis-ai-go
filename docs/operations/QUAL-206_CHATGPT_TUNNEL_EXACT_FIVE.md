@@ -361,15 +361,17 @@ Run this immediately after the second ready-status attestation. Do not wait for 
 persistent ChatGPT transport to close itself: it remains open after the fifth
 response and would reach the fail-closed inter-frame deadline.
 
-During a managed stop, the pinned tunnel client `v0.0.13` can deliver `SIGTERM` to
-the observer a few milliseconds before its STDIO stop hook closes stdin. EOF can
-also arrive before the signal. The observer distinguishes and records both valid
-orderings: `stdin-eof-and-sigterm` when EOF arrives first, and
+During a managed stop, the pinned tunnel client `v0.0.13` can first forward a host
+`SIGTERM`, then have its STDIO OnStop hook close observer stdin and send a second
+`SIGTERM`. The observer treats the first signal as the causal teardown stimulus and
+absorbs the duplicate idempotently; it does not emit a second lifecycle event. EOF
+can also arrive before the first signal. The observer distinguishes and records both
+valid causal orderings: `stdin-eof-and-sigterm` when EOF arrives first, and
 `sigterm-then-stdin-eof` when EOF arrives within the bounded 250-millisecond grace
-after the signal. It still requires EOF before accepting teardown. A signal without
-EOF before that grace expires, a partial frame, an incomplete call or any request
-still in flight remains a fatal anomaly. This bounded delivery grace changes no
-call, result, receipt or publication predicate.
+after the first signal. It still requires EOF before accepting teardown. A signal
+without EOF before that grace expires, a partial frame, an incomplete call or any
+request still in flight remains a fatal anomaly. This bounded delivery grace changes
+no call, result, receipt or publication predicate.
 
 The stop is local and credential-free. It re-verifies the pinned tunnel-client
 bytes, requires the exact profile and command digest, and writes

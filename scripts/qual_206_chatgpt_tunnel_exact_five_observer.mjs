@@ -122,8 +122,9 @@ const MAX_STDERR_BYTES = 65_536;
 const MAX_PRE_FIRST_FRAME_MILLISECONDS = 10 * 60_000;
 const MAX_INTER_FRAME_IDLE_MILLISECONDS = 3 * 60_000;
 const MAX_OBSERVATION_MILLISECONDS = 15 * 60_000;
-// v0.0.13 may deliver SIGTERM just before the managed STDIO OnStop hook closes
-// stdin. Keep that transport race bounded without accepting signal-only closure.
+// v0.0.13 can forward SIGTERM before the managed STDIO OnStop hook closes
+// stdin and sends a duplicate SIGTERM. Keep that race bounded and idempotent
+// without accepting signal-only closure.
 const PARENT_TEARDOWN_EOF_GRACE_MILLISECONDS = 250;
 export const CHATGPT_TUNNEL_OBSERVATION_WINDOWS = Object.freeze({
   pre_first_frame_milliseconds: MAX_PRE_FIRST_FRAME_MILLISECONDS,
@@ -1655,7 +1656,11 @@ export function startChatGptTunnelObserver(options) {
     finaliseSession(code, signal);
   });
   for (const signal of ["SIGINT", "SIGTERM", "SIGHUP"]) {
-    process.once(signal, () => {
+    // v0.0.13 can forward a host SIGTERM before its managed STDIO OnStop hook,
+    // then close stdin and signal this command a second time. Keep the handler
+    // installed through finalisation so that the duplicate cannot restore
+    // Node's default signal termination during the bounded EOF grace.
+    process.on(signal, () => {
       if (finalising) return;
       if (signal === "SIGTERM" && fatalError === null) {
         if (pendingParentTeardownSignal !== null || parentTeardownSignal !== null) return;
