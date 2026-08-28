@@ -75,7 +75,7 @@ and all CodeQL analyses passed in
 [run 32868252219](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32868252219).
 The public projection is path-free and preserves the 2.1.241 schema and evidence
 digests as historical lineage. It proves transport readiness only: capability,
-the exact-five journey, remote HTTP evidence, provider use, registration,
+the exact-five journey, direct public Streamable HTTP/TLS evidence, provider use,
 activation, deployment and release remain incomplete or unexercised. Raw capture,
 client output, profile data and local identities remain owner-only and unpublished.
 
@@ -119,13 +119,24 @@ exact-five model capability only. Remote HTTP interoperability, a live geospatia
 provider, registry publication, activation, deployment and release remain false.
 Raw capture remains owner-only and local.
 
-The repository also contains a separately gated ChatGPT secure-tunnel exact-five
-evidence pack. The pack itself is not an observation and adds no evidence file to
-this directory. A later result may be added only after the pack is merged, one fresh
-run is made from exact protected `main`, the private capture passes independent
-verification and the path-free projection passes deliberate publication review.
-That projection must describe the remote-host-through-secure-tunnel lane without
-claiming a direct public Streamable HTTP endpoint.
+The separately gated
+[`ChatGPT secure-tunnel exact-five capability projection`](chatgpt-tunnel-exact-five-2026-08-28.json)
+is a verifier-produced, path-free `capability_pass` from exact protected-main source
+commit `d8fb8728b0d02afc79b28cf72625ee899d3eb325`, tree
+`fa3a2bc2f9e7be576510f76a7a989c80cd54df42`. The verifier-produced projection
+records the observation at `2026-08-28T22:17:50.190Z`; it merged through
+[pull request 95](https://github.com/chris-page-gov/gis-ai-go/pull/95) as
+protected-main evidence commit `060e0198f6c2663a5c9964d8bfb484eeed0d8e5f` and
+has SHA-256 `e394466801e78f1eaa024cd01c1109ec21d0accbe517e546e18bc45e6eb5a1c9`.
+ChatGPT made all five ordered MCP `2026-07-28` calls in one call-bearing session
+through the reviewed OpenAI secure tunnel to a network-denied deterministic local
+STDIO child. Independent verification accepted every result contract, five distinct
+receipts, structured/plain-text parity and the search-to-inspection relationship.
+The deterministic fixture made one synthetic provider transport call and zero
+guarded live-provider API invocations. This closes only remote-host capability
+through that secure-tunnel lane. Direct public Streamable HTTP/TLS, a live
+geospatial provider, registry publication, activation, deployment and release
+remain false. Raw host and operator material remains owner-only and local.
 
 The
 [`protected-main local HTTP transport preflight`](local-http-transport-preflight-2026-08-25.json)

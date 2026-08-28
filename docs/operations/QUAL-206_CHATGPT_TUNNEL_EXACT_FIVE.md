@@ -1,7 +1,8 @@
 # QUAL-206 ChatGPT secure-tunnel exact-five observation
 
-- status: evidence pack only; no exact-five ChatGPT observation or public pass
-  is included in these bytes
+- status: `capability_pass` projection accepted on protected `main` through
+  [pull request 95](https://github.com/chris-page-gov/gis-ai-go/pull/95) at evidence
+  commit `060e0198f6c2663a5c9964d8bfb484eeed0d8e5f`
 - host lane: ChatGPT remote host through the OpenAI secure tunnel
 - local child transport: operating-system STDIO pipes
 - direct public Streamable HTTP over TLS: not exercised
@@ -11,9 +12,9 @@
 
 ## Purpose
 
-This runbook prepares one bounded ChatGPT observation of the unchanged
-`exact-five-v1` capability profile. It is additive to the accepted Claude Code
-local STDIO result. It does not change, repeat or relabel that result.
+This runbook records and supports a repeat of one bounded ChatGPT observation of the
+unchanged `exact-five-v1` capability profile. It is additive to the accepted Claude
+Code local STDIO result. It does not change, repeat or relabel that result.
 
 The observation can establish only this narrow claim:
 
@@ -23,22 +24,48 @@ The observation can establish only this narrow claim:
 
 It cannot establish a direct public MCP endpoint, public hostname, product TLS
 ingress, live geospatial-provider operation, registry publication, activation,
-deployment or release. The public projection keeps each of those claims false.
+deployment or release. The accepted public projection keeps each of those claims
+false.
 
-## Why the pack is merged before the observation
+## Accepted result
+
+The verifier-produced
+[public projection](../../tests/interoperability/evidence/chatgpt-tunnel-exact-five-2026-08-28.json)
+records `capability_pass` from exact protected-main source commit
+`d8fb8728b0d02afc79b28cf72625ee899d3eb325`, tree
+`fa3a2bc2f9e7be576510f76a7a989c80cd54df42`. The verifier-produced projection
+records the observation at `2026-08-28T22:17:50.190Z`. That projection, with
+SHA-256 `e394466801e78f1eaa024cd01c1109ec21d0accbe517e546e18bc45e6eb5a1c9`,
+merged through pull request 95 as protected-main evidence commit
+`060e0198f6c2663a5c9964d8bfb484eeed0d8e5f`.
+
+ChatGPT made the five ordered MCP `2026-07-28` calls in one call-bearing session
+through reviewed `openai/tunnel-client` `v0.0.13` to the network-denied deterministic
+local STDIO child. Independent verification accepted every result contract, all five
+distinct receipts, structured/plain-text parity and the search-to-inspection
+relationship. The fixture made one synthetic provider transport call and zero
+guarded live-provider API invocations. Raw capture remains owner-only and local.
+
+This accepted result proves only the remote-host-through-secure-tunnel lane. It does
+not prove direct public Streamable HTTP/TLS, a live geospatial provider, registry
+publication, activation, deployment or release.
+
+## Why the pack was merged before the observation
 
 The observer, schemas, result checker, independent verifier and mutation tests must
 first pass review on protected `main`. The live step must then use a new clean,
 detached worktree at that exact protected-main commit. This avoids using unreviewed
 capture code and prevents a later commit from being attributed to an earlier run.
 
-Use two pull requests:
+The accepted sequence used two pull requests:
 
-1. merge this evidence-preparation pack with no live result;
-2. make one bounded observation from exact protected `main`, independently verify
-   the private capture, then submit only the minimised public projection.
+1. the evidence-preparation pack merged with no live result;
+2. one bounded observation ran from exact protected `main`, the private capture
+   passed independent verification, and only the minimised public projection was
+   submitted.
 
-Do not make the live observation from the pack branch.
+Any repeat must preserve this sequence; do not make a live observation from an
+unmerged pack branch.
 
 ## Frozen profile
 
