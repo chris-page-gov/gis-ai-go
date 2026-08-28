@@ -570,8 +570,8 @@ class ClaudeCapabilityContractsTest(unittest.TestCase):
             )
         }
         expected = {
-            "tests": 27,
-            "pass": 27 if sys.platform == "darwin" else 5,
+            "tests": 28,
+            "pass": 28 if sys.platform == "darwin" else 6,
             "fail": 0,
             "skipped": 0 if sys.platform == "darwin" else 22,
         }
