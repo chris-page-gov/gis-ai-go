@@ -5,6 +5,7 @@ import {
   chmodSync,
   copyFileSync,
   existsSync,
+  lstatSync,
   mkdtempSync,
   mkdirSync,
   readFileSync,
@@ -20,12 +21,14 @@ import test from "node:test";
 import {
   buildObserverCommand,
   executeBoundedTunnelCommand,
+  loadTunnelControlPlan,
   parseChatGptTunnelHarnessArguments,
   projectStoppedTunnelStatus,
   projectTunnelStatus,
   runPreparedTunnelConnect,
   runPreparedTunnelStatusAfter,
   runPreparedTunnelStop,
+  validateTunnelControlPlan,
   validatePrivateRootLayout,
   verifyTunnelClient,
 } from "../../scripts/qual_206_chatgpt_tunnel_exact_five_harness.mjs";
@@ -612,6 +615,65 @@ test("private roots must be new siblings beneath one owner-only parent", (t) => 
       join(process.cwd(), "operator"),
     ),
     /outside the Git checkout/u,
+  );
+});
+
+test("a prepared control plan reloads the repository's real Git tree identity", (t) => {
+  const parent = mkdtempSync(join(tmpdir(), "gis-ai-go-control-plan-test-"));
+  const captureRoot = join(parent, "capture");
+  const operatorRoot = join(parent, "operator");
+  mkdirSync(captureRoot, { mode: 0o700 });
+  mkdirSync(operatorRoot, { mode: 0o700 });
+  t.after(() => rmSync(parent, { force: true, recursive: true }));
+  const identity = (path) => {
+    const info = lstatSync(path);
+    return { dev: info.dev, ino: info.ino, uid: info.uid, mode: info.mode };
+  };
+  const plan = {
+    schema: "gis-ai-go.qual-206-chatgpt-tunnel-control-plan.v1",
+    run_id: randomUUID(),
+    source_commit: "a".repeat(40),
+    source_tree: "b".repeat(40),
+    repository_origin: "https://github.com/chris-page-gov/gis-ai-go.git",
+    clean_detached_checkout: true,
+    capture_root: captureRoot,
+    operator_root: operatorRoot,
+    capture_root_identity: identity(captureRoot),
+    operator_root_identity: identity(operatorRoot),
+    client_path: join(operatorRoot, "tunnel-client-v0.0.13"),
+    client_version: "0.0.13",
+    client_build_sha: "c".repeat(40),
+    client_reported_version: "0.0.13+test",
+    client_bytes: 20_336_818,
+    client_sha256: "d".repeat(64),
+    client_dev: 101,
+    client_ino: 202,
+    client_nlink: 1,
+    client_uid: process.getuid(),
+    client_mode: 0o100500,
+    tunnel_id: TUNNEL_ID,
+    tunnel_name: TUNNEL_NAME,
+    alias: ALIAS,
+    profile_name: ALIAS,
+    runtime_key_environment: "OPENAI_API_KEY",
+    runtime: RUNTIME,
+    mcp_command: MCP_COMMAND,
+    mcp_command_sha256: MCP_COMMAND_SHA256,
+  };
+
+  assert.equal(validateTunnelControlPlan(plan, operatorRoot), plan);
+  writeFileSync(
+    join(operatorRoot, "qual-206-chatgpt-tunnel-control-plan.v1.json"),
+    `${JSON.stringify(plan)}\n`,
+    { flag: "wx", mode: 0o600 },
+  );
+  assert.deepEqual(loadTunnelControlPlan(operatorRoot), plan);
+  assert.throws(
+    () => validateTunnelControlPlan(
+      { ...plan, source_tree: "e".repeat(64) },
+      operatorRoot,
+    ),
+    /private tunnel control plan is invalid/u,
   );
 });
 

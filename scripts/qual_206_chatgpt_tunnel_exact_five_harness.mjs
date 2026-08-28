@@ -38,7 +38,7 @@ const PROFILE_NAME = "gis-ai-go-v0-2-exact-five-v1";
 const CLIENT_LABEL = "chatgpt-openai-tunnel-client-0.0.13";
 const STATUS_SCHEMA = "gis-ai-go.qual-206-chatgpt-tunnel-status.v1";
 const PLAN_SCHEMA = "gis-ai-go.qual-206-chatgpt-tunnel-control-plan.v1";
-const FULL_COMMIT = /^[0-9a-f]{40}$/u;
+const GIT_OBJECT_ID = /^[0-9a-f]{40}$/u;
 const SHA256 = /^[0-9a-f]{64}$/u;
 const UUID_V4 =
   /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/u;
@@ -268,7 +268,9 @@ function runGit(args, allowFailure = false) {
 }
 
 export function verifyProtectedMainCheckout(sourceCommit) {
-  if (!FULL_COMMIT.test(sourceCommit)) fail("source commit must be a full lowercase SHA");
+  if (!GIT_OBJECT_ID.test(sourceCommit)) {
+    fail("source commit must be a full lowercase SHA");
+  }
   const head = runGit(["rev-parse", "HEAD"]);
   const originMain = runGit(["rev-parse", "origin/main"]);
   const tree = runGit(["rev-parse", "HEAD^{tree}"]);
@@ -448,7 +450,7 @@ export function parseChatGptTunnelHarnessArguments(argv, environment = process.e
   }
   if (phase === "prepare") {
     if (!UUID_V4.test(values.get("--run-id"))) fail("run ID must be a UUID v4");
-    if (!FULL_COMMIT.test(values.get("--source-commit"))) {
+    if (!GIT_OBJECT_ID.test(values.get("--source-commit"))) {
       fail("source commit must be a full lowercase SHA");
     }
     if (!RUNTIME_KEY_ENVIRONMENT_NAMES.has(values.get("--runtime-key-env"))) {
@@ -534,7 +536,7 @@ function commandEnvironment(plan, requireRuntimeKey, ambientEnvironment = proces
   return environment;
 }
 
-function validatePlan(plan, operatorRoot) {
+export function validateTunnelControlPlan(plan, operatorRoot) {
   if (
     !plainRecord(plan) ||
     plan.schema !== PLAN_SCHEMA ||
@@ -544,8 +546,8 @@ function validatePlan(plan, operatorRoot) {
     plan.tunnel_id !== TUNNEL_ID ||
     plan.tunnel_name !== TUNNEL_NAME ||
     !UUID_V4.test(plan.run_id) ||
-    !FULL_COMMIT.test(plan.source_commit) ||
-    !SHA256.test(plan.source_tree) ||
+    !GIT_OBJECT_ID.test(plan.source_commit) ||
+    !GIT_OBJECT_ID.test(plan.source_tree) ||
     !isAbsolute(plan.client_path) ||
     !SHA256.test(plan.client_sha256) ||
     !Number.isSafeInteger(plan.client_dev) ||
@@ -609,10 +611,10 @@ function readPrivatePlan(path) {
   }
 }
 
-function loadPlan(operatorRoot) {
+export function loadTunnelControlPlan(operatorRoot) {
   ensurePrivateDirectory(operatorRoot);
   const path = join(operatorRoot, PLAN_FILE);
-  return validatePlan(readPrivatePlan(path), operatorRoot);
+  return validateTunnelControlPlan(readPrivatePlan(path), operatorRoot);
 }
 
 export function executeBoundedTunnelCommand(
@@ -1016,7 +1018,7 @@ async function main() {
     result = prepare(options);
     runId = result.run_id;
   } else {
-    const plan = loadPlan(options.operatorRoot);
+    const plan = loadTunnelControlPlan(options.operatorRoot);
     runId = plan.run_id;
     if (options.phase === "connect") result = runPreparedTunnelConnect(plan);
     if (options.phase === "status-after") result = runPreparedTunnelStatusAfter(plan);
