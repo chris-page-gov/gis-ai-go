@@ -360,23 +360,44 @@ class ChatGptTunnelPortableContractTests(unittest.TestCase):
                 finished=finished,
             )
 
+        lifecycle_outside = copy.deepcopy(sessions[1])
+        lifecycle_outside[0]["observed_at"] = iso_milliseconds(
+            started - timedelta(seconds=1)
+        )
+        verifier.verify_event_observation_window(
+            lifecycle_outside,
+            started=started,
+            finished=finished,
+        )
         outside = copy.deepcopy(sessions[1])
-        outside[0]["observed_at"] = iso_milliseconds(finished + timedelta(seconds=1))
+        last_protocol = max(
+            verifier.parse_time(event["observed_at"])
+            for event in outside
+            if event["event"] in {"request", "response", "notification"}
+        )
         non_monotonic = copy.deepcopy(sessions[1])
         non_monotonic[1]["observed_at"] = iso_milliseconds(
             verifier.parse_time(non_monotonic[0]["observed_at"])
             - timedelta(milliseconds=1)
         )
-        for label, events in (("outside", outside), ("non-monotonic", non_monotonic)):
-            with self.subTest(mutation=label), self.assertRaisesRegex(
-                verifier.TunnelExactFiveVerificationError,
-                "not monotonic within the declared observation window",
-            ):
-                verifier.verify_event_observation_window(
-                    events,
-                    started=started,
-                    finished=finished,
-                )
+        with self.assertRaisesRegex(
+            verifier.TunnelExactFiveVerificationError,
+            "protocol events are outside the declared observation window",
+        ):
+            verifier.verify_event_observation_window(
+                outside,
+                started=started,
+                finished=last_protocol - timedelta(milliseconds=1),
+            )
+        with self.assertRaisesRegex(
+            verifier.TunnelExactFiveVerificationError,
+            "session events are not monotonic",
+        ):
+            verifier.verify_event_observation_window(
+                non_monotonic,
+                started=started,
+                finished=finished,
+            )
 
     def test_cli_requires_explicit_node_and_pnpm_paths(self) -> None:
         verifier_arguments = [
@@ -480,14 +501,19 @@ class ChatGptTunnelExactFiveContractTests(unittest.TestCase):
         )
         cls.profile = json.loads(verifier.PROFILE.read_text(encoding="utf-8"))
         cls._create_observer_capture()
-        cls.command_sha256 = cls._session_start("session-1")["observer_runtime"][
+        cls.fixture_command_sha256 = cls._session_start("session-1")["observer_runtime"][
             "command_sha256"
         ]
         if (
             cls._session_start("session-2")["observer_runtime"]["command_sha256"]
-            != cls.command_sha256
+            != cls.fixture_command_sha256
         ):
-            raise AssertionError("the fake sessions did not retain one MCP command")
+            raise AssertionError("the fake sessions did not retain one fixture command")
+        cls.outer_mcp_command_sha256 = hashlib.sha256(
+            b"synthetic outer tunnel MCP command"
+        ).hexdigest()
+        if cls.outer_mcp_command_sha256 == cls.fixture_command_sha256:
+            raise AssertionError("the fake inner and outer command digests are not distinct")
         cls._create_statuses_and_manifest()
         cls.private_validator = validator(
             verifier.PRIVATE_SCHEMA,
@@ -692,7 +718,7 @@ class ChatGptTunnelExactFiveContractTests(unittest.TestCase):
             "alias": PROFILE_NAME,
             "profile_name": PROFILE_NAME,
             "target_kind": "command",
-            "mcp_command_sha256": cls.command_sha256,
+            "mcp_command_sha256": cls.outer_mcp_command_sha256,
             "tunnel_id": TUNNEL_ID,
             "remote": {**REMOTE_IDENTITY, "found": not stopped},
             "stale": False,
@@ -715,15 +741,24 @@ class ChatGptTunnelExactFiveContractTests(unittest.TestCase):
 
     @classmethod
     def _create_statuses_and_manifest(cls) -> None:
-        first = datetime.fromisoformat(
-            cls._session_start("session-1")["observed_at"].replace("Z", "+00:00")
-        )
-        last_event = json.loads(
-            (cls.capture / "session-2" / "events.jsonl")
+        events = [
+            json.loads(line)
+            for slot in ("session-1", "session-2")
+            for line in (cls.capture / slot / "events.jsonl")
             .read_text(encoding="utf-8")
-            .splitlines()[-1]
+            .splitlines()
+        ]
+        protocol_times = [
+            datetime.fromisoformat(event["observed_at"].replace("Z", "+00:00"))
+            for event in events
+            if event["event"] in {"request", "response", "notification"}
+        ]
+        first = min(protocol_times)
+        last = max(protocol_times)
+        final_lifecycle = max(
+            datetime.fromisoformat(event["observed_at"].replace("Z", "+00:00"))
+            for event in events
         )
-        last = datetime.fromisoformat(last_event["observed_at"].replace("Z", "+00:00"))
         before_raw = write_private_json(
             cls.capture / verifier.STATUS_BEFORE_NAME,
             cls._status("before", iso_milliseconds(first - timedelta(milliseconds=1))),
@@ -734,7 +769,10 @@ class ChatGptTunnelExactFiveContractTests(unittest.TestCase):
         )
         stopped_raw = write_private_json(
             cls.capture / verifier.STATUS_STOPPED_NAME,
-            cls._status("stopped", iso_milliseconds(last + timedelta(milliseconds=2))),
+            cls._status(
+                "stopped",
+                iso_milliseconds(final_lifecycle + timedelta(milliseconds=1)),
+            ),
         )
         claim_raw = (cls.capture / verifier.CLAIM_NAME).read_bytes()
         claim = json.loads(claim_raw)
@@ -1085,7 +1123,7 @@ class ChatGptTunnelExactFiveContractTests(unittest.TestCase):
         self.assertEqual(projection["transport"]["provider_transport_calls"], 1)
         self.assertTrue(projection["tunnel"]["teardown_verified"])
         self.assertEqual(
-            projection["tunnel"]["mcp_command_sha256"], self.command_sha256
+            projection["tunnel"]["mcp_command_sha256"], self.outer_mcp_command_sha256
         )
         receipts = projection["result"]["operation_receipts"]
         self.assertEqual(len(receipts), 5)
@@ -1442,7 +1480,22 @@ process.stdout.write(`${JSON.stringify([ready, stopped])}\n`);
         self.rebind_session_events(slot, events)
         with self.assertRaisesRegex(
             verifier.TunnelExactFiveVerificationError,
-            "not monotonic within the declared observation window",
+            "protocol events are outside the declared observation window",
+        ):
+            self.verify()
+
+    def test_inner_fixture_command_digest_is_independently_bound(self) -> None:
+        slot = "session-2"
+        event_path = self.case / slot / "events.jsonl"
+        events = [
+            json.loads(line)
+            for line in event_path.read_text(encoding="utf-8").splitlines()
+        ]
+        events[0]["observer_runtime"]["command_sha256"] = "d" * 64
+        self.rebind_session_events(slot, events)
+        with self.assertRaisesRegex(
+            verifier.TunnelExactFiveVerificationError,
+            "runtime or source binding changed",
         ):
             self.verify()
 
