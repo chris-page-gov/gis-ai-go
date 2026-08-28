@@ -61,6 +61,16 @@ const RUNTIME = Object.freeze({
   }),
 });
 
+test("the runbook selects the reviewed Node runtime for every command", () => {
+  const runbook = readFileSync(
+    new URL("../../docs/operations/QUAL-206_CHATGPT_TUNNEL_EXACT_FIVE.md", import.meta.url),
+    "utf8",
+  );
+  assert.doesNotMatch(runbook, /^node\b/mu);
+  assert.equal((runbook.match(/--node "\$QUAL206_NODE"/gu) ?? []).length, 2);
+  assert.ok((runbook.match(/^"\$QUAL206_NODE"\s/gmu) ?? []).length >= 6);
+});
+
 function validRawStatus() {
   return {
     alias: ALIAS,

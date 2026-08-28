@@ -197,8 +197,14 @@
         "credential_environment_observed": {"const": false},
         "credential_environment_forwarded": {"const": false},
         "child_environment_mode": {"const": "closed-credential-free"},
-        "mcp_child_network_access_allowed": {"const": false},
-        "mcp_child_network_sandbox": {"const": "macos-seatbelt-deny-network"},
+        "mcp_child_network_access_allowed": {
+          "const": false,
+          "description": "The downstream deterministic MCP fixture spawned by the observer has no network access; this does not describe the observer process."
+        },
+        "mcp_child_network_sandbox": {
+          "const": "macos-seatbelt-deny-network",
+          "description": "The sandbox applied to the downstream deterministic MCP fixture, not to the observer started directly by the tunnel client."
+        },
         "host_attribution": {"const": "outer-harness-bound-tunnel-client"}
       }
     },
@@ -221,8 +227,14 @@
         "event_sha256": {"$ref": "#/$defs/sha256"},
         "phase": {"const": "child-spawned"},
         "fixture_arguments_match_observer_contract": {"const": true},
-        "mcp_child_network_access_allowed": {"const": false},
-        "mcp_child_network_sandbox": {"const": "macos-seatbelt-deny-network"},
+        "mcp_child_network_access_allowed": {
+          "const": false,
+          "description": "The downstream deterministic MCP fixture spawned by the observer has no network access; this does not describe the observer process."
+        },
+        "mcp_child_network_sandbox": {
+          "const": "macos-seatbelt-deny-network",
+          "description": "The sandbox applied to the downstream deterministic MCP fixture, not to the observer started directly by the tunnel client."
+        },
         "spawned_process_identity_verified": {"const": false}
       }
     },
@@ -330,7 +342,8 @@
         "previous_event_sha256", "event_sha256", "direction", "frame_bytes", "frame_sha256",
         "request_ordinal", "request_id_sha256", "request_id_kind", "request_id_unique",
         "method", "operation", "protocol_claim", "client_attribution_valid",
-        "semantic_valid", "parameters_bytes", "parameters_sha256"
+        "semantic_valid", "parameters_bytes", "parameters_sha256",
+        "arguments_bytes", "arguments_sha256"
       ],
       "properties": {
         "schema": {"const": "gis-ai-go.qual-206-chatgpt-tunnel-exact-five-event.v1"},
@@ -353,7 +366,14 @@
         "client_attribution_valid": {"type": "boolean"},
         "semantic_valid": {"type": "boolean"},
         "parameters_bytes": {"type": "integer", "minimum": 0, "maximum": 1048576},
-        "parameters_sha256": {"$ref": "#/$defs/sha256"}
+        "parameters_sha256": {"$ref": "#/$defs/sha256"},
+        "arguments_bytes": {
+          "oneOf": [
+            {"type": "integer", "minimum": 0, "maximum": 1048576},
+            {"type": "null"}
+          ]
+        },
+        "arguments_sha256": {"$ref": "#/$defs/nullableSha256"}
       }
     },
     "response": {

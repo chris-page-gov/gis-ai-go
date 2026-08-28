@@ -28,8 +28,14 @@
     },
     "protocol_session_status": {"enum": ["passed", "failed"]},
     "capability_scored": {"const": false},
-    "mcp_child_network_access_allowed": {"const": false},
-    "mcp_child_network_sandbox": {"const": "macos-seatbelt-deny-network"},
+    "mcp_child_network_access_allowed": {
+      "const": false,
+      "description": "The downstream deterministic MCP fixture spawned by the observer has no network access; this does not describe the observer process."
+    },
+    "mcp_child_network_sandbox": {
+      "const": "macos-seatbelt-deny-network",
+      "description": "The sandbox applied to the downstream deterministic MCP fixture, not to the observer started directly by the tunnel client."
+    },
     "mcp_child_recognised_credentials_forwarded": {"const": false},
     "global_claim": {
       "oneOf": [

@@ -12,7 +12,6 @@ import json
 import os
 from pathlib import Path
 import re
-import shutil
 import subprocess
 import sys
 from typing import Any, Callable, NoReturn
@@ -110,10 +109,10 @@ EXPECTED_CLAIMS = {
 }
 BOUNDARY = (
     "One bounded ChatGPT exact-five-v1 remote-host observation through the reviewed "
-    "OpenAI secure tunnel to a local MCP 2026-07-28 STDIO child using a deterministic "
-    "synthetic provider fixture. This proves neither direct public Streamable HTTP "
-    "over TLS nor a live geospatial provider, registry publication, activation, "
-    "deployment or release."
+    "OpenAI secure tunnel to a byte-bound local STDIO observer, which proxied the "
+    "calls to a separate network-denied deterministic MCP 2026-07-28 fixture/server. "
+    "This proves neither direct public Streamable HTTP over TLS nor a live geospatial "
+    "provider, registry publication, activation, deployment or release."
 )
 FORBIDDEN_PUBLIC_TEXT = re.compile(
     r"(?:/Users/|/home/|/Volumes/|/private/tmp/|/tmp/|/var/folders/|"
@@ -378,11 +377,16 @@ def source_runtime_digests(profile_sha256: str) -> dict[str, str]:
     return values
 
 
-def locate_verified_node() -> str:
-    node = shutil.which("node")
-    if node is None:
-        fail("the pinned Node runtime is unavailable")
-    node = os.path.realpath(node)
+def locate_verified_node(path: Path) -> str:
+    if not path.is_absolute():
+        fail("Node path must be an existing canonical absolute path")
+    try:
+        resolved = path.resolve(strict=True)
+    except OSError:
+        fail("Node path must be an existing canonical absolute path")
+    if resolved != path:
+        fail("Node path must be an existing canonical absolute path")
+    node = str(resolved)
     raw = read_stable_regular(Path(node), maximum=1_048_576, label="Node runtime")
     if len(raw) != EXPECTED_NODE_BYTES or sha256_bytes(raw) != EXPECTED_NODE_SHA256:
         fail("the Node runtime does not match the accepted verifier runtime")
@@ -651,6 +655,20 @@ def verify_event_log(
             or request["client_attribution_valid"] is not True
             or request["semantic_valid"] is not True
             or request["protocol_claim"] != PROTOCOL
+            or (
+                request["method"] == "tools/call"
+                and (
+                    request["arguments_bytes"] is None
+                    or request["arguments_sha256"] is None
+                )
+            )
+            or (
+                request["method"] != "tools/call"
+                and (
+                    request["arguments_bytes"] is not None
+                    or request["arguments_sha256"] is not None
+                )
+            )
         ):
             fail(f"{slot} contains an invalid request")
     for response in responses:
@@ -729,6 +747,51 @@ def expected_arguments(
     return [*profile_arguments[:4], {"receipt_id": receipt_id}]
 
 
+def verify_event_observation_window(
+    events: list[dict[str, Any]],
+    *,
+    started: datetime,
+    finished: datetime,
+) -> None:
+    if not events:
+        fail("the session event window is empty")
+    observed = [parse_time(event["observed_at"]) for event in events]
+    if (
+        any(value < started or value > finished for value in observed)
+        or any(left > right for left, right in zip(observed, observed[1:]))
+    ):
+        fail("session events are not monotonic within the declared observation window")
+
+
+def verify_request_argument_bindings(
+    requests: list[dict[str, Any]],
+    operation_summaries: list[dict[str, Any]],
+    profile_arguments: list[dict[str, Any]],
+    search_receipt: str,
+) -> None:
+    if len(requests) != 5 or len(operation_summaries) != 5:
+        fail("the exact-five request argument set is incomplete")
+    arguments = expected_arguments(profile_arguments, search_receipt)
+    for ordinal, operation in enumerate(OPERATIONS):
+        encoded = canonical_bytes(arguments[ordinal])
+        expected = {
+            "operation": operation,
+            "valid": True,
+            "parameters_bytes": len(encoded),
+            "parameters_sha256": sha256_bytes(encoded),
+        }
+        event = requests[ordinal]
+        summary = operation_summaries[ordinal]
+        if (
+            summary["ordinal"] != ordinal
+            or summary["request"] != expected
+            or event["operation"] != operation
+            or event["arguments_bytes"] != expected["parameters_bytes"]
+            or event["arguments_sha256"] != expected["parameters_sha256"]
+        ):
+            fail(f"the {operation} request arguments do not match the frozen profile")
+
+
 def verify_sessions(
     private_root: Path,
     manifest: dict[str, Any],
@@ -771,6 +834,8 @@ def verify_sessions(
     notification_count = 0
     exact_verified: dict[str, Any] | None = None
     seen_session_ids: set[str] = set()
+    execution_started = parse_time(manifest["execution"]["started_at"])
+    execution_finished = parse_time(manifest["execution"]["finished_at"])
     for slot in session_names:
         session_root = private_root / slot
         require_directory(session_root, label=slot)
@@ -830,6 +895,11 @@ def verify_sessions(
             runtime_closure=runtime_closure,
             mcp_command_sha256=mcp_command_sha256,
             event_validator=event_check,
+        )
+        verify_event_observation_window(
+            events,
+            started=execution_started,
+            finished=execution_finished,
         )
         start = events[0]
         end = events[-1]
@@ -906,7 +976,6 @@ def verify_sessions(
             if len(operation_summaries) != 5 or len(independent_operations) != 5:
                 fail("the exact-five session is incomplete")
             search_receipt = independent_operations[0]["receipt_id"]
-            arguments = expected_arguments(profile_arguments, search_receipt)
             requests = [
                 event for event in events
                 if event["event"] == "request" and event["method"] == "tools/call"
@@ -915,23 +984,18 @@ def verify_sessions(
                 event for event in events
                 if event["event"] == "response" and event["request_method"] == "tools/call"
             ]
+            verify_request_argument_bindings(
+                requests,
+                operation_summaries,
+                profile_arguments,
+                search_receipt,
+            )
             for ordinal, operation in enumerate(OPERATIONS):
                 item = operation_summaries[ordinal]
                 independent_item = independent_operations[ordinal]
-                encoded = canonical_bytes(arguments[ordinal])
-                request = item["request"]
                 response = item["response"]
                 if (
-                    item["ordinal"] != ordinal
-                    or request
-                    != {
-                        "operation": operation,
-                        "valid": True,
-                        "parameters_bytes": len(encoded),
-                        "parameters_sha256": sha256_bytes(encoded),
-                    }
-                    or requests[ordinal]["operation"] != operation
-                    or response["operation"] != operation
+                    response["operation"] != operation
                     or response["receipt_id"] != independent_item["receipt_id"]
                     or responses[ordinal]["operation"] != operation
                     or responses[ordinal]["receipt_id"] != independent_item["receipt_id"]
@@ -979,6 +1043,7 @@ def verify_sessions(
 def verify_and_project(
     private_root: Path,
     *,
+    node_path: Path,
     pnpm_path: Path,
     source_verifier: Callable[[dict[str, Any]], None] | None = None,
     private_validator: Draft202012Validator | None = None,
@@ -986,6 +1051,7 @@ def verify_and_project(
     event_validator: Draft202012Validator | None = None,
     runtime_reproducer: Callable[[str, str, Path], dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
+    explicit_node_path = locate_verified_node(node_path)
     explicit_pnpm_path = Path(require_explicit_pnpm_path(pnpm_path))
     root_state = require_directory(private_root, label="private root")
     manifest_raw = read_private(
@@ -1040,17 +1106,16 @@ def verify_and_project(
     (source_verifier or verify_source)(manifest)
     _profile, profile_arguments, profile_sha256 = load_profile()
     runtime_digests = source_runtime_digests(profile_sha256)
-    node_path = locate_verified_node()
     runtime_closure = (
         runtime_reproducer(
             manifest["source"]["commit"],
-            node_path,
+            explicit_node_path,
             explicit_pnpm_path,
         )
         if runtime_reproducer is not None
         else independently_reproduce_runtime_closure(
             manifest["source"]["commit"],
-            node_path=node_path,
+            node_path=explicit_node_path,
             pnpm_path=explicit_pnpm_path,
         )
     )
@@ -1062,7 +1127,7 @@ def verify_and_project(
         claim_raw,
         profile_arguments,
         runtime_digests,
-        node_path,
+        explicit_node_path,
         {
             "bytes": manifest["tunnel_client"]["binary_bytes"],
             "sha256": manifest["tunnel_client"]["binary_sha256"],
@@ -1201,6 +1266,7 @@ def parse_arguments(argv: list[str]) -> argparse.Namespace:
         )
     )
     parser.add_argument("--private-root", required=True, type=Path)
+    parser.add_argument("--node", required=True, type=Path)
     parser.add_argument("--pnpm", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
     return parser.parse_args(argv)
@@ -1211,6 +1277,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         projection = verify_and_project(
             arguments.private_root,
+            node_path=arguments.node,
             pnpm_path=arguments.pnpm,
         )
         publish_projection(arguments.output, projection)

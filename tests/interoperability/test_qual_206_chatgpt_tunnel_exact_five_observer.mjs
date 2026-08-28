@@ -58,6 +58,20 @@ const OPERATIONS = Object.freeze([
   "data.query",
   "evidence.inspect",
 ]);
+const PORTABLE_RUNTIME_CLOSURE = Object.freeze({
+  generated_first_party_closure: Object.freeze({
+    bytes: 123,
+    file_count: 4,
+    manifest_sha256: "a".repeat(64),
+    reference_manifest_sha256: "a".repeat(64),
+    reference_matches_current: true,
+  }),
+  installed_dependency_closure: Object.freeze({
+    bytes: 456,
+    entry_count: 7,
+    manifest_sha256: "b".repeat(64),
+  }),
+});
 const CREDENTIAL_VARIABLES = Object.freeze([
   "OPENAI_API_KEY",
   "CONTROL_PLANE_API_KEY",
@@ -129,9 +143,8 @@ function closedEnvironment(extra = {}) {
   return environment;
 }
 
-function observerArguments(captureRoot, runId) {
+function observerArguments(captureRoot, runId, closure = runtimeClosure()) {
   const parent = executableIdentity();
-  const closure = runtimeClosure();
   const generated = closure.generated_first_party_closure;
   const installed = closure.installed_dependency_closure;
   return [
@@ -380,7 +393,12 @@ async function sandboxedLoopbackProbe(port) {
 
 test("the observer requires every bounded authority marker and rejects credentials", () => {
   const parent = executableIdentity();
-  const argumentsValue = observerArguments(realpathSync(tmpdir()), randomUUID()).slice(1);
+  const closure = PORTABLE_RUNTIME_CLOSURE;
+  const argumentsValue = observerArguments(
+    realpathSync(tmpdir()),
+    randomUUID(),
+    closure,
+  ).slice(1);
   assert.throws(
     () => parseChatGptTunnelObserverArguments(argumentsValue, {}),
     new RegExp(`${ENABLE_FLAG}=1`, "u"),
@@ -400,7 +418,7 @@ test("the observer requires every bounded authority marker and rejects credentia
   );
   assert.equal(parsed.expectedParentBytes, parent.bytes);
   assert.equal(parsed.expectedParentSha256, parent.sha256);
-  assert.deepEqual(parsed.expectedRuntimeClosure, runtimeClosure());
+  assert.deepEqual(parsed.expectedRuntimeClosure, closure);
 });
 
 test("observation deadlines separate attach, inter-frame and overall limits", () => {

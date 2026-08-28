@@ -42,6 +42,13 @@ TUNNEL_ID = "tunnel_6a873e7214308191bfe27240c1c03f68"
 TUNNEL_NAME = "gis-ai-go-v0-2-interoperability"
 PROFILE_NAME = "gis-ai-go-v0-2-exact-five-v1"
 REMOTE_IDENTITY = {"found": True, "id": TUNNEL_ID, "name": TUNNEL_NAME}
+PORTABLE_FIXTURE = (
+    ROOT
+    / "tests"
+    / "contract"
+    / "fixtures"
+    / "qual-206-chatgpt-tunnel-portable-fixture.v1.json"
+)
 
 
 def validator(
@@ -100,6 +107,245 @@ def iso_milliseconds(value: datetime) -> str:
     )
 
 
+class ChatGptTunnelPortableContractTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.fixture = json.loads(PORTABLE_FIXTURE.read_text(encoding="utf-8"))
+        cls.profile = json.loads(verifier.PROFILE.read_text(encoding="utf-8"))
+
+    def test_synthetic_fixture_exercises_all_six_canonical_schemas(self) -> None:
+        self.assertEqual(
+            set(self.fixture),
+            {
+                "schema",
+                "synthetic",
+                "statuses",
+                "events",
+                "session_captures",
+                "sessions",
+                "private_run",
+                "public_evidence",
+            },
+        )
+        self.assertEqual(
+            self.fixture["schema"],
+            "gis-ai-go.qual-206-chatgpt-tunnel-portable-fixture.v1",
+        )
+        self.assertIs(self.fixture["synthetic"], True)
+        self.assertEqual(
+            tuple(
+                len(self.fixture[key])
+                for key in ("statuses", "events", "session_captures", "sessions")
+            ),
+            (3, 37, 2, 2),
+        )
+        records = (
+            (verifier.STATUS_SCHEMA, self.fixture["statuses"]),
+            (verifier.EVENT_SCHEMA, self.fixture["events"]),
+            (verifier.CAPTURE_SCHEMA, self.fixture["session_captures"]),
+            (verifier.SESSION_SCHEMA, self.fixture["sessions"]),
+            (verifier.PRIVATE_SCHEMA, [self.fixture["private_run"]]),
+            (verifier.PUBLIC_SCHEMA, [self.fixture["public_evidence"]]),
+        )
+        for schema_path, instances in records:
+            with self.subTest(schema=schema_path.name):
+                contract = validator(schema_path)
+                assert_contract_objects_are_closed(
+                    self,
+                    json.loads(schema_path.read_text(encoding="utf-8")),
+                )
+                for instance in instances:
+                    self.assertEqual(list(contract.iter_errors(instance)), [])
+
+    def test_fixture_event_chains_and_embedded_hashes_are_self_consistent(self) -> None:
+        for session in self.fixture["sessions"]:
+            events = [
+                event
+                for event in self.fixture["events"]
+                if event["session_id"] == session["session_id"]
+            ]
+            previous: str | None = None
+            encoded: list[bytes] = []
+            for index, event in enumerate(events):
+                self.assertEqual(event["sequence"], index)
+                self.assertEqual(event["previous_event_sha256"], previous)
+                core = dict(event)
+                supplied = core.pop("event_sha256")
+                self.assertEqual(supplied, verifier.event_digest(core))
+                if event.get("phase") == "session-end":
+                    prior_raw = b"".join(encoded)
+                    self.assertEqual(event["prior_event_count"], index)
+                    self.assertEqual(event["prior_event_log_bytes"], len(prior_raw))
+                    self.assertEqual(
+                        event["prior_event_log_sha256"],
+                        hashlib.sha256(prior_raw).hexdigest(),
+                    )
+                previous = supplied
+                encoded.append(verifier.canonical_line(event))
+            event_raw = b"".join(encoded)
+            capture = next(
+                item
+                for item in self.fixture["session_captures"]
+                if item["session_id"] == session["session_id"]
+            )
+            self.assertEqual(
+                capture["event_log"],
+                {
+                    "bytes": len(event_raw),
+                    "event_count": len(events),
+                    "last_event_sha256": events[-1]["event_sha256"],
+                    "sha256": hashlib.sha256(event_raw).hexdigest(),
+                },
+            )
+
+        private_raw = verifier.canonical_line(self.fixture["private_run"])
+        self.assertEqual(
+            self.fixture["public_evidence"]["private_capture"][
+                "run_manifest_sha256"
+            ],
+            hashlib.sha256(private_raw).hexdigest(),
+        )
+
+    def test_request_arguments_bind_events_summaries_and_frozen_profile(self) -> None:
+        session = self.fixture["sessions"][1]
+        requests = [
+            event
+            for event in self.fixture["events"]
+            if event["session_id"] == session["session_id"]
+            and event["event"] == "request"
+            and event["method"] == "tools/call"
+        ]
+        profile_arguments = [
+            operation["arguments"] for operation in self.profile["operations"][:4]
+        ]
+        receipt_id = session["operations"][0]["response"]["receipt_id"]
+        verifier.verify_request_argument_bindings(
+            requests,
+            session["operations"],
+            profile_arguments,
+            receipt_id,
+        )
+
+        changed_requests = copy.deepcopy(requests)
+        changed_operations = copy.deepcopy(session["operations"])
+        changed_arguments = verifier.canonical_bytes({"query": "OTHER", "limit": 1})
+        changed_bytes = len(changed_arguments)
+        changed_sha256 = hashlib.sha256(changed_arguments).hexdigest()
+        changed_requests[0]["arguments_bytes"] = changed_bytes
+        changed_requests[0]["arguments_sha256"] = changed_sha256
+        changed_operations[0]["request"]["parameters_bytes"] = changed_bytes
+        changed_operations[0]["request"]["parameters_sha256"] = changed_sha256
+        with self.assertRaisesRegex(
+            verifier.TunnelExactFiveVerificationError,
+            "request arguments do not match the frozen profile",
+        ):
+            verifier.verify_request_argument_bindings(
+                changed_requests,
+                changed_operations,
+                profile_arguments,
+                receipt_id,
+            )
+
+    def test_event_times_are_monotonic_inside_the_operator_window(self) -> None:
+        execution = self.fixture["private_run"]["execution"]
+        started = verifier.parse_time(execution["started_at"])
+        finished = verifier.parse_time(execution["finished_at"])
+        sessions: list[list[dict[str, Any]]] = []
+        for session in self.fixture["sessions"]:
+            events = [
+                event
+                for event in self.fixture["events"]
+                if event["session_id"] == session["session_id"]
+            ]
+            sessions.append(events)
+            verifier.verify_event_observation_window(
+                events,
+                started=started,
+                finished=finished,
+            )
+
+        outside = copy.deepcopy(sessions[1])
+        outside[0]["observed_at"] = iso_milliseconds(finished + timedelta(seconds=1))
+        non_monotonic = copy.deepcopy(sessions[1])
+        non_monotonic[1]["observed_at"] = iso_milliseconds(
+            verifier.parse_time(non_monotonic[0]["observed_at"])
+            - timedelta(milliseconds=1)
+        )
+        for label, events in (("outside", outside), ("non-monotonic", non_monotonic)):
+            with self.subTest(mutation=label), self.assertRaisesRegex(
+                verifier.TunnelExactFiveVerificationError,
+                "not monotonic within the declared observation window",
+            ):
+                verifier.verify_event_observation_window(
+                    events,
+                    started=started,
+                    finished=finished,
+                )
+
+    def test_cli_requires_explicit_node_and_pnpm_paths(self) -> None:
+        verifier_arguments = [
+            "--private-root",
+            "/tmp/private",
+            "--output",
+            "/tmp/public.json",
+        ]
+        finaliser_arguments = [
+            "--private-root",
+            "/tmp/private",
+            "--started-at",
+            "2026-08-28T00:00:00.000Z",
+            "--finished-at",
+            "2026-08-28T00:01:00.000Z",
+            "--displayed-model",
+            "GPT-5",
+            "--app-version-id",
+            FRESH_APP_VERSION,
+            "--conversation-id-sha256",
+            "b" * 64,
+        ]
+        for parser, arguments in (
+            (verifier.parse_arguments, verifier_arguments),
+            (finaliser.parse_arguments, finaliser_arguments),
+        ):
+            for added in ([], ["--node", "/explicit/node"]):
+                with self.subTest(parser=parser.__module__, added=added):
+                    with self.assertRaises(SystemExit), mock.patch(
+                        "sys.stderr", new_callable=io.StringIO
+                    ):
+                        parser(arguments + added)
+            parsed = parser(
+                arguments
+                + ["--node", "/explicit/node", "--pnpm", "/explicit/pnpm"]
+            )
+            self.assertEqual(parsed.node, Path("/explicit/node"))
+            self.assertEqual(parsed.pnpm, Path("/explicit/pnpm"))
+
+    def test_runtime_paths_reject_relative_missing_and_symlink_inputs(self) -> None:
+        with self.assertRaisesRegex(
+            verifier.TunnelExactFiveVerificationError,
+            "Node path must be an existing canonical absolute path",
+        ):
+            verifier.locate_verified_node(Path("node"))
+        with self.assertRaisesRegex(
+            verifier.TunnelExactFiveVerificationError,
+            "pnpm path must be an existing canonical absolute path",
+        ):
+            verifier.require_explicit_pnpm_path(Path("pnpm"))
+        with tempfile.TemporaryDirectory(prefix="qual206-runtime-paths-") as directory:
+            root = Path(directory).resolve()
+            missing = root / "missing"
+            target = root / "target"
+            target.write_bytes(b"synthetic executable")
+            alias = root / "alias"
+            alias.symlink_to(target)
+            for path in (missing, alias):
+                with self.subTest(path=path):
+                    with self.assertRaises(verifier.TunnelExactFiveVerificationError):
+                        verifier.locate_verified_node(path)
+                    with self.assertRaises(verifier.TunnelExactFiveVerificationError):
+                        verifier.require_explicit_pnpm_path(path)
+
+
 class ChatGptTunnelExactFiveContractTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
@@ -111,7 +357,10 @@ class ChatGptTunnelExactFiveContractTests(unittest.TestCase):
         os.chmod(cls.temporary, 0o700)
         cls.capture = cls.temporary / "accepted"
         cls.capture.mkdir(mode=0o700)
-        cls.node = verifier.locate_verified_node()
+        node = shutil.which("node")
+        if node is None:
+            raise unittest.SkipTest("the reviewed Node runtime is unavailable")
+        cls.node = verifier.locate_verified_node(Path(os.path.realpath(node)))
         cls.parent_executable = Path(os.path.realpath(sys.executable))
         parent_raw = cls.parent_executable.read_bytes()
         cls.parent_identity = {
@@ -482,6 +731,7 @@ class ChatGptTunnelExactFiveContractTests(unittest.TestCase):
     def verify(self, root: Path | None = None) -> dict[str, Any]:
         return verifier.verify_and_project(
             root or self.case,
+            node_path=Path(self.node),
             pnpm_path=Path(self.node),
             source_verifier=lambda _manifest: None,
             private_validator=self.private_validator,
@@ -490,11 +740,20 @@ class ChatGptTunnelExactFiveContractTests(unittest.TestCase):
             runtime_reproducer=lambda _commit, _node, _pnpm: copy.deepcopy(self.runtime),
         )
 
-    def test_pnpm_path_must_be_explicit_canonical_and_absolute(self) -> None:
+    def test_node_and_pnpm_paths_must_be_explicit_canonical_and_absolute(self) -> None:
+        self.assertEqual(
+            verifier.locate_verified_node(Path(self.node)),
+            self.node,
+        )
         self.assertEqual(
             verifier.require_explicit_pnpm_path(Path(self.node)),
             self.node,
         )
+        with self.assertRaisesRegex(
+            verifier.TunnelExactFiveVerificationError,
+            "canonical absolute path",
+        ):
+            verifier.locate_verified_node(Path("node"))
         with self.assertRaisesRegex(
             verifier.TunnelExactFiveVerificationError,
             "canonical absolute path",
@@ -511,7 +770,17 @@ class ChatGptTunnelExactFiveContractTests(unittest.TestCase):
             verifier.TunnelExactFiveVerificationError,
             "canonical absolute path",
         ):
+            verifier.locate_verified_node(alias)
+        with self.assertRaisesRegex(
+            verifier.TunnelExactFiveVerificationError,
+            "canonical absolute path",
+        ):
             verifier.require_explicit_pnpm_path(self.case_root / "missing-pnpm")
+        with self.assertRaisesRegex(
+            verifier.TunnelExactFiveVerificationError,
+            "canonical absolute path",
+        ):
+            verifier.locate_verified_node(self.case_root / "missing-node")
 
     def test_reference_reproducer_uses_only_the_explicit_pnpm_path(self) -> None:
         generated = self.runtime["generated_first_party_closure"]
@@ -567,16 +836,34 @@ class ChatGptTunnelExactFiveContractTests(unittest.TestCase):
         )
         self.assertNotIn(str(poisoned), environment["PATH"])
 
-    def test_finaliser_and_verifier_cli_require_pnpm(self) -> None:
+    def test_finaliser_and_verifier_cli_require_node_and_pnpm(self) -> None:
         with mock.patch("sys.stderr", new=io.StringIO()):
             with self.assertRaises(SystemExit):
                 verifier.parse_arguments([
                     "--private-root", str(self.case),
+                    "--pnpm", self.node,
+                    "--output", str(self.case_root / "output.json"),
+                ])
+            with self.assertRaises(SystemExit):
+                verifier.parse_arguments([
+                    "--private-root", str(self.case),
+                    "--node", self.node,
                     "--output", str(self.case_root / "output.json"),
                 ])
             with self.assertRaises(SystemExit):
                 finaliser.parse_arguments([
                     "--private-root", str(self.case),
+                    "--pnpm", self.node,
+                    "--started-at", "2026-08-27T12:00:00.000Z",
+                    "--finished-at", "2026-08-27T12:01:00.000Z",
+                    "--displayed-model", "GPT-5",
+                    "--app-version-id", FRESH_APP_VERSION,
+                    "--conversation-id-sha256", "b" * 64,
+                ])
+            with self.assertRaises(SystemExit):
+                finaliser.parse_arguments([
+                    "--private-root", str(self.case),
+                    "--node", self.node,
                     "--started-at", "2026-08-27T12:00:00.000Z",
                     "--finished-at", "2026-08-27T12:01:00.000Z",
                     "--displayed-model", "GPT-5",
@@ -590,6 +877,53 @@ class ChatGptTunnelExactFiveContractTests(unittest.TestCase):
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         manifest["private_files"][fact] = file_facts(name, raw)
         write_private_json(manifest_path, manifest)
+
+    def rebind_session_events(
+        self,
+        slot: str,
+        events: list[dict[str, Any]],
+    ) -> None:
+        previous: str | None = None
+        encoded: list[bytes] = []
+        for index, event in enumerate(events):
+            event["sequence"] = index
+            event["previous_event_sha256"] = previous
+            if event.get("event") == "lifecycle" and event.get("phase") == "session-end":
+                prior_raw = b"".join(encoded)
+                event["prior_event_count"] = index
+                event["prior_event_log_bytes"] = len(prior_raw)
+                event["prior_event_log_sha256"] = hashlib.sha256(prior_raw).hexdigest()
+            core = dict(event)
+            core.pop("event_sha256", None)
+            event["event_sha256"] = verifier.event_digest(core)
+            previous = event["event_sha256"]
+            encoded.append(verifier.canonical_line(event))
+        raw = b"".join(encoded)
+        event_path = self.case / slot / "events.jsonl"
+        event_path.write_bytes(raw)
+        os.chmod(event_path, 0o600)
+        capture_path = self.case / slot / "manifest.json"
+        capture = json.loads(capture_path.read_text(encoding="utf-8"))
+        capture["event_log"] = {
+            "bytes": len(raw),
+            "event_count": len(events),
+            "last_event_sha256": events[-1]["event_sha256"],
+            "sha256": hashlib.sha256(raw).hexdigest(),
+        }
+        write_private_json(capture_path, capture)
+
+    def rebind_session_summary(self, slot: str, summary: dict[str, Any]) -> None:
+        summary_raw = write_private_json(
+            self.case / slot / "exact-five-session.json",
+            summary,
+        )
+        capture_path = self.case / slot / "manifest.json"
+        capture = json.loads(capture_path.read_text(encoding="utf-8"))
+        capture["session_summary"] = material_facts(
+            "exact-five-session.json",
+            summary_raw,
+        )
+        write_private_json(capture_path, capture)
 
     def test_all_new_contract_objects_are_closed(self) -> None:
         for path in SCHEMAS:
@@ -844,6 +1178,54 @@ process.stdout.write(`${JSON.stringify([ready, stopped])}\n`);
         ):
             self.verify()
 
+    def test_request_event_and_summary_cannot_coordinate_away_from_profile(self) -> None:
+        slot = "session-2"
+        event_path = self.case / slot / "events.jsonl"
+        events = [
+            json.loads(line)
+            for line in event_path.read_text(encoding="utf-8").splitlines()
+        ]
+        request = next(
+            event
+            for event in events
+            if event["event"] == "request" and event["method"] == "tools/call"
+        )
+        changed_arguments = verifier.canonical_bytes({"query": "OTHER", "limit": 1})
+        request["arguments_bytes"] = len(changed_arguments)
+        request["arguments_sha256"] = hashlib.sha256(changed_arguments).hexdigest()
+        self.rebind_session_events(slot, events)
+
+        summary_path = self.case / slot / "exact-five-session.json"
+        summary = json.loads(summary_path.read_text(encoding="utf-8"))
+        summary["operations"][0]["request"]["parameters_bytes"] = len(changed_arguments)
+        summary["operations"][0]["request"]["parameters_sha256"] = hashlib.sha256(
+            changed_arguments
+        ).hexdigest()
+        self.rebind_session_summary(slot, summary)
+        with self.assertRaisesRegex(
+            verifier.TunnelExactFiveVerificationError,
+            "request arguments do not match the frozen profile",
+        ):
+            self.verify()
+
+    def test_event_times_must_remain_inside_the_declared_window(self) -> None:
+        slot = "session-2"
+        event_path = self.case / slot / "events.jsonl"
+        events = [
+            json.loads(line)
+            for line in event_path.read_text(encoding="utf-8").splitlines()
+        ]
+        for event in events:
+            event["observed_at"] = iso_milliseconds(
+                verifier.parse_time(event["observed_at"]) + timedelta(days=1)
+            )
+        self.rebind_session_events(slot, events)
+        with self.assertRaisesRegex(
+            verifier.TunnelExactFiveVerificationError,
+            "not monotonic within the declared observation window",
+        ):
+            self.verify()
+
     def test_event_chain_and_global_claim_mutations_are_rejected(self) -> None:
         event_path = self.case / "session-1" / "events.jsonl"
         lines = event_path.read_text(encoding="utf-8").splitlines()
@@ -940,6 +1322,7 @@ process.stdout.write(`${JSON.stringify([ready, stopped])}\n`);
             displayed_model="GPT-5",
             app_version_id=FRESH_APP_VERSION,
             conversation_id_sha256="b" * 64,
+            node=Path(self.node),
             pnpm=Path(self.node),
         )
         with (

@@ -25,6 +25,7 @@ def private_file_facts(path: Path, *, maximum: int, label: str) -> dict[str, Any
 
 def build_manifest(arguments: argparse.Namespace) -> dict[str, Any]:
     private_root = arguments.private_root
+    node_path = verifier.locate_verified_node(arguments.node)
     pnpm_path = Path(verifier.require_explicit_pnpm_path(arguments.pnpm))
     verifier.require_directory(private_root, label="private root")
     if (private_root.lstat().st_mode & 0o777) != 0o700:
@@ -64,7 +65,7 @@ def build_manifest(arguments: argparse.Namespace) -> dict[str, Any]:
     verifier.verify_source({"source": source})
     runtime = verifier.independently_reproduce_runtime_closure(
         commit,
-        node_path=verifier.locate_verified_node(),
+        node_path=node_path,
         pnpm_path=pnpm_path,
     )
     manifest = {
@@ -214,6 +215,7 @@ def parse_arguments(argv: list[str]) -> argparse.Namespace:
         description="Finalise the closed private metadata for a completed tunnel capture."
     )
     parser.add_argument("--private-root", required=True, type=Path)
+    parser.add_argument("--node", required=True, type=Path)
     parser.add_argument("--pnpm", required=True, type=Path)
     parser.add_argument("--started-at", required=True)
     parser.add_argument("--finished-at", required=True)

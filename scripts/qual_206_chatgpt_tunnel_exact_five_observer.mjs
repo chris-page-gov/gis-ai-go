@@ -1033,6 +1033,8 @@ export function startChatGptTunnelObserver(options) {
       semantic_valid: semanticValid,
       parameters_bytes: parameters.length,
       parameters_sha256: sha256Bytes(parameters),
+      arguments_bytes: toolRequest?.bytes ?? null,
+      arguments_sha256: toolRequest?.sha256 ?? null,
     });
     if (!id.valid || duplicate || !semanticValid) {
       captureFatal(

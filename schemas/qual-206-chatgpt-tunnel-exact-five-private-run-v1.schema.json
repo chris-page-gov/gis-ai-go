@@ -158,8 +158,14 @@
         "private_file_mode": {"const": "0600"},
         "observer_credentials_observed": {"const": false},
         "mcp_child_recognised_credentials_forwarded": {"const": false},
-        "mcp_child_network_access_allowed": {"const": false},
-        "mcp_child_network_sandbox": {"const": "macos-seatbelt-deny-network"},
+        "mcp_child_network_access_allowed": {
+          "const": false,
+          "description": "The downstream deterministic MCP fixture spawned by the observer has no network access; this does not describe the observer process."
+        },
+        "mcp_child_network_sandbox": {
+          "const": "macos-seatbelt-deny-network",
+          "description": "The sandbox applied to the downstream deterministic MCP fixture, not to the observer started directly by the tunnel client."
+        },
         "provider_egress_guard_ready": {"const": true},
         "guarded_live_provider_api_invocations": {"const": 0},
         "raw_material_published": {"const": false}

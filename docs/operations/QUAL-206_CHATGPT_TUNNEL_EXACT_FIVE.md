@@ -18,7 +18,8 @@ local STDIO result. It does not change, repeat or relabel that result.
 The observation can establish only this narrow claim:
 
 > ChatGPT, acting as a remote host through the reviewed OpenAI secure tunnel,
-> completed the five ordered MCP `2026-07-28` calls against one local STDIO child.
+> completed the five ordered MCP `2026-07-28` calls through one byte-bound local
+> STDIO observer to a separate network-denied deterministic fixture/server.
 
 It cannot establish a direct public MCP endpoint, public hostname, product TLS
 ingress, live geospatial-provider operation, registry publication, activation,
@@ -177,7 +178,7 @@ uv sync --locked --offline
 Run the focused offline pack checks before opening a tunnel:
 
 ```bash
-node --test \
+"$QUAL206_NODE" --test \
   tests/interoperability/test_qual_206_chatgpt_tunnel_exact_five_harness.mjs \
   tests/interoperability/test_qual_206_chatgpt_tunnel_exact_five_observer.mjs
 .venv/bin/python -m unittest \
@@ -215,7 +216,7 @@ export QUAL206_SOURCE_COMMIT="$(git rev-parse HEAD)"
 export QUAL206_TUNNEL_CLIENT=<absolute-reviewed-v0.0.13-binary>
 export GIS_AI_GO_QUAL_206_CHATGPT_TUNNEL_EXACT_FIVE_HARNESS=1
 
-node scripts/qual_206_chatgpt_tunnel_exact_five_harness.mjs \
+"$QUAL206_NODE" scripts/qual_206_chatgpt_tunnel_exact_five_harness.mjs \
   --chatgpt-tunnel-exact-five-harness-only \
   --phase prepare \
   --capture-root "$QUAL206_CAPTURE_ROOT" \
@@ -246,7 +247,7 @@ not connect to OpenAI.
 With `CONTROL_PLANE_API_KEY` present only in the parent environment, connect:
 
 ```bash
-node scripts/qual_206_chatgpt_tunnel_exact_five_harness.mjs \
+"$QUAL206_NODE" scripts/qual_206_chatgpt_tunnel_exact_five_harness.mjs \
   --chatgpt-tunnel-exact-five-harness-only \
   --phase connect \
   --operator-root "$QUAL206_OPERATOR_ROOT"
@@ -257,6 +258,15 @@ The harness supplies exactly one `--mcp-command`; it never supplies
 and fixture receive no recognised provider credential. The tunnel client executes
 that argv directly; the observer binds its immediate parent to the reviewed
 `v0.0.13` bytes.
+
+In this evidence contract, **MCP child** means the downstream deterministic GIS AI GO
+fixture process that the credential-free observer starts. It does not mean the
+observer that the tunnel client starts directly. The observer is byte-bound and
+receives no recognised credential, but the network-sandbox claim applies only to
+that downstream fixture: the observer starts it through the reviewed macOS
+`sandbox-exec` deny-network profile. Accordingly, every `mcp_child_network_*` field
+describes the fixture process and must not be read as a claim that the immediate
+observer process is itself network-sandboxed.
 
 Connect success is insufficient by itself. The harness immediately obtains a fresh
 JSON status and emits only an endpoint-free `tunnel-status-before.json`. It requires:
@@ -302,7 +312,7 @@ authorised repeat.
 Immediately after the host finishes, obtain the second attested status:
 
 ```bash
-node scripts/qual_206_chatgpt_tunnel_exact_five_harness.mjs \
+"$QUAL206_NODE" scripts/qual_206_chatgpt_tunnel_exact_five_harness.mjs \
   --chatgpt-tunnel-exact-five-harness-only \
   --phase status-after \
   --operator-root "$QUAL206_OPERATOR_ROOT"
@@ -313,7 +323,7 @@ node scripts/qual_206_chatgpt_tunnel_exact_five_harness.mjs \
 Stop the exact managed alias before finalisation:
 
 ```bash
-node scripts/qual_206_chatgpt_tunnel_exact_five_harness.mjs \
+"$QUAL206_NODE" scripts/qual_206_chatgpt_tunnel_exact_five_harness.mjs \
   --chatgpt-tunnel-exact-five-harness-only \
   --phase stop \
   --operator-root "$QUAL206_OPERATOR_ROOT"
@@ -335,6 +345,7 @@ observation window. Then create the immutable private run manifest:
 .venv/bin/python \
   scripts/finalise_qual_206_chatgpt_tunnel_exact_five.py \
   --private-root "$QUAL206_CAPTURE_ROOT" \
+  --node "$QUAL206_NODE" \
   --pnpm "$QUAL206_PNPM" \
   --started-at <UTC-start> \
   --finished-at <UTC-finish> \
@@ -349,6 +360,7 @@ Run the independent verifier and publish to a new evidence filename only:
 .venv/bin/python \
   scripts/verify_qual_206_chatgpt_tunnel_exact_five.py \
   --private-root "$QUAL206_CAPTURE_ROOT" \
+  --node "$QUAL206_NODE" \
   --pnpm "$QUAL206_PNPM" \
   --output "$(pwd -P)/tests/interoperability/evidence/<new-public-filename>.json"
 ```
