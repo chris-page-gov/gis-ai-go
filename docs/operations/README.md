@@ -44,6 +44,7 @@ and no public MCP service or API is deployed.
 - [TOOLS-205 non-activating tool registry candidate](TOOLS-205_TOOL_REGISTRY.md)
 - [TOOLS-205 governed candidate assembly](TOOLS-205_GOVERNED_CANDIDATE_ASSEMBLY.md)
 - [QUAL-206 host interoperability and secure-tunnel runbook](QUAL-206_INTEROPERABILITY.md)
+- [QUAL-206 ChatGPT secure-tunnel exact-five observation](QUAL-206_CHATGPT_TUNNEL_EXACT_FIVE.md)
 - [QUAL-206 local demonstration](QUAL-206_LOCAL_DEMONSTRATION.md)
 - [QUAL-206 local HTTP transport preflight](QUAL-206_LOCAL_HTTP_TRANSPORT_PREFLIGHT.md)
 - [QUAL-206 strict-modern evidence preparation](QUAL-206_STRICT_MODERN_EVIDENCE.md)

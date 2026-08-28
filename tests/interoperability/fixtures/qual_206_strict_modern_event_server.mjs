@@ -59,6 +59,10 @@ const SCENARIOS = Object.freeze({
     lifecycle: ACTIVE_LIFECYCLE,
     toolsOnly: true,
   }),
+  "chatgpt-tunnel-exact-five-v1": Object.freeze({
+    lifecycle: ACTIVE_LIFECYCLE,
+    toolsOnly: true,
+  }),
   "claude-exact-five-v1-tampered-receipt": Object.freeze({
     lifecycle: ACTIVE_LIFECYCLE,
     toolsOnly: true,

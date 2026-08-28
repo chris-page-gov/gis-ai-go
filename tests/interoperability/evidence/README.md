@@ -119,6 +119,14 @@ exact-five model capability only. Remote HTTP interoperability, a live geospatia
 provider, registry publication, activation, deployment and release remain false.
 Raw capture remains owner-only and local.
 
+The repository also contains a separately gated ChatGPT secure-tunnel exact-five
+evidence pack. The pack itself is not an observation and adds no evidence file to
+this directory. A later result may be added only after the pack is merged, one fresh
+run is made from exact protected `main`, the private capture passes independent
+verification and the path-free projection passes deliberate publication review.
+That projection must describe the remote-host-through-secure-tunnel lane without
+claiming a direct public Streamable HTTP endpoint.
+
 The
 [`protected-main local HTTP transport preflight`](local-http-transport-preflight-2026-08-25.json)
 is a separate path-free projection from exact protected-main commit

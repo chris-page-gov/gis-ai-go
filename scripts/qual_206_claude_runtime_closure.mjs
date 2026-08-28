@@ -25,6 +25,8 @@ const HEX = /^[0-9A-Fa-f]{4}$/u;
 const DOMAIN_PREFIX = "GIS-AI-GO\0canonical-json\0sha256\0v1\0";
 const CLOSURE_DOMAIN = "gis-ai-go.qual-206-claude-runtime-closure.v1";
 const DEPENDENCY_DOMAIN = "gis-ai-go.qual-206-claude-dependency-closure.v1";
+const PACKAGE_CONTENT_DOMAIN =
+  "gis-ai-go.qual-206-claude-dependency-package-content-closure.v1";
 
 export const GENERATED_RUNTIME_ROOTS = Object.freeze([
   "apps/mcp-gateway/dist",
@@ -96,6 +98,12 @@ export const WORKSPACE_DEPENDENCY_TARGETS = Object.freeze([
   "packages/provider-adapter-sdk",
   "packages/tool-registry",
 ]);
+
+export const GENERATED_DEPENDENCY_METADATA = Object.freeze([
+  "node_modules/.modules.yaml",
+  "node_modules/.pnpm-workspace-state-v1.json",
+]);
+const GENERATED_VITE_CACHE_ROOT = "apps/public-explorer/node_modules/.vite";
 
 function fail(message) {
   throw new Error(message);
@@ -446,6 +454,74 @@ export function measureInstalledDependencyClosure(root = ROOT) {
   const digest = createHash("sha256")
     .update(DOMAIN_PREFIX, "utf8")
     .update(DEPENDENCY_DOMAIN, "utf8")
+    .update("\0", "utf8")
+    .update(canonicalJson(entries), "utf8")
+    .digest("hex");
+  return Object.freeze({ bytes, entry_count: entries.length, manifest_sha256: digest });
+}
+
+function generatedDependencyEntry(relativePath) {
+  return GENERATED_DEPENDENCY_METADATA.includes(relativePath) ||
+    relativePath.split("/").includes(".bin") ||
+    relativePath === GENERATED_VITE_CACHE_ROOT;
+}
+
+export function measureInstalledPackageContentClosure(root = ROOT) {
+  if (realpathSync(root) !== root) fail("dependency runtime root must be canonical");
+  const entries = [];
+  const identities = new Set();
+  let bytes = 0;
+  function visit(path, depth) {
+    if (depth > MAX_DEPTH) fail("installed package-content closure is too deeply nested");
+    const state = lstatSync(path);
+    const relativePath = relative(root, path).split(sep).join("/");
+    if (generatedDependencyEntry(relativePath)) return;
+    if (state.isSymbolicLink()) {
+      const target = readlinkSync(path, "utf8");
+      const resolved = realpathSync(path);
+      const after = lstatSync(path);
+      if (
+        isAbsolute(target) || target.includes("\0") ||
+        (resolved !== root && !resolved.startsWith(`${root}${sep}`)) ||
+        !dependencyLinkTargetAllowed(root, resolved) ||
+        after.dev !== state.dev || after.ino !== state.ino ||
+        after.mtimeMs !== state.mtimeMs || readlinkSync(path, "utf8") !== target
+      ) {
+        fail("installed package-content closure contains an unsafe link target");
+      }
+      entries.push({ kind: "symlink", path: relativePath, target });
+    } else if (state.isDirectory()) {
+      for (const entry of readdirSync(path, { withFileTypes: true })
+        .sort((left, right) => left.name < right.name ? -1 : left.name > right.name ? 1 : 0)) {
+        visit(join(path, entry.name), depth + 1);
+      }
+    } else if (state.isFile()) {
+      const identity = `${state.dev}:${state.ino}`;
+      if (state.nlink !== 1 || identities.has(identity)) {
+        fail("installed package-content file must be singly linked and unique");
+      }
+      identities.add(identity);
+      const measured = hashStableRegularFile(
+        path,
+        "installed package-content file",
+        MAX_FILE_BYTES,
+      );
+      bytes += measured.bytes;
+      if (!Number.isSafeInteger(bytes) || bytes > MAX_DEPENDENCY_BYTES) {
+        fail("installed package-content closure exceeds its byte boundary");
+      }
+      entries.push({ kind: "file", path: relativePath, ...measured });
+    } else {
+      fail("installed package-content closure contains a special file");
+    }
+    if (entries.length > MAX_DEPENDENCY_FILES) {
+      fail("installed package-content closure has too many entries");
+    }
+  }
+  for (const name of INSTALLED_DEPENDENCY_ROOTS) visit(join(root, name), 0);
+  const digest = createHash("sha256")
+    .update(DOMAIN_PREFIX, "utf8")
+    .update(PACKAGE_CONTENT_DOMAIN, "utf8")
     .update("\0", "utf8")
     .update(canonicalJson(entries), "utf8")
     .digest("hex");

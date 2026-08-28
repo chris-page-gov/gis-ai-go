@@ -85,6 +85,18 @@ The supported target active set is exactly `catalogue.search`,
   valid. This closes local STDIO exact-five model capability only. Raw capture
   remains local and owner-only; remote HTTP, live-provider use, registry publication,
   activation, deployment and release remain false and open;
+- prepare one separate fail-closed ChatGPT exact-five remote-host observation through
+  the OpenAI secure tunnel to a local STDIO child. The pack pins reviewed
+  tunnel-client `v0.0.13`, isolates the observer and deterministic fixture from
+  recognised credentials, denies the fixture network access, permits up to eight
+  contiguous discovery/session
+  slots while requiring every call in one claimed session, attests remote and local
+  tunnel health before and after the host run, binds the generated and dependency
+  closures, requires credential-free stopped-state evidence, and can publish only a
+  verifier-built path-free pass. Merge and verify the pack before making the bounded
+  observation from a fresh clean detached protected-main checkout. These
+  implementation bytes contain no new ChatGPT result and do not close direct public
+  Streamable HTTP/TLS, live-provider, registry, activation, deployment or release;
 - retain the accepted fail-closed real-socket loopback HTTP exact-five preflight,
   whose owner-only raw capture remains local and whose independent path-free
   projection keeps remote-host acceptance false and capability unscored;

@@ -1,0 +1,196 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:qual-206-chatgpt-tunnel-exact-five-session:v1",
+  "title": "QUAL-206 ChatGPT secure-tunnel private exact-five session",
+  "description": "Owner-only allowlisted facts and result-material binding from one secure-tunnel MCP child session.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "profile", "run_id", "session_id", "slot", "source_commit",
+    "scenario", "session_profile", "protocol_session_status", "capability_scored",
+    "mcp_child_network_access_allowed", "mcp_child_network_sandbox",
+    "mcp_child_recognised_credentials_forwarded", "global_claim",
+    "canonical_tool_schema", "counts", "result_material", "operations",
+    "inspection_relationship", "audit"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gis-ai-go.qual-206-chatgpt-tunnel-exact-five-session.v1"
+    },
+    "profile": {"const": "exact-five-v1"},
+    "run_id": {"$ref": "#/$defs/uuidV4"},
+    "session_id": {"$ref": "#/$defs/uuidV4"},
+    "slot": {"$ref": "#/$defs/slot"},
+    "source_commit": {"$ref": "#/$defs/commit"},
+    "scenario": {"const": "chatgpt-tunnel-exact-five-v1"},
+    "session_profile": {
+      "enum": ["negotiation-probe", "exact-five-session", "invalid"]
+    },
+    "protocol_session_status": {"enum": ["passed", "failed"]},
+    "capability_scored": {"const": false},
+    "mcp_child_network_access_allowed": {"const": false},
+    "mcp_child_network_sandbox": {"const": "macos-seatbelt-deny-network"},
+    "mcp_child_recognised_credentials_forwarded": {"const": false},
+    "global_claim": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["bytes", "sha256"],
+          "properties": {
+            "bytes": {"type": "integer", "minimum": 1, "maximum": 2048},
+            "sha256": {"$ref": "#/$defs/sha256"}
+          }
+        }
+      ]
+    },
+    "canonical_tool_schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["observed", "exact", "tools_sha256", "projection_applied"],
+      "properties": {
+        "observed": {"type": "boolean"},
+        "exact": {"type": "boolean"},
+        "tools_sha256": {
+          "oneOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]
+        },
+        "projection_applied": {"const": false}
+      }
+    },
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "request_count", "response_count", "notification_count", "tool_call_count"
+      ],
+      "properties": {
+        "request_count": {"$ref": "#/$defs/nonNegativeInteger"},
+        "response_count": {"$ref": "#/$defs/nonNegativeInteger"},
+        "notification_count": {"$ref": "#/$defs/nonNegativeInteger"},
+        "tool_call_count": {"type": "integer", "minimum": 0, "maximum": 5}
+      }
+    },
+    "result_material": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["name", "bytes", "sha256"],
+          "properties": {
+            "name": {"const": "exact-five-results.json"},
+            "bytes": {"type": "integer", "minimum": 1, "maximum": 6291456},
+            "sha256": {"$ref": "#/$defs/sha256"}
+          }
+        }
+      ]
+    },
+    "operations": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 5,
+      "items": {"$ref": "#/$defs/operation"}
+    },
+    "inspection_relationship": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "search_receipt_id", "inspected_receipt_id", "inspection_receipt_id", "valid"
+      ],
+      "properties": {
+        "search_receipt_id": {"$ref": "#/$defs/nullableReceipt"},
+        "inspected_receipt_id": {"$ref": "#/$defs/nullableReceipt"},
+        "inspection_receipt_id": {"$ref": "#/$defs/nullableReceipt"},
+        "valid": {"type": "boolean"}
+      }
+    },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract_valid", "guard_ready", "guard_summary", "guarded_api_invocations",
+        "provider_transport_calls", "aborted_provider_calls", "ledger_event_count",
+        "reported_error_count"
+      ],
+      "properties": {
+        "contract_valid": {"type": "boolean"},
+        "guard_ready": {"type": "boolean"},
+        "guard_summary": {"type": "boolean"},
+        "guarded_api_invocations": {"$ref": "#/$defs/nonNegativeInteger"},
+        "provider_transport_calls": {"$ref": "#/$defs/nonNegativeInteger"},
+        "aborted_provider_calls": {"$ref": "#/$defs/nonNegativeInteger"},
+        "ledger_event_count": {"$ref": "#/$defs/nonNegativeInteger"},
+        "reported_error_count": {"$ref": "#/$defs/nonNegativeInteger"}
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "uuidV4": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "slot": {"enum": [
+      "session-1", "session-2", "session-3", "session-4",
+      "session-5", "session-6", "session-7", "session-8"
+    ]},
+    "nonNegativeInteger": {
+      "type": "integer", "minimum": 0, "maximum": 9007199254740991
+    },
+    "receipt": {
+      "type": "string",
+      "pattern": "^gis-ai-go:evidence-receipt:sha256:[0-9a-f]{64}$"
+    },
+    "nullableReceipt": {
+      "oneOf": [{"$ref": "#/$defs/receipt"}, {"type": "null"}]
+    },
+    "operationName": {
+      "enum": [
+        "catalogue.search", "catalogue.describe", "selection.resolve", "data.query",
+        "evidence.inspect"
+      ]
+    },
+    "operation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ordinal", "request", "response"],
+      "properties": {
+        "ordinal": {"type": "integer", "minimum": 0, "maximum": 4},
+        "request": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["operation", "valid", "parameters_bytes", "parameters_sha256"],
+          "properties": {
+            "operation": {"$ref": "#/$defs/operationName"},
+            "valid": {"type": "boolean"},
+            "parameters_bytes": {
+              "type": "integer", "minimum": 1, "maximum": 1048576
+            },
+            "parameters_sha256": {"$ref": "#/$defs/sha256"}
+          }
+        },
+        "response": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "operation", "receipt_id", "receipt_present", "receipt_verification_valid",
+            "output_contract_valid", "structured_plain_text_parity",
+            "inspected_receipt_id", "inspection_relationship_valid"
+          ],
+          "properties": {
+            "operation": {"$ref": "#/$defs/operationName"},
+            "receipt_id": {"$ref": "#/$defs/receipt"},
+            "receipt_present": {"type": "boolean"},
+            "receipt_verification_valid": {"type": "boolean"},
+            "output_contract_valid": {"type": "boolean"},
+            "structured_plain_text_parity": {"type": "boolean"},
+            "inspected_receipt_id": {"$ref": "#/$defs/nullableReceipt"},
+            "inspection_relationship_valid": {"type": "boolean"}
+          }
+        }
+      }
+    }
+  }
+}

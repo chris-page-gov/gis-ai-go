@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:qual-206-chatgpt-tunnel-exact-five-session-capture:v1",
+  "title": "QUAL-206 ChatGPT secure-tunnel private session capture",
+  "description": "Closed owner-only manifest for one session created by the ChatGPT secure-tunnel MCP child.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "event_schema", "run_id", "client", "source_commit",
+    "session_id", "slot", "status", "session_profile",
+    "protocol_session_status", "capability_scored", "host_capability",
+    "source_binding_ready", "event_log", "result_material", "session_summary"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gis-ai-go.qual-206-chatgpt-tunnel-exact-five-session-capture.v1"
+    },
+    "event_schema": {
+      "const": "gis-ai-go.qual-206-chatgpt-tunnel-exact-five-event.v1"
+    },
+    "run_id": {"$ref": "#/$defs/uuidV4"},
+    "client": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,62}[a-z0-9])?$"
+    },
+    "source_commit": {"$ref": "#/$defs/commit"},
+    "session_id": {"$ref": "#/$defs/uuidV4"},
+    "slot": {"$ref": "#/$defs/slot"},
+    "status": {"const": "complete"},
+    "session_profile": {
+      "enum": ["negotiation-probe", "exact-five-session", "invalid"]
+    },
+    "protocol_session_status": {"enum": ["passed", "failed"]},
+    "capability_scored": {"const": false},
+    "host_capability": {"const": false},
+    "source_binding_ready": {"const": false},
+    "event_log": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bytes", "event_count", "last_event_sha256", "sha256"],
+      "properties": {
+        "bytes": {"type": "integer", "minimum": 1, "maximum": 8388608},
+        "event_count": {"type": "integer", "minimum": 1, "maximum": 512},
+        "last_event_sha256": {"$ref": "#/$defs/sha256"},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "result_material": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["name", "bytes", "sha256"],
+          "properties": {
+            "name": {"const": "exact-five-results.json"},
+            "bytes": {"type": "integer", "minimum": 1, "maximum": 6291456},
+            "sha256": {"$ref": "#/$defs/sha256"}
+          }
+        }
+      ]
+    },
+    "session_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "bytes", "sha256"],
+      "properties": {
+        "name": {"const": "exact-five-session.json"},
+        "bytes": {"type": "integer", "minimum": 1, "maximum": 65536},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "uuidV4": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "slot": {"enum": [
+      "session-1", "session-2", "session-3", "session-4",
+      "session-5", "session-6", "session-7", "session-8"
+    ]}
+  }
+}

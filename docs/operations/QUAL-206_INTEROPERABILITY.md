@@ -16,6 +16,8 @@
   canonical `catalogue.search` call and independent receipt verification;
   a fresh bounded exact-five observation from later exact protected-main bytes
   passed all five ordered local STDIO calls and independent verification;
+  a separate ChatGPT secure-tunnel exact-five evidence pack now pins the current
+  reviewed tunnel client and closed verifier but contains no live observation;
   deterministic `HOST-015` application recovery passes locally but remains non-live
   and unscored; remote HTTP evidence and activation remain pending
 - reviewed source base: `66507f9a6e6c0da23a8af4682268f9362d93bc06`
@@ -156,7 +158,14 @@ path-free summary and checksums; retain the detailed JSONL locally.
 
 ## OpenAI secure tunnel and ChatGPT
 
-### Verified client
+The new
+[ChatGPT secure-tunnel exact-five runbook](QUAL-206_CHATGPT_TUNNEL_EXACT_FIVE.md)
+defines the post-merge, one-observation procedure. Its implementation bytes are an
+evidence pack only: they do not establish a new ChatGPT capability result. The lane
+is a remote ChatGPT host through the OpenAI secure tunnel to a local STDIO child; it
+is not a direct public Streamable HTTP/TLS endpoint.
+
+### Historical verified client
 
 The live probe used official `openai/tunnel-client` `v0.0.12`:
 
@@ -168,6 +177,23 @@ The live probe used official `openai/tunnel-client` `v0.0.12`:
   `0.0.12+881c9a8fed7cccbe6607cd419863bbca506b8215`.
 
 Verify downloaded bytes against the release's `SHA256SUMS.txt` before use.
+
+### Current reviewed client for the exact-five pack
+
+The future exact-five observation must use official `openai/tunnel-client`
+`v0.0.13`, released after the historical probes. The pack pins:
+
+- release archive SHA-256:
+  `15abf165f06050af642c948ba6bd6c905191dc5420a9422dadde2b49d892e2c6`;
+- `SHA256SUMS.txt` SHA-256:
+  `e6495395e8f5d952b0edc34a0b552426e38472973a7602f94b3868fbcd9aceb4`;
+- extracted Darwin arm64 binary SHA-256:
+  `814b5e7ad378e6dfeb7eeebf12df37ff879cfe58fd504769cabfc3e3b4cf99f6`;
+- exact reported build:
+  `0.0.13+4b5267f823be0b046bb883aacb51603cfde3a0ea (git sha: 4b5267f823be0b046bb883aacb51603cfde3a0ea)`.
+
+The earlier `v0.0.12` sessions remain byte-exact historical evidence. Do not
+relabel them as `v0.0.13` observations.
 
 ### Key handling
 

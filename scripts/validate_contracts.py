@@ -937,6 +937,30 @@ def main() -> None:
             ],
         ),
         (
+            "qual-206-chatgpt-tunnel-status-v1.schema.json",
+            [],
+        ),
+        (
+            "qual-206-chatgpt-tunnel-exact-five-event-v1.schema.json",
+            [],
+        ),
+        (
+            "qual-206-chatgpt-tunnel-exact-five-session-capture-v1.schema.json",
+            [],
+        ),
+        (
+            "qual-206-chatgpt-tunnel-exact-five-session-v1.schema.json",
+            [],
+        ),
+        (
+            "qual-206-chatgpt-tunnel-exact-five-private-run-v1.schema.json",
+            [],
+        ),
+        (
+            "qual-206-chatgpt-tunnel-exact-five-evidence-v1.schema.json",
+            [],
+        ),
+        (
             "qual-206-local-http-transport-preflight.schema.json",
             [
                 (

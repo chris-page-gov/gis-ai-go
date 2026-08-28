@@ -1,0 +1,293 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:qual-206-chatgpt-tunnel-exact-five-evidence:v1",
+  "title": "QUAL-206 ChatGPT secure-tunnel exact-five evidence",
+  "description": "Path-free public projection of one independently verified ChatGPT remote-host exact-five pass through the OpenAI secure tunnel.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "status", "observed_at", "source", "runtime", "host", "tunnel", "profile",
+    "transport", "result", "isolation", "claims", "private_capture", "boundary"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gis-ai-go.qual-206-chatgpt-tunnel-exact-five-evidence.v1"
+    },
+    "status": {"const": "capability_pass"},
+    "observed_at": {"$ref": "#/$defs/dateTime"},
+    "source": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "repository", "repository_origin", "commit", "tree", "version",
+        "local_origin_main_match", "protected_main_verification", "production_activation"
+      ],
+      "properties": {
+        "repository": {"const": "chris-page-gov/gis-ai-go"},
+        "repository_origin": {
+          "const": "https://github.com/chris-page-gov/gis-ai-go.git"
+        },
+        "commit": {"$ref": "#/$defs/commit"},
+        "tree": {"$ref": "#/$defs/commit"},
+        "version": {"const": "0.1.0"},
+        "local_origin_main_match": {"const": true},
+        "protected_main_verification": {"const": "external-publication-gate"},
+        "production_activation": {"const": false}
+      }
+    },
+    "runtime": {"$ref": "#/$defs/runtimeClosure"},
+    "host": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "name", "app_name", "app_id", "app_version_id", "displayed_model",
+        "displayed_model_operator_observed", "conversation_id_sha256"
+      ],
+      "properties": {
+        "name": {"const": "ChatGPT"},
+        "app_name": {"const": "GIS AI GO v0.2 interoperability"},
+        "app_id": {"const": "asdk_app_6a873f853628819184bccb4a9b961576"},
+        "app_version_id": {
+          "type": "string",
+          "pattern": "^asdk_app_v_[a-z0-9]{32}$",
+          "not": {"const": "asdk_app_v_6a873f85363081918f25a5aeaee98159"}
+        },
+        "displayed_model": {
+          "type": "string", "minLength": 1, "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9 ._+()/-]{0,127}$"
+        },
+        "displayed_model_operator_observed": {"const": true},
+        "conversation_id_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "tunnel": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "local_alias", "remote_name", "remote_id", "connection_kind",
+        "client_version", "client_binary_sha256",
+        "client_archive_sha256", "profile_name", "target_kind", "mcp_command_sha256",
+        "preflight_healthy", "postflight_healthy", "teardown_verified",
+        "local_mcp_child_transport", "direct_public_streamable_http_tls"
+      ],
+      "properties": {
+        "local_alias": {"const": "gis-ai-go-v0-2-exact-five-v1"},
+        "remote_name": {"const": "gis-ai-go-v0-2-interoperability"},
+        "remote_id": {"const": "tunnel_6a873e7214308191bfe27240c1c03f68"},
+        "connection_kind": {"const": "openai-secure-tunnel"},
+        "client_version": {
+          "const": "0.0.13+4b5267f823be0b046bb883aacb51603cfde3a0ea (git sha: 4b5267f823be0b046bb883aacb51603cfde3a0ea)"
+        },
+        "client_binary_sha256": {
+          "const": "814b5e7ad378e6dfeb7eeebf12df37ff879cfe58fd504769cabfc3e3b4cf99f6"
+        },
+        "client_archive_sha256": {
+          "const": "15abf165f06050af642c948ba6bd6c905191dc5420a9422dadde2b49d892e2c6"
+        },
+        "profile_name": {"const": "gis-ai-go-v0-2-exact-five-v1"},
+        "target_kind": {"const": "command"},
+        "mcp_command_sha256": {"$ref": "#/$defs/sha256"},
+        "preflight_healthy": {"const": true},
+        "postflight_healthy": {"const": true},
+        "teardown_verified": {"const": true},
+        "local_mcp_child_transport": {"const": "stdio"},
+        "direct_public_streamable_http_tls": {"const": false}
+      }
+    },
+    "profile": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "profile_sha256", "operation_order"],
+      "properties": {
+        "id": {"const": "exact-five-v1"},
+        "profile_sha256": {"$ref": "#/$defs/sha256"},
+        "operation_order": {"$ref": "#/$defs/operationOrder"}
+      }
+    },
+    "transport": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "protocol", "remote_host_kind", "local_child_kind", "session_count",
+        "request_count", "response_count", "notification_count", "tool_call_count",
+        "resource_read_count", "resources_advertised", "canonical_tools_sha256",
+        "tool_schema_projection_applied", "provider_transport_calls",
+        "aborted_provider_calls", "ledger_event_count", "guarded_provider_api_invocations"
+      ],
+      "properties": {
+        "protocol": {"const": "2026-07-28"},
+        "remote_host_kind": {"const": "openai-secure-tunnel"},
+        "local_child_kind": {"const": "operating-system-stdio-pipes"},
+        "session_count": {"type": "integer", "minimum": 1, "maximum": 8},
+        "request_count": {"$ref": "#/$defs/nonNegativeInteger"},
+        "response_count": {"$ref": "#/$defs/nonNegativeInteger"},
+        "notification_count": {"$ref": "#/$defs/nonNegativeInteger"},
+        "tool_call_count": {"const": 5},
+        "resource_read_count": {"const": 0},
+        "resources_advertised": {"const": 0},
+        "canonical_tools_sha256": {"$ref": "#/$defs/sha256"},
+        "tool_schema_projection_applied": {"const": false},
+        "provider_transport_calls": {"const": 1},
+        "aborted_provider_calls": {"const": 0},
+        "ledger_event_count": {"const": 4},
+        "guarded_provider_api_invocations": {"const": 0}
+      }
+    },
+    "result": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "classification", "capability", "profile", "operation_order",
+        "operation_receipts", "inspection_relationship",
+        "independent_result_verification"
+      ],
+      "properties": {
+        "classification": {"const": "capability_pass"},
+        "capability": {"const": "passed"},
+        "profile": {"const": "exact-five-v1"},
+        "operation_order": {"$ref": "#/$defs/operationOrder"},
+        "operation_receipts": {
+          "type": "array", "minItems": 5, "maxItems": 5,
+          "items": {"$ref": "#/$defs/operationReceipt"}
+        },
+        "inspection_relationship": {"$ref": "#/$defs/inspectionRelationship"},
+        "independent_result_verification": {"const": true}
+      }
+    },
+    "isolation": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "observer_credentials_observed", "mcp_child_recognised_credentials_forwarded",
+        "mcp_child_network_access_allowed", "mcp_child_network_sandbox",
+        "provider_egress_guard_ready", "raw_host_material_published"
+      ],
+      "properties": {
+        "observer_credentials_observed": {"const": false},
+        "mcp_child_recognised_credentials_forwarded": {"const": false},
+        "mcp_child_network_access_allowed": {"const": false},
+        "mcp_child_network_sandbox": {"const": "macos-seatbelt-deny-network"},
+        "provider_egress_guard_ready": {"const": true},
+        "raw_host_material_published": {"const": false}
+      }
+    },
+    "claims": {"$ref": "#/$defs/claims"},
+    "private_capture": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "retained_local", "published", "run_manifest_sha256", "claim_sha256",
+        "result_material_sha256"
+      ],
+      "properties": {
+        "retained_local": {"const": true},
+        "published": {"const": false},
+        "run_manifest_sha256": {"$ref": "#/$defs/sha256"},
+        "claim_sha256": {"$ref": "#/$defs/sha256"},
+        "result_material_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "boundary": {
+      "const": "One bounded ChatGPT exact-five-v1 remote-host observation through the reviewed OpenAI secure tunnel to a local MCP 2026-07-28 STDIO child using a deterministic synthetic provider fixture. This proves neither direct public Streamable HTTP over TLS nor a live geospatial provider, registry publication, activation, deployment or release."
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "dateTime": {
+      "type": "string", "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{3})?Z$"
+    },
+    "nonNegativeInteger": {
+      "type": "integer", "minimum": 0, "maximum": 9007199254740991
+    },
+    "generatedFirstPartyClosure": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "bytes", "file_count", "manifest_sha256", "reference_manifest_sha256",
+        "reference_matches_current"
+      ],
+      "properties": {
+        "bytes": {"type": "integer", "minimum": 1, "maximum": 536870912},
+        "file_count": {"type": "integer", "minimum": 1, "maximum": 4096},
+        "manifest_sha256": {"$ref": "#/$defs/sha256"},
+        "reference_manifest_sha256": {"$ref": "#/$defs/sha256"},
+        "reference_matches_current": {"const": true}
+      }
+    },
+    "installedDependencyClosure": {
+      "type": "object", "additionalProperties": false,
+      "required": ["bytes", "entry_count", "manifest_sha256"],
+      "properties": {
+        "bytes": {"type": "integer", "minimum": 1, "maximum": 1073741824},
+        "entry_count": {"type": "integer", "minimum": 1, "maximum": 20000},
+        "manifest_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "runtimeClosure": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "generated_first_party_closure", "installed_dependency_closure"
+      ],
+      "properties": {
+        "generated_first_party_closure": {
+          "$ref": "#/$defs/generatedFirstPartyClosure"
+        },
+        "installed_dependency_closure": {
+          "$ref": "#/$defs/installedDependencyClosure"
+        }
+      }
+    },
+    "operationName": {
+      "enum": [
+        "catalogue.search", "catalogue.describe", "selection.resolve", "data.query",
+        "evidence.inspect"
+      ]
+    },
+    "operationOrder": {"const": [
+      "catalogue.search", "catalogue.describe", "selection.resolve", "data.query",
+      "evidence.inspect"
+    ]},
+    "receipt": {
+      "type": "string",
+      "pattern": "^gis-ai-go:evidence-receipt:sha256:[0-9a-f]{64}$"
+    },
+    "operationReceipt": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "ordinal", "operation", "receipt_id", "output_contract_valid",
+        "receipt_verification_valid", "structured_plain_text_parity"
+      ],
+      "properties": {
+        "ordinal": {"type": "integer", "minimum": 0, "maximum": 4},
+        "operation": {"$ref": "#/$defs/operationName"},
+        "receipt_id": {"$ref": "#/$defs/receipt"},
+        "output_contract_valid": {"const": true},
+        "receipt_verification_valid": {"const": true},
+        "structured_plain_text_parity": {"const": true}
+      }
+    },
+    "inspectionRelationship": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "search_receipt_id", "inspected_receipt_id", "inspection_receipt_id", "valid"
+      ],
+      "properties": {
+        "search_receipt_id": {"$ref": "#/$defs/receipt"},
+        "inspected_receipt_id": {"$ref": "#/$defs/receipt"},
+        "inspection_receipt_id": {"$ref": "#/$defs/receipt"},
+        "valid": {"const": true}
+      }
+    },
+    "claims": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "remote_host_via_openai_secure_tunnel", "local_mcp_child_transport",
+        "direct_public_streamable_http_tls", "live_geospatial_provider",
+        "registry_publication", "activation", "deployment", "release"
+      ],
+      "properties": {
+        "remote_host_via_openai_secure_tunnel": {"const": true},
+        "local_mcp_child_transport": {"const": "stdio"},
+        "direct_public_streamable_http_tls": {"const": false},
+        "live_geospatial_provider": {"const": false},
+        "registry_publication": {"const": false},
+        "activation": {"const": false},
+        "deployment": {"const": false},
+        "release": {"const": false}
+      }
+    }
+  }
+}
