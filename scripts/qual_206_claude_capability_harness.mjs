@@ -15,22 +15,23 @@ import {
   mkdirSync,
   openSync,
   readFileSync,
+  readlinkSync,
   realpathSync,
   readdirSync,
   rmSync,
   writeSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, isAbsolute, join, resolve } from "node:path";
+import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { createServer } from "node:net";
 
 import {
   canonicalJson,
   hashStableRegularFile,
-  INSTALLED_DEPENDENCY_ROOTS,
   measureGeneratedRuntimeClosure,
   measureInstalledDependencyClosure,
+  measureInstalledPackageContentClosure,
   parseStrictJson,
   TRACKED_CAPABILITY_MATERIALS,
   TRACKED_EXACT_FIVE_CAPABILITY_MATERIALS,
@@ -123,6 +124,31 @@ const EXPECTED_SANDBOX_EXEC = Object.freeze({
   bytes: 102_560,
   sha256: "8290e4be7387a0df83cd1559e86afd880464f269450573d012795761fe298f16",
 });
+const EXPECTED_PNPM = Object.freeze({
+  version: "10.33.2",
+  wrapper: Object.freeze({
+    bytes: 1_102,
+    sha256: "b276da51dc8ca5b0d3ee3371695b50fc8b3244b281b091c63a3f082a88dadeb9",
+  }),
+  distribution: Object.freeze({
+    bytes: 7_844_838,
+    sha256: "a04379c877cf74b4cbc585ab3a14fd52eea2d52b5aa0fb854cbd4485cd73b347",
+  }),
+  package_closure: Object.freeze({
+    bytes: 17_841_007,
+    entry_count: 1_073,
+    manifest_sha256: "8c77e3c3b1aff3386717df8850c43a7f05b71a3d93272bfcd21f1a7733e0e2d7",
+  }),
+});
+const TYPESCRIPT_BUILD_TARGETS = Object.freeze([
+  "packages/contracts",
+  "packages/evidence",
+  "packages/authority-context",
+  "packages/provider-adapter-sdk",
+  "packages/policy-client",
+  "packages/tool-registry",
+  "apps/mcp-gateway",
+]);
 const RECOGNISED_CREDENTIAL_VARIABLES = Object.freeze([
   "OPENAI_API_KEY",
   "CODEX_API_KEY",
@@ -680,7 +706,7 @@ function protectedSourceFacts(sourceCommit) {
   });
 }
 
-function buildEnvironment(toolDirectories) {
+function buildEnvironment(toolDirectories, privateHome) {
   const result = {};
   for (const name of SAFE_PARENT_ENVIRONMENT) {
     if (process.env[name] !== undefined) result[name] = process.env[name];
@@ -692,11 +718,19 @@ function buildEnvironment(toolDirectories) {
     GIT_CONFIG_GLOBAL: "/dev/null",
     GIT_CONFIG_NOSYSTEM: "1",
     GIT_OPTIONAL_LOCKS: "0",
+    HOME: privateHome,
     LANG: "C.UTF-8",
     LC_ALL: "C.UTF-8",
+    NPM_CONFIG_GLOBALCONFIG: "/dev/null",
+    NPM_CONFIG_USERCONFIG: "/dev/null",
+    npm_config_globalconfig: "/dev/null",
+    npm_config_userconfig: "/dev/null",
     PATH: [...toolDirectories, "/usr/bin", "/bin"].join(":"),
+    PNPM_CONFIG_IGNORE_PNPMFILE: "true",
+    PYTHONDONTWRITEBYTECODE: "1",
     PYTHONHASHSEED: "0",
     TZ: "UTC",
+    XDG_CONFIG_HOME: join(privateHome, "xdg"),
   });
 }
 
@@ -722,8 +756,143 @@ function runBuildCommand(command, argumentsValue, cwd, environment) {
   });
 }
 
+function runNetworkDeniedBuildCommand(command, argumentsValue, cwd, environment, sandbox) {
+  runBuildCommand(sandbox.command, [
+    "-p",
+    NETWORK_SANDBOX_PROFILE,
+    command,
+    ...argumentsValue,
+  ], cwd, environment);
+}
+
+function defaultPnpmVersion(distribution, nodeCommand) {
+  return execFileSync(nodeCommand, [distribution, "--version"], {
+    encoding: "utf8",
+    env: {
+      LANG: "C.UTF-8",
+      LC_ALL: "C.UTF-8",
+      PATH: "/usr/bin:/bin",
+      TZ: "UTC",
+    },
+    maxBuffer: 4_096,
+    stdio: ["ignore", "pipe", "ignore"],
+    timeout: 10_000,
+  }).trim();
+}
+
+export function measurePnpmRuntimeClosure(packageRoot) {
+  if (!isAbsolute(packageRoot) || realpathSync(packageRoot) !== packageRoot) {
+    fail("pnpm package root must be one canonical absolute directory");
+  }
+  const entries = [];
+  const identities = new Set();
+  let bytes = 0;
+  function visit(path, depth) {
+    if (depth > 24) fail("pnpm runtime closure is too deeply nested");
+    const state = lstatSync(path);
+    const relativePath = relative(packageRoot, path).split(sep).join("/");
+    if (state.isSymbolicLink()) {
+      const target = readlinkSync(path, "utf8");
+      const resolved = realpathSync(path);
+      if (
+        isAbsolute(target) || target.includes("\0") ||
+        !resolved.startsWith(`${packageRoot}${sep}`)
+      ) {
+        fail("pnpm runtime closure contains an unsafe link target");
+      }
+      entries.push({ kind: "symlink", path: relativePath, target });
+    } else if (state.isDirectory()) {
+      for (const entry of readdirSync(path, { withFileTypes: true })
+        .sort((left, right) => left.name < right.name ? -1 : left.name > right.name ? 1 : 0)) {
+        visit(join(path, entry.name), depth + 1);
+      }
+    } else if (state.isFile()) {
+      const identity = `${state.dev}:${state.ino}`;
+      if (state.nlink !== 1 || identities.has(identity)) {
+        fail("pnpm runtime file must be singly linked and unique");
+      }
+      identities.add(identity);
+      const measured = hashStableRegularFile(path, "pnpm runtime file", 32 * 1_048_576);
+      bytes += measured.bytes;
+      if (!Number.isSafeInteger(bytes) || bytes > 64 * 1_048_576) {
+        fail("pnpm runtime closure exceeds its byte boundary");
+      }
+      entries.push({ kind: "file", path: relativePath, ...measured });
+    } else {
+      fail("pnpm runtime closure contains a special file");
+    }
+    if (entries.length > 2_000) fail("pnpm runtime closure has too many entries");
+  }
+  visit(packageRoot, 0);
+  const manifestSha256 = createHash("sha256")
+    .update("GIS-AI-GO\0canonical-json\0sha256\0v1\0", "utf8")
+    .update("gis-ai-go.qual-206-pnpm-runtime-closure.v1", "utf8")
+    .update("\0", "utf8")
+    .update(canonicalJson(entries), "utf8")
+    .digest("hex");
+  return Object.freeze({ bytes, entry_count: entries.length, manifest_sha256: manifestSha256 });
+}
+
+export function verifyPnpmRuntime(
+  path,
+  nodeCommand = realpathSync(process.execPath),
+  expected = EXPECTED_PNPM,
+  getVersion = defaultPnpmVersion,
+) {
+  if (!isAbsolute(path) || !existsSync(path)) fail("the locked pnpm runtime is unavailable");
+  const wrapper = realpathSync(path);
+  const wrapperIdentity = hashStableRegularFile(
+    wrapper,
+    "pnpm command wrapper",
+    4_096,
+  );
+  const packageRoot = realpathSync(join(dirname(wrapper), ".."));
+  const distribution = join(packageRoot, "dist", "pnpm.cjs");
+  const distributionIdentity = hashStableRegularFile(
+    distribution,
+    "pnpm bundled distribution",
+    16 * 1_048_576,
+  );
+  const packageClosure = measurePnpmRuntimeClosure(packageRoot);
+  if (
+    canonicalJson(wrapperIdentity) !== canonicalJson(expected.wrapper) ||
+    canonicalJson(distributionIdentity) !== canonicalJson(expected.distribution) ||
+    canonicalJson(packageClosure) !== canonicalJson(expected.package_closure)
+  ) {
+    fail("pnpm runtime identity or reported version does not match the reviewed build");
+  }
+  const version = getVersion(distribution, nodeCommand);
+  const wrapperAfter = hashStableRegularFile(
+    wrapper,
+    "pnpm command wrapper",
+    4_096,
+  );
+  const distributionAfter = hashStableRegularFile(
+    distribution,
+    "pnpm bundled distribution",
+    16 * 1_048_576,
+  );
+  const packageClosureAfter = measurePnpmRuntimeClosure(packageRoot);
+  if (
+    version !== expected.version ||
+    canonicalJson(wrapperAfter) !== canonicalJson(wrapperIdentity) ||
+    canonicalJson(distributionAfter) !== canonicalJson(distributionIdentity) ||
+    canonicalJson(packageClosureAfter) !== canonicalJson(packageClosure)
+  ) {
+    fail("pnpm runtime identity or reported version does not match the reviewed build");
+  }
+  return Object.freeze({
+    wrapper,
+    wrapper_identity: wrapperAfter,
+    distribution,
+    distribution_identity: distributionAfter,
+    package_closure: packageClosureAfter,
+    version,
+  });
+}
+
 function buildGeneratedRuntime(root, sourceCommit, tools, environment) {
-  runBuildCommand(tools.python.command, [
+  runNetworkDeniedBuildCommand(tools.python.command, [
     join(root, "scripts", "build_okf.py"),
     "--root",
     root,
@@ -731,22 +900,63 @@ function buildGeneratedRuntime(root, sourceCommit, tools, environment) {
     join(root, "artifacts", "okf"),
     "--revision",
     sourceCommit,
-  ], root, environment);
-  runBuildCommand(tools.pnpm.command, [
-    "--recursive",
-    "--if-present",
-    "run",
-    "build",
-  ], root, environment);
+  ], root, environment, tools.sandbox);
+  const dependencyRoot = join(root, "node_modules");
+  const compiler = realpathSync(join(dependencyRoot, "typescript", "bin", "tsc"));
+  if (!compiler.startsWith(`${dependencyRoot}${sep}`)) {
+    fail("the TypeScript compiler escaped the installed dependency root");
+  }
+  for (const target of TYPESCRIPT_BUILD_TARGETS) {
+    runNetworkDeniedBuildCommand(tools.node.command, [
+      compiler,
+      "--project",
+      join(root, target, "tsconfig.json"),
+    ], root, environment, tools.sandbox);
+  }
+  runNetworkDeniedBuildCommand(tools.node.command, [
+    join(root, "packages", "tool-registry", "scripts", "copy-profile.mjs"),
+  ], root, environment, tools.sandbox);
 }
 
-function copyInstalledDependencies(referenceRoot, environment) {
-  for (const name of INSTALLED_DEPENDENCY_ROOTS) {
-    const source = join(ROOT, name);
-    const target = join(referenceRoot, name);
-    mkdirSync(target, { mode: 0o700, recursive: true });
-    runBuildCommand("/usr/bin/rsync", ["-a", `${source}/`, `${target}/`], ROOT, environment);
+function resolvePnpmStore() {
+  const metadataPath = join(ROOT, "node_modules", ".modules.yaml");
+  const state = lstatSync(metadataPath);
+  if (!state.isFile() || state.isSymbolicLink() || state.size > 1_048_576) {
+    fail("installed pnpm metadata is not one bounded regular file");
   }
+  const metadata = parseStrictJson(readFileSync(metadataPath, "utf8"));
+  if (
+    metadata.packageManager !== `pnpm@${EXPECTED_PNPM.version}` ||
+    typeof metadata.storeDir !== "string" ||
+    !isAbsolute(metadata.storeDir)
+  ) {
+    fail("installed pnpm metadata does not bind the reviewed package manager and store");
+  }
+  const store = realpathSync(metadata.storeDir);
+  const storeState = lstatSync(store);
+  if (
+    store !== metadata.storeDir || !storeState.isDirectory() ||
+    storeState.isSymbolicLink() || storeState.uid !== process.getuid() ||
+    (storeState.mode & 0o022) !== 0
+  ) {
+    fail("pnpm content-addressed store is not one owner-controlled canonical directory");
+  }
+  return store;
+}
+
+function installReferenceDependencies(referenceRoot, tools, environment, storePath) {
+  runNetworkDeniedBuildCommand(tools.node.command, [
+    tools.pnpm.distribution,
+    "install",
+    "--offline",
+    "--frozen-lockfile",
+    "--ignore-scripts",
+    "--ignore-pnpmfile",
+    "--package-import-method=copy",
+    "--verify-store-integrity",
+    "--store-dir",
+    storePath,
+  ], referenceRoot, environment, tools.sandbox);
 }
 
 function removeCreatedBuildRoot(path, expected) {
@@ -760,8 +970,30 @@ function removeCreatedBuildRoot(path, expected) {
   rmSync(path, { force: true, recursive: true });
 }
 
-export function buildAndBindGeneratedRuntime(sourceCommit) {
-  const pnpm = resolveCommand("pnpm");
+export function buildAndBindGeneratedRuntime(sourceCommit, pnpmPath = null) {
+  const nodeCommand = realpathSync(process.execPath);
+  const nodeIdentity = hashStableRegularFile(
+    nodeCommand,
+    "Node build runtime",
+    1_048_576,
+  );
+  if (
+    nodeIdentity.bytes !== EXPECTED_NODE.bytes ||
+    nodeIdentity.sha256 !== EXPECTED_NODE.sha256 ||
+    process.versions.node !== EXPECTED_NODE.version
+  ) {
+    fail("Node build runtime identity does not match the reviewed executable");
+  }
+  const sandboxIdentity = hashStableRegularFile(
+    SANDBOX_EXEC,
+    "macOS network sandbox executable",
+    1_048_576,
+  );
+  if (canonicalJson(sandboxIdentity) !== canonicalJson(EXPECTED_SANDBOX_EXEC)) {
+    fail("macOS network sandbox identity does not match the reviewed executable");
+  }
+  const pnpmCandidate = pnpmPath ?? resolveCommand("pnpm").target;
+  const pnpm = verifyPnpmRuntime(pnpmCandidate, nodeCommand);
   const pythonCommand = join(ROOT, ".venv", "bin", "python");
   if (!existsSync(pythonCommand)) {
     fail("the locked repository Python environment is required for reference building");
@@ -770,16 +1002,15 @@ export function buildAndBindGeneratedRuntime(sourceCommit) {
     command: pythonCommand,
     target: realpathSync(pythonCommand),
   });
-  const environment = buildEnvironment([
-    dirname(realpathSync(process.execPath)),
-    dirname(pnpm.command),
-    dirname(pnpm.target),
-    dirname(python.target),
-  ]);
-  const tools = Object.freeze({ pnpm, python });
+  const tools = Object.freeze({
+    node: Object.freeze({ command: nodeCommand, identity: nodeIdentity }),
+    pnpm,
+    python,
+    sandbox: Object.freeze({ command: SANDBOX_EXEC, identity: sandboxIdentity }),
+  });
+  const pnpmStore = resolvePnpmStore();
   const dependenciesBefore = measureInstalledDependencyClosure(ROOT);
-  buildGeneratedRuntime(ROOT, sourceCommit, tools, environment);
-  const current = measureGeneratedRuntimeClosure(ROOT);
+  const packageContentBefore = measureInstalledPackageContentClosure(ROOT);
 
   const buildRoot = mkdtempSync(
     join(realpathSync(tmpdir()), "gis-ai-go-qual-206-reference-build-"),
@@ -788,8 +1019,15 @@ export function buildAndBindGeneratedRuntime(sourceCommit) {
   const buildRootState = lstatSync(buildRoot);
   const referenceRoot = join(buildRoot, "source");
   const archivePath = join(buildRoot, "source.tar");
-  makePrivateDirectory(referenceRoot);
   try {
+    const privateHome = join(buildRoot, "home");
+    makePrivateDirectory(privateHome);
+    makePrivateDirectory(join(privateHome, "xdg"));
+    makePrivateDirectory(referenceRoot);
+    const environment = buildEnvironment([
+      dirname(nodeCommand),
+      dirname(python.target),
+    ], privateHome);
     runBuildCommand("/usr/bin/git", [...SAFE_GIT_OPTIONS,
       "archive",
       "--format=tar",
@@ -802,23 +1040,46 @@ export function buildAndBindGeneratedRuntime(sourceCommit) {
       "-C",
       referenceRoot,
     ], ROOT, environment);
-    copyInstalledDependencies(referenceRoot, environment);
-    const referenceDependencies = measureInstalledDependencyClosure(referenceRoot);
-    if (canonicalJson(referenceDependencies) !== canonicalJson(dependenciesBefore)) {
-      fail("installed dependency closure did not copy exactly into the reference build");
+    verifyPnpmRuntime(tools.pnpm.wrapper, tools.node.command);
+    installReferenceDependencies(referenceRoot, tools, environment, pnpmStore);
+    verifyPnpmRuntime(tools.pnpm.wrapper, tools.node.command);
+    const referencePackageContent = measureInstalledPackageContentClosure(referenceRoot);
+    if (canonicalJson(referencePackageContent) !== canonicalJson(packageContentBefore)) {
+      fail("lockfile-reconstructed package content does not match the installed runtime");
     }
+    buildGeneratedRuntime(ROOT, sourceCommit, tools, environment);
+    const current = measureGeneratedRuntimeClosure(ROOT);
     buildGeneratedRuntime(referenceRoot, sourceCommit, tools, environment);
     const reference = measureGeneratedRuntimeClosure(referenceRoot);
     const dependenciesAfter = measureInstalledDependencyClosure(ROOT);
-    const referenceDependenciesAfter = measureInstalledDependencyClosure(referenceRoot);
+    const packageContentAfter = measureInstalledPackageContentClosure(ROOT);
+    const referencePackageContentAfter = measureInstalledPackageContentClosure(referenceRoot);
     if (
       canonicalJson(dependenciesAfter) !== canonicalJson(dependenciesBefore) ||
-      canonicalJson(referenceDependenciesAfter) !== canonicalJson(dependenciesBefore)
+      canonicalJson(packageContentAfter) !== canonicalJson(packageContentBefore) ||
+      canonicalJson(referencePackageContentAfter) !== canonicalJson(packageContentBefore)
     ) {
-      fail("installed dependency closure changed during reference building");
+      fail("installed package content changed during reference building");
     }
     if (canonicalJson(current) !== canonicalJson(reference)) {
       fail("generated first-party runtime does not match the isolated reference build");
+    }
+    const nodeAfter = hashStableRegularFile(
+      nodeCommand,
+      "Node build runtime",
+      1_048_576,
+    );
+    const sandboxAfter = hashStableRegularFile(
+      SANDBOX_EXEC,
+      "macOS network sandbox executable",
+      1_048_576,
+    );
+    verifyPnpmRuntime(pnpm.wrapper, nodeCommand);
+    if (
+      canonicalJson(nodeAfter) !== canonicalJson(nodeIdentity) ||
+      canonicalJson(sandboxAfter) !== canonicalJson(sandboxIdentity)
+    ) {
+      fail("reviewed build-tool identity changed during reference building");
     }
     return Object.freeze({
       generated_first_party_closure: Object.freeze({

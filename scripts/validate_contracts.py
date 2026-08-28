@@ -207,6 +207,22 @@ def assert_unique_ids(path: Path, key: str, expected_count: int) -> None:
 def main() -> None:
     schema_count = validate_schema_catalogue()
     fixture_dir = ROOT / "providers" / "fixtures"
+    chatgpt_tunnel_fixture_path = (
+        ROOT
+        / "tests"
+        / "contract"
+        / "fixtures"
+        / "qual-206-chatgpt-tunnel-portable-fixture.v1.json"
+    )
+    chatgpt_tunnel_fixture = load_json(chatgpt_tunnel_fixture_path)
+    if (
+        chatgpt_tunnel_fixture.get("schema")
+        != "gis-ai-go.qual-206-chatgpt-tunnel-portable-fixture.v1"
+        or chatgpt_tunnel_fixture.get("synthetic") is not True
+    ):
+        raise AssertionError(
+            f"{chatgpt_tunnel_fixture_path}: expected the synthetic portable fixture"
+        )
     receipt_fixture = load_json(fixture_dir / "evidence-receipt.example.json")
     receipt_v2_fixture = load_json(fixture_dir / "evidence-receipt-v2.example.json")
     ledger_id = f"gis-ai-go:public-evidence-ledger:sha256:{'a' * 64}"
@@ -935,6 +951,50 @@ def main() -> None:
                     ),
                 )
             ],
+        ),
+        (
+            "qual-206-chatgpt-tunnel-status-v1.schema.json",
+            [
+                (f"portable status {index}", record)
+                for index, record in enumerate(
+                    chatgpt_tunnel_fixture["statuses"], start=1
+                )
+            ],
+        ),
+        (
+            "qual-206-chatgpt-tunnel-exact-five-event-v1.schema.json",
+            [
+                (f"portable event {index}", record)
+                for index, record in enumerate(
+                    chatgpt_tunnel_fixture["events"], start=1
+                )
+            ],
+        ),
+        (
+            "qual-206-chatgpt-tunnel-exact-five-session-capture-v1.schema.json",
+            [
+                (f"portable session capture {index}", record)
+                for index, record in enumerate(
+                    chatgpt_tunnel_fixture["session_captures"], start=1
+                )
+            ],
+        ),
+        (
+            "qual-206-chatgpt-tunnel-exact-five-session-v1.schema.json",
+            [
+                (f"portable session {index}", record)
+                for index, record in enumerate(
+                    chatgpt_tunnel_fixture["sessions"], start=1
+                )
+            ],
+        ),
+        (
+            "qual-206-chatgpt-tunnel-exact-five-private-run-v1.schema.json",
+            [("portable private run", chatgpt_tunnel_fixture["private_run"])],
+        ),
+        (
+            "qual-206-chatgpt-tunnel-exact-five-evidence-v1.schema.json",
+            [("portable public evidence", chatgpt_tunnel_fixture["public_evidence"])],
         ),
         (
             "qual-206-local-http-transport-preflight.schema.json",

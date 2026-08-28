@@ -20,6 +20,11 @@ remote-host acceptance is false.
 The separate accepted Claude Code exact-five projection closes local STDIO model
 capability only; it does not upgrade this HTTP result or close remote-host
 acceptance.
+The additive ChatGPT secure-tunnel exact-five pack is an evidence-preparation
+surface only. It pins the current reviewed tunnel client, keeps its local MCP child
+on STDIO, requires all five calls in one claimed session and publishes no live result
+in its implementation bytes. See the
+[dedicated runbook](../../docs/operations/QUAL-206_CHATGPT_TUNNEL_EXACT_FIVE.md).
 The normal gateway suite also routes the owner-only capture and independent
 verifier regressions, including safe Git object resolution, atomic public-output
 finalisation and process-group cleanup for a timed-out nested runner.

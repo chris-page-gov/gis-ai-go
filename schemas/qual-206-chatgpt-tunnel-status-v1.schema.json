@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:qual-206-chatgpt-tunnel-status:v1",
+  "title": "QUAL-206 ChatGPT secure-tunnel status",
+  "description": "One allowlisted, endpoint-free status or teardown snapshot for the reviewed OpenAI secure tunnel.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "phase", "observed_at", "alias", "profile_name", "target_kind",
+    "mcp_command_sha256", "tunnel_id", "remote", "stale", "error", "remote_error",
+    "runtime_state", "healthy", "ready", "control_plane_poll_health",
+    "remote_lookup_attempted", "process_running", "local"
+  ],
+  "properties": {
+    "schema": {"const": "gis-ai-go.qual-206-chatgpt-tunnel-status.v1"},
+    "phase": {"enum": ["before", "after", "stopped"]},
+    "observed_at": {"$ref": "#/$defs/dateTime"},
+    "alias": {"const": "gis-ai-go-v0-2-exact-five-v1"},
+    "profile_name": {"const": "gis-ai-go-v0-2-exact-five-v1"},
+    "target_kind": {"const": "command"},
+    "mcp_command_sha256": {"$ref": "#/$defs/sha256"},
+    "tunnel_id": {"const": "tunnel_6a873e7214308191bfe27240c1c03f68"},
+    "remote": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["found", "id", "name"],
+      "properties": {
+        "found": {"type": "boolean"},
+        "id": {"const": "tunnel_6a873e7214308191bfe27240c1c03f68"},
+        "name": {"const": "gis-ai-go-v0-2-interoperability"}
+      }
+    },
+    "stale": {"const": false},
+    "error": {"type": "null"},
+    "remote_error": {"type": "null"},
+    "runtime_state": {"enum": ["ready", "stopped"]},
+    "healthy": {"type": "boolean"},
+    "ready": {"type": "boolean"},
+    "control_plane_poll_health": {
+      "oneOf": [{"$ref": "#/$defs/controlPlanePollHealth"}, {"type": "null"}]
+    },
+    "remote_lookup_attempted": {"type": "boolean"},
+    "process_running": {"type": "boolean"},
+    "local": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["healthz_status", "readyz_status", "direct_healthy_poll_route"],
+      "properties": {
+        "healthz_status": {"oneOf": [{"const": 200}, {"type": "null"}]},
+        "readyz_status": {"oneOf": [{"const": 200}, {"type": "null"}]},
+        "direct_healthy_poll_route": {"type": "boolean"}
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"phase": {"const": "stopped"}}},
+      "then": {
+        "properties": {
+          "remote": {"properties": {"found": {"const": false}}},
+          "runtime_state": {"const": "stopped"},
+          "healthy": {"const": false},
+          "ready": {"const": false},
+          "control_plane_poll_health": {"type": "null"},
+          "remote_lookup_attempted": {"const": false},
+          "process_running": {"const": false},
+          "local": {
+            "properties": {
+              "healthz_status": {"type": "null"},
+              "readyz_status": {"type": "null"},
+              "direct_healthy_poll_route": {"const": false}
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "remote": {"properties": {"found": {"const": true}}},
+          "runtime_state": {"const": "ready"},
+          "healthy": {"const": true},
+          "ready": {"const": true},
+          "control_plane_poll_health": {"$ref": "#/$defs/controlPlanePollHealth"},
+          "remote_lookup_attempted": {"const": true},
+          "process_running": {"const": true},
+          "local": {
+            "properties": {
+              "healthz_status": {"const": 200},
+              "readyz_status": {"const": 200},
+              "direct_healthy_poll_route": {"const": true}
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "dateTime": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{3})?Z$"
+    },
+    "controlPlanePollHealth": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "route_kind"],
+      "properties": {
+        "state": {"enum": ["healthy", "direct"]},
+        "route_kind": {"const": "control_plane"}
+      }
+    }
+  }
+}

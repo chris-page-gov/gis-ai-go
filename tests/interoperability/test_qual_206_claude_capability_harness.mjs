@@ -4,11 +4,13 @@ import { createHash, randomUUID } from "node:crypto";
 import {
   chmodSync,
   mkdtempSync,
+  mkdirSync,
   readFileSync,
   readdirSync,
   realpathSync,
   rmSync,
   statSync,
+  writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
@@ -26,8 +28,10 @@ import {
 } from "../../scripts/qual_206_claude_stdio_observer.mjs";
 import {
   dependencyLinkTargetAllowed,
+  INSTALLED_DEPENDENCY_ROOTS,
   measureGeneratedRuntimeClosure,
   measureInstalledDependencyClosure,
+  measureInstalledPackageContentClosure,
 } from "../../scripts/qual_206_claude_runtime_closure.mjs";
 
 const ROOT = realpathSync(new URL("../../", import.meta.url).pathname);
@@ -293,6 +297,70 @@ test("Claude capability calls accept bounded extension metadata", () => {
   assert.equal(unexpectedParams.protocol_valid, true);
   assert.equal(unexpectedParams.evidence_request_valid, false);
   assert.equal(unexpectedParams.valid, false);
+});
+
+test("package-content closure excludes only unused generated tool metadata", (t) => {
+  const root = mkdtempSync(join(
+    realpathSync(tmpdir()),
+    "gis-ai-go-package-content-closure-test-",
+  ));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  for (const name of INSTALLED_DEPENDENCY_ROOTS) {
+    mkdirSync(join(root, name), { recursive: true, mode: 0o700 });
+  }
+  const packageFile = join(root, "node_modules", "reviewed-package.js");
+  const shimDirectory = join(root, "node_modules", ".bin");
+  const viteCacheDirectory = join(
+    root,
+    "apps",
+    "public-explorer",
+    "node_modules",
+    ".vite",
+    "vitest",
+  );
+  const otherViteDirectory = join(root, "node_modules", ".vite");
+  const nestedViteDirectory = join(root, "node_modules", "reviewed", ".vite");
+  const similarlyNamedDirectory = join(root, "node_modules", ".vite-package");
+  mkdirSync(shimDirectory, { mode: 0o700 });
+  mkdirSync(viteCacheDirectory, { recursive: true, mode: 0o700 });
+  mkdirSync(otherViteDirectory, { recursive: true, mode: 0o700 });
+  mkdirSync(nestedViteDirectory, { recursive: true, mode: 0o700 });
+  mkdirSync(similarlyNamedDirectory, { mode: 0o700 });
+  writeFileSync(packageFile, "export const reviewed = true;\n", { mode: 0o600 });
+  writeFileSync(join(shimDirectory, "tsc"), "generated absolute wrapper\n", {
+    mode: 0o700,
+  });
+  writeFileSync(join(root, "node_modules", ".modules.yaml"), "generated metadata\n", {
+    mode: 0o600,
+  });
+  const viteCache = join(viteCacheDirectory, "results.json");
+  const otherViteFile = join(otherViteDirectory, "results.json");
+  const nestedViteFile = join(nestedViteDirectory, "results.json");
+  const similarlyNamedPackage = join(similarlyNamedDirectory, "manifest.json");
+  writeFileSync(viteCache, '{"generated":true}\n', { mode: 0o600 });
+  writeFileSync(otherViteFile, '{"reviewed":true}\n', { mode: 0o600 });
+  writeFileSync(nestedViteFile, '{"reviewed":true}\n', { mode: 0o600 });
+  writeFileSync(similarlyNamedPackage, '{"package":true}\n', { mode: 0o600 });
+  const initial = measureInstalledPackageContentClosure(root);
+  writeFileSync(join(shimDirectory, "tsc"), "different generated wrapper\n", {
+    mode: 0o700,
+  });
+  writeFileSync(join(root, "node_modules", ".modules.yaml"), "different metadata\n", {
+    mode: 0o600,
+  });
+  writeFileSync(viteCache, '{"generated":false}\n', { mode: 0o600 });
+  assert.deepEqual(measureInstalledPackageContentClosure(root), initial);
+  writeFileSync(otherViteFile, '{"reviewed":false}\n', { mode: 0o600 });
+  assert.notDeepEqual(measureInstalledPackageContentClosure(root), initial);
+  writeFileSync(otherViteFile, '{"reviewed":true}\n', { mode: 0o600 });
+  writeFileSync(nestedViteFile, '{"reviewed":false}\n', { mode: 0o600 });
+  assert.notDeepEqual(measureInstalledPackageContentClosure(root), initial);
+  writeFileSync(nestedViteFile, '{"reviewed":true}\n', { mode: 0o600 });
+  writeFileSync(similarlyNamedPackage, '{"package":false}\n', { mode: 0o600 });
+  assert.notDeepEqual(measureInstalledPackageContentClosure(root), initial);
+  writeFileSync(similarlyNamedPackage, '{"package":true}\n', { mode: 0o600 });
+  writeFileSync(packageFile, "export const reviewed = false;\n", { mode: 0o600 });
+  assert.notDeepEqual(measureInstalledPackageContentClosure(root), initial);
 });
 
 test("dependency links stay inside measured dependencies or exact workspaces", () => {

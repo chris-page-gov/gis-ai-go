@@ -1,0 +1,298 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:qual-206-chatgpt-tunnel-exact-five-private-run:v1",
+  "title": "QUAL-206 ChatGPT secure-tunnel private exact-five run",
+  "description": "Closed owner-only manifest for one bounded ChatGPT remote-host observation through the reviewed OpenAI secure tunnel.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "run_id", "scenario", "source", "runtime", "tunnel_client", "tunnel", "host",
+    "execution", "private_files", "isolation", "claims"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gis-ai-go.qual-206-chatgpt-tunnel-exact-five-private-run.v1"
+    },
+    "run_id": {"$ref": "#/$defs/uuidV4"},
+    "scenario": {"const": "chatgpt-tunnel-exact-five-v1"},
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "commit", "tree", "repository_origin", "local_origin_main_match",
+        "clean_detached_checkout", "protected_main_verification"
+      ],
+      "properties": {
+        "commit": {"$ref": "#/$defs/commit"},
+        "tree": {"$ref": "#/$defs/commit"},
+        "repository_origin": {
+          "const": "https://github.com/chris-page-gov/gis-ai-go.git"
+        },
+        "local_origin_main_match": {"const": true},
+        "clean_detached_checkout": {"const": true},
+        "protected_main_verification": {"const": "external-publication-gate"}
+      }
+    },
+    "runtime": {"$ref": "#/$defs/runtimeClosure"},
+    "tunnel_client": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version", "build_sha", "reported_version", "binary_bytes", "binary_sha256",
+        "archive_sha256", "sha256sums_sha256", "release_url", "release_verified"
+      ],
+      "properties": {
+        "version": {"const": "0.0.13"},
+        "build_sha": {"const": "4b5267f823be0b046bb883aacb51603cfde3a0ea"},
+        "reported_version": {
+          "const": "0.0.13+4b5267f823be0b046bb883aacb51603cfde3a0ea (git sha: 4b5267f823be0b046bb883aacb51603cfde3a0ea)"
+        },
+        "binary_bytes": {"const": 20336818},
+        "binary_sha256": {
+          "const": "814b5e7ad378e6dfeb7eeebf12df37ff879cfe58fd504769cabfc3e3b4cf99f6"
+        },
+        "archive_sha256": {
+          "const": "15abf165f06050af642c948ba6bd6c905191dc5420a9422dadde2b49d892e2c6"
+        },
+        "sha256sums_sha256": {
+          "const": "e6495395e8f5d952b0edc34a0b552426e38472973a7602f94b3868fbcd9aceb4"
+        },
+        "release_url": {
+          "const": "https://github.com/openai/tunnel-client/releases/tag/v0.0.13"
+        },
+        "release_verified": {"const": true}
+      }
+    },
+    "tunnel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "local_alias", "remote_name", "remote_id", "connection_kind", "authenticated",
+        "local_mcp_child_transport", "direct_public_streamable_http_tls"
+      ],
+      "properties": {
+        "local_alias": {"const": "gis-ai-go-v0-2-exact-five-v1"},
+        "remote_name": {"const": "gis-ai-go-v0-2-interoperability"},
+        "remote_id": {"const": "tunnel_6a873e7214308191bfe27240c1c03f68"},
+        "connection_kind": {"const": "openai-secure-tunnel"},
+        "authenticated": {"const": true},
+        "local_mcp_child_transport": {"const": "stdio"},
+        "direct_public_streamable_http_tls": {"const": false}
+      }
+    },
+    "host": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name", "app_name", "app_id", "app_version_id", "displayed_model",
+        "displayed_model_operator_observed", "conversation_id_sha256"
+      ],
+      "properties": {
+        "name": {"const": "ChatGPT"},
+        "app_name": {"const": "GIS AI GO v0.2 interoperability"},
+        "app_id": {"const": "asdk_app_6a873f853628819184bccb4a9b961576"},
+        "app_version_id": {
+          "type": "string",
+          "pattern": "^asdk_app_v_[a-z0-9]{32}$",
+          "not": {"const": "asdk_app_v_6a873f85363081918f25a5aeaee98159"}
+        },
+        "displayed_model": {
+          "type": "string", "minLength": 1, "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9 ._+()/-]{0,127}$"
+        },
+        "displayed_model_operator_observed": {"const": true},
+        "conversation_id_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "execution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "started_at", "finished_at", "exit_code", "signal", "classification",
+        "session_count"
+      ],
+      "properties": {
+        "started_at": {"$ref": "#/$defs/dateTime"},
+        "finished_at": {"$ref": "#/$defs/dateTime"},
+        "exit_code": {
+          "oneOf": [
+            {"type": "integer", "minimum": 0, "maximum": 255}, {"type": "null"}
+          ]
+        },
+        "signal": {
+          "oneOf": [
+            {"type": "string", "minLength": 1, "maxLength": 32}, {"type": "null"}
+          ]
+        },
+        "classification": {
+          "enum": [
+            "complete", "tunnel-client-exit", "run-timeout", "interrupted",
+            "capture-finalisation-failed"
+          ]
+        },
+        "session_count": {"type": "integer", "minimum": 1, "maximum": 8}
+      }
+    },
+    "private_files": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["claim", "status_before", "status_after", "status_stopped"],
+      "properties": {
+        "claim": {"$ref": "#/$defs/claimFile"},
+        "status_before": {"$ref": "#/$defs/beforeStatusFile"},
+        "status_after": {"$ref": "#/$defs/afterStatusFile"},
+        "status_stopped": {"$ref": "#/$defs/stoppedStatusFile"}
+      }
+    },
+    "isolation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "private_root_mode", "private_file_mode", "observer_credentials_observed",
+        "mcp_child_recognised_credentials_forwarded", "mcp_child_network_access_allowed",
+        "mcp_child_network_sandbox", "provider_egress_guard_ready",
+        "guarded_live_provider_api_invocations", "raw_material_published"
+      ],
+      "properties": {
+        "private_root_mode": {"const": "0700"},
+        "private_file_mode": {"const": "0600"},
+        "observer_credentials_observed": {"const": false},
+        "mcp_child_recognised_credentials_forwarded": {"const": false},
+        "mcp_child_network_access_allowed": {
+          "const": false,
+          "description": "The downstream deterministic MCP fixture spawned by the observer has no network access; this does not describe the observer process."
+        },
+        "mcp_child_network_sandbox": {
+          "const": "macos-seatbelt-deny-network",
+          "description": "The sandbox applied to the downstream deterministic MCP fixture, not to the observer started directly by the tunnel client."
+        },
+        "provider_egress_guard_ready": {"const": true},
+        "guarded_live_provider_api_invocations": {"const": 0},
+        "raw_material_published": {"const": false}
+      }
+    },
+    "claims": {"$ref": "#/$defs/claims"}
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "execution": {
+            "properties": {"classification": {"const": "complete"}}
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "execution": {
+            "properties": {
+              "exit_code": {"type": "null"},
+              "signal": {"type": "null"}
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "uuidV4": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "dateTime": {
+      "type": "string", "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{3})?Z$"
+    },
+    "generatedFirstPartyClosure": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "bytes", "file_count", "manifest_sha256", "reference_manifest_sha256",
+        "reference_matches_current"
+      ],
+      "properties": {
+        "bytes": {"type": "integer", "minimum": 1, "maximum": 536870912},
+        "file_count": {"type": "integer", "minimum": 1, "maximum": 4096},
+        "manifest_sha256": {"$ref": "#/$defs/sha256"},
+        "reference_manifest_sha256": {"$ref": "#/$defs/sha256"},
+        "reference_matches_current": {"const": true}
+      }
+    },
+    "installedDependencyClosure": {
+      "type": "object", "additionalProperties": false,
+      "required": ["bytes", "entry_count", "manifest_sha256"],
+      "properties": {
+        "bytes": {"type": "integer", "minimum": 1, "maximum": 1073741824},
+        "entry_count": {"type": "integer", "minimum": 1, "maximum": 20000},
+        "manifest_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "runtimeClosure": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "generated_first_party_closure", "installed_dependency_closure"
+      ],
+      "properties": {
+        "generated_first_party_closure": {
+          "$ref": "#/$defs/generatedFirstPartyClosure"
+        },
+        "installed_dependency_closure": {
+          "$ref": "#/$defs/installedDependencyClosure"
+        }
+      }
+    },
+    "file": {
+      "type": "object", "additionalProperties": false,
+      "required": ["name", "bytes", "sha256", "mode"],
+      "properties": {
+        "name": {"type": "string"},
+        "bytes": {"type": "integer", "minimum": 1, "maximum": 65536},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "mode": {"const": "0600"}
+      }
+    },
+    "claimFile": {
+      "allOf": [
+        {"$ref": "#/$defs/file"},
+        {"properties": {"name": {"const": "exact-five-v1.claim.json"}}}
+      ]
+    },
+    "beforeStatusFile": {
+      "allOf": [
+        {"$ref": "#/$defs/file"},
+        {"properties": {"name": {"const": "tunnel-status-before.json"}}}
+      ]
+    },
+    "afterStatusFile": {
+      "allOf": [
+        {"$ref": "#/$defs/file"},
+        {"properties": {"name": {"const": "tunnel-status-after.json"}}}
+      ]
+    },
+    "stoppedStatusFile": {
+      "allOf": [
+        {"$ref": "#/$defs/file"},
+        {"properties": {"name": {"const": "tunnel-status-stopped.json"}}}
+      ]
+    },
+    "claims": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "remote_host_via_openai_secure_tunnel", "local_mcp_child_transport",
+        "direct_public_streamable_http_tls", "live_geospatial_provider",
+        "registry_publication", "activation", "deployment", "release"
+      ],
+      "properties": {
+        "remote_host_via_openai_secure_tunnel": {"const": true},
+        "local_mcp_child_transport": {"const": "stdio"},
+        "direct_public_streamable_http_tls": {"const": false},
+        "live_geospatial_provider": {"const": false},
+        "registry_publication": {"const": false},
+        "activation": {"const": false},
+        "deployment": {"const": false},
+        "release": {"const": false}
+      }
+    }
+  }
+}
