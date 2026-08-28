@@ -361,19 +361,26 @@ Run this immediately after the second ready-status attestation. Do not wait for 
 persistent ChatGPT transport to close itself: it remains open after the fifth
 response and would reach the fail-closed inter-frame deadline.
 
-The pinned tunnel client closes the managed child stdin and requests `SIGTERM`
-without an intervening delay. The observer therefore allows 250 milliseconds for
-the already-requested EOF to reach Node after the signal callback. It still requires
-that EOF before accepting teardown. A standalone or earlier `SIGTERM`, a missing
-EOF, a partial frame, an incomplete call or any request still in flight remains a
-fatal anomaly. This bounded delivery grace changes no call, result, receipt or
-publication predicate.
+During a managed stop, the pinned tunnel client `v0.0.13` can deliver `SIGTERM` to
+the observer a few milliseconds before its STDIO stop hook closes stdin. EOF can
+also arrive before the signal. The observer distinguishes and records both valid
+orderings: `stdin-eof-and-sigterm` when EOF arrives first, and
+`sigterm-then-stdin-eof` when EOF arrives within the bounded 250-millisecond grace
+after the signal. It still requires EOF before accepting teardown. A signal without
+EOF before that grace expires, a partial frame, an incomplete call or any request
+still in flight remains a fatal anomaly. This bounded delivery grace changes no
+call, result, receipt or publication predicate.
 
 The stop is local and credential-free. It re-verifies the pinned tunnel-client
 bytes, requires the exact profile and command digest, and writes
 `tunnel-status-stopped.json`. That envelope must show the process stopped, health
 and readiness false, no remote lookup, and no claim that the remote tunnel was
 removed. Do not finalise or publish evidence without it.
+
+Do not install a pending operating-system or application update, restart the Mac or
+otherwise change the reviewed toolchain while the live observation is running. An
+update is safe only after the managed observation has stopped and its private
+capture and operator records have been persisted.
 
 ## Finalise and independently verify
 

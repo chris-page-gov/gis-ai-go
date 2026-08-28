@@ -243,7 +243,8 @@
       "required": [
         "schema", "run_id", "session_id", "slot", "sequence", "observed_at",
         "event", "previous_event_sha256", "event_sha256", "phase", "signal",
-        "stdin_closed_before_signal", "immediate_parent_verified"
+        "stdin_closed_before_signal", "stdin_eof_observed_within_grace",
+        "immediate_parent_verified"
       ],
       "properties": {
         "schema": {"const": "gis-ai-go.qual-206-chatgpt-tunnel-exact-five-event.v1"},
@@ -257,9 +258,24 @@
         "event_sha256": {"$ref": "#/$defs/sha256"},
         "phase": {"const": "parent-teardown-signal"},
         "signal": {"const": "SIGTERM"},
-        "stdin_closed_before_signal": {"const": true},
+        "stdin_closed_before_signal": {"type": "boolean"},
+        "stdin_eof_observed_within_grace": {"type": "boolean"},
         "immediate_parent_verified": {"const": true}
-      }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "stdin_closed_before_signal": {"const": true},
+            "stdin_eof_observed_within_grace": {"const": false}
+          }
+        },
+        {
+          "properties": {
+            "stdin_closed_before_signal": {"const": false},
+            "stdin_eof_observed_within_grace": {"const": true}
+          }
+        }
+      ]
     },
     "childExit": {
       "type": "object", "additionalProperties": false,
@@ -313,7 +329,10 @@
         "runtime_materials_stable": {"type": "boolean"},
         "runtime_closures_stable": {"const": true},
         "closure_stimulus": {
-          "enum": ["stdin-eof", "sigint", "sigterm", "stdin-eof-and-sigint", "stdin-eof-and-sigterm", "none"]
+          "enum": [
+            "stdin-eof", "sigint", "sigterm", "stdin-eof-and-sigint",
+            "stdin-eof-and-sigterm", "sigterm-then-stdin-eof", "none"
+          ]
         },
         "exit_code": {"oneOf": [
           {"type": "integer", "minimum": 0, "maximum": 255}, {"type": "null"}

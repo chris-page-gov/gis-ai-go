@@ -601,9 +601,30 @@ def verify_event_log(
     if phases not in accepted_phases:
         fail(f"{slot} lifecycle is not the exact closed sequence")
     start = lifecycle[0]
-    child_exit = lifecycle[-2]
+    child_exit = next(event for event in lifecycle if event["phase"] == "child-exit")
     end = lifecycle[-1]
-    teardown = lifecycle[2] if len(lifecycle) == 5 else None
+    teardown = next(
+        (event for event in lifecycle if event["phase"] == "parent-teardown-signal"),
+        None,
+    )
+    expected_closure_stimulus = "stdin-eof"
+    if teardown is not None:
+        teardown_pair = (
+            teardown["stdin_closed_before_signal"],
+            teardown["stdin_eof_observed_within_grace"],
+        )
+        expected_closure_stimulus = {
+            (True, False): "stdin-eof-and-sigterm",
+            (False, True): "sigterm-then-stdin-eof",
+        }.get(teardown_pair, "")
+        if (
+            not expected_closure_stimulus
+            or teardown["signal"] != "SIGTERM"
+            or teardown["immediate_parent_verified"] is not True
+        ):
+            fail(f"{slot} parent teardown evidence is inconsistent")
+    if end["closure_stimulus"] != expected_closure_stimulus:
+        fail(f"{slot} parent teardown closure is inconsistent")
     if (
         events[0] is not start
         or events[-1] is not end
@@ -632,13 +653,6 @@ def verify_event_log(
         or start["mcp_child_network_access_allowed"] is not False
         or child_exit["exit_code"] != 0
         or child_exit["signal"] is not None
-        or (
-            teardown is None and end["closure_stimulus"] != "stdin-eof"
-        )
-        or (
-            teardown is not None
-            and end["closure_stimulus"] != "stdin-eof-and-sigterm"
-        )
     ):
         fail(f"{slot} runtime or source binding changed")
     prior_raw = b"".join(encoded_lines[:-1])
