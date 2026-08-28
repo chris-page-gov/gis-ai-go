@@ -1,0 +1,171 @@
+{
+  "schema": "gis-ai-go.qual-206-chatgpt-tunnel-exact-five-evidence.v1",
+  "status": "capability_pass",
+  "observed_at": "2026-08-28T22:17:50.190Z",
+  "source": {
+    "repository": "chris-page-gov/gis-ai-go",
+    "repository_origin": "https://github.com/chris-page-gov/gis-ai-go.git",
+    "commit": "d8fb8728b0d02afc79b28cf72625ee899d3eb325",
+    "tree": "fa3a2bc2f9e7be576510f76a7a989c80cd54df42",
+    "version": "0.1.0",
+    "local_origin_main_match": true,
+    "protected_main_verification": "external-publication-gate",
+    "production_activation": false
+  },
+  "runtime": {
+    "generated_first_party_closure": {
+      "bytes": 2266594,
+      "file_count": 278,
+      "manifest_sha256": "4ea62d3fa0afd05240a9a74d8e793e0a625a908a4f2f2ac1a1304f68ebae09c6",
+      "reference_manifest_sha256": "4ea62d3fa0afd05240a9a74d8e793e0a625a908a4f2f2ac1a1304f68ebae09c6",
+      "reference_matches_current": true
+    },
+    "installed_dependency_closure": {
+      "bytes": 137159669,
+      "entry_count": 5396,
+      "manifest_sha256": "6ceb98b8a5db132791c43ed9d05ce41131dea7edad6be5f61b2676962d830164"
+    }
+  },
+  "host": {
+    "app_id": "asdk_app_6a873f853628819184bccb4a9b961576",
+    "app_name": "GIS AI GO v0.2 interoperability",
+    "app_version_id": "asdk_app_v_6a873f85363081918f25a5aeaee98159",
+    "conversation_id_sha256": "8a16323c99b91e72cda693446ccaf92905759e7a6789d09973a0b775da65a1f9",
+    "displayed_model": "Instant",
+    "displayed_model_operator_observed": true,
+    "name": "ChatGPT"
+  },
+  "tunnel": {
+    "local_alias": "gis-ai-go-v0-2-exact-five-v1",
+    "remote_name": "gis-ai-go-v0-2-interoperability",
+    "remote_id": "tunnel_6a873e7214308191bfe27240c1c03f68",
+    "connection_kind": "openai-secure-tunnel",
+    "client_version": "0.0.13+4b5267f823be0b046bb883aacb51603cfde3a0ea (git sha: 4b5267f823be0b046bb883aacb51603cfde3a0ea)",
+    "client_binary_sha256": "814b5e7ad378e6dfeb7eeebf12df37ff879cfe58fd504769cabfc3e3b4cf99f6",
+    "client_archive_sha256": "15abf165f06050af642c948ba6bd6c905191dc5420a9422dadde2b49d892e2c6",
+    "profile_name": "gis-ai-go-v0-2-exact-five-v1",
+    "target_kind": "command",
+    "mcp_command_sha256": "5d78639aac3aa6078d34825e00c353537f7e1ccb9621948f9046cfb04080413a",
+    "preflight_healthy": true,
+    "postflight_healthy": true,
+    "teardown_verified": true,
+    "local_mcp_child_transport": "stdio",
+    "direct_public_streamable_http_tls": false
+  },
+  "profile": {
+    "id": "exact-five-v1",
+    "profile_sha256": "894b50c1909267fe4d81ddab9f275654f95b9f3a10c65b4b7cbbdf2541192093",
+    "operation_order": [
+      "catalogue.search",
+      "catalogue.describe",
+      "selection.resolve",
+      "data.query",
+      "evidence.inspect"
+    ]
+  },
+  "transport": {
+    "protocol": "2026-07-28",
+    "remote_host_kind": "openai-secure-tunnel",
+    "local_child_kind": "operating-system-stdio-pipes",
+    "session_count": 1,
+    "request_count": 7,
+    "response_count": 7,
+    "notification_count": 0,
+    "tool_call_count": 5,
+    "resource_read_count": 0,
+    "resources_advertised": 0,
+    "canonical_tools_sha256": "1822f4f6397bdcaf675868fba82bbe6f6061aa32e6a0c88174fa64e223600fd1",
+    "tool_schema_projection_applied": false,
+    "provider_transport_calls": 1,
+    "aborted_provider_calls": 0,
+    "ledger_event_count": 4,
+    "guarded_provider_api_invocations": 0
+  },
+  "result": {
+    "classification": "capability_pass",
+    "capability": "passed",
+    "profile": "exact-five-v1",
+    "operation_order": [
+      "catalogue.search",
+      "catalogue.describe",
+      "selection.resolve",
+      "data.query",
+      "evidence.inspect"
+    ],
+    "operation_receipts": [
+      {
+        "operation": "catalogue.search",
+        "ordinal": 0,
+        "output_contract_valid": true,
+        "receipt_id": "gis-ai-go:evidence-receipt:sha256:a2e52342c92ef992a92a1c3812e8d3ea67829325a394037524f23bb8f03b7fdb",
+        "receipt_verification_valid": true,
+        "structured_plain_text_parity": true
+      },
+      {
+        "operation": "catalogue.describe",
+        "ordinal": 1,
+        "output_contract_valid": true,
+        "receipt_id": "gis-ai-go:evidence-receipt:sha256:f57aebc30633f022c63077f36535c9a749c7a74a85000b8326fc02545c859562",
+        "receipt_verification_valid": true,
+        "structured_plain_text_parity": true
+      },
+      {
+        "operation": "selection.resolve",
+        "ordinal": 2,
+        "output_contract_valid": true,
+        "receipt_id": "gis-ai-go:evidence-receipt:sha256:137bed66c0d7c25eeeecdf865dcf50b8164d88f36298d454cf4519997480d0d3",
+        "receipt_verification_valid": true,
+        "structured_plain_text_parity": true
+      },
+      {
+        "operation": "data.query",
+        "ordinal": 3,
+        "output_contract_valid": true,
+        "receipt_id": "gis-ai-go:evidence-receipt:sha256:4c88f62e0ad6b9e0e19f257fc0ed1db7ff0f9ff31b5d1ca57d0b15573cc54146",
+        "receipt_verification_valid": true,
+        "structured_plain_text_parity": true
+      },
+      {
+        "operation": "evidence.inspect",
+        "ordinal": 4,
+        "output_contract_valid": true,
+        "receipt_id": "gis-ai-go:evidence-receipt:sha256:e0d015cafbfbda1947724c18500f01a243755e53c612a232a0c5625e11e7064e",
+        "receipt_verification_valid": true,
+        "structured_plain_text_parity": true
+      }
+    ],
+    "inspection_relationship": {
+      "inspected_receipt_id": "gis-ai-go:evidence-receipt:sha256:a2e52342c92ef992a92a1c3812e8d3ea67829325a394037524f23bb8f03b7fdb",
+      "inspection_receipt_id": "gis-ai-go:evidence-receipt:sha256:e0d015cafbfbda1947724c18500f01a243755e53c612a232a0c5625e11e7064e",
+      "search_receipt_id": "gis-ai-go:evidence-receipt:sha256:a2e52342c92ef992a92a1c3812e8d3ea67829325a394037524f23bb8f03b7fdb",
+      "valid": true
+    },
+    "independent_result_verification": true
+  },
+  "isolation": {
+    "observer_credentials_observed": false,
+    "mcp_child_recognised_credentials_forwarded": false,
+    "mcp_child_network_access_allowed": false,
+    "mcp_child_network_sandbox": "macos-seatbelt-deny-network",
+    "provider_egress_guard_ready": true,
+    "raw_host_material_published": false
+  },
+  "claims": {
+    "remote_host_via_openai_secure_tunnel": true,
+    "local_mcp_child_transport": "stdio",
+    "direct_public_streamable_http_tls": false,
+    "live_geospatial_provider": false,
+    "registry_publication": false,
+    "activation": false,
+    "deployment": false,
+    "release": false
+  },
+  "private_capture": {
+    "retained_local": true,
+    "published": false,
+    "run_manifest_sha256": "1981f562dd83b737b3b3febb036ef20b96ce85e745e6c84bb857fbf854173211",
+    "claim_sha256": "9625152973abf3138c23881497982ca242ae5875478e6f2b5fe89c430c66b5a4",
+    "result_material_sha256": "6e437068fedc41f69cc2a3ae56da2c7d7848a914c4685ef301ac76284e4c226f"
+  },
+  "boundary": "One bounded ChatGPT exact-five-v1 remote-host observation through the reviewed OpenAI secure tunnel to a byte-bound local STDIO observer, which proxied the calls to a separate network-denied deterministic MCP 2026-07-28 fixture/server. This proves neither direct public Streamable HTTP over TLS nor a live geospatial provider, registry publication, activation, deployment or release."
+}
