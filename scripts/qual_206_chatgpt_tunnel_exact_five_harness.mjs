@@ -48,6 +48,12 @@ const RUNTIME_KEY_ENVIRONMENT_NAMES = new Set([
 ]);
 const MAX_COMMAND_OUTPUT_BYTES = 1_048_576;
 const MAX_COMMAND_MILLISECONDS = 60_000;
+const MAX_HEALTH_COMMAND_MILLISECONDS = 5_000;
+const POLL_HEALTH_ATTEMPTS = 8;
+const POLL_HEALTH_RETRY_MILLISECONDS = 5_000;
+const POLL_NOT_READY_ERROR = "no successful control-plane poll observed";
+const MAX_POLL_SUCCESS_AGE_SECONDS = 120;
+const MAX_POLL_SUCCESS_FUTURE_SKEW_SECONDS = 5;
 const SAFE_GIT_OPTIONS = Object.freeze([
   "-c",
   "core.fsmonitor=false",
@@ -617,12 +623,13 @@ export function loadTunnelControlPlan(operatorRoot) {
   return validateTunnelControlPlan(readPrivatePlan(path), operatorRoot);
 }
 
-export function executeBoundedTunnelCommand(
+function executeTunnelClientCommand(
   plan,
   label,
   args,
   requireRuntimeKey = true,
   dependencies = {},
+  timeout = MAX_COMMAND_MILLISECONDS,
 ) {
   const verifyClient = dependencies.verifyTunnelClient ?? verifyTunnelClient;
   const run = dependencies.spawnSync ?? spawnSync;
@@ -651,7 +658,7 @@ export function executeBoundedTunnelCommand(
     env: environment,
     maxBuffer: MAX_COMMAND_OUTPUT_BYTES,
     stdio: ["ignore", "pipe", "pipe"],
-    timeout: MAX_COMMAND_MILLISECONDS,
+    timeout,
   });
   const finishedAt = new Date().toISOString();
   const stdout = typeof result.stdout === "string" ? result.stdout : "";
@@ -679,6 +686,23 @@ export function executeBoundedTunnelCommand(
   ) {
     fail("tunnel client changed while the bounded command executed");
   }
+  return Object.freeze({ result, stdout, stderr });
+}
+
+export function executeBoundedTunnelCommand(
+  plan,
+  label,
+  args,
+  requireRuntimeKey = true,
+  dependencies = {},
+) {
+  const { result, stdout } = executeTunnelClientCommand(
+    plan,
+    label,
+    args,
+    requireRuntimeKey,
+    dependencies,
+  );
   if (result.error || result.status !== 0) {
     fail(`${label} failed closed`);
   }
@@ -693,6 +717,119 @@ function nullableEmpty(value, label) {
 function nestedRecord(value, key, label) {
   if (!plainRecord(value) || !plainRecord(value[key])) fail(`${label} is missing ${key}`);
   return value[key];
+}
+
+function emptyOrAbsent(value) {
+  return value === null || value === undefined || value === "";
+}
+
+function expectedHealthUrlFile(plan) {
+  return join(
+    plan.operator_root,
+    "tunnel-state",
+    "health",
+    `${LOCAL_ALIAS}.url`,
+  );
+}
+
+function validateLoopbackBaseUrl(value, label) {
+  let parsed;
+  try {
+    parsed = new URL(value);
+  } catch {
+    fail(`${label} is not a valid URL`);
+  }
+  if (
+    parsed.protocol !== "http:" ||
+    parsed.hostname !== "127.0.0.1" ||
+    parsed.username !== "" ||
+    parsed.password !== "" ||
+    parsed.pathname !== "/" ||
+    parsed.search !== "" ||
+    parsed.hash !== "" ||
+    !/^[0-9]{1,5}$/u.test(parsed.port) ||
+    Number(parsed.port) < 1 ||
+    Number(parsed.port) > 65_535
+  ) {
+    fail(`${label} is not an exact loopback HTTP base URL`);
+  }
+  return parsed.origin;
+}
+
+function validatePollHealthEnvelope(raw, healthUrlFile, expectedPid) {
+  if (!plainRecord(raw)) fail("control-plane poll health input is invalid");
+  const locator = nestedRecord(raw, "locator", "control-plane poll health");
+  const processRecord = nestedRecord(raw, "process", "control-plane poll health");
+  const healthz = nestedRecord(raw, "healthz", "control-plane poll health");
+  const readyz = nestedRecord(raw, "readyz", "control-plane poll health");
+  const poll = nestedRecord(raw, "control_plane_poll", "control-plane poll health");
+  const baseUrl = validateLoopbackBaseUrl(
+    locator.resolved_base_url,
+    "control-plane poll health locator",
+  );
+  if (
+    locator.kind !== "url_file" ||
+    locator.url_file !== healthUrlFile ||
+    !emptyOrAbsent(locator.error) ||
+    processRecord.pid !== expectedPid ||
+    processRecord.running !== true ||
+    !emptyOrAbsent(processRecord.error) ||
+    raw.base_url !== baseUrl ||
+    healthz.url !== `${baseUrl}/healthz` ||
+    healthz.ok !== true ||
+    healthz.status !== 200 ||
+    healthz.body !== "live" ||
+    !emptyOrAbsent(healthz.error) ||
+    readyz.url !== `${baseUrl}/readyz` ||
+    readyz.ok !== true ||
+    readyz.status !== 200 ||
+    readyz.body !== "ready" ||
+    !emptyOrAbsent(readyz.error) ||
+    poll.url !== `${baseUrl}/metrics`
+  ) {
+    fail("control-plane poll health does not bind the ready loopback runtime");
+  }
+  return poll;
+}
+
+export function validateSuccessfulPollHealth(
+  raw,
+  healthUrlFile,
+  expectedPid,
+  nowMilliseconds = Date.now(),
+) {
+  const poll = validatePollHealthEnvelope(raw, healthUrlFile, expectedPid);
+  const nowSeconds = nowMilliseconds / 1_000;
+  const pollAgeSeconds = nowSeconds - poll.value;
+  if (
+    raw.result !== "ok" ||
+    poll.ok !== true ||
+    !Number.isSafeInteger(poll.value) ||
+    poll.value <= 0 ||
+    pollAgeSeconds < -MAX_POLL_SUCCESS_FUTURE_SKEW_SECONDS ||
+    pollAgeSeconds > MAX_POLL_SUCCESS_AGE_SECONDS ||
+    !emptyOrAbsent(poll.error)
+  ) {
+    fail("control-plane poll health does not prove a recent successful poll");
+  }
+  return Object.freeze({ state: "healthy", route_kind: "control_plane" });
+}
+
+function validatePendingPollHealth(raw, healthUrlFile, expectedPid) {
+  const poll = validatePollHealthEnvelope(raw, healthUrlFile, expectedPid);
+  if (
+    raw.result !== "fail" ||
+    poll.ok !== false ||
+    Object.hasOwn(poll, "value") ||
+    poll.error !== POLL_NOT_READY_ERROR
+  ) {
+    fail("control-plane poll health failed outside the bounded startup state");
+  }
+}
+
+function waitForPollRetry(milliseconds) {
+  const signal = new Int32Array(new SharedArrayBuffer(Int32Array.BYTES_PER_ELEMENT));
+  Atomics.wait(signal, 0, 0, milliseconds);
 }
 
 function validateRuntimeBinding(raw, expectedMcpCommandSha256) {
@@ -716,26 +853,24 @@ function validateRuntimeBinding(raw, expectedMcpCommandSha256) {
   });
 }
 
-export function projectTunnelStatus(
-  raw,
-  phase,
-  expectedMcpCommandSha256,
-  observedAt = new Date().toISOString(),
-) {
-  if (!plainRecord(raw) || !["before", "after"].includes(phase)) {
-    fail("tunnel status input is invalid");
-  }
+function validateReadyTunnelStatus(raw, expectedMcpCommandSha256, healthUrlFile) {
+  if (!plainRecord(raw)) fail("tunnel status input is invalid");
   const binding = validateRuntimeBinding(raw, expectedMcpCommandSha256);
+  const processRecord = nestedRecord(raw, "process", "ready tunnel status");
   const remote = raw.remote;
   const local = raw.local;
   const effectiveHealth = nestedRecord(local, "effective_health", "local status");
   const healthz = nestedRecord(effectiveHealth, "healthz", "effective health");
   const readyz = nestedRecord(effectiveHealth, "readyz", "effective health");
-  const poll = raw.control_plane_poll_health;
-  const route = nestedRecord(poll, "route", "control-plane poll health");
-  const pollState = poll.state;
-  const routeHealthy = ["healthy", "direct"].includes(pollState) &&
+  const poll = nestedRecord(raw, "control_plane_poll_health", "tunnel status");
+  const route = poll.route;
+  const directRoute = plainRecord(route) &&
+    ["healthy", "direct"].includes(poll.state) &&
     route.kind === "control_plane";
+  const currentRuntimeSnapshotUnavailable =
+    poll.state === "unknown" &&
+    poll.reason === "no live admin UI system snapshot" &&
+    !Object.hasOwn(poll, "route");
   if (
     raw.alias !== LOCAL_ALIAS ||
     raw.tunnel_id !== TUNNEL_ID ||
@@ -743,19 +878,44 @@ export function projectTunnelStatus(
     remote.id !== TUNNEL_ID ||
     remote.name !== TUNNEL_NAME ||
     raw.stale !== false ||
+    !emptyOrAbsent(raw.error) ||
+    !emptyOrAbsent(raw.remote_error) ||
     raw.runtime_state !== "ready" ||
     raw.healthy !== true ||
     raw.ready !== true ||
     raw.remote_lookup_attempted !== true ||
     raw.process_running !== true ||
+    processRecord.mode !== "process" ||
+    !positiveInteger(processRecord.pid) ||
+    raw.health_url_file !== healthUrlFile ||
     healthz.ok !== true ||
     healthz.status !== 200 ||
     readyz.ok !== true ||
     readyz.status !== 200 ||
-    !routeHealthy
+    (!directRoute && !currentRuntimeSnapshotUnavailable)
   ) {
     fail("tunnel status does not establish the required healthy ready identity");
   }
+  return Object.freeze({ binding, healthz, readyz, pid: processRecord.pid });
+}
+
+export function projectTunnelStatus(
+  raw,
+  pollHealth,
+  phase,
+  expectedMcpCommandSha256,
+  healthUrlFile,
+  observedAt = new Date().toISOString(),
+) {
+  if (!["before", "after"].includes(phase)) {
+    fail("tunnel status input is invalid");
+  }
+  const { binding, pid } = validateReadyTunnelStatus(
+    raw,
+    expectedMcpCommandSha256,
+    healthUrlFile,
+  );
+  const pollProjection = validateSuccessfulPollHealth(pollHealth, healthUrlFile, pid);
   return Object.freeze({
     schema: STATUS_SCHEMA,
     phase,
@@ -770,10 +930,7 @@ export function projectTunnelStatus(
     runtime_state: "ready",
     healthy: true,
     ready: true,
-    control_plane_poll_health: Object.freeze({
-      state: pollState,
-      route_kind: "control_plane",
-    }),
+    control_plane_poll_health: pollProjection,
     remote_lookup_attempted: true,
     process_running: true,
     local: Object.freeze({
@@ -855,7 +1012,55 @@ function captureStatus(plan, phase, dependencies = {}) {
     true,
     dependencies,
   );
-  const status = projectTunnelStatus(raw, phase, plan.mcp_command_sha256);
+  const healthUrlFile = expectedHealthUrlFile(plan);
+  const { pid } = validateReadyTunnelStatus(
+    raw,
+    plan.mcp_command_sha256,
+    healthUrlFile,
+  );
+  let pollHealth;
+  for (let attempt = 1; attempt <= POLL_HEALTH_ATTEMPTS; attempt += 1) {
+    const label = `tunnel-poll-health-${phase}-attempt-${attempt}-raw`;
+    const { result, stdout, stderr } = executeTunnelClientCommand(
+      plan,
+      label,
+      [
+        "health",
+        "--url-file",
+        healthUrlFile,
+        "--pid",
+        String(pid),
+        "--require-control-plane-poll",
+        "--json",
+      ],
+      false,
+      dependencies,
+      MAX_HEALTH_COMMAND_MILLISECONDS,
+    );
+    if (result.error || result.signal !== null || stderr !== "") {
+      fail(`${label} failed closed`);
+    }
+    const candidate = parseJson(stdout, `${label} stdout`);
+    if (result.status === 0) {
+      validateSuccessfulPollHealth(candidate, healthUrlFile, pid);
+      pollHealth = candidate;
+      break;
+    }
+    if (result.status !== 2) fail(`${label} failed closed`);
+    validatePendingPollHealth(candidate, healthUrlFile, pid);
+    if (attempt === POLL_HEALTH_ATTEMPTS) {
+      fail("control-plane poll did not succeed within the bounded readiness window");
+    }
+    const wait = dependencies.waitForPollRetry ?? waitForPollRetry;
+    wait(POLL_HEALTH_RETRY_MILLISECONDS);
+  }
+  const status = projectTunnelStatus(
+    raw,
+    pollHealth,
+    phase,
+    plan.mcp_command_sha256,
+    healthUrlFile,
+  );
   writePrivateJson(join(plan.capture_root, `tunnel-status-${phase}.json`), status);
   return status;
 }

@@ -29,6 +29,7 @@ import {
   runPreparedTunnelStatusAfter,
   runPreparedTunnelStop,
   validateTunnelControlPlan,
+  validateSuccessfulPollHealth,
   validatePrivateRootLayout,
   verifyTunnelClient,
 } from "../../scripts/qual_206_chatgpt_tunnel_exact_five_harness.mjs";
@@ -41,6 +42,9 @@ import {
 const TUNNEL_ID = "tunnel_6a873e7214308191bfe27240c1c03f68";
 const TUNNEL_NAME = "gis-ai-go-v0-2-interoperability";
 const ALIAS = "gis-ai-go-v0-2-exact-five-v1";
+const HEALTH_URL_FILE =
+  "/private/tmp/operator/tunnel-state/health/gis-ai-go-v0-2-exact-five-v1.url";
+const HEALTH_BASE_URL = "http://127.0.0.1:61234";
 const macRuntimeTest = process.platform === "darwin" ? test : test.skip;
 
 function hash(bytes) {
@@ -74,7 +78,7 @@ test("the runbook selects the reviewed Node runtime for every command", () => {
   assert.ok((runbook.match(/^"\$QUAL206_NODE"\s/gmu) ?? []).length >= 6);
 });
 
-function validRawStatus() {
+function validRawStatus(healthUrlFile = HEALTH_URL_FILE, baseUrl = HEALTH_BASE_URL) {
   return {
     alias: ALIAS,
     tunnel_id: TUNNEL_ID,
@@ -87,12 +91,12 @@ function validRawStatus() {
     healthy: true,
     ready: true,
     control_plane_poll_health: {
-      state: "direct",
-      route: { kind: "control_plane", endpoint: "private-and-not-projected" },
-      history: ["private-and-not-projected"],
+      state: "unknown",
+      reason: "no live admin UI system snapshot",
     },
     remote_lookup_attempted: true,
     process_running: true,
+    health_url_file: healthUrlFile,
     process: {
       alias: ALIAS,
       tunnel_id: TUNNEL_ID,
@@ -104,6 +108,7 @@ function validRawStatus() {
     },
     local: {
       effective_health: {
+        base_url: baseUrl,
         healthz: { ok: true, status: 200, url: "private-and-not-projected" },
         readyz: { ok: true, status: 200, url: "private-and-not-projected" },
       },
@@ -112,6 +117,56 @@ function validRawStatus() {
     command: "private-and-not-projected",
     pid: 12345,
   };
+}
+
+function validPollHealth(
+  healthUrlFile = HEALTH_URL_FILE,
+  baseUrl = HEALTH_BASE_URL,
+  pid = 12345,
+) {
+  return {
+    locator: {
+      kind: "url_file",
+      url_file: healthUrlFile,
+      resolved_base_url: baseUrl,
+    },
+    process: { pid, running: true },
+    base_url: baseUrl,
+    ui_url: `${baseUrl}/ui`,
+    healthz: {
+      url: `${baseUrl}/healthz`,
+      ok: true,
+      status: 200,
+      body: "live",
+    },
+    readyz: {
+      url: `${baseUrl}/readyz`,
+      ok: true,
+      status: 200,
+      body: "ready",
+    },
+    control_plane_poll: {
+      url: `${baseUrl}/metrics`,
+      value: Math.floor(Date.now() / 1_000),
+      ok: true,
+    },
+    result: "ok",
+  };
+}
+
+function pendingPollHealth(
+  healthUrlFile = HEALTH_URL_FILE,
+  baseUrl = HEALTH_BASE_URL,
+  pid = 12345,
+) {
+  const value = validPollHealth(healthUrlFile, baseUrl, pid);
+  value.control_plane_poll = {
+    url: `${baseUrl}/metrics`,
+    ok: false,
+    error: "no successful control-plane poll observed",
+  };
+  value.result = "fail";
+  return value;
 }
 
 function validStoppedRawStatus() {
@@ -176,8 +231,15 @@ function operationalHarness(t) {
     mcp_command_sha256: MCP_COMMAND_SHA256,
   });
   const calls = [];
+  const waits = [];
   let verificationCount = 0;
   const responses = [];
+  const healthUrlFile = join(
+    operatorRoot,
+    "tunnel-state",
+    "health",
+    `${ALIAS}.url`,
+  );
   const dependencies = {
     environment: { CONTROL_PLANE_API_KEY: "bound" + "ed-test-key" },
     verifyProtectedMainCheckout: () => ({ commit: plan.source_commit }),
@@ -185,6 +247,7 @@ function operationalHarness(t) {
       verificationCount += 1;
       return client;
     },
+    waitForPollRetry: (milliseconds) => waits.push(milliseconds),
     spawnSync: (_path, argumentsValue, options) => {
       calls.push({ argumentsValue, environment: options.env });
       const response = responses.shift();
@@ -201,8 +264,10 @@ function operationalHarness(t) {
     calls,
     client,
     dependencies,
+    healthUrlFile,
     plan,
     responses,
+    waits,
     verificationCount: () => verificationCount,
   };
 }
@@ -395,8 +460,10 @@ macRuntimeTest("the reference build ignores an ambient pnpmfile hook", (t) => {
 test("status projection retains only healthy allowlisted facts", () => {
   const projection = projectTunnelStatus(
     validRawStatus(),
+    validPollHealth(),
     "before",
     MCP_COMMAND_SHA256,
+    HEALTH_URL_FILE,
     "2026-08-27T12:00:00.000Z",
   );
 
@@ -417,7 +484,7 @@ test("status projection retains only healthy allowlisted facts", () => {
     healthy: true,
     ready: true,
     control_plane_poll_health: {
-      state: "direct",
+      state: "healthy",
       route_kind: "control_plane",
     },
     remote_lookup_attempted: true,
@@ -441,19 +508,27 @@ for (const [name, mutate] of [
   ["unready runtime", (value) => { value.ready = false; }],
   ["missing remote lookup", (value) => { value.remote_lookup_attempted = false; }],
   ["stopped process", (value) => { value.process_running = false; }],
+  ["wrong process mode", (value) => { value.process.mode = "tmux"; }],
+  ["missing process PID", (value) => { delete value.process.pid; }],
   ["failed local health", (value) => { value.local.effective_health.healthz.status = 503; }],
-  ["unhealthy poll route", (value) => {
-    value.control_plane_poll_health.state = "unhealthy";
+  ["unexpected poll snapshot", (value) => {
+    value.control_plane_poll_health.reason = "different";
   }],
-  ["wrong poll route", (value) => {
-    value.control_plane_poll_health.route.kind = "mcp";
+  ["contradictory poll route", (value) => {
+    value.control_plane_poll_health.route = { kind: "mcp" };
   }],
   ["remote error", (value) => { value.remote_error = "lookup failed"; }],
 ]) {
   test(`status projection rejects ${name}`, () => {
     const value = validRawStatus();
     mutate(value);
-    assert.throws(() => projectTunnelStatus(value, "after", MCP_COMMAND_SHA256));
+    assert.throws(() => projectTunnelStatus(
+      value,
+      validPollHealth(),
+      "after",
+      MCP_COMMAND_SHA256,
+      HEALTH_URL_FILE,
+    ));
   });
 }
 
@@ -461,10 +536,46 @@ test("status projection rejects MCP command drift", () => {
   const value = validRawStatus();
   value.process.target_value = `${MCP_COMMAND} --mutated`;
   assert.throws(
-    () => projectTunnelStatus(value, "after", MCP_COMMAND_SHA256),
+    () => projectTunnelStatus(
+      value,
+      validPollHealth(),
+      "after",
+      MCP_COMMAND_SHA256,
+      HEALTH_URL_FILE,
+    ),
     /bind the reviewed profile and MCP command/u,
   );
 });
+
+for (const [name, mutate] of [
+  ["zero poll timestamp", (value) => { value.control_plane_poll.value = 0; }],
+  ["missing poll timestamp", (value) => { delete value.control_plane_poll.value; }],
+  ["failed poll", (value) => { value.control_plane_poll.ok = false; }],
+  ["poll error", (value) => { value.control_plane_poll.error = "synthetic"; }],
+  ["stale poll timestamp", (value) => {
+    value.control_plane_poll.value = Math.floor(Date.now() / 1_000) - 121;
+  }],
+  ["future poll timestamp", (value) => {
+    value.control_plane_poll.value = Math.floor(Date.now() / 1_000) + 6;
+  }],
+  ["fractional poll timestamp", (value) => {
+    value.control_plane_poll.value = (Date.now() / 1_000) - 1;
+  }],
+  ["wrong process PID", (value) => { value.process.pid = 54321; }],
+  ["stopped process probe", (value) => { value.process.running = false; }],
+  ["wrong locator", (value) => { value.locator.url_file = "/private/tmp/other"; }],
+  ["non-loopback locator", (value) => {
+    value.locator.resolved_base_url = "https://example.invalid";
+  }],
+  ["failed health endpoint", (value) => { value.healthz.status = 503; }],
+  ["failed result", (value) => { value.result = "fail"; }],
+]) {
+  test(`poll health proof rejects ${name}`, () => {
+    const value = validPollHealth();
+    mutate(value);
+    assert.throws(() => validateSuccessfulPollHealth(value, HEALTH_URL_FILE, 12345));
+  });
+}
 
 test("stopped projection proves local teardown without claiming a remote lookup", () => {
   const value = validStoppedRawStatus();
@@ -681,21 +792,159 @@ test("connect and ready status receive only the allowlisted runtime key", (t) =>
   const harness = operationalHarness(t);
   harness.responses.push(
     { payload: {} },
-    { payload: validRawStatus() },
+    { payload: validRawStatus(harness.healthUrlFile) },
+    { payload: validPollHealth(harness.healthUrlFile) },
   );
   const status = runPreparedTunnelConnect(harness.plan, harness.dependencies);
   assert.equal(status.phase, "before");
-  assert.equal(harness.calls.length, 2);
-  for (const call of harness.calls) {
+  assert.equal(harness.calls.length, 3);
+  for (const call of harness.calls.slice(0, 2)) {
     assert.equal(call.environment.CONTROL_PLANE_API_KEY, "bounded-test-key");
     assert.equal(Object.hasOwn(call.environment, "OPENAI_API_KEY"), false);
   }
-  assert.equal(harness.verificationCount(), 5);
+  assert.equal(
+    Object.hasOwn(harness.calls[2].environment, "CONTROL_PLANE_API_KEY"),
+    false,
+  );
+  assert.deepEqual(harness.calls[2].argumentsValue, [
+    "health",
+    "--url-file",
+    harness.healthUrlFile,
+    "--pid",
+    "12345",
+    "--require-control-plane-poll",
+    "--json",
+  ]);
+  assert.equal(harness.verificationCount(), 7);
   assert.equal(
     existsSync(join(harness.plan.capture_root, "tunnel-status-before.json")),
     true,
   );
 });
+
+test("connect retries only the bounded not-yet-polled health result", (t) => {
+  const harness = operationalHarness(t);
+  harness.responses.push(
+    { payload: {} },
+    { payload: validRawStatus(harness.healthUrlFile) },
+    { status: 2, payload: pendingPollHealth(harness.healthUrlFile) },
+    { payload: validPollHealth(harness.healthUrlFile) },
+  );
+  const status = runPreparedTunnelConnect(harness.plan, harness.dependencies);
+  assert.equal(status.control_plane_poll_health.state, "healthy");
+  assert.deepEqual(harness.waits, [5_000]);
+  assert.equal(harness.calls.length, 4);
+  assert.equal(
+    existsSync(join(
+      harness.plan.operator_root,
+      "raw",
+      "tunnel-poll-health-before-attempt-1-raw.json",
+    )),
+    true,
+  );
+  assert.equal(
+    existsSync(join(
+      harness.plan.operator_root,
+      "raw",
+      "tunnel-poll-health-before-attempt-2-raw.json",
+    )),
+    true,
+  );
+});
+
+test("connect stops after eight not-yet-polled health results", (t) => {
+  const harness = operationalHarness(t);
+  harness.responses.push(
+    { payload: {} },
+    { payload: validRawStatus(harness.healthUrlFile) },
+    ...Array.from({ length: 8 }, () => ({
+      status: 2,
+      payload: pendingPollHealth(harness.healthUrlFile),
+    })),
+    { payload: validStoppedRawStatus() },
+  );
+  assert.throws(
+    () => runPreparedTunnelConnect(harness.plan, harness.dependencies),
+    /bounded readiness window/u,
+  );
+  assert.deepEqual(harness.waits, Array(7).fill(5_000));
+  assert.equal(harness.calls.length, 11);
+  assert.equal(
+    existsSync(join(harness.plan.capture_root, "tunnel-status-stopped.json")),
+    true,
+  );
+});
+
+test("connect accepts a first successful poll on the eighth attempt", (t) => {
+  const harness = operationalHarness(t);
+  harness.responses.push(
+    { payload: {} },
+    { payload: validRawStatus(harness.healthUrlFile) },
+    ...Array.from({ length: 7 }, () => ({
+      status: 2,
+      payload: pendingPollHealth(harness.healthUrlFile),
+    })),
+    { payload: validPollHealth(harness.healthUrlFile) },
+  );
+  const status = runPreparedTunnelConnect(harness.plan, harness.dependencies);
+  assert.equal(status.control_plane_poll_health.state, "healthy");
+  assert.deepEqual(harness.waits, Array(7).fill(5_000));
+  assert.equal(harness.calls.length, 10);
+});
+
+test("connect does not probe poll health after a status error", (t) => {
+  const harness = operationalHarness(t);
+  const errored = validRawStatus(harness.healthUrlFile);
+  errored.remote_error = "synthetic remote lookup error";
+  harness.responses.push(
+    { payload: {} },
+    { payload: errored },
+    { payload: validStoppedRawStatus() },
+  );
+  assert.throws(
+    () => runPreparedTunnelConnect(harness.plan, harness.dependencies),
+    /healthy ready identity/u,
+  );
+  assert.deepEqual(harness.waits, []);
+  assert.equal(harness.calls.length, 3);
+  assert.deepEqual(harness.calls[2].argumentsValue, [
+    "runtimes",
+    "stop",
+    ALIAS,
+    "--json",
+  ]);
+});
+
+for (const [name, mutate] of [
+  ["missing metric", (value) => {
+    value.control_plane_poll.error =
+      "missing commands_poll_last_successful_timestamp_seconds metric";
+  }],
+  ["explicit zero metric", (value) => { value.control_plane_poll.value = 0; }],
+  ["endpoint failure", (value) => {
+    value.readyz.ok = false;
+    value.readyz.status = 503;
+  }],
+  ["locator drift", (value) => { value.locator.url_file = "/private/tmp/drift"; }],
+]) {
+  test(`connect does not retry ${name}`, (t) => {
+    const harness = operationalHarness(t);
+    const failed = pendingPollHealth(harness.healthUrlFile);
+    mutate(failed);
+    harness.responses.push(
+      { payload: {} },
+      { payload: validRawStatus(harness.healthUrlFile) },
+      { status: 2, payload: failed },
+      { payload: validStoppedRawStatus() },
+    );
+    assert.throws(
+      () => runPreparedTunnelConnect(harness.plan, harness.dependencies),
+      /control-plane poll health/u,
+    );
+    assert.deepEqual(harness.waits, []);
+    assert.equal(harness.calls.length, 4);
+  });
+}
 
 test("normal stop receives no credential and writes stopped evidence", (t) => {
   const harness = operationalHarness(t);
@@ -805,7 +1054,7 @@ test("automatic non-zero stop preserves both errors and no stopped evidence", (t
 
 test("failed status-after performs one validated credential-free stop", (t) => {
   const harness = operationalHarness(t);
-  const invalidReady = validRawStatus();
+  const invalidReady = validRawStatus(harness.healthUrlFile);
   invalidReady.ready = false;
   harness.responses.push(
     { payload: invalidReady },
@@ -818,6 +1067,27 @@ test("failed status-after performs one validated credential-free stop", (t) => {
   assert.equal(harness.calls.length, 2);
   assert.equal(harness.calls[0].environment.CONTROL_PLANE_API_KEY, "bounded-test-key");
   assert.equal(Object.hasOwn(harness.calls[1].environment, "CONTROL_PLANE_API_KEY"), false);
+  assert.equal(
+    existsSync(join(harness.plan.capture_root, "tunnel-status-stopped.json")),
+    true,
+  );
+});
+
+test("status-after rejects a stale successful poll and stops", (t) => {
+  const harness = operationalHarness(t);
+  const stale = validPollHealth(harness.healthUrlFile);
+  stale.control_plane_poll.value = Math.floor(Date.now() / 1_000) - 121;
+  harness.responses.push(
+    { payload: validRawStatus(harness.healthUrlFile) },
+    { payload: stale },
+    { payload: validStoppedRawStatus() },
+  );
+  assert.throws(
+    () => runPreparedTunnelStatusAfter(harness.plan, harness.dependencies),
+    /recent successful poll/u,
+  );
+  assert.deepEqual(harness.waits, []);
+  assert.equal(harness.calls.length, 3);
   assert.equal(
     existsSync(join(harness.plan.capture_root, "tunnel-status-stopped.json")),
     true,
