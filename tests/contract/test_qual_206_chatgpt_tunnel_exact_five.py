@@ -994,6 +994,9 @@ const tunnelId = "tunnel_6a873e7214308191bfe27240c1c03f68";
 const tunnelName = "gis-ai-go-v0-2-interoperability";
 const command = "/usr/bin/env -i synthetic-observer-command";
 const commandSha256 = createHash("sha256").update(command, "utf8").digest("hex");
+const healthUrlFile =
+  "/private/tmp/operator/tunnel-state/health/gis-ai-go-v0-2-exact-five-v1.url";
+const healthBaseUrl = "http://127.0.0.1:61234";
 const raw = {
   alias,
   tunnel_id: tunnelId,
@@ -1006,12 +1009,12 @@ const raw = {
   healthy: true,
   ready: true,
   control_plane_poll_health: {
-    state: "direct",
-    route: { kind: "control_plane", endpoint: "private-and-not-projected" },
-    history: ["private-and-not-projected"],
+    state: "unknown",
+    reason: "no live admin UI system snapshot",
   },
   remote_lookup_attempted: true,
   process_running: true,
+  health_url_file: healthUrlFile,
   process: {
     alias,
     tunnel_id: tunnelId,
@@ -1023,6 +1026,7 @@ const raw = {
   },
   local: {
     effective_health: {
+      base_url: healthBaseUrl,
       healthz: { ok: true, status: 200, url: "private-and-not-projected" },
       readyz: { ok: true, status: 200, url: "private-and-not-projected" },
     },
@@ -1030,8 +1034,33 @@ const raw = {
   },
   pid: 12345,
 };
+const pollHealth = {
+  locator: {
+    kind: "url_file",
+    url_file: healthUrlFile,
+    resolved_base_url: healthBaseUrl,
+  },
+  process: { pid: 12345, running: true },
+  base_url: healthBaseUrl,
+  ui_url: `${healthBaseUrl}/ui`,
+  healthz: {
+    url: `${healthBaseUrl}/healthz`, ok: true, status: 200, body: "live",
+  },
+  readyz: {
+    url: `${healthBaseUrl}/readyz`, ok: true, status: 200, body: "ready",
+  },
+  control_plane_poll: {
+    url: `${healthBaseUrl}/metrics`, value: Math.floor(Date.now() / 1000), ok: true,
+  },
+  result: "ok",
+};
 const ready = projectTunnelStatus(
-  raw, "before", commandSha256, "2026-08-27T12:00:00.000Z",
+  raw,
+  pollHealth,
+  "before",
+  commandSha256,
+  healthUrlFile,
+  "2026-08-27T12:00:00.000Z",
 );
 const stoppedRaw = {
   ...raw,
@@ -1085,7 +1114,7 @@ process.stdout.write(`${JSON.stringify([ready, stopped])}\n`);
         status_validator.validate(stopped)
         self.assertEqual(
             ready["control_plane_poll_health"],
-            {"state": "direct", "route_kind": "control_plane"},
+            {"state": "healthy", "route_kind": "control_plane"},
         )
         self.assertTrue(ready["local"]["direct_healthy_poll_route"])
         self.assertIsNone(stopped["control_plane_poll_health"])

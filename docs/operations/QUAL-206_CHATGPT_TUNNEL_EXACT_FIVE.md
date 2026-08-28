@@ -268,15 +268,39 @@ that downstream fixture: the observer starts it through the reviewed macOS
 describes the fixture process and must not be read as a claim that the immediate
 observer process is itself network-sandboxed.
 
-Connect success is insufficient by itself. The harness immediately obtains a fresh
-JSON status and emits only an endpoint-free `tunnel-status-before.json`. It requires:
+Connect success is insufficient by itself. The harness obtains a fresh JSON status,
+then invokes the reviewed client's credential-free
+`health --url-file ... --pid ... --require-control-plane-poll --json` probe before
+it emits an endpoint-free `tunnel-status-before.json`. It requires:
 
 - exact local alias, remote tunnel ID and remote name;
 - the fixed profile and SHA-256 digest of the exact reviewed MCP command;
 - successful remote lookup with no local or remote error and no stale state;
 - managed process running, runtime state `ready`, healthy and ready true;
 - effective local `/healthz` and `/readyz` status `200`; and
-- a healthy or direct control-plane poll route of kind `control_plane`.
+- one recent successful control-plane poll, proved by a positive
+  `commands_poll_last_successful_timestamp_seconds` metric from the exact bound
+  loopback runtime. The timestamp must be an integer no more than 120 seconds old;
+  only 5 seconds of future clock skew is tolerated.
+
+In tunnel-client `v0.0.13`, `runtimes status` can legitimately report
+`state: unknown` with `no live admin UI system snapshot` for the current managed
+runtime even when its local endpoints are ready. The harness does not turn that
+unknown state into a pass. It keeps the status identity checks and uses the
+client's purpose-built poll probe as the independent readiness condition. The
+probe receives no runtime credential, must resolve the exact owner-only health URL
+file to `127.0.0.1`, must confirm that the exact managed process ID is still
+running, and must return healthy `200` responses from both endpoints.
+
+The poll probe allows up to eight attempts, separated by 5 seconds, so the bounded
+window covers the reviewed client's 30-second long poll and 5-second deadline
+guardrail. Each probe command also has a 5-second execution cap. It
+retries only the exact first-party `no successful control-plane poll observed`
+startup result. Missing metrics, locator drift, endpoint failure, malformed output,
+stderr, a different error or any other exit fails closed and triggers the normal
+automatic teardown. The isolated tunnel process receives no proxy environment and
+the generated control-plane profile has no proxy configuration, so a successful
+poll remains bound to the direct control-plane route.
 
 Any mismatch fails closed.
 
