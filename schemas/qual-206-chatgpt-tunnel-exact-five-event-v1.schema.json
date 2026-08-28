@@ -359,7 +359,10 @@
         "request_ordinal": {"$ref": "#/$defs/nonNegativeInteger"},
         "request_id_sha256": {"$ref": "#/$defs/sha256"},
         "request_id_kind": {"enum": ["string", "integer"]},
-        "request_id_unique": {"type": "boolean"},
+        "request_id_unique": {
+          "type": "boolean",
+          "description": "True when no request with this identifier was awaiting a response when this request was issued."
+        },
         "method": {"$ref": "#/$defs/method"},
         "operation": {"$ref": "#/$defs/operation"},
         "protocol_claim": {"enum": ["2026-07-28", "absent", "other"]},

@@ -559,7 +559,10 @@ macRuntimeTest(
   assert.deepEqual(await finish(discovery), { code: 0, signal: null, stderr: "" });
 
   const exactFive = startObserver(t, captureRoot, runId);
-  const listing = await request(exactFive, "list-1", "tools/list");
+  // ChatGPT's current MCP 2026-07-28 client reuses integer 0 after each
+  // completed response. This is valid because no request with that ID remains
+  // in flight.
+  const listing = await request(exactFive, 0, "tools/list");
   assert.equal(advertisedToolSchemasExact(listing.tools), true);
   assert.deepEqual(
     listing.tools.map(({ name }) => name).sort(),
@@ -576,7 +579,7 @@ macRuntimeTest(
     const argumentsValue = operation.name === "evidence.inspect"
       ? { receipt_id: searchReceiptId }
       : operation.arguments;
-    const result = await request(exactFive, `call-${String(index + 1)}`, "tools/call", {
+    const result = await request(exactFive, 0, "tools/call", {
       name: operation.name,
       arguments: argumentsValue,
     });

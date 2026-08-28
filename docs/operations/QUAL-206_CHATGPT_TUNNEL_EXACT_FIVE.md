@@ -306,18 +306,22 @@ Any mismatch fails closed.
 
 ## Refresh the ChatGPT app before use
 
-The historical app version
-`asdk_app_v_6a873f85363081918f25a5aeaee98159` cached the earlier two-tool surface.
-Do not reuse it as exact-five evidence.
-
 In ChatGPT developer mode, refresh or recreate the version of app
 `GIS AI GO v0.2 interoperability` for app ID
 `asdk_app_6a873f853628819184bccb4a9b961576`, selecting the exact tunnel above.
 Before prompting, inspect the refreshed app and confirm that it presents exactly the
-five canonical operations with their closed schemas. Record the new non-secret
-`asdk_app_v_...` identifier; the finaliser explicitly rejects the historical value.
+five canonical operations with their closed schemas. Record the displayed non-secret
+`asdk_app_v_...` identifier. ChatGPT refreshes the developer connection in place, so
+that identifier is not an immutable tool-surface version and may remain unchanged.
+The captured, exact `tools/list` result is the authoritative schema evidence.
 
 ## One bounded host observation
+
+[The MCP 2026-07-28 request identifier rule][mcp-basic] applies to requests that
+are still outstanding. The observer accepts an identifier reused only after the earlier
+response has completed. Simultaneous reuse, an orphan response or a duplicate
+response fails closed. `request_id_unique: true` records that no request with
+the same identifier was awaiting a response when the request was issued.
 
 Start a new ChatGPT conversation and select only the refreshed GIS AI GO app. Keep
 the full prompt and conversation identifier private. In substance, instruct ChatGPT
@@ -374,7 +378,7 @@ observation window. Then create the immutable private run manifest:
   --started-at <UTC-start> \
   --finished-at <UTC-finish> \
   --displayed-model <operator-observed-model-label> \
-  --app-version-id <new-asdk-app-version-id> \
+  --app-version-id <operator-observed-asdk-app-version-id> \
   --conversation-id-sha256 <sha256>
 ```
 
@@ -408,7 +412,8 @@ Do not publish a pass if any of these occurs:
 
 - the checkout is not clean, detached and exact protected `main`;
 - client bytes or reported build differ from the reviewed `v0.0.13` identity;
-- the app still presents the historical two-tool surface or historical app version;
+- the refreshed app or captured `tools/list` presents anything other than the exact
+  five-tool surface;
 - either ready-status attestation fails, remote identity drifts, or the stopped
   attestation does not prove local teardown;
 - the host splits the five calls across sessions, changes order, duplicates or adds
@@ -424,3 +429,4 @@ Do not publish a pass if any of these occurs:
 None of these stop conditions is grounds to weaken a schema or verifier.
 
 [profile]: ../../tests/interoperability/fixtures/qual_206_chatgpt_tunnel_exact_five_profile.v1.json
+[mcp-basic]: https://modelcontextprotocol.io/specification/2026-07-28/basic

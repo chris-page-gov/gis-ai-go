@@ -149,6 +149,30 @@ def fail(message: str) -> NoReturn:
     raise TunnelExactFiveVerificationError(message)
 
 
+def correlate_request_response_events(
+    events: list[dict[str, Any]], slot: str
+) -> list[tuple[dict[str, Any], dict[str, Any]]]:
+    """Correlate responses while allowing an ID to be reused after completion."""
+
+    pending: dict[str, dict[str, Any]] = {}
+    pairs: list[tuple[dict[str, Any], dict[str, Any]]] = []
+    for event in events:
+        if event["event"] == "request":
+            digest = event["request_id_sha256"]
+            if digest in pending:
+                fail(f"{slot} reuses an in-flight request identity")
+            pending[digest] = event
+        elif event["event"] == "response":
+            digest = event["request_id_sha256"]
+            request = pending.pop(digest, None)
+            if request is None:
+                fail(f"{slot} contains an orphan or duplicate response")
+            pairs.append((request, event))
+    if pending:
+        fail(f"{slot} contains an unanswered request")
+    return pairs
+
+
 def _host_call(function: Callable[..., Any], *args: Any, **kwargs: Any) -> Any:
     try:
         return function(*args, **kwargs)
@@ -641,9 +665,9 @@ def verify_event_log(
         or end["response_count"] != len(responses)
     ):
         fail(f"{slot} request and response counts differ")
-    by_id = {request["request_id_sha256"]: request for request in requests}
-    if len(by_id) != len(requests):
-        fail(f"{slot} contains duplicate request identities")
+    correlated = correlate_request_response_events(events, slot)
+    if len(correlated) != len(requests):
+        fail(f"{slot} request and response correlation is incomplete")
     methods: Counter[str] = Counter()
     operations: Counter[str] = Counter()
     for request in requests:
@@ -671,11 +695,9 @@ def verify_event_log(
             )
         ):
             fail(f"{slot} contains an invalid request")
-    for response in responses:
-        request = by_id.get(response["request_id_sha256"])
+    for request, response in correlated:
         if (
-            request is None
-            or response["request_id_kind"] != request["request_id_kind"]
+            response["request_id_kind"] != request["request_id_kind"]
             or response["request_method"] != request["method"]
             or response["operation"] != request["operation"]
             or response["correlation"] != "matched"

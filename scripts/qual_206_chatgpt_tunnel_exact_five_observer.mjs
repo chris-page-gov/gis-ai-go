@@ -992,8 +992,9 @@ export function startChatGptTunnelObserver(options) {
     }
     const meta = protocolMeta(message);
     const id = requestId(message.id);
-    const duplicate = id.digest !== null &&
-      (pending.has(id.digest) || completed.has(id.digest));
+    // MCP 2026-07-28 permits an identifier to be reused after its response has
+    // completed. Only an identifier that is still in flight is ambiguous.
+    const duplicate = id.digest !== null && pending.has(id.digest);
     const method = message.method;
     const operation = operationLabel(message);
     const parameters = Buffer.from(canonicalJson(message.params), "utf8");
