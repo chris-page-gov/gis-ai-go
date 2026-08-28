@@ -233,6 +233,65 @@ class ChatGptTunnelPortableContractTests(unittest.TestCase):
                 [serial[0], serial[1], serial[3]], "session-1"
             )
 
+    def test_teardown_event_contract_distinguishes_the_two_truthful_orders(self) -> None:
+        event_validator = validator(verifier.EVENT_SCHEMA)
+        session = self.fixture["sessions"][0]
+        common = {
+            "schema": "gis-ai-go.qual-206-chatgpt-tunnel-exact-five-event.v1",
+            "run_id": self.fixture["private_run"]["run_id"],
+            "session_id": session["session_id"],
+            "slot": session["slot"],
+            "sequence": 2,
+            "observed_at": self.fixture["private_run"]["execution"]["started_at"],
+            "event": "lifecycle",
+            "previous_event_sha256": "a" * 64,
+            "event_sha256": "b" * 64,
+            "phase": "parent-teardown-signal",
+            "signal": "SIGTERM",
+            "immediate_parent_verified": True,
+        }
+        eof_before_signal = {
+            **common,
+            "stdin_closed_before_signal": True,
+            "stdin_eof_observed_within_grace": False,
+        }
+        signal_before_eof = {
+            **common,
+            "stdin_closed_before_signal": False,
+            "stdin_eof_observed_within_grace": True,
+        }
+        for label, event in (
+            ("EOF before SIGTERM", eof_before_signal),
+            ("SIGTERM before EOF", signal_before_eof),
+        ):
+            with self.subTest(order=label):
+                self.assertEqual(list(event_validator.iter_errors(event)), [])
+
+        for label, pair in (
+            ("both true", (True, True)),
+            ("both false", (False, False)),
+        ):
+            changed = {
+                **common,
+                "stdin_closed_before_signal": pair[0],
+                "stdin_eof_observed_within_grace": pair[1],
+            }
+            with self.subTest(order=label):
+                self.assertTrue(list(event_validator.iter_errors(changed)))
+
+        missing_grace_fact = dict(eof_before_signal)
+        del missing_grace_fact["stdin_eof_observed_within_grace"]
+        self.assertTrue(list(event_validator.iter_errors(missing_grace_fact)))
+
+        session_end = next(
+            event
+            for event in self.fixture["events"]
+            if event["session_id"] == session["session_id"]
+            and event.get("phase") == "session-end"
+        )
+        signal_first_end = {**session_end, "closure_stimulus": "sigterm-then-stdin-eof"}
+        self.assertEqual(list(event_validator.iter_errors(signal_first_end)), [])
+
     def test_developer_version_id_is_not_used_as_tool_surface_evidence(self) -> None:
         for schema_path, source in (
             (verifier.PRIVATE_SCHEMA, self.fixture["private_run"]),
@@ -949,6 +1008,53 @@ class ChatGptTunnelExactFiveContractTests(unittest.TestCase):
         }
         write_private_json(capture_path, capture)
 
+    def add_parent_teardown(
+        self,
+        slot: str,
+        *,
+        after_child_exit: bool,
+        stdin_closed_before_signal: bool,
+        stdin_eof_observed_within_grace: bool,
+        closure_stimulus: str,
+    ) -> None:
+        event_path = self.case / slot / "events.jsonl"
+        events = [
+            json.loads(line)
+            for line in event_path.read_text(encoding="utf-8").splitlines()
+        ]
+        child_index = next(
+            index
+            for index, event in enumerate(events)
+            if event.get("event") == "lifecycle"
+            and event.get("phase") == "child-exit"
+        )
+        child_exit = events[child_index]
+        teardown = {
+            "schema": child_exit["schema"],
+            "run_id": child_exit["run_id"],
+            "session_id": child_exit["session_id"],
+            "slot": child_exit["slot"],
+            "sequence": 0,
+            "observed_at": child_exit["observed_at"],
+            "event": "lifecycle",
+            "previous_event_sha256": None,
+            "event_sha256": "0" * 64,
+            "phase": "parent-teardown-signal",
+            "signal": "SIGTERM",
+            "stdin_closed_before_signal": stdin_closed_before_signal,
+            "stdin_eof_observed_within_grace": stdin_eof_observed_within_grace,
+            "immediate_parent_verified": True,
+        }
+        events.insert(child_index + int(after_child_exit), teardown)
+        end = next(
+            event
+            for event in events
+            if event.get("event") == "lifecycle"
+            and event.get("phase") == "session-end"
+        )
+        end["closure_stimulus"] = closure_stimulus
+        self.rebind_session_events(slot, events)
+
     def rebind_session_summary(self, slot: str, summary: dict[str, Any]) -> None:
         summary_raw = write_private_json(
             self.case / slot / "exact-five-session.json",
@@ -991,6 +1097,54 @@ class ChatGptTunnelExactFiveContractTests(unittest.TestCase):
         self.assertFalse(
             verifier.nested_field_names(projection) & verifier.FORBIDDEN_PUBLIC_FIELDS
         )
+
+    def test_verifier_accepts_eof_before_sigterm_teardown(self) -> None:
+        self.add_parent_teardown(
+            "session-2",
+            after_child_exit=False,
+            stdin_closed_before_signal=True,
+            stdin_eof_observed_within_grace=False,
+            closure_stimulus="stdin-eof-and-sigterm",
+        )
+        self.assertEqual(self.verify()["status"], "capability_pass")
+
+    def test_verifier_accepts_sigterm_then_eof_teardown_before_child_exit(self) -> None:
+        self.add_parent_teardown(
+            "session-2",
+            after_child_exit=False,
+            stdin_closed_before_signal=False,
+            stdin_eof_observed_within_grace=True,
+            closure_stimulus="sigterm-then-stdin-eof",
+        )
+        self.assertEqual(self.verify()["status"], "capability_pass")
+
+    def test_verifier_rejects_mismatched_teardown_closure(self) -> None:
+        self.add_parent_teardown(
+            "session-2",
+            after_child_exit=False,
+            stdin_closed_before_signal=False,
+            stdin_eof_observed_within_grace=True,
+            closure_stimulus="stdin-eof-and-sigterm",
+        )
+        with self.assertRaisesRegex(
+            verifier.TunnelExactFiveVerificationError,
+            "parent teardown closure is inconsistent",
+        ):
+            self.verify()
+
+    def test_verifier_rejects_child_exit_before_any_parent_teardown(self) -> None:
+        self.add_parent_teardown(
+            "session-2",
+            after_child_exit=True,
+            stdin_closed_before_signal=False,
+            stdin_eof_observed_within_grace=True,
+            closure_stimulus="sigterm-then-stdin-eof",
+        )
+        with self.assertRaisesRegex(
+            verifier.TunnelExactFiveVerificationError,
+            "lifecycle is not the exact closed sequence",
+        ):
+            self.verify()
 
     def test_status_contract_rejects_leakage_and_false_teardown(self) -> None:
         status_validator = validator(verifier.STATUS_SCHEMA)

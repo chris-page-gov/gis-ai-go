@@ -122,6 +122,10 @@ const MAX_STDERR_BYTES = 65_536;
 const MAX_PRE_FIRST_FRAME_MILLISECONDS = 10 * 60_000;
 const MAX_INTER_FRAME_IDLE_MILLISECONDS = 3 * 60_000;
 const MAX_OBSERVATION_MILLISECONDS = 15 * 60_000;
+// v0.0.13 can forward SIGTERM before the managed STDIO OnStop hook closes
+// stdin and sends a duplicate SIGTERM. Keep that race bounded and idempotent
+// without accepting signal-only closure.
+const PARENT_TEARDOWN_EOF_GRACE_MILLISECONDS = 250;
 export const CHATGPT_TUNNEL_OBSERVATION_WINDOWS = Object.freeze({
   pre_first_frame_milliseconds: MAX_PRE_FIRST_FRAME_MILLISECONDS,
   inter_frame_idle_milliseconds: MAX_INTER_FRAME_IDLE_MILLISECONDS,
@@ -903,6 +907,10 @@ export function startChatGptTunnelObserver(options) {
   let terminationTimer = null;
   let deadlines = null;
   let parentTeardownSignal = null;
+  let parentTeardownSignalBeforeEof = false;
+  let pendingParentTeardownSignal = null;
+  let parentTeardownEofTimer = null;
+  let deferredChildClose = null;
   const streamEnds = new Map();
   let stderrEventCount = 0;
   let stderrBytes = 0;
@@ -1335,16 +1343,64 @@ export function startChatGptTunnelObserver(options) {
     });
   }
 
+  function clearParentTeardownEofTimer() {
+    if (parentTeardownEofTimer !== null) {
+      clearTimeout(parentTeardownEofTimer);
+      parentTeardownEofTimer = null;
+    }
+  }
+
+  function recordParentTeardownAfterEof() {
+    if (pendingParentTeardownSignal !== "SIGTERM" || !hostInputEnded) return;
+    clearParentTeardownEofTimer();
+    parentTeardownSignal = pendingParentTeardownSignal;
+    parentTeardownSignalBeforeEof = true;
+    pendingParentTeardownSignal = null;
+    emit("lifecycle", {
+      phase: "parent-teardown-signal",
+      signal: parentTeardownSignal,
+      stdin_closed_before_signal: false,
+      stdin_eof_observed_within_grace: true,
+      immediate_parent_verified: true,
+    });
+  }
+
+  function recordParentTeardownAfterPriorEof() {
+    parentTeardownSignal = "SIGTERM";
+    parentTeardownSignalBeforeEof = false;
+    emit("lifecycle", {
+      phase: "parent-teardown-signal",
+      signal: parentTeardownSignal,
+      stdin_closed_before_signal: true,
+      stdin_eof_observed_within_grace: false,
+      immediate_parent_verified: true,
+    });
+  }
+
   deadlines = createChatGptTunnelObservationDeadlines({
     onTimeout: (classification) => captureFatal(classification),
   });
   process.stdin.on("data", guarded("host-stdin-failure", (chunk) => {
+    if (pendingParentTeardownSignal === "SIGTERM") {
+      captureFatal("host-bytes-after-parent-teardown-signal", {
+        direction: "host-to-fixture",
+        frame_bytes: chunk.length,
+        frame_sha256: sha256Bytes(chunk),
+      });
+      return;
+    }
     inputTap.push(chunk);
   }));
   process.stdin.once("end", guarded("host-stdin-end-failure", () => {
     hostInputEnded = true;
     endStream("host-stdin", inputTap, true);
-    child.stdin.end();
+    recordParentTeardownAfterEof();
+    if (!child.stdin.writableEnded && !child.stdin.destroyed) child.stdin.end();
+    if (deferredChildClose !== null) {
+      const { code, signal } = deferredChildClose;
+      deferredChildClose = null;
+      finaliseSession(code, signal);
+    }
   }));
   process.stdin.once("error", () => captureFatal("host-stdin-stream-error"));
   child.stdin.once("error", () => {
@@ -1383,9 +1439,11 @@ export function startChatGptTunnelObserver(options) {
   child.once("exit", guarded("child-exit-observation-failure", (code, signal) => {
     emit("lifecycle", { phase: "child-exit", exit_code: code, signal });
   }));
-  child.once("close", (code, signal) => {
+  function finaliseSession(code, signal) {
+    if (finalising) return;
     finalising = true;
     deadlines.stop();
+    clearParentTeardownEofTimer();
     if (terminationTimer !== null) clearTimeout(terminationTimer);
     try {
       endStream("host-stdin", inputTap, false);
@@ -1457,7 +1515,9 @@ export function startChatGptTunnelObserver(options) {
         runtime_materials_stable: runtimeStable,
         runtime_closures_stable: runtimeClosuresStable,
         closure_stimulus: parentTeardownSignal === "SIGTERM"
-          ? "stdin-eof-and-sigterm"
+          ? parentTeardownSignalBeforeEof
+            ? "sigterm-then-stdin-eof"
+            : "stdin-eof-and-sigterm"
           : hostInputEnded ? "stdin-eof" : "none",
         exit_code: code,
         signal,
@@ -1582,19 +1642,46 @@ export function startChatGptTunnelObserver(options) {
       process.stderr.write("QUAL-206 ChatGPT tunnel observer finalisation failed\n");
       process.exitCode = 2;
     }
+  }
+
+  child.once("close", (code, signal) => {
+    if (pendingParentTeardownSignal === "SIGTERM" && !hostInputEnded) {
+      deferredChildClose = { code, signal };
+      captureFatal("fixture-close-before-parent-stdin-eof");
+      // captureFatal pauses the host stream. This exceptional invalid path must
+      // still observe a later EOF or the bounded grace expiry before persisting.
+      process.stdin.resume();
+      return;
+    }
+    finaliseSession(code, signal);
   });
   for (const signal of ["SIGINT", "SIGTERM", "SIGHUP"]) {
-    process.once(signal, () => {
+    // v0.0.13 can forward a host SIGTERM before its managed STDIO OnStop hook,
+    // then close stdin and signal this command a second time. Keep the handler
+    // installed through finalisation so that the duplicate cannot restore
+    // Node's default signal termination during the bounded EOF grace.
+    process.on(signal, () => {
       if (finalising) return;
-      if (signal === "SIGTERM" && hostInputEnded && fatalError === null) {
-        parentTeardownSignal = signal;
-        emit("lifecycle", {
-          phase: "parent-teardown-signal",
-          signal,
-          stdin_closed_before_signal: true,
-          immediate_parent_verified: true,
-        });
-        if (!child.stdin.writableEnded) child.stdin.end();
+      if (signal === "SIGTERM" && fatalError === null) {
+        if (pendingParentTeardownSignal !== null || parentTeardownSignal !== null) return;
+        deadlines.stop();
+        if (hostInputEnded) {
+          recordParentTeardownAfterPriorEof();
+          if (!child.stdin.writableEnded) child.stdin.end();
+          return;
+        }
+        pendingParentTeardownSignal = signal;
+        parentTeardownEofTimer = setTimeout(() => {
+          parentTeardownEofTimer = null;
+          if (hostInputEnded) return;
+          pendingParentTeardownSignal = null;
+          captureFatal("premature-parent-sigterm");
+          if (deferredChildClose !== null) {
+            const { code, signal: childSignal } = deferredChildClose;
+            deferredChildClose = null;
+            finaliseSession(code, childSignal);
+          }
+        }, PARENT_TEARDOWN_EOF_GRACE_MILLISECONDS);
         return;
       }
       captureFatal(
