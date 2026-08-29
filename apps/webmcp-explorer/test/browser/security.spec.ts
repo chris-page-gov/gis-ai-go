@@ -193,11 +193,16 @@ test.describe("JavaScript-free boundary", () => {
     page.on("request", (request) => requests.push(request.url()));
     await page.goto("/");
     await page.locator("#catalogue-query").fill(sentinel);
-    await Promise.all([
-      page.waitForNavigation({ waitUntil: "domcontentloaded" }),
-      page.getByRole("button", { name: "Run search tool" }).click(),
-    ]);
+    const submission = page.waitForRequest((request) => request.isNavigationRequest());
+    // The no-field form reloads the same URL, so observe the native request rather
+    // than depending on Playwright's actionability or navigation lifecycle timing.
+    await page.getByRole("button", { name: "Run search tool" }).click({
+      force: true,
+      noWaitAfter: true,
+    });
+    const submittedRequest = await submission;
 
+    expect(submittedRequest.url()).not.toContain(sentinel);
     expect(page.url()).not.toContain(sentinel);
     expect(requests.every((url) => !new URL(url).searchParams.has("query"))).toBe(true);
   });
