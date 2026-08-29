@@ -16,6 +16,7 @@ research recommendations remain unchanged in the preserved pack at
 - [ADR-0010: Canonical public inline evidence](ADR-0010-canonical-public-inline-evidence.md)
 - [ADR-0011: Durable public evidence ledger](ADR-0011-durable-public-evidence-ledger.md)
 - [ADR-0012: Receipt-only lost-response reconciliation](ADR-0012-receipt-only-lost-response-reconciliation.md)
+- [ADR-0013: WebMCP page-tools boundary](ADR-0013-webmcp-page-tools-boundary.md)
 
 Research decisions D01–D19 are accepted as constraints for building and evaluating
 Stage 0, not as blanket authority for later production stages. Research decision D20

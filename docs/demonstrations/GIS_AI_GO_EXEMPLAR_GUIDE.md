@@ -352,21 +352,20 @@ a vendor-sponsored survey or successful local tests.
 ## Static Sites, WebMCP and the persistent runtime
 
 The Explorer can continue on GitHub Pages or another static-site host. OpenAI's
-[25 August announcement](https://community.openai.com/t/the-webmcp-challenge-is-here/1392582/3)
-and [demonstration video](https://youtu.be/Is2NHa7awWY) say that WebMCP support is
-being added to the ChatGPT desktop browser and ChatGPT Sites. This makes a
-WebMCP-enhanced, read-only Explorer demonstration a practical near-term experiment:
-the page could expose selected functions to ChatGPT or Codex while people and agents
-use the same visible site.
+[Site tools documentation](https://learn.chatgpt.com/docs/webmcp) and
+[demonstration video](https://youtu.be/Is2NHa7awWY) describe WebMCP support in the
+ChatGPT desktop browser. GIS AI GO now implements that idea as a separate
+[WebMCP Explorer candidate](../implementation/WEBMCP_EXPLORER_CANDIDATE.md): a
+compatible browser-hosted AI can call exactly two bounded, read-only page tools
+over the same validated public catalogue that a person can inspect manually.
 
 That is page-level capability, not a replacement server. Availability still depends
-on the account and selected model supporting site tools. OpenAI's
-[site-tools guidance](https://help.openai.com/en/articles/20001423-using-site-tools-in-the-chatgpt-desktop-app)
-says each website chooses its tools, each tool remains scoped to the page that
-provides it and the page must stay open. The
-[WebMCP proposal](https://github.com/webmachinelearning/webmcp) is being developed
-in the W3C Web Machine Learning Community Group; it is not yet a W3C standard and
-does not prescribe MCP's transport/data layer.
+on a compatible account, model and browser host. The page must stay open, and the
+candidate does not itself embed or call a model. The
+[WebMCP Community Group draft](https://webmachinelearning.github.io/webmcp/) is not
+a W3C Recommendation and does not prescribe MCP's transport or data layer. The
+candidate therefore remains behind one feature-detected adapter, and no live-host
+interoperability claim is made until an exact browser-and-AI observation passes.
 
 Neither static hosting nor WebMCP replaces the stateful server-side needs of this
 candidate: durable receipts, reconciliation, controlled provider egress, workload

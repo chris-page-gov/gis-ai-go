@@ -56,6 +56,15 @@ remains `503`. There is no public MCP service, live provider call through the
 fixed-container candidate, external policy or identity service, deployment or
 `v0.2.0` release.
 
+An experimental, standalone WebMCP Explorer candidate sits under
+`apps/webmcp-explorer` without changing that state. It exposes exactly two
+page-scoped, read-only tools over the checksum-copied public catalogue, with the
+same deterministic logic available through an accessible manual journey. It does
+not embed a model, call a provider, issue a policy decision or durable receipt,
+remain callable after the page closes, or alter the supported Explorer, canonical
+Pages artefact, persistent gateway or `v0.2.0` release boundary. See
+[ADR-0013](docs/decisions/ADR-0013-webmcp-page-tools-boundary.md).
+
 The owner has authorised autonomous implementation in the open under
 [`ADR-0004`](docs/decisions/ADR-0004-public-autonomous-delivery.md). The repository
 is public under the owner's personal `chris-page-gov` account. Pull-request
