@@ -96,6 +96,16 @@ remains local and unpublished. This does not exercise TLS, a public hostname, an
 independent remote host, a model, a live provider or a deployment, so it cannot
 close the remote-HTTP or capability gates.
 
+The provider-neutral public-ingress preparation in
+[ADR-0014](../decisions/ADR-0014-bounded-public-ingress-origin.md) adds one strict
+DNS-form HTTPS origin allowlist to the fixed container. Real-socket tests prove exact
+Host and Origin admission across direct HTTP and MCP, rejection of loopback and
+wrong-port authority in public mode, and non-trust of forwarded headers. The same
+value projects into OpenAPI while `x-gis-ai-go-public-deployment` remains false.
+The test origin is IANA-reserved. No TLS listener, DNS delegation, live DNS record,
+certificate, public endpoint, remote host or provider call is involved, so direct
+public Streamable HTTP/TLS interoperability remains open.
+
 The separate verifier-produced
 [Claude Code exact-five projection](../../tests/interoperability/evidence/claude-code-2.1.245-exact-five-capability-2026-08-27.json)
 binds protected-main commit `029a9d5c7efcafcd45941194394384ee6c578fe9`, tree

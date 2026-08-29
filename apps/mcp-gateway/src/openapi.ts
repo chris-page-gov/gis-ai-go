@@ -2,6 +2,8 @@ import { readFileSync } from "node:fs";
 
 import openApiTemplate from "../openapi/catalogue-api.openapi.json" with { type: "json" };
 
+import { parsePublicHttpsOrigin } from "./public-origin.js";
+
 export const CATALOGUE_API_OPERATIONS = Object.freeze([
   "catalogue.describe",
   "catalogue.search",
@@ -722,6 +724,7 @@ export function createCatalogueOpenApiDocument(
 /** Describe one branded candidate assembly without claiming production registration. */
 export function createGovernedCandidateOpenApiDocument(
   enabledApiOperations: readonly GatewayApiOperation[],
+  publicHttpsOrigin?: string,
 ): OpenApiDocument {
   const selected = normaliseOperations(enabledApiOperations);
   const candidateOperations = Object.freeze([...enabledApiOperations]);
@@ -729,6 +732,21 @@ export function createGovernedCandidateOpenApiDocument(
   document["x-gis-ai-go-lifecycle"] = "candidate-unregistered";
   document["x-gis-ai-go-production-registration"] = false;
   document["x-gis-ai-go-candidate-operations"] = [...candidateOperations];
+  document["x-gis-ai-go-public-ingress-configured"] = publicHttpsOrigin !== undefined;
+  if (publicHttpsOrigin !== undefined) {
+    const publicOrigin = parsePublicHttpsOrigin(publicHttpsOrigin);
+    const info = objectValue(document.info, "OpenAPI information");
+    info.summary =
+      "Public-ingress-configured candidate over the governed exact-five assembly";
+    info.description =
+      "This contract projects the candidate routes at one configured public HTTPS origin. " +
+      "The configuration does not prove DNS, TLS, deployment, registration or release.";
+    document.servers = [{
+      url: publicOrigin.origin,
+      description:
+        "Configured unregistered HTTPS candidate; independent deployment evidence is required",
+    }];
+  }
 
   const paths = objectValue(document.paths, "OpenAPI paths");
   const readinessPath = objectValue(paths["/readyz"], "OpenAPI readiness path");

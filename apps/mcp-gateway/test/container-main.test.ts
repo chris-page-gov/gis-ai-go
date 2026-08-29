@@ -17,6 +17,11 @@ import { catalogueActivation } from "../src/activation.js";
 import { createCandidateActivation } from "../src/candidate-activation.js";
 import { loadCatalogueSnapshot } from "../src/catalogue-snapshot.js";
 import {
+  GATEWAY_CONTAINER_PUBLIC_HTTPS_ORIGIN_VARIABLE,
+  gatewayContainerHealthHeaders,
+  gatewayContainerIngressOptions,
+} from "../src/container-ingress.js";
+import {
   assertCandidateContainerAuthority,
   assertFixedContainerArguments,
   GATEWAY_CONTAINER_APPROVED_CACHE_BYTES,
@@ -97,6 +102,87 @@ test("rejects command-line configuration for the server and health check", () =>
   assert.throws(
     () => assertFixedHealthcheckArguments(["node", "container-healthcheck.js", "--url"]),
     /does not accept arguments/u,
+  );
+});
+
+test("selects either the fixed loopback boundary or one canonical public HTTPS origin", () => {
+  assert.deepEqual(gatewayContainerIngressOptions({}), {
+    directAllowedHosts: ["127.0.0.1:8787", "localhost:8787"],
+    directAllowedOrigins: ["http://127.0.0.1:8787", "http://localhost:8787"],
+    mcpAllowedHosts: ["127.0.0.1:8787", "localhost:8787"],
+    mcpAllowedHostnames: ["127.0.0.1", "localhost"],
+    mcpAllowedOrigins: ["http://127.0.0.1:8787", "http://localhost:8787"],
+  });
+  assert.deepEqual(gatewayContainerHealthHeaders({}), { accept: "application/json" });
+  const origin = "https://gateway.example.com";
+  const options = gatewayContainerIngressOptions({
+    [GATEWAY_CONTAINER_PUBLIC_HTTPS_ORIGIN_VARIABLE]: origin,
+  });
+  assert.deepEqual(options, {
+    directAllowedHosts: [
+      "gateway.example.com",
+      "gateway.example.com:443",
+    ],
+    directAllowedOrigins: [origin],
+    mcpAllowedHosts: [
+      "gateway.example.com",
+      "gateway.example.com:443",
+    ],
+    mcpAllowedHostnames: ["gateway.example.com"],
+    mcpAllowedOrigins: [origin],
+    openApiServerOrigin: origin,
+  });
+  assert.deepEqual(
+    gatewayContainerHealthHeaders({
+      [GATEWAY_CONTAINER_PUBLIC_HTTPS_ORIGIN_VARIABLE]: origin,
+    }),
+    { accept: "application/json", host: "gateway.example.com" },
+  );
+  assert.equal(Object.isFrozen(options), true);
+  for (const value of Object.values(options)) assert.equal(Object.isFrozen(value), true);
+});
+
+test("rejects widened or non-canonical public ingress origins", () => {
+  const rejected = [
+    "",
+    " https://gateway.example.com",
+    "https://gateway.example.com/",
+    "http://gateway.example.com",
+    "https://GATEWAY.example.com",
+    "https://gateway.example.com:443",
+    "https://gateway.example.com/path",
+    "https://gateway.example.com?query=1",
+    "https://gateway.example.com#fragment",
+    "https://user:password@gateway.example.com",
+    "https://*.example.com",
+    "https://gateway_name.example.com",
+    "https://single-label",
+    "https://127.0.0.1",
+    "https://localhost",
+    "https://gateway.alt",
+    "https://gateway.home.arpa",
+    "https://gateway.internal",
+    "https://mcp.invalid",
+    "https://mcp.example",
+    "https://mcp.test",
+    "https://mcp.local",
+    "https://mcp.onion",
+    "https://caf\u00e9.example.com",
+  ];
+  for (const rawOrigin of rejected) {
+    assert.throws(
+      () => gatewayContainerIngressOptions({
+        [GATEWAY_CONTAINER_PUBLIC_HTTPS_ORIGIN_VARIABLE]: rawOrigin,
+      }),
+      /public HTTPS origin is invalid/u,
+      rawOrigin,
+    );
+  }
+  assert.throws(
+    () => gatewayContainerIngressOptions({
+      [GATEWAY_CONTAINER_PUBLIC_HTTPS_ORIGIN_VARIABLE]: 42 as unknown as string,
+    }),
+    /public HTTPS origin is invalid/u,
   );
 });
 

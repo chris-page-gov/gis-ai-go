@@ -7,7 +7,7 @@
   },
   "generator": {
     "path": "scripts/qual_206_local_evaluations.mjs",
-    "sha256": "f7d844e23abb7b27b10dfc4e6d62793bff8eeebbc28e42eb2aba8263bc9c4d90",
+    "sha256": "ed69f581e61858863f98982f54017833e5837fd77ce2a5e562f4fab28d20075a",
     "package_json_sha256": "7551e3b3a203ffa7136947309f626c35b306ce330702fe334288830101153a49",
     "pnpm_lock_sha256": "a7c015bc58866174cd519ca0ae5cccbe392e5e6de9a9fd97460f4aaacc69929c",
     "verification_command": "pnpm run test:qual-206-local-evaluations"
@@ -343,7 +343,7 @@
       }
     },
     {
-      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:181cc7666c7f36418920c970a5763c33b2db67569cd611dfb1f705aa23935145",
+      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:14681d5f757e7ff3bc63593370ec44e62c1783aeef68f6941bcbf53261bd9e93",
       "label": "public-read-transport",
       "command": [
         "node",
@@ -373,7 +373,7 @@
         },
         {
           "path": "apps/mcp-gateway/src/http-app.ts",
-          "sha256": "7e5c4fe8db2847f4fb0a0dec053d802f62d2d37bcbdb86a9f4cfaee945049dba"
+          "sha256": "ce7457f81f006297592850b99a2232077a82ad1c8eee31a6738ad70b41cf5eae"
         },
         {
           "path": "apps/mcp-gateway/src/mcp-http.ts",
@@ -389,7 +389,7 @@
         },
         {
           "path": "apps/mcp-gateway/src/openapi.ts",
-          "sha256": "51b591fed69149d0adc059d401e4372d984ee6ae631c89eedb44c9f6187d5b2e"
+          "sha256": "54313f247d9d1fc062966f892c962416eb1b9d3baadaf79f9c932f5a0e0366e9"
         },
         {
           "path": "apps/mcp-gateway/src/problem.ts",
@@ -423,7 +423,7 @@
       }
     },
     {
-      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:afffcd5145231b1ae9171fbf16eceffa6b4bb43e1c221d6415f68f35b9dbfaf9",
+      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:c90f1063d4e14310b7b30fb39e527ab0fcdb0ece1ba1000af1db4f98075828c4",
       "label": "http-application",
       "command": [
         "node",
@@ -448,11 +448,11 @@
         },
         {
           "path": "apps/mcp-gateway/src/http-app.ts",
-          "sha256": "7e5c4fe8db2847f4fb0a0dec053d802f62d2d37bcbdb86a9f4cfaee945049dba"
+          "sha256": "ce7457f81f006297592850b99a2232077a82ad1c8eee31a6738ad70b41cf5eae"
         },
         {
           "path": "apps/mcp-gateway/src/openapi.ts",
-          "sha256": "51b591fed69149d0adc059d401e4372d984ee6ae631c89eedb44c9f6187d5b2e"
+          "sha256": "54313f247d9d1fc062966f892c962416eb1b9d3baadaf79f9c932f5a0e0366e9"
         },
         {
           "path": "apps/mcp-gateway/test/http-app.test.ts",
@@ -466,7 +466,7 @@
       }
     },
     {
-      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:260469e27849b227e438fd24f2ef3ed36e149f8c5e3b6847e6397a2abf3a4794",
+      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:f968d644170be1c2ca142b92dfdca20dbc31b4de88f70438e1e96a8bd6700f1b",
       "label": "readiness-integrity",
       "command": [
         "node",
@@ -484,7 +484,7 @@
       "materials": [
         {
           "path": "apps/mcp-gateway/src/http-app.ts",
-          "sha256": "7e5c4fe8db2847f4fb0a0dec053d802f62d2d37bcbdb86a9f4cfaee945049dba"
+          "sha256": "ce7457f81f006297592850b99a2232077a82ad1c8eee31a6738ad70b41cf5eae"
         },
         {
           "path": "apps/mcp-gateway/src/readiness-integrity.ts",
@@ -510,24 +510,30 @@
       }
     },
     {
-      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:6c571423fa6259e68ead43f6a2daf7c33822efcb4940ac6d2d7d05073464ff75",
+      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:cfe6a11f2f87150661824a807c5fdd502be5973ed49fa2348b38e729ec59ed65",
       "label": "blocked-container",
       "command": [
         "node",
         "--test",
         "--test-reporter=tap",
-        "--test-name-pattern=^(?:keeps the container entry point fixed and activates only the unregistered exact five|rejects command-line configuration for the server and health check|keeps the container healthy when only new-claim readiness is exhausted|maps readiness corruption and hostile errors to fixed path-free events)$",
+        "--test-name-pattern=^(?:keeps the container entry point fixed and activates only the unregistered exact five|rejects command-line configuration for the server and health check|selects either the fixed loopback boundary or one canonical public HTTPS origin|rejects widened or non-canonical public ingress origins|keeps the container healthy when only new-claim readiness is exhausted|maps readiness corruption and hostile errors to fixed path-free events)$",
         "apps/mcp-gateway/dist/test/container-main.test.js"
       ],
       "result": "passed",
-      "test_count": 4,
+      "test_count": 6,
       "test_names": [
         "keeps the container entry point fixed and activates only the unregistered exact five",
         "rejects command-line configuration for the server and health check",
+        "selects either the fixed loopback boundary or one canonical public HTTPS origin",
+        "rejects widened or non-canonical public ingress origins",
         "keeps the container healthy when only new-claim readiness is exhausted",
         "maps readiness corruption and hostile errors to fixed path-free events"
       ],
       "materials": [
+        {
+          "path": "apps/mcp-gateway/openapi/catalogue-api.openapi.json",
+          "sha256": "75e898f3ada3d0a672a27958360d39942b37e0037b41c9ecd77185c46e682108"
+        },
         {
           "path": "apps/mcp-gateway/src/activation.ts",
           "sha256": "9ec62597b78831b5943f7144867bbc505455c6bf4b4b3b5ae38260d853ec560e"
@@ -538,23 +544,35 @@
         },
         {
           "path": "apps/mcp-gateway/src/container-healthcheck.ts",
-          "sha256": "8c374dc0eb607e63c1b9073f4f3e611d1fc8e037a9c87ccd486c11a1c43deaa7"
+          "sha256": "c6f68306aa60f7aa7792666298e235c09b5d3b32f6f3bb19669b15e0f5a878ac"
+        },
+        {
+          "path": "apps/mcp-gateway/src/container-ingress.ts",
+          "sha256": "2c4ae910b68b6cfda525ac1dfac35c1db9a63f1fe0aeb903d08d1b0b41a2f5fe"
         },
         {
           "path": "apps/mcp-gateway/src/container-main.ts",
-          "sha256": "e0f8d208e0945cf9be17855293470c6e26e9a6c642fe62abca5fa8accc16102f"
+          "sha256": "91748d416df08f3575d86f173fbec526108ebc375b6bc0c52c9322f463573b0b"
         },
         {
           "path": "apps/mcp-gateway/src/http-app.ts",
-          "sha256": "7e5c4fe8db2847f4fb0a0dec053d802f62d2d37bcbdb86a9f4cfaee945049dba"
+          "sha256": "ce7457f81f006297592850b99a2232077a82ad1c8eee31a6738ad70b41cf5eae"
         },
         {
           "path": "apps/mcp-gateway/src/http-server.ts",
-          "sha256": "7353a6c03f28a4d8c479c9a159f03c11b46eadf8e7abcd53c0256dd255e8d9b2"
+          "sha256": "0f1a1ae01b20837e1af31fdec4cd982bedf7868637cfa114f760cb40e56fd5cf"
         },
         {
           "path": "apps/mcp-gateway/src/metadata.ts",
           "sha256": "6ec446436997f8938f3053396c6efc4b499e3c124afdff5b308c499338a2fd67"
+        },
+        {
+          "path": "apps/mcp-gateway/src/openapi.ts",
+          "sha256": "54313f247d9d1fc062966f892c962416eb1b9d3baadaf79f9c932f5a0e0366e9"
+        },
+        {
+          "path": "apps/mcp-gateway/src/public-origin.ts",
+          "sha256": "3899d15b907ffdf7a0773495d898e678a861e80d32d203d13d87b3344ea6dc3b"
         },
         {
           "path": "apps/mcp-gateway/src/readiness-integrity.ts",
@@ -562,7 +580,7 @@
         },
         {
           "path": "apps/mcp-gateway/test/container-main.test.ts",
-          "sha256": "227dc15828a03fda99044cd07814305d740f9b23c2f3e362c41d5146f8220fd2"
+          "sha256": "38dd49815cdc47551ee3c66a7ce0c000e8d69019c96b365d7ed7c8f3ca9950a5"
         }
       ],
       "controls": {
@@ -572,17 +590,17 @@
       }
     },
     {
-      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:204f017b275bfa30bf463195739ceb8b7379c0c64299c4f4d386e43a806671d1",
+      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:9e868de71d6526e8ea2082b6501961c9ae5e8d29899f683f76e948cb6f7a0fdf",
       "label": "governed-candidate-assembly",
       "command": [
         "node",
         "--test",
         "--test-reporter=tap",
-        "--test-name-pattern=^(?:assembles one immutable exact-five candidate for direct, MCP HTTP and STDIO|applies provider and tool suspension identically and fails readiness closed|snapshots suspension inputs without invoking hostile traps or accessors|rejects hostile or forged assembly authority and independent activation|rejects every hostile governed wrapper option bag without invoking it|keeps corrupt evidence readiness blocked without implying registration|rechecks provider integrity before reporting candidate readiness|locks every evidence dispatch surface against mid-call substitution|uses the pristine provider execution seam on calls without a readiness probe|keeps the Node candidate MCP face behind the same readiness guard|keeps exact-five success, receipt and plain-text semantics across transports|keeps v2 inspection identity separate from the recovered data receipt)$",
+        "--test-name-pattern=^(?:assembles one immutable exact-five candidate for direct, MCP HTTP and STDIO|applies provider and tool suspension identically and fails readiness closed|snapshots suspension inputs without invoking hostile traps or accessors|rejects hostile or forged assembly authority and independent activation|rejects every hostile governed wrapper option bag without invoking it|keeps corrupt evidence readiness blocked without implying registration|rechecks provider integrity before reporting candidate readiness|locks every evidence dispatch surface against mid-call substitution|uses the pristine provider execution seam on calls without a readiness probe|keeps the Node candidate MCP face behind the same readiness guard|rejects every public OpenAPI and admission-boundary divergence|admits one exact public authority over the real Node transport|keeps exact-five success, receipt and plain-text semantics across transports|keeps v2 inspection identity separate from the recovered data receipt)$",
         "apps/mcp-gateway/dist/test/governed-assembly.test.js"
       ],
       "result": "passed",
-      "test_count": 12,
+      "test_count": 14,
       "test_names": [
         "assembles one immutable exact-five candidate for direct, MCP HTTP and STDIO",
         "applies provider and tool suspension identically and fails readiness closed",
@@ -594,13 +612,27 @@
         "locks every evidence dispatch surface against mid-call substitution",
         "uses the pristine provider execution seam on calls without a readiness probe",
         "keeps the Node candidate MCP face behind the same readiness guard",
+        "rejects every public OpenAPI and admission-boundary divergence",
+        "admits one exact public authority over the real Node transport",
         "keeps exact-five success, receipt and plain-text semantics across transports",
         "keeps v2 inspection identity separate from the recovered data receipt"
       ],
       "materials": [
         {
+          "path": "apps/mcp-gateway/openapi/catalogue-api.openapi.json",
+          "sha256": "75e898f3ada3d0a672a27958360d39942b37e0037b41c9ecd77185c46e682108"
+        },
+        {
           "path": "apps/mcp-gateway/src/catalogue-snapshot.ts",
           "sha256": "6e47739bbb80983d4af0bb84ef566b721419849be8d1027cedaf3dffc967eb22"
+        },
+        {
+          "path": "apps/mcp-gateway/src/container-healthcheck.ts",
+          "sha256": "c6f68306aa60f7aa7792666298e235c09b5d3b32f6f3bb19669b15e0f5a878ac"
+        },
+        {
+          "path": "apps/mcp-gateway/src/container-ingress.ts",
+          "sha256": "2c4ae910b68b6cfda525ac1dfac35c1db9a63f1fe0aeb903d08d1b0b41a2f5fe"
         },
         {
           "path": "apps/mcp-gateway/src/data-query-application.ts",
@@ -612,11 +644,11 @@
         },
         {
           "path": "apps/mcp-gateway/src/http-app.ts",
-          "sha256": "7e5c4fe8db2847f4fb0a0dec053d802f62d2d37bcbdb86a9f4cfaee945049dba"
+          "sha256": "ce7457f81f006297592850b99a2232077a82ad1c8eee31a6738ad70b41cf5eae"
         },
         {
           "path": "apps/mcp-gateway/src/http-server.ts",
-          "sha256": "7353a6c03f28a4d8c479c9a159f03c11b46eadf8e7abcd53c0256dd255e8d9b2"
+          "sha256": "0f1a1ae01b20837e1af31fdec4cd982bedf7868637cfa114f760cb40e56fd5cf"
         },
         {
           "path": "apps/mcp-gateway/src/mcp-http.ts",
@@ -632,7 +664,11 @@
         },
         {
           "path": "apps/mcp-gateway/src/openapi.ts",
-          "sha256": "51b591fed69149d0adc059d401e4372d984ee6ae631c89eedb44c9f6187d5b2e"
+          "sha256": "54313f247d9d1fc062966f892c962416eb1b9d3baadaf79f9c932f5a0e0366e9"
+        },
+        {
+          "path": "apps/mcp-gateway/src/public-origin.ts",
+          "sha256": "3899d15b907ffdf7a0773495d898e678a861e80d32d203d13d87b3344ea6dc3b"
         },
         {
           "path": "apps/mcp-gateway/src/readiness-integrity.ts",
@@ -640,7 +676,7 @@
         },
         {
           "path": "apps/mcp-gateway/test/governed-assembly.test.ts",
-          "sha256": "61d629549ca83c839c1e1b68acd69c682889edd9bec8c81fe40947a8c902db03"
+          "sha256": "0634edbf4cfa76697bae2f74b25e67d0dc2c49293302dd7c36434a970bdd99c1"
         },
         {
           "path": "profiles/tool-registry.v1.json",
@@ -1012,7 +1048,7 @@
   ],
   "receipts": [
     {
-      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:62e8dc753ee180d216aeffdb655a1a2e1bd13988df2cc95c4ae86267fb162f14",
+      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:6dc70304936001e4a4a76688274a407292412e5ddb5bdc4a7a3ebc27fd72d0ed",
       "case": {
         "id": "E01",
         "title": "Anonymous discovery of open boundaries and statistics",
@@ -1029,7 +1065,7 @@
         "gis-ai-go:qual-206-local-suite-evidence:sha256:abc1e780398ca4a1dfcddd3b07e0e8b1cd1be4a48f8e8c7b11fbe9e8bd5bb5f4",
         "gis-ai-go:qual-206-local-suite-evidence:sha256:73988cb431244aa5ecc39043db0c77ffb02a7ba37d2a12e3fe1e5d5723106781",
         "gis-ai-go:qual-206-local-suite-evidence:sha256:dd2fd84f094f138136cefefa163fb0e8cc07e5ef040fc1976696a5a60ce3716c",
-        "gis-ai-go:qual-206-local-suite-evidence:sha256:181cc7666c7f36418920c970a5763c33b2db67569cd611dfb1f705aa23935145"
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:14681d5f757e7ff3bc63593370ec44e62c1783aeef68f6941bcbf53261bd9e93"
       ],
       "local_assertions": [
         {
@@ -1133,7 +1169,7 @@
       "boundary": "Repository-only deterministic evidence. It is non-live and unscored, does not complete the research case, and does not authorise activation, deployment, registration or release."
     },
     {
-      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:4876c299c573d52a107671626dbc9819cbd55a7fc679ffebf34329ce383faf35",
+      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:ac8225241c2b1fcaab489cf935569b1335f8dda3f568fb5ed005197a8fae1e6a",
       "case": {
         "id": "E13",
         "title": "Host without Apps receives complete non-visual result",
@@ -1146,10 +1182,10 @@
         "case_complete": false
       },
       "evidence_suite_ids": [
-        "gis-ai-go:qual-206-local-suite-evidence:sha256:181cc7666c7f36418920c970a5763c33b2db67569cd611dfb1f705aa23935145",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:14681d5f757e7ff3bc63593370ec44e62c1783aeef68f6941bcbf53261bd9e93",
         "gis-ai-go:qual-206-local-suite-evidence:sha256:947f99dc098a44cef96cc5e3e4d58ddcdf9c85d3129f9ada7f554531e01f6360",
         "gis-ai-go:qual-206-local-suite-evidence:sha256:552f1649f5c6d34a80a4a3e49e877049f71f0d04d8432d1204e16180da359db6",
-        "gis-ai-go:qual-206-local-suite-evidence:sha256:204f017b275bfa30bf463195739ceb8b7379c0c64299c4f4d386e43a806671d1"
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:9e868de71d6526e8ea2082b6501961c9ae5e8d29899f683f76e948cb6f7a0fdf"
       ],
       "local_assertions": [
         {
@@ -1175,7 +1211,7 @@
       "boundary": "Repository-only deterministic evidence. It is non-live and unscored, does not complete the research case, and does not authorise activation, deployment, registration or release."
     },
     {
-      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:07ec5242359377e86c7c44b018d6fdae79b94756248930c082929fb9f01637cc",
+      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:e573ef480f67be0392249cc8fc5841925c35a48014ea44d8ea30b83cbf633512",
       "case": {
         "id": "E15",
         "title": "WebMCP-incapable agent follows linked OKF/API",
@@ -1189,7 +1225,7 @@
       },
       "evidence_suite_ids": [
         "gis-ai-go:qual-206-local-suite-evidence:sha256:95c3a7a665a51e17b99701e77e20f4a01fe80cf2aaa2e64ba525f4af60ab749a",
-        "gis-ai-go:qual-206-local-suite-evidence:sha256:afffcd5145231b1ae9171fbf16eceffa6b4bb43e1c221d6415f68f35b9dbfaf9",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:c90f1063d4e14310b7b30fb39e527ab0fcdb0ece1ba1000af1db4f98075828c4",
         "gis-ai-go:qual-206-local-suite-evidence:sha256:e77747d71dca4dd3959cdc56f31efb36b963d9644bdd9e0b64658217f6e6f458"
       ],
       "local_assertions": [
@@ -1250,7 +1286,7 @@
       "boundary": "Repository-only deterministic evidence. It is non-live and unscored, does not complete the research case, and does not authorise activation, deployment, registration or release."
     },
     {
-      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:bd05a39e16f361768d2d84cf7b363c2f78c8b31e168c3677c2f1ab747e79dd11",
+      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:19e8daf25c0043b84aec9347d422a866c93f6e9c8c1c9500352d4001a659f321",
       "case": {
         "id": "E20",
         "title": "Emergency tool/provider suspension",
@@ -1268,11 +1304,11 @@
         "gis-ai-go:qual-206-local-suite-evidence:sha256:23c60848710cabfb6685ebd6bd57dda69cca6bd950a6a4287c896d09764f07ff",
         "gis-ai-go:qual-206-local-suite-evidence:sha256:7d944a9d6a26a32f77e5b80b90c5877e94c7a11aa94e482b2926bace13bc089b",
         "gis-ai-go:qual-206-local-suite-evidence:sha256:73988cb431244aa5ecc39043db0c77ffb02a7ba37d2a12e3fe1e5d5723106781",
-        "gis-ai-go:qual-206-local-suite-evidence:sha256:afffcd5145231b1ae9171fbf16eceffa6b4bb43e1c221d6415f68f35b9dbfaf9",
-        "gis-ai-go:qual-206-local-suite-evidence:sha256:181cc7666c7f36418920c970a5763c33b2db67569cd611dfb1f705aa23935145",
-        "gis-ai-go:qual-206-local-suite-evidence:sha256:260469e27849b227e438fd24f2ef3ed36e149f8c5e3b6847e6397a2abf3a4794",
-        "gis-ai-go:qual-206-local-suite-evidence:sha256:6c571423fa6259e68ead43f6a2daf7c33822efcb4940ac6d2d7d05073464ff75",
-        "gis-ai-go:qual-206-local-suite-evidence:sha256:204f017b275bfa30bf463195739ceb8b7379c0c64299c4f4d386e43a806671d1"
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:c90f1063d4e14310b7b30fb39e527ab0fcdb0ece1ba1000af1db4f98075828c4",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:14681d5f757e7ff3bc63593370ec44e62c1783aeef68f6941bcbf53261bd9e93",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:f968d644170be1c2ca142b92dfdca20dbc31b4de88f70438e1e96a8bd6700f1b",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:cfe6a11f2f87150661824a807c5fdd502be5973ed49fa2348b38e729ec59ed65",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:9e868de71d6526e8ea2082b6501961c9ae5e8d29899f683f76e948cb6f7a0fdf"
       ],
       "local_assertions": [
         {
@@ -1319,5 +1355,5 @@
     "complete_case_evaluation": false
   },
   "boundary": "Repository-only deterministic evidence. It is non-live and unscored, does not complete the research case, and does not authorise activation, deployment, registration or release.",
-  "set_id": "gis-ai-go:qual-206-local-evaluation-set:sha256:1f2bc29fc7674bfadfb22243dd9551fca0f483054968b499017ad72062b0e9aa"
+  "set_id": "gis-ai-go:qual-206-local-evaluation-set:sha256:986d3b3181934930f4dd052ede2bc42fccab40e374c105ecdef0258aea1c98bc"
 }

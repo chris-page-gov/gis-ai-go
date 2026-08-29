@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { request as nodeRequest } from "node:http";
 import { tmpdir } from "node:os";
 import type { AddressInfo } from "node:net";
 import { join } from "node:path";
@@ -29,6 +30,12 @@ import { V02_TARGET_ACTIVE_TOOL_NAMES } from "@gis-ai-go/tool-registry";
 
 import { catalogueActivation } from "../src/activation.js";
 import { loadCatalogueSnapshot } from "../src/catalogue-snapshot.js";
+import { requestGatewayContainerHealth } from "../src/container-healthcheck.js";
+import {
+  GATEWAY_CONTAINER_PUBLIC_HTTPS_ORIGIN_VARIABLE,
+  gatewayContainerHealthHeaders,
+  gatewayContainerIngressOptions,
+} from "../src/container-ingress.js";
 import {
   DataQueryApplicationError,
   PUBLIC_ONS_DATA_QUERY_PARAMETERS,
@@ -363,6 +370,41 @@ async function listen(server: ReturnType<typeof createGovernedCandidateNodeServe
   return (server.address() as AddressInfo).port;
 }
 
+interface NodeResponse {
+  readonly status: number;
+  readonly body: string;
+}
+
+function nodeExchange(
+  port: number,
+  path: string,
+  method: string,
+  headers: Readonly<Record<string, string>>,
+  body?: string,
+): Promise<NodeResponse> {
+  return new Promise((resolve, reject) => {
+    const request = nodeRequest({
+      hostname: "127.0.0.1",
+      port,
+      path,
+      method,
+      headers: {
+        ...(body === undefined ? {} : { "content-length": Buffer.byteLength(body) }),
+        ...headers,
+      },
+    }, (response) => {
+      const chunks: Buffer[] = [];
+      response.on("data", (chunk: Buffer) => chunks.push(chunk));
+      response.on("end", () => resolve({
+        status: response.statusCode ?? 0,
+        body: Buffer.concat(chunks).toString("utf8"),
+      }));
+    });
+    request.once("error", reject);
+    request.end(body);
+  });
+}
+
 function context(operation: GovernedCandidateOperation) {
   const value = REQUEST_CONTEXTS[operation];
   return {
@@ -421,6 +463,7 @@ test("assembles one immutable exact-five candidate for direct, MCP HTTP and STDI
   assert.deepEqual(directOperations(directDocument), V02_TARGET_ACTIVE_TOOL_NAMES);
   assert.equal(directDocument["x-gis-ai-go-lifecycle"], "candidate-unregistered");
   assert.equal(directDocument["x-gis-ai-go-production-registration"], false);
+  assert.equal(directDocument["x-gis-ai-go-public-ingress-configured"], false);
   assert.deepEqual(
     directDocument["x-gis-ai-go-candidate-operations"],
     V02_TARGET_ACTIVE_TOOL_NAMES,
@@ -1190,6 +1233,9 @@ test("rejects every hostile governed wrapper option bag without invoking it", as
       directAllowedOrigins: nestedProxy,
     }),
     () => createGovernedCandidateNodeServer(assembly, {
+      mcpAllowedHosts: nestedProxy,
+    }),
+    () => createGovernedCandidateNodeServer(assembly, {
       mcpAllowedHostnames: nestedProxy,
     }),
     () => createGovernedCandidateNodeServer(assembly, {
@@ -1219,6 +1265,9 @@ test("rejects every hostile governed wrapper option bag without invoking it", as
     }),
     () => createGovernedCandidateNodeServer(assembly, {
       directAllowedOrigins: nestedAccessor,
+    }),
+    () => createGovernedCandidateNodeServer(assembly, {
+      mcpAllowedHosts: nestedAccessor,
     }),
     () => createGovernedCandidateNodeServer(assembly, {
       mcpAllowedHostnames: nestedAccessor,
@@ -1412,6 +1461,145 @@ test("keeps the Node candidate MCP face behind the same readiness guard", async 
   const message = await response.json() as Record<string, unknown>;
   assert.equal(toolResult(message).isError, true);
   assert.equal(substitutedExecutions, 0);
+});
+
+test("rejects every public OpenAPI and admission-boundary divergence", (t) => {
+  const { assembly } = fixture(t);
+  const publicOrigin = "https://gateway.example.com";
+  const ingress = gatewayContainerIngressOptions({
+    [GATEWAY_CONTAINER_PUBLIC_HTTPS_ORIGIN_VARIABLE]: publicOrigin,
+  });
+  const directAllowedHosts = ingress.directAllowedHosts;
+  const mcpAllowedHosts = ingress.mcpAllowedHosts;
+  assert.ok(directAllowedHosts);
+  assert.ok(mcpAllowedHosts);
+  const divergences = [
+    [
+      "widened direct hosts",
+      { directAllowedHosts: [...directAllowedHosts, "attacker.invalid"] },
+    ],
+    [
+      "replaced direct origins",
+      { directAllowedOrigins: ["https://attacker.invalid"] },
+    ],
+    [
+      "widened MCP hosts",
+      { mcpAllowedHosts: [...mcpAllowedHosts, "attacker.invalid"] },
+    ],
+    [
+      "replaced MCP hostnames",
+      { mcpAllowedHostnames: ["attacker.invalid"] },
+    ],
+    [
+      "replaced MCP origins",
+      { mcpAllowedOrigins: ["https://attacker.invalid"] },
+    ],
+  ] as const;
+
+  for (const [name, divergence] of divergences) {
+    assert.throws(
+      () => createGovernedCandidateNodeServer(assembly, {
+        ...ingress,
+        ...divergence,
+      }),
+      /public OpenAPI origin must match the exact (?:direct|MCP) Host and Origin boundary/,
+      name,
+    );
+  }
+});
+
+test("admits one exact public authority over the real Node transport", async (t) => {
+  const { assembly } = fixture(t);
+  const publicOrigin = "https://gateway.example.com";
+  const ingress = gatewayContainerIngressOptions({
+    [GATEWAY_CONTAINER_PUBLIC_HTTPS_ORIGIN_VARIABLE]: publicOrigin,
+  });
+  const server = createGovernedCandidateNodeServer(assembly, {
+    ...ingress,
+    createMcpRequestContext: (operation) =>
+      context(operation as GovernedCandidateOperation),
+  });
+  t.after(() => server.closeGateway());
+  const port = await listen(server);
+  const directHeaders = {
+    accept: "application/json",
+    host: "gateway.example.com",
+    origin: publicOrigin,
+  } as const;
+
+  const health = await nodeExchange(port, "/healthz", "GET", directHeaders);
+  assert.equal(health.status, 200);
+  const internalHealth = await requestGatewayContainerHealth(
+    `http://127.0.0.1:${port}/healthz`,
+    gatewayContainerHealthHeaders({
+      [GATEWAY_CONTAINER_PUBLIC_HTTPS_ORIGIN_VARIABLE]: publicOrigin,
+    }),
+  );
+  assert.equal(internalHealth.status, 200);
+
+  const contract = await nodeExchange(port, "/openapi.json", "GET", directHeaders);
+  assert.equal(contract.status, 200);
+  const openApi = JSON.parse(contract.body) as Record<string, unknown>;
+  assert.deepEqual(openApi.servers, [{
+    url: publicOrigin,
+    description:
+      "Configured unregistered HTTPS candidate; independent deployment evidence is required",
+  }]);
+  assert.equal(openApi["x-gis-ai-go-public-ingress-configured"], true);
+  assert.equal(openApi["x-gis-ai-go-public-deployment"], false);
+
+  const listBody = JSON.stringify(rawMcpBody(32, "tools/list"));
+  const mcpHeaders = {
+    accept: "application/json, text/event-stream",
+    "content-type": "application/json",
+    host: "gateway.example.com:443",
+    "mcp-method": "tools/list",
+    "mcp-protocol-version": MCP_PROTOCOL_VERSION,
+    origin: publicOrigin,
+  } as const;
+  const listing = await nodeExchange(port, "/mcp", "POST", mcpHeaders, listBody);
+  assert.equal(listing.status, 200);
+  assert.deepEqual(
+    [...listedTools(JSON.parse(listing.body) as Record<string, unknown>)].sort(),
+    [...V02_TARGET_ACTIVE_TOOL_NAMES].sort(),
+  );
+
+  const substitutedHost = await nodeExchange(port, "/healthz", "GET", {
+    ...directHeaders,
+    host: "attacker.invalid",
+    "x-forwarded-host": "gateway.example.com",
+  });
+  assert.equal(substitutedHost.status, 400);
+  const substitutedOrigin = await nodeExchange(port, "/healthz", "GET", {
+    ...directHeaders,
+    origin: "https://attacker.invalid",
+    "x-forwarded-origin": publicOrigin,
+  });
+  assert.equal(substitutedOrigin.status, 400);
+  const loopbackHost = await nodeExchange(port, "/healthz", "GET", {
+    accept: "application/json",
+    host: "127.0.0.1:8787",
+  });
+  assert.equal(loopbackHost.status, 400);
+
+  const forwardedHeadersIgnored = await nodeExchange(port, "/mcp", "POST", {
+    ...mcpHeaders,
+    forwarded: "host=attacker.invalid;proto=http",
+    "x-forwarded-host": "attacker.invalid",
+    "x-forwarded-proto": "http",
+  }, listBody);
+  assert.equal(forwardedHeadersIgnored.status, 200);
+  const substitutedMcpHost = await nodeExchange(port, "/mcp", "POST", {
+    ...mcpHeaders,
+    host: "attacker.invalid",
+    "x-forwarded-host": "gateway.example.com",
+  }, listBody);
+  assert.equal(substitutedMcpHost.status, 403);
+  const wrongMcpPort = await nodeExchange(port, "/mcp", "POST", {
+    ...mcpHeaders,
+    host: "gateway.example.com:444",
+  }, listBody);
+  assert.equal(wrongMcpPort.status, 403);
 });
 
 test("keeps exact-five success, receipt and plain-text semantics across transports", async (t) => {
