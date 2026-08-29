@@ -18,7 +18,6 @@
     "demo:local": "pnpm --filter @gis-ai-go/mcp-gateway run prepare:test && pnpm --filter @gis-ai-go/mcp-gateway run build && node scripts/qual_206_local_demo.mjs",
     "test:qual-206-local-evaluations": "pnpm --filter @gis-ai-go/mcp-gateway run prepare:test && pnpm --filter @gis-ai-go/mcp-gateway run build && pnpm --filter @gis-ai-go/tool-registry run build && node scripts/qual_206_local_evaluations.mjs --check && uv run --locked --cache-dir .uv-cache python -m unittest tests.contract.test_qual_206_local_evaluation_receipts",
     "generate:qual-206-local-evaluations": "pnpm --filter @gis-ai-go/mcp-gateway run prepare:test && pnpm --filter @gis-ai-go/mcp-gateway run build && pnpm --filter @gis-ai-go/tool-registry run build && node scripts/qual_206_local_evaluations.mjs --write && uv run --locked --cache-dir .uv-cache python -m unittest tests.contract.test_qual_206_local_evaluation_receipts",
-    "preflight:webmcp-chrome": "pnpm --filter @gis-ai-go/webmcp-explorer run preflight:chrome",
     "test:webmcp-explorer": "pnpm --filter @gis-ai-go/webmcp-explorer run test:unit",
     "test:webmcp-browser": "pnpm run build:webmcp-explorer && pnpm --filter @gis-ai-go/webmcp-explorer run test:browser",
     "test:explorer": "pnpm --filter @gis-ai-go/public-explorer run test:unit && pnpm --filter @gis-ai-go/webmcp-explorer run test:unit",

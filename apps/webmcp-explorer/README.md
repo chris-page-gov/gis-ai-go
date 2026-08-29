@@ -30,7 +30,7 @@ For Chrome 152's experimental native WebMCP page API, run the read-only profile
 preflight:
 
 ```bash
-pnpm run preflight:webmcp-chrome
+pnpm --filter @gis-ai-go/webmcp-explorer run preflight:chrome
 ```
 
 It reads Chrome's profile `Last Version` breadcrumb and persisted experiment
@@ -58,6 +58,11 @@ presence of a WebMCP item in DevTools is not evidence of discovery when its cont
 pane is empty. Record the native `document.modelContext.getTools()` result and an
 actual bounded `executeTool()` result independently.
 
+Google's May 2026 announcement says Gemini in Chrome "will soon support" WebMCP
+APIs.[3] No current supported setting is documented as enabling that bridge, so do
+not present the WebMCP testing flag, tab sharing or **Let Gemini browse for you** as
+a Gemini-to-WebMCP switch.
+
 This candidate is not part of the supported GitHub Pages artefact. It uses no model
 API key, provider credential, cookie, browser storage, analytics or external runtime
 request. The user's supported AI host performs the probabilistic question-to-tool
@@ -65,3 +70,4 @@ translation; the page performs deterministic validation and catalogue lookup onl
 
 [1]: https://chromium.googlesource.com/chromium/src/+/1ddb706a3498463d86d39257c243367b2f34947f
 [2]: https://developer.chrome.com/docs/ai/webmcp
+[3]: https://developer.chrome.com/blog/chrome-at-io26
