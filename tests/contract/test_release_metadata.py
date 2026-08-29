@@ -43,6 +43,7 @@ class ReleaseMetadataTests(unittest.TestCase):
             "package.json",
             "apps/mcp-gateway/package.json",
             "apps/public-explorer/package.json",
+            "apps/webmcp-explorer/package.json",
             "packages/authority-context/package.json",
             "packages/contracts/package.json",
             "packages/evidence/package.json",
