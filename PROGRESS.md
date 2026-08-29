@@ -158,6 +158,16 @@ deployment, operator-fencing, schedule, RPO/RTO, disposal or release evidence.
 The decision and bounded acceptance contract are recorded in
 [ADR-0013](docs/decisions/ADR-0013-webmcp-page-tools-boundary.md) and the
 [implementation candidate specification](docs/implementation/WEBMCP_EXPLORER_CANDIDATE.md).
+On 29 August 2026, an owner-only Sites v4 deployment bound to protected-main
+`7ea20dca` passed both page-tool calls through Codex Site tools and passed both
+native imperative calls in Chrome `152.0.7977.64` and Edge Stable
+`152.0.4191.53` in the exact observed local environment. The Edge API-enablement
+mechanism was not established, and its manual fallback also passed. Gemini in
+Chrome exposed no page-tool bridge in the observed session; Edge DevTools and an
+Edge AI-host bridge were not tested, and no Copilot or general Edge Stable claim
+follows. These version-bound
+observations are documented in the
+[illustrated run-through](docs/demonstrations/WEBMCP_EXPLORER_RUN_THROUGH.md).
 This research-backed component is intentionally secondary and does not change the
 active release sequence above.
 

@@ -1,6 +1,7 @@
 # WebMCP Explorer candidate
 
-Status: experimental implementation candidate; not a supported release or
+Status: experimental implementation candidate; privately hosted for owner-only
+evaluation, but not a supported or public release and not a persistent MCP
 deployment.
 
 Work item: [WEB-210](https://github.com/chris-page-gov/gis-ai-go/issues/101).
@@ -119,7 +120,7 @@ to an AI or data provider.
 2. `@gis-ai-go/contracts` parses and validates the complete bundle.
 3. Only after successful validation, the adapter checks for
    `document.modelContext.registerTool` on the top-level page.
-4. A supported browser receives exactly two static tool registrations.
+4. A compatible, enabled browser can register exactly two static tools.
 5. The executable handler validates every call independently of the JSON Schema.
 6. The shared deterministic catalogue functions produce a compact result.
 7. The same result is returned to the AI and rendered visibly as text for the
@@ -336,6 +337,15 @@ the session, not as a failed GIS AI GO registration. Google's
 [May 2026 announcement](https://developer.chrome.com/blog/chrome-at-io26) describes
 Gemini in Chrome WebMCP support as forthcoming.
 
+Edge Stable `152.0.4191.53` separately passed the manual journey and the exact
+two-tool native discovery and execution sequence on 29 August 2026 in the exact
+observed local environment. The API-enablement mechanism was not established,
+and the Site exposed no origin-trial header or `meta` token. Edge DevTools and an
+Edge AI-host bridge were not tested; therefore this observation does not
+establish general Edge Stable or Copilot interoperability. See the
+[version-pinned run-through](../demonstrations/WEBMCP_EXPLORER_RUN_THROUGH.md)
+for the exact result and evidence boundary.
+
 ## Acceptance criteria
 
 ### Source and build
@@ -387,13 +397,24 @@ Gemini in Chrome WebMCP support as forthcoming.
 
 ## Hosting and release boundary
 
-The candidate is static and may later be hosted on an HTTPS origin that can serve
-its same-origin catalogue. That could make the page available to a compatible
-browser-hosted AI. It would not deploy or replace the persistent MCP gateway.
+The static candidate is privately hosted for owner-only evaluation on an HTTPS
+Sites origin. Sites version 4 was deployed successfully on 29 August 2026 from
+wrapper commit `91bcdf758e4784022d3e474be575103fae306682`, containing the
+candidate built from exact protected-main commit
+`7ea20dca9f50594ac9a587b062bfc4a3239a94de`. The saved archive content hash is
+`sha256:69432632dc8ce0c28626b4bdac68b7f9b62060dc0a6308ccd4bbc59dde0c0a43`.
+At verification time the access policy allowed one owner, no groups and no external
+visitors. This private static deployment makes no claim of public availability,
+support or persistent MCP deployment.
+
+Static hosting can make the page registrations available to a browser-hosted AI
+only while that page is open, but each host needs its own exact observation. It
+does not deploy or replace the persistent MCP gateway.
 
 This implementation does not change the canonical GitHub Pages artefact. Do not add
 it to the supported Pages package or `v0.2.0` release merely because the local
-demonstration passes. Publication needs a separate exact-commit artefact and:
+demonstration passes. Any later public publication needs a separate exact-commit
+artefact and:
 
 - rights and provenance verification;
 - security, accessibility and real-browser acceptance;

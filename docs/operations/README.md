@@ -44,6 +44,7 @@ storage, operations and acceptance gates.
 - [QUAL-206 ChatGPT secure-tunnel exact-five observation](QUAL-206_CHATGPT_TUNNEL_EXACT_FIVE.md)
 - [QUAL-206 local demonstration](QUAL-206_LOCAL_DEMONSTRATION.md)
 - [Illustrated GIS AI GO exemplar and local demonstration guide](../demonstrations/GIS_AI_GO_EXEMPLAR_GUIDE.md)
+- [Version-pinned WebMCP Explorer illustrated run-through](../demonstrations/WEBMCP_EXPLORER_RUN_THROUGH.md)
 - [QUAL-206 local HTTP transport preflight](QUAL-206_LOCAL_HTTP_TRANSPORT_PREFLIGHT.md)
 - [QUAL-206 strict-modern evidence preparation](QUAL-206_STRICT_MODERN_EVIDENCE.md)
 - [QUAL-206 strict-modern private event capture](QUAL-206_STRICT_MODERN_EVENT_CAPTURE.md)
