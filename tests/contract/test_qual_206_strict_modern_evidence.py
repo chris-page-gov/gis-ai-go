@@ -40,7 +40,7 @@ HISTORICAL_V1_SHA256 = {
         "f8859d81eeff3efc3072698e14f20399a89ac429ce8b8848922f570603590b0a"
     ),
     "evaluation/qual-206-local-protocol-evidence-matrix.v1.json": (
-        "182ec2221167e4c3b117b9f8aaf3707e571ceeb3b34059a7ecc793fbf62d2088"
+        "91dc5a38125b5fd686d3028621f8452c0a3d77fe177dd67b110da6316bfc6039"
     ),
     "tests/interoperability/qual_206_cases.json": (
         "23ac9bc1a76d524bd0e250b11b9ba321b09e66bd5921f1463f50c150001cd389"
@@ -72,7 +72,7 @@ HISTORICAL_V1_SHA256 = {
         "9584de9fe7531457b7b83eb7f9102ee897e2cae61a5fe1f5f68b0f6b775232d9"
     ),
     "schemas/qual-206-local-protocol-evidence-matrix.schema.json": (
-        "e0955da7969213e1d54efed53c3e22ac796dd2ef426f3f1ca56c30a99625aa73"
+        "950ac34cb36a216eecb2863d659c7a9bd37f269296a4e36563b5bfe21f38e7f6"
     ),
     "schemas/qual-206-evaluation-expansion.schema.json": (
         "1843351626b6f96cb118e575388606daa0d6f60b22b28b92d9655a14873caf8b"

@@ -220,7 +220,7 @@
           "const": "repository-material-bound"
         },
         "runtime_base_commit": {
-          "const": "a33876b16ac7c198e75773fc79097d2f2836cf13"
+          "const": "f253605ab26628e821d4ebc3809cf13c883d57ed"
         },
         "material_integrity": {
           "const": "sha256"
