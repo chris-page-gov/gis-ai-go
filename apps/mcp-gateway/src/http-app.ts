@@ -39,6 +39,7 @@ import {
   isCatalogueProblemError,
   type CatalogueProblemContext,
 } from "./problem.js";
+import { parsePublicHttpsOrigin } from "./public-origin.js";
 import {
   EVIDENCE_READINESS_INTEGRITY_FAILURE_MESSAGE,
   verifyEvidenceReadinessIntegrity,
@@ -77,6 +78,8 @@ export interface GatewayHttpOptions {
   readonly snapshot: CatalogueSnapshot;
   readonly allowedHosts?: readonly string[];
   readonly allowedOrigins?: readonly string[];
+  /** One canonical public HTTPS origin projected into the governed OpenAPI document. */
+  readonly openApiServerOrigin?: string;
   /** Trusted test seam. Reconciled data.query always ignores caller request IDs. */
   readonly createRequestId?: () => string;
   readonly createTraceId?: () => string;
@@ -100,6 +103,7 @@ export type GovernedCandidateHttpOptions = Pick<
   GatewayHttpOptions,
   | "allowedHosts"
   | "allowedOrigins"
+  | "openApiServerOrigin"
   | "createRequestId"
   | "createTraceId"
   | "createTraceParentId"
@@ -668,11 +672,17 @@ export function createGatewayHttpHandler(
     (options.allowedHosts ?? DEFAULT_ALLOWED_HOSTS).map((host) => host.toLowerCase()),
   );
   const allowedOrigins = new Set(options.allowedOrigins ?? DEFAULT_ALLOWED_ORIGINS);
+  const openApiServerOrigin = options.openApiServerOrigin === undefined
+    ? undefined
+    : parsePublicHttpsOrigin(options.openApiServerOrigin);
   const enabledApiOperations = governedAssembly?.apiOperations ??
     options.enabledApiOperations ?? catalogueActivation.activeApiOperations;
   const openApiDocument = governedAssembly === undefined
     ? createCatalogueOpenApiDocument(enabledApiOperations)
-    : createGovernedCandidateOpenApiDocument(enabledApiOperations);
+    : createGovernedCandidateOpenApiDocument(
+        enabledApiOperations,
+        openApiServerOrigin?.origin,
+      );
   const applications = governedBindings === undefined
     ? operationApplications(options, enabledApiOperations)
     : Object.freeze({
@@ -697,6 +707,23 @@ export function createGatewayHttpHandler(
     [...allowedOrigins].some((origin) => origin === "")
   ) {
     throw new TypeError("Allowed hosts and origins must not contain empty values");
+  }
+  if (openApiServerOrigin !== undefined) {
+    const expectedHosts = new Set([
+      openApiServerOrigin.hostname,
+      `${openApiServerOrigin.hostname}:443`,
+    ]);
+    if (
+      governedAssembly === undefined ||
+      allowedHosts.size !== expectedHosts.size ||
+      [...expectedHosts].some((host) => !allowedHosts.has(host)) ||
+      allowedOrigins.size !== 1 ||
+      !allowedOrigins.has(openApiServerOrigin.origin)
+    ) {
+      throw new TypeError(
+        "The public OpenAPI origin must match the exact direct Host and Origin boundary",
+      );
+    }
   }
   if (onerror !== undefined && typeof onerror !== "function") {
     throw new TypeError("onerror must be a function");
@@ -959,6 +986,7 @@ export function createGovernedCandidateHttpHandler(
     [
       "allowedHosts",
       "allowedOrigins",
+      "openApiServerOrigin",
       "createRequestId",
       "createTraceId",
       "createTraceParentId",

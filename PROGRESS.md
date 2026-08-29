@@ -33,6 +33,19 @@ The supported target active set is exactly `catalogue.search`,
   independent-derivation, byte-comparison, provenance, attestation and CodeQL gates
   passed. DEPLOY-207 records this as its first candidate checkpoint only.
 
+`DEPLOY-207 — Provider-neutral public ingress preparation`
+
+- prepare one optional exact public-facing HTTPS origin with a DNS-form hostname
+  that derives ingress allowlists, the internal health-check Host and OpenAPI
+  projection only, without changing tools, provider policy, stores, registration
+  or deployment state;
+- replace loopback authority in public mode, reject wrong ports and Host or Origin
+  substitution, and ignore forwarded headers as authority inputs; and
+- treat this as a later source-changing image candidate that is not covered by the
+  PR 98, PR 99 or `c7eca721` evidence above. Require fresh pull-request and
+  protected-main repository, image, independent-derivation, byte-comparison,
+  provenance, attestation and CodeQL assurance for the exact introducing commit.
+
 `QUAL-206 — Progress from repository preflight to independent-host evidence`
 
 - retain the repository-local STDIO and client/version matrix bound to the
@@ -476,6 +489,8 @@ or release is claimed.
    activation or release commit.
 3. Keep DEPLOY-207 at `status: decision needed` until an authorised public runtime,
    hostname/TLS, identity, egress, storage and operator boundary exists.
+   Retain the provider-neutral single-origin admission seam as preparation only;
+   its local socket checks and OpenAPI projection are not deployment evidence.
 4. Only after that separate authority exists, deploy an unregistered
    candidate and complete live QUAL-206 evidence before any public or production
    activation, registry publication, tag or `v0.2.0` release.
@@ -797,7 +812,7 @@ or release is claimed.
   the configured evidence pair;
 - QUAL-206 repository-preflight acceptance: the
   [content-addressed local receipt set](evaluation/qual-206-local-evaluation-receipts.v1.json)
-  binds 7 applicable cases, 17 suites and 82 exact tests to their current source and
+  binds 7 applicable cases, 17 suites and 87 exact tests to their current source and
   fixtures. The approved T04 cache, rebuild and provider-result identities
   independently reproduce. Earlier exact-diff reviews found forged-cache, broad-outage,
   HTTP-parser, stale-control-record, proxy-minted transport, discarded DNS-failure,

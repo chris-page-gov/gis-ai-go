@@ -25,6 +25,7 @@ import {
   createGovernedCandidateNodeServer,
   type GatewayNodeServer,
 } from "./http-server.js";
+import { gatewayContainerIngressOptions } from "./container-ingress.js";
 import { gatewayMetadata } from "./metadata.js";
 import {
   EVIDENCE_READINESS_INTEGRITY_FAILURE_MESSAGE,
@@ -167,6 +168,7 @@ function loadFixedApprovedCacheRecord(): ApprovedOnsDataQueryCacheRecord {
  */
 export async function runGatewayContainerMain(): Promise<void> {
   assertFixedContainerArguments(process.argv);
+  const ingress = gatewayContainerIngressOptions(process.env);
 
   const snapshot = await loadCatalogueSnapshot(resolve(GATEWAY_CONTAINER_CATALOGUE_ROOT));
   const ledger = PublicEvidenceLedger.open({
@@ -188,6 +190,7 @@ export async function runGatewayContainerMain(): Promise<void> {
   assertCandidateContainerAuthority(assembly);
 
   const server = createGovernedCandidateNodeServer(assembly, {
+    ...ingress,
     onerror: (error) => writeLifecycleEvent(
       gatewayContainerErrorEvent(error),
       snapshot.revision,

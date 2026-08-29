@@ -2,8 +2,8 @@
   "openapi": "3.1.1",
   "info": {
     "title": "GIS AI GO gateway candidate",
-    "summary": "Local conformance candidate over the governed catalogue, inactive public-read operations and evidence ledger",
-    "description": "This contract describes only the routes selected for one local candidate. Catalogue, non-executing selection, bounded data query and public evidence routes are mounted only through explicit constructor options. This document does not describe a public deployment, activated capability or supported release.",
+    "summary": "Candidate contract over the governed catalogue, inactive public-read operations and evidence ledger",
+    "description": "This contract describes only the routes selected for one candidate. Catalogue, non-executing selection, bounded data query and public evidence routes are mounted only through explicit constructor options. This document does not describe a public deployment, activated capability or supported release.",
     "version": "0.1.0"
   },
   "servers": [
@@ -32,7 +32,7 @@
     "/healthz": {
       "get": {
         "operationId": "healthCheck",
-        "summary": "Check that the local candidate process is running",
+        "summary": "Check that the candidate process is running",
         "responses": {
           "200": {
             "description": "The process is running and the catalogue snapshot loaded",
@@ -86,10 +86,10 @@
     "/openapi.json": {
       "get": {
         "operationId": "openApiContract",
-        "summary": "Read this exact local-candidate contract",
+        "summary": "Read this exact candidate contract",
         "responses": {
           "200": {
-            "description": "The exact contract for routes mounted by this local candidate",
+            "description": "The exact contract for routes mounted by this candidate",
             "content": {
               "application/json": {
                 "schema": {
@@ -114,7 +114,7 @@
       "post": {
         "operationId": "catalogueSearch",
         "summary": "Search the verified public catalogue",
-        "description": "A local conformance route using the same policy and evidence-producing application path as the MCP candidate. It is not a public deployment.",
+        "description": "A candidate route using the same policy and evidence-producing application path as the MCP candidate. It is not a public deployment.",
         "x-gis-ai-go-operation": "catalogue.search",
         "x-gis-ai-go-lifecycle": "candidate-conformance-only",
         "requestBody": {
@@ -160,7 +160,7 @@
       "post": {
         "operationId": "catalogueDescribe",
         "summary": "Describe one verified public catalogue record",
-        "description": "A local conformance route using the same policy and evidence-producing application path as the MCP candidate. It is not a public deployment.",
+        "description": "A candidate route using the same policy and evidence-producing application path as the MCP candidate. It is not a public deployment.",
         "x-gis-ai-go-operation": "catalogue.describe",
         "x-gis-ai-go-lifecycle": "candidate-conformance-only",
         "requestBody": {
@@ -209,7 +209,7 @@
       "post": {
         "operationId": "evidenceInspect",
         "summary": "Inspect one verified public evidence receipt",
-        "description": "A local conformance route over the restart-verified anonymous-open evidence ledger and optional exact-linked reconciliation index. It accepts the unchanged v1 receipt lookup or the v2 data-query idempotency-key lookup, returns stored evidence as untrusted data and does not replay the original result material. It is not a public deployment.",
+        "description": "A candidate route over the restart-verified anonymous-open evidence ledger and optional exact-linked reconciliation index. It accepts the unchanged v1 receipt lookup or the v2 data-query idempotency-key lookup, returns stored evidence as untrusted data and does not replay the original result material. It is not a public deployment.",
         "x-gis-ai-go-operation": "evidence.inspect",
         "x-gis-ai-go-lifecycle": "candidate-conformance-only",
         "requestBody": {
@@ -258,7 +258,7 @@
       "post": {
         "operationId": "selectionResolve",
         "summary": "Resolve one reviewed public selection without execution",
-        "description": "An explicitly mounted local-conformance route over the deterministic selection application. It does not call a provider and is not a public deployment.",
+        "description": "An explicitly mounted candidate route over the deterministic selection application. It does not call a provider and is not a public deployment.",
         "x-gis-ai-go-operation": "selection.resolve",
         "x-gis-ai-go-lifecycle": "candidate-conformance-only",
         "requestBody": {
@@ -337,7 +337,7 @@
       "post": {
         "operationId": "dataQuery",
         "summary": "Run the exact reviewed public ONS query",
-        "description": "An explicitly mounted local-conformance route over the bounded data query application, injected adapter, durable ledger and exact-linked reconciliation index. It requires a caller-generated non-secret idempotency key and the same mounted evidence inspector. A completed retry returns 409 and inspection recovers only the receipt; no result is replayed. It has no caller-selected URL or query and is not a public deployment.",
+        "description": "An explicitly mounted candidate route over the bounded data query application, injected adapter, durable ledger and exact-linked reconciliation index. It requires a caller-generated non-secret idempotency key and the same mounted evidence inspector. A completed retry returns 409 and inspection recovers only the receipt; no result is replayed. It has no caller-selected URL or query and is not a public deployment.",
         "x-gis-ai-go-operation": "data.query",
         "x-gis-ai-go-lifecycle": "candidate-conformance-only",
         "requestBody": {

@@ -40,6 +40,7 @@ import {
 import { gatewayMetadata } from "./metadata.js";
 import type { GatewayApiOperation } from "./openapi.js";
 import { createCatalogueProblem } from "./problem.js";
+import { parsePublicHttpsOrigin } from "./public-origin.js";
 import type { EvidenceReadinessIntegrity } from "./readiness-integrity.js";
 import type { SelectionResolveApplication } from "./selection-application.js";
 
@@ -52,11 +53,15 @@ export const DEFAULT_MAX_CONCURRENT_REQUESTS = 32;
 export const GATEWAY_HEADER_BODY_TIMEOUT_MS = 5_000;
 export const GATEWAY_PROCESSING_SOCKET_TIMEOUT_MS = 25_000;
 
-const DEFAULT_MCP_ALLOWED_HOSTNAMES = Object.freeze([
+export const DEFAULT_MCP_ALLOWED_HOSTNAMES = Object.freeze([
   "127.0.0.1",
   "localhost",
 ] as const);
-const DEFAULT_MCP_ALLOWED_ORIGINS = Object.freeze([
+export const DEFAULT_MCP_ALLOWED_HOSTS = Object.freeze([
+  "127.0.0.1:8787",
+  "localhost:8787",
+] as const);
+export const DEFAULT_MCP_ALLOWED_ORIGINS = Object.freeze([
   "http://127.0.0.1:8787",
   "http://localhost:8787",
 ] as const);
@@ -102,8 +107,12 @@ export interface GatewayNodeServerOptions {
   readonly evidenceReadinessIntegrity?: EvidenceReadinessIntegrity;
   readonly directAllowedHosts?: readonly string[];
   readonly directAllowedOrigins?: readonly string[];
+  /** Optional exact Host authorities layered over the hostname pre-gate. */
+  readonly mcpAllowedHosts?: readonly string[];
   readonly mcpAllowedHostnames?: readonly string[];
   readonly mcpAllowedOrigins?: readonly string[];
+  /** One canonical public HTTPS origin projected into the governed OpenAPI document. */
+  readonly openApiServerOrigin?: string;
   readonly maxConcurrentRequests?: number;
   /** Reporting only. Error detail is never returned to a caller. */
   readonly onerror?: (error: Error) => void;
@@ -122,8 +131,10 @@ export type GovernedCandidateNodeServerOptions = Pick<
   | "createMcpRequestContext"
   | "directAllowedHosts"
   | "directAllowedOrigins"
+  | "mcpAllowedHosts"
   | "mcpAllowedHostnames"
   | "mcpAllowedOrigins"
+  | "openApiServerOrigin"
   | "maxConcurrentRequests"
   | "onerror"
 >;
@@ -374,6 +385,32 @@ function allowedMcpHostnames(configured: readonly string[]): ReadonlySet<string>
   return hostnames;
 }
 
+function allowedMcpHosts(configured: readonly string[]): ReadonlySet<string> {
+  const hosts = new Set<string>();
+  for (const candidate of configured) {
+    let parsed: URL;
+    try {
+      parsed = new URL(`http://${candidate}/`);
+    } catch {
+      throw new TypeError("MCP allowed hosts must be canonical authorities");
+    }
+    if (
+      candidate !== candidate.toLowerCase() ||
+      parsed.host !== candidate ||
+      parsed.username !== "" ||
+      parsed.password !== ""
+    ) {
+      throw new TypeError("MCP allowed hosts must be canonical authorities");
+    }
+    if (hosts.has(candidate)) {
+      throw new TypeError("MCP allowed hosts must be unique");
+    }
+    hosts.add(candidate);
+  }
+  if (hosts.size === 0) throw new TypeError("MCP allowed hosts must not be empty");
+  return hosts;
+}
+
 function requestHostname(request: IncomingMessage): string | undefined {
   const value = request.headers.host;
   if (value === undefined) return undefined;
@@ -381,6 +418,20 @@ function requestHostname(request: IncomingMessage): string | undefined {
     const parsed = new URL(`http://${value}/`);
     if (parsed.username !== "" || parsed.password !== "") return undefined;
     return parsed.hostname.toLowerCase();
+  } catch {
+    return undefined;
+  }
+}
+
+function requestHost(request: IncomingMessage): string | undefined {
+  const value = request.headers.host;
+  if (value === undefined) return undefined;
+  try {
+    const parsed = new URL(`http://${value}/`);
+    if (parsed.username !== "" || parsed.password !== "") return undefined;
+    return parsed.host.toLowerCase() === value.toLowerCase()
+      ? parsed.host.toLowerCase()
+      : undefined;
   } catch {
     return undefined;
   }
@@ -580,6 +631,9 @@ export function createGatewayNodeServer(
     ...(options.directAllowedOrigins === undefined
       ? {}
       : { allowedOrigins: options.directAllowedOrigins }),
+    ...(options.openApiServerOrigin === undefined
+      ? {}
+      : { openApiServerOrigin: options.openApiServerOrigin }),
     ...(options.onerror === undefined ? {} : { onerror: options.onerror }),
   });
   const mcpHandler = governedAssembly === undefined
@@ -634,9 +688,32 @@ export function createGatewayNodeServer(
   const exactMcpHostnames = allowedMcpHostnames(
     options.mcpAllowedHostnames ?? DEFAULT_MCP_ALLOWED_HOSTNAMES,
   );
+  const exactMcpHosts = options.mcpAllowedHosts === undefined
+    ? undefined
+    : allowedMcpHosts(options.mcpAllowedHosts);
   const exactMcpOrigins = allowedMcpOrigins(
     options.mcpAllowedOrigins ?? DEFAULT_MCP_ALLOWED_ORIGINS,
   );
+  if (options.openApiServerOrigin !== undefined) {
+    const publicOrigin = parsePublicHttpsOrigin(options.openApiServerOrigin);
+    const expectedHosts = new Set([
+      publicOrigin.hostname,
+      `${publicOrigin.hostname}:443`,
+    ]);
+    if (
+      exactMcpHosts === undefined ||
+      exactMcpHosts.size !== expectedHosts.size ||
+      [...expectedHosts].some((host) => !exactMcpHosts.has(host)) ||
+      exactMcpHostnames.size !== 1 ||
+      !exactMcpHostnames.has(publicOrigin.hostname) ||
+      exactMcpOrigins.size !== 1 ||
+      !exactMcpOrigins.has(publicOrigin.origin)
+    ) {
+      throw new TypeError(
+        "The public OpenAPI origin must match the exact MCP Host and Origin boundary",
+      );
+    }
+  }
   let activeRequests = 0;
 
   const server = createServer(
@@ -665,6 +742,8 @@ export function createGatewayNodeServer(
       if (isMcp) {
         const origin = request.headers.origin;
         if (
+          (exactMcpHosts !== undefined &&
+            !exactMcpHosts.has(requestHost(request) ?? "")) ||
           !exactMcpHostnames.has(requestHostname(request) ?? "") ||
           (origin !== undefined && !exactMcpOrigins.has(origin))
         ) {
@@ -826,8 +905,10 @@ export function createGovernedCandidateNodeServer(
       "createMcpRequestContext",
       "directAllowedHosts",
       "directAllowedOrigins",
+      "mcpAllowedHosts",
       "mcpAllowedHostnames",
       "mcpAllowedOrigins",
+      "openApiServerOrigin",
       "maxConcurrentRequests",
       "onerror",
     ],
@@ -846,6 +927,12 @@ export function createGovernedCandidateNodeServer(
         exactOptions.directAllowedOrigins,
         "Governed candidate Node directAllowedOrigins",
       );
+  const mcpAllowedHosts = exactOptions.mcpAllowedHosts === undefined
+    ? undefined
+    : snapshotGovernedCandidateStringArray(
+        exactOptions.mcpAllowedHosts,
+        "Governed candidate Node mcpAllowedHosts",
+      );
   const mcpAllowedHostnames = exactOptions.mcpAllowedHostnames === undefined
     ? undefined
     : snapshotGovernedCandidateStringArray(
@@ -862,6 +949,7 @@ export function createGovernedCandidateNodeServer(
     ...exactOptions,
     ...(directAllowedHosts === undefined ? {} : { directAllowedHosts }),
     ...(directAllowedOrigins === undefined ? {} : { directAllowedOrigins }),
+    ...(mcpAllowedHosts === undefined ? {} : { mcpAllowedHosts }),
     ...(mcpAllowedHostnames === undefined ? {} : { mcpAllowedHostnames }),
     ...(mcpAllowedOrigins === undefined ? {} : { mcpAllowedOrigins }),
     governedCandidateAssembly: assembly,

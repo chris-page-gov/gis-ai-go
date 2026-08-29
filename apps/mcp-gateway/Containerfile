@@ -231,7 +231,7 @@ EXPOSE 8787/tcp
 
 STOPSIGNAL SIGTERM
 
-HEALTHCHECK --interval=10s --timeout=3s --start-period=5s --retries=3 \
+HEALTHCHECK --interval=10s --timeout=10s --start-period=5s --retries=3 \
   CMD ["/usr/local/bin/node", "dist/src/container-healthcheck.js"]
 
 ENTRYPOINT ["/usr/local/bin/node", "dist/src/container-main.js"]

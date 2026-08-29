@@ -10,6 +10,12 @@ ancestry repair merged through
 `c7eca721b084356dace8f264d7531b2180093b2d`. The candidate is not published,
 registered or deployed.
 
+The provider-neutral public-ingress preparation below is a later source-changing
+image candidate. The PR 98, PR 99 and `c7eca721` identities do not cover its bytes.
+Acceptance requires fresh pull-request and protected-main repository, image,
+independent-derivation, byte-comparison, provenance, attestation and CodeQL evidence
+for the exact introducing commit.
+
 This runbook covers the image, local Compose and assurance slice that can proceed
 without selecting a public runtime. It does not activate GIS AI GO for production, contact ONS,
 publish an image, create an HTTPS endpoint, register an MCP service or change the
@@ -146,9 +152,13 @@ publication. Startup:
    their three MCP resources; and
 7. emits only a bounded lifecycle event, the unregistered state and catalogue revision.
 
-The exact assembly is local and unregistered. It has no path, environment,
-command-line, serialised configuration or arbitrary loader seam, and its production
-registration value is always false.
+The exact assembly is unregistered. It has no path, command-line, serialised
+configuration or arbitrary activation-loader seam, and its production registration
+value is always false. The one optional non-secret
+`GIS_AI_GO_PUBLIC_HTTPS_ORIGIN` setting changes only the ingress authority
+allowlists and OpenAPI server projection described in
+[ADR-0014](../decisions/ADR-0014-bounded-public-ingress-origin.md); it cannot change
+the operations, resources, provider, evidence stores or activation state.
 
 The container HTTP surface is deliberately:
 
@@ -164,6 +174,29 @@ No metrics, administration or activation endpoint is added. The Docker health
 check verifies health plus either exact ready state or the capacity-exhausted state
 that preserves recovery access. Acceptance
 does not call `data.query` and therefore makes no provider request.
+
+### Provider-neutral public ingress preparation
+
+Local Compose remains loopback-only and supplies no environment setting. A future
+public runtime may supply one canonical DNS-form HTTPS origin through
+`GIS_AI_GO_PUBLIC_HTTPS_ORIGIN`. When supplied, that value replaces the loopback
+application authority and derives all direct and MCP Host and Origin allowlists,
+the internal health-check Host and the OpenAPI server origin. The health checker
+still connects to `127.0.0.1:8787`; it does not create a second loopback authority.
+
+The gateway ignores `Forwarded` and `X-Forwarded-*` as authority inputs. The
+implementation includes real-socket tests that prove they cannot substitute for a
+rejected Host or Origin and that a wrong public port is rejected. The OpenAPI
+extension reports only that public ingress is configured and continues to report
+public deployment as false. These tests become accepted repository evidence only
+after the fresh exact-source gates above pass.
+
+This is application preparation, not TLS or deployment evidence. A public candidate
+still requires an authorised provider and spend ceiling, real hostname and trusted
+certificate, private listener controls, exact-image binding, independent remote
+observation, workload identity, domain-aware ONS egress, admitted persistent
+storage, backup and operator controls. Do not publish the reserved test hostname or
+record this setting as a deployed endpoint.
 
 ## Pinned construction
 
