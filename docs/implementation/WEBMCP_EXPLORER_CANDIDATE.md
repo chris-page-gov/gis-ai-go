@@ -329,8 +329,12 @@ The presence of a WebMCP navigation item in DevTools is not proof that its pane 
 discovered the tools. An empty pane must be recorded as empty. Chrome's current
 [WebMCP guidance](https://developer.chrome.com/docs/ai/webmcp) also states that the
 Model Context Tool Inspector's test agent is separate from **Gemini in Chrome**.
-Gemini reading the current tab without receiving page-tool declarations is therefore
-an observed host-bridge limitation, not a failed GIS AI GO registration.
+In the observed session on 29 August 2026, Gemini reported that its host exposed
+only standard Google web search and no page-tool declarations; no GIS AI GO
+page-tool invocation occurred. Record that AI-host bridge as **not observed** for
+the session, not as a failed GIS AI GO registration. Google's
+[May 2026 announcement](https://developer.chrome.com/blog/chrome-at-io26) describes
+Gemini in Chrome WebMCP support as forthcoming.
 
 ## Acceptance criteria
 
