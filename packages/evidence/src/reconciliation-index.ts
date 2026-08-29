@@ -190,6 +190,13 @@ export interface EvidenceReconciliationIndexHealth {
   ];
 }
 
+export interface EvidenceReconciliationClaimCapacity {
+  readonly status: "available" | "exhausted";
+  readonly maximum_claims: number;
+  readonly claim_count: number;
+  readonly remaining_claims: number;
+}
+
 export type EvidenceReconciliationClaimOutcome =
   | {
       readonly status: "claimed";
@@ -1170,6 +1177,18 @@ export class PublicEvidenceReconciliationIndex {
 
   public verify(): EvidenceReconciliationIndexHealth {
     return this.#verifyState().health;
+  }
+
+  /** Verified local headroom for a genuinely new immutable claim. */
+  public claimCapacity(): EvidenceReconciliationClaimCapacity {
+    const claimCount = this.#verifyState().health.claim_count;
+    const remainingClaims = Math.max(0, this.#maximumClaims - claimCount);
+    return Object.freeze({
+      status: remainingClaims === 0 ? "exhausted" : "available",
+      maximum_claims: this.#maximumClaims,
+      claim_count: claimCount,
+      remaining_claims: remainingClaims,
+    });
   }
 
   #verifyState(): VerifiedIndexState {

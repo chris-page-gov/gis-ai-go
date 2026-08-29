@@ -30,11 +30,11 @@ import {
   ONS_ADAPTER_VERSION,
   ONS_OBSERVATION_URI,
   OnsDataApiAdapter,
-  executePristineOnsDataApiAdapter,
   isExactApprovedOnsDataQueryCache,
   normaliseAdapterError,
   normalisePristineOnsDataApiAdapterError,
   normaliseW3CTraceContext,
+  reservePristineOnsDataApiAdapterExecution,
   requireExactOnsDataApiAdapter,
   requirePristineOnsDataApiAdapter,
   type AdapterErrorCode,
@@ -42,6 +42,7 @@ import {
   type ApprovedOnsDataQueryCache,
   type ApprovedOnsDataQueryCacheHit,
   type NormalisedAdapterError,
+  type OnsDataApiAdapterAdmissionLease,
   type OnsDataApiAdapterExecution,
   type ProviderAdapterEstimate,
   type ProviderAdapterExecutionOptions,
@@ -386,7 +387,11 @@ function applicationRuntime(options: DataQueryApplicationOptions): DataQueryRunt
   }
   const governedPristineExecution =
     values.governedPristineExecution === GOVERNED_PRISTINE_ONS_EXECUTION;
-  if (values.approvedCache !== undefined || governedPristineExecution) {
+  const requiresPristineExecution =
+    values.approvedCache !== undefined ||
+    governedPristineExecution ||
+    values.reconciliationIndex !== undefined;
+  if (requiresPristineExecution) {
     try {
       requirePristineOnsDataApiAdapter(adapter);
     } catch {
@@ -1047,6 +1052,27 @@ async function query(
   const checked = preflightAdapter(runtime.adapter, context);
   assertApprovedCacheAdapter(runtime, context);
   assertInvocationControls(runtime, invocation, context);
+  const usesPristineExecution =
+    runtime.reconciliationIndex !== undefined ||
+    runtime.approvedCache !== undefined ||
+    runtime.governedPristineExecution;
+  let providerAdmission: OnsDataApiAdapterAdmissionLease | undefined;
+  if (usesPristineExecution) {
+    try {
+      providerAdmission = reservePristineOnsDataApiAdapterExecution(
+        runtime.adapter,
+        ONS_ADAPTER_REQUEST,
+        providerInvocation,
+      );
+    } catch (error) {
+      const adapterError = trustedAdapterError(runtime.adapter, error, context, true);
+      return fail(mapAdapterCode(adapterError.code), context);
+    }
+  }
+  const releaseProviderAdmission = (): void => {
+    providerAdmission?.release();
+    providerAdmission = undefined;
+  };
   let reconciliationClaim:
     | Extract<
         ReturnType<PublicEvidenceReconciliationIndex["claim"]>,
@@ -1064,13 +1090,16 @@ async function query(
         normalisedParametersSha256,
       });
       if (outcome.status === "pending") {
+        releaseProviderAdmission();
         return failReconciliation("idempotency_pending", context);
       }
       if (outcome.status === "completed") {
+        releaseProviderAdmission();
         return failReconciliation("idempotency_completed", context);
       }
       reconciliationClaim = outcome.claim;
     } catch (error) {
+      releaseProviderAdmission();
       if (
         error instanceof EvidenceReconciliationIndexError &&
         error.code === "conflict"
@@ -1081,22 +1110,24 @@ async function query(
       return fail("evidence_unavailable", context);
     }
   }
-  assertInvocationControls(runtime, invocation, context);
-  assertApprovedCacheAdapter(runtime, context);
   let adapterResult: ProviderAdapterResult;
   let cacheHit: ApprovedOnsDataQueryCacheHit | undefined;
   let cacheCheckedAt: string | undefined;
   let approvedCacheExecution: OnsDataApiAdapterExecution | undefined;
-  if (runtime.approvedCache !== undefined || runtime.governedPristineExecution) {
-    try {
-      approvedCacheExecution = executePristineOnsDataApiAdapter(
-        runtime.adapter,
-        ONS_ADAPTER_REQUEST,
-        providerInvocation,
-      );
-    } catch {
-      return fail("provider_contract_failed", context);
+  try {
+    assertInvocationControls(runtime, invocation, context);
+    assertApprovedCacheAdapter(runtime, context);
+    if (usesPristineExecution) {
+      if (providerAdmission === undefined) {
+        return fail("provider_contract_failed", context);
+      }
+      approvedCacheExecution = providerAdmission.start();
+      providerAdmission = undefined;
     }
+  } catch (error) {
+    releaseProviderAdmission();
+    if (error instanceof DataQueryApplicationError) throw error;
+    return fail("provider_contract_failed", context);
   }
   try {
     adapterResult = await (

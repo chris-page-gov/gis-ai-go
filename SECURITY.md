@@ -4,7 +4,8 @@
 
 GIS AI GO is a public open-source project. Its supported `v0.1.0` release is a
 static, metadata-only discovery product hosted on GitHub Pages.
-The current gateway and execution service remain fail-closed scaffolds. Do not
+The generic gateway and execution entrypoints remain fail-closed. A fixed local,
+unregistered exact-five container candidate exists for bounded demonstration. Do not
 connect unreviewed code to provider credentials, protected data or public listeners.
 The public Explorer is a static metadata-only build; it is not a provider client or
 property-information service.
@@ -18,7 +19,9 @@ defects may use the public bug template.
 
 ## Current controls
 
-- live provider execution is denied by code and tests;
+- live provider execution is available only through the fixed local unregistered
+  candidate; its reviewed Compose harness has no external egress, credentials or
+  production registration;
 - `.env` files and generated artefacts are ignored;
 - synthetic fixtures are the only permitted fixture class;
 - application dependencies, the WebAssembly diagram renderer and GitHub Actions are

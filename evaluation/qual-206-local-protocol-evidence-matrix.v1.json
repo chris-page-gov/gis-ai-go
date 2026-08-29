@@ -3,16 +3,16 @@
   "classification": "repository-only-non-live-unscored",
   "schema_contract": {
     "path": "schemas/qual-206-local-protocol-evidence-matrix.schema.json",
-    "sha256": "baa856f4c0d28a497360c9af0526e6e0b3aa6698f19e1857549e988f48f4931a"
+    "sha256": "e0955da7969213e1d54efed53c3e22ac796dd2ef426f3f1ca56c30a99625aa73"
   },
   "repository_binding": {
     "kind": "repository-material-bound",
-    "runtime_base_commit": "7fa8b720d3cbaa3e0a1ebfadf0fb355a7330a04c",
+    "runtime_base_commit": "a33876b16ac7c198e75773fc79097d2f2836cf13",
     "material_integrity": "sha256",
     "runtime_materials": [
       {
         "path": "apps/mcp-gateway/src/governed-assembly.ts",
-        "sha256": "546ab4af43024192995b1b26c59a23b030a8c83fa5222bf813d9fadbcd4b018c"
+        "sha256": "8a73efc2cf38fa434ca663c45eb0ff21c3c57c87b1892f74ce16482184eceeb0"
       },
       {
         "path": "apps/mcp-gateway/src/mcp-http.ts",
@@ -108,7 +108,7 @@
         },
         {
           "path": "apps/mcp-gateway/test/public-read-transport.test.ts",
-          "sha256": "d45ea2e7702de3c6e5535894f42553d1698369ccf6c31e33b2906b33bc23a26b",
+          "sha256": "1760580b5a01d7a792d9a4a90089b4e98d260cc50501d3c0d1bf14113a03cfee",
           "source_test_names": [
             "propagates modern MCP HTTP cancellation with no receipt or ledger event"
           ]
@@ -139,7 +139,7 @@
         },
         {
           "path": "apps/mcp-gateway/test/public-read-transport.test.ts",
-          "sha256": "d45ea2e7702de3c6e5535894f42553d1698369ccf6c31e33b2906b33bc23a26b",
+          "sha256": "1760580b5a01d7a792d9a4a90089b4e98d260cc50501d3c0d1bf14113a03cfee",
           "source_test_names": [
             "honours STDIO cancellation without a response, receipt or ledger event"
           ]
@@ -254,5 +254,5 @@
     "release_acceptance": false
   },
   "boundary": "Repository-material-bound deterministic source matrix. It is repository-only, non-live and unscored; coverage rows and subprocess sections bind source declarations but do not record a test-runner outcome. The exact-five and suspension regressions use test-only real-process STDIO with operating-system pipes and an injected zero-network fixture; the matrix does not complete host interoperability or authorise activation, deployment, registration or release.",
-  "matrix_id": "gis-ai-go:qual-206-local-protocol-evidence-matrix:sha256:4c736427ef768ff3a3f9564e509e897a331700047e980923c266883c5dd54dac"
+  "matrix_id": "gis-ai-go:qual-206-local-protocol-evidence-matrix:sha256:3e596d1cb277809c6382604c1c004bc205223984778fcfcb4ba7c897799602a5"
 }

@@ -45,6 +45,7 @@ import {
 import { gatewayMetadata } from "./metadata.js";
 import {
   createEvidenceReadinessIntegrity,
+  evidenceReconciliationClaimCapacity,
   verifyEvidenceReadinessIntegrity,
   type EvidenceReadinessIntegrity,
 } from "./readiness-integrity.js";
@@ -155,7 +156,7 @@ export interface GovernedCandidateAssemblyBindings {
 export interface GovernedCandidateReadiness {
   readonly status: "ready" | "blocked";
   readonly reason: "candidate-assembly-verified" | "evidence-integrity-failed" |
-    "relevant-capability-suspended";
+    "reconciliation-capacity-exhausted" | "relevant-capability-suspended";
   readonly productionRegistration: false;
   readonly activeTools: readonly GovernedCandidateOperation[];
   readonly activeApiOperations: readonly GovernedCandidateOperation[];
@@ -565,6 +566,28 @@ export function assessGovernedCandidateReadiness(
     return Object.freeze({
       status: "blocked",
       reason: "relevant-capability-suspended",
+      productionRegistration: false,
+      activeTools: assembly.operations,
+      activeApiOperations: assembly.operations,
+    });
+  }
+  try {
+    if (
+      evidenceReconciliationClaimCapacity(bindings.evidenceReadinessIntegrity).status ===
+      "exhausted"
+    ) {
+      return Object.freeze({
+        status: "blocked",
+        reason: "reconciliation-capacity-exhausted",
+        productionRegistration: false,
+        activeTools: assembly.operations,
+        activeApiOperations: assembly.operations,
+      });
+    }
+  } catch {
+    return Object.freeze({
+      status: "blocked",
+      reason: "evidence-integrity-failed",
       productionRegistration: false,
       activeTools: assembly.operations,
       activeApiOperations: assembly.operations,

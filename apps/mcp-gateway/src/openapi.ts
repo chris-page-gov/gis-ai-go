@@ -777,6 +777,7 @@ export function createGovernedCandidateOpenApiDocument(
         enum: [
           "candidate-assembly-verified",
           "evidence-integrity-failed",
+          "reconciliation-capacity-exhausted",
           "relevant-capability-suspended",
         ],
       },

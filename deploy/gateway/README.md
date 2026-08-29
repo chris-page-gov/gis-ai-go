@@ -1,8 +1,9 @@
-# Blocked gateway Compose candidate
+# Local unregistered gateway Compose candidate
 
 This local Compose file exercises the repository-only DEPLOY-207 container. It is
-not a deployment definition and it cannot activate a tool, direct operation,
-resource, application or provider.
+not a deployment definition. It mounts only the fixed exact-five candidate and its
+three resources, with production registration false, on a loopback-only declaration
+over an internal bridge that cannot reach the provider.
 
 The current local image source uses the one reviewed `linux/amd64` composition:
 UBI 10 micro as the runtime root, the official Node image as builder and checked

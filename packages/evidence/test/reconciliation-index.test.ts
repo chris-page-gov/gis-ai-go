@@ -193,6 +193,12 @@ test("refuses a new claim at the local admission boundary without changing the s
       2,
     );
     const index = openEvidenceReconciliationIndex(indexOptions);
+    assert.deepEqual(index.claimCapacity(), {
+      status: "available",
+      maximum_claims: 2,
+      claim_count: 0,
+      remaining_claims: 2,
+    });
     const completedFixture = makePublicReadReceiptFixture();
     const completed = index.claim(claimInput(completedFixture));
     assert.equal(completed.status, "claimed");
@@ -241,6 +247,12 @@ test("refuses a new claim at the local admission boundary without changing the s
         "privacy",
       ],
     });
+    assert.deepEqual(index.claimCapacity(), {
+      status: "exhausted",
+      maximum_claims: 2,
+      claim_count: 2,
+      remaining_claims: 0,
+    });
 
     const reopenedLedger = openPublicEvidenceLedger({
       rootDirectory: ledgerRoot,
@@ -256,6 +268,12 @@ test("refuses a new claim at the local admission boundary without changing the s
     assert.equal(reopened.lookup(KEY).status, "completed");
     assert.equal(reopened.lookup(pendingKey).status, "pending");
     assert.equal(reopened.verify().claim_count, 2);
+    assert.deepEqual(reopened.claimCapacity(), {
+      status: "exhausted",
+      maximum_claims: 2,
+      claim_count: 2,
+      remaining_claims: 0,
+    });
 
     assert.throws(
       () =>

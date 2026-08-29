@@ -66,6 +66,7 @@ COPY packages/policy-client/ packages/policy-client/
 COPY packages/provider-adapter-sdk/ packages/provider-adapter-sdk/
 COPY packages/tool-registry/ packages/tool-registry/
 COPY profiles/tool-registry.v1.json profiles/tool-registry.v1.json
+COPY providers/ons/data-query-approved-cache.v1.json providers/ons/data-query-approved-cache.v1.json
 COPY schemas/ schemas/
 COPY artifacts/okf/ artifacts/okf/
 
@@ -134,8 +135,8 @@ ARG SOURCE_DATE_EPOCH
 ARG SOURCE_REVISION
 ARG SOURCE_TREE_CLEAN
 
-LABEL org.opencontainers.image.title="GIS AI GO blocked gateway candidate" \
-      org.opencontainers.image.description="Repository-only zero-capability gateway container" \
+LABEL org.opencontainers.image.title="GIS AI GO local unregistered gateway candidate" \
+      org.opencontainers.image.description="Repository-only exact-five unregistered gateway container" \
       org.opencontainers.image.licenses="MIT AND LicenseRef-Red-Hat-UBI-EULA AND LicenseRef-Third-Party-Notices" \
       org.opencontainers.image.source="https://github.com/chris-page-gov/gis-ai-go" \
       org.opencontainers.image.version="${PRODUCT_VERSION}" \
@@ -144,13 +145,13 @@ LABEL org.opencontainers.image.title="GIS AI GO blocked gateway candidate" \
       org.opencontainers.image.base.name="registry.access.redhat.com/ubi10-micro@sha256:422bd02268e317995a8fbb9c81c0835aa99798a234b5619c52350843d5ed5c4d" \
       org.opencontainers.image.base.digest="sha256:422bd02268e317995a8fbb9c81c0835aa99798a234b5619c52350843d5ed5c4d" \
       io.gis-ai-go.registry-id="io.github.chris-page-gov/gis-ai-go" \
-      io.gis-ai-go.lifecycle="candidate-blocked" \
+      io.gis-ai-go.lifecycle="candidate-unregistered" \
       io.gis-ai-go.red-hat-support="not-supported-or-endorsed" \
       io.gis-ai-go.runtime-library-donor="registry.access.redhat.com/ubi10/nodejs-24-minimal@sha256:e0e44d118dfba1c90e8adbdc751d6db2a1c5f9b0856d31d577054f8ea5216e2d" \
       io.gis-ai-go.source-tree-clean="${SOURCE_TREE_CLEAN}" \
-      io.gis-ai-go.live-provider-calls="false" \
-      io.gis-ai-go.active-tools="[]" \
-      io.gis-ai-go.active-api-operations="[]"
+      io.gis-ai-go.live-provider-calls="true" \
+      io.gis-ai-go.active-tools="[\"catalogue.search\",\"catalogue.describe\",\"selection.resolve\",\"data.query\",\"evidence.inspect\"]" \
+      io.gis-ai-go.active-api-operations="[\"catalogue.search\",\"catalogue.describe\",\"selection.resolve\",\"data.query\",\"evidence.inspect\"]"
 
 ENV PATH=/usr/local/bin \
     NODE_VERSION=24.19.0 \
@@ -172,6 +173,9 @@ COPY --from=runtime-libraries --chown=0:0 \
 COPY --from=builder --chown=0:0 /runtime/apps/mcp-gateway/ ./
 COPY --chown=0:0 schemas/ /app/schemas/
 COPY --chown=0:0 artifacts/okf/ /app/artifacts/okf/
+COPY --from=builder --chown=0:0 \
+  /source/providers/ons/data-query-approved-cache.v1.json \
+  /app/providers/ons/data-query-approved-cache.v1.json
 COPY --chown=0:0 LICENSE /app/LICENSE
 COPY --chown=0:0 LICENSE /usr/share/licenses/gis-ai-go/LICENSE
 COPY --chown=0:0 THIRD_PARTY.md /usr/share/licenses/gis-ai-go/THIRD_PARTY.md

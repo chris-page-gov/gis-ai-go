@@ -48,6 +48,8 @@ export const ONS_OBSERVATION_URI = `${ONS_ORIGIN}${ONS_OBSERVATION_PATH}?${ONS_O
 
 const MAX_ATTEMPTS_PER_MINUTE = 30;
 const RATE_WINDOW_MS = 60_000;
+/** Maximum time a no-egress admission reservation may remain unconsumed. */
+export const ONS_PROVIDER_ADMISSION_LEASE_MS = 20_000;
 const DEFAULT_RETRY_DELAY_MS = 100;
 /** Maximum wall-clock budget for one fixed ONS adapter call. */
 export const ONS_CALL_DEADLINE_MS = 20_000;
@@ -65,19 +67,10 @@ interface OnsApprovedCacheOutageProof {
   readonly outage: OnsApprovedCacheOutage;
 }
 
-interface OnsApprovedCacheExecutionReservation {
-  readonly execution: object;
-  readonly claimed: boolean;
-}
-
 // Cache eligibility is provenance, not an inference from the public error code.
 // Only faults created at the two reviewed provider-failure sites are branded,
 // and each proof can be consumed once.
 const ONS_APPROVED_CACHE_OUTAGES = new WeakMap<object, OnsApprovedCacheOutageProof>();
-const ACTIVE_APPROVED_CACHE_EXECUTIONS = new WeakMap<
-  object,
-  OnsApprovedCacheExecutionReservation
->();
 
 // Base instances are admitted only after their constructor has validated and
 // stored every option. Subclasses, prototype forgeries and proxies are never
@@ -96,16 +89,6 @@ function approvedCacheOutage(
     Object.freeze({ adapter, execution, outage: Object.freeze(outage) }),
   );
   return fault;
-}
-
-function claimApprovedCacheExecution(adapter: OnsDataApiAdapter): object | undefined {
-  const reservation = ACTIVE_APPROVED_CACHE_EXECUTIONS.get(adapter);
-  if (reservation === undefined || reservation.claimed) return undefined;
-  ACTIVE_APPROVED_CACHE_EXECUTIONS.set(
-    adapter,
-    Object.freeze({ execution: reservation.execution, claimed: true }),
-  );
-  return reservation.execution;
 }
 
 function takeApprovedCacheEligibleOnsOutage(
@@ -145,42 +128,104 @@ function takeApprovedCacheEligibleOnsOutage(
 }
 
 interface OnsProcessAdmissionState {
-  inFlight: boolean;
+  activeLease: object | undefined;
   readonly attemptStarts: number[];
+}
+
+interface OnsProcessAdmissionLeaseState {
+  readonly expiresAt: number;
+  readonly started: boolean;
 }
 
 // This state is deliberately module-private and shared by every adapter instance.
 // Adapter options must not provide a way to replace or reset the provider admission boundary.
 const ONS_PROCESS_ADMISSION: OnsProcessAdmissionState = {
-  inFlight: false,
+  activeLease: undefined,
   attemptStarts: [],
 };
+const ONS_PROCESS_ADMISSION_LEASES = new WeakMap<object, OnsProcessAdmissionLeaseState>();
 
 function isAborted(signal: AbortSignal | undefined): boolean {
   return signal?.aborted === true;
 }
 
-function acquireOnsProcessCall(): void {
-  if (ONS_PROCESS_ADMISSION.inFlight) {
-    throw new ProviderAdapterFault("PROVIDER_RATE_LIMITED", { retryable: true });
-  }
-  ONS_PROCESS_ADMISSION.inFlight = true;
-}
-
-function releaseOnsProcessCall(): void {
-  ONS_PROCESS_ADMISSION.inFlight = false;
-}
-
-function admitOnsProcessAttempt(signal: AbortSignal): void {
-  if (signal.aborted) throw new ProviderAdapterFault("PROVIDER_TIMEOUT");
+function processAdmissionNow(): number {
   const now = Date.now();
   if (!Number.isFinite(now)) throw new ProviderAdapterFault("PROVIDER_OUTAGE");
+  return now;
+}
+
+function pruneOnsProcessAttempts(now: number): void {
   while (
     ONS_PROCESS_ADMISSION.attemptStarts[0] !== undefined &&
     ONS_PROCESS_ADMISSION.attemptStarts[0] <= now - RATE_WINDOW_MS
   ) {
     ONS_PROCESS_ADMISSION.attemptStarts.shift();
   }
+}
+
+function reserveOnsProcessCall(): object {
+  const now = processAdmissionNow();
+  const activeLease = ONS_PROCESS_ADMISSION.activeLease;
+  if (activeLease !== undefined) {
+    const active = ONS_PROCESS_ADMISSION_LEASES.get(activeLease);
+    if (active !== undefined && !active.started && active.expiresAt <= now) {
+      ONS_PROCESS_ADMISSION_LEASES.delete(activeLease);
+      ONS_PROCESS_ADMISSION.activeLease = undefined;
+    }
+  }
+  pruneOnsProcessAttempts(now);
+  if (
+    ONS_PROCESS_ADMISSION.activeLease !== undefined ||
+    ONS_PROCESS_ADMISSION.attemptStarts.length >= MAX_ATTEMPTS_PER_MINUTE
+  ) {
+    throw new ProviderAdapterFault("PROVIDER_RATE_LIMITED", { retryable: true });
+  }
+  const lease = Object.freeze({});
+  ONS_PROCESS_ADMISSION_LEASES.set(
+    lease,
+    Object.freeze({ expiresAt: now + ONS_PROVIDER_ADMISSION_LEASE_MS, started: false }),
+  );
+  ONS_PROCESS_ADMISSION.activeLease = lease;
+  return lease;
+}
+
+function releaseOnsProcessCall(lease: object): void {
+  if (ONS_PROCESS_ADMISSION.activeLease === lease) {
+    ONS_PROCESS_ADMISSION.activeLease = undefined;
+  }
+  ONS_PROCESS_ADMISSION_LEASES.delete(lease);
+}
+
+function startOnsProcessCall(lease: object, signal: AbortSignal): void {
+  if (signal.aborted) throw new ProviderAdapterFault("PROVIDER_TIMEOUT");
+  const now = processAdmissionNow();
+  const state = ONS_PROCESS_ADMISSION_LEASES.get(lease);
+  if (
+    state === undefined ||
+    state.started ||
+    state.expiresAt <= now ||
+    ONS_PROCESS_ADMISSION.activeLease !== lease
+  ) {
+    releaseOnsProcessCall(lease);
+    throw new ProviderAdapterFault("PROVIDER_TIMEOUT");
+  }
+  pruneOnsProcessAttempts(now);
+  if (ONS_PROCESS_ADMISSION.attemptStarts.length >= MAX_ATTEMPTS_PER_MINUTE) {
+    releaseOnsProcessCall(lease);
+    throw new ProviderAdapterFault("PROVIDER_RATE_LIMITED", { retryable: true });
+  }
+  ONS_PROCESS_ADMISSION_LEASES.set(
+    lease,
+    Object.freeze({ expiresAt: state.expiresAt, started: true }),
+  );
+  ONS_PROCESS_ADMISSION.attemptStarts.push(now);
+}
+
+function admitOnsProcessRetry(signal: AbortSignal): void {
+  if (signal.aborted) throw new ProviderAdapterFault("PROVIDER_TIMEOUT");
+  const now = processAdmissionNow();
+  pruneOnsProcessAttempts(now);
   if (ONS_PROCESS_ADMISSION.attemptStarts.length >= MAX_ATTEMPTS_PER_MINUTE) {
     throw new ProviderAdapterFault("PROVIDER_RATE_LIMITED", { retryable: true });
   }
@@ -776,6 +821,22 @@ function validateOptions(options: OnsDataApiAdapterOptions): void {
   }
 }
 
+const PREPARE_ONS_DATA_API_EXECUTION = Symbol("prepare-ons-data-api-execution");
+const START_ONS_DATA_API_EXECUTION = Symbol("start-ons-data-api-execution");
+
+interface PreparedOnsDataApiExecutionState {
+  readonly adapter: OnsDataApiAdapter;
+  readonly query: ProviderAdapterQuery;
+  readonly options: ProviderAdapterExecutionOptions;
+  readonly startedAt: number;
+  readonly deadline: number;
+}
+
+const PREPARED_ONS_DATA_API_EXECUTIONS = new WeakMap<
+  object,
+  PreparedOnsDataApiExecutionState
+>();
+
 export class OnsDataApiAdapter implements AsyncProviderAdapter {
   public readonly operations = ADAPTER_OPERATIONS;
   readonly #lifecycle: AdapterLifecycle;
@@ -843,10 +904,15 @@ export class OnsDataApiAdapter implements AsyncProviderAdapter {
     request: unknown,
     options: ProviderAdapterExecutionOptions = {},
   ): Promise<ProviderAdapterResult> {
-    // Only the canonical call started by executePristineOnsDataApiAdapter can
-    // claim its reserved token. Re-entrant or concurrent direct calls receive
-    // no approved-cache provenance even while that reservation is active.
-    const approvedCacheExecution = claimApprovedCacheExecution(this);
+    const prepared = this[PREPARE_ONS_DATA_API_EXECUTION](request, options);
+    const admission = reserveOnsProcessCall();
+    return this[START_ONS_DATA_API_EXECUTION](prepared, admission, undefined);
+  }
+
+  public [PREPARE_ONS_DATA_API_EXECUTION](
+    request: unknown,
+    options: ProviderAdapterExecutionOptions = {},
+  ): object {
     this.#assertInvocation();
     if (Object.keys(options).some((key) => !["signal", "deadline", "trace"].includes(key))) {
       throw new ProviderAdapterFault("INVALID_REQUEST");
@@ -870,7 +936,36 @@ export class OnsDataApiAdapter implements AsyncProviderAdapter {
     if (isAborted(options.signal) || deadline <= startedAt) {
       throw new ProviderAdapterFault("PROVIDER_TIMEOUT");
     }
-    acquireOnsProcessCall();
+    const prepared = Object.freeze({});
+    PREPARED_ONS_DATA_API_EXECUTIONS.set(
+      prepared,
+      Object.freeze({
+        adapter: this,
+        query,
+        options: Object.freeze({
+          ...(options.signal === undefined ? {} : { signal: options.signal }),
+          ...(options.deadline === undefined ? {} : { deadline: options.deadline }),
+          ...(options.trace === undefined ? {} : { trace: options.trace }),
+        }),
+        startedAt,
+        deadline,
+      }),
+    );
+    return prepared;
+  }
+
+  public async [START_ONS_DATA_API_EXECUTION](
+    prepared: object,
+    admission: object,
+    approvedCacheExecution: object | undefined,
+  ): Promise<ProviderAdapterResult> {
+    const state = PREPARED_ONS_DATA_API_EXECUTIONS.get(prepared);
+    PREPARED_ONS_DATA_API_EXECUTIONS.delete(prepared);
+    if (state === undefined || state.adapter !== this) {
+      releaseOnsProcessCall(admission);
+      throw new ProviderAdapterFault("INVALID_REQUEST");
+    }
+    const { query, options, startedAt, deadline } = state;
     const controller = new AbortController();
     const onExternalAbort = (): void => controller.abort();
     let deadlineTimer: ReturnType<typeof setTimeout> | undefined;
@@ -883,7 +978,8 @@ export class OnsDataApiAdapter implements AsyncProviderAdapter {
       );
       for (let attempt = 1; attempt <= ONS_EGRESS_POLICY.maxAttempts; attempt += 1) {
         if (controller.signal.aborted) throw new ProviderAdapterFault("PROVIDER_TIMEOUT");
-        admitOnsProcessAttempt(controller.signal);
+        if (attempt === 1) startOnsProcessCall(admission, controller.signal);
+        else admitOnsProcessRetry(controller.signal);
         let response: FixedHttpsResponse;
         try {
           response = await this.#transport({
@@ -936,7 +1032,7 @@ export class OnsDataApiAdapter implements AsyncProviderAdapter {
     } finally {
       if (deadlineTimer !== undefined) clearTimeout(deadlineTimer);
       options.signal?.removeEventListener("abort", onExternalAbort);
-      releaseOnsProcessCall();
+      releaseOnsProcessCall(admission);
     }
   }
 
@@ -995,7 +1091,10 @@ const ONS_DATA_API_ADAPTER_PROTOTYPE_DESCRIPTORS = Reflect.ownKeys(
   if (descriptor === undefined) throw new TypeError("ONS adapter prototype is invalid");
   return Object.freeze({ key, descriptor: Object.freeze({ ...descriptor }) });
 });
-const EXACT_ONS_DATA_API_ADAPTER_EXECUTE = OnsDataApiAdapter.prototype.execute;
+const EXACT_ONS_DATA_API_ADAPTER_PREPARE =
+  OnsDataApiAdapter.prototype[PREPARE_ONS_DATA_API_EXECUTION];
+const EXACT_ONS_DATA_API_ADAPTER_START =
+  OnsDataApiAdapter.prototype[START_ONS_DATA_API_EXECUTION];
 const EXACT_ONS_DATA_API_ADAPTER_NORMALISE_ERROR =
   OnsDataApiAdapter.prototype.normalise_error;
 
@@ -1114,38 +1213,29 @@ export interface OnsDataApiAdapterExecution {
   ) => OnsApprovedCacheOutage | null;
 }
 
-/**
- * Execute through the captured implementation and return a one-call outage
- * capability bound to this exact invocation.
- */
-export function executePristineOnsDataApiAdapter(
+export interface OnsDataApiAdapterAdmissionLease {
+  /** Consume the one-shot reservation and begin the already validated execution. */
+  readonly start: () => OnsDataApiAdapterExecution;
+  /** Release an unconsumed reservation without starting provider transport. */
+  readonly release: () => void;
+}
+
+interface OnsDataApiAdapterAdmissionLeaseState {
+  readonly adapter: OnsDataApiAdapter;
+  readonly prepared: object;
+  readonly admission: object;
+}
+
+const ONS_DATA_API_ADMISSION_LEASES = new WeakMap<
+  object,
+  OnsDataApiAdapterAdmissionLeaseState
+>();
+
+function executionResult(
   adapter: OnsDataApiAdapter,
-  request: unknown,
-  options: ProviderAdapterExecutionOptions,
+  execution: object,
+  result: Promise<ProviderAdapterResult>,
 ): OnsDataApiAdapterExecution {
-  if (!isPristineOnsDataApiAdapter(adapter)) {
-    throw new TypeError("ONS adapter is not pristine");
-  }
-  if (ACTIVE_APPROVED_CACHE_EXECUTIONS.has(adapter)) {
-    throw new TypeError("ONS adapter already has an active cache-eligible execution");
-  }
-  const execution = Object.freeze({});
-  ACTIVE_APPROVED_CACHE_EXECUTIONS.set(
-    adapter,
-    Object.freeze({ execution, claimed: false }),
-  );
-  let pending: Promise<ProviderAdapterResult>;
-  try {
-    pending = EXACT_ONS_DATA_API_ADAPTER_EXECUTE.call(adapter, request, options);
-  } catch (error) {
-    ACTIVE_APPROVED_CACHE_EXECUTIONS.delete(adapter);
-    throw error;
-  }
-  const result = pending.finally(() => {
-    if (ACTIVE_APPROVED_CACHE_EXECUTIONS.get(adapter)?.execution === execution) {
-      ACTIVE_APPROVED_CACHE_EXECUTIONS.delete(adapter);
-    }
-  });
   let consumed = false;
   return Object.freeze({
     result,
@@ -1163,6 +1253,102 @@ export function executePristineOnsDataApiAdapter(
       );
     },
   });
+}
+
+function failedExecution(error: unknown): OnsDataApiAdapterExecution {
+  let consumed = false;
+  return Object.freeze({
+    result: Promise.reject(error),
+    approvedCacheOutage: (): null => {
+      if (!consumed) consumed = true;
+      return null;
+    },
+  });
+}
+
+/**
+ * Validate and reserve the process-wide provider concurrency and first-attempt
+ * budget without starting transport. The returned capability is branded,
+ * single-use and time-bounded.
+ */
+export function reservePristineOnsDataApiAdapterExecution(
+  adapter: OnsDataApiAdapter,
+  request: unknown,
+  options: ProviderAdapterExecutionOptions,
+): OnsDataApiAdapterAdmissionLease {
+  if (!isPristineOnsDataApiAdapter(adapter)) {
+    throw new TypeError("ONS adapter is not pristine");
+  }
+  let prepared: object | undefined;
+  let admission: object;
+  try {
+    prepared = EXACT_ONS_DATA_API_ADAPTER_PREPARE.call(adapter, request, options);
+    admission = reserveOnsProcessCall();
+  } catch (error) {
+    if (prepared !== undefined) PREPARED_ONS_DATA_API_EXECUTIONS.delete(prepared);
+    if (typeof error === "object" && error !== null) {
+      // A validation or admission rejection cannot establish a new provider
+      // outage. Exhaust any older proof carried by a replayed error object.
+      ONS_APPROVED_CACHE_OUTAGES.delete(error);
+    }
+    throw error;
+  }
+  const lease = Object.freeze({
+    start: (): OnsDataApiAdapterExecution => {
+      const state = ONS_DATA_API_ADMISSION_LEASES.get(lease);
+      ONS_DATA_API_ADMISSION_LEASES.delete(lease);
+      if (state === undefined) {
+        throw new TypeError("ONS provider admission lease is no longer active");
+      }
+      if (!isPristineOnsDataApiAdapter(state.adapter)) {
+        releaseOnsProcessCall(state.admission);
+        throw new TypeError("ONS adapter is not pristine");
+      }
+      const execution = Object.freeze({});
+      let pending: Promise<ProviderAdapterResult>;
+      try {
+        pending = EXACT_ONS_DATA_API_ADAPTER_START.call(
+          state.adapter,
+          state.prepared,
+          state.admission,
+          execution,
+        );
+      } catch (error) {
+        releaseOnsProcessCall(state.admission);
+        throw error;
+      }
+      return executionResult(state.adapter, execution, pending);
+    },
+    release: (): void => {
+      const state = ONS_DATA_API_ADMISSION_LEASES.get(lease);
+      ONS_DATA_API_ADMISSION_LEASES.delete(lease);
+      if (state !== undefined) releaseOnsProcessCall(state.admission);
+    },
+  });
+  ONS_DATA_API_ADMISSION_LEASES.set(
+    lease,
+    Object.freeze({ adapter, prepared, admission }),
+  );
+  return lease;
+}
+
+/**
+ * Execute through the captured implementation and return a one-call outage
+ * capability bound to this exact invocation.
+ */
+export function executePristineOnsDataApiAdapter(
+  adapter: OnsDataApiAdapter,
+  request: unknown,
+  options: ProviderAdapterExecutionOptions,
+): OnsDataApiAdapterExecution {
+  if (!isPristineOnsDataApiAdapter(adapter)) {
+    throw new TypeError("ONS adapter is not pristine");
+  }
+  try {
+    return reservePristineOnsDataApiAdapterExecution(adapter, request, options).start();
+  } catch (error) {
+    return failedExecution(error);
+  }
 }
 
 /** Normalise through the captured implementation after an integrity check. */

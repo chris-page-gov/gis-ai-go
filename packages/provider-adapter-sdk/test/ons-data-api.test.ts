@@ -9,6 +9,7 @@ import {
   ONS_ADAPTER_REQUEST,
   ONS_EGRESS_POLICY,
   ONS_OBSERVATION_URI,
+  ONS_PROVIDER_ADMISSION_LEASE_MS,
   FixedHttpsTransportError,
   OnsDataApiAdapter,
   ProviderAdapterFault,
@@ -16,6 +17,7 @@ import {
   createOnsDataApiAdapter,
   digestProviderAdapterResult,
   executePristineOnsDataApiAdapter,
+  reservePristineOnsDataApiAdapterExecution,
   requireExactOnsDataApiAdapter,
   requirePristineOnsDataApiAdapter,
   serialiseProviderAdapterResult,
@@ -952,6 +954,85 @@ test("prevents the 60-attempt two-instance bypass and ignores caller deadline cl
   processAdmissionNow += 60_001;
   await secondAdapter.execute(ONS_ADAPTER_REQUEST);
   assert.equal(transportCalls, 31);
+});
+
+test("reserves one bounded no-egress provider admission and releases it safely", async () => {
+  let firstCalls = 0;
+  let secondCalls = 0;
+  const first = createOnsDataApiAdapter({
+    lifecycle: ACTIVE,
+    transport: async () => {
+      firstCalls += 1;
+      return responseFor();
+    },
+  });
+  const second = createOnsDataApiAdapter({
+    lifecycle: ACTIVE,
+    transport: async () => {
+      secondCalls += 1;
+      return responseFor();
+    },
+  });
+
+  const released = reservePristineOnsDataApiAdapterExecution(
+    first,
+    ONS_ADAPTER_REQUEST,
+    {},
+  );
+  assert.equal(firstCalls, 0);
+  assert.throws(
+    () => reservePristineOnsDataApiAdapterExecution(second, ONS_ADAPTER_REQUEST, {}),
+    (error: unknown) =>
+      error instanceof ProviderAdapterFault && error.code === "PROVIDER_RATE_LIMITED",
+  );
+  released.release();
+  assert.throws(() => released.start(), /no longer active/u);
+
+  const admitted = reservePristineOnsDataApiAdapterExecution(
+    second,
+    ONS_ADAPTER_REQUEST,
+    {},
+  );
+  assert.equal(secondCalls, 0);
+  assert.equal((await admitted.start().result).observations.length, 1);
+  assert.equal(secondCalls, 1);
+  assert.throws(() => admitted.start(), /no longer active/u);
+
+  const expiring = reservePristineOnsDataApiAdapterExecution(
+    first,
+    ONS_ADAPTER_REQUEST,
+    {},
+  );
+  processAdmissionNow += ONS_PROVIDER_ADMISSION_LEASE_MS + 1;
+  await expectFault(() => expiring.start().result, "PROVIDER_TIMEOUT");
+  assert.equal(firstCalls, 0);
+  const afterExpiry = reservePristineOnsDataApiAdapterExecution(
+    first,
+    ONS_ADAPTER_REQUEST,
+    {},
+  );
+  afterExpiry.release();
+});
+
+test("rejects a no-egress reservation at the process attempt boundary", async () => {
+  let calls = 0;
+  const adapter = createOnsDataApiAdapter({
+    lifecycle: ACTIVE,
+    transport: async () => {
+      calls += 1;
+      return responseFor();
+    },
+  });
+  for (let index = 0; index < 30; index += 1) {
+    await adapter.execute(ONS_ADAPTER_REQUEST);
+  }
+  assert.equal(calls, 30);
+  assert.throws(
+    () => reservePristineOnsDataApiAdapterExecution(adapter, ONS_ADAPTER_REQUEST, {}),
+    (error: unknown) =>
+      error instanceof ProviderAdapterFault && error.code === "PROVIDER_RATE_LIMITED",
+  );
+  assert.equal(calls, 30);
 });
 
 test("normalises transport timeouts and never reflects hostile provider detail", async () => {

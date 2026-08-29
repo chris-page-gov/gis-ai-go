@@ -248,12 +248,14 @@ const SUITE_DEFINITIONS = [
     sourceTest: "apps/mcp-gateway/test/container-main.test.ts",
     compiledTest: "apps/mcp-gateway/dist/test/container-main.test.js",
     testNames: [
-      "keeps the container entry point fixed and production authority blocked",
+      "keeps the container entry point fixed and activates only the unregistered exact five",
       "rejects command-line configuration for the server and health check",
+      "keeps the container healthy when only new-claim readiness is exhausted",
       "maps readiness corruption and hostile errors to fixed path-free events",
     ],
     materials: [
       "apps/mcp-gateway/src/activation.ts",
+      "apps/mcp-gateway/src/candidate-activation.ts",
       "apps/mcp-gateway/src/container-healthcheck.ts",
       "apps/mcp-gateway/src/container-main.ts",
       "apps/mcp-gateway/src/http-app.ts",
@@ -537,12 +539,13 @@ const CASE_ASSERTIONS = {
       "governed-candidate-assembly",
     ],
     assertions: [
-      ["empty-callable-set", "The current callable registry and production operation arrays remain empty with readiness blocked."],
-      ["provider-suspension", "The ONS adapter keeps discovery and invocation independently suspended by default, and the approved cache cannot bypass suspension."],
-      ["explicit-local-only", "Capabilities appear only through explicit local construction and cannot be enabled through runtime input."],
+      ["empty-callable-set", "The generic callable registry and production operation arrays remain empty with readiness blocked."],
+      ["provider-suspension", "The ONS adapter remains suspended by default; only the fixed local builder creates the active exact provider and the approved cache cannot widen that authority."],
+      ["explicit-local-only", "Capabilities appear only through the closed fixed local container construction and cannot be enabled through runtime input."],
       ["trace-context-boundary", "Trusted W3C Trace Context is correlated exactly across the application and adapter boundaries without widening the fixed ONS egress request."],
       ["readiness-integrity", "An explicitly configured readiness ledger and reconciliation pair is re-verified on each readiness evaluation and reports only a fixed path-free event while production remains blocked."],
       ["candidate-unregistered", "One exact-five compile-time assembly derives direct and MCP discovery from the same immutable authority and remains explicitly unregistered for production."],
+      ["bounded-new-claim-admission", "Provider concurrency and first-attempt capacity are reserved without egress before a new immutable claim, and exhausted claim capacity blocks readiness without hiding recovery."],
     ],
     limitations: [
       "No deployed provider, registry entry, operator alert or emergency rollback was exercised.",

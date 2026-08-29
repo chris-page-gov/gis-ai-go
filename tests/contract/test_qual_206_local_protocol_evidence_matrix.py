@@ -21,7 +21,7 @@ MATRIX_PATH = (
 )
 GATEWAY_MANIFEST_PATH = ROOT / "apps" / "mcp-gateway" / "package.json"
 LOCKFILE_PATH = ROOT / "pnpm-lock.yaml"
-RUNTIME_BASE_COMMIT = "7fa8b720d3cbaa3e0a1ebfadf0fb355a7330a04c"
+RUNTIME_BASE_COMMIT = "a33876b16ac7c198e75773fc79097d2f2836cf13"
 BOUNDARY = (
     "Repository-material-bound deterministic source matrix. It is repository-only, "
     "non-live and unscored; coverage rows and subprocess sections bind source "

@@ -1,15 +1,15 @@
 # TOOLS-205 governed candidate assembly
 
-Status: repository candidate; not activated, deployed,
-released or registered for production.
+Status: fixed local container candidate; not deployed, released or registered for
+production.
 
-Reviewed on 23 August 2026.
+Reviewed on 29 August 2026.
 
 ## Outcome and authority boundary
 
 The gateway now has one compile-time `candidate-unregistered` assembly for exactly
-the five supported read-only operations: `catalogue.search`, `catalogue.describe`,
-`evidence.inspect`, `selection.resolve` and `data.query`.
+the five supported read-only operations, in fixed order: `catalogue.search`,
+`catalogue.describe`, `selection.resolve`, `data.query` and `evidence.inspect`.
 
 The assembly derives its operation set from the checked-in tool registry and binds
 the checked-in anonymous-open policies, one checksum-verified catalogue snapshot,
@@ -22,10 +22,13 @@ dense data-property arrays; proxies, accessors and later caller mutation cannot
 change the admitted network authority.
 
 This is not production activation. `productionRegistration` is always `false`.
-The production activation document and all shipped HTTP, STDIO and container
-entrypoints remain unchanged with empty operation arrays. There is no environment,
-command-line or serialised activation form, no real provider call, no public
-listener and no registry publication.
+The production activation document, generic HTTP and STDIO entrypoints, metadata and
+default constructors remain unchanged with empty operation arrays. The separately
+reviewed container entrypoint now calls a closed builder that accepts only the
+already verified snapshot, linked evidence stores and the exact approved T04 record;
+it constructs the fixed active ONS adapter and cache internally. There is no
+environment, command-line or serialised activation form, no provider call in
+assurance, no public listener and no registry publication.
 
 ## Discovery, lifecycle and readiness
 
@@ -47,7 +50,11 @@ MCP HTTP discovery and MCP STDIO discovery:
 
 Any reduced set returns readiness `503` with reason
 `relevant-capability-suspended`. Complete evidence corruption returns `503` with
-`evidence-integrity-failed`. The exact evidence instances, their runtime-dispatched
+`evidence-integrity-failed`. Exhausting the fixed local immutable-claim capacity
+returns `503` with `reconciliation-capacity-exhausted`, without unmounting the five
+routes or three resources. Existing-key reconciliation and evidence inspection
+remain available so a restart at capacity does not hide retained evidence. The exact
+evidence instances, their runtime-dispatched
 methods and captured runtime prototypes are locked before exposure, and provider integrity
 is rechecked. A relevant substitution therefore fails readiness and guarded calls
 closed. Readiness and health always include
@@ -60,6 +67,14 @@ operation is still advertised and that the evidence and provider dependencies ar
 intact. A non-suspended operation therefore remains callable with its verified
 receipt while readiness is `503`; a removed operation is absent from OpenAPI and MCP
 discovery and cannot be called through the direct or MCP face.
+
+For a genuinely new `data.query` key, the exact provider adapter validates the fixed
+request and caller controls, then reserves process concurrency and first-attempt
+rate capacity without egress. The application publishes durable ownership only
+after that branded one-shot lease exists and consumes it immediately before the
+first transport attempt. A claim race, completed or pending outcome, storage
+capacity rejection or other pre-claim failure releases the unused lease. Once
+ownership exists, an uncertain execution is never deleted or reclaimed.
 
 MCP resources follow the same lifecycle without becoming substitute operations:
 the full-bundle `catalogue.public` resource requires both `catalogue.search` and

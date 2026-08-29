@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "urn:gis-ai-go:schema:gateway-image-receipt:v3",
-  "title": "GIS AI GO blocked gateway image receipt",
-  "description": "The exact-source construction receipt for one repository-only, zero-capability gateway OCI archive.",
+  "title": "GIS AI GO local unregistered gateway image receipt",
+  "description": "The exact-source construction receipt for one repository-only, exact-five unregistered gateway OCI archive.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -20,7 +20,7 @@
     },
     "classification": {
       "enum": [
-        "repository-only-blocked-candidate",
+        "repository-only-unregistered-candidate",
         "non-publishable-development-build"
       ]
     },
@@ -406,8 +406,8 @@
             },
             "critical_entries": {
               "type": "array",
-              "minItems": 22,
-              "maxItems": 22,
+              "minItems": 23,
+              "maxItems": 23,
               "uniqueItems": true,
               "items": {
                 "type": "object",
@@ -533,22 +533,38 @@
       ],
       "properties": {
         "lifecycle": {
-          "const": "candidate-blocked"
+          "const": "candidate-unregistered"
         },
         "readiness_status": {
-          "const": 503
+          "const": 200
         },
         "active_tools": {
-          "const": []
+          "const": [
+            "catalogue.search",
+            "catalogue.describe",
+            "selection.resolve",
+            "data.query",
+            "evidence.inspect"
+          ]
         },
         "active_api_operations": {
-          "const": []
+          "const": [
+            "catalogue.search",
+            "catalogue.describe",
+            "selection.resolve",
+            "data.query",
+            "evidence.inspect"
+          ]
         },
         "active_resources": {
-          "const": []
+          "const": [
+            "catalogue.public",
+            "catalogue.record",
+            "evidence.receipt"
+          ]
         },
         "live_provider_calls": {
-          "const": false
+          "const": true
         },
         "public_deployment": {
           "const": false
@@ -594,7 +610,7 @@
       "then": {
         "properties": {
           "classification": {
-            "const": "repository-only-blocked-candidate"
+            "const": "repository-only-unregistered-candidate"
           }
         }
       },

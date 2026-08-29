@@ -58,4 +58,4 @@ and no public MCP service or API is deployed.
 - [TOOLS-205 inactive selection resolver](TOOLS-205_SELECTION_RESOLVE.md)
 - [TOOLS-205 inactive data query application](TOOLS-205_DATA_QUERY_APPLICATION.md)
 - [TOOLS-205 inactive public-read transport candidate](TOOLS-205_PUBLIC_READ_TRANSPORT.md)
-- [DEPLOY-207 blocked gateway container and local rollback rehearsal](DEPLOY-207_GATEWAY_CONTAINER.md)
+- [DEPLOY-207 local unregistered gateway container and rollback rehearsal](DEPLOY-207_GATEWAY_CONTAINER.md)
