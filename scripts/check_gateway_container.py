@@ -1139,7 +1139,7 @@ def assert_runtime_configuration(
             "stop_timeout_seconds": 35,
             "healthcheck": {
                 "test": EXPECTED_HEALTHCHECK, "interval_ns": 10_000_000_000,
-                "timeout_ns": 3_000_000_000, "start_period_ns": 5_000_000_000,
+                "timeout_ns": 10_000_000_000, "start_period_ns": 5_000_000_000,
                 "retries": 3,
             },
             "labels": normalised_labels, "read_only_root": True, "cap_add": [],

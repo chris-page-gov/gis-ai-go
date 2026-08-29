@@ -485,7 +485,7 @@
               ]
             },
             "interval_ns": { "const": 10000000000 },
-            "timeout_ns": { "const": 3000000000 },
+            "timeout_ns": { "const": 10000000000 },
             "start_period_ns": { "const": 5000000000 },
             "retries": { "const": 3 }
           }

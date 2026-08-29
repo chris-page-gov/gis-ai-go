@@ -143,7 +143,7 @@ BUILDKIT_CLASSIC_AMD64_REPOSITORY_DIGEST = (
 BUILDKIT_VERSION = "v0.32.2"
 BUILDER_NAME = "gis-ai-go-gateway"
 EXPECTED_RUNTIME_STAGE_SHA256 = (
-    "611f8ff3a995192a474400995b572e1362a7037a913b272661a1b09b6bb06e0a"
+    "a58ec217df86e43caa7b881080b8d7e51c503f2f0958f01f2474c24a77ccd9fa"
 )
 SYFT_REFERENCE = (
     "anchore/syft:v1.42.2@"
@@ -173,7 +173,7 @@ EXPECTED_HEALTHCHECK = [
 EXPECTED_HEALTH_CONFIGURATION = {
     "Test": EXPECTED_HEALTHCHECK,
     "Interval": 10_000_000_000,
-    "Timeout": 3_000_000_000,
+    "Timeout": 10_000_000_000,
     "StartPeriod": 5_000_000_000,
     "Retries": 3,
 }
@@ -3738,7 +3738,7 @@ def parse_gateway_containerfile_pins(text: str) -> dict[str, str]:
             "EXPOSE 8787/tcp",
             "STOPSIGNAL SIGTERM",
             (
-                "HEALTHCHECK --interval=10s --timeout=3s --start-period=5s "
+                "HEALTHCHECK --interval=10s --timeout=10s --start-period=5s "
                 "--retries=3 CMD [\"/usr/local/bin/node\", "
                 "\"dist/src/container-healthcheck.js\"]"
             ),
