@@ -21,7 +21,7 @@ MATRIX_PATH = (
 )
 GATEWAY_MANIFEST_PATH = ROOT / "apps" / "mcp-gateway" / "package.json"
 LOCKFILE_PATH = ROOT / "pnpm-lock.yaml"
-RUNTIME_BASE_COMMIT = "a33876b16ac7c198e75773fc79097d2f2836cf13"
+RUNTIME_BASE_COMMIT = "f253605ab26628e821d4ebc3809cf13c883d57ed"
 BOUNDARY = (
     "Repository-material-bound deterministic source matrix. It is repository-only, "
     "non-live and unscored; coverage rows and subprocess sections bind source "
@@ -274,6 +274,27 @@ class Qual206LocalProtocolEvidenceMatrixTests(unittest.TestCase):
         )
         binding = self.document["repository_binding"]
         self.assertEqual(binding["runtime_base_commit"], RUNTIME_BASE_COMMIT)
+        protected_main = "refs/remotes/origin/main"
+        ancestor = subprocess.run(
+            [
+                "git",
+                "merge-base",
+                "--is-ancestor",
+                RUNTIME_BASE_COMMIT,
+                protected_main,
+            ],
+            cwd=ROOT,
+            check=False,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.PIPE,
+        )
+        self.assertEqual(
+            ancestor.returncode,
+            0,
+            "runtime base commit must remain reachable from the local protected-main "
+            f"reference {protected_main}: "
+            f"{ancestor.stderr.decode('utf-8', errors='replace').strip()}",
+        )
         self.assertEqual(
             [material["path"] for material in binding["runtime_materials"]],
             EXPECTED_RUNTIME_PATHS,

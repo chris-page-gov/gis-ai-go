@@ -34,13 +34,20 @@ host session, activation, deployment, registration or release.
 ## QUAL-206 local protocol matrix
 
 [`qual-206-local-protocol-evidence-matrix.v1.json`][protocol-matrix] is a
-separate, compact source-coverage record for runtime base commit
-`a33876b16ac7c198e75773fc79097d2f2836cf13`. Repository assurance reads the exact
+separate, compact source-coverage record for protected-main runtime base commit
+`f253605ab26628e821d4ebc3809cf13c883d57ed`. Repository assurance reads the exact
 gateway, transport-test, gateway-manifest and lockfile blobs from that Git commit
 and compares their SHA-256 values with the matrix. Its four semantically fixed rows
 distinguish the pinned official MCP client 2.0.0 from independent raw JSON-RPC
 source coverage over HTTP and STDIO, including the 2026-07-28 protocol,
 cancellation and unsupported traffic.
+
+Keep the runtime base commit reachable from protected `main`. Do not bind this
+matrix to a feature-branch commit: a squash merge does not retain that branch
+ancestry, so a fresh protected-main checkout could not verify the named blobs.
+Merge or squash the implementation first, fetch protected `main`, then rebind the
+matrix to that protected-main commit in a follow-up change. Do not bind it to the
+rebind commit itself.
 
 The JSON matrix binds source declarations; it deliberately records no test-runner
 outcome. Current execution is established separately by the focused commands below
