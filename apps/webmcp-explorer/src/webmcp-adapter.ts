@@ -193,15 +193,22 @@ export async function registerWebMcpTools(
     return { status: "unsupported", toolNames: [], dispose: () => undefined };
   }
 
+  const activeView = view;
   const controller = new AbortController();
   let disposed = false;
-  const dispose = (): void => {
+  function handlePageHide(event: PageTransitionEvent): void {
+    // A persisted pagehide moves this document into the back/forward cache. Its
+    // registration remains valid when the same document is restored, whereas a
+    // final navigation or close must remove the page-scoped tools.
+    if (!event.persisted) dispose();
+  }
+  function dispose(): void {
     if (disposed) return;
     disposed = true;
-    view.removeEventListener("pagehide", dispose);
+    activeView.removeEventListener("pagehide", handlePageHide);
     controller.abort("The WebMCP page was closed or navigated away from.");
-  };
-  view.addEventListener("pagehide", dispose, { once: true });
+  }
+  activeView.addEventListener("pagehide", handlePageHide);
   try {
     for (const tool of createTools(options.bundle, options.onResult)) {
       await context.registerTool(tool, { signal: controller.signal });

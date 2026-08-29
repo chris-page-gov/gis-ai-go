@@ -329,6 +329,12 @@ browser test does not replace this observation.
   complexity, invalid facets, duplicates, control characters and missing records.
 - Both handlers honour a supplied cancellation signal and remain compatible with
   current Site-tools hosts that invoke the callback with input arguments only.
+- Registration remains bound to the same document across a back/forward-cache
+  restoration and is cancelled when the page is finally closed or navigated away
+  from.
+- `readOnlyHint` describes the absence of resource, session or persistent-state
+  changes. Each call deliberately renders its returned read result in the transient
+  page presentation so the person can verify what the browser-hosted AI received.
 - A call makes no external request and writes no cookie, `localStorage` or
   `sessionStorage` value.
 - Result fields always preserve the explicit page boundary.

@@ -74,7 +74,7 @@ describe("imperative WebMCP adapter", () => {
     expect(() => registration.dispose()).not.toThrow();
   });
 
-  it("aborts registration when the page is hidden", async () => {
+  it("preserves registration through BFCache and aborts on final pagehide", async () => {
     const signals: AbortSignal[] = [];
     Object.defineProperty(document, "modelContext", {
       configurable: true,
@@ -85,7 +85,11 @@ describe("imperative WebMCP adapter", () => {
       },
     });
     await registerWebMcpTools({ document, bundle: catalogueFixture() });
-    window.dispatchEvent(new Event("pagehide"));
+    window.dispatchEvent(new PageTransitionEvent("pagehide", { persisted: true }));
+    expect(signals).toHaveLength(2);
+    expect(signals.every((signal) => !signal.aborted)).toBe(true);
+
+    window.dispatchEvent(new PageTransitionEvent("pagehide", { persisted: false }));
     expect(signals.every((signal) => signal.aborted)).toBe(true);
     delete (document as Document & { modelContext?: unknown }).modelContext;
   });
