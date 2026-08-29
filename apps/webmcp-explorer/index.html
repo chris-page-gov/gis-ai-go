@@ -115,15 +115,17 @@
           </div>
         </div>
         <aside class="prompt-card" aria-labelledby="prompt-heading">
-          <h3 id="prompt-heading">Try this with your AI</h3>
+          <h3 id="prompt-heading">Ask this in your AI conversation</h3>
           <blockquote>
-            Find the ONS Data API provider capability for statistics. Describe the most
-            relevant record, its sources and its limitations.
+            Use Site tools. Search the catalogue for <code>ONS statistics</code>, filter
+            to <code>provider</code>, then describe the most relevant record, its sources
+            and its limitations.
           </blockquote>
           <p class="small-text">
-            In a supported built-in browser, open the Site tools list and ask this in
-            the conversation. In any ordinary browser, use the same deterministic
-            functions manually below.
+            In ChatGPT or Codex's supported built-in browser, open the Site tools list,
+            then paste the complete question into the conversation — not into the
+            manual keyword field below. In an ordinary browser, enter
+            <code>ONS statistics</code> below and use the deterministic controls.
           </p>
         </aside>
       </section>
@@ -138,9 +140,11 @@
           role="search"
           aria-label="WebMCP catalogue demonstration"
         >
-          <label for="catalogue-query">Search the governed catalogue</label>
+          <label for="catalogue-query">Catalogue keywords (1 to 10 terms)</label>
           <span id="query-hint" class="hint">
-            Enter public metadata terms only. Do not enter a person, address or other personal information.
+            This is not an AI prompt box. Enter public-metadata keywords such as
+            <code>ONS statistics</code>. Do not enter a person, address or other
+            personal information.
           </span>
           <div class="search-row">
             <input

@@ -51,7 +51,10 @@ describe("WebMCP page catalogue tools", () => {
     expect(() => parsePageSearchInput({ query: "x".repeat(257) })).toThrow(/256-character/);
     expect(() =>
       parsePageSearchInput({ query: "one two three four five six seven eight nine ten eleven" }),
-    ).toThrow(PageToolInputError);
+    ).toThrow(
+      "query accepts 1 to 10 searchable catalogue keywords (up to 256 characters), " +
+        "not a full question. Try 'ONS statistics'.",
+    );
     expect(() => parsePageSearchInput({ query: "ons", limit: 6 })).toThrow(/1 to 5/);
     expect(() =>
       parsePageSearchInput({ query: "ons", facets: { types: ["provider", "provider"] } }),

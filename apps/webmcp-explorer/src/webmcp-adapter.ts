@@ -43,7 +43,10 @@ export const WEBMCP_TOOL_METADATA = Object.freeze({
     name: "explorer_search_catalogue",
     title: "Search the governed public catalogue",
     description:
-      "Search validated GIS AI GO public catalogue metadata with bounded words and optional governed facets. Returns at most five compact records and makes no provider call.",
+      "Search validated GIS AI GO public catalogue metadata. Convert the user's " +
+      "question to 1 to 10 relevant catalogue terms rather than passing the full " +
+      "question. Optional governed facets are supported; the tool returns at most " +
+      "five compact records and makes no provider call.",
     inputSchema: Object.freeze({
       type: "object",
       additionalProperties: false,
@@ -53,7 +56,9 @@ export const WEBMCP_TOOL_METADATA = Object.freeze({
           type: "string",
           minLength: 1,
           maxLength: 256,
-          description: "Public catalogue terms only; do not include personal information.",
+          description:
+            "One to 10 public catalogue keywords, not the full user question; " +
+            "for example, 'ONS statistics'. Do not include personal information.",
         },
         facets: {
           type: "object",

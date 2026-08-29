@@ -9,6 +9,7 @@
     "@gis-ai-go/contracts": "workspace:*"
   },
   "scripts": {
+    "preflight:chrome": "node scripts/chrome-preflight.mjs",
     "prepare:data": "node scripts/prepare-data.mjs",
     "build": "pnpm --filter @gis-ai-go/contracts run build && pnpm run prepare:data && vite build && pnpm run check:dist",
     "check:dist": "node scripts/check-dist.mjs",
