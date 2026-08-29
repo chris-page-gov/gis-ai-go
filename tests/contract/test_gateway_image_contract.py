@@ -138,6 +138,8 @@ from verify_gateway_image_evidence import (  # noqa: E402
 )
 from check_gateway_container import (  # noqa: E402
     COMPOSE_FILE,
+    EXACT_MCP_OPERATIONS,
+    EXACT_OPERATIONS,
     assert_host_unreachable,
     assert_transport_unchanged,
     classify_transport,
@@ -5481,6 +5483,22 @@ class GatewayComposeAcceptanceTests(unittest.TestCase):
                 )
             )
         )
+
+    def test_acceptance_keeps_product_and_mcp_tool_orders_distinct_and_closed(self) -> None:
+        schema = json.loads(
+            (ROOT / "schemas" / "gateway-container-acceptance.schema.json").read_bytes()
+        )
+        boundary = schema["$defs"]["boundary"]["properties"]
+        self.assertEqual(
+            boundary["readiness"]["properties"]["active_tools"]["const"],
+            EXACT_OPERATIONS,
+        )
+        self.assertEqual(
+            boundary["mcp_discovery"]["properties"]["tools"]["const"],
+            EXACT_MCP_OPERATIONS,
+        )
+        self.assertCountEqual(EXACT_MCP_OPERATIONS, EXACT_OPERATIONS)
+        self.assertNotEqual(EXACT_MCP_OPERATIONS, EXACT_OPERATIONS)
 
     def test_rendered_compose_rejects_every_static_shape_mutation(self) -> None:
         project = "gis-ai-go-deploy207-test"

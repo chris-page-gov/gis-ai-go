@@ -57,6 +57,10 @@ EXACT_OPERATIONS = [
     "catalogue.search", "catalogue.describe", "selection.resolve", "data.query",
     "evidence.inspect",
 ]
+EXACT_MCP_OPERATIONS = [
+    "catalogue.describe", "catalogue.search", "evidence.inspect", "selection.resolve",
+    "data.query",
+]
 EXACT_OPENAPI_PATHS = [
     "/catalogue/describe", "/catalogue/search", "/data/query", "/evidence/inspect",
     "/healthz", "/openapi.json", "/readyz", "/selection/resolve",
@@ -861,7 +865,7 @@ def assert_http_boundary(
         or resources_status != 200
         or templates_status != 200
         or capabilities != EXACT_MCP_CAPABILITIES
-        or tools != EXACT_OPERATIONS
+        or tools != EXACT_MCP_OPERATIONS
         or resource_uris != EXACT_RESOURCE_URIS
         or resource_templates != EXACT_RESOURCE_TEMPLATES
     ):

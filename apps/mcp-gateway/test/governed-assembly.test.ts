@@ -54,6 +54,7 @@ import { createGovernedCandidateMcpHttpHandler } from "../src/mcp-http.js";
 import {
   MCP_CATALOGUE_RECORD_URI_TEMPLATE,
   MCP_EVIDENCE_RECEIPT_URI_TEMPLATE,
+  MCP_GATEWAY_OPERATIONS,
   MCP_PROTOCOL_VERSION,
   MCP_PUBLIC_CATALOGUE_URI,
   createGovernedCandidateMcpServerFactory,
@@ -762,8 +763,8 @@ test("applies provider and tool suspension identically and fails readiness close
     const mcpListing = await rawMcpExchange(mcp, rawMcpBody(3, "tools/list"));
     assert.deepEqual(directOperations(directDocument), expected);
     assert.deepEqual(
-      [...listedTools(mcpListing)].sort(),
-      [...expected].sort(),
+      listedTools(mcpListing),
+      MCP_GATEWAY_OPERATIONS.filter((operation) => expectedOperations.includes(operation)),
     );
     const publicCatalogueExpected =
       expectedOperations.includes("catalogue.search") &&

@@ -813,11 +813,11 @@
             },
             "tools": {
               "const": [
-                "catalogue.search",
                 "catalogue.describe",
+                "catalogue.search",
+                "evidence.inspect",
                 "selection.resolve",
-                "data.query",
-                "evidence.inspect"
+                "data.query"
               ]
             },
             "resource_uris": {
