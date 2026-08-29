@@ -35,6 +35,7 @@ import {
 } from "../src/data-query-application.js";
 import {
   GOVERNED_CANDIDATE_OPERATIONS,
+  assessGovernedCandidateReadiness,
   createGovernedCandidateAssembly,
   governedCandidateAssemblyBindings,
   type GovernedCandidateAssembly,
@@ -468,6 +469,241 @@ test("assembles one immutable exact-five candidate for direct, MCP HTTP and STDI
     createTraceParentId: () => "d".repeat(16),
   });
   assert.equal((await defaultDirect(metadataRequest("/readyz"))).status, 503);
+});
+
+test("reports exhausted claim capacity without unmounting recovery or exact-five routes", async (t) => {
+  const root = mkdtempSync(join(tmpdir(), "gis-ai-go-governed-capacity-"));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const ledger = openPublicEvidenceLedger({
+    rootDirectory: join(root, "ledger"),
+    now: () => new Date("2026-08-23T12:00:01.000Z"),
+  });
+  const capacityModuleUrl = new URL(
+    "../../../../packages/evidence/dist/src/reconciliation-index-capacity.js",
+    import.meta.url,
+  ).href;
+  const capacityModule = await import(capacityModuleUrl) as {
+    withLowerEvidenceReconciliationClaimLimitForTest<T extends object>(
+      options: T,
+      maximumClaims: number,
+    ): T;
+  };
+  const reconciliationIndex = openEvidenceReconciliationIndex(
+    capacityModule.withLowerEvidenceReconciliationClaimLimitForTest(
+      {
+        rootDirectory: join(root, "reconciliation"),
+        ledger,
+        now: () => new Date("2026-08-23T12:00:02.000Z"),
+      },
+      1,
+    ),
+  );
+  let transports = 0;
+  const adapter = createOnsDataApiAdapter({
+    lifecycle: ACTIVE_LIFECYCLE,
+    transport: async () => {
+      transports += 1;
+      return fixedResponse();
+    },
+    now: () => Date.parse("2030-01-01T00:00:00.000Z"),
+  });
+  const assembly = createGovernedCandidateAssembly({
+    snapshot: SNAPSHOT,
+    evidenceLedger: ledger,
+    reconciliationIndex,
+    adapter,
+    now: () => new Date("2026-08-23T12:00:00.000Z"),
+  });
+  const direct = createGovernedCandidateHttpHandler(assembly, {
+    createTraceId: () => "f".repeat(32),
+    createTraceParentId: () => "e".repeat(16),
+  });
+  const completed = await direct(directRequest("data.query", DATA_QUERY_REQUEST));
+  assert.equal(completed.status, 200);
+  const completedBody = await completed.json() as {
+    readonly evidence_receipt: { readonly receipt_id: string };
+  };
+  const completedReceiptId = completedBody.evidence_receipt.receipt_id;
+  assert.equal(transports, 1);
+  assert.deepEqual(assessGovernedCandidateReadiness(assembly), {
+    status: "blocked",
+    reason: "reconciliation-capacity-exhausted",
+    productionRegistration: false,
+    activeTools: V02_TARGET_ACTIVE_TOOL_NAMES,
+    activeApiOperations: V02_TARGET_ACTIVE_TOOL_NAMES,
+  });
+
+  assert.equal((await direct(metadataRequest("/healthz"))).status, 200);
+  const readiness = await direct(metadataRequest("/readyz"));
+  assert.equal(readiness.status, 503);
+  assert.equal(
+    (await readiness.json() as Record<string, unknown>).reason,
+    "reconciliation-capacity-exhausted",
+  );
+  const existing = await direct(directRequest("data.query", DATA_QUERY_REQUEST));
+  assert.equal(existing.status, 409);
+  assert.equal(
+    (await existing.json() as Record<string, unknown>).code,
+    "idempotency_completed",
+  );
+  const fresh = await direct(directRequest("data.query", {
+    ...DATA_QUERY_REQUEST,
+    idempotency_key: `gis-ai-go:ik:v1:${"8".repeat(64)}`,
+  }));
+  assert.equal(fresh.status, 503);
+  assert.equal(transports, 1);
+  const inspected = await direct(directRequest("evidence.inspect", {
+    schema: "gis-ai-go.evidence-inspect-request.v2",
+    source_operation: "data.query",
+    idempotency_key: DATA_QUERY_REQUEST.idempotency_key,
+  }));
+  assert.equal(inspected.status, 200);
+  const directInspection = await inspected.json() as {
+    readonly data: {
+      readonly record: { readonly receipt: { readonly receipt_id: string } };
+    };
+  };
+  assert.equal(
+    directInspection.data.record.receipt.receipt_id,
+    completedReceiptId,
+  );
+  const openApi = await direct(metadataRequest("/openapi.json"));
+  const openApiDocument = await openApi.json() as Record<string, unknown>;
+  assert.deepEqual(
+    directOperations(openApiDocument),
+    V02_TARGET_ACTIVE_TOOL_NAMES,
+  );
+  const mcp = createGovernedCandidateMcpHttpHandler(assembly);
+  t.after(() => mcp.close());
+  assert.deepEqual(
+    [...listedTools(await rawMcpExchange(mcp, rawMcpBody(30, "tools/list")))].sort(),
+    [...V02_TARGET_ACTIVE_TOOL_NAMES].sort(),
+  );
+  const mcpCompleted = toolResult(await rawMcpExchange(
+    mcp,
+    rawMcpBody(31, "tools/call", {
+      name: "data.query",
+      arguments: DATA_QUERY_REQUEST,
+    }),
+    "data.query",
+  ));
+  assert.equal(mcpCompleted.isError, true);
+  assert.equal(
+    (mcpCompleted.structuredContent as Record<string, unknown>).code,
+    "idempotency_completed",
+  );
+  const inspectRequest = {
+    schema: "gis-ai-go.evidence-inspect-request.v2",
+    source_operation: "data.query",
+    idempotency_key: DATA_QUERY_REQUEST.idempotency_key,
+  } as const;
+  const mcpInspection = toolResult(await rawMcpExchange(
+    mcp,
+    rawMcpBody(32, "tools/call", {
+      name: "evidence.inspect",
+      arguments: inspectRequest,
+    }),
+    "evidence.inspect",
+  ));
+  assert.equal(mcpInspection.isError, undefined);
+  assert.equal(
+    ((mcpInspection.structuredContent as {
+      readonly data: {
+        readonly record: { readonly receipt: { readonly receipt_id: string } };
+      };
+    }).data.record.receipt.receipt_id),
+    completedReceiptId,
+  );
+  const receiptUri = MCP_EVIDENCE_RECEIPT_URI_TEMPLATE.replace(
+    "{receipt_id}",
+    encodeURIComponent(completedReceiptId),
+  );
+  const mcpResource = toolResult(await rawMcpExchange(
+    mcp,
+    rawMcpBody(33, "resources/read", { uri: receiptUri }),
+    receiptUri,
+  ));
+  const mcpContents = mcpResource.contents as { readonly text?: string }[];
+  const mcpProjection = JSON.parse(mcpContents[0]?.text ?? "null") as {
+    readonly data: {
+      readonly record: { readonly receipt: { readonly receipt_id: string } };
+    };
+  };
+  assert.equal(mcpProjection.data.record.receipt.receipt_id, completedReceiptId);
+  const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
+  await clientTransport.start();
+  const stdio = startGovernedCandidateStdio(assembly, { transport: serverTransport });
+  t.after(async () => {
+    await stdio.close();
+    await clientTransport.close();
+  });
+  const stdioListing = await stdioExchange(clientTransport, {
+    jsonrpc: "2.0",
+    id: 31,
+    method: "tools/list",
+    params: { _meta: MODERN_META },
+  });
+  assert.equal("result" in stdioListing, true);
+  if (!("result" in stdioListing)) return;
+  assert.deepEqual(
+    (stdioListing.result.tools as { readonly name: string }[])
+      .map(({ name }) => name)
+      .sort(),
+    [...V02_TARGET_ACTIVE_TOOL_NAMES].sort(),
+  );
+  const stdioCompleted = await stdioExchange(clientTransport, {
+    jsonrpc: "2.0",
+    id: 34,
+    method: "tools/call",
+    params: {
+      _meta: MODERN_META,
+      name: "data.query",
+      arguments: DATA_QUERY_REQUEST,
+    },
+  });
+  assert.equal("result" in stdioCompleted, true);
+  if (!("result" in stdioCompleted)) return;
+  assert.equal(stdioCompleted.result.isError, true);
+  assert.equal(
+    (stdioCompleted.result.structuredContent as Record<string, unknown>).code,
+    "idempotency_completed",
+  );
+  const stdioInspection = await stdioExchange(clientTransport, {
+    jsonrpc: "2.0",
+    id: 35,
+    method: "tools/call",
+    params: {
+      _meta: MODERN_META,
+      name: "evidence.inspect",
+      arguments: inspectRequest,
+    },
+  });
+  assert.equal("result" in stdioInspection, true);
+  if (!("result" in stdioInspection)) return;
+  assert.equal(
+    ((stdioInspection.result.structuredContent as {
+      readonly data: {
+        readonly record: { readonly receipt: { readonly receipt_id: string } };
+      };
+    }).data.record.receipt.receipt_id),
+    completedReceiptId,
+  );
+  const stdioResource = await stdioExchange(clientTransport, {
+    jsonrpc: "2.0",
+    id: 36,
+    method: "resources/read",
+    params: { _meta: MODERN_META, uri: receiptUri },
+  });
+  assert.equal("result" in stdioResource, true);
+  if (!("result" in stdioResource)) return;
+  const stdioContents = stdioResource.result.contents as { readonly text?: string }[];
+  const stdioProjection = JSON.parse(stdioContents[0]?.text ?? "null") as {
+    readonly data: {
+      readonly record: { readonly receipt: { readonly receipt_id: string } };
+    };
+  };
+  assert.equal(stdioProjection.data.record.receipt.receipt_id, completedReceiptId);
+  assert.equal(transports, 1);
 });
 
 test("applies provider and tool suspension identically and fails readiness closed", async (t) => {
@@ -1063,6 +1299,7 @@ test("locks every evidence dispatch surface against mid-call substitution", asyn
     [reconciliationIndex, "lookup"],
     [reconciliationIndex, "claim"],
     [reconciliationIndex, "resolve"],
+    [reconciliationIndex, "claimCapacity"],
   ] as const) {
     assert.equal(
       Reflect.defineProperty(target, method, {

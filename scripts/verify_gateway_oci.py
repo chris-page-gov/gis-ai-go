@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify a blocked gateway OCI archive, checksum, context and source receipt."""
+"""Verify an unregistered gateway OCI archive, checksum, context and source receipt."""
 
 from __future__ import annotations
 
@@ -97,7 +97,7 @@ def verify_gateway_oci(
         raise ValueError(
             "gateway image receipt differs from current source, context or OCI identity"
         )
-    if require_clean and receipt["classification"] != "repository-only-blocked-candidate":
+    if require_clean and receipt["classification"] != "repository-only-unregistered-candidate":
         raise ValueError("gateway image receipt is not a publishable clean-source candidate")
     return {"inspection": inspection, "receipt": receipt, "source": current_source}
 
@@ -131,7 +131,7 @@ def main() -> None:
     inspection = result["inspection"]
     source = result["receipt"]["source"]
     print(
-        "Verified blocked gateway OCI archive "
+        "Verified unregistered gateway OCI archive "
         f"{inspection.manifest_digest} from {source['revision']}."
     )
 

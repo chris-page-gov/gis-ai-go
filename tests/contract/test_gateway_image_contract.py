@@ -593,9 +593,11 @@ def synthetic_oci(
     created = "2026-08-21T00:00:00Z"
     revision = "a" * 40
     labels = {
-        "org.opencontainers.image.title": "GIS AI GO blocked gateway candidate",
+        "org.opencontainers.image.title": (
+            "GIS AI GO local unregistered gateway candidate"
+        ),
         "org.opencontainers.image.description": (
-            "Repository-only zero-capability gateway container"
+            "Repository-only exact-five unregistered gateway container"
         ),
         "org.opencontainers.image.source": "https://github.com/chris-page-gov/gis-ai-go",
         "org.opencontainers.image.licenses": (
@@ -608,13 +610,19 @@ def synthetic_oci(
         "org.opencontainers.image.revision": revision,
         "org.opencontainers.image.created": created,
         "io.gis-ai-go.registry-id": EXPECTED_REGISTRY_ID,
-        "io.gis-ai-go.lifecycle": "candidate-blocked",
+        "io.gis-ai-go.lifecycle": "candidate-unregistered",
         "io.gis-ai-go.red-hat-support": "not-supported-or-endorsed",
         "io.gis-ai-go.runtime-library-donor": UBI_RUNTIME_LIBRARY_DONOR_REFERENCE,
         "io.gis-ai-go.source-tree-clean": "true",
-        "io.gis-ai-go.live-provider-calls": "false",
-        "io.gis-ai-go.active-tools": "[]",
-        "io.gis-ai-go.active-api-operations": "[]",
+        "io.gis-ai-go.live-provider-calls": "true",
+        "io.gis-ai-go.active-tools": (
+            '["catalogue.search","catalogue.describe","selection.resolve",'
+            '"data.query","evidence.inspect"]'
+        ),
+        "io.gis-ai-go.active-api-operations": (
+            '["catalogue.search","catalogue.describe","selection.resolve",'
+            '"data.query","evidence.inspect"]'
+        ),
     }
     if invalid_layer_tar:
         raw_layer = b"synthetic non-tar layer"
@@ -1083,7 +1091,7 @@ class GatewayImageContractTests(unittest.TestCase):
             ):
                 verify_pinned_builder()
 
-    def test_receipt_schema_accepts_only_the_blocked_candidate(self) -> None:
+    def test_receipt_schema_accepts_only_the_unregistered_candidate(self) -> None:
         schema = json.loads(
             (ROOT / "schemas" / "gateway-image-receipt.schema.json").read_bytes()
         )
@@ -1153,7 +1161,11 @@ class GatewayImageContractTests(unittest.TestCase):
             synthetic_oci(archive)
             inspection = inspect_oci_archive(archive)
             self.assertEqual(inspection.platform, "linux/amd64")
-            self.assertEqual(inspection.labels["io.gis-ai-go.active-tools"], "[]")
+            self.assertEqual(
+                inspection.labels["io.gis-ai-go.active-tools"],
+                '["catalogue.search","catalogue.describe","selection.resolve",'
+                '"data.query","evidence.inspect"]',
+            )
             data = bytearray(archive.read_bytes())
             with tarfile.open(archive, "r") as opened:
                 index_member = opened.getmember("index.json")
@@ -5647,8 +5659,11 @@ class GatewayComposeAcceptanceTests(unittest.TestCase):
         project = "gis-ai-go-deploy207-test"
         image_id = "sha256:" + "a" * 64
         image_labels = {
-            "io.gis-ai-go.lifecycle": "candidate-blocked",
-            "io.gis-ai-go.active-tools": "[]",
+            "io.gis-ai-go.lifecycle": "candidate-unregistered",
+            "io.gis-ai-go.active-tools": (
+                '["catalogue.search","catalogue.describe","selection.resolve",'
+                '"data.query","evidence.inspect"]'
+            ),
         }
         compose_labels = {
             "com.docker.compose.config-hash": "b" * 64,

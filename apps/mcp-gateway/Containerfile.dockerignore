@@ -29,6 +29,9 @@
 !packages/tool-registry/**
 !profiles/
 !profiles/tool-registry.v1.json
+!providers/
+!providers/ons/
+!providers/ons/data-query-approved-cache.v1.json
 
 **/dist/
 **/node_modules/

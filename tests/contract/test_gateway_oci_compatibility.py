@@ -58,9 +58,11 @@ def hybrid_files() -> tuple[dict[str, bytes], list[dict[str, Any]]]:
     revision = "a" * 40
     tag = f"deploy-207-{revision[:12]}"
     labels = {
-        "org.opencontainers.image.title": "GIS AI GO blocked gateway candidate",
+        "org.opencontainers.image.title": (
+            "GIS AI GO local unregistered gateway candidate"
+        ),
         "org.opencontainers.image.description": (
-            "Repository-only zero-capability gateway container"
+            "Repository-only exact-five unregistered gateway container"
         ),
         "org.opencontainers.image.source": "https://github.com/chris-page-gov/gis-ai-go",
         "org.opencontainers.image.licenses": (
@@ -73,13 +75,19 @@ def hybrid_files() -> tuple[dict[str, bytes], list[dict[str, Any]]]:
         "org.opencontainers.image.revision": revision,
         "org.opencontainers.image.created": created,
         "io.gis-ai-go.registry-id": EXPECTED_REGISTRY_ID,
-        "io.gis-ai-go.lifecycle": "candidate-blocked",
+        "io.gis-ai-go.lifecycle": "candidate-unregistered",
         "io.gis-ai-go.red-hat-support": "not-supported-or-endorsed",
         "io.gis-ai-go.runtime-library-donor": UBI_RUNTIME_LIBRARY_DONOR_REFERENCE,
         "io.gis-ai-go.source-tree-clean": "true",
-        "io.gis-ai-go.live-provider-calls": "false",
-        "io.gis-ai-go.active-tools": "[]",
-        "io.gis-ai-go.active-api-operations": "[]",
+        "io.gis-ai-go.live-provider-calls": "true",
+        "io.gis-ai-go.active-tools": (
+            '["catalogue.search","catalogue.describe","selection.resolve",'
+            '"data.query","evidence.inspect"]'
+        ),
+        "io.gis-ai-go.active-api-operations": (
+            '["catalogue.search","catalogue.describe","selection.resolve",'
+            '"data.query","evidence.inspect"]'
+        ),
     }
     first_layer, first_diff_id = compressed_layer("first.txt", b"first layer\n")
     second_layer, second_diff_id = compressed_layer("second.txt", b"second layer\n")

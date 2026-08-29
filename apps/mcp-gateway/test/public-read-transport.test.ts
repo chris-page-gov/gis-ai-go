@@ -27,8 +27,6 @@ import {
   OnsDataApiAdapter,
   type FixedHttpsResponse,
   type FixedHttpsTransport,
-  type ProviderAdapterExecutionOptions,
-  type W3CTraceContext,
 } from "@gis-ai-go/provider-adapter-sdk";
 
 import { createCatalogueApplication } from "../src/catalogue-application.js";
@@ -248,7 +246,6 @@ function selectionApplication(evidenceLedger?: ReturnType<typeof openPublicEvide
 function dataApplication(
   transport: FixedHttpsTransport = successTransport(),
   evidenceLedger?: ReturnType<typeof openPublicEvidenceLedger>,
-  observeExecutionOptions?: (options: ProviderAdapterExecutionOptions) => void,
 ): DataQueryApplication {
   let ledger = evidenceLedger;
   if (ledger === undefined) {
@@ -269,19 +266,6 @@ function dataApplication(
     RECONCILIATION_INDEXES.set(ledger, reconciliationIndex);
   }
   const providerAdapter = adapter(transport);
-  if (observeExecutionOptions !== undefined) {
-    const execute = providerAdapter.execute.bind(providerAdapter);
-    Object.defineProperty(providerAdapter, "execute", {
-      configurable: true,
-      value: async (
-        request: unknown,
-        options: ProviderAdapterExecutionOptions = {},
-      ) => {
-        observeExecutionOptions(options);
-        return await execute(request, options);
-      },
-    });
-  }
   const application = createDataQueryApplication({
     adapter: providerAdapter,
     software: SOFTWARE,
@@ -627,7 +611,6 @@ test("keeps public-read capabilities absent by default and requires explicit app
 });
 
 test("propagates exact Trace Context across direct, MCP HTTP and STDIO boundaries", async (t) => {
-  const observedTrace: W3CTraceContext[] = [];
   const transportKeys: (readonly PropertyKey[])[] = [];
   const transportSerialisations: string[] = [];
   const transport: FixedHttpsTransport = async (request) => {
@@ -635,10 +618,7 @@ test("propagates exact Trace Context across direct, MCP HTTP and STDIO boundarie
     transportSerialisations.push(JSON.stringify(request));
     return await successTransport()(request);
   };
-  const application = dataApplication(transport, undefined, (options) => {
-    assert.ok(options.trace !== undefined);
-    observedTrace.push(options.trace);
-  });
+  const application = dataApplication(transport);
   const evidenceApplication = evidenceForData(application);
   const query = (seed: string) => ({
     ...DATA_QUERY_REQUEST,
@@ -676,6 +656,10 @@ test("propagates exact Trace Context across direct, MCP HTTP and STDIO boundarie
   );
   assert.equal(directResponse.status, 200);
   const directText = await directResponse.text();
+  assert.equal(
+    (JSON.parse(directText) as Record<string, unknown>).trace_id,
+    TRACE_ID,
+  );
   assert.equal(directText.includes(callerTrace), false);
   assert.equal(directText.includes("caller-controlled"), false);
 
@@ -706,7 +690,12 @@ test("propagates exact Trace Context across direct, MCP HTTP and STDIO boundarie
     }),
     "data.query",
   );
-  assert.equal(toolResult(mcpResponse).isError, undefined);
+  const mcpResult = toolResult(mcpResponse);
+  assert.equal(mcpResult.isError, undefined);
+  assert.equal(
+    (mcpResult.structuredContent as Record<string, unknown>).trace_id,
+    mcpTraceId,
+  );
 
   const stdioTraceId = "a".repeat(32);
   const stdioTrace = Object.freeze({
@@ -744,9 +733,12 @@ test("propagates exact Trace Context across direct, MCP HTTP and STDIO boundarie
     },
   });
   assert.equal("result" in stdioResponse, true);
+  if (!("result" in stdioResponse)) return;
+  assert.equal(
+    (stdioResponse.result.structuredContent as Record<string, unknown>).trace_id,
+    stdioTraceId,
+  );
 
-  assert.deepEqual(observedTrace, [directTrace, mcpTrace, stdioTrace]);
-  assert.equal(observedTrace.every((trace) => Object.isFrozen(trace)), true);
   assert.deepEqual(transportKeys, [
     ["policy", "signal", "url"],
     ["policy", "signal", "url"],

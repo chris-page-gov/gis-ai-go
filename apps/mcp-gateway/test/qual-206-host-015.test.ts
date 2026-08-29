@@ -194,17 +194,18 @@ test("QUAL-206-HOST-015 drops a persisted response then reconciles after restart
     ledger: restartedLedger,
     now: () => new Date("2026-08-21T01:01:00.000Z"),
   });
-  const retryAdapter = adapter(async () => {
-    providerExecutions += 1;
-    throw new Error("A completed retry must not execute the provider");
+  const retryAdapter = new OnsDataApiAdapter({
+    lifecycle: {
+      discovery: "suspended",
+      invocation: "suspended",
+      reason: "Completed reconciliation must bypass provider preflight.",
+    },
+    transport: async () => {
+      providerExecutions += 1;
+      throw new Error("A completed retry must not execute the provider");
+    },
+    now: () => Date.parse("2030-01-01T00:00:00Z"),
   });
-  const providerPreflight: string[] = [];
-  for (const method of ["health", "estimate", "licence_evidence", "provenance"] as const) {
-    t.mock.method(retryAdapter, method, () => {
-      providerPreflight.push(method);
-      throw new Error("A completed retry must not run provider preflight");
-    });
-  }
   const retryApplication = createDataQueryApplication({
     adapter: retryAdapter,
     software: SOFTWARE,
@@ -228,7 +229,6 @@ test("QUAL-206-HOST-015 drops a persisted response then reconciles after restart
   assert.equal(completedProblemText.includes(IDEMPOTENCY_KEY), false);
   assert.equal(completedProblemText.includes("evidence-receipt"), false);
   assert.equal(completedProblemText.includes("10471"), false);
-  assert.deepEqual(providerPreflight, []);
   assert.equal(providerExecutions, 1);
 
   const inspector = createEvidenceInspectApplication(restartedLedger, restartedIndex, {

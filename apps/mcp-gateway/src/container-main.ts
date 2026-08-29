@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+import { lstatSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -5,15 +7,33 @@ import {
   PublicEvidenceLedger,
   PublicEvidenceReconciliationIndex,
 } from "@gis-ai-go/evidence";
+import {
+  createApprovedOnsDataQueryCache,
+  parseStrictJson,
+  type ApprovedOnsDataQueryCacheRecord,
+} from "@gis-ai-go/provider-adapter-sdk";
 
 import { catalogueActivation } from "./activation.js";
+import {
+  CANDIDATE_ACTIVATION_LIFECYCLE,
+  CANDIDATE_ACTIVATION_OPERATIONS,
+  CANDIDATE_ACTIVATION_RESOURCES,
+  createCandidateActivation,
+} from "./candidate-activation.js";
 import { loadCatalogueSnapshot } from "./catalogue-snapshot.js";
-import { createGatewayNodeServer, type GatewayNodeServer } from "./http-server.js";
+import {
+  createGovernedCandidateNodeServer,
+  type GatewayNodeServer,
+} from "./http-server.js";
 import { gatewayMetadata } from "./metadata.js";
 import {
   EVIDENCE_READINESS_INTEGRITY_FAILURE_MESSAGE,
-  createEvidenceReadinessIntegrity,
 } from "./readiness-integrity.js";
+import {
+  assessGovernedCandidateReadiness,
+  governedCandidateAssemblyBindings,
+  type GovernedCandidateAssembly,
+} from "./governed-assembly.js";
 
 export const GATEWAY_CONTAINER_HOST = "0.0.0.0" as const;
 export const GATEWAY_CONTAINER_PORT = 8_787 as const;
@@ -21,6 +41,11 @@ export const GATEWAY_CONTAINER_CATALOGUE_ROOT = "/app/artifacts/okf" as const;
 export const GATEWAY_CONTAINER_LEDGER_ROOT = "/var/lib/gis-ai-go/ledger" as const;
 export const GATEWAY_CONTAINER_RECONCILIATION_ROOT =
   "/var/lib/gis-ai-go/reconciliation" as const;
+export const GATEWAY_CONTAINER_APPROVED_CACHE_PATH =
+  "/app/providers/ons/data-query-approved-cache.v1.json" as const;
+export const GATEWAY_CONTAINER_APPROVED_CACHE_BYTES = 3_066 as const;
+export const GATEWAY_CONTAINER_APPROVED_CACHE_SHA256 =
+  "4b60e567d700d64ba98b87001e7adb10e25b2342403040b4a996d373b2714b8c" as const;
 
 const START_EVENT = "gateway_started";
 const STOP_EVENT = "gateway_stopped";
@@ -45,24 +70,52 @@ function writeLifecycleEvent(event: string, revision?: string): void {
   process.stdout.write(
     `${JSON.stringify({
       event,
-      lifecycle: gatewayMetadata.lifecycle,
+      lifecycle: CANDIDATE_ACTIVATION_LIFECYCLE,
+      production_registration: false,
       ...(revision === undefined ? {} : { revision }),
     })}\n`,
   );
 }
 
-/** Fail closed if the reviewed production authority has changed beneath this image. */
-export function assertBlockedContainerAuthority(): void {
+/** Fail closed unless the fixed image assembly is the exact unregistered five. */
+export function assertCandidateContainerAuthority(
+  assembly: GovernedCandidateAssembly,
+): void {
+  governedCandidateAssemblyBindings(assembly);
+  const readiness = assessGovernedCandidateReadiness(assembly);
   if (
+    // Generic constructors and non-container entrypoints remain blocked.
     catalogueActivation.state !== "blocked" ||
     catalogueActivation.activeTools.length !== 0 ||
     catalogueActivation.activeApiOperations.length !== 0 ||
     gatewayMetadata.lifecycle !== "candidate-blocked" ||
     gatewayMetadata.liveProviderCalls !== false ||
     gatewayMetadata.activeTools.length !== 0 ||
-    gatewayMetadata.activeApiOperations.length !== 0
+    gatewayMetadata.activeApiOperations.length !== 0 ||
+    assembly.state !== CANDIDATE_ACTIVATION_LIFECYCLE ||
+    assembly.productionRegistration !== false ||
+    assembly.suspensions.length !== 0 ||
+    assembly.operations.length !== CANDIDATE_ACTIVATION_OPERATIONS.length ||
+    assembly.operations.some(
+      (operation, index) => operation !== CANDIDATE_ACTIVATION_OPERATIONS[index],
+    ) ||
+    assembly.apiOperations !== assembly.operations ||
+    assembly.mcpOperations !== assembly.operations ||
+    assembly.mcpResources.length !== CANDIDATE_ACTIVATION_RESOURCES.length ||
+    assembly.mcpResources.some(
+      (resource, index) => resource !== CANDIDATE_ACTIVATION_RESOURCES[index],
+    ) ||
+    !(
+      (readiness.status === "ready" &&
+        readiness.reason === "candidate-assembly-verified") ||
+      (readiness.status === "blocked" &&
+        readiness.reason === "reconciliation-capacity-exhausted")
+    ) ||
+    readiness.productionRegistration !== false ||
+    readiness.activeTools !== assembly.operations ||
+    readiness.activeApiOperations !== assembly.operations
   ) {
-    throw new Error("The gateway container authority is not blocked");
+    throw new Error("The gateway container candidate authority is invalid");
   }
 }
 
@@ -84,16 +137,36 @@ function listen(server: GatewayNodeServer): Promise<void> {
   });
 }
 
+function loadFixedApprovedCacheRecord(): ApprovedOnsDataQueryCacheRecord {
+  const metadata = lstatSync(GATEWAY_CONTAINER_APPROVED_CACHE_PATH);
+  if (
+    !metadata.isFile() ||
+    metadata.size !== GATEWAY_CONTAINER_APPROVED_CACHE_BYTES
+  ) {
+    throw new Error("The fixed approved ONS cache record is unavailable");
+  }
+  const bytes = readFileSync(GATEWAY_CONTAINER_APPROVED_CACHE_PATH);
+  if (
+    bytes.byteLength !== GATEWAY_CONTAINER_APPROVED_CACHE_BYTES ||
+    createHash("sha256").update(bytes).digest("hex") !==
+      GATEWAY_CONTAINER_APPROVED_CACHE_SHA256
+  ) {
+    throw new Error("The fixed approved ONS cache record failed byte verification");
+  }
+  const record = parseStrictJson(
+    new TextDecoder("utf-8", { fatal: true }).decode(bytes),
+  );
+  // Validate the exact content address, query, source, rights, approval, coverage
+  // and freshness contract before handing the detached record to the closed builder.
+  createApprovedOnsDataQueryCache(record);
+  return record as ApprovedOnsDataQueryCacheRecord;
+}
+
 /**
- * Start the repository-only blocked candidate.
- *
- * The ledger and reconciliation index are opened only to verify the fixed durable
- * volume boundary. They are deliberately not supplied to an application because
- * this entry point mounts no operation, resource, provider or application.
+ * Start the repository-only, local and unregistered exact-five candidate.
  */
 export async function runGatewayContainerMain(): Promise<void> {
   assertFixedContainerArguments(process.argv);
-  assertBlockedContainerAuthority();
 
   const snapshot = await loadCatalogueSnapshot(resolve(GATEWAY_CONTAINER_CATALOGUE_ROOT));
   const ledger = PublicEvidenceLedger.open({
@@ -105,15 +178,16 @@ export async function runGatewayContainerMain(): Promise<void> {
     ledger,
   });
   reconciliationIndex.verify();
-  const evidenceReadinessIntegrity = createEvidenceReadinessIntegrity(
+  const approvedCacheRecord = loadFixedApprovedCacheRecord();
+  const assembly = createCandidateActivation(
+    snapshot,
     ledger,
     reconciliationIndex,
+    approvedCacheRecord,
   );
+  assertCandidateContainerAuthority(assembly);
 
-  // Only the inactive verifier is carried; every capability, application and
-  // provider seam remains omitted from the reviewed zero-capability production path.
-  const server = createGatewayNodeServer(snapshot, {
-    evidenceReadinessIntegrity,
+  const server = createGovernedCandidateNodeServer(assembly, {
     onerror: (error) => writeLifecycleEvent(
       gatewayContainerErrorEvent(error),
       snapshot.revision,

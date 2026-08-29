@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Exercise the exact blocked gateway OCI image through its local Compose boundary."""
+"""Exercise the exact unregistered gateway OCI image through its local Compose boundary."""
 
 from __future__ import annotations
 
@@ -53,7 +53,23 @@ ACCEPTANCE_SCHEMA = ROOT / "schemas" / "gateway-container-acceptance.schema.json
 HOST = "127.0.0.1"
 PORT = 8_787
 MCP_VERSION = "2026-07-28"
-RAW_KEY_SENTINEL = "gis-ai-go:ik:v1:" + "a" * 64
+EXACT_OPERATIONS = [
+    "catalogue.search", "catalogue.describe", "selection.resolve", "data.query",
+    "evidence.inspect",
+]
+EXACT_OPENAPI_PATHS = [
+    "/catalogue/describe", "/catalogue/search", "/data/query", "/evidence/inspect",
+    "/healthz", "/openapi.json", "/readyz", "/selection/resolve",
+]
+EXACT_MCP_CAPABILITIES = {
+    "tools": {"listChanged": False},
+    "resources": {"listChanged": False, "subscribe": False},
+}
+EXACT_RESOURCE_URIS = ["gis-ai-go://catalogue/public"]
+EXACT_RESOURCE_TEMPLATES = [
+    "gis-ai-go://catalogue/records/{record_id}",
+    "gis-ai-go://evidence/receipts/{receipt_id}",
+]
 EXPECTED_TMPFS = {
     "/tmp": "rw,noexec,nosuid,nodev,size=1m,mode=0700,uid=65532,gid=65532"
 }
@@ -64,8 +80,8 @@ EXPECTED_CHECKS = [
     "closed-compose-labels",
     "non-root-read-only-runtime",
     "loopback-only-internal-network",
-    "blocked-health-readiness",
-    "zero-tools-routes-resources",
+    "exact-five-health-readiness",
+    "exact-five-tools-routes-resources",
     "private-disjoint-storage",
     "runtime-resource-bounds",
     "restart-persistence",
@@ -665,7 +681,7 @@ def wait_for_health(container: str | None = None, timeout: float = 30.0) -> dict
         except (OSError, json.JSONDecodeError, subprocess.CalledProcessError) as error:
             failure = error
         time.sleep(0.2)
-    raise AssertionError("blocked gateway did not become healthy") from failure
+    raise AssertionError("unregistered gateway did not become healthy") from failure
 
 
 def wait_for_container_health(container: str, timeout: float = 30.0) -> dict[str, Any]:
@@ -770,57 +786,91 @@ def assert_http_boundary(
     expected_revision: str, expected_version: str, *, container: str | None,
 ) -> dict[str, Any]:
     health = wait_for_health(container)
-    if (health.get("status") != "ok" or health.get("lifecycle") != "candidate-blocked"
+    if (health.get("status") != "ok"
+            or health.get("lifecycle") != "candidate-unregistered"
+            or health.get("production_registration") is not False
             or health.get("catalogue", {}).get("revision") != expected_revision
             or health.get("catalogue", {}).get("version") != expected_version):
         raise AssertionError("gateway health identity differs from the exact image")
     status, body = request("GET", "/readyz", container=container)
     ready = json.loads(body)
     expected_ready = {
-        "status": "blocked",
-        "reason": "transport-and-interoperability-unverified",
-        "active_tools": [],
-        "active_api_operations": [],
+        "status": "ready",
+        "reason": "candidate-assembly-verified",
+        "production_registration": False,
+        "active_tools": EXACT_OPERATIONS,
+        "active_api_operations": EXACT_OPERATIONS,
     }
-    if status != 503 or ready != expected_ready:
-        raise AssertionError("gateway readiness is not the exact blocked boundary")
+    if status != 200 or ready != expected_ready:
+        raise AssertionError("gateway readiness is not the exact unregistered boundary")
     status, body = request("GET", "/openapi.json", container=container)
     paths = sorted(json.loads(body).get("paths", {}))
-    if status != 200 or paths != ["/healthz", "/openapi.json", "/readyz"]:
-        raise AssertionError("gateway OpenAPI advertises an operation while blocked")
+    if status != 200 or paths != EXACT_OPENAPI_PATHS:
+        raise AssertionError("gateway OpenAPI differs from the exact-five boundary")
     status, body = request(
-        "POST", "/data/query",
-        body=json.dumps({"idempotency_key": RAW_KEY_SENTINEL}).encode(),
+        "POST", "/catalogue/search",
+        body=json.dumps({"query": "INSPIRE", "limit": 1}).encode(),
         headers={"content-type": "application/json"}, container=container,
     )
-    direct_code = json.loads(body).get("code")
-    if status != 400 or direct_code != "invalid_request":
-        raise AssertionError("blocked direct data route became callable")
+    direct_operation = json.loads(body).get("operation")
+    if status != 200 or direct_operation != "catalogue.search":
+        raise AssertionError("exact direct catalogue operation was not callable")
     direct_status = status
-    mcp_body = json.dumps(
-        {
-            "jsonrpc": "2.0", "id": 1, "method": "server/discover",
-            "params": {"_meta": {
-                "io.modelcontextprotocol/protocolVersion": MCP_VERSION,
-                "io.modelcontextprotocol/clientCapabilities": {},
-                "io.modelcontextprotocol/clientInfo": {
-                    "name": "gis-ai-go-container-check", "version": "1.0.0",
-                },
-            }},
-        }, separators=(",", ":"),
-    ).encode()
-    status, body = request(
-        "POST", "/mcp", body=mcp_body,
-        headers={
-            "accept": "application/json, text/event-stream",
-            "content-type": "application/json", "mcp-protocol-version": MCP_VERSION,
-            "mcp-method": "server/discover",
-        }, container=container,
-    )
-    capabilities = json.loads(body).get("result", {}).get("capabilities")
-    if status != 200 or capabilities != {}:
-        raise AssertionError("blocked MCP discovery advertised a capability")
+    meta = {
+        "io.modelcontextprotocol/protocolVersion": MCP_VERSION,
+        "io.modelcontextprotocol/clientCapabilities": {},
+        "io.modelcontextprotocol/clientInfo": {
+            "name": "gis-ai-go-container-check", "version": "1.0.0",
+        },
+    }
+
+    def mcp_exchange(identifier: int, method: str) -> tuple[int, dict[str, Any]]:
+        payload = json.dumps({
+            "jsonrpc": "2.0", "id": identifier, "method": method,
+            "params": {"_meta": meta},
+        }, separators=(",", ":")).encode()
+        response_status, response_body = request(
+            "POST", "/mcp", body=payload,
+            headers={
+                "accept": "application/json, text/event-stream",
+                "content-type": "application/json",
+                "mcp-protocol-version": MCP_VERSION,
+                "mcp-method": method,
+            }, container=container,
+        )
+        parsed = json.loads(response_body)
+        result = parsed.get("result")
+        if not isinstance(result, dict):
+            raise AssertionError(f"MCP {method} did not return a result object")
+        return response_status, result
+
+    status, discovery = mcp_exchange(1, "server/discover")
+    capabilities = discovery.get("capabilities")
+    tools_status, tools_result = mcp_exchange(2, "tools/list")
+    tools = [item.get("name") for item in tools_result.get("tools", [])]
+    resources_status, resources_result = mcp_exchange(3, "resources/list")
+    resource_uris = [item.get("uri") for item in resources_result.get("resources", [])]
+    templates_status, templates_result = mcp_exchange(4, "resources/templates/list")
+    resource_templates = [
+        item.get("uriTemplate")
+        for item in templates_result.get("resourceTemplates", [])
+    ]
+    if (
+        status != 200
+        or tools_status != 200
+        or resources_status != 200
+        or templates_status != 200
+        or capabilities != EXACT_MCP_CAPABILITIES
+        or tools != EXACT_OPERATIONS
+        or resource_uris != EXACT_RESOURCE_URIS
+        or resource_templates != EXACT_RESOURCE_TEMPLATES
+    ):
+        raise AssertionError("MCP discovery differs from the exact-five boundary")
     mcp_status = status
+    mcp_body = json.dumps({
+        "jsonrpc": "2.0", "id": 5, "method": "server/discover",
+        "params": {"_meta": meta},
+    }, separators=(",", ":")).encode()
     status, body = request(
         "GET", "/healthz", headers={"host": "attacker.invalid"}, container=container,
     )
@@ -839,10 +889,18 @@ def assert_http_boundary(
         raise AssertionError("gateway MCP face accepted a hostile Host header")
     return {
         "health": health,
-        "readiness": {"http_status": 503, **expected_ready},
+        "readiness": {"http_status": 200, **expected_ready},
         "openapi_paths": paths,
-        "direct_operation": {"http_status": direct_status, "code": direct_code},
-        "mcp_discovery": {"http_status": mcp_status, "capabilities": capabilities},
+        "direct_operation": {
+            "http_status": direct_status, "operation": direct_operation,
+        },
+        "mcp_discovery": {
+            "http_status": mcp_status,
+            "capabilities": capabilities,
+            "tools": tools,
+            "resource_uris": resource_uris,
+            "resource_templates": resource_templates,
+        },
         "host_filter": {"direct_http_status": direct_host_status, "mcp_http_status": status},
     }
 
@@ -1230,7 +1288,7 @@ def main() -> None:
                 checks.extend([
                     "exact-image-runtime-identity", "closed-compose-labels",
                     "non-root-read-only-runtime", "loopback-only-internal-network",
-                    "blocked-health-readiness", "zero-tools-routes-resources",
+                    "exact-five-health-readiness", "exact-five-tools-routes-resources",
                     "private-disjoint-storage", "runtime-resource-bounds",
                 ])
 

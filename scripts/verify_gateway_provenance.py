@@ -397,7 +397,7 @@ def _verify_scan_freshness(
     phase = scan.get("phase")
     if (
         scan.get("schema") != "gis-ai-go.gateway-image-vulnerability-scan.v3"
-        or scan.get("classification") != "repository-only-blocked-candidate"
+        or scan.get("classification") != "repository-only-unregistered-candidate"
         or scan.get("source_revision") != expected_source_commit
         or scan.get("image_manifest_digest")
         != manifest["image"]["manifest_digest"]
@@ -503,7 +503,7 @@ def verify_attestation_inputs(
     image = manifest.get("image")
     if (
         manifest.get("schema") != "gis-ai-go.gateway-image-evidence-manifest.v2"
-        or manifest.get("classification") != "repository-only-blocked-candidate"
+        or manifest.get("classification") != "repository-only-unregistered-candidate"
         or manifest.get("passed") is not True
         or not isinstance(source, dict)
         or set(source) != {"revision", "version", "clean"}

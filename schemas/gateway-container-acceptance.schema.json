@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "urn:gis-ai-go:schema:gateway-container-acceptance:v1",
-  "title": "GIS AI GO blocked gateway container acceptance receipt",
-  "description": "A closed, path-safe record of one local blocked-candidate Compose rehearsal.",
+  "title": "GIS AI GO unregistered gateway container acceptance receipt",
+  "description": "A closed, path-safe record of one local exact-five unregistered-candidate Compose rehearsal.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -269,8 +269,8 @@
         "closed-compose-labels",
         "non-root-read-only-runtime",
         "loopback-only-internal-network",
-        "blocked-health-readiness",
-        "zero-tools-routes-resources",
+        "exact-five-health-readiness",
+        "exact-five-tools-routes-resources",
         "private-disjoint-storage",
         "runtime-resource-bounds",
         "restart-persistence",
@@ -695,11 +695,18 @@
         "health": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["status", "product", "lifecycle", "catalogue"],
+          "required": [
+            "status",
+            "product",
+            "lifecycle",
+            "production_registration",
+            "catalogue"
+          ],
           "properties": {
             "status": { "const": "ok" },
             "product": { "const": "GIS AI GO" },
-            "lifecycle": { "const": "candidate-blocked" },
+            "lifecycle": { "const": "candidate-unregistered" },
+            "production_registration": { "const": false },
             "catalogue": {
               "type": "object",
               "additionalProperties": false,
@@ -725,35 +732,102 @@
         "readiness": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["http_status", "status", "reason", "active_tools", "active_api_operations"],
+          "required": [
+            "http_status",
+            "status",
+            "reason",
+            "production_registration",
+            "active_tools",
+            "active_api_operations"
+          ],
           "properties": {
-            "http_status": { "const": 503 },
-            "status": { "const": "blocked" },
-            "reason": { "const": "transport-and-interoperability-unverified" },
-            "active_tools": { "const": [] },
-            "active_api_operations": { "const": [] }
+            "http_status": { "const": 200 },
+            "status": { "const": "ready" },
+            "reason": { "const": "candidate-assembly-verified" },
+            "production_registration": { "const": false },
+            "active_tools": {
+              "const": [
+                "catalogue.search",
+                "catalogue.describe",
+                "selection.resolve",
+                "data.query",
+                "evidence.inspect"
+              ]
+            },
+            "active_api_operations": {
+              "const": [
+                "catalogue.search",
+                "catalogue.describe",
+                "selection.resolve",
+                "data.query",
+                "evidence.inspect"
+              ]
+            }
           }
         },
-        "openapi_paths": { "const": ["/healthz", "/openapi.json", "/readyz"] },
+        "openapi_paths": {
+          "const": [
+            "/catalogue/describe",
+            "/catalogue/search",
+            "/data/query",
+            "/evidence/inspect",
+            "/healthz",
+            "/openapi.json",
+            "/readyz",
+            "/selection/resolve"
+          ]
+        },
         "direct_operation": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["http_status", "code"],
+          "required": ["http_status", "operation"],
           "properties": {
-            "http_status": { "const": 400 },
-            "code": { "const": "invalid_request" }
+            "http_status": { "const": 200 },
+            "operation": { "const": "catalogue.search" }
           }
         },
         "mcp_discovery": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["http_status", "capabilities"],
+          "required": [
+            "http_status",
+            "capabilities",
+            "tools",
+            "resource_uris",
+            "resource_templates"
+          ],
           "properties": {
             "http_status": { "const": 200 },
             "capabilities": {
               "type": "object",
               "additionalProperties": false,
-              "maxProperties": 0
+              "required": ["tools", "resources"],
+              "properties": {
+                "tools": {
+                  "const": {"listChanged": false}
+                },
+                "resources": {
+                  "const": {"listChanged": false, "subscribe": false}
+                }
+              }
+            },
+            "tools": {
+              "const": [
+                "catalogue.search",
+                "catalogue.describe",
+                "selection.resolve",
+                "data.query",
+                "evidence.inspect"
+              ]
+            },
+            "resource_uris": {
+              "const": ["gis-ai-go://catalogue/public"]
+            },
+            "resource_templates": {
+              "const": [
+                "gis-ai-go://catalogue/records/{record_id}",
+                "gis-ai-go://evidence/receipts/{receipt_id}"
+              ]
             }
           }
         },

@@ -102,7 +102,7 @@ def write_attestation_inputs(directory: Path) -> None:
                 "production_activation": False,
                 "public_deployment": False,
             },
-            "classification": "repository-only-blocked-candidate",
+            "classification": "repository-only-unregistered-candidate",
             "image": {
                 "bytes": len(archive),
                 "file": ARCHIVE_NAME,
@@ -161,7 +161,7 @@ def write_attestation_inputs(directory: Path) -> None:
             }
         )
     manifest = {
-        "classification": "repository-only-blocked-candidate",
+        "classification": "repository-only-unregistered-candidate",
         "image": {
             "manifest_digest": IMAGE_DIGEST,
             "platform": "linux/amd64",

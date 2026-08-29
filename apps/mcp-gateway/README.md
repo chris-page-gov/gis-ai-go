@@ -1,7 +1,9 @@
 # MCP gateway
 
-This package contains an inactive, local-only candidate for the GIS AI GO gateway.
-It is an implementation workbench, not a supported or deployed service.
+This package contains a local-only, unregistered candidate for the GIS AI GO gateway.
+Its generic HTTP and STDIO entrypoints remain inactive; only the fixed container
+entrypoint mounts the reviewed exact-five assembly. It is an implementation
+workbench, not a supported or deployed service.
 
 ## Implemented candidate components
 
@@ -73,21 +75,31 @@ It is an implementation workbench, not a supported or deployed service.
   protocol-version claims before SDK dispatch; HTTP applies the same rule to its
   parity headers. Requests use a fixed `id: null` error, notifications remain silent
   and ordinary bounded protocol controls retain their behaviour. A genuinely new
-  key is refused before ownership publication at the fixed 4,096-claim local
-  index ceiling; this maps to the existing non-reflective `503 evidence_unavailable`
-  problem. Every default remains empty.
+  key first acquires a module-branded, time-bounded and no-egress provider lease.
+  Process concurrency and first-attempt rate rejection therefore occur before
+  immutable ownership; an unused lease is released on a claim race or capacity
+  failure. Transport can start only after durable ownership. A new key is refused
+  before ownership publication at the fixed 4,096-claim local index ceiling; this
+  maps to the existing non-reflective `503 evidence_unavailable` problem. Every
+  default remains empty.
 - the HTTP candidate listens only on `127.0.0.1:8787` and exposes `GET /healthz`,
   `GET /readyz` and `GET /openapi.json`. Readiness always returns `503` with zero
   active tools and zero active API operations.
 - a separate container entrypoint binds `0.0.0.0:8787` only inside the reviewed
   image so its offline Compose bridge can reach it. It verifies fixed private,
-  disjoint ledger and reconciliation volumes, but supplies no operation, resource,
-  application or provider seam. Compose declares only `127.0.0.1:8787`. Acceptance
+  disjoint ledger and reconciliation volumes and the byte- and semantic-identity of
+  the sole approved T04 cache record. It then constructs the fixed active ONS
+  adapter and mounts exactly `catalogue.search`, `catalogue.describe`,
+  `selection.resolve`, `data.query` and `evidence.inspect`, with the three matching
+  MCP resources and `productionRegistration: false`. Compose declares only
+  `127.0.0.1:8787`. Acceptance
   separately records whether the engine realised that host-loopback mapping or the
   permitted no-port internal-network fallback. The checker validates the exact
   exposed port and loopback host binding, then normalises only the reviewed Docker
   omitted, `null` and empty-list serialisations to that fallback; it is not
-  host-ingress evidence.
+  host-ingress evidence. At the fixed claim ceiling, `/readyz` reports
+  `503 reconciliation-capacity-exhausted` while health, exact-five discovery,
+  existing-key reconciliation and evidence inspection remain mounted.
 - `startCatalogueStdio` and the shipped STDIO entrypoint remain modern-only at
   MCP `2026-07-28` and reject every legacy opening. A separately named
   `startCatalogueLegacyConformanceStdio` constructor can negotiate the bounded
@@ -98,30 +110,29 @@ It is an implementation workbench, not a supported or deployed service.
 The cursor digest detects corruption; it conveys no identity, authentication or
 authority.
 
-## Deliberate activation block
+## Deliberate production activation block
 
 `createGovernedCandidateAssembly` and its direct, MCP HTTP, MCP STDIO and combined
 Node wrappers provide one compile-time exact-five integration candidate. Registry,
 policy, provider lifecycle, verified snapshot and linked evidence dependencies can
 only reduce its discovery set; every wrapper reports production registration as
-false. The shipped entrypoints do not call these constructors. The evidence
+false. The closed `createCandidateActivation` builder fixes the full candidate set,
+active ONS lifecycle and approved cache internally, and only the container
+entrypoint calls it. The evidence
 inspector's top-level identity belongs to the current inspection, while its nested
 receipt and policy decision belong to the earlier inspected call; inspection
 creates no replacement receipt or ledger event.
 
-The shipped entrypoints do not mount application functions on HTTP routes. Explicit
-constructor options exist for local conformance tests, including `evidence.inspect`,
-`selection.resolve` and `data.query`, but there is no default catalogue, evidence,
-selection or data endpoint, active MCP tool or resource, public deployment,
-provider call or external policy service.
-The portable evidence store and inspector are inactive embedding components; no
-active application receives their configuration. The blocked container entrypoint
-opens fixed roots only to prove that the durable volume boundary is safe and
-restart-verifiable.
+The generic HTTP and STDIO entrypoints do not mount application functions. Explicit
+constructor options remain local-conformance seams and every default constructor
+still has no active tool or resource. The container is the sole shipped exception:
+it mounts the closed local exact-five candidate from fixed image inputs. It does not
+make a provider call during startup or assurance, publish a service, contact an
+external policy service or register the candidate for production.
 There is no environment-variable or command-line activation override. The
 selection and data applications and their explicit transport options are not
-referenced by any shipped entrypoint or default capability list.
-The blocked image is built from a materialised, checksum-bound Git-tracked and OKF
+referenced by any generic shipped entrypoint or default capability list.
+The unregistered image is built from a materialised, checksum-bound Git-tracked and OKF
 context. Environment files are rejected and ignored, dependency fetching precedes
 the broad source copy, and subsequent install, build and runtime mutations have no
 BuildKit network. The fixed `linux/amd64` runtime composes an exact UBI 10 micro root,
@@ -131,19 +142,19 @@ exact UBI Node.js 24 minimal donor. It retains
 the unmodified UBI EULA, source-container provenance and an explicit no-Red-Hat-
 support boundary. Its final image gate requires canonical OCI/source/runtime
 verification, exact repeat-build bytes, a full Syft SBOM with receipt-bound donor
-files, replayable Trivy evidence, container acceptance and the closed 12-file
-evidence manifest. Those controls do not enable this package.
+files, replayable Trivy evidence, container acceptance and the closed 25-file
+evidence directory: 24 subjects plus its manifest. Those controls do not register
+or deploy the local candidate for production.
 The test-only legacy launcher is separately named, requires both the existing
 conformance gate and an exact `--legacy-stdio-conformance-only` argument, and is
 not referenced by a package script or shipped entrypoint.
 
 Protocol-conformant direct and MCP transport candidates now cover catalogue,
-evidence inspection, selection and the bounded data query. Activation remains
-hard-blocked until independent-host interoperability, release, deployment and full
-lifecycle evidence receive their own review. A later reviewed
-change must satisfy that activation policy before a shipped entrypoint may mount or
-advertise any operation. The compiled public document is not OPA, authentication,
-identity or an enterprise entitlement service.
+evidence inspection, selection and the bounded data query. The local container
+activation does not relax the production block: independent-host interoperability,
+release, deployment and full lifecycle evidence remain separate gates. The compiled
+public document is not OPA, authentication, identity or an enterprise entitlement
+service.
 
 ## Local verification
 
@@ -153,7 +164,7 @@ From the repository root:
 pnpm --filter @gis-ai-go/mcp-gateway run test
 ```
 
-To inspect the deliberately blocked HTTP surface after building the candidate:
+To inspect the deliberately blocked generic HTTP surface after building the candidate:
 
 ```bash
 pnpm run build:okf
@@ -168,4 +179,4 @@ the
 [inactive public-read transport boundary](../../docs/operations/TOOLS-205_PUBLIC_READ_TRANSPORT.md),
 the [QUAL-206 interoperability runbook](../../docs/operations/QUAL-206_INTEROPERABILITY.md),
 the [inactive selection resolver boundary](../../docs/operations/TOOLS-205_SELECTION_RESOLVE.md),
-and the [blocked container runbook](../../docs/operations/DEPLOY-207_GATEWAY_CONTAINER.md).
+and the [unregistered container runbook](../../docs/operations/DEPLOY-207_GATEWAY_CONTAINER.md).

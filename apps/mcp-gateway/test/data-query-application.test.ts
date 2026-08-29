@@ -25,6 +25,7 @@ import {
   ProviderAdapterFault,
   createApprovedOnsDataQueryCache,
   executePristineOnsDataApiAdapter,
+  reservePristineOnsDataApiAdapterExecution,
   type AdapterLifecycle,
   type FixedHttpsResponse,
   type FixedHttpsTransport,
@@ -37,6 +38,7 @@ import { PUBLIC_READ_POLICY } from "@gis-ai-go/policy-client";
 import {
   APPROVED_CACHE_WARNING,
   DataQueryApplicationError,
+  GOVERNED_PRISTINE_ONS_EXECUTION,
   PUBLIC_ONS_DATA_QUERY_PARAMETERS,
   createDataQueryApplication,
   type DataQueryApplicationOptions,
@@ -1513,7 +1515,7 @@ test("returns no receipt when evidence time or storage fails", async (context) =
   }
 });
 
-test("reconciles a lost success after restart without provider preflight or execution", async (context) => {
+test("reconciles a lost success after restart without provider preflight or execution", async () => {
   const parent = mkdtempSync(join(tmpdir(), "gis-ai-go-data-query-reconcile-"));
   try {
     const ledgerRoot = join(parent, "ledger");
@@ -1550,9 +1552,6 @@ test("reconciles a lost success after restart without provider preflight or exec
       discovery: "suspended",
       invocation: "suspended",
       reason: "Completed reconciliation must bypass provider preflight.",
-    });
-    context.mock.method(retryAdapter, "health", () => {
-      throw new Error("provider preflight must not run for completed reconciliation");
     });
     const retry = application(retryAdapter, {
       evidenceLedger: restartedLedger,
@@ -1624,6 +1623,7 @@ test("maps exhausted reconciliation admission to a fixed evidence-unavailable pr
         application(adapter(calls), {
           evidenceLedger: ledger,
           reconciliationIndex: index,
+          governedPristineExecution: GOVERNED_PRISTINE_ONS_EXECUTION,
         }).query(reconciledRequest(), CONTEXT),
       "evidence_unavailable",
     );
@@ -1634,8 +1634,59 @@ test("maps exhausted reconciliation admission to a fixed evidence-unavailable pr
     assert.deepEqual(readdirSync(join(indexRoot, "claim-ownership")), []);
     assert.deepEqual(readdirSync(join(indexRoot, "claims")), []);
     assert.deepEqual(readdirSync(join(indexRoot, "claim-ready")), []);
+    const followupCalls = { count: 0, urls: [] as string[] };
+    const followupAdmission = reservePristineOnsDataApiAdapterExecution(
+      adapter(followupCalls),
+      ONS_ADAPTER_REQUEST,
+      {},
+    );
+    followupAdmission.release();
+    assert.equal(followupCalls.count, 0);
   } finally {
     context.mock.reset();
+    rmSync(parent, { recursive: true, force: true });
+  }
+});
+
+test("rejects a distinct fresh key in the generic reconciled path before claiming", async () => {
+  const parent = mkdtempSync(join(tmpdir(), "gis-ai-go-data-query-admission-"));
+  let occupyingAdmission: ReturnType<
+    typeof reservePristineOnsDataApiAdapterExecution
+  > | undefined;
+  try {
+    const occupyingAdapter = new OnsDataApiAdapter({
+      lifecycle: ACTIVE_INVOCATION,
+      transport: async () => assert.fail("reserved admission must not start transport"),
+    });
+    occupyingAdmission = reservePristineOnsDataApiAdapterExecution(
+      occupyingAdapter,
+      ONS_ADAPTER_REQUEST,
+      {},
+    );
+
+    const indexRoot = join(parent, "index");
+    const ledger = PublicEvidenceLedger.open({ rootDirectory: join(parent, "ledger") });
+    const index = openEvidenceReconciliationIndex({ rootDirectory: indexRoot, ledger });
+    const calls = { count: 0, urls: [] as string[] };
+    const error = await expectProblem(
+      () =>
+        application(adapter(calls), {
+          evidenceLedger: ledger,
+          reconciliationIndex: index,
+        }).query(
+          reconciledRequest(`gis-ai-go:ik:v1:${"b".repeat(64)}`),
+          CONTEXT,
+        ),
+      "provider_rate_limited",
+    );
+    assert.equal(error.problem.status, 429);
+    assert.equal(calls.count, 0);
+    assert.equal(index.verify().claim_count, 0);
+    assert.deepEqual(readdirSync(join(indexRoot, "claim-ownership")), []);
+    assert.deepEqual(readdirSync(join(indexRoot, "claims")), []);
+    assert.deepEqual(readdirSync(join(indexRoot, "claim-ready")), []);
+  } finally {
+    occupyingAdmission?.release();
     rmSync(parent, { recursive: true, force: true });
   }
 });
@@ -1660,6 +1711,7 @@ test("admits only one simultaneous same-key execution and completes one evidence
     const holdingTransport: FixedHttpsTransport = async ({ policy }) => {
       executions += 1;
       assert.equal(policy, ONS_EGRESS_POLICY);
+      assert.equal(index.lookup(IDEMPOTENCY_KEY).status, "pending");
       signalStarted?.();
       await release;
       return response();
@@ -1670,7 +1722,11 @@ test("admits only one simultaneous same-key execution and completes one evidence
         transport: holdingTransport,
         now: () => Date.parse("2030-01-01T00:00:00Z"),
       }),
-      { evidenceLedger: ledger, reconciliationIndex: index },
+      {
+        evidenceLedger: ledger,
+        reconciliationIndex: index,
+        governedPristineExecution: GOVERNED_PRISTINE_ONS_EXECUTION,
+      },
     );
 
     const first = reconciled.query(reconciledRequest(), CONTEXT);
@@ -1703,7 +1759,7 @@ test("admits only one simultaneous same-key execution and completes one evidence
   }
 });
 
-test("detects a pre-existing different fingerprint before provider preflight", async (context) => {
+test("detects a pre-existing different fingerprint before provider preflight", async () => {
   const parent = mkdtempSync(join(tmpdir(), "gis-ai-go-data-query-conflict-"));
   try {
     const ledger = PublicEvidenceLedger.open({ rootDirectory: join(parent, "ledger") });
@@ -1720,9 +1776,10 @@ test("detects a pre-existing different fingerprint before provider preflight", a
       normalisedParametersSha256: "b".repeat(64),
     });
     const calls = { count: 0, urls: [] as string[] };
-    const injected = adapter(calls);
-    context.mock.method(injected, "health", () => {
-      throw new Error("provider preflight must not run for a conflicting key");
+    const injected = adapter(calls, {
+      discovery: "suspended",
+      invocation: "suspended",
+      reason: "Conflict lookup must bypass provider preflight.",
     });
     const reconciled = application(injected, {
       evidenceLedger: ledger,

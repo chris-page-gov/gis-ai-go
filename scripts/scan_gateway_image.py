@@ -2004,7 +2004,7 @@ def generate_scan_evidence(
     evidence = {
         "schema": "gis-ai-go.gateway-image-vulnerability-scan.v3",
         "classification": (
-            "repository-only-blocked-candidate"
+            "repository-only-unregistered-candidate"
             if receipt["source"]["clean"] else "non-publishable-development-build"
         ),
         "source_revision": receipt["source"]["revision"],
@@ -2116,7 +2116,7 @@ def verify_scan_evidence(
         label="gateway image SBOM",
     )
     expected_classification = (
-        "repository-only-blocked-candidate"
+        "repository-only-unregistered-candidate"
         if receipt["source"]["clean"]
         else "non-publishable-development-build"
     )

@@ -3,6 +3,7 @@ import { types as utilTypes } from "node:util";
 import {
   PublicEvidenceLedger,
   PublicEvidenceReconciliationIndex,
+  type EvidenceReconciliationClaimCapacity,
 } from "@gis-ai-go/evidence";
 
 export const EVIDENCE_READINESS_INTEGRITY_KIND =
@@ -14,11 +15,12 @@ export interface EvidenceReadinessIntegrity {
   readonly kind: typeof EVIDENCE_READINESS_INTEGRITY_KIND;
 }
 
-const VERIFIERS = new WeakMap<object, () => void>();
+const VERIFIERS = new WeakMap<object, () => EvidenceReconciliationClaimCapacity>();
 const LEDGER_PROTOTYPE = PublicEvidenceLedger.prototype;
 const RECONCILIATION_PROTOTYPE = PublicEvidenceReconciliationIndex.prototype;
 const VERIFY_LEDGER = PublicEvidenceLedger.prototype.verify;
 const VERIFY_RECONCILIATION = PublicEvidenceReconciliationIndex.prototype.verify;
+const CLAIM_CAPACITY = PublicEvidenceReconciliationIndex.prototype.claimCapacity;
 const LEDGER_DISPATCH_METHODS = Object.freeze({
   verify: VERIFY_LEDGER,
   persistReceipt: PublicEvidenceLedger.prototype.persistReceipt,
@@ -30,6 +32,7 @@ const RECONCILIATION_DISPATCH_METHODS = Object.freeze({
   lookup: PublicEvidenceReconciliationIndex.prototype.lookup,
   claim: PublicEvidenceReconciliationIndex.prototype.claim,
   resolve: PublicEvidenceReconciliationIndex.prototype.resolve,
+  claimCapacity: CLAIM_CAPACITY,
 });
 
 function hasExactDispatchMethods(
@@ -112,14 +115,15 @@ function assertExactStores(
 function verifyExactStores(
   ledger: PublicEvidenceLedger,
   reconciliationIndex: PublicEvidenceReconciliationIndex,
-): void {
+): EvidenceReconciliationClaimCapacity {
   assertExactStores(ledger, reconciliationIndex);
   VERIFY_LEDGER.call(ledger);
   // Recheck immediately before reconciliation because its verifier performs a
   // nested ledger receipt inspection through the linked instance.
   assertExactStores(ledger, reconciliationIndex);
-  VERIFY_RECONCILIATION.call(reconciliationIndex);
+  const capacity = CLAIM_CAPACITY.call(reconciliationIndex);
   assertExactStores(ledger, reconciliationIndex);
+  return capacity;
 }
 
 /**
@@ -163,4 +167,22 @@ export function verifyEvidenceReadinessIntegrity(
     throw new TypeError("Evidence readiness integrity seam is invalid");
   }
   verify();
+}
+
+/** Return verified new-claim headroom without exposing a storage or reset seam. */
+export function evidenceReconciliationClaimCapacity(
+  integrity: EvidenceReadinessIntegrity,
+): EvidenceReconciliationClaimCapacity {
+  if (
+    typeof integrity !== "object" ||
+    integrity === null ||
+    utilTypes.isProxy(integrity)
+  ) {
+    throw new TypeError("Evidence readiness integrity seam is invalid");
+  }
+  const verify = VERIFIERS.get(integrity);
+  if (verify === undefined) {
+    throw new TypeError("Evidence readiness integrity seam is invalid");
+  }
+  return verify();
 }

@@ -1,15 +1,30 @@
 # Delivery progress
 
-Last updated: 28 August 2026
+Last updated: 29 August 2026
 
 ## Current outcome
 
 Deliver `v0.2.0`: expose the supported governed catalogue and evidence model through
 an open, read-only MCP and direct API without weakening the static `v0.1.0` product.
 The supported target active set is exactly `catalogue.search`,
-`catalogue.describe`, `evidence.inspect`, `selection.resolve` and `data.query`.
+`catalogue.describe`, `selection.resolve`, `data.query` and `evidence.inspect`.
 
 ## Active workstream
+
+`TOOLS-205 — Closed local container activation candidate`
+
+- keep generic HTTP and STDIO entrypoints, metadata, default constructors and the
+  production activation document blocked;
+- activate only the fixed image entrypoint through one closed exact-five builder,
+  with no path, environment, command-line, serialised or arbitrary option seam;
+- admit and verify only the exact approved T04 cache record, while deriving direct,
+  MCP, readiness and OpenAPI surfaces from the same unregistered assembly; and
+- reserve bounded process concurrency and first-attempt provider capacity before a
+  new immutable reconciliation claim, and report an exhausted local claim store as
+  blocked readiness without unmounting existing-key or evidence recovery; and
+- require focused contract review plus full repository and fresh image assurance
+  before protected integration. No live provider call, registration, deployment,
+  version change or release is part of this local slice.
 
 `QUAL-206 — Progress from repository preflight to independent-host evidence`
 

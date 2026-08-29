@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "urn:gis-ai-go:schema:gateway-image-evidence-manifest:v2",
-  "title": "GIS AI GO blocked gateway evidence manifest",
+  "title": "GIS AI GO unregistered gateway evidence manifest",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -18,7 +18,7 @@
   "properties": {
     "schema": {"const": "gis-ai-go.gateway-image-evidence-manifest.v2"},
     "classification": {
-      "enum": ["repository-only-blocked-candidate", "non-publishable-development-build"]
+      "enum": ["repository-only-unregistered-candidate", "non-publishable-development-build"]
     },
     "source": {
       "type": "object",

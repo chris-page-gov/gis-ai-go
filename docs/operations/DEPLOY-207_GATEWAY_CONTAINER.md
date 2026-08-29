@@ -1,13 +1,14 @@
-# DEPLOY-207 blocked gateway container
+# DEPLOY-207 local unregistered gateway container
 
 Status: accepted historical repository-only candidate on protected `main`; the
 fixed UBI 10 replacement passed complete clean-source local repository and image
 assurance at `f8d3210064a2fc88f85722d373f935b355c8d289` on 24 August 2026,
-including the supplemental Node advisory control described below. The replacement
-is not yet accepted on protected `main`, published, activated or deployed.
+including the supplemental Node advisory control described below. The current
+exact-five container activation is a separate uncommitted candidate and is not yet
+accepted on protected `main`, published, registered or deployed.
 
 This runbook covers the image, local Compose and assurance slice that can proceed
-without selecting a public runtime. It does not activate GIS AI GO, contact ONS,
+without selecting a public runtime. It does not activate GIS AI GO for production, contact ONS,
 publish an image, create an HTTPS endpoint, register an MCP service or change the
 supported `v0.1.0` release.
 
@@ -124,29 +125,33 @@ the local bridge can reach it. Compose declares only `127.0.0.1:8787` for host
 publication. Startup:
 
 1. rejects command-line arguments;
-2. asserts that production activation is blocked and every active list is empty;
+2. reasserts that generic production activation and metadata remain blocked;
 3. verifies the fixed `/app/artifacts/okf` bundle;
 4. opens and fully verifies the fixed, disjoint ledger and reconciliation roots;
-5. constructs the gateway without an operation, resource, application or provider
-   override; and
-6. emits only a bounded lifecycle event and the catalogue revision.
+5. byte- and semantic-verifies the sole fixed approved T04 cache record;
+6. passes only those four already verified inputs to a closed builder, which creates
+   the fixed active ONS adapter and mounts the exact ordered five operations plus
+   their three MCP resources; and
+7. emits only a bounded lifecycle event, the unregistered state and catalogue revision.
 
-The opened storage proves that the volume topology is admissible. It is not mounted
-into an application while no operation is active.
+The exact assembly is local and unregistered. It has no path, environment,
+command-line, serialised configuration or arbitrary loader seam, and its production
+registration value is always false.
 
 The container HTTP surface is deliberately:
 
 | Route | Expected result |
 | --- | --- |
-| `GET /healthz` | `200`, candidate lifecycle and exact catalogue identity |
-| `GET /readyz` | `503`, the reviewed block reason and empty operation arrays |
-| `GET /openapi.json` | `200`, with only health, readiness and OpenAPI paths |
-| `POST /mcp` `server/discover` | `200`, with no capability |
-| Any direct operation | fixed `400 invalid_request` |
+| `GET /healthz` | `200`, unregistered lifecycle and exact catalogue identity |
+| `GET /readyz` | `200`, exact ordered five and production registration false; `503 reconciliation-capacity-exhausted` only when no new immutable claim can be admitted |
+| `GET /openapi.json` | `200`, the same exact five direct operation paths |
+| `POST /mcp` discovery | exact five tools and three matching resources |
+| `POST /catalogue/search` | local catalogue result and durable evidence |
 
 No metrics, administration or activation endpoint is added. The Docker health
-check uses health, not readiness, so an intact blocked candidate is healthy but
-honestly not ready for service.
+check verifies health plus either exact ready state or the capacity-exhausted state
+that preserves recovery access. Acceptance
+does not call `data.query` and therefore makes no provider request.
 
 ## Pinned construction
 
@@ -168,8 +173,8 @@ pnpm metadata, together with the unused npm and Corepack package-manager trees a
 entry points, do not enter the final image.
 
 Construction does not give BuildKit the repository checkout. The packager first
-materialises a temporary context containing the exact Git-tracked allowlist plus the
-generated OKF projection. The OKF directory must be a closed regular-file set that
+materialises a temporary context containing the exact Git-tracked allowlist, the one
+approved ONS cache record and the generated OKF projection. The OKF directory must be a closed regular-file set that
 matches `CHECKSUMS.sha256`; every materialised file is then checked against the
 context inventory before the build starts. `build-context.sha256` binds the path and
 bytes of every admitted file.
@@ -224,13 +229,13 @@ The checked receipt binds:
   no-support boundary;
 - target `linux/amd64` platform;
 - archive, manifest, configuration and every layer digest; and
-- the unchanged zero-capability runtime claims.
+- the exact-five unregistered runtime claims and the sole approved cache bytes.
 
 One canonical verifier recalculates the source and materialised-context identities,
 parses the bounded OCI layout and expanded layers, rejects unreachable blobs, checks
 every digest and requires the closed runtime configuration: numeric non-root user,
 fixed entry point, one exposed port, fixed environment, health check, stop signal and
-zero-capability labels. Docker, Compose, Buildx and scanner versions and phase timings
+exact-five unregistered labels. Docker, Compose, Buildx and scanner versions and phase timings
 belong to acceptance evidence outside the reproducible OCI bytes.
 
 A dirty development build can be created only with an explicit checker flag and is
@@ -255,7 +260,7 @@ exact image reference for Compose interpolation. The definition applies:
   `/var/lib/gis-ai-go/reconciliation`.
 
 The evidence ledger remains a single-writer component. Scaling this service is not
-supported. The local bridge can prove that the blocked candidate has no egress; it
+supported. The local bridge can prove that the unregistered candidate has no egress; it
 cannot supply the domain-aware ONS network policy required by a later active
 candidate.
 
@@ -348,9 +353,10 @@ The image gate performs this fixed sequence:
    fixed controls, retaining each input and paired JSON and CycloneDX report before
    replaying the complete lane with no network;
 7. load the exact OCI archive and start only the local Compose candidate;
-8. record declared and realised ingress, then verify health, blocked readiness,
-   zero capability, direct and MCP Host filtering, limits, non-root/read-only
-   execution and internal-network egress denial over the accepted loopback path;
+8. record declared and realised ingress, then verify health, exact-five readiness,
+   three resources, one successful `catalogue.search`, direct and MCP Host filtering,
+   limits, non-root/read-only execution and internal-network egress denial over the
+   accepted loopback path;
 9. hash both mode-0600 storage descriptors, restart and confirm they are unchanged;
 10. verify that a raw request key and machine paths do not enter the bounded logs;
 11. stop the exact container, prove its state is exited and that it rejects an exec

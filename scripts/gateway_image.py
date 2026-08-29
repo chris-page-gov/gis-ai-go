@@ -143,7 +143,7 @@ BUILDKIT_CLASSIC_AMD64_REPOSITORY_DIGEST = (
 BUILDKIT_VERSION = "v0.32.2"
 BUILDER_NAME = "gis-ai-go-gateway"
 EXPECTED_RUNTIME_STAGE_SHA256 = (
-    "68d742dd41fe6329f0b1b6e9561873fa8f65fbe45b52ad90de9674270a7c817f"
+    "611f8ff3a995192a474400995b572e1362a7037a913b272661a1b09b6bb06e0a"
 )
 SYFT_REFERENCE = (
     "anchore/syft:v1.42.2@"
@@ -3047,6 +3047,7 @@ CONTEXT_FILES = (
     "apps/mcp-gateway/Containerfile",
     "apps/mcp-gateway/Containerfile.dockerignore",
     "profiles/tool-registry.v1.json",
+    "providers/ons/data-query-approved-cache.v1.json",
     "packages/tool-registry/package.json",
 )
 CONTEXT_ROOTS = (
@@ -3108,6 +3109,10 @@ BUILDER_SOURCE_COPY_INSTRUCTIONS = (
     "COPY packages/provider-adapter-sdk/ packages/provider-adapter-sdk/",
     "COPY packages/tool-registry/ packages/tool-registry/",
     "COPY profiles/tool-registry.v1.json profiles/tool-registry.v1.json",
+    (
+        "COPY providers/ons/data-query-approved-cache.v1.json "
+        "providers/ons/data-query-approved-cache.v1.json"
+    ),
     "COPY schemas/ schemas/",
     "COPY artifacts/okf/ artifacts/okf/",
 )
@@ -3643,6 +3648,11 @@ def parse_gateway_containerfile_pins(text: str) -> dict[str, str]:
         "COPY --from=builder --chown=0:0 /runtime/apps/mcp-gateway/ ./",
         "COPY --chown=0:0 schemas/ /app/schemas/",
         "COPY --chown=0:0 artifacts/okf/ /app/artifacts/okf/",
+        (
+            "COPY --from=builder --chown=0:0 "
+            "/source/providers/ons/data-query-approved-cache.v1.json "
+            "/app/providers/ons/data-query-approved-cache.v1.json"
+        ),
         "COPY --chown=0:0 LICENSE /app/LICENSE",
         "COPY --chown=0:0 LICENSE /usr/share/licenses/gis-ai-go/LICENSE",
         "COPY --chown=0:0 THIRD_PARTY.md /usr/share/licenses/gis-ai-go/THIRD_PARTY.md",
@@ -4691,9 +4701,11 @@ def _merge_rootfs(
 
 def _validate_image_labels(labels: dict[str, str]) -> None:
     static = {
-        "org.opencontainers.image.title": "GIS AI GO blocked gateway candidate",
+        "org.opencontainers.image.title": (
+            "GIS AI GO local unregistered gateway candidate"
+        ),
         "org.opencontainers.image.description": (
-            "Repository-only zero-capability gateway container"
+            "Repository-only exact-five unregistered gateway container"
         ),
         "org.opencontainers.image.source": "https://github.com/chris-page-gov/gis-ai-go",
         "org.opencontainers.image.licenses": (
@@ -4703,12 +4715,18 @@ def _validate_image_labels(labels: dict[str, str]) -> None:
         "org.opencontainers.image.base.name": UBI_RUNTIME_BASE_REFERENCE,
         "org.opencontainers.image.base.digest": UBI_RUNTIME_BASE_DIGEST,
         "io.gis-ai-go.registry-id": EXPECTED_REGISTRY_ID,
-        "io.gis-ai-go.lifecycle": "candidate-blocked",
+        "io.gis-ai-go.lifecycle": "candidate-unregistered",
         "io.gis-ai-go.red-hat-support": "not-supported-or-endorsed",
         "io.gis-ai-go.runtime-library-donor": UBI_RUNTIME_LIBRARY_DONOR_REFERENCE,
-        "io.gis-ai-go.live-provider-calls": "false",
-        "io.gis-ai-go.active-tools": "[]",
-        "io.gis-ai-go.active-api-operations": "[]",
+        "io.gis-ai-go.live-provider-calls": "true",
+        "io.gis-ai-go.active-tools": (
+            '["catalogue.search","catalogue.describe","selection.resolve",'
+            '"data.query","evidence.inspect"]'
+        ),
+        "io.gis-ai-go.active-api-operations": (
+            '["catalogue.search","catalogue.describe","selection.resolve",'
+            '"data.query","evidence.inspect"]'
+        ),
     }
     dynamic = {
         "org.opencontainers.image.version",
@@ -4719,7 +4737,7 @@ def _validate_image_labels(labels: dict[str, str]) -> None:
     if set(labels) != set(static) | dynamic:
         raise ValueError("OCI image label keys differ from the closed gateway contract")
     if any(labels.get(key) != value for key, value in static.items()):
-        raise ValueError("OCI image labels weaken the blocked gateway boundary")
+        raise ValueError("OCI image labels weaken the unregistered gateway boundary")
     if VERSION_RE.fullmatch(labels["org.opencontainers.image.version"]) is None:
         raise ValueError("OCI image version label is invalid")
     if COMMIT_RE.fullmatch(labels["org.opencontainers.image.revision"]) is None:
@@ -5275,6 +5293,17 @@ def _required_runtime_entries() -> tuple[RootfsEntry, ...]:
             size=repository_licence.stat().st_size,
             sha256=sha256_file(repository_licence),
         ),
+        RootfsEntry(
+            "/app/providers/ons/data-query-approved-cache.v1.json",
+            "regular-file",
+            0o444,
+            0,
+            0,
+            size=3_066,
+            sha256=(
+                "4b60e567d700d64ba98b87001e7adb10e25b2342403040b4a996d373b2714b8c"
+            ),
+        ),
         RootfsEntry("/nonexistent", "directory", 0o555, 0, 0),
         RootfsEntry("/var/lib/gis-ai-go", "directory", 0o700, 65532, 65532),
         RootfsEntry("/var/lib/gis-ai-go/ledger", "directory", 0o700, 65532, 65532),
@@ -5498,7 +5527,7 @@ def make_image_receipt(
     return {
         "schema": "gis-ai-go.gateway-image-receipt.v3",
         "classification": (
-            "repository-only-blocked-candidate"
+            "repository-only-unregistered-candidate"
             if source.clean
             else "non-publishable-development-build"
         ),
@@ -5546,12 +5575,28 @@ def make_image_receipt(
             "user": EXPECTED_USER,
         },
         "runtime_boundary": {
-            "lifecycle": "candidate-blocked",
-            "readiness_status": 503,
-            "active_tools": [],
-            "active_api_operations": [],
-            "active_resources": [],
-            "live_provider_calls": False,
+            "lifecycle": "candidate-unregistered",
+            "readiness_status": 200,
+            "active_tools": [
+                "catalogue.search",
+                "catalogue.describe",
+                "selection.resolve",
+                "data.query",
+                "evidence.inspect",
+            ],
+            "active_api_operations": [
+                "catalogue.search",
+                "catalogue.describe",
+                "selection.resolve",
+                "data.query",
+                "evidence.inspect",
+            ],
+            "active_resources": [
+                "catalogue.public",
+                "catalogue.record",
+                "evidence.receipt",
+            ],
+            "live_provider_calls": True,
             "public_deployment": False,
             "ledger_root": LEDGER_ROOT,
             "reconciliation_root": RECONCILIATION_ROOT,
