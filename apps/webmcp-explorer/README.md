@@ -52,16 +52,18 @@ for the bounded test. This preflight neither configures nor proves that integrat
 Do not use **Gemini in Chrome** as a substitute for that native-API validation.
 [Chrome's WebMCP documentation][2] treats the Model Context Tool Inspector's test agent
 as a separate feature from Gemini in Chrome. A Gemini response that can read the
-tab but has no page-tool declarations proves only that its current host bridge does
-not expose those tools; it does not disprove the page registration. Likewise, the
-presence of a WebMCP item in DevTools is not evidence of discovery when its content
-pane is empty. Record the native `document.modelContext.getTools()` result and an
-actual bounded `executeTool()` result independently.
+tab but reports no page-tool declarations, followed by no observed tool invocation,
+should be recorded as **AI-host bridge not observed** for that session. It does not
+disprove the independently verified page registration. Likewise, the presence of a
+WebMCP item in DevTools is not evidence of discovery when its content pane is empty.
+Record the native `document.modelContext.getTools()` result and an actual bounded
+`executeTool()` result independently.
 
 Google's May 2026 announcement says Gemini in Chrome "will soon support" WebMCP
-APIs.[3] No current supported setting is documented as enabling that bridge, so do
-not present the WebMCP testing flag, tab sharing or **Let Gemini browse for you** as
-a Gemini-to-WebMCP switch.
+APIs.[3] The current Google help reviewed on 29 August 2026 documents tab sharing
+and auto browse, but identifies no WebMCP switch.[4] Do not present the WebMCP
+testing flag, tab sharing or **Let Gemini browse for you** as a Gemini-to-WebMCP
+switch.
 
 This candidate is not part of the supported GitHub Pages artefact. It uses no model
 API key, provider credential, cookie, browser storage, analytics or external runtime
@@ -71,3 +73,4 @@ translation; the page performs deterministic validation and catalogue lookup onl
 [1]: https://chromium.googlesource.com/chromium/src/+/1ddb706a3498463d86d39257c243367b2f34947f
 [2]: https://developer.chrome.com/docs/ai/webmcp
 [3]: https://developer.chrome.com/blog/chrome-at-io26
+[4]: https://support.google.com/chrome/answer/16283624?hl=en-GB
