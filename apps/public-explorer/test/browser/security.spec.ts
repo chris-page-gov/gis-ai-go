@@ -32,6 +32,7 @@ test("primary controls retain 44 CSS-pixel targets", async ({ page }) => {
   const controls = page.locator(
     '.view-navigation a, button, input[type="search"], .checkbox-item label',
   );
+  await expect(controls.first()).toBeVisible();
   expect(await controls.count()).toBeGreaterThan(0);
   for (const control of await controls.all()) {
     const box = await control.boundingBox();
