@@ -182,6 +182,17 @@
       "force_full": false
     },
     {
+      "id": "webmcp-explorer-candidate",
+      "description": "Experimental page-scoped WebMCP source and browser checks use repository assurance only.",
+      "patterns": [
+        "apps/webmcp-explorer/**"
+      ],
+      "lanes": [
+        "repository_assurance"
+      ],
+      "force_full": false
+    },
+    {
       "id": "qual-206-evidence",
       "description": "QUAL-206 harness, fixture and evidence changes require repository assurance.",
       "patterns": [

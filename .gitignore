@@ -17,6 +17,9 @@ coverage/
 apps/public-explorer/public/catalogue/
 apps/public-explorer/test-results/
 apps/public-explorer/playwright-report/
+apps/webmcp-explorer/public/catalogue/
+apps/webmcp-explorer/test-results/
+apps/webmcp-explorer/playwright-report/
 
 # Local-only research sources; retain for analysis but never redistribute.
 /docs/research/2026-08-23/agentic-ai-governance-review/sources/AI-Report-eBook-2026.pdf

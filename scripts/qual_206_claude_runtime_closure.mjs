@@ -91,6 +91,7 @@ export const INSTALLED_DEPENDENCY_ROOTS = Object.freeze([
 export const WORKSPACE_DEPENDENCY_TARGETS = Object.freeze([
   "apps/mcp-gateway",
   "apps/public-explorer",
+  "apps/webmcp-explorer",
   "packages/authority-context",
   "packages/contracts",
   "packages/evidence",

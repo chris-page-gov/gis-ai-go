@@ -1,0 +1,279 @@
+<!doctype html>
+<html class="no-js" lang="en-GB">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="referrer" content="no-referrer">
+    <meta name="color-scheme" content="light">
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; base-uri 'none'; form-action 'self'"
+    >
+    <title>WebMCP Explorer candidate – GIS AI GO</title>
+    <meta
+      name="description"
+      content="An experimental, page-scoped WebMCP demonstration over governed public geospatial catalogue metadata."
+    >
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <header class="site-header">
+      <div class="page-width">
+        <p class="eyebrow">GIS AI GO laboratory</p>
+        <p class="product-name">WebMCP Explorer candidate</p>
+        <p class="product-description">
+          Let your own AI find the foundation. Keep the data rules in code.
+        </p>
+      </div>
+    </header>
+
+    <main id="main-content" class="page-width" tabindex="-1">
+      <section class="hero" aria-labelledby="page-heading">
+        <div>
+          <p class="status-chip">Experimental · public metadata only</p>
+          <h1 id="page-heading">A question becomes a bounded catalogue call</h1>
+          <p class="lede">
+            In a supported browser, your AI can choose one of this page's two
+            read-only tools. GIS AI GO then validates the arguments and reads the
+            same governed catalogue that you can inspect here yourself.
+          </p>
+          <p>
+            No model is embedded in this site. Your question stays with your AI
+            host; this page receives only the structured tool arguments it needs.
+          </p>
+        </div>
+        <aside class="readiness-card" aria-labelledby="readiness-heading">
+          <h2 id="readiness-heading">Current page status</h2>
+          <dl class="status-list">
+            <div>
+              <dt>Catalogue</dt>
+              <dd id="catalogue-status">Loading and validating…</dd>
+            </div>
+            <div>
+              <dt>Site tools</dt>
+              <dd>
+                <span id="webmcp-status" role="status" aria-live="polite">
+                  Checking browser support…
+                </span>
+              </dd>
+            </div>
+            <div>
+              <dt>Model API key</dt>
+              <dd>Not used</dd>
+            </div>
+            <div>
+              <dt>Stored call history</dt>
+              <dd>None</dd>
+            </div>
+          </dl>
+        </aside>
+      </section>
+
+      <section aria-labelledby="journey-heading">
+        <p class="section-label">The division of labour</p>
+        <h2 id="journey-heading">Probabilistic interpretation, deterministic data handling</h2>
+        <ol class="flow" aria-label="WebMCP question journey">
+          <li>
+            <span class="step-number" aria-hidden="true">1</span>
+            <strong>You ask a question</strong>
+            <span>Your words stay in the conversation with your AI.</span>
+          </li>
+          <li>
+            <span class="step-number" aria-hidden="true">2</span>
+            <strong>Your AI selects a tool</strong>
+            <span>It turns the question into bounded search or record arguments.</span>
+          </li>
+          <li>
+            <span class="step-number" aria-hidden="true">3</span>
+            <strong>The page validates and reads</strong>
+            <span>Shared GIS AI GO code searches the checked public catalogue.</span>
+          </li>
+          <li>
+            <span class="step-number" aria-hidden="true">4</span>
+            <strong>You inspect the result</strong>
+            <span>Authority, rights, freshness, sources and limits remain visible.</span>
+          </li>
+        </ol>
+      </section>
+
+      <section class="tool-panel" aria-labelledby="tools-heading">
+        <div>
+          <p class="section-label">The callable surface</p>
+          <h2 id="tools-heading">Two page tools, and no hidden third one</h2>
+          <div class="tool-list">
+            <article>
+              <code>explorer_search_catalogue</code>
+              <h3>Search reviewed metadata</h3>
+              <p>Bounded words and governed facets; at most five compact results.</p>
+            </article>
+            <article>
+              <code>explorer_describe_record</code>
+              <h3>Describe one exact record</h3>
+              <p>Authority, rights, freshness, limitations and linked source records.</p>
+            </article>
+          </div>
+        </div>
+        <aside class="prompt-card" aria-labelledby="prompt-heading">
+          <h3 id="prompt-heading">Try this with your AI</h3>
+          <blockquote>
+            Find the ONS provider capability for population data. Describe the most
+            relevant record, its sources and its limitations.
+          </blockquote>
+          <p class="small-text">
+            In a supported built-in browser, open the Site tools list and ask this in
+            the conversation. In any ordinary browser, use the same deterministic
+            functions manually below.
+          </p>
+        </aside>
+      </section>
+
+      <section class="manual-demo" aria-labelledby="manual-heading">
+        <p class="section-label">Manual fallback and teaching aid</p>
+        <h2 id="manual-heading">Run the same catalogue logic yourself</h2>
+        <form
+          id="catalogue-search-form"
+          action="./"
+          method="get"
+          role="search"
+          aria-label="WebMCP catalogue demonstration"
+        >
+          <label for="catalogue-query">Search the governed catalogue</label>
+          <span id="query-hint" class="hint">
+            Enter public metadata terms only. Do not enter a person, address or other personal information.
+          </span>
+          <div class="search-row">
+            <input
+              id="catalogue-query"
+              type="search"
+              value="ONS population data"
+              maxlength="256"
+              required
+              autocomplete="off"
+              aria-describedby="query-hint"
+            >
+            <button type="submit">Run search tool</button>
+          </div>
+        </form>
+        <p id="demo-status" class="demo-status" role="status" aria-live="polite">
+          The demonstration will be ready after the catalogue passes validation.
+        </p>
+        <div id="demo-results" class="result-grid" aria-labelledby="results-heading" hidden>
+          <h3 id="results-heading" class="result-heading">Structured tool result</h3>
+          <div id="result-cards" class="result-cards"></div>
+          <details class="structured-result">
+            <summary>Inspect the compact JSON returned to an AI</summary>
+            <pre id="result-json" tabindex="0"></pre>
+          </details>
+        </div>
+      </section>
+
+      <section aria-labelledby="boundary-heading">
+        <p class="section-label">The architectural lesson</p>
+        <h2 id="boundary-heading">WebMCP complements the gateway; it does not replace it</h2>
+        <div class="boundary-grid">
+          <article class="can-card">
+            <h3>What this page can show</h3>
+            <ul>
+              <li>Your AI translating a question into narrow structured arguments.</li>
+              <li>Page-scoped discovery without installing a separate MCP server.</li>
+              <li>Deterministic search and source tracing over validated public metadata.</li>
+              <li>The person and AI working from the same visible catalogue.</li>
+              <li>A complete manual fallback when WebMCP is unavailable.</li>
+            </ul>
+          </article>
+          <article class="cannot-card">
+            <h3>What this page cannot show</h3>
+            <ul>
+              <li>A service that keeps running after this page closes.</li>
+              <li>Live ONS, HMLR, LandIS or licensed provider execution.</li>
+              <li>MCP 2026-07-28 transport conformance or the exact-five gateway.</li>
+              <li>Durable receipts, later evidence inspection or lost-response recovery.</li>
+              <li>Production identity, authorisation, quotas, registry publication or deployment.</li>
+              <li>That an AI's interpretation or final explanation is correct.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="comparison" aria-labelledby="comparison-heading">
+        <h2 id="comparison-heading">Choose the right integration plane</h2>
+        <div class="table-scroll" tabindex="0" aria-label="Scrollable comparison table">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Need</th>
+                <th scope="col">Page tools (WebMCP)</th>
+                <th scope="col">Persistent MCP gateway</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Open page required</th>
+                <td>Yes</td>
+                <td>No</td>
+              </tr>
+              <tr>
+                <th scope="row">Uses the visible interface and session</th>
+                <td>Yes</td>
+                <td>Not inherently</td>
+              </tr>
+              <tr>
+                <th scope="row">Background or cross-session service</th>
+                <td>No</td>
+                <td>Yes, when deployed</td>
+              </tr>
+              <tr>
+                <th scope="row">Durable governed evidence</th>
+                <td>No</td>
+                <td>Designed for it</td>
+              </tr>
+              <tr>
+                <th scope="row">Provider admission and recovery</th>
+                <td>No</td>
+                <td>Designed for it</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="sources" aria-labelledby="sources-heading">
+        <h2 id="sources-heading">Status and primary sources</h2>
+        <p>
+          WebMCP is a Community Group draft, not a W3C Standard. This candidate uses
+          the imperative, top-level page API currently supported by OpenAI Site tools
+          and keeps the integration behind one adapter so it can change safely.
+        </p>
+        <ul>
+          <li><a href="https://learn.chatgpt.com/docs/webmcp">OpenAI Site tools documentation</a></li>
+          <li><a href="https://webmachinelearning.github.io/webmcp/">WebMCP Community Group draft</a></li>
+          <li><a href="./catalogue/okf-bundle.json">Download the catalogue JSON used by this page</a></li>
+          <li><a href="./catalogue/CHECKSUMS.sha256">Download the catalogue checksum ledger</a></li>
+        </ul>
+      </section>
+
+      <noscript>
+        <section class="warning-card" aria-labelledby="no-script-heading">
+          <h2 id="no-script-heading">JavaScript is off</h2>
+          <p>
+            WebMCP and the manual tool simulation need JavaScript. The architectural
+            explanation and the governed catalogue downloads remain available; no
+            substitute data has been selected.
+          </p>
+        </section>
+      </noscript>
+    </main>
+
+    <footer class="site-footer">
+      <div class="page-width">
+        <p>
+          Experimental presentation-plane candidate. The supported public product
+          remains GIS AI GO v0.1.0; the persistent v0.2.0 MCP runtime is not deployed
+          or released by this page.
+        </p>
+      </div>
+    </footer>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

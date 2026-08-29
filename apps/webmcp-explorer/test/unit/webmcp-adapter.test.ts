@@ -1,0 +1,80 @@
+import { describe, expect, it, vi } from "vitest";
+
+import {
+  WEBMCP_TOOL_METADATA,
+  WEBMCP_TOOL_NAMES,
+  registerWebMcpTools,
+  type WebMcpTool,
+} from "../../src/webmcp-adapter";
+import { catalogueFixture } from "./fixture";
+
+describe("imperative WebMCP adapter", () => {
+  it("registers exactly two static, read-only and untrusted page tools", async () => {
+    const registered: WebMcpTool[] = [];
+    const registrationSignals: AbortSignal[] = [];
+    Object.defineProperty(document, "modelContext", {
+      configurable: true,
+      value: {
+        registerTool: vi.fn(async (tool: WebMcpTool, options?: { signal?: AbortSignal }) => {
+          registered.push(tool);
+          if (options?.signal !== undefined) registrationSignals.push(options.signal);
+        }),
+      },
+    });
+    const onResult = vi.fn();
+    const registration = await registerWebMcpTools({
+      document,
+      bundle: catalogueFixture(),
+      onResult,
+    });
+
+    expect(registration.status).toBe("registered");
+    expect(registration.toolNames).toEqual(WEBMCP_TOOL_NAMES);
+    expect(registered.map(({ name }) => name)).toEqual(WEBMCP_TOOL_NAMES);
+    expect(registered.every(({ annotations }) => annotations.readOnlyHint)).toBe(true);
+    expect(registered.every(({ annotations }) => annotations.untrustedContentHint)).toBe(true);
+    expect(registered[0]?.description).toBe(
+      WEBMCP_TOOL_METADATA.explorer_search_catalogue.description,
+    );
+    expect(registered[0]?.description).not.toContain("Ignore previous instructions");
+
+    const invocation = new AbortController();
+    const result = await registered[0]!.execute(
+      { query: "ONS population", limit: 2 },
+      { signal: invocation.signal },
+    );
+    expect(result.page_tool).toBe("explorer_search_catalogue");
+    expect(onResult).toHaveBeenCalledOnce();
+
+    registration.dispose();
+    expect(registrationSignals).toHaveLength(2);
+    expect(registrationSignals.every((signal) => signal.aborted)).toBe(true);
+    delete (document as Document & { modelContext?: unknown }).modelContext;
+  });
+
+  it("leaves the manual application intact when the API is absent", async () => {
+    delete (document as Document & { modelContext?: unknown }).modelContext;
+    const registration = await registerWebMcpTools({
+      document,
+      bundle: catalogueFixture(),
+    });
+    expect(registration).toMatchObject({ status: "unsupported", toolNames: [] });
+    expect(() => registration.dispose()).not.toThrow();
+  });
+
+  it("aborts registration when the page is hidden", async () => {
+    const signals: AbortSignal[] = [];
+    Object.defineProperty(document, "modelContext", {
+      configurable: true,
+      value: {
+        registerTool: async (_tool: WebMcpTool, options?: { signal?: AbortSignal }) => {
+          if (options?.signal !== undefined) signals.push(options.signal);
+        },
+      },
+    });
+    await registerWebMcpTools({ document, bundle: catalogueFixture() });
+    window.dispatchEvent(new Event("pagehide"));
+    expect(signals.every((signal) => signal.aborted)).toBe(true);
+    delete (document as Document & { modelContext?: unknown }).modelContext;
+  });
+});

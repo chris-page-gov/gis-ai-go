@@ -138,6 +138,29 @@ separately retained tail checkpoint, and restores only into empty private roots
 before completing both verifiers. It selects no storage provider and supplies no
 deployment, operator-fencing, schedule, RPO/RTO, disposal or release evidence.
 
+## Non-blocking experimental workstream
+
+`WEB-210 — WebMCP Explorer candidate`
+
+- keep the supported `v0.1.0` Explorer, canonical Pages artefact and persistent
+  exact-five `v0.2.0` gateway unchanged;
+- add one standalone static candidate with exactly
+  `explorer_search_catalogue` and `explorer_describe_record`, registered only
+  after the checksum-copied public catalogue passes shared validation;
+- let a compatible browser-hosted AI perform the probabilistic question-to-tool
+  step while GIS AI GO applies closed arguments and deterministic catalogue logic;
+- retain the complete accessible manual journey when WebMCP is unavailable;
+- make no provider call, model call, policy decision, durable receipt, persistent
+  service, registry, deployment or release claim; and
+- require repository, browser, accessibility and security-diff acceptance plus an
+  exact compatible-host observation before claiming live WebMCP interoperability.
+
+The decision and bounded acceptance contract are recorded in
+[ADR-0013](docs/decisions/ADR-0013-webmcp-page-tools-boundary.md) and the
+[implementation candidate specification](docs/implementation/WEBMCP_EXPLORER_CANDIDATE.md).
+This research-backed component is intentionally secondary and does not change the
+active release sequence above.
+
 The accepted DEPLOY-207 base-remediation route is integrated without displacing
 the independent-host workstream. The fixed `linux/amd64` UBI 10 composition and
 closed receipt and SBOM contracts are implemented. Exact protected-main commit
