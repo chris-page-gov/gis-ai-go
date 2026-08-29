@@ -7,7 +7,7 @@ import {
 } from "./catalogue-tools";
 
 interface ToolExecuteOptions {
-  readonly signal: AbortSignal;
+  readonly signal?: AbortSignal;
 }
 
 export interface WebMcpTool {
@@ -19,7 +19,7 @@ export interface WebMcpTool {
     readonly readOnlyHint: true;
     readonly untrustedContentHint: true;
   };
-  readonly execute: (input: unknown, options: ToolExecuteOptions) => Promise<PageToolResult>;
+  readonly execute: (input: unknown, options?: ToolExecuteOptions) => Promise<PageToolResult>;
 }
 
 interface WebMcpModelContext {
@@ -149,11 +149,14 @@ function createTools(
 ): readonly WebMcpTool[] {
   const run = async (
     execute: () => PageToolResult,
-    options: ToolExecuteOptions,
+    options?: ToolExecuteOptions,
   ): Promise<PageToolResult> => {
-    options.signal.throwIfAborted();
+    // The Community Group draft supplies an execution AbortSignal. OpenAI Site
+    // tools has also shipped a one-argument callback shape, so tolerate that host
+    // while continuing to honour cancellation whenever a signal is supplied.
+    options?.signal?.throwIfAborted();
     const result = execute();
-    options.signal.throwIfAborted();
+    options?.signal?.throwIfAborted();
     onResult?.(result);
     return result;
   };

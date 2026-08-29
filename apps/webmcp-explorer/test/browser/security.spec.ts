@@ -4,7 +4,7 @@ interface CapturedTool {
   readonly name: string;
   execute(
     input: unknown,
-    options: { readonly signal: AbortSignal },
+    options?: { readonly signal?: AbortSignal },
   ): Promise<Record<string, unknown>>;
 }
 
