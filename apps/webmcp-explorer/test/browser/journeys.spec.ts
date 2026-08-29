@@ -11,7 +11,7 @@ interface CapturedTool {
   };
   execute(
     input: unknown,
-    options: { readonly signal: AbortSignal },
+    options?: { readonly signal?: AbortSignal },
   ): Promise<Record<string, unknown>>;
 }
 
@@ -93,6 +93,25 @@ test("manually searches and describes a governed catalogue record", async ({ pag
   expect(describeResult.record.source_records.length).toBeGreaterThan(0);
 });
 
+test("the default demonstration query finds the production ONS provider record", async ({
+  page,
+}) => {
+  await page.goto("/");
+
+  const search = page.getByRole("searchbox", { name: "Search the governed catalogue" });
+  await expect(search).toHaveValue("ONS statistics");
+  await page.getByRole("button", { name: "Run search tool" }).click();
+
+  await expect(page.locator("#demo-status")).toContainText("Manual search call:");
+  await expect(page.getByRole("heading", { name: "ONS Data API", exact: true })).toBeVisible();
+  const result = JSON.parse((await page.locator("#result-json").textContent()) ?? "") as {
+    matches: { records: Array<{ id: string }>; returned: number };
+  };
+  expect(result.matches.returned).toBeGreaterThan(0);
+  expect(result.matches.returned).toBeLessThanOrEqual(5);
+  expect(result.matches.records.map(({ id }) => id)).toContain("PV-ONS-DATA");
+});
+
 test("registers exactly two bounded page tools and renders both AI calls", async ({ page }) => {
   await installWebMcpCapture(page);
   await page.goto("/");
@@ -158,11 +177,10 @@ test("registers exactly two bounded page tools and renders both AI calls", async
     }
     const options = { signal: new AbortController().signal };
     const input = { query: "Price Paid", limit: 2 };
-    const firstSearch = await searchTool.execute(input, options);
+    const firstSearch = await searchTool.execute(input);
     const secondSearch = await searchTool.execute(input, options);
     const described = await describeTool.execute(
       { record_id: "hmlr:dataset:price-paid-data" },
-      { signal: new AbortController().signal },
     );
     return {
       firstSearch,

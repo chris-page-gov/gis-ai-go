@@ -38,13 +38,25 @@ describe("imperative WebMCP adapter", () => {
     );
     expect(registered[0]?.description).not.toContain("Ignore previous instructions");
 
-    const invocation = new AbortController();
-    const result = await registered[0]!.execute(
-      { query: "ONS population", limit: 2 },
-      { signal: invocation.signal },
-    );
+    const result = await registered[0]!.execute({ query: "ONS population", limit: 2 });
     expect(result.page_tool).toBe("explorer_search_catalogue");
     expect(onResult).toHaveBeenCalledOnce();
+
+    const described = await registered[1]!.execute(
+      { record_id: "provider:ons-data-api" },
+      {},
+    );
+    expect(described.page_tool).toBe("explorer_describe_record");
+    expect(onResult).toHaveBeenCalledTimes(2);
+
+    const invocation = new AbortController();
+    invocation.abort("The host cancelled this page-tool call.");
+    await expect(
+      registered[0]!.execute(
+        { query: "ONS population", limit: 2 },
+        { signal: invocation.signal },
+      ),
+    ).rejects.toThrow();
 
     registration.dispose();
     expect(registrationSignals).toHaveLength(2);

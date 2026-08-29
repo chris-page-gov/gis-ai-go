@@ -277,7 +277,7 @@ compatible AI host only for the page-tool part of the demonstration.
    revision.
 2. Confirm the Site tools status either reports two read-only tools or clearly
    reports that the browser does not support them.
-3. Search for `ONS population data`.
+3. Search for `ONS statistics`.
 4. Inspect the bounded record cards and compact JSON.
 5. Choose **Describe record and sources** for the most relevant record.
 6. Inspect authority, access, rights, freshness, limitations and linked source
@@ -292,7 +292,7 @@ compatible AI host only for the page-tool part of the demonstration.
    `explorer_search_catalogue` and `explorer_describe_record` are registered.
 3. Ask:
 
-   > Find the ONS provider capability for population data. Describe the most
+   > Find the ONS Data API provider capability for statistics. Describe the most
    > relevant record, its sources and its limitations.
 
 4. Review each proposed call and its structured arguments before it runs.
@@ -327,7 +327,8 @@ browser test does not replace this observation.
 - Tool metadata, schemas and annotations are static and tested.
 - Executable validation rejects wrong types, extra fields, excessive length or
   complexity, invalid facets, duplicates, control characters and missing records.
-- Both handlers honour the supplied cancellation signal.
+- Both handlers honour a supplied cancellation signal and remain compatible with
+  current Site-tools hosts that invoke the callback with input arguments only.
 - A call makes no external request and writes no cookie, `localStorage` or
   `sessionStorage` value.
 - Result fields always preserve the explicit page boundary.
