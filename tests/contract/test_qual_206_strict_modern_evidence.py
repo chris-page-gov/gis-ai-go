@@ -37,7 +37,7 @@ EXACT_RESOURCES = [
 ]
 HISTORICAL_V1_SHA256 = {
     "evaluation/qual-206-local-evaluation-receipts.v1.json": (
-        "e5852106d0eaddf74ed5d20f665da858db77cd355d81a9f3e1b90fc3d3eb9bed"
+        "f8859d81eeff3efc3072698e14f20399a89ac429ce8b8848922f570603590b0a"
     ),
     "evaluation/qual-206-local-protocol-evidence-matrix.v1.json": (
         "182ec2221167e4c3b117b9f8aaf3707e571ceeb3b34059a7ecc793fbf62d2088"
