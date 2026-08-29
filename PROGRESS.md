@@ -24,7 +24,14 @@ The supported target active set is exactly `catalogue.search`,
   blocked readiness without unmounting existing-key or evidence recovery; and
 - require focused contract review plus full repository and fresh image assurance
   before protected integration. No live provider call, registration, deployment,
-  version change or release is part of this local slice.
+  version change or release is part of this local slice; and
+- accept that slice through [pull request 98](https://github.com/chris-page-gov/gis-ai-go/pull/98)
+  as protected-main runtime commit `f253605ab26628e821d4ebc3809cf13c883d57ed`,
+  with the QUAL-206 protected-main ancestry repair accepted through
+  [pull request 99](https://github.com/chris-page-gov/gis-ai-go/pull/99) at
+  `c7eca721b084356dace8f264d7531b2180093b2d`. Exact-main repository, image,
+  independent-derivation, byte-comparison, provenance, attestation and CodeQL gates
+  passed. DEPLOY-207 records this as its first candidate checkpoint only.
 
 `QUAL-206 — Progress from repository preflight to independent-host evidence`
 
@@ -430,14 +437,15 @@ or release is claimed.
    projection, the accepted ChatGPT secure-tunnel exact-five projection and the
    protected-main loopback HTTP projection. Complete the remaining direct public
    Streamable HTTP/TLS host evidence without widening any narrow result.
-2. Retain the exact protected-main UBI, independent-derivation and provenance
-   evidence from runs `32760872035` and `32760871684`; rebuild and repeat it after
-   every later source-changing activation or release commit.
+2. Retain the exact protected-main fixed-container, independent-derivation,
+   byte-comparison and provenance evidence for `c7eca721` from runs `33237523106`
+   and `33237523042`; rebuild and repeat it after every later source-changing
+   activation or release commit.
 3. Keep DEPLOY-207 at `status: decision needed` until an authorised public runtime,
    hostname/TLS, identity, egress, storage and operator boundary exists.
 4. Only after that separate authority exists, deploy an unregistered
-   candidate and complete live QUAL-206 evidence before any activation, registry
-   publication, tag or `v0.2.0` release.
+   candidate and complete live QUAL-206 evidence before any public or production
+   activation, registry publication, tag or `v0.2.0` release.
 
 ## Current blockers
 
@@ -469,18 +477,22 @@ or release is claimed.
   and host-specific lifecycle evidence remain activation gates.
 - Direct routes and MCP transports now exist on protected `main`, but the
   exact-five assembly is `candidate-unregistered`, production registration is
-  false, the production/default capability arrays are empty, shipped readiness is
-  `503`, and there is no public service deployment or activation override. The
+  false, and the generic production/default capability arrays remain empty with
+  readiness `503`. The closed fixed-container entrypoint is the only activated
+  candidate: it reports readiness `200` when intact and `503` on a relevant
+  suspension, integrity failure or exhausted claim capacity, with no environment or
+  operator activation override. There is no public service deployment. The
   repository-local matrix and accepted loopback HTTP projection are non-live. The
   accepted ChatGPT secure-tunnel result is not a public service endpoint and cannot
   establish live-provider, deployment or release readiness; those evidence gates
   remain outstanding.
-- The historical Debian image findings are superseded for the accepted repository
-  candidate by exact protected-main UBI commit `dda0eb9`, whose producer and
-  independent archives were byte-identical and whose image, SBOM and evidence
-  subjects are attested. This is not a claim about a later source-changing
-  activation or release commit: every such commit requires a new exact image build,
-  scan, independent derivation, evidence replay and attestation set.
+- The historical Debian image findings were superseded by the UBI image at
+  `dda0eb9`. The later fixed-container activation at exact protected-main commit
+  `c7eca721` has its own fresh image, SBOM, independent derivation, byte comparison,
+  provenance, attestations and CodeQL evidence in runs `33237523106` and
+  `33237523042`. This is not a claim about a later source-changing activation or
+  release commit: every such commit requires a new exact image build, scan,
+  independent derivation, evidence replay and attestation set.
 - The accepted ONS adapter and reconciliation storage are local, explicitly injected
   components. The fixed 4,096-claim pre-publication index ceiling and accepted ledger
   event ceiling are local safety bounds, not deployment quotas. There is no
@@ -685,7 +697,7 @@ or release is claimed.
   deployment or release was exercised. The historical modern-only `not_ready` and
   uncommitted exploratory records remain unchanged;
 
-- current protected-main runtime hand-off: EVID-204 inspection receipts
+- historical protected-main EVID-204 hand-off: inspection receipts
   [pull request 54](https://github.com/chris-page-gov/gis-ai-go/pull/54) merged as
   `7fa8b720d3cbaa3e0a1ebfadf0fb355a7330a04c`; protected-main assurance and
   provenance passed in
@@ -696,7 +708,8 @@ or release is claimed.
   and the gateway [OCI](https://github.com/chris-page-gov/gis-ai-go/attestations/42456249),
   [SBOM](https://github.com/chris-page-gov/gis-ai-go/attestations/42456257) and
   [manifest](https://github.com/chris-page-gov/gis-ai-go/attestations/42456259)
-  attestations bind the same commit. The current local QUAL receipt set retains 7
+  attestations bind the same commit. At that checkpoint, the local QUAL receipt set
+  retained 7
   receipts, 17 suites and 82 exact tests at set ID
   `gis-ai-go:qual-206-local-evaluation-set:sha256:cecd04f29ea0d5895d1fa252f628998ebedbaca18874f14028970c5bb04b1e45`
   and file SHA-256

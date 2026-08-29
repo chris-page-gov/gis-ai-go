@@ -1,6 +1,6 @@
 # Current context
 
-Last updated: 24 August 2026
+Last updated: 29 August 2026
 
 ## Authority and reading order
 
@@ -42,16 +42,19 @@ whose accepted implementation commit is
 `a0e826384cf50d9d81b87489dbf3580e8e3602f7`. The Explorer is deployed and verified
 at <https://chris-page-gov.github.io/gis-ai-go/> from the later release commit
 recorded below. The latest protected-main implementation hand-off is
-`066a9cb22f719d22e29c95cd99857ddf694c878e`; its unchanged runtime baseline is
-`7fa8b720d3cbaa3e0a1ebfadf0fb355a7330a04c`. It contains the repository-only
-QUAL-206 preflight, completed trace and readiness integrity, one compile-time
-`candidate-unregistered` exact-five assembly, the bounded 23 August research intake,
-a dedicated inline-only receipt for each successful current `evidence.inspect` call
-the source-bound repository-local protocol matrix and the fail-closed real-socket
-loopback HTTP preflight harness.
-The shipped production and default operation arrays remain empty and their
-readiness remains `503`. There is no public MCP service, activated live provider
-capability, external policy or identity service, deployment or `v0.2.0` release.
+`c7eca721b084356dace8f264d7531b2180093b2d`; its container-activation runtime
+baseline is `f253605ab26628e821d4ebc3809cf13c883d57ed`. It contains the
+repository-only QUAL-206 preflight, completed trace and readiness integrity, one
+compile-time `candidate-unregistered` exact-five assembly, the bounded 23 August
+research intake, a dedicated inline-only receipt for each successful current
+`evidence.inspect` call, the source-bound repository-local protocol matrix, the
+fail-closed real-socket loopback HTTP preflight harness, the bounded provider-admission
+lease and capacity-aware readiness.
+The fixed container entrypoint mounts the exact-five assembly, while the shipped
+generic, production and default operation arrays remain empty and their readiness
+remains `503`. There is no public MCP service, live provider call through the
+fixed-container candidate, external policy or identity service, deployment or
+`v0.2.0` release.
 
 The owner has authorised autonomous implementation in the open under
 [`ADR-0004`](docs/decisions/ADR-0004-public-autonomous-delivery.md). The repository
@@ -215,12 +218,13 @@ now supplies `catalogue.search`, `catalogue.describe`, `evidence.inspect`,
 `selection.resolve` and `data.query` consistently to direct HTTP, MCP HTTP, MCP
 STDIO, OpenAPI and plain-text fallbacks. Registry, policy, provider lifecycle and
 explicit suspension can only subtract operations; per-operation guards fail closed.
-The assembly remains unregistered, with `productionRegistration: false`, no shipped
-activation override and no live provider call. Issue
-[#23](https://github.com/chris-page-gov/gis-ai-go/issues/23) remains open pending
-policy-filtered discovery for the activated surface, complete evidence and
-plain-text results for every activated call, independent-host evidence and the
-later deployment and release gates.
+At that PR #53 checkpoint, the assembly remained unregistered, with
+`productionRegistration: false`, no shipped activation path and no live provider
+call. PR #98 later supplied the fixed-container activation and locally demonstrated
+policy-filtered discovery plus complete evidence and plain-text results. Issue
+[#23](https://github.com/chris-page-gov/gis-ai-go/issues/23) remains open because
+its recorded closure boundary also requires the outstanding direct public host,
+live-provider, deployment and release evidence tracked by issues #24 and #25.
 
 The advisory governance research intake merged through
 [pull request 52](https://github.com/chris-page-gov/gis-ai-go/pull/52) as
@@ -240,8 +244,8 @@ storage requires a separate owner authorisation for a GitHub Support request and
 does not block the technical `v0.2.0` workstream.
 
 EVID-204 current-call inspection receipts merged through
-[pull request 54](https://github.com/chris-page-gov/gis-ai-go/pull/54) as the latest
-protected-main runtime commit
+[pull request 54](https://github.com/chris-page-gov/gis-ai-go/pull/54) as the
+then-current protected-main runtime commit
 `7fa8b720d3cbaa3e0a1ebfadf0fb355a7330a04c`. Protected-main
 [run 32664382129](https://github.com/chris-page-gov/gis-ai-go/actions/runs/32664382129)
 passed repository, exact gateway-image, aggregate and provenance assurance, and

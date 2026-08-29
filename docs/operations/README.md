@@ -5,24 +5,21 @@ as historical evidence. Current authority and status are in [`CONTEXT.md`](../..
 and [`PROGRESS.md`](../../PROGRESS.md); ADR-0004 records progression beyond the local
 pause. The static Explorer is the supported
 [`v0.1.0`](https://github.com/chris-page-gov/gis-ai-go/releases/tag/v0.1.0)
-public discovery product. An accepted inactive gateway foundation on protected
-`main` contains MCP 2026-07-28 HTTP and STDIO transports plus direct catalogue route
-implementations. Accepted inactive slices add explicitly constructed direct and MCP
-`evidence.inspect`, `selection.resolve` and `data.query` faces over the applications
-and durable ledger, plus a digest-only reconciliation index and receipt-only inspect
-v2 recovery. The current inspection candidate returns a dedicated verifiable v3
-receipt for the inspection call itself without persisting it or adding a ledger
-event. Its deterministic, non-live and unscored `QUAL-206-HOST-015` case passes
-locally. The repository-only QUAL-206 preflight is accepted on protected `main`, but
-its evaluation receipts remain non-live, unscored and incomplete for release. A
-separate protected-main projection proves the exact-five journey over one real IPv4
-loopback listener only; that HTTP result remains capability-unscored and remote-host
-acceptance is false. A later protected-main Claude Code projection separately
-passes all five ordered calls over local MCP `2026-07-28` STDIO. It closes local
-STDIO model capability only; remote HTTP, live-provider and production gates remain
-open.
-Default capability lists remain empty, activation and publication remain blocked,
-and no public MCP service or API is deployed.
+public discovery product. Protected `main` contains MCP 2026-07-28 HTTP and STDIO
+transports plus direct routes over the accepted applications, durable ledger,
+reconciliation index and current-call inspection receipts. Generic, production and
+default capability lists remain empty with readiness `503`. The fixed container is
+the sole activated candidate: it mounts exactly `catalogue.search`,
+`catalogue.describe`, `selection.resolve`, `data.query` and `evidence.inspect` from
+one closed unregistered assembly and reports readiness only while its integrity,
+lifecycle and claim-capacity checks pass.
+
+Repository-local QUAL-206 evidence includes the exact-five journey over real IPv4
+loopback HTTP, Claude Code local MCP 2026-07-28 STDIO and a ChatGPT secure tunnel.
+These are bounded candidate observations, not a direct public service or fresh live
+provider run through a deployed candidate. Public deployment, production
+registration and the `v0.2.0` release remain blocked on the recorded host, identity,
+storage, operations and acceptance gates.
 
 - [Stage 0 boundary](STAGE_0_BOUNDARY.md)
 - [Dependency baseline](DEPENDENCIES.md)
@@ -46,6 +43,7 @@ and no public MCP service or API is deployed.
 - [QUAL-206 host interoperability and secure-tunnel runbook](QUAL-206_INTEROPERABILITY.md)
 - [QUAL-206 ChatGPT secure-tunnel exact-five observation](QUAL-206_CHATGPT_TUNNEL_EXACT_FIVE.md)
 - [QUAL-206 local demonstration](QUAL-206_LOCAL_DEMONSTRATION.md)
+- [Illustrated GIS AI GO exemplar and local demonstration guide](../demonstrations/GIS_AI_GO_EXEMPLAR_GUIDE.md)
 - [QUAL-206 local HTTP transport preflight](QUAL-206_LOCAL_HTTP_TRANSPORT_PREFLIGHT.md)
 - [QUAL-206 strict-modern evidence preparation](QUAL-206_STRICT_MODERN_EVIDENCE.md)
 - [QUAL-206 strict-modern private event capture](QUAL-206_STRICT_MODERN_EVENT_CAPTURE.md)

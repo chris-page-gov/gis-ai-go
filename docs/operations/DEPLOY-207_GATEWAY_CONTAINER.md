@@ -1,11 +1,14 @@
 # DEPLOY-207 local unregistered gateway container
 
-Status: accepted historical repository-only candidate on protected `main`; the
-fixed UBI 10 replacement passed complete clean-source local repository and image
-assurance at `f8d3210064a2fc88f85722d373f935b355c8d289` on 24 August 2026,
-including the supplemental Node advisory control described below. The current
-exact-five container activation is a separate uncommitted candidate and is not yet
-accepted on protected `main`, published, registered or deployed.
+Status: accepted exact-five repository-only candidate on protected `main`. The fixed
+UBI 10 replacement passed complete clean-source repository and image assurance, and
+the closed container activation merged through
+[pull request 98](https://github.com/chris-page-gov/gis-ai-go/pull/98) as runtime
+commit `f253605ab26628e821d4ebc3809cf13c883d57ed`. The QUAL-206 protected-main
+ancestry repair merged through
+[pull request 99](https://github.com/chris-page-gov/gis-ai-go/pull/99) at
+`c7eca721b084356dace8f264d7531b2180093b2d`. The candidate is not published,
+registered or deployed.
 
 This runbook covers the image, local Compose and assurance slice that can proceed
 without selecting a public runtime. It does not activate GIS AI GO for production, contact ONS,
@@ -13,6 +16,15 @@ publish an image, create an HTTPS endpoint, register an MCP service or change th
 supported `v0.1.0` release.
 
 ## Protected-main acceptance
+
+At exact protected-main commit `c7eca721b084356dace8f264d7531b2180093b2d`,
+[CI run 33237523106](https://github.com/chris-page-gov/gis-ai-go/actions/runs/33237523106)
+passed repository assurance, the producer image, independent clean OCI derivation,
+exact byte comparison, aggregate assurance, provenance and attestation verification.
+[CodeQL run 33237523042](https://github.com/chris-page-gov/gis-ai-go/actions/runs/33237523042)
+passed Actions, JavaScript/TypeScript and Python. This completes the first
+DEPLOY-207 candidate criterion only; it makes no public-host, live-provider,
+deployment, rollback or release claim.
 
 The repository-only container foundation merged through
 [pull request 48](https://github.com/chris-page-gov/gis-ai-go/pull/48). The later
@@ -33,11 +45,11 @@ and [closed evidence manifest](https://github.com/chris-page-gov/gis-ai-go/attes
 to that exact source. This acceptance publishes no image or service and changes no
 activation state.
 
-The protected-main identities above describe the earlier Debian Bookworm runtime.
-They must not be reused for the UBI replacement. Its clean-source local identities
-below are separate and non-publishable; accepted protected evidence still requires
-pull-request and protected-main checks and attestations for the exact integrated
-source.
+The PR #48 and PR #49 identities immediately above describe the earlier Debian
+Bookworm runtime and must not be reused for UBI. The later UBI identities recorded
+at the start of this section are the accepted protected-main evidence. The historical
+clean-source identities below remain separate; every later source-changing candidate
+still requires fresh pull-request, protected-main and attestation evidence.
 
 ## Fixed UBI replacement candidate
 
