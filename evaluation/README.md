@@ -35,7 +35,7 @@ host session, activation, deployment, registration or release.
 
 [`qual-206-local-protocol-evidence-matrix.v1.json`][protocol-matrix] is a
 separate, compact source-coverage record for runtime base commit
-`7fa8b720d3cbaa3e0a1ebfadf0fb355a7330a04c`. Repository assurance reads the exact
+`a33876b16ac7c198e75773fc79097d2f2836cf13`. Repository assurance reads the exact
 gateway, transport-test, gateway-manifest and lockfile blobs from that Git commit
 and compares their SHA-256 values with the matrix. Its four semantically fixed rows
 distinguish the pinned official MCP client 2.0.0 from independent raw JSON-RPC

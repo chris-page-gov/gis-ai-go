@@ -37,10 +37,10 @@ EXACT_RESOURCES = [
 ]
 HISTORICAL_V1_SHA256 = {
     "evaluation/qual-206-local-evaluation-receipts.v1.json": (
-        "4d6ec825466d86c132ecffcb3e37ae454d40417842b38ca4c61cac46ba907892"
+        "e5852106d0eaddf74ed5d20f665da858db77cd355d81a9f3e1b90fc3d3eb9bed"
     ),
     "evaluation/qual-206-local-protocol-evidence-matrix.v1.json": (
-        "ef2ce33b55b7250c00edc0b61067c048d23f374c1ba6fe07af332975cd48c541"
+        "182ec2221167e4c3b117b9f8aaf3707e571ceeb3b34059a7ecc793fbf62d2088"
     ),
     "tests/interoperability/qual_206_cases.json": (
         "23ac9bc1a76d524bd0e250b11b9ba321b09e66bd5921f1463f50c150001cd389"
@@ -72,7 +72,7 @@ HISTORICAL_V1_SHA256 = {
         "9584de9fe7531457b7b83eb7f9102ee897e2cae61a5fe1f5f68b0f6b775232d9"
     ),
     "schemas/qual-206-local-protocol-evidence-matrix.schema.json": (
-        "baa856f4c0d28a497360c9af0526e6e0b3aa6698f19e1857549e988f48f4931a"
+        "e0955da7969213e1d54efed53c3e22ac796dd2ef426f3f1ca56c30a99625aa73"
     ),
     "schemas/qual-206-evaluation-expansion.schema.json": (
         "1843351626b6f96cb118e575388606daa0d6f60b22b28b92d9655a14873caf8b"
