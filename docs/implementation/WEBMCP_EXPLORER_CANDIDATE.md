@@ -144,7 +144,7 @@ Input:
 
 | Field | Requirement |
 | --- | --- |
-| `query` | Required non-empty string; at most 256 characters and 10 normalised terms |
+| `query` | Required 1 to 10 searchable catalogue keywords, not the full user question; at most 256 characters |
 | `facets` | Optional non-empty object using only the governed facet fields |
 | `limit` | Optional integer from 1 to 5; default 5 |
 
@@ -277,7 +277,8 @@ compatible AI host only for the page-tool part of the demonstration.
    revision.
 2. Confirm the Site tools status either reports two read-only tools or clearly
    reports that the browser does not support them.
-3. Search for `ONS statistics`.
+3. Enter `ONS statistics` in the manual keyword field. Do not paste the complete AI
+   question into this deterministic field.
 4. Inspect the bounded record cards and compact JSON.
 5. Choose **Describe record and sources** for the most relevant record.
 6. Inspect authority, access, rights, freshness, limitations and linked source
@@ -292,21 +293,48 @@ compatible AI host only for the page-tool part of the demonstration.
    `explorer_search_catalogue` and `explorer_describe_record` are registered.
 3. Ask:
 
-   > Find the ONS Data API provider capability for statistics. Describe the most
-   > relevant record, its sources and its limitations.
+   > Use Site tools. Search the catalogue for `ONS statistics`, filter to `provider`,
+   > then describe the most relevant record, its sources and its limitations.
 
-4. Review each proposed call and its structured arguments before it runs.
-5. Confirm the search result appears visibly in the page.
-6. Confirm the describe result names the exact searched record and linked source
+4. Record the bounded search arguments chosen by the host. A known-good example is
+   `{"query":"ONS statistics","facets":{"types":["provider"]},"limit":5}`.
+   Equivalent valid arguments pass when they resolve the intended record; the
+   complete sentence must not be sent as `query`.
+5. Review each proposed call and its structured arguments before it runs.
+6. Confirm the search result appears visibly in the page.
+7. Confirm the describe result names the exact searched record and linked source
    records.
-7. Inspect the AI's explanation against the structured result. Do not treat fluent
+8. Inspect the AI's explanation against the structured result. Do not treat fluent
    prose as evidence by itself.
-8. Close or navigate away from the page and confirm its tools are no longer
+9. Close or navigate away from the page and confirm its tools are no longer
    available.
 
 Record the exact commit, built artefact digest, host and application version, model
 where relevant, date, tool count, arguments, result boundary and outcome. A mocked
 browser test does not replace this observation.
+
+### Chrome 152 validation boundary
+
+Chrome's native page API, its DevTools presentation and any AI product shown in the
+browser are separate integration planes. For a Chrome 152 observation:
+
+1. enable the local WebMCP testing flag and relaunch Chrome;
+2. verify the top-level page exposes `document.modelContext` in the main world;
+3. use `getTools()` to confirm the exact two names and schemas;
+4. use `executeTool()` with bounded JSON arguments and verify the returned JSON and
+   visible page update; and
+5. record the DevTools WebMCP pane and any browser-hosted AI separately.
+
+The presence of a WebMCP navigation item in DevTools is not proof that its pane has
+discovered the tools. An empty pane must be recorded as empty. Chrome's current
+[WebMCP guidance](https://developer.chrome.com/docs/ai/webmcp) also states that the
+Model Context Tool Inspector's test agent is separate from **Gemini in Chrome**.
+In the observed session on 29 August 2026, Gemini reported that its host exposed
+only standard Google web search and no page-tool declarations; no GIS AI GO
+page-tool invocation occurred. Record that AI-host bridge as **not observed** for
+the session, not as a failed GIS AI GO registration. Google's
+[May 2026 announcement](https://developer.chrome.com/blog/chrome-at-io26) describes
+Gemini in Chrome WebMCP support as forthcoming.
 
 ## Acceptance criteria
 

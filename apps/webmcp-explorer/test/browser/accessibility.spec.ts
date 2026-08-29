@@ -42,7 +42,9 @@ test("shows visible keyboard focus through the complete manual journey", async (
   await page.goto("/");
   await waitForReadyFallback(page);
 
-  const search = page.getByRole("searchbox", { name: "Search the governed catalogue" });
+  const search = page.getByRole("searchbox", {
+    name: "Catalogue keywords (1 to 10 terms)",
+  });
   await expectKeyboardFocus(page, search);
   await search.fill("Price Paid");
 
@@ -69,7 +71,9 @@ test.describe("320 CSS-pixel, 400% zoom-equivalent reflow", () => {
     await page.goto("/");
     await waitForReadyFallback(page);
 
-    const search = page.getByRole("searchbox", { name: "Search the governed catalogue" });
+    const search = page.getByRole("searchbox", {
+      name: "Catalogue keywords (1 to 10 terms)",
+    });
     await search.fill("Price Paid");
     await page.getByRole("button", { name: "Run search tool" }).tap();
     await expect(

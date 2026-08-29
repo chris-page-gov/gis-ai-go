@@ -257,7 +257,8 @@ export function parsePageSearchInput(value: unknown): PageSearchInput {
   if (analysis.exceedsCharacterLimit || analysis.exceedsTermLimit) {
     throw new PageToolInputError(
       "query_too_complex",
-      "query must contain no more than 256 characters and 10 normalised terms.",
+      "query accepts 1 to 10 searchable catalogue keywords (up to 256 characters), " +
+        "not a full question. Try 'ONS statistics'.",
     );
   }
   const limit = value.limit ?? 5;

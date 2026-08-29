@@ -51,7 +51,9 @@ test("manually searches and describes a governed catalogue record", async ({ pag
     "Not available in this browser. The complete manual demonstration still works.",
   );
 
-  const search = page.getByRole("searchbox", { name: "Search the governed catalogue" });
+  const search = page.getByRole("searchbox", {
+    name: "Catalogue keywords (1 to 10 terms)",
+  });
   await search.fill("Price Paid");
   await page.getByRole("button", { name: "Run search tool" }).click();
 
@@ -98,7 +100,9 @@ test("the default demonstration query finds the production ONS provider record",
 }) => {
   await page.goto("/");
 
-  const search = page.getByRole("searchbox", { name: "Search the governed catalogue" });
+  const search = page.getByRole("searchbox", {
+    name: "Catalogue keywords (1 to 10 terms)",
+  });
   await expect(search).toHaveValue("ONS statistics");
   await page.getByRole("button", { name: "Run search tool" }).click();
 
@@ -110,6 +114,31 @@ test("the default demonstration query finds the production ONS provider record",
   expect(result.matches.returned).toBeGreaterThan(0);
   expect(result.matches.returned).toBeLessThanOrEqual(5);
   expect(result.matches.records.map(({ id }) => id)).toContain("PV-ONS-DATA");
+});
+
+test("explains that a complete AI question is not a manual keyword query", async ({
+  page,
+}) => {
+  await page.goto("/");
+
+  const search = page.getByRole("searchbox", {
+    name: "Catalogue keywords (1 to 10 terms)",
+  });
+  await search.fill(
+    "Find the ONS Data API provider capability for statistics. Describe the most " +
+      "relevant record, its sources and its limitations.",
+  );
+  await page.getByRole("button", { name: "Run search tool" }).click();
+
+  await expect(page.locator("#demo-status")).toHaveText(
+    "Call rejected: query accepts 1 to 10 searchable catalogue keywords (up to 256 " +
+      "characters), not a full question. Try 'ONS statistics'.",
+  );
+  await expect(page.locator("#demo-results")).toBeHidden();
+
+  await search.fill("ONS statistics");
+  await page.getByRole("button", { name: "Run search tool" }).click();
+  await expect(page.getByRole("heading", { name: "ONS Data API", exact: true })).toBeVisible();
 });
 
 test("registers exactly two bounded page tools and renders both AI calls", async ({ page }) => {
@@ -158,6 +187,7 @@ test("registers exactly two bounded page tools and renders both AI calls", async
       limit: { type: "integer", maximum: 5 },
     },
   });
+  expect(metadata[0]?.description).toContain("1 to 10 relevant catalogue terms");
   expect(metadata[1]?.inputSchema).toMatchObject({
     required: ["record_id"],
     properties: {
