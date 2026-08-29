@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900"
+  role="img" aria-labelledby="title description">
+  <title id="title">GIS AI GO local exact-five demonstration</title>
+  <desc id="description">
+    A terminal-style illustration of the protected-main local demonstration passing all five
+    governed MCP operations while remaining unregistered and making no live provider call.
+  </desc>
+  <rect width="1440" height="900" rx="28" fill="#101827"/>
+  <rect x="1" y="1" width="1438" height="898" rx="27" fill="none" stroke="#334155"
+    stroke-width="2"/>
+  <circle cx="48" cy="48" r="11" fill="#fb7185"/>
+  <circle cx="82" cy="48" r="11" fill="#fbbf24"/>
+  <circle cx="116" cy="48" r="11" fill="#4ade80"/>
+  <text x="720" y="57" text-anchor="middle" fill="#cbd5e1" font-family="ui-monospace,
+    SFMono-Regular, Menlo, Consolas, monospace" font-size="22">pnpm run demo:local</text>
+  <line x1="0" y1="82" x2="1440" y2="82" stroke="#334155" stroke-width="2"/>
+  <g fill="#e2e8f0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
+    font-size="24">
+    <text x="54" y="132" fill="#7dd3fc">GIS AI GO local exact-five demonstration</text>
+    <text x="54" y="177">Source commit: c7eca721b084356dace8f264d7531b2180093b2d</text>
+    <text x="54" y="222">Transport: MCP 2026-07-28 over private STDIO pipes</text>
+    <text x="54" y="267">Provider: one fixed-response call; no guarded provider egress</text>
+    <text x="54" y="307" fill="#fbbf24">OS network isolation: not enforced; this is not a network sandbox</text>
+    <text x="54" y="347"><tspan fill="#4ade80">✓</tspan> Discovery — exactly 5 tools verified</text>
+    <text x="54" y="392"><tspan fill="#4ade80">✓</tspan> Resources — 3 governed resources verified</text>
+    <text x="54" y="437"><tspan fill="#4ade80">✓</tspan> catalogue.search — receipt verified</text>
+    <text x="54" y="482"><tspan fill="#4ade80">✓</tspan> catalogue.describe — receipt verified</text>
+    <text x="54" y="527"><tspan fill="#4ade80">✓</tspan> selection.resolve — deterministic result verified</text>
+    <text x="54" y="572"><tspan fill="#4ade80">✓</tspan> data.query — fixture observation 10471 verified</text>
+    <text x="54" y="617"><tspan fill="#4ade80">✓</tspan> evidence.inspect — linked receipt verified</text>
+    <text x="54" y="677" fill="#fbbf24">Boundary: candidate-unregistered; production_registration=false</text>
+    <text x="54" y="722">No public listener, live provider call, deployment or release occurred.</text>
+  </g>
+  <rect x="54" y="766" width="220" height="74" rx="12" fill="#14532d"/>
+  <text x="164" y="813" text-anchor="middle" fill="#dcfce7" font-family="system-ui,
+    -apple-system, BlinkMacSystemFont, sans-serif" font-size="28" font-weight="700">PASS</text>
+  <text x="320" y="811" fill="#94a3b8" font-family="system-ui, -apple-system,
+    BlinkMacSystemFont, sans-serif" font-size="22">Observed on protected main · 29 August 2026</text>
+</svg>

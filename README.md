@@ -81,10 +81,16 @@ The foundation baseline and its explicit limits are preserved in the
 [`Stage 0 verification record`](docs/operations/STAGE_0_VERIFICATION.md); each OKF
 build emits its own ignored manifest, checksums and deterministic receipt.
 
+For a colleague-facing introduction to the governed exact-five local candidate, use
+the [illustrated exemplar guide](docs/demonstrations/GIS_AI_GO_EXEMPLAR_GUIDE.md) and
+run `pnpm run demo:local`. The guide distinguishes the supported static release,
+proven local capability and the remaining public-host and live-provider gates.
+
 ## Repository map
 
 - `apps/public-explorer/` — static accessible catalogue Explorer
-- `apps/mcp-gateway/` — TypeScript gateway, currently a fail-closed scaffold
+- `apps/mcp-gateway/` — TypeScript gateway; generic/default entrypoints fail closed,
+  while the fixed container mounts the exact-five local candidate
 - `services/geo-execution/` — deterministic Python execution boundary
 - `schemas/` — candidate contracts promoted from the research pack
 - `providers/fixtures/` — synthetic examples only
