@@ -365,7 +365,15 @@ candidate does not itself embed or call a model. The
 [WebMCP Community Group draft](https://webmachinelearning.github.io/webmcp/) is not
 a W3C Recommendation and does not prescribe MCP's transport or data layer. The
 candidate therefore remains behind one feature-detected adapter, and no live-host
-interoperability claim is made until an exact browser-and-AI observation passes.
+interoperability claim is made without an exact, version-bound observation. On
+29 August 2026, the owner-only Sites deployment passed both page-tool calls through
+Codex built-in-browser Site tools and passed the native imperative page API in
+Chrome `152.0.7977.64` and Edge Stable `152.0.4191.53` in the exact observed local
+environment; the Edge API-enablement mechanism was not established. The separate
+Gemini-in-Chrome session exposed no page-tool bridge. Edge DevTools and an Edge
+AI-host bridge were not tested, so no Copilot or general Edge Stable claim follows. See
+the [version-pinned WebMCP run-through](WEBMCP_EXPLORER_RUN_THROUGH.md) for the
+compatibility matrix, screenshots and strict claim boundaries.
 
 Neither static hosting nor WebMCP replaces the stateful server-side needs of this
 candidate: durable receipts, reconciliation, controlled provider egress, workload
