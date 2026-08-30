@@ -44,6 +44,43 @@ and special-file claimants remain collisions. Directory enumeration and aggregat
 bytes are bounded by the evidence-root role before hostile names are sorted or file
 content is read.
 
+## Filesystem capability preflight
+
+Before admitting any persistent or backup filesystem, build the evidence package
+and probe an existing directory on that exact mounted filesystem:
+
+```bash
+pnpm --filter @gis-ai-go/evidence run build
+node scripts/check_evidence_filesystem_capabilities.mjs \
+  --classification direct-filesystem-observation \
+  --observed-at "$EVIDENCE_FILESYSTEM_OBSERVED_AT" \
+  --mount-identity-sha256 "$EVIDENCE_FILESYSTEM_MOUNT_IDENTITY_SHA256" \
+  --probe-directory "$EVIDENCE_FILESYSTEM_PROBE_DIRECTORY"
+```
+
+`--observed-at` must be the observation time in canonical UTC with milliseconds,
+for example `2026-08-30T08:30:00.000Z`. The caller must derive one stable,
+non-secret SHA-256 identity for the exact mount being observed and pass only its
+lower-case digest through `--mount-identity-sha256`. Do not derive a published
+identity from a path, credential or other secret. Use
+`direct-filesystem-observation` only when the command is running directly against
+the intended mounted filesystem. `synthetic-test-fixture` is reserved for tests
+and deterministic local rehearsals.
+
+The probe creates one private temporary child, checks `0700` directories and `0600`
+regular files, exclusive file creation, sibling hard links, atomic no-replace hard
+linking, regular-file and directory `fsync`, and synchronised clean-up. It removes
+its own child on success. Its closed
+`gis-ai-go.evidence-filesystem-capability-check.v1` result contains no path or
+provider name. It records the caller-supplied mount digest, canonical observation
+time and classification, and binds the receipt to the SHA-256 of the exact current
+schema bytes through `schema_contract`. The mount identity is explicitly
+`caller-supplied-not-attested`: the probe does not independently prove that the
+directory belongs to a named provider, resource or mount. A pass applies only to
+the one caller-identified filesystem that was probed. It does not establish
+`F_FULLFSYNC`, storage durability beyond successful `fsync` returns, provider
+backup behaviour or deployment admission.
+
 ## Stopped-writer precondition
 
 One writer owns the pair. Stop it through the deployment's service supervisor and
@@ -78,6 +115,26 @@ const verified = createEvidenceCheckpoint({
   stoppedSingleWriter: true,
 });
 ```
+
+The provider-neutral operator command wraps that exact API and additionally
+requires the operator to assert both stopped-writer fencing and exclusive ownership
+of this checkpoint operation:
+
+```bash
+node scripts/create_evidence_checkpoint.mjs \
+  --ledger-root-directory "$EVIDENCE_LEDGER_ROOT" \
+  --reconciliation-index-root-directory "$EVIDENCE_RECONCILIATION_INDEX_ROOT" \
+  --checkpoint-directory "$EVIDENCE_CHECKPOINT_DIRECTORY" \
+  --external-checkpoint-file "$EVIDENCE_EXTERNAL_CHECKPOINT_FILE" \
+  --stopped-single-writer-confirmed \
+  --exclusive-checkpoint-owner-confirmed
+```
+
+Both flags are assertions, not process discovery, a lease or a lock. Missing,
+duplicate or unknown arguments fail before the runtime is called. Success and
+failure use the closed path-free
+`gis-ai-go.evidence-checkpoint-create-result.v1` contract. Existing checkpoint or
+external-checkpoint paths are collisions and are never replaced.
 
 The parents of both outputs must already be real directories. Neither output may
 exist, overlap either source root, or overlap each other. The runtime:
@@ -241,12 +298,61 @@ const verified = restoreEvidenceCheckpoint({
 });
 ```
 
+The corresponding operator command requires explicit stopped-writer and exclusive
+restore-owner assertions:
+
+```bash
+node scripts/restore_evidence_checkpoint.mjs \
+  --checkpoint-directory "$EVIDENCE_CHECKPOINT_DIRECTORY" \
+  --external-checkpoint-file "$EVIDENCE_EXTERNAL_CHECKPOINT_FILE" \
+  --ledger-destination-root "$EVIDENCE_LEDGER_DESTINATION_ROOT" \
+  --reconciliation-index-destination-root \
+    "$EVIDENCE_RECONCILIATION_INDEX_DESTINATION_ROOT" \
+  --stopped-single-writer-confirmed \
+  --exclusive-restore-owner-confirmed
+```
+
+Its closed `gis-ai-go.evidence-checkpoint-restore-result.v1` output contains no
+path. It reports only the verified checkpoint and restored-store identities and
+counts. It deliberately records deployment readiness as `not-evaluated`.
+Non-empty destinations fail before either root is copied; a later I/O failure can
+still leave a partial pair which must be quarantined together.
+
 The runtime verifies the backup first, refuses either non-empty destination before
 copying, creates every child exclusively, opens the restored pair and completes
 both `verify()` calls. It then compares the restored complete roots and ledger tail
 with the external checkpoint. A late filesystem failure can leave a partial restore;
 quarantine both destinations and start again with two new empty roots. There is no
 automatic cleanup or disposal.
+
+## Deterministic non-live recovery rehearsal
+
+The repository can exercise the whole provider-independent operator journey before
+a deployment is selected:
+
+```bash
+pnpm --filter @gis-ai-go/mcp-gateway run prepare:test
+pnpm --filter @gis-ai-go/mcp-gateway run build
+node scripts/rehearse_evidence_checkpoint_recovery.mjs
+```
+
+The rehearsal starts one synthetic fixture writer in a separate process and waits
+for it to exit before asserting quiescence. It probes the temporary filesystem with
+the `synthetic-test-fixture` classification, a fixed observation time and a
+deterministic caller-supplied fixture mount identity. The resulting filesystem
+observation is embedded in the rehearsal result. The rehearsal creates and verifies
+one non-empty linked checkpoint, moves the stopped source pair into a temporary
+quarantine without deleting it, restores into two new empty roots, and invokes the
+gateway's exact evidence-storage readiness verifier on the restored pair. It then
+removes its temporary rehearsal root. The closed path-free
+`gis-ai-go.evidence-checkpoint-recovery-rehearsal.v1` result fixes provider calls
+at zero and records that no service was started and deployment readiness was not
+evaluated.
+
+This is a deterministic synthetic local rehearsal of the repository mechanics. It
+is not evidence of a provider supervisor, an admitted mounted volume, an
+independently retained external checkpoint, a running service or a production
+recovery exercise.
 
 ## Release boundary and open operational decisions
 

@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:evidence-filesystem-capability-check:v1",
+  "title": "GIS AI GO evidence filesystem capability check",
+  "description": "A path-free provider-neutral observation of the exact POSIX and publication primitives required by evidence checkpointing, bound to a caller-supplied filesystem identity that is not independently attested.",
+  "$defs": {
+    "schemaContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {
+          "const": "schemas/evidence-filesystem-capability-check.schema.json"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    }
+  },
+  "oneOf": [
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "status",
+        "classification",
+        "scope",
+        "observed_at",
+        "mount_identity_sha256",
+        "schema_contract",
+        "checks",
+        "limitations"
+      ],
+      "properties": {
+        "schema": {"const": "gis-ai-go.evidence-filesystem-capability-check.v1"},
+        "status": {"const": "passed"},
+        "classification": {
+          "enum": ["synthetic-test-fixture", "direct-filesystem-observation"]
+        },
+        "scope": {"const": "one-caller-identified-filesystem"},
+        "observed_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$"
+        },
+        "mount_identity_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "schema_contract": {"$ref": "#/$defs/schemaContract"},
+        "checks": {
+          "const": [
+            "private-directory-mode-0700",
+            "private-file-mode-0600",
+            "exclusive-file-create",
+            "sibling-hard-link",
+            "atomic-no-replace-hard-link",
+            "regular-file-fsync",
+            "directory-fsync",
+            "synchronised-clean-up"
+          ]
+        },
+        "limitations": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "same_filesystem_only",
+            "full_hardware_flush",
+            "mount_identity_provenance"
+          ],
+          "properties": {
+            "same_filesystem_only": {"const": true},
+            "full_hardware_flush": {"const": "not-established"},
+            "mount_identity_provenance": {
+              "const": "caller-supplied-not-attested"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "status", "code", "schema_contract"],
+      "properties": {
+        "schema": {"const": "gis-ai-go.evidence-filesystem-capability-check.v1"},
+        "status": {"const": "failed"},
+        "code": {
+          "enum": [
+            "cleanup-failed",
+            "directory-fsync-unsupported",
+            "file-fsync-unsupported",
+            "hard-links-unsupported",
+            "invalid-arguments",
+            "invalid-observation-metadata",
+            "no-replace-unsupported",
+            "posix-semantics-unavailable",
+            "private-modes-unsupported",
+            "unexpected-probe-failure",
+            "unsafe-probe-root"
+          ]
+        },
+        "schema_contract": {"$ref": "#/$defs/schemaContract"}
+      }
+    }
+  ]
+}

@@ -1,8 +1,10 @@
 # Agentic AI governance research intake
 
-This folder preserves the three sources supplied on 23 August 2026 and records a
-bounded assessment against GIS AI GO. It is an evidence intake, not a replacement
-for the live roadmap or an instruction to change the product.
+This folder preserves the three sources supplied on 23 August 2026 and records the
+public primary industry case study added on 28 August 2026 and re-verified on
+30 August 2026. It provides a bounded assessment against GIS AI GO. It is an
+evidence intake, not a replacement for the live roadmap or an instruction to
+change the product.
 
 ## Authority boundary
 
@@ -28,6 +30,9 @@ personal-development draft with no approval or authorisation.
   The PDF must not be redistributed; the original DOCX contains personal and
   tenant collaboration metadata. A distinctly named privacy-scrubbed DOCX
   derivative is tracked for review, alongside the byte-exact supplied Markdown.
+- The Uber Engineering article is public, link-only evidence recorded in the
+  provenance register and the dated source ledger. No article copy, image,
+  transcript, screenshot or private capture is stored here.
 
 No source in this intake activates a tool, provider, listener, deployment or
 release. No runtime or public contract is changed by the intake.

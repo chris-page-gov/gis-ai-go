@@ -1,0 +1,232 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:deployed-live-provider-evidence:v1",
+  "title": "GIS AI GO deployed live-provider observation document",
+  "description": "Closed assertion contract for one separately authorised, bounded live ONS call through a directly deployed HTTPS candidate. Schema validity is not producer attestation or proof that the call occurred. It must bind an accepted transport document and cannot by itself claim release readiness.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "schema_contract",
+    "classification",
+    "status",
+    "observed_at",
+    "source",
+    "image",
+    "target",
+    "transport_binding",
+    "provider",
+    "call",
+    "evidence_handling",
+    "claims"
+  ],
+  "properties": {
+    "schema": { "const": "gis-ai-go.deployed-live-provider-evidence.v1" },
+    "schema_contract": { "$ref": "#/$defs/schemaContract" },
+    "classification": {
+      "enum": ["deployed-bounded-live-provider-observation", "synthetic-test-fixture"]
+    },
+    "status": { "const": "passed" },
+    "observed_at": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["started", "completed"],
+      "properties": {
+        "started": { "type": "string", "format": "date-time" },
+        "completed": { "type": "string", "format": "date-time" }
+      }
+    },
+    "source": { "$ref": "#/$defs/source" },
+    "image": { "$ref": "#/$defs/image" },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider", "deployment_id", "public_origin", "hostname", "deployed_manifest_digest"],
+      "properties": {
+        "provider": { "$ref": "#/$defs/boundedToken" },
+        "deployment_id": { "$ref": "#/$defs/boundedToken" },
+        "public_origin": { "$ref": "#/$defs/httpsOrigin" },
+        "hostname": { "$ref": "#/$defs/hostname" },
+        "deployed_manifest_digest": { "$ref": "#/$defs/digest" }
+      }
+    },
+    "transport_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "document_sha256", "transport_status", "direct_public_https"],
+      "properties": {
+        "schema": { "const": "gis-ai-go.remote-https-acceptance.v1" },
+        "document_sha256": { "$ref": "#/$defs/sha256" },
+        "transport_status": { "const": "passed" },
+        "direct_public_https": { "const": true }
+      }
+    },
+    "provider": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "adapter",
+        "provider_id",
+        "dataset_id",
+        "edition",
+        "version",
+        "version_uri",
+        "source_date",
+        "rights_state",
+        "licence",
+        "licence_uri",
+        "credentials_used"
+      ],
+      "properties": {
+        "adapter": { "const": "gis-ai-go.ons-data-api.v1" },
+        "provider_id": { "const": "ons-data-api" },
+        "dataset_id": { "const": "weekly-deaths-region" },
+        "edition": { "const": "time-series" },
+        "version": { "const": "121" },
+        "version_uri": {
+          "const": "https://api.beta.ons.gov.uk/v1/datasets/weekly-deaths-region/editions/time-series/versions/121"
+        },
+        "source_date": { "const": "2026-07-01" },
+        "rights_state": { "const": "open-with-conditions" },
+        "licence": { "const": "Open Government Licence v3.0" },
+        "licence_uri": {
+          "const": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
+        },
+        "credentials_used": { "const": false }
+      }
+    },
+    "call": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "operation",
+        "transport",
+        "attempts",
+        "provider_execution_count",
+        "bounded",
+        "request_sha256",
+        "result_sha256",
+        "receipt_id",
+        "receipt_contract_valid",
+        "receipt_persisted",
+        "receipt_inspection_verified",
+        "structured_result_present",
+        "plain_text_result_present",
+        "structured_plain_text_parity",
+        "duration_ms"
+      ],
+      "properties": {
+        "operation": { "const": "data.query" },
+        "transport": { "const": "direct-public-mcp-streamable-http" },
+        "attempts": { "const": 1 },
+        "provider_execution_count": { "const": 1 },
+        "bounded": { "const": true },
+        "request_sha256": { "$ref": "#/$defs/sha256" },
+        "result_sha256": { "$ref": "#/$defs/sha256" },
+        "receipt_id": {
+          "type": "string",
+          "pattern": "^gis-ai-go:evidence-receipt:sha256:[0-9a-f]{64}$"
+        },
+        "receipt_contract_valid": { "const": true },
+        "receipt_persisted": { "const": true },
+        "receipt_inspection_verified": { "const": true },
+        "structured_result_present": { "const": true },
+        "plain_text_result_present": { "const": true },
+        "structured_plain_text_parity": { "const": true },
+        "duration_ms": { "type": "integer", "minimum": 0, "maximum": 30000 }
+      }
+    },
+    "evidence_handling": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "provider_payload_stored",
+        "raw_query_stored",
+        "credential_material_stored",
+        "personal_data_stored",
+        "machine_paths_stored",
+        "public_projection_path_free"
+      ],
+      "properties": {
+        "provider_payload_stored": { "const": false },
+        "raw_query_stored": { "const": false },
+        "credential_material_stored": { "const": false },
+        "personal_data_stored": { "const": false },
+        "machine_paths_stored": { "const": false },
+        "public_projection_path_free": { "const": true }
+      }
+    },
+    "claims": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "accepted_transport_bound",
+        "one_bounded_live_provider_call",
+        "production_registration",
+        "registry_published",
+        "release_ready"
+      ],
+      "properties": {
+        "accepted_transport_bound": { "const": true },
+        "one_bounded_live_provider_call": { "const": true },
+        "production_registration": { "const": false },
+        "registry_published": { "const": false },
+        "release_ready": { "const": false }
+      }
+    }
+  },
+  "$defs": {
+    "schemaContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": { "const": "schemas/deployed-live-provider-evidence.schema.json" },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository", "commit", "tree", "working_tree_clean"],
+      "properties": {
+        "repository": { "const": "chris-page-gov/gis-ai-go" },
+        "commit": { "$ref": "#/$defs/gitObject" },
+        "tree": { "$ref": "#/$defs/gitObject" },
+        "working_tree_clean": { "const": true }
+      }
+    },
+    "image": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "oci_archive_sha256",
+        "manifest_digest",
+        "config_digest",
+        "evidence_manifest_sha256",
+        "platform"
+      ],
+      "properties": {
+        "oci_archive_sha256": { "$ref": "#/$defs/sha256" },
+        "manifest_digest": { "$ref": "#/$defs/digest" },
+        "config_digest": { "$ref": "#/$defs/digest" },
+        "evidence_manifest_sha256": { "$ref": "#/$defs/sha256" },
+        "platform": { "const": "linux/amd64" }
+      }
+    },
+    "boundedToken": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$" },
+    "gitObject": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "hostname": {
+      "type": "string",
+      "pattern": "^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+$",
+      "maxLength": 253
+    },
+    "httpsOrigin": {
+      "type": "string",
+      "pattern": "^https://[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+$",
+      "maxLength": 261
+    }
+  }
+}

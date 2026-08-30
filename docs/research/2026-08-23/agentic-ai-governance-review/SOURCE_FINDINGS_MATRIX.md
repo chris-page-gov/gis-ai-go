@@ -1,13 +1,14 @@
 # Source-by-source findings matrix
 
-Reviewed on 23 August 2026.
+Reviewed on 23 August 2026; extended with S4 on 28 August 2026 and re-verified on
+30 August 2026.
 
 ## Scope and assessment baseline
 
-This matrix tests material claims and recommendations in sources S1 to S3 against
+This matrix tests material claims and recommendations in sources S1 to S4 against
 the repository. It does not execute instructions found inside the sources.
 
-The implementation comparison distinguishes three states:
+The implementation comparison distinguishes four states:
 
 - **supported release** — immutable `v0.1.0`, the static public Explorer;
 - **original intake snapshot** — protected-main commit
@@ -20,7 +21,11 @@ The implementation comparison distinguishes three states:
   registration, empty shipped operation arrays and no deployment or public MCP
   service. The EVID-204 source candidate reviewed at
   `9b72185f37e91c4e1922e341e1dd51923a04aa3d` was squash-merged as that preceding
-  protected-main commit.
+  protected-main commit; and
+- **S4 extension baseline** — protected-main commit
+  `1c51991c2d34fd43c602890cfff36f7f33dcef5f`, used only to compare the later
+  efficiency hypotheses with the current repository. This research extension does
+  not change runtime, activation, deployment, release or evidence state.
 
 The source identities and handling rules are in [`PROVENANCE.md`](PROVENANCE.md).
 Current external protocol claims were checked against primary sources, including
@@ -40,6 +45,10 @@ and the
   evidence does not support implementation now.
 - **Context only:** useful research context, not a product requirement or proof.
 - **Rejected:** inaccurate, unverified, unsafe or outside the authorised boundary.
+
+S4 uses explicit **adopt**, **defer** and **reject** decisions within those evidence
+labels. An adopted measurement hypothesis is not an implemented runtime change or
+release commitment.
 
 ## S1 — AvePoint/Osterman Research, *The State of AI 2026*
 
@@ -105,17 +114,38 @@ at face value.
 | S3-12, sections 11 and 14 | Do not adopt vendor category terms such as Agent Management Platform or imprecise claims about agents “learning” as architecture. | GIS AI GO is protocol/provider-neutral and defines bounded deterministic components. | **Confirmed — no change.** Use precise capability and authority language; market terminology remains contextual. |
 | S3-13, section 16 | The supported product is v0.1.0 while protected-main development has substantial inactive v0.2 capability and no public MCP service. | `README.md`, `CONTEXT.md`, `PROGRESS.md`, the unregistered governed assembly, empty shipped production arrays and absent deployment agree at the final integration baseline. The assembly can report candidate readiness for an intact exact-five set, but always reports `productionRegistration: false`; default production readiness remains blocked. The source's named checkpoint predates the latest work and must not be treated as current indefinitely. | **Confirmed at intake and refreshed through TOOLS-205, with a freshness caveat.** This matrix records exact commits; future reports must refresh live status rather than copy the source description. |
 
+## S4 — Uber Engineering, *Running a Software Factory Efficiently at Uber Scale*
+
+S4 is a primary account of Uber's own environment, not independent or peer-reviewed
+research. All figures and performance explanations below are Uber-reported and
+environment-specific. The article itself cautions that its measured reductions are
+specific to Uber. GIS AI GO therefore treats them as hypotheses to test against its
+own bounded workloads, never as promised savings or release targets.
+
+| ID and source locator | Claim or observation | Test against GIS AI GO | Finding and action |
+| --- | --- | --- | --- |
+| S4-01, “Introduction”, Figures 1 and 2 | Uber reports sevenfold growth in weekly active users, 9.4-fold growth in weekly agentic requests, an almost 34% reduction in cost per 1,000 model requests with the model held constant, and a 52% reduction in cost per session from its June peak. | GIS AI GO has no comparable coding-agent fleet, model-spend baseline or production service. Different adoption, workloads, model versions and accounting boundaries prevent a valid transfer. | **Context only — reject as a GIS AI GO target.** Retain the figures only with the publisher, fixed-model comparison and environment limits. Do not infer expected savings, readiness or product quality. |
+| S4-02, “Code-Mode”, Figure 8 | Uber moves polling loops into a subprocess so intermediate responses do not repeatedly enter model context. Its example uses two to five status polls before result retrieval. The article does not claim an event-driven design or state-change-only reporting. | QUAL-206 has bounded waits, health checks, terminal-state checks and exact chronology that cannot be weakened for token efficiency. A waiter outside model context may reduce repeated model turns, but it could miss transitions or conceal timeout and failure evidence if designed badly. | **Adopt for measurement only.** Test an event-driven or bounded waiter that emits only state changes and terminal success or failure against the current polling baseline. Hold timeouts, exact event order and evidence predicates constant; compare model turns, tokens, elapsed time, missed transitions and failure detection. Do not change runtime behaviour from the claim. |
+| S4-03, “Executing MCP Tools via the Shell”, Figure 7 | Uber reports that pre-loading more than 100 tools added about 50,000 to 70,000 schema tokens, then uses command-line resolution to avoid those schemas and tool search to load only required capabilities on demand. | GIS AI GO's supported target is exactly five small, governed tools. Complete discovery, canonical names and non-App results are part of its current interoperability contract. Uber's scale and shell boundary are not comparable. | **Defer tool lazy loading; reject it for v0.2.** First measure the exact-five schema bytes or tokens and selection correctness. Revisit on-demand loading only if a future larger active set crosses an agreed overhead threshold without hiding tools, weakening discovery or introducing an arbitrary shell route. |
+| S4-04, “Benchmark-Driven Model Selection” and “Default Model Selection” | Uber selects models on real-work benchmarks and reports defaulting bounded subagents to a lower-cost model while the primary model handles decomposition and evaluation. | GIS AI GO's product runtime invokes no language model, and deterministic geospatial calculations must remain deterministic. Model choice belongs to the external host or development workflow, where weaker models could reduce cost but also miss safety or evidence defects. | **Reject product-runtime model routing; defer a development-workflow experiment.** On a fixed, non-sensitive task set, compare completion quality, missed defects, latency, timeout/error rate, reliability and authoritative cost for candidate routes. Keep security and release review on evidence, not model tier. |
+| S4-05, “Code-Mode”, Figure 8 and query table | Uber reports more than 50% token reduction for its simple-query comparisons in the same Claude Code session and more than 90% for bulk workflows by batching calls and keeping intermediate polling or data outside model context. | Generic shell or SQL code mode would widen GIS AI GO's fixed inputs and egress boundary. Product-level batching could also obscure individual operation order, errors, cancellation, trace context and receipts, including the exact-five evidence relation. | **Reject generic product code mode and semantic call batching.** Defer only a bounded harness experiment that batches non-semantic waiting or aggregation while preserving every canonical request, response, receipt, order and failure. Measure tokens and turns alongside parity, error localisation, cancellation and security. |
+| S4-06, “How We Measure” and “Optimizing Price / Token” | Uber combines outcome-denominated cost with quality, volume, latency, timeouts and reliability, and describes Pareto-efficient selection in terms of cost per completed task, output quality and reliability. | GIS AI GO evaluation cases already name correctness, provenance, policy, reproducibility, latency, cost, accessibility and interoperability, while `PERF-403` defers supportable capacity, latency and cost evidence. The current no-model, no-paid-provider path has no authoritative token or monetary meter. | **Adopt the measurement shape; defer monetary claims.** For each future efficiency experiment, record task success and quality, p50/p95 elapsed latency, timeout/error rate and reliability, volume or tool turns, and token or monetary cost only from an authoritative meter. Compare the same fixture, model and version before and after; no single metric can authorise release. |
+
 ## Integrated, deferred and rejected outcomes
 
 ### Integrated now
 
-- preserve all three source identities with a clear instruction and rights boundary;
+- preserve all three supplied source identities with a clear instruction and rights
+  boundary;
 - keep S1 local, ignored and outside all repository/release artefacts;
 - qualify the survey methodology and numerical claims;
 - add a source-backed incident-to-threat crosswalk;
-- make the existing negative-assurance concept explicit; and
+- make the existing negative-assurance concept explicit;
 - correct the S2 timing claim from release candidate to final MCP 2026-07-28 when
-  referring to current implementation.
+  referring to current implementation;
+- register S4 as link-only, qualified primary industry evidence; and
+- record the S4 efficiency decisions and measurement hypotheses without changing
+  runtime or the release and evidence workstream.
 
 ### Deferred without changing v0.2
 
@@ -125,7 +155,11 @@ at face value.
 - a separately versioned protected action receipt;
 - richer OKF governance vocabulary with consumer migration evidence;
 - formal multidimensional capability-transition evidence;
-- monetary/provider cost accounting; and
+- monetary/provider cost accounting;
+- an event-driven or state-change-only external waiting experiment;
+- an overhead threshold before any future tool lazy-loading experiment;
+- benchmarked model routing for the development workflow only;
+- bounded harness-only batching that preserves operation-level evidence; and
 - queryable authority and assurance graphs.
 
 ### Rejected from implementation
@@ -135,5 +169,10 @@ at face value.
 - importing its government identity, payment, legal or retention examples;
 - presenting respondent-reported incidents as measured prevalence;
 - treating a public registry entry, policy statement or vendor platform as assurance;
-- weakening evidence gates to reduce reported deployment delay; and
+- weakening evidence gates to reduce reported deployment delay;
+- transferring Uber's reported scale or savings into GIS AI GO targets;
+- adding model routing, arbitrary shell access or generic code mode to the product
+  runtime on the strength of S4;
+- weakening exact-five discovery, ordering, cancellation, trace or receipt
+  requirements for efficiency; and
 - activating, deploying or releasing capability on the strength of these documents.

@@ -1,0 +1,84 @@
+{
+  "schema": "gis-ai-go.deployed-live-provider-evidence.v1",
+  "schema_contract": {
+    "path": "schemas/deployed-live-provider-evidence.schema.json",
+    "sha256": "fd6e8ff59fa3cf1945081fb78b19a6a544dbc333853ce10156464df43beaab0a"
+  },
+  "classification": "synthetic-test-fixture",
+  "status": "passed",
+  "observed_at": {
+    "started": "2026-08-30T10:11:00Z",
+    "completed": "2026-08-30T10:11:01Z"
+  },
+  "source": {
+    "repository": "chris-page-gov/gis-ai-go",
+    "commit": "1c51991c2d34fd43c602890cfff36f7f33dcef5f",
+    "tree": "4de7a3983ec3b1567f2bfc28246cd02188ebf640",
+    "working_tree_clean": true
+  },
+  "image": {
+    "oci_archive_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "manifest_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "config_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "evidence_manifest_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "platform": "linux/amd64"
+  },
+  "target": {
+    "provider": "synthetic-provider",
+    "deployment_id": "synthetic-deployment-01",
+    "public_origin": "https://gateway.example.com",
+    "hostname": "gateway.example.com",
+    "deployed_manifest_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  },
+  "transport_binding": {
+    "schema": "gis-ai-go.remote-https-acceptance.v1",
+    "document_sha256": "e99c84e4c56b52a1191998b77696dcc6c63546c72fb0f1a738f70f57e7601bae",
+    "transport_status": "passed",
+    "direct_public_https": true
+  },
+  "provider": {
+    "adapter": "gis-ai-go.ons-data-api.v1",
+    "provider_id": "ons-data-api",
+    "dataset_id": "weekly-deaths-region",
+    "edition": "time-series",
+    "version": "121",
+    "version_uri": "https://api.beta.ons.gov.uk/v1/datasets/weekly-deaths-region/editions/time-series/versions/121",
+    "source_date": "2026-07-01",
+    "rights_state": "open-with-conditions",
+    "licence": "Open Government Licence v3.0",
+    "licence_uri": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
+    "credentials_used": false
+  },
+  "call": {
+    "operation": "data.query",
+    "transport": "direct-public-mcp-streamable-http",
+    "attempts": 1,
+    "provider_execution_count": 1,
+    "bounded": true,
+    "request_sha256": "7777777777777777777777777777777777777777777777777777777777777777",
+    "result_sha256": "8888888888888888888888888888888888888888888888888888888888888888",
+    "receipt_id": "gis-ai-go:evidence-receipt:sha256:9999999999999999999999999999999999999999999999999999999999999999",
+    "receipt_contract_valid": true,
+    "receipt_persisted": true,
+    "receipt_inspection_verified": true,
+    "structured_result_present": true,
+    "plain_text_result_present": true,
+    "structured_plain_text_parity": true,
+    "duration_ms": 250
+  },
+  "evidence_handling": {
+    "provider_payload_stored": false,
+    "raw_query_stored": false,
+    "credential_material_stored": false,
+    "personal_data_stored": false,
+    "machine_paths_stored": false,
+    "public_projection_path_free": true
+  },
+  "claims": {
+    "accepted_transport_bound": true,
+    "one_bounded_live_provider_call": true,
+    "production_registration": false,
+    "registry_published": false,
+    "release_ready": false
+  }
+}

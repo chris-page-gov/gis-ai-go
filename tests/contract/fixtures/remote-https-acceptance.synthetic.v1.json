@@ -1,0 +1,266 @@
+{
+  "schema": "gis-ai-go.remote-https-acceptance.v1",
+  "schema_contract": {
+    "path": "schemas/remote-https-acceptance.schema.json",
+    "sha256": "0db8dc23b6f4f6e4a906dd79205cb1e5bd4a45c969253dd6d613effc987ea8a4"
+  },
+  "classification": "synthetic-test-fixture",
+  "status": "passed",
+  "observed_at": {
+    "started": "2026-08-30T10:05:00Z",
+    "completed": "2026-08-30T10:10:00Z"
+  },
+  "source": {
+    "repository": "chris-page-gov/gis-ai-go",
+    "commit": "1c51991c2d34fd43c602890cfff36f7f33dcef5f",
+    "tree": "4de7a3983ec3b1567f2bfc28246cd02188ebf640",
+    "working_tree_clean": true
+  },
+  "image": {
+    "oci_archive_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "manifest_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "config_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "evidence_manifest_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "platform": "linux/amd64"
+  },
+  "target": {
+    "provider": "synthetic-provider",
+    "deployment_id": "synthetic-deployment-01",
+    "public_origin": "https://gateway.example.com",
+    "hostname": "gateway.example.com",
+    "deployed_manifest_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "direct_public_endpoint": true,
+    "tunnel_used": false
+  },
+  "observer": {
+    "kind": "independent-external-client",
+    "network_path": "public-internet-direct",
+    "runtime": "synthetic-verifier 1.0",
+    "address_class": "dual-stack"
+  },
+  "dns_tls": {
+    "dns_hostname": "gateway.example.com",
+    "dns_answers_observed": true,
+    "dns_answer_count": 2,
+    "sni_hostname": "gateway.example.com",
+    "sni_verified": true,
+    "certificate_chain_valid": true,
+    "certificate_hostname_valid": true,
+    "certificate_chain_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "certificate_not_before": "2026-08-29T00:00:00Z",
+    "certificate_not_after": "2026-11-27T00:00:00Z",
+    "negotiated_protocol": "TLSv1.3",
+    "tls_1_0_rejected": true,
+    "tls_1_1_rejected": true
+  },
+  "plaintext": {
+    "scheme": "http",
+    "outcome": "redirected-to-canonical-https",
+    "status": 308,
+    "redirect_origin": "https://gateway.example.com",
+    "gateway_body_observed": false
+  },
+  "authority": {
+    "accepted_host": "gateway.example.com",
+    "accepted_origin": "https://gateway.example.com",
+    "accepted_host_status": 200,
+    "wrong_host_status": 400,
+    "wrong_origin_status": 400,
+    "loopback_host_status": 400,
+    "forwarded_host_cannot_substitute": true,
+    "forwarded_origin_cannot_substitute": true,
+    "forwarded_headers_ignored_when_authority_is_valid": true
+  },
+  "endpoints": {
+    "health": {
+      "path": "/healthz",
+      "status": 200,
+      "body": "live",
+      "content_type": "text/plain; charset=utf-8"
+    },
+    "readiness": {
+      "path": "/readyz",
+      "status": 200,
+      "body": "ready",
+      "content_type": "text/plain; charset=utf-8"
+    },
+    "openapi": {
+      "path": "/openapi.json",
+      "status": 200,
+      "content_type": "application/json",
+      "document_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "server_origin": "https://gateway.example.com",
+      "lifecycle": "candidate-unregistered",
+      "public_ingress_configured": true,
+      "public_deployment_claim": false
+    },
+    "mcp": {
+      "path": "/mcp",
+      "status": 200,
+      "protocol_version": "2026-07-28",
+      "transport": "streamable-http"
+    }
+  },
+  "capability": {
+    "operations": [
+      "catalogue.search",
+      "catalogue.describe",
+      "selection.resolve",
+      "data.query",
+      "evidence.inspect"
+    ],
+    "resources": [
+      "catalogue.public",
+      "catalogue.record",
+      "evidence.receipt"
+    ],
+    "tool_checks": [
+      {
+        "operation": "catalogue.search",
+        "contract_valid": true,
+        "structured_result_present": true,
+        "plain_text_result_present": true,
+        "structured_plain_text_parity": true,
+        "receipt_present": true,
+        "receipt_contract_valid": true
+      },
+      {
+        "operation": "catalogue.describe",
+        "contract_valid": true,
+        "structured_result_present": true,
+        "plain_text_result_present": true,
+        "structured_plain_text_parity": true,
+        "receipt_present": true,
+        "receipt_contract_valid": true
+      },
+      {
+        "operation": "selection.resolve",
+        "contract_valid": true,
+        "structured_result_present": true,
+        "plain_text_result_present": true,
+        "structured_plain_text_parity": true,
+        "receipt_present": true,
+        "receipt_contract_valid": true
+      },
+      {
+        "operation": "data.query",
+        "contract_valid": true,
+        "structured_result_present": true,
+        "plain_text_result_present": true,
+        "structured_plain_text_parity": true,
+        "receipt_present": true,
+        "receipt_contract_valid": true
+      },
+      {
+        "operation": "evidence.inspect",
+        "contract_valid": true,
+        "structured_result_present": true,
+        "plain_text_result_present": true,
+        "structured_plain_text_parity": true,
+        "receipt_present": true,
+        "receipt_contract_valid": true
+      }
+    ],
+    "resource_checks": [
+      {
+        "resource": "catalogue.public",
+        "contract_valid": true,
+        "content_digest_verified": true
+      },
+      {
+        "resource": "catalogue.record",
+        "contract_valid": true,
+        "content_digest_verified": true
+      },
+      {
+        "resource": "evidence.receipt",
+        "contract_valid": true,
+        "content_digest_verified": true
+      }
+    ],
+    "direct_api_operation_parity": true,
+    "readiness_operation_parity": true
+  },
+  "runtime_controls": {
+    "single_writer_fencing": {
+      "lease_acquired_before_readiness": true,
+      "unique_lease_owner": true,
+      "maximum_observed_writers": 1,
+      "rollout_overlap_tested": true,
+      "maintenance_overlap_tested": true,
+      "overlapping_writer_denied": true,
+      "lease_loss_removed_readiness": true,
+      "lease_loss_stopped_serving_before_writer_release": true
+    },
+    "workload_identity": {
+      "mechanism": "synthetic-fixture",
+      "subject_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "static_credentials": false,
+      "least_privilege_verified": true
+    },
+    "egress": {
+      "default_deny_verified": true,
+      "allowed_origin": "https://api.beta.ons.gov.uk",
+      "allowed_paths_verified": true,
+      "unexpected_domain_blocked": true,
+      "direct_ip_blocked": true,
+      "credentials_forwarded": false
+    },
+    "storage": {
+      "ledger_volume_id_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "reconciliation_volume_id_sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+      "ledger_filesystem_check_sha256": "530dc9cda5d2dd65c1222a402f4b2fd57c626e85780d8941b66e5ad2318b103c",
+      "reconciliation_filesystem_check_sha256": "75026b918c7b04d9ef98529cc12b86c7e69b676b35dd423a46c2298c815f751e",
+      "distinct_volumes": true,
+      "persistent_restart_verified": true,
+      "posix_mode_bits_verified": true,
+      "hard_links_verified": true,
+      "symbolic_link_rejection_verified": true,
+      "exclusive_create_verified": true,
+      "file_fsync_verified": true,
+      "directory_fsync_verified": true,
+      "no_overwrite_restore_verified": true,
+      "backup_policy_verified": true,
+      "rpo_verified": true,
+      "rto_verified": true,
+      "disposal_verified": true
+    },
+    "suspension_recovery": {
+      "suspended": true,
+      "public_endpoint_unreachable_while_suspended": true,
+      "checkpoint_manifest_sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+      "restored_to_empty_private_roots": true,
+      "ledger_verified_after_restore": true,
+      "reconciliation_verified_after_restore": true,
+      "restored_manifest_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "readiness_restored": true
+    },
+    "logs": {
+      "bounded": true,
+      "correlation_ids_present": true,
+      "secrets_absent": true,
+      "raw_idempotency_keys_absent": true,
+      "machine_paths_absent": true,
+      "retention_verified": true
+    },
+    "rollback": {
+      "previous_manifest_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+      "candidate_manifest_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "selected_without_rebuild": true,
+      "rollback_completed": true,
+      "previous_health_ready": true,
+      "candidate_restored_without_rebuild": true,
+      "candidate_health_ready": true,
+      "evidence_sha256": "6666666666666666666666666666666666666666666666666666666666666666"
+    }
+  },
+  "claims": {
+    "transport_only": true,
+    "direct_public_https": true,
+    "exact_five_transport_capability": true,
+    "live_provider_exercised": false,
+    "provider_payload_stored": false,
+    "registry_published": false,
+    "release_ready": false
+  }
+}

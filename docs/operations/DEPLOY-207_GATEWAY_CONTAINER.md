@@ -7,14 +7,15 @@ the closed container activation merged through
 commit `f253605ab26628e821d4ebc3809cf13c883d57ed`. The QUAL-206 protected-main
 ancestry repair merged through
 [pull request 99](https://github.com/chris-page-gov/gis-ai-go/pull/99) at
-`c7eca721b084356dace8f264d7531b2180093b2d`. The candidate is not published,
-registered or deployed.
+`c7eca721b084356dace8f264d7531b2180093b2d`. The provider-neutral public-origin
+preparation subsequently merged through
+[pull request 107](https://github.com/chris-page-gov/gis-ai-go/pull/107) as exact
+protected-main commit `1c51991c2d34fd43c602890cfff36f7f33dcef5f`. The candidate
+is not published, registered or deployed.
 
-The provider-neutral public-ingress preparation below is a later source-changing
-image candidate. The PR 98, PR 99 and `c7eca721` identities do not cover its bytes.
-Acceptance requires fresh pull-request and protected-main repository, image,
-independent-derivation, byte-comparison, provenance, attestation and CodeQL evidence
-for the exact introducing commit.
+The PR 98, PR 99 and `c7eca721` identities do not cover the later public-origin
+bytes. Their fresh protected-main repository, image, independent-derivation,
+byte-comparison, provenance, attestation and CodeQL evidence is recorded below.
 
 This runbook covers the image, local Compose and assurance slice that can proceed
 without selecting a public runtime. It does not activate GIS AI GO for production, contact ONS,
@@ -23,14 +24,16 @@ supported `v0.1.0` release.
 
 ## Protected-main acceptance
 
-At exact protected-main commit `c7eca721b084356dace8f264d7531b2180093b2d`,
-[CI run 33237523106](https://github.com/chris-page-gov/gis-ai-go/actions/runs/33237523106)
+At exact protected-main commit `1c51991c2d34fd43c602890cfff36f7f33dcef5f`,
+[CI run 33280594791](https://github.com/chris-page-gov/gis-ai-go/actions/runs/33280594791)
 passed repository assurance, the producer image, independent clean OCI derivation,
 exact byte comparison, aggregate assurance, provenance and attestation verification.
-[CodeQL run 33237523042](https://github.com/chris-page-gov/gis-ai-go/actions/runs/33237523042)
-passed Actions, JavaScript/TypeScript and Python. This completes the first
-DEPLOY-207 candidate criterion only; it makes no public-host, live-provider,
-deployment, rollback or release claim.
+[CodeQL run 33280594564](https://github.com/chris-page-gov/gis-ai-go/actions/runs/33280594564)
+passed Actions, JavaScript/TypeScript and Python. The preceding fixed-container
+activation remains independently accepted at `c7eca721` through runs `33237523106`
+and `33237523042`. Together these complete the first DEPLOY-207 candidate criterion
+only; they make no public-host, live-provider, deployment, rollback or release
+claim.
 
 The repository-only container foundation merged through
 [pull request 48](https://github.com/chris-page-gov/gis-ai-go/pull/48). The later
@@ -541,6 +544,15 @@ The restore is networked and accepts only the exact Anchore origin, path, length
 SHA-256 retained in the receipt. The final verifier imports those local bytes and
 replays the three Node roles with `--pull=never` and `--network=none`. Preserve the
 completed directory locally until the owner names its private long-term destination.
+
+On 30 August 2026, the owner-only hand-off was completed for protected-main run
+`33280594791` and source `1c51991`. Artefact `9722947125` was retained locally,
+the exact Grype database was rehydrated at SHA-256
+`4642c2baaef4b11ac2eaf2929d8a2740dd449a47ff892a22dbfce1e4a49fb1f1`, and the
+complete clean-source offline verifier passed for image digest
+`sha256:686ae48ad1b2abb39874d9f1e4444a88e07c6d29bd4c67851aee13fb2bad3c5e`.
+The path and local receipt remain private. This closes only the local preservation
+follow-up; no external long-term replica, deployment or release is claimed.
 
 ## SBOM and vulnerability policy
 

@@ -41,12 +41,14 @@
     "validate:public-read-v2": "pnpm --filter @gis-ai-go/policy-client run prepare:test && pnpm --filter @gis-ai-go/policy-client run build && node scripts/check_public_read_v2.mjs",
     "validate:contracts": "uv run --locked --cache-dir .uv-cache python scripts/validate_contracts.py",
     "validate:versions": "uv run --locked --cache-dir .uv-cache python scripts/check_versions.py",
+    "validate:changelog-fragments": "uv run --locked --cache-dir .uv-cache python scripts/check_changelog_fragments.py",
+    "preview:v0.2.0": "uv run --locked --cache-dir .uv-cache python scripts/check_changelog_fragments.py --preview-version 0.2.0 --output artifacts/release/v0.2.0-preview.md",
     "validate:release-readiness": "uv run --locked --cache-dir .uv-cache python scripts/check_versions.py --release-ready",
     "validate:links": "uv run --locked --cache-dir .uv-cache python scripts/check_links.py",
     "validate:secrets": "uv run --locked --cache-dir .uv-cache python scripts/scan_secrets.py",
     "render:diagrams": "node scripts/render_diagrams.mjs --output artifacts/diagrams",
     "sbom": "uv run --locked --cache-dir .uv-cache python scripts/generate_sbom.py --output artifacts/sbom.cdx.json",
-    "check": "pnpm run typecheck && pnpm run test && pnpm run test:browser && pnpm run validate:release-reproducibility && pnpm run validate:versions && pnpm run validate:public-read-v2 && pnpm run validate:contracts && pnpm run validate:links && pnpm run validate:secrets && pnpm run render:diagrams && pnpm run sbom"
+    "check": "pnpm run typecheck && pnpm run test && pnpm run test:browser && pnpm run validate:release-reproducibility && pnpm run validate:versions && pnpm run validate:changelog-fragments && pnpm run validate:public-read-v2 && pnpm run validate:contracts && pnpm run validate:links && pnpm run validate:secrets && pnpm run render:diagrams && pnpm run sbom"
   },
   "devDependencies": {
     "@gis-ai-go/tool-registry": "workspace:*",

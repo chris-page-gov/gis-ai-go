@@ -1,6 +1,6 @@
 # Delivery progress
 
-Last updated: 29 August 2026
+Last updated: 30 August 2026
 
 ## Current outcome
 
@@ -41,10 +41,32 @@ The supported target active set is exactly `catalogue.search`,
   or deployment state;
 - replace loopback authority in public mode, reject wrong ports and Host or Origin
   substitution, and ignore forwarded headers as authority inputs; and
-- treat this as a later source-changing image candidate that is not covered by the
-  PR 98, PR 99 or `c7eca721` evidence above. Require fresh pull-request and
-  protected-main repository, image, independent-derivation, byte-comparison,
-  provenance, attestation and CodeQL assurance for the exact introducing commit.
+- accept the source-changing seam through
+  [pull request 107](https://github.com/chris-page-gov/gis-ai-go/pull/107) as exact
+  protected-main commit `1c51991c2d34fd43c602890cfff36f7f33dcef5f`.
+  Protected-main run `33280594791` passed repository assurance, image assurance,
+  independent derivation, byte comparison, provenance and attestation verification;
+  CodeQL run `33280594564` passed all three analyses. This remains preparation, not
+  DNS, TLS, deployment, provider or release evidence.
+
+`DEPLOY-207 — Provider-independent admission and recovery preparation`
+
+- close the future deployment plan over source, image, ingress, single-writer,
+  identity, egress, storage, recovery, logs, spend and operator fields without
+  inventing a provider value;
+- validate the remote HTTPS observation document separately from the later bounded
+  live-provider document, preserving the exact-five tools, three resources, trace,
+  receipt, plain-text, suspension and rollback relationships without treating
+  document validity as attestation that either observation occurred;
+- expose stopped-writer checkpoint creation and empty-root restoration through
+  bounded operator commands with path-free results, and test required POSIX modes,
+  hard links, atomic no-overwrite behaviour and synchronisation on a supplied
+  filesystem; and
+- retain the exact `1c51991` protected-main gateway artefact and rehydrated scanner
+  database in an owner-only local set. Its complete offline verifier passes for
+  image digest
+  `sha256:686ae48ad1b2abb39874d9f1e4444a88e07c6d29bd4c67851aee13fb2bad3c5e`.
+  This is private preservation, not a deployment or release claim.
 
 `QUAL-206 — Progress from repository preflight to independent-host evidence`
 
@@ -481,16 +503,17 @@ or release is claimed.
    summaries, the separate historical default-negotiation record, the accepted
    one-case `HOST-002` capability projection, the exact-five local STDIO capability
    projection, the accepted ChatGPT secure-tunnel exact-five projection and the
-   protected-main loopback HTTP projection. Complete the remaining direct public
-   Streamable HTTP/TLS host evidence without widening any narrow result.
-2. Retain the exact protected-main fixed-container, independent-derivation,
-   byte-comparison and provenance evidence for `c7eca721` from runs `33237523106`
-   and `33237523042`; rebuild and repeat it after every later source-changing
-   activation or release commit.
-3. Keep DEPLOY-207 at `status: decision needed` until an authorised public runtime,
+   protected-main loopback HTTP projection. Use the closed remote HTTPS acceptance
+   pack for the remaining direct public Streamable HTTP/TLS host evidence without
+   widening any narrow result.
+2. Retain the owner-only, complete offline gateway evidence for exact protected main
+   `1c51991` and runs `33280594791` and `33280594564`; rebuild and repeat it after
+   every later source-changing activation or release commit.
+3. Complete the deployment-admission plan only after an authorised public runtime,
    hostname/TLS, identity, egress, storage and operator boundary exists.
-   Retain the provider-neutral single-origin admission seam as preparation only;
-   its local socket checks and OpenAPI projection are not deployment evidence.
+   For an Azure Container Apps candidate, decide the actual hard spending stop,
+   single-writer fence and NFS recovery design rather than treating a budget alert,
+   replica limit or product documentation as evidence.
 4. Only after that separate authority exists, deploy an unregistered
    candidate and complete live QUAL-206 evidence before any public or production
    activation, registry publication, tag or `v0.2.0` release.
@@ -500,7 +523,8 @@ or release is claimed.
 - The owner has accepted the UBI and derived-image terms, MCP Registry terms and CC0
   metadata dedication, and has authorised deployment, provider calls, registry
   publication, activation and release in principle. Execution still lacks a selected
-  provider account, numeric monthly spend ceiling, public runtime, hostname/TLS
+  provider account, authorised numeric monthly spend ceiling and hard-stop control,
+  public runtime, hostname/TLS
   boundary, workload identity, admitted persistent volume or backup target,
   independently administered external checkpoint, operator-fencing/schedule/disposal
   model, service deployment workflow or previous deployed image for a real rollback.
@@ -536,11 +560,14 @@ or release is claimed.
   remain outstanding.
 - The historical Debian image findings were superseded by the UBI image at
   `dda0eb9`. The later fixed-container activation at exact protected-main commit
-  `c7eca721` has its own fresh image, SBOM, independent derivation, byte comparison,
-  provenance, attestations and CodeQL evidence in runs `33237523106` and
-  `33237523042`. This is not a claim about a later source-changing activation or
-  release commit: every such commit requires a new exact image build, scan,
-  independent derivation, evidence replay and attestation set.
+  `c7eca721` has its own fresh evidence in runs `33237523106` and `33237523042`.
+  The later public-origin preparation at exact protected-main commit `1c51991` has
+  a fresh image, SBOM, independent derivation, byte comparison, provenance,
+  attestations and CodeQL evidence in runs `33280594791` and `33280594564`; its
+  complete scanner database has also been privately rehydrated and replayed. This
+  is not a claim about a later activation or release commit: every such commit
+  requires a new exact image build, scan, independent derivation, evidence replay
+  and attestation set.
 - The accepted ONS adapter and reconciliation storage are local, explicitly injected
   components. The fixed 4,096-claim pre-publication index ceiling and accepted ledger
   event ceiling are local safety bounds, not deployment quotas. There is no

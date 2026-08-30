@@ -42,19 +42,32 @@ whose accepted implementation commit is
 `a0e826384cf50d9d81b87489dbf3580e8e3602f7`. The Explorer is deployed and verified
 at <https://chris-page-gov.github.io/gis-ai-go/> from the later release commit
 recorded below. The latest protected-main implementation hand-off is
-`c7eca721b084356dace8f264d7531b2180093b2d`; its container-activation runtime
+`1c51991c2d34fd43c602890cfff36f7f33dcef5f`; its container-activation runtime
 baseline is `f253605ab26628e821d4ebc3809cf13c883d57ed`. It contains the
 repository-only QUAL-206 preflight, completed trace and readiness integrity, one
 compile-time `candidate-unregistered` exact-five assembly, the bounded 23 August
 research intake, a dedicated inline-only receipt for each successful current
 `evidence.inspect` call, the source-bound repository-local protocol matrix, the
 fail-closed real-socket loopback HTTP preflight harness, the bounded provider-admission
-lease and capacity-aware readiness.
+lease, capacity-aware readiness and one strict provider-neutral public HTTPS
+authority seam. Exact protected-main repository, image, independent-derivation,
+provenance and CodeQL assurance passed in runs
+[`33280594791`](https://github.com/chris-page-gov/gis-ai-go/actions/runs/33280594791)
+and
+[`33280594564`](https://github.com/chris-page-gov/gis-ai-go/actions/runs/33280594564).
 The fixed container entrypoint mounts the exact-five assembly, while the shipped
 generic, production and default operation arrays remain empty and their readiness
 remains `503`. There is no public MCP service, live provider call through the
 fixed-container candidate, external policy or identity service, deployment or
 `v0.2.0` release.
+
+Provider-independent preparation now supplies closed deployment-admission, remote
+HTTPS transport-observation and later live-provider document contracts, plus auditable
+checkpoint, restore and filesystem-capability operator tooling. These contracts
+contain synthetic plans and hostile fixtures only. They create no cloud resource,
+select no runtime, spend no budget and cannot promote a configured hostname,
+classification label, documented provider feature or local rehearsal into verified
+deployment evidence. Contract validity does not attest that an observation occurred.
 
 An experimental, standalone WebMCP Explorer candidate sits under
 `apps/webmcp-explorer` without changing that state. It exposes exactly two
