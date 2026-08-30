@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:evidence-checkpoint-create-result:v1",
+  "title": "GIS AI GO evidence checkpoint create result",
+  "description": "A path-free result from creating one provider-independent evidence checkpoint after explicit operator fencing assertions.",
+  "oneOf": [
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "status",
+        "operation",
+        "operator_assertions",
+        "publication_durability",
+        "checkpoint_id",
+        "ledger",
+        "reconciliation_index"
+      ],
+      "properties": {
+        "schema": {"const": "gis-ai-go.evidence-checkpoint-create-result.v1"},
+        "status": {"const": "passed"},
+        "operation": {"const": "create"},
+        "operator_assertions": {"$ref": "#/$defs/operatorAssertions"},
+        "publication_durability": {
+          "const": "file-and-parent-directory-synchronised"
+        },
+        "checkpoint_id": {"$ref": "#/$defs/checkpointId"},
+        "ledger": {"$ref": "#/$defs/ledger"},
+        "reconciliation_index": {"$ref": "#/$defs/reconciliationIndex"}
+      }
+    },
+    {"$ref": "#/$defs/failure"}
+  ],
+  "$defs": {
+    "operatorAssertions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["stopped_single_writer", "exclusive_operation_owner"],
+      "properties": {
+        "stopped_single_writer": {"const": "operator-confirmed"},
+        "exclusive_operation_owner": {"const": "operator-confirmed"}
+      }
+    },
+    "checkpointId": {
+      "type": "string",
+      "pattern": "^gis-ai-go:evidence-checkpoint:sha256:[0-9a-f]{64}$"
+    },
+    "ledger": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ledger_id", "event_count", "record_count", "last_event_id"],
+      "properties": {
+        "ledger_id": {
+          "type": "string",
+          "pattern": "^gis-ai-go:public-evidence-ledger:sha256:[0-9a-f]{64}$"
+        },
+        "event_count": {"type": "integer", "minimum": 0, "maximum": 1000000},
+        "record_count": {"type": "integer", "minimum": 0, "maximum": 1000000},
+        "last_event_id": {
+          "oneOf": [
+            {"type": "null"},
+            {
+              "type": "string",
+              "pattern": "^gis-ai-go:evidence-ledger-event:sha256:[0-9a-f]{64}$"
+            }
+          ]
+        }
+      }
+    },
+    "reconciliationIndex": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "index_id",
+        "ledger_id",
+        "claim_count",
+        "completed_count",
+        "pending_count"
+      ],
+      "properties": {
+        "index_id": {
+          "type": "string",
+          "pattern": "^gis-ai-go:evidence-reconciliation-index:sha256:[0-9a-f]{64}$"
+        },
+        "ledger_id": {
+          "type": "string",
+          "pattern": "^gis-ai-go:public-evidence-ledger:sha256:[0-9a-f]{64}$"
+        },
+        "claim_count": {"type": "integer", "minimum": 0, "maximum": 4096},
+        "completed_count": {"type": "integer", "minimum": 0, "maximum": 4096},
+        "pending_count": {"type": "integer", "minimum": 0, "maximum": 4096}
+      }
+    },
+    "failure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "status", "code"],
+      "properties": {
+        "schema": {"const": "gis-ai-go.evidence-checkpoint-create-result.v1"},
+        "status": {"const": "failed"},
+        "code": {
+          "enum": [
+            "checkpoint-mismatch",
+            "collision",
+            "corruption",
+            "destination-not-empty",
+            "invalid-arguments",
+            "invalid-configuration",
+            "io-failure",
+            "publication-indeterminate",
+            "quiescence-required",
+            "unexpected-create-failure"
+          ]
+        }
+      }
+    }
+  }
+}

@@ -261,6 +261,175 @@ class EvidenceCheckpointContractTests(unittest.TestCase):
             list(reconciliation_validator.iter_errors(read_only_reconciliation))
         )
 
+    def test_operator_results_are_closed_path_free_and_keep_deployment_unscored(
+        self,
+    ) -> None:
+        source_manifest = manifest()
+        verification = {
+            "checkpoint_id": source_manifest["checkpoint_id"],
+            "ledger": {
+                "ledger_id": source_manifest["ledger"]["ledger_id"],
+                "event_count": 1,
+                "record_count": 1,
+                "last_event_id": source_manifest["ledger"]["last_event_id"],
+            },
+            "reconciliation_index": {
+                "index_id": source_manifest["reconciliation_index"]["index_id"],
+                "ledger_id": source_manifest["ledger"]["ledger_id"],
+                "claim_count": 1,
+                "completed_count": 1,
+                "pending_count": 0,
+            },
+        }
+        assertions = {
+            "stopped_single_writer": "operator-confirmed",
+            "exclusive_operation_owner": "operator-confirmed",
+        }
+        created = {
+            "schema": "gis-ai-go.evidence-checkpoint-create-result.v1",
+            "status": "passed",
+            "operation": "create",
+            "operator_assertions": assertions,
+            "publication_durability": (
+                "file-and-parent-directory-synchronised"
+            ),
+            **verification,
+        }
+        restored = {
+            "schema": "gis-ai-go.evidence-checkpoint-restore-result.v1",
+            "status": "passed",
+            "operation": "restore",
+            "operator_assertions": assertions,
+            "source_checkpoint": "verified",
+            "restored_pair": "verified",
+            "deployment_readiness": "not-evaluated",
+            **verification,
+        }
+        create_validator = validator(
+            "evidence-checkpoint-create-result.schema.json"
+        )
+        restore_validator = validator(
+            "evidence-checkpoint-restore-result.schema.json"
+        )
+        self.assertEqual([], list(create_validator.iter_errors(created)))
+        self.assertEqual([], list(restore_validator.iter_errors(restored)))
+
+        for schema_validator, document in (
+            (create_validator, created),
+            (restore_validator, restored),
+        ):
+            with self.subTest(schema=document["schema"]):
+                text = json.dumps(document, sort_keys=True)
+                self.assertNotIn("/Users/", text)
+                self.assertNotIn("source_directory", text)
+                self.assertNotIn("destination_directory", text)
+                widened = copy.deepcopy(document)
+                widened["checkpoint_directory"] = "/private/checkpoint"
+                self.assertTrue(list(schema_validator.iter_errors(widened)))
+
+        false_assertion = copy.deepcopy(created)
+        false_assertion["operator_assertions"]["stopped_single_writer"] = False
+        self.assertTrue(list(create_validator.iter_errors(false_assertion)))
+        false_readiness = copy.deepcopy(restored)
+        false_readiness["deployment_readiness"] = "ready"
+        self.assertTrue(list(restore_validator.iter_errors(false_readiness)))
+
+    def test_filesystem_probe_and_rehearsal_results_preserve_provider_boundary(
+        self,
+    ) -> None:
+        source_manifest = manifest()
+        filesystem = {
+            "schema": "gis-ai-go.evidence-filesystem-capability-check.v1",
+            "status": "passed",
+            "classification": "direct-filesystem-observation",
+            "scope": "one-caller-identified-filesystem",
+            "observed_at": "2026-08-30T08:30:00.000Z",
+            "mount_identity_sha256": "a" * 64,
+            "schema_contract": {
+                "path": (
+                    "schemas/evidence-filesystem-capability-check.schema.json"
+                ),
+                "sha256": "b" * 64,
+            },
+            "checks": [
+                "private-directory-mode-0700",
+                "private-file-mode-0600",
+                "exclusive-file-create",
+                "sibling-hard-link",
+                "atomic-no-replace-hard-link",
+                "regular-file-fsync",
+                "directory-fsync",
+                "synchronised-clean-up",
+            ],
+            "limitations": {
+                "same_filesystem_only": True,
+                "full_hardware_flush": "not-established",
+                "mount_identity_provenance": "caller-supplied-not-attested",
+            },
+        }
+        rehearsal_filesystem = copy.deepcopy(filesystem)
+        rehearsal_filesystem["classification"] = "synthetic-test-fixture"
+        rehearsal = {
+            "schema": "gis-ai-go.evidence-checkpoint-recovery-rehearsal.v1",
+            "status": "passed",
+            "mode": "deterministic-synthetic-non-live",
+            "writer_lifecycle": "fixture-process-exited-before-checkpoint",
+            "filesystem_observation": rehearsal_filesystem,
+            "checkpoint_creation": "passed",
+            "checkpoint_verification": "passed",
+            "source_pair": "quarantined-without-deletion",
+            "restore": "passed",
+            "readiness": {
+                "evidence_storage": "verified",
+                "service": "not-started",
+                "deployment": "not-evaluated",
+            },
+            "checkpoint_id": source_manifest["checkpoint_id"],
+            "ledger_id": source_manifest["ledger"]["ledger_id"],
+            "reconciliation_index_id": source_manifest[
+                "reconciliation_index"
+            ]["index_id"],
+            "event_count": 1,
+            "completed_claim_count": 1,
+            "provider_calls": 0,
+        }
+        filesystem_validator = validator(
+            "evidence-filesystem-capability-check.schema.json"
+        )
+        rehearsal_validator = validator(
+            "evidence-checkpoint-recovery-rehearsal.schema.json"
+        )
+        self.assertEqual([], list(filesystem_validator.iter_errors(filesystem)))
+        self.assertEqual([], list(rehearsal_validator.iter_errors(rehearsal)))
+
+        omitted_fsync = copy.deepcopy(filesystem)
+        omitted_fsync["checks"].remove("directory-fsync")
+        self.assertTrue(list(filesystem_validator.iter_errors(omitted_fsync)))
+        false_attestation = copy.deepcopy(filesystem)
+        false_attestation["limitations"]["mount_identity_provenance"] = (
+            "independently-attested"
+        )
+        self.assertTrue(list(filesystem_validator.iter_errors(false_attestation)))
+        non_canonical_time = copy.deepcopy(filesystem)
+        non_canonical_time["observed_at"] = "2026-08-30T08:30:00Z"
+        self.assertTrue(list(filesystem_validator.iter_errors(non_canonical_time)))
+        with_filesystem_path = copy.deepcopy(filesystem)
+        with_filesystem_path["probe_directory"] = "/private/provider-mount"
+        self.assertTrue(list(filesystem_validator.iter_errors(with_filesystem_path)))
+        misclassified_rehearsal = copy.deepcopy(rehearsal)
+        misclassified_rehearsal["filesystem_observation"]["classification"] = (
+            "direct-filesystem-observation"
+        )
+        self.assertTrue(
+            list(rehearsal_validator.iter_errors(misclassified_rehearsal))
+        )
+        promoted = copy.deepcopy(rehearsal)
+        promoted["readiness"]["deployment"] = "passed"
+        self.assertTrue(list(rehearsal_validator.iter_errors(promoted)))
+        with_path = copy.deepcopy(rehearsal)
+        with_path["rehearsal_root"] = "/private/rehearsal"
+        self.assertTrue(list(rehearsal_validator.iter_errors(with_path)))
+
 
 if __name__ == "__main__":
     unittest.main()

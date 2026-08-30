@@ -1,0 +1,139 @@
+{
+  "schema": "gis-ai-go.deployment-admission-plan.v1",
+  "schema_contract": {
+    "path": "schemas/deployment-admission-plan.schema.json",
+    "sha256": "188e9c72e53acbe67f31263e9aeb942a4ebc253d673675be1b813961eb5cf792"
+  },
+  "classification": "synthetic-test-fixture",
+  "status": "blocked-pending-authority",
+  "generated_at": "2026-08-30T10:00:00Z",
+  "source": {
+    "repository": "chris-page-gov/gis-ai-go",
+    "commit": "1c51991c2d34fd43c602890cfff36f7f33dcef5f",
+    "tree": "4de7a3983ec3b1567f2bfc28246cd02188ebf640",
+    "working_tree_clean": true
+  },
+  "image": {
+    "oci_archive_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "manifest_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "config_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "evidence_manifest_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "platform": "linux/amd64"
+  },
+  "service": {
+    "protocol": "mcp",
+    "protocol_version": "2026-07-28",
+    "transport": "streamable-http",
+    "operations": [
+      "catalogue.search",
+      "catalogue.describe",
+      "selection.resolve",
+      "data.query",
+      "evidence.inspect"
+    ],
+    "resources": [
+      "catalogue.public",
+      "catalogue.record",
+      "evidence.receipt"
+    ],
+    "production_registration": false
+  },
+  "ingress": {
+    "public_origin": "https://gateway.example.com",
+    "hostname": "gateway.example.com",
+    "tls_termination": "provider-or-operator-managed",
+    "accepted_hosts": [
+      "gateway.example.com",
+      "gateway.example.com:443"
+    ],
+    "accepted_origins": [
+      "https://gateway.example.com"
+    ],
+    "health_probe_host": "gateway.example.com",
+    "forwarded_headers_are_authority": false,
+    "loopback_is_public_authority": false
+  },
+  "controls": {
+    "single_writer": {
+      "required": true,
+      "steady_replicas": 1,
+      "admission_lease_required": true,
+      "lease_scope": "ledger-and-reconciliation-pair",
+      "lease_loss_behaviour": "stop-serving-before-writer-loss",
+      "rollout_overlap_fenced": false,
+      "maintenance_overlap_fenced": false
+    },
+    "workload_identity": {
+      "required": true,
+      "mechanism": "synthetic-fixture",
+      "static_credentials": false,
+      "identity_subject": null
+    },
+    "egress": {
+      "default_deny": true,
+      "allowed_https_origins": [
+        "https://api.beta.ons.gov.uk"
+      ],
+      "allowed_path_prefixes": [
+        "/v1/datasets/weekly-deaths-region/"
+      ],
+      "credentials_forwarded": false,
+      "direct_ip_egress_allowed": false
+    },
+    "storage": {
+      "ledger_and_index_distinct": true,
+      "persistent": true,
+      "posix_mode_bits": true,
+      "hard_links": true,
+      "symbolic_link_detection": true,
+      "exclusive_create": true,
+      "file_fsync": true,
+      "directory_fsync": true,
+      "no_overwrite_restore": true,
+      "backup_required": true,
+      "rpo_defined": false,
+      "rto_defined": false,
+      "disposal_defined": false
+    },
+    "observability": {
+      "bounded_logs": true,
+      "correlation_ids": true,
+      "secrets_logged": false,
+      "raw_idempotency_keys_logged": false,
+      "machine_paths_logged": false,
+      "retention_defined": false
+    }
+  },
+  "operator": {
+    "owner": null,
+    "suspension_procedure": null,
+    "checkpoint_procedure": null,
+    "restore_procedure": null,
+    "rollback_procedure": null,
+    "incident_route": null,
+    "all_assigned": false
+  },
+  "spend": {
+    "authority_confirmed": false,
+    "currency": null,
+    "monthly_limit": null,
+    "budget_alert_is_hard_stop": false,
+    "hard_stop_mechanism": null,
+    "cost_owner": null
+  },
+  "evidence_requirements": {
+    "remote_https_schema": "gis-ai-go.remote-https-acceptance.v1",
+    "live_provider_schema": "gis-ai-go.deployed-live-provider-evidence.v1",
+    "independent_observer": true,
+    "direct_public_endpoint": true,
+    "tunnel_permitted": false,
+    "rollback_without_rebuild": true
+  },
+  "claims": {
+    "public_deployment": false,
+    "remote_https_verified": false,
+    "live_provider_verified": false,
+    "registry_published": false,
+    "release_ready": false
+  }
+}

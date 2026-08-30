@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:evidence-checkpoint-recovery-rehearsal:v1",
+  "title": "GIS AI GO evidence checkpoint recovery rehearsal",
+  "description": "A path-free deterministic synthetic rehearsal of writer stop, filesystem admission, checkpoint creation, quarantine, restore and evidence-readiness verification.",
+  "oneOf": [
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "status",
+        "mode",
+        "writer_lifecycle",
+        "filesystem_observation",
+        "checkpoint_creation",
+        "checkpoint_verification",
+        "source_pair",
+        "restore",
+        "readiness",
+        "checkpoint_id",
+        "ledger_id",
+        "reconciliation_index_id",
+        "event_count",
+        "completed_claim_count",
+        "provider_calls"
+      ],
+      "properties": {
+        "schema": {"const": "gis-ai-go.evidence-checkpoint-recovery-rehearsal.v1"},
+        "status": {"const": "passed"},
+        "mode": {"const": "deterministic-synthetic-non-live"},
+        "writer_lifecycle": {"const": "fixture-process-exited-before-checkpoint"},
+        "filesystem_observation": {
+          "allOf": [
+            {
+              "$ref": "urn:gis-ai-go:schema:evidence-filesystem-capability-check:v1"
+            },
+            {
+              "required": ["status", "classification"],
+              "properties": {
+                "status": {"const": "passed"},
+                "classification": {"const": "synthetic-test-fixture"}
+              }
+            }
+          ]
+        },
+        "checkpoint_creation": {"const": "passed"},
+        "checkpoint_verification": {"const": "passed"},
+        "source_pair": {"const": "quarantined-without-deletion"},
+        "restore": {"const": "passed"},
+        "readiness": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["evidence_storage", "service", "deployment"],
+          "properties": {
+            "evidence_storage": {"const": "verified"},
+            "service": {"const": "not-started"},
+            "deployment": {"const": "not-evaluated"}
+          }
+        },
+        "checkpoint_id": {
+          "$ref": "urn:gis-ai-go:schema:evidence-checkpoint-create-result:v1#/$defs/checkpointId"
+        },
+        "ledger_id": {
+          "type": "string",
+          "pattern": "^gis-ai-go:public-evidence-ledger:sha256:[0-9a-f]{64}$"
+        },
+        "reconciliation_index_id": {
+          "type": "string",
+          "pattern": "^gis-ai-go:evidence-reconciliation-index:sha256:[0-9a-f]{64}$"
+        },
+        "event_count": {"const": 1},
+        "completed_claim_count": {"const": 1},
+        "provider_calls": {"const": 0}
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "status", "code"],
+      "properties": {
+        "schema": {"const": "gis-ai-go.evidence-checkpoint-recovery-rehearsal.v1"},
+        "status": {"const": "failed"},
+        "code": {
+          "enum": [
+            "checkpoint-create-failed",
+            "checkpoint-identity-mismatch",
+            "checkpoint-restore-failed",
+            "checkpoint-verification-failed",
+            "cleanup-failed",
+            "filesystem-capability-check-failed",
+            "fixture-writer-failed",
+            "invalid-arguments",
+            "quarantine-sync-failed",
+            "restore-identity-mismatch",
+            "restored-lookup-failed",
+            "unexpected-rehearsal-failure"
+          ]
+        }
+      }
+    }
+  ]
+}

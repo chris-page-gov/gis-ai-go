@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:evidence-checkpoint-restore-result:v1",
+  "title": "GIS AI GO evidence checkpoint restore result",
+  "description": "A path-free result from restoring one verified checkpoint into two existing empty private roots after explicit operator fencing assertions.",
+  "oneOf": [
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "status",
+        "operation",
+        "operator_assertions",
+        "source_checkpoint",
+        "restored_pair",
+        "deployment_readiness",
+        "checkpoint_id",
+        "ledger",
+        "reconciliation_index"
+      ],
+      "properties": {
+        "schema": {"const": "gis-ai-go.evidence-checkpoint-restore-result.v1"},
+        "status": {"const": "passed"},
+        "operation": {"const": "restore"},
+        "operator_assertions": {"$ref": "urn:gis-ai-go:schema:evidence-checkpoint-create-result:v1#/$defs/operatorAssertions"},
+        "source_checkpoint": {"const": "verified"},
+        "restored_pair": {"const": "verified"},
+        "deployment_readiness": {"const": "not-evaluated"},
+        "checkpoint_id": {"$ref": "urn:gis-ai-go:schema:evidence-checkpoint-create-result:v1#/$defs/checkpointId"},
+        "ledger": {"$ref": "urn:gis-ai-go:schema:evidence-checkpoint-create-result:v1#/$defs/ledger"},
+        "reconciliation_index": {"$ref": "urn:gis-ai-go:schema:evidence-checkpoint-create-result:v1#/$defs/reconciliationIndex"}
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "status", "code"],
+      "properties": {
+        "schema": {"const": "gis-ai-go.evidence-checkpoint-restore-result.v1"},
+        "status": {"const": "failed"},
+        "code": {
+          "enum": [
+            "checkpoint-mismatch",
+            "collision",
+            "corruption",
+            "destination-not-empty",
+            "invalid-arguments",
+            "invalid-configuration",
+            "io-failure",
+            "publication-indeterminate",
+            "quiescence-required",
+            "unexpected-restore-failure"
+          ]
+        }
+      }
+    }
+  ]
+}

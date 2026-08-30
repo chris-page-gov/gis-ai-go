@@ -91,6 +91,18 @@ SCHEMA_IDS = {
     "evidence-checkpoint-publication-reconciliation.schema.json": (
         "urn:gis-ai-go:schema:evidence-checkpoint-publication-reconciliation:v1"
     ),
+    "evidence-checkpoint-create-result.schema.json": (
+        "urn:gis-ai-go:schema:evidence-checkpoint-create-result:v1"
+    ),
+    "evidence-checkpoint-restore-result.schema.json": (
+        "urn:gis-ai-go:schema:evidence-checkpoint-restore-result:v1"
+    ),
+    "evidence-filesystem-capability-check.schema.json": (
+        "urn:gis-ai-go:schema:evidence-filesystem-capability-check:v1"
+    ),
+    "evidence-checkpoint-recovery-rehearsal.schema.json": (
+        "urn:gis-ai-go:schema:evidence-checkpoint-recovery-rehearsal:v1"
+    ),
 }
 
 V1_INSPECT_SCHEMA_SHA256 = (

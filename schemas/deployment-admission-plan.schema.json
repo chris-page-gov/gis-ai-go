@@ -1,0 +1,434 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:deployment-admission-plan:v1",
+  "title": "GIS AI GO provider-neutral deployment admission plan",
+  "description": "A closed pre-deployment plan. It records required controls and authority without claiming that a deployment or public service exists.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "schema_contract",
+    "classification",
+    "status",
+    "generated_at",
+    "source",
+    "image",
+    "service",
+    "ingress",
+    "controls",
+    "operator",
+    "spend",
+    "evidence_requirements",
+    "claims"
+  ],
+  "properties": {
+    "schema": { "const": "gis-ai-go.deployment-admission-plan.v1" },
+    "schema_contract": { "$ref": "#/$defs/schemaContract" },
+    "classification": {
+      "enum": ["provider-neutral-pre-deployment-plan", "synthetic-test-fixture"]
+    },
+    "status": {
+      "enum": ["blocked-pending-authority", "authorised-pending-deployment-evidence"]
+    },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "source": { "$ref": "#/$defs/source" },
+    "image": { "$ref": "#/$defs/image" },
+    "service": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol",
+        "protocol_version",
+        "transport",
+        "operations",
+        "resources",
+        "production_registration"
+      ],
+      "properties": {
+        "protocol": { "const": "mcp" },
+        "protocol_version": { "const": "2026-07-28" },
+        "transport": { "const": "streamable-http" },
+        "operations": { "$ref": "#/$defs/exactOperations" },
+        "resources": { "$ref": "#/$defs/exactResources" },
+        "production_registration": { "const": false }
+      }
+    },
+    "ingress": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "public_origin",
+        "hostname",
+        "tls_termination",
+        "accepted_hosts",
+        "accepted_origins",
+        "health_probe_host",
+        "forwarded_headers_are_authority",
+        "loopback_is_public_authority"
+      ],
+      "properties": {
+        "public_origin": { "$ref": "#/$defs/httpsOrigin" },
+        "hostname": { "$ref": "#/$defs/hostname" },
+        "tls_termination": { "const": "provider-or-operator-managed" },
+        "accepted_hosts": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": { "type": "string", "minLength": 3, "maxLength": 260 },
+          "uniqueItems": true
+        },
+        "accepted_origins": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1,
+          "items": { "$ref": "#/$defs/httpsOrigin" }
+        },
+        "health_probe_host": { "$ref": "#/$defs/hostname" },
+        "forwarded_headers_are_authority": { "const": false },
+        "loopback_is_public_authority": { "const": false }
+      }
+    },
+    "controls": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "single_writer",
+        "workload_identity",
+        "egress",
+        "storage",
+        "observability"
+      ],
+      "properties": {
+        "single_writer": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "required",
+            "steady_replicas",
+            "admission_lease_required",
+            "lease_scope",
+            "lease_loss_behaviour",
+            "rollout_overlap_fenced",
+            "maintenance_overlap_fenced"
+          ],
+          "properties": {
+            "required": { "const": true },
+            "steady_replicas": { "const": 1 },
+            "admission_lease_required": { "const": true },
+            "lease_scope": { "const": "ledger-and-reconciliation-pair" },
+            "lease_loss_behaviour": { "const": "stop-serving-before-writer-loss" },
+            "rollout_overlap_fenced": { "type": "boolean" },
+            "maintenance_overlap_fenced": { "type": "boolean" }
+          }
+        },
+        "workload_identity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["required", "mechanism", "static_credentials", "identity_subject"],
+          "properties": {
+            "required": { "const": true },
+            "mechanism": {
+              "enum": ["provider-managed-identity", "federated-workload-identity", "synthetic-fixture"]
+            },
+            "static_credentials": { "const": false },
+            "identity_subject": {
+              "oneOf": [
+                { "type": "null" },
+                { "type": "string", "minLength": 3, "maxLength": 256, "pattern": "^[A-Za-z0-9._:/@=-]+$" }
+              ]
+            }
+          }
+        },
+        "egress": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "default_deny",
+            "allowed_https_origins",
+            "allowed_path_prefixes",
+            "credentials_forwarded",
+            "direct_ip_egress_allowed"
+          ],
+          "properties": {
+            "default_deny": { "const": true },
+            "allowed_https_origins": {
+              "const": ["https://api.beta.ons.gov.uk"]
+            },
+            "allowed_path_prefixes": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 8,
+              "items": { "type": "string", "pattern": "^/[A-Za-z0-9._~!$&'()*+,;=:@%/-]*$", "maxLength": 256 },
+              "uniqueItems": true
+            },
+            "credentials_forwarded": { "const": false },
+            "direct_ip_egress_allowed": { "const": false }
+          }
+        },
+        "storage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "ledger_and_index_distinct",
+            "persistent",
+            "posix_mode_bits",
+            "hard_links",
+            "symbolic_link_detection",
+            "exclusive_create",
+            "file_fsync",
+            "directory_fsync",
+            "no_overwrite_restore",
+            "backup_required",
+            "rpo_defined",
+            "rto_defined",
+            "disposal_defined"
+          ],
+          "properties": {
+            "ledger_and_index_distinct": { "const": true },
+            "persistent": { "const": true },
+            "posix_mode_bits": { "const": true },
+            "hard_links": { "const": true },
+            "symbolic_link_detection": { "const": true },
+            "exclusive_create": { "const": true },
+            "file_fsync": { "const": true },
+            "directory_fsync": { "const": true },
+            "no_overwrite_restore": { "const": true },
+            "backup_required": { "const": true },
+            "rpo_defined": { "type": "boolean" },
+            "rto_defined": { "type": "boolean" },
+            "disposal_defined": { "type": "boolean" }
+          }
+        },
+        "observability": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "bounded_logs",
+            "correlation_ids",
+            "secrets_logged",
+            "raw_idempotency_keys_logged",
+            "machine_paths_logged",
+            "retention_defined"
+          ],
+          "properties": {
+            "bounded_logs": { "const": true },
+            "correlation_ids": { "const": true },
+            "secrets_logged": { "const": false },
+            "raw_idempotency_keys_logged": { "const": false },
+            "machine_paths_logged": { "const": false },
+            "retention_defined": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "operator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "owner",
+        "suspension_procedure",
+        "checkpoint_procedure",
+        "restore_procedure",
+        "rollback_procedure",
+        "incident_route",
+        "all_assigned"
+      ],
+      "properties": {
+        "owner": { "$ref": "#/$defs/nullableBoundedString" },
+        "suspension_procedure": { "$ref": "#/$defs/nullableRepositoryPath" },
+        "checkpoint_procedure": { "$ref": "#/$defs/nullableRepositoryPath" },
+        "restore_procedure": { "$ref": "#/$defs/nullableRepositoryPath" },
+        "rollback_procedure": { "$ref": "#/$defs/nullableRepositoryPath" },
+        "incident_route": { "$ref": "#/$defs/nullableBoundedString" },
+        "all_assigned": { "type": "boolean" }
+      }
+    },
+    "spend": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "authority_confirmed",
+        "currency",
+        "monthly_limit",
+        "budget_alert_is_hard_stop",
+        "hard_stop_mechanism",
+        "cost_owner"
+      ],
+      "properties": {
+        "authority_confirmed": { "type": "boolean" },
+        "currency": { "oneOf": [{ "type": "null" }, { "enum": ["GBP", "USD", "EUR"] }] },
+        "monthly_limit": {
+          "oneOf": [
+            { "type": "null" },
+            { "type": "number", "exclusiveMinimum": 0, "maximum": 100000, "multipleOf": 0.01 }
+          ]
+        },
+        "budget_alert_is_hard_stop": { "const": false },
+        "hard_stop_mechanism": { "$ref": "#/$defs/nullableBoundedString" },
+        "cost_owner": { "$ref": "#/$defs/nullableBoundedString" }
+      }
+    },
+    "evidence_requirements": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "remote_https_schema",
+        "live_provider_schema",
+        "independent_observer",
+        "direct_public_endpoint",
+        "tunnel_permitted",
+        "rollback_without_rebuild"
+      ],
+      "properties": {
+        "remote_https_schema": { "const": "gis-ai-go.remote-https-acceptance.v1" },
+        "live_provider_schema": { "const": "gis-ai-go.deployed-live-provider-evidence.v1" },
+        "independent_observer": { "const": true },
+        "direct_public_endpoint": { "const": true },
+        "tunnel_permitted": { "const": false },
+        "rollback_without_rebuild": { "const": true }
+      }
+    },
+    "claims": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "public_deployment",
+        "remote_https_verified",
+        "live_provider_verified",
+        "registry_published",
+        "release_ready"
+      ],
+      "properties": {
+        "public_deployment": { "const": false },
+        "remote_https_verified": { "const": false },
+        "live_provider_verified": { "const": false },
+        "registry_published": { "const": false },
+        "release_ready": { "const": false }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "status": { "const": "blocked-pending-authority" } } },
+      "then": {
+        "properties": {
+          "spend": {
+            "properties": {
+              "authority_confirmed": { "const": false },
+              "currency": { "type": "null" },
+              "monthly_limit": { "type": "null" },
+              "hard_stop_mechanism": { "type": "null" },
+              "cost_owner": { "type": "null" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "status": { "const": "authorised-pending-deployment-evidence" } } },
+      "then": {
+        "properties": {
+          "spend": {
+            "properties": {
+              "authority_confirmed": { "const": true },
+              "currency": { "type": "string" },
+              "monthly_limit": { "type": "number" },
+              "hard_stop_mechanism": { "type": "string" },
+              "cost_owner": { "type": "string" }
+            }
+          },
+          "operator": { "properties": { "all_assigned": { "const": true } } }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "schemaContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": { "const": "schemas/deployment-admission-plan.schema.json" },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository", "commit", "tree", "working_tree_clean"],
+      "properties": {
+        "repository": { "const": "chris-page-gov/gis-ai-go" },
+        "commit": { "$ref": "#/$defs/gitObject" },
+        "tree": { "$ref": "#/$defs/gitObject" },
+        "working_tree_clean": { "const": true }
+      }
+    },
+    "image": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "oci_archive_sha256",
+        "manifest_digest",
+        "config_digest",
+        "evidence_manifest_sha256",
+        "platform"
+      ],
+      "properties": {
+        "oci_archive_sha256": { "$ref": "#/$defs/sha256" },
+        "manifest_digest": { "$ref": "#/$defs/digest" },
+        "config_digest": { "$ref": "#/$defs/digest" },
+        "evidence_manifest_sha256": { "$ref": "#/$defs/sha256" },
+        "platform": { "const": "linux/amd64" }
+      }
+    },
+    "exactOperations": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "prefixItems": [
+        { "const": "catalogue.search" },
+        { "const": "catalogue.describe" },
+        { "const": "selection.resolve" },
+        { "const": "data.query" },
+        { "const": "evidence.inspect" }
+      ],
+      "items": false
+    },
+    "exactResources": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "prefixItems": [
+        { "const": "catalogue.public" },
+        { "const": "catalogue.record" },
+        { "const": "evidence.receipt" }
+      ],
+      "items": false
+    },
+    "gitObject": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "hostname": {
+      "type": "string",
+      "pattern": "^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+$",
+      "maxLength": 253
+    },
+    "httpsOrigin": {
+      "type": "string",
+      "pattern": "^https://[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+$",
+      "maxLength": 261
+    },
+    "nullableBoundedString": {
+      "oneOf": [
+        { "type": "null" },
+        { "type": "string", "minLength": 3, "maxLength": 240, "pattern": "^[^\\u0000-\\u001f\\u007f]+$" }
+      ]
+    },
+    "nullableRepositoryPath": {
+      "oneOf": [
+        { "type": "null" },
+        { "type": "string", "pattern": "^(?!/)(?!.*(?:^|/)\\.{1,2}(?:/|$))[A-Za-z0-9._/-]{3,240}$" }
+      ]
+    }
+  }
+}

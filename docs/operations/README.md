@@ -58,3 +58,5 @@ storage, operations and acceptance gates.
 - [TOOLS-205 inactive data query application](TOOLS-205_DATA_QUERY_APPLICATION.md)
 - [TOOLS-205 inactive public-read transport candidate](TOOLS-205_PUBLIC_READ_TRANSPORT.md)
 - [DEPLOY-207 local unregistered gateway container and rollback rehearsal](DEPLOY-207_GATEWAY_CONTAINER.md)
+- [DEPLOY-207 provider-neutral admission and HTTPS acceptance](DEPLOY-207_PROVIDER_NEUTRAL_ADMISSION.md)
+- [DEPLOY-207 Azure admission decision pack](DEPLOY-207_AZURE_ADMISSION_DECISION_PACK.md)

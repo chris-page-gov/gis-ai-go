@@ -1,0 +1,587 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:remote-https-acceptance:v1",
+  "title": "GIS AI GO direct public HTTPS acceptance document",
+  "description": "Closed assertion contract for the transport, application authority and deployed operational controls of one exact gateway image. Schema validity is not producer attestation or proof that an observation occurred. This contract deliberately excludes a live geospatial-provider call.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "schema_contract",
+    "classification",
+    "status",
+    "observed_at",
+    "source",
+    "image",
+    "target",
+    "observer",
+    "dns_tls",
+    "plaintext",
+    "authority",
+    "endpoints",
+    "capability",
+    "runtime_controls",
+    "claims"
+  ],
+  "properties": {
+    "schema": { "const": "gis-ai-go.remote-https-acceptance.v1" },
+    "schema_contract": { "$ref": "#/$defs/schemaContract" },
+    "classification": {
+      "enum": ["direct-public-https-observation", "synthetic-test-fixture"]
+    },
+    "status": { "const": "passed" },
+    "observed_at": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["started", "completed"],
+      "properties": {
+        "started": { "type": "string", "format": "date-time" },
+        "completed": { "type": "string", "format": "date-time" }
+      }
+    },
+    "source": { "$ref": "#/$defs/source" },
+    "image": { "$ref": "#/$defs/image" },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "provider",
+        "deployment_id",
+        "public_origin",
+        "hostname",
+        "deployed_manifest_digest",
+        "direct_public_endpoint",
+        "tunnel_used"
+      ],
+      "properties": {
+        "provider": { "$ref": "#/$defs/boundedToken" },
+        "deployment_id": { "$ref": "#/$defs/boundedToken" },
+        "public_origin": { "$ref": "#/$defs/httpsOrigin" },
+        "hostname": { "$ref": "#/$defs/hostname" },
+        "deployed_manifest_digest": { "$ref": "#/$defs/digest" },
+        "direct_public_endpoint": { "const": true },
+        "tunnel_used": { "const": false }
+      }
+    },
+    "observer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "network_path", "runtime", "address_class"],
+      "properties": {
+        "kind": { "const": "independent-external-client" },
+        "network_path": { "const": "public-internet-direct" },
+        "runtime": { "type": "string", "minLength": 3, "maxLength": 128, "pattern": "^[A-Za-z0-9 ._+:/()-]+$" },
+        "address_class": { "enum": ["ipv4", "ipv6", "dual-stack"] }
+      }
+    },
+    "dns_tls": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dns_hostname",
+        "dns_answers_observed",
+        "dns_answer_count",
+        "sni_hostname",
+        "sni_verified",
+        "certificate_chain_valid",
+        "certificate_hostname_valid",
+        "certificate_chain_sha256",
+        "certificate_not_before",
+        "certificate_not_after",
+        "negotiated_protocol",
+        "tls_1_0_rejected",
+        "tls_1_1_rejected"
+      ],
+      "properties": {
+        "dns_hostname": { "$ref": "#/$defs/hostname" },
+        "dns_answers_observed": { "const": true },
+        "dns_answer_count": { "type": "integer", "minimum": 1, "maximum": 64 },
+        "sni_hostname": { "$ref": "#/$defs/hostname" },
+        "sni_verified": { "const": true },
+        "certificate_chain_valid": { "const": true },
+        "certificate_hostname_valid": { "const": true },
+        "certificate_chain_sha256": { "$ref": "#/$defs/sha256" },
+        "certificate_not_before": { "type": "string", "format": "date-time" },
+        "certificate_not_after": { "type": "string", "format": "date-time" },
+        "negotiated_protocol": { "enum": ["TLSv1.2", "TLSv1.3"] },
+        "tls_1_0_rejected": { "const": true },
+        "tls_1_1_rejected": { "const": true }
+      }
+    },
+    "plaintext": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scheme", "outcome", "status", "redirect_origin", "gateway_body_observed"],
+      "properties": {
+        "scheme": { "const": "http" },
+        "outcome": { "enum": ["redirected-to-canonical-https", "rejected-before-gateway"] },
+        "status": { "enum": [301, 302, 307, 308, 400, 403, 426] },
+        "redirect_origin": {
+          "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/httpsOrigin" }]
+        },
+        "gateway_body_observed": { "const": false }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "outcome": { "const": "redirected-to-canonical-https" } } },
+          "then": {
+            "properties": {
+              "status": { "enum": [301, 302, 307, 308] },
+              "redirect_origin": { "type": "string" }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "outcome": { "const": "rejected-before-gateway" } } },
+          "then": { "properties": { "redirect_origin": { "type": "null" } } }
+        }
+      ]
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "accepted_host",
+        "accepted_origin",
+        "accepted_host_status",
+        "wrong_host_status",
+        "wrong_origin_status",
+        "loopback_host_status",
+        "forwarded_host_cannot_substitute",
+        "forwarded_origin_cannot_substitute",
+        "forwarded_headers_ignored_when_authority_is_valid"
+      ],
+      "properties": {
+        "accepted_host": { "type": "string", "minLength": 3, "maxLength": 260 },
+        "accepted_origin": { "$ref": "#/$defs/httpsOrigin" },
+        "accepted_host_status": { "const": 200 },
+        "wrong_host_status": { "enum": [400, 403] },
+        "wrong_origin_status": { "enum": [400, 403] },
+        "loopback_host_status": { "enum": [400, 403] },
+        "forwarded_host_cannot_substitute": { "const": true },
+        "forwarded_origin_cannot_substitute": { "const": true },
+        "forwarded_headers_ignored_when_authority_is_valid": { "const": true }
+      }
+    },
+    "endpoints": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["health", "readiness", "openapi", "mcp"],
+      "properties": {
+        "health": { "$ref": "#/$defs/healthEndpoint" },
+        "readiness": { "$ref": "#/$defs/readinessEndpoint" },
+        "openapi": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "status",
+            "content_type",
+            "document_sha256",
+            "server_origin",
+            "lifecycle",
+            "public_ingress_configured",
+            "public_deployment_claim"
+          ],
+          "properties": {
+            "path": { "const": "/openapi.json" },
+            "status": { "const": 200 },
+            "content_type": { "const": "application/json" },
+            "document_sha256": { "$ref": "#/$defs/sha256" },
+            "server_origin": { "$ref": "#/$defs/httpsOrigin" },
+            "lifecycle": { "const": "candidate-unregistered" },
+            "public_ingress_configured": { "const": true },
+            "public_deployment_claim": { "const": false }
+          }
+        },
+        "mcp": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["path", "status", "protocol_version", "transport"],
+          "properties": {
+            "path": { "const": "/mcp" },
+            "status": { "const": 200 },
+            "protocol_version": { "const": "2026-07-28" },
+            "transport": { "const": "streamable-http" }
+          }
+        }
+      }
+    },
+    "capability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "operations",
+        "resources",
+        "tool_checks",
+        "resource_checks",
+        "direct_api_operation_parity",
+        "readiness_operation_parity"
+      ],
+      "properties": {
+        "operations": { "$ref": "#/$defs/exactOperations" },
+        "resources": { "$ref": "#/$defs/exactResources" },
+        "tool_checks": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "prefixItems": [
+            { "allOf": [{ "$ref": "#/$defs/toolCheck" }, { "properties": { "operation": { "const": "catalogue.search" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/toolCheck" }, { "properties": { "operation": { "const": "catalogue.describe" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/toolCheck" }, { "properties": { "operation": { "const": "selection.resolve" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/toolCheck" }, { "properties": { "operation": { "const": "data.query" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/toolCheck" }, { "properties": { "operation": { "const": "evidence.inspect" } } }] }
+          ],
+          "items": false
+        },
+        "resource_checks": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "prefixItems": [
+            { "allOf": [{ "$ref": "#/$defs/resourceCheck" }, { "properties": { "resource": { "const": "catalogue.public" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/resourceCheck" }, { "properties": { "resource": { "const": "catalogue.record" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/resourceCheck" }, { "properties": { "resource": { "const": "evidence.receipt" } } }] }
+          ],
+          "items": false
+        },
+        "direct_api_operation_parity": { "const": true },
+        "readiness_operation_parity": { "const": true }
+      }
+    },
+    "runtime_controls": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "single_writer_fencing",
+        "workload_identity",
+        "egress",
+        "storage",
+        "suspension_recovery",
+        "logs",
+        "rollback"
+      ],
+      "properties": {
+        "single_writer_fencing": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "lease_acquired_before_readiness",
+            "unique_lease_owner",
+            "maximum_observed_writers",
+            "rollout_overlap_tested",
+            "maintenance_overlap_tested",
+            "overlapping_writer_denied",
+            "lease_loss_removed_readiness",
+            "lease_loss_stopped_serving_before_writer_release"
+          ],
+          "properties": {
+            "lease_acquired_before_readiness": { "const": true },
+            "unique_lease_owner": { "const": true },
+            "maximum_observed_writers": { "const": 1 },
+            "rollout_overlap_tested": { "const": true },
+            "maintenance_overlap_tested": { "const": true },
+            "overlapping_writer_denied": { "const": true },
+            "lease_loss_removed_readiness": { "const": true },
+            "lease_loss_stopped_serving_before_writer_release": { "const": true }
+          }
+        },
+        "workload_identity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["mechanism", "subject_sha256", "static_credentials", "least_privilege_verified"],
+          "properties": {
+            "mechanism": { "enum": ["provider-managed-identity", "federated-workload-identity", "synthetic-fixture"] },
+            "subject_sha256": { "$ref": "#/$defs/sha256" },
+            "static_credentials": { "const": false },
+            "least_privilege_verified": { "const": true }
+          }
+        },
+        "egress": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "default_deny_verified",
+            "allowed_origin",
+            "allowed_paths_verified",
+            "unexpected_domain_blocked",
+            "direct_ip_blocked",
+            "credentials_forwarded"
+          ],
+          "properties": {
+            "default_deny_verified": { "const": true },
+            "allowed_origin": { "const": "https://api.beta.ons.gov.uk" },
+            "allowed_paths_verified": { "const": true },
+            "unexpected_domain_blocked": { "const": true },
+            "direct_ip_blocked": { "const": true },
+            "credentials_forwarded": { "const": false }
+          }
+        },
+        "storage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "ledger_volume_id_sha256",
+            "reconciliation_volume_id_sha256",
+            "ledger_filesystem_check_sha256",
+            "reconciliation_filesystem_check_sha256",
+            "distinct_volumes",
+            "persistent_restart_verified",
+            "posix_mode_bits_verified",
+            "hard_links_verified",
+            "symbolic_link_rejection_verified",
+            "exclusive_create_verified",
+            "file_fsync_verified",
+            "directory_fsync_verified",
+            "no_overwrite_restore_verified",
+            "backup_policy_verified",
+            "rpo_verified",
+            "rto_verified",
+            "disposal_verified"
+          ],
+          "properties": {
+            "ledger_volume_id_sha256": { "$ref": "#/$defs/sha256" },
+            "reconciliation_volume_id_sha256": { "$ref": "#/$defs/sha256" },
+            "ledger_filesystem_check_sha256": { "$ref": "#/$defs/sha256" },
+            "reconciliation_filesystem_check_sha256": { "$ref": "#/$defs/sha256" },
+            "distinct_volumes": { "const": true },
+            "persistent_restart_verified": { "const": true },
+            "posix_mode_bits_verified": { "const": true },
+            "hard_links_verified": { "const": true },
+            "symbolic_link_rejection_verified": { "const": true },
+            "exclusive_create_verified": { "const": true },
+            "file_fsync_verified": { "const": true },
+            "directory_fsync_verified": { "const": true },
+            "no_overwrite_restore_verified": { "const": true },
+            "backup_policy_verified": { "const": true },
+            "rpo_verified": { "const": true },
+            "rto_verified": { "const": true },
+            "disposal_verified": { "const": true }
+          }
+        },
+        "suspension_recovery": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "suspended",
+            "public_endpoint_unreachable_while_suspended",
+            "checkpoint_manifest_sha256",
+            "restored_to_empty_private_roots",
+            "ledger_verified_after_restore",
+            "reconciliation_verified_after_restore",
+            "restored_manifest_digest",
+            "readiness_restored"
+          ],
+          "properties": {
+            "suspended": { "const": true },
+            "public_endpoint_unreachable_while_suspended": { "const": true },
+            "checkpoint_manifest_sha256": { "$ref": "#/$defs/sha256" },
+            "restored_to_empty_private_roots": { "const": true },
+            "ledger_verified_after_restore": { "const": true },
+            "reconciliation_verified_after_restore": { "const": true },
+            "restored_manifest_digest": { "$ref": "#/$defs/digest" },
+            "readiness_restored": { "const": true }
+          }
+        },
+        "logs": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "bounded",
+            "correlation_ids_present",
+            "secrets_absent",
+            "raw_idempotency_keys_absent",
+            "machine_paths_absent",
+            "retention_verified"
+          ],
+          "properties": {
+            "bounded": { "const": true },
+            "correlation_ids_present": { "const": true },
+            "secrets_absent": { "const": true },
+            "raw_idempotency_keys_absent": { "const": true },
+            "machine_paths_absent": { "const": true },
+            "retention_verified": { "const": true }
+          }
+        },
+        "rollback": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "previous_manifest_digest",
+            "candidate_manifest_digest",
+            "selected_without_rebuild",
+            "rollback_completed",
+            "previous_health_ready",
+            "candidate_restored_without_rebuild",
+            "candidate_health_ready",
+            "evidence_sha256"
+          ],
+          "properties": {
+            "previous_manifest_digest": { "$ref": "#/$defs/digest" },
+            "candidate_manifest_digest": { "$ref": "#/$defs/digest" },
+            "selected_without_rebuild": { "const": true },
+            "rollback_completed": { "const": true },
+            "previous_health_ready": { "const": true },
+            "candidate_restored_without_rebuild": { "const": true },
+            "candidate_health_ready": { "const": true },
+            "evidence_sha256": { "$ref": "#/$defs/sha256" }
+          }
+        }
+      }
+    },
+    "claims": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "transport_only",
+        "direct_public_https",
+        "exact_five_transport_capability",
+        "live_provider_exercised",
+        "provider_payload_stored",
+        "registry_published",
+        "release_ready"
+      ],
+      "properties": {
+        "transport_only": { "const": true },
+        "direct_public_https": { "const": true },
+        "exact_five_transport_capability": { "const": true },
+        "live_provider_exercised": { "const": false },
+        "provider_payload_stored": { "const": false },
+        "registry_published": { "const": false },
+        "release_ready": { "const": false }
+      }
+    }
+  },
+  "$defs": {
+    "schemaContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": { "const": "schemas/remote-https-acceptance.schema.json" },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository", "commit", "tree", "working_tree_clean"],
+      "properties": {
+        "repository": { "const": "chris-page-gov/gis-ai-go" },
+        "commit": { "$ref": "#/$defs/gitObject" },
+        "tree": { "$ref": "#/$defs/gitObject" },
+        "working_tree_clean": { "const": true }
+      }
+    },
+    "image": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "oci_archive_sha256",
+        "manifest_digest",
+        "config_digest",
+        "evidence_manifest_sha256",
+        "platform"
+      ],
+      "properties": {
+        "oci_archive_sha256": { "$ref": "#/$defs/sha256" },
+        "manifest_digest": { "$ref": "#/$defs/digest" },
+        "config_digest": { "$ref": "#/$defs/digest" },
+        "evidence_manifest_sha256": { "$ref": "#/$defs/sha256" },
+        "platform": { "const": "linux/amd64" }
+      }
+    },
+    "healthEndpoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "status", "body", "content_type"],
+      "properties": {
+        "path": { "const": "/healthz" },
+        "status": { "const": 200 },
+        "body": { "const": "live" },
+        "content_type": { "const": "text/plain; charset=utf-8" }
+      }
+    },
+    "readinessEndpoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "status", "body", "content_type"],
+      "properties": {
+        "path": { "const": "/readyz" },
+        "status": { "const": 200 },
+        "body": { "const": "ready" },
+        "content_type": { "const": "text/plain; charset=utf-8" }
+      }
+    },
+    "toolCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "operation",
+        "contract_valid",
+        "structured_result_present",
+        "plain_text_result_present",
+        "structured_plain_text_parity",
+        "receipt_present",
+        "receipt_contract_valid"
+      ],
+      "properties": {
+        "operation": { "type": "string" },
+        "contract_valid": { "const": true },
+        "structured_result_present": { "const": true },
+        "plain_text_result_present": { "const": true },
+        "structured_plain_text_parity": { "const": true },
+        "receipt_present": { "const": true },
+        "receipt_contract_valid": { "const": true }
+      }
+    },
+    "resourceCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["resource", "contract_valid", "content_digest_verified"],
+      "properties": {
+        "resource": { "type": "string" },
+        "contract_valid": { "const": true },
+        "content_digest_verified": { "const": true }
+      }
+    },
+    "exactOperations": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "prefixItems": [
+        { "const": "catalogue.search" },
+        { "const": "catalogue.describe" },
+        { "const": "selection.resolve" },
+        { "const": "data.query" },
+        { "const": "evidence.inspect" }
+      ],
+      "items": false
+    },
+    "exactResources": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "prefixItems": [
+        { "const": "catalogue.public" },
+        { "const": "catalogue.record" },
+        { "const": "evidence.receipt" }
+      ],
+      "items": false
+    },
+    "boundedToken": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$" },
+    "gitObject": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "hostname": {
+      "type": "string",
+      "pattern": "^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+$",
+      "maxLength": 253
+    },
+    "httpsOrigin": {
+      "type": "string",
+      "pattern": "^https://[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+$",
+      "maxLength": 261
+    }
+  }
+}

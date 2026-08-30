@@ -9,7 +9,7 @@ standard or a supported public MCP service. The supported public release is stil
 the static [`v0.1.0` Explorer](https://chris-page-gov.github.io/gis-ai-go/).
 
 Protected `main` at
-[`c7eca721`](https://github.com/chris-page-gov/gis-ai-go/commit/c7eca721b084356dace8f264d7531b2180093b2d)
+[`1c51991`](https://github.com/chris-page-gov/gis-ai-go/commit/1c51991c2d34fd43c602890cfff36f7f33dcef5f)
 proves an unregistered local `v0.2.0` candidate with five read-only operations. It
 does not prove public hosting, a live provider call through this candidate,
 production operations, registry publication or a `v0.2.0` release. This report
@@ -170,9 +170,9 @@ first create and enter a disposable Git worktree, then install dependencies ther
 
 ```bash
 git fetch origin
-git worktree add ../gis-ai-go-demo-c7eca721 \
-  c7eca721b084356dace8f264d7531b2180093b2d
-cd ../gis-ai-go-demo-c7eca721
+git worktree add ../gis-ai-go-demo-1c51991 \
+  1c51991c2d34fd43c602890cfff36f7f33dcef5f
+cd ../gis-ai-go-demo-1c51991
 pnpm install --frozen-lockfile
 uv sync --locked --group dev --cache-dir .uv-cache
 git status --short
@@ -189,7 +189,7 @@ help explain the journey, but it is not accepted repository evidence.
 pnpm run demo:local
 ```
 
-The observed protected-main run at `c7eca721` completed in under four seconds after
+The observed protected-main run at `1c51991` completed in under four seconds after
 dependencies were present. It rebuilt the 36-record OKF projection and started the
 closed exact-five fixture over real operating-system STDIO pipes. The following is a
 curated excerpt of its key outcomes; a healthy run also prints its source, transport,
@@ -212,7 +212,7 @@ When the demonstration is finished, return to the original checkout and remove t
 exact disposable worktree:
 
 ```bash
-git worktree remove ../gis-ai-go-demo-c7eca721
+git worktree remove ../gis-ai-go-demo-1c51991
 ```
 
 Receipt identifiers are content-addressed. They repeat when the source and every
@@ -405,7 +405,10 @@ The current release sequence is therefore:
 The first DEPLOY-207 image criterion is complete in
 [issue 25](https://github.com/chris-page-gov/gis-ai-go/issues/25). The remaining
 steps need an actual provider/hostname and numeric spending ceiling. Until then,
-the honest demonstration is the local candidate above.
+the honest demonstration is the local candidate above. The
+[Azure admission decision pack](../operations/DEPLOY-207_AZURE_ADMISSION_DECISION_PACK.md)
+records the exact Tuesday decisions and execution sequence; it is a procedure, not
+deployment evidence.
 
 ## Beginner glossary
 
@@ -425,9 +428,9 @@ the honest demonstration is the local candidate above.
 
 ## Evidence and source notes
 
-- Protected-main [CI run 33237523106](https://github.com/chris-page-gov/gis-ai-go/actions/runs/33237523106)
-  and [CodeQL run 33237523042](https://github.com/chris-page-gov/gis-ai-go/actions/runs/33237523042)
-  are the exact acceptance evidence for `c7eca721`.
+- Protected-main [CI run 33280594791](https://github.com/chris-page-gov/gis-ai-go/actions/runs/33280594791)
+  and [CodeQL run 33280594564](https://github.com/chris-page-gov/gis-ai-go/actions/runs/33280594564)
+  are the exact acceptance evidence for `1c51991`.
 - The 23 August findings matrix records an earlier implementation baseline. This
   report refreshes operational status from `PROGRESS.md`, the merged activation and
   the exact protected-main runs; it does not rewrite the preserved research.

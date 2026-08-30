@@ -1,0 +1,27 @@
+{
+  "schema": "gis-ai-go.evidence-filesystem-capability-check.v1",
+  "status": "passed",
+  "classification": "synthetic-test-fixture",
+  "scope": "one-caller-identified-filesystem",
+  "observed_at": "2026-08-30T10:04:00.000Z",
+  "mount_identity_sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+  "schema_contract": {
+    "path": "schemas/evidence-filesystem-capability-check.schema.json",
+    "sha256": "bf3cdb448315eab27883d6b59e52f08a5835ceca3e6a90085ed18ccdc133f23e"
+  },
+  "checks": [
+    "private-directory-mode-0700",
+    "private-file-mode-0600",
+    "exclusive-file-create",
+    "sibling-hard-link",
+    "atomic-no-replace-hard-link",
+    "regular-file-fsync",
+    "directory-fsync",
+    "synchronised-clean-up"
+  ],
+  "limitations": {
+    "same_filesystem_only": true,
+    "full_hardware_flush": "not-established",
+    "mount_identity_provenance": "caller-supplied-not-attested"
+  }
+}
