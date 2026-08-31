@@ -1,6 +1,6 @@
 # Delivery progress
 
-Last updated: 30 August 2026
+Last updated: 1 September 2026
 
 ## Current outcome
 
@@ -62,11 +62,48 @@ The supported target active set is exactly `catalogue.search`,
   bounded operator commands with path-free results, and test required POSIX modes,
   hard links, atomic no-overwrite behaviour and synchronisation on a supplied
   filesystem; and
+- accept this provider-neutral pack through
+  [pull request 108](https://github.com/chris-page-gov/gis-ai-go/pull/108) as exact
+  protected-main commit `c331d3d7c04fee1a4a168abcc7ee762b46b07834`.
+  Protected-main run `33301768557` passed repository and gateway-image assurance,
+  provenance and attestation verification; CodeQL run `33301768447` passed all
+  three analyses. It created no Azure resource, hostname, spend, deployment,
+  provider call, activation, registration, version change, tag or release; and
 - retain the exact `1c51991` protected-main gateway artefact and rehydrated scanner
   database in an owner-only local set. Its complete offline verifier passes for
   image digest
   `sha256:686ae48ad1b2abb39874d9f1e4444a88e07c6d29bd4c67851aee13fb2bad3c5e`.
   This is private preservation, not a deployment or release claim.
+
+`EVID-211 — Continuous retrospective-evidence preservation (non-blocking)`
+
+- preserve immutable source copies, metadata, digests and an append-only capture
+  journal in an owner-only store outside the repository checkout and its
+  `artifacts/` directory;
+- capture immediately after a client observation, failure or incident; before
+  compaction, restart or source cleanup; and at a natural feature, pull-request or
+  protected-main completion point. Run a sweep at least every 24 hours while the
+  programme is active and warn when identified source material is within 14 days
+  of expiry;
+- always retain bounded metadata and retain timelines, job logs and verification
+  results when selected by the capture scope;
+  prioritise short-lived impact-plan evidence, accepted milestones and material
+  relevant to client interoperability. Retain large binary artefacts only for an
+  accepted milestone, a failure investigation or another recorded need, rather
+  than copying every historical artefact; and
+- verify the closed inventory, byte counts, SHA-256 digests, source identifiers,
+  owner-only modes and journal continuity offline. Record unavailable or expired
+  material explicitly rather than reconstructing it. This preservation lane does
+  not start the gated retrospective in issue 86, analyse attempts or costs, publish
+  private material, change runtime behaviour or block local `v0.2.0` completion;
+- complete the initial protected-main checkpoint over a Codex source inventory of
+  986 files and 40,119,920,014 bytes plus the selected GitHub evidence. The final
+  owner-only store has 5,925 journal events, 5,126 immutable objects,
+  2,649,437,251 retained bytes and nine expiry warnings. Its four-worker complete
+  offline verification passed on 1 September 2026; and
+- retain early v1 and v2 projections immutably for historical compatibility while
+  using the fixed-point v3 projection for the current generation. Do not expose
+  the private store path or journal head in repository or public material.
 
 `QUAL-206 — Progress from repository preflight to independent-host evidence`
 
