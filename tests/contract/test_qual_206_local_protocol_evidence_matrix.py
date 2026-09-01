@@ -320,12 +320,16 @@ class Qual206LocalProtocolEvidenceMatrixTests(unittest.TestCase):
                     material["sha256"],
                     sha256_bytes(git_blob(RUNTIME_BASE_COMMIT, material["path"])),
                 )
-                # The lockfile binding records the protected runtime base. A new,
-                # unrelated workspace may add an importer without changing the
-                # pinned gateway client. Its current exact importer is checked
-                # separately below, while runtime and source materials must remain
-                # byte-identical to the base commit.
-                if material["path"] != self.document["official_client"]["lockfile"]["path"]:
+                # The manifest and lockfile bindings record the protected runtime
+                # base. Unrelated scripts or workspace importers may change without
+                # changing the pinned gateway client. Its current exact dependency
+                # is checked separately below, while runtime and source materials
+                # must remain byte-identical to the base commit.
+                current_client_projection_paths = {
+                    self.document["official_client"]["manifest"]["path"],
+                    self.document["official_client"]["lockfile"]["path"],
+                }
+                if material["path"] not in current_client_projection_paths:
                     self.assertEqual(material["sha256"], sha256(path))
 
         actual_source_names = {

@@ -1,0 +1,12 @@
+#!/bin/sh
+
+set -eu
+
+repository_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd -P)
+cd "$repository_root"
+
+pnpm --filter @gis-ai-go/mcp-gateway run prepare:test
+pnpm --filter @gis-ai-go/mcp-gateway run build
+
+# Replace the wrapper so the maintained runtime owns SIGINT and SIGTERM directly.
+exec node apps/mcp-gateway/dist/src/local-candidate-main.js

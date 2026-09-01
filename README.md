@@ -15,9 +15,14 @@ assets include checksums, receipts, provenance verification and the dependency S
 The [release evidence record](docs/operations/V0.1.0_RELEASE_EVIDENCE.md) binds the
 source, build, deployment and public-browser acceptance identities.
 
-The Explorer is a static, metadata-only product; there is no MCP service. Live status is in
+The Explorer is a static, metadata-only product; there is no deployed or public MCP
+service. Live status is in
 [`PROGRESS.md`](PROGRESS.md); current authority and boundaries are in
 [`CONTEXT.md`](CONTEXT.md); notable changes are in [`CHANGELOG.md`](CHANGELOG.md).
+
+The unreleased `v0.2.0` exact-five local candidate can be cloned and run without a
+cloud account, hostname or provider credentials. It is a provider-free local
+evaluation path, not the supported `v0.2.0` release or a public MCP service.
 
 ## Identity
 
@@ -86,11 +91,43 @@ the [illustrated exemplar guide](docs/demonstrations/GIS_AI_GO_EXEMPLAR_GUIDE.md
 run `pnpm run demo:local`. The guide distinguishes the supported static release,
 proven local capability and the remaining public-host and live-provider gates.
 
+## Run the `v0.2.0` local candidate
+
+The dedicated local candidate stays running so a separate MCP client can connect to
+it. From a new clone:
+
+```bash
+git clone https://github.com/chris-page-gov/gis-ai-go.git
+cd gis-ai-go
+pnpm install --frozen-lockfile
+uv sync --locked --group dev --cache-dir .uv-cache
+./scripts/start-local-candidate
+```
+
+It binds only to `127.0.0.1:8787`; the MCP endpoint is
+`http://127.0.0.1:8787/mcp`. Health and readiness are available at `/healthz`
+and `/readyz`. Press <kbd>Control</kbd>+<kbd>C</kbd> to stop it. Its owner-only
+evidence state lasts for that process session and is then removed.
+
+To run the independent exact-five acceptance without configuring a client, use
+`pnpm run test:local-candidate`.
+
+This entrypoint exposes exactly `catalogue.search`, `catalogue.describe`,
+`selection.resolve`, `data.query` and `evidence.inspect`, plus three governed
+resources. It cannot make a provider network call. Its `data.query` evidence
+explicitly reports the exact approved-cache fallback after a deterministic in-memory
+HTTP `503`; its receipt records `read-approved-provider-cache` rather than a
+successful live-provider execution. Generic and production entrypoints remain
+blocked. Follow the
+[clean-clone local candidate runbook](docs/operations/LOCAL-212_CLEAN_CLONE_LOCAL_CANDIDATE.md)
+for verification and client examples.
+
 ## Repository map
 
 - `apps/public-explorer/` — static accessible catalogue Explorer
 - `apps/mcp-gateway/` — TypeScript gateway; generic/default entrypoints fail closed,
-  while the fixed container mounts the exact-five local candidate
+  while the fixed container and dedicated loopback-only local evaluation entrypoint
+  mount the exact-five candidate
 - `services/geo-execution/` — deterministic Python execution boundary
 - `schemas/` — candidate contracts promoted from the research pack
 - `providers/fixtures/` — synthetic examples only

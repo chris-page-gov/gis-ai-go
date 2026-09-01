@@ -18,6 +18,7 @@ research recommendations remain unchanged in the preserved pack at
 - [ADR-0012: Receipt-only lost-response reconciliation](ADR-0012-receipt-only-lost-response-reconciliation.md)
 - [ADR-0013: WebMCP page-tools boundary](ADR-0013-webmcp-page-tools-boundary.md)
 - [ADR-0014: Bounded public ingress origin](ADR-0014-bounded-public-ingress-origin.md)
+- [ADR-0015: Provider-free loopback local candidate](ADR-0015-provider-free-loopback-local-candidate.md)
 
 Research decisions D01–D19 are accepted as constraints for building and evaluating
 Stage 0, not as blanket authority for later production stages. Research decision D20

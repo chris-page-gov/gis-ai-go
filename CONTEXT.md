@@ -64,6 +64,17 @@ remains `503`. There is no public MCP service, live provider call through the
 fixed-container candidate, external policy or identity service, deployment or
 `v0.2.0` release.
 
+[LOCAL-212](https://github.com/chris-page-gov/gis-ai-go/issues/111) supplies a
+separately named provider-free local evaluation entrypoint over that same exact-five
+assembly. It binds only to `127.0.0.1:8787`, admits no arguments or provider
+configuration, returns one deterministic in-memory HTTP `503` and uses the exact
+byte-verified approved T04 cache. Its receipt records
+`read-approved-provider-cache`, while lifecycle output fixes `provider_egress` to
+false. It removes its owner-only session evidence after
+orderly shutdown. This gives a clean clone a client-connectable
+unreleased `v0.2.0` candidate without activating the blocked generic or production
+entrypoints and without changing the public deployment, registration or release gate.
+
 Provider-independent preparation now supplies closed deployment-admission, remote
 HTTPS transport-observation and later live-provider document contracts, plus auditable
 checkpoint, restore and filesystem-capability operator tooling. These contracts
