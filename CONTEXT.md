@@ -1,6 +1,6 @@
 # Current context
 
-Last updated: 29 August 2026
+Last updated: 1 September 2026
 
 ## Authority and reading order
 
@@ -42,7 +42,10 @@ whose accepted implementation commit is
 `a0e826384cf50d9d81b87489dbf3580e8e3602f7`. The Explorer is deployed and verified
 at <https://chris-page-gov.github.io/gis-ai-go/> from the later release commit
 recorded below. The latest protected-main implementation hand-off is
-`1c51991c2d34fd43c602890cfff36f7f33dcef5f`; its container-activation runtime
+`c331d3d7c04fee1a4a168abcc7ee762b46b07834`, accepted through
+[pull request 108](https://github.com/chris-page-gov/gis-ai-go/pull/108). Its
+source-changing public-ingress seam remains
+`1c51991c2d34fd43c602890cfff36f7f33dcef5f` and its container-activation runtime
 baseline is `f253605ab26628e821d4ebc3809cf13c883d57ed`. It contains the
 repository-only QUAL-206 preflight, completed trace and readiness integrity, one
 compile-time `candidate-unregistered` exact-five assembly, the bounded 23 August
@@ -52,9 +55,9 @@ fail-closed real-socket loopback HTTP preflight harness, the bounded provider-ad
 lease, capacity-aware readiness and one strict provider-neutral public HTTPS
 authority seam. Exact protected-main repository, image, independent-derivation,
 provenance and CodeQL assurance passed in runs
-[`33280594791`](https://github.com/chris-page-gov/gis-ai-go/actions/runs/33280594791)
+[`33301768557`](https://github.com/chris-page-gov/gis-ai-go/actions/runs/33301768557)
 and
-[`33280594564`](https://github.com/chris-page-gov/gis-ai-go/actions/runs/33280594564).
+[`33301768447`](https://github.com/chris-page-gov/gis-ai-go/actions/runs/33301768447).
 The fixed container entrypoint mounts the exact-five assembly, while the shipped
 generic, production and default operation arrays remain empty and their readiness
 remains `503`. There is no public MCP service, live provider call through the
@@ -68,6 +71,19 @@ contain synthetic plans and hostile fixtures only. They create no cloud resource
 select no runtime, spend no budget and cannot promote a configured hostname,
 classification label, documented provider feature or local rehearsal into verified
 deployment evidence. Contract validity does not attest that an observation occurred.
+
+EVID-211 supplies a separate, non-blocking preservation lane for source material
+that may support the future retrospective in
+[issue 86](https://github.com/chris-page-gov/gis-ai-go/issues/86). It copies
+selected source evidence and verifiable metadata into an owner-only store outside
+the repository before short-lived material expires. It does not start the
+retrospective, count attempts, infer causes or costs, publish private material,
+change the product runtime, deploy a service or alter the `v0.2.0` release boundary.
+The initial protected-main checkpoint is complete: the owner-only store contains
+5,925 journal events and 5,126 immutable objects occupying 2,649,437,251 bytes.
+Its complete offline verification passed on 1 September 2026 with nine recorded
+expiry warnings and no retrospective, publication or product-state boundary set.
+The store path and journal head remain private.
 
 An experimental, standalone WebMCP Explorer candidate sits under
 `apps/webmcp-explorer` without changing that state. It exposes exactly two

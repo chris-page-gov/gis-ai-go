@@ -60,3 +60,4 @@ storage, operations and acceptance gates.
 - [DEPLOY-207 local unregistered gateway container and rollback rehearsal](DEPLOY-207_GATEWAY_CONTAINER.md)
 - [DEPLOY-207 provider-neutral admission and HTTPS acceptance](DEPLOY-207_PROVIDER_NEUTRAL_ADMISSION.md)
 - [DEPLOY-207 Azure admission decision pack](DEPLOY-207_AZURE_ADMISSION_DECISION_PACK.md)
+- [EVID-211 continuous evidence preservation](EVID-211_CONTINUOUS_EVIDENCE_PRESERVATION.md)
