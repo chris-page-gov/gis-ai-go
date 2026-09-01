@@ -11,6 +11,18 @@ The supported target active set is exactly `catalogue.search`,
 
 ## Active workstream
 
+`LOCAL-212 — Clean-clone provider-free local candidate`
+
+- provide one documented command that builds and starts the exact-five candidate on
+  fixed IPv4 loopback for a separate local MCP client;
+- verify health, readiness, five tools, three resources, all five calls, linked
+  evidence inspection, private session state, orderly teardown and no provider
+  egress from a clean checkout;
+- leave generic and production entrypoints blocked and retain
+  `productionRegistration: false`; and
+- keep `v0.1.0` as the latest supported release until public HTTPS, live-provider,
+  operational, rollback and publication evidence meets the accepted `v0.2.0` gate.
+
 `TOOLS-205 — Closed local container activation candidate`
 
 - keep generic HTTP and STDIO entrypoints, metadata, default constructors and the

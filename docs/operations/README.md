@@ -8,11 +8,13 @@ pause. The static Explorer is the supported
 public discovery product. Protected `main` contains MCP 2026-07-28 HTTP and STDIO
 transports plus direct routes over the accepted applications, durable ledger,
 reconciliation index and current-call inspection receipts. Generic, production and
-default capability lists remain empty with readiness `503`. The fixed container is
-the sole activated candidate: it mounts exactly `catalogue.search`,
-`catalogue.describe`, `selection.resolve`, `data.query` and `evidence.inspect` from
-one closed unregistered assembly and reports readiness only while its integrity,
-lifecycle and claim-capacity checks pass.
+default capability lists remain empty with readiness `503`. The fixed container and
+the separately named provider-free loopback launcher are the only activated
+candidates. Each mounts exactly `catalogue.search`, `catalogue.describe`,
+`selection.resolve`, `data.query` and `evidence.inspect` from one closed
+unregistered assembly. The loopback launcher uses a fixed deterministic in-memory
+HTTP `503` and the exact approved T04 cache fallback; the container retains the
+later-deployment adapter boundary.
 
 Repository-local QUAL-206 evidence includes the exact-five journey over real IPv4
 loopback HTTP, Claude Code local MCP 2026-07-28 STDIO and a ChatGPT secure tunnel.
@@ -43,6 +45,7 @@ storage, operations and acceptance gates.
 - [QUAL-206 host interoperability and secure-tunnel runbook](QUAL-206_INTEROPERABILITY.md)
 - [QUAL-206 ChatGPT secure-tunnel exact-five observation](QUAL-206_CHATGPT_TUNNEL_EXACT_FIVE.md)
 - [QUAL-206 local demonstration](QUAL-206_LOCAL_DEMONSTRATION.md)
+- [LOCAL-212 clean-clone local candidate quick start](LOCAL-212_CLEAN_CLONE_LOCAL_CANDIDATE.md)
 - [Illustrated GIS AI GO exemplar and local demonstration guide](../demonstrations/GIS_AI_GO_EXEMPLAR_GUIDE.md)
 - [Version-pinned WebMCP Explorer illustrated run-through](../demonstrations/WEBMCP_EXPLORER_RUN_THROUGH.md)
 - [QUAL-206 local HTTP transport preflight](QUAL-206_LOCAL_HTTP_TRANSPORT_PREFLIGHT.md)

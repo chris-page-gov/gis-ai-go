@@ -12,8 +12,10 @@
     "build": "tsc --project tsconfig.json",
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "prepare:test": "pnpm --dir ../.. run build:okf && pnpm --filter @gis-ai-go/contracts run build && pnpm --filter @gis-ai-go/evidence run build && pnpm --filter @gis-ai-go/authority-context run build && pnpm --filter @gis-ai-go/policy-client run build && pnpm --filter @gis-ai-go/provider-adapter-sdk run build && pnpm --filter @gis-ai-go/tool-registry run build",
-    "test": "pnpm run prepare:test && pnpm run build && node --test dist/test/*.test.js",
+    "test": "pnpm run prepare:test && pnpm run build && node --test dist/test/*.test.js && node --test dist/test/local-candidate-launcher.acceptance.js",
+    "test:local-candidate": "pnpm run prepare:test && pnpm run build && node --test dist/test/local-candidate-main.test.js dist/test/local-candidate-acceptance.test.js && node --test dist/test/local-candidate-launcher.acceptance.js",
     "start:container": "node dist/src/container-main.js",
+    "start:local-candidate": "node dist/src/local-candidate-main.js",
     "start:http": "node dist/src/http-main.js ../../artifacts/okf",
     "start:stdio": "node dist/src/mcp-stdio-main.js ../../artifacts/okf"
   },
