@@ -31,7 +31,7 @@ This local slice merged through
 passed repository and gateway-image assurance, independent derivation, byte
 comparison, provenance and attestation verification.
 [CodeQL run 33526203397](https://github.com/chris-page-gov/gis-ai-go/actions/runs/33526203397)
-passed all three analyses. This is the latest accepted implementation checkpoint;
+passed all three analyses. This is the latest accepted runtime checkpoint;
 public deployment and the `v0.2.0` release remain outstanding.
 
 `TOOLS-205 — Closed local container activation candidate`
@@ -653,7 +653,7 @@ or release is claimed.
 
 ## Latest evidence
 
-- LOCAL-212 accepted implementation on 1 September 2026: exact protected-main
+- LOCAL-212 accepted runtime on 1 September 2026: exact protected-main
   commit `57e49322e305b499fccfbb6c46bc15e2a0ff38f9` from
   [pull request 112](https://github.com/chris-page-gov/gis-ai-go/pull/112) passed
   [CI run 33526203289](https://github.com/chris-page-gov/gis-ai-go/actions/runs/33526203289)

@@ -247,10 +247,12 @@ unstable intermediate form. It emits a source-line-digest-bound
 `projection:redaction-maximum-depth` exclusion stub instead; any other
 non-idempotent transformation uses the corresponding closed fixed-point stub.
 Headers, footers and stubs have no fallback and fail the transaction if they are
-not already stable. Capture also repeats the fixed-point and canonical-JSON checks
-after final byte masking, before staging the bytes that will actually be retained.
-An earlier structural pass cannot attest the final masked bytes. The offline
-verifier independently repeats the same checks.
+not already stable. Codex projection serialisation requires strict canonical JSON
+and rejects non-finite numbers, including numeric overflow. If final byte masking
+changes the serialised bytes, capture repeats the fixed-point and canonical-JSON
+checks before staging them. Byte-identical output retains the already established
+strict canonical fixed-point proof. The ordinary secret checks still run, and the
+offline verifier independently checks every retained line.
 
 The text classifier distinguishes terminal `=` padding with no following value
 from an assignment delimiter only in the closed whole-text or quoted-token forms.

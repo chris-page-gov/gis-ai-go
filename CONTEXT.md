@@ -41,7 +41,7 @@ through [pull request 14](https://github.com/chris-page-gov/gis-ai-go/pull/14),
 whose accepted implementation commit is
 `a0e826384cf50d9d81b87489dbf3580e8e3602f7`. The Explorer is deployed and verified
 at <https://chris-page-gov.github.io/gis-ai-go/> from the later release commit
-recorded below. The latest protected-main implementation hand-off is
+recorded below. The latest accepted protected-main runtime checkpoint is
 `57e49322e305b499fccfbb6c46bc15e2a0ff38f9`, accepted through
 [pull request 112](https://github.com/chris-page-gov/gis-ai-go/pull/112). Its
 source-changing public-ingress seam remains
