@@ -1,9 +1,9 @@
 # MCP gateway
 
 This package contains a local-only, unregistered candidate for the GIS AI GO gateway.
-Its generic HTTP and STDIO entrypoints remain inactive; only the fixed container
-entrypoint mounts the reviewed exact-five assembly. It is an implementation
-workbench, not a supported or deployed service.
+Its generic HTTP and STDIO entrypoints remain inactive. The fixed container and the
+dedicated provider-free local evaluation entrypoints mount the reviewed exact-five
+assembly. It is an implementation workbench, not a supported or deployed service.
 
 ## Implemented candidate components
 
@@ -100,6 +100,16 @@ workbench, not a supported or deployed service.
   host-ingress evidence. At the fixed claim ceiling, `/readyz` reports
   `503 reconciliation-capacity-exhausted` while health, exact-five discovery,
   existing-key reconciliation and evidence inspection remain mounted.
+- the separately named `./scripts/start-local-candidate` launcher builds and starts
+  the exact-five assembly on `127.0.0.1:8787`, with MCP Streamable HTTP at `/mcp` and
+  matching direct API operations. Its fixed provider transport returns an in-memory
+  HTTP `503`; `data.query` uses only the byte-verified approved T04 cache and records
+  `read-approved-provider-cache` in its receipt. It makes no provider network call,
+  keeps owner-only evidence for one process session and removes it after orderly
+  shutdown. LOCAL-212 was accepted through
+  [pull request 112](https://github.com/chris-page-gov/gis-ai-go/pull/112) at
+  `57e49322e305b499fccfbb6c46bc15e2a0ff38f9`. See the
+  [local candidate runbook](../../docs/operations/LOCAL-212_CLEAN_CLONE_LOCAL_CANDIDATE.md).
 - `startCatalogueStdio` and the shipped STDIO entrypoint remain modern-only at
   MCP `2026-07-28` and reject every legacy opening. A separately named
   `startCatalogueLegacyConformanceStdio` constructor can negotiate the bounded
@@ -125,10 +135,12 @@ creates no replacement receipt or ledger event.
 
 The generic HTTP and STDIO entrypoints do not mount application functions. Explicit
 constructor options remain local-conformance seams and every default constructor
-still has no active tool or resource. The container is the sole shipped exception:
-it mounts the closed local exact-five candidate from fixed image inputs. It does not
-make a provider call during startup or assurance, publish a service, contact an
-external policy service or register the candidate for production.
+still has no active tool or resource. The fixed container mounts the closed local
+exact-five candidate from fixed image inputs. The dedicated LOCAL-212 launcher
+mounts the same governed assembly with provider-free execution and temporary
+session state. Neither entrypoint makes a provider call during startup or assurance,
+publishes a service, contacts an external policy service or registers the candidate
+for production.
 There is no environment-variable or command-line activation override. The
 selection and data applications and their explicit transport options are not
 referenced by any generic shipped entrypoint or default capability list.

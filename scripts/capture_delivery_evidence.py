@@ -3545,6 +3545,43 @@ def _strip_codex_leading_ignorables(value: str) -> str:
     return value[index:]
 
 
+def _codex_assignment_delimiter_is_padding(
+    value: str, start: int, end: int, delimiter: int
+) -> bool:
+    """Distinguish terminal padding syntax with no value from an assignment."""
+
+    if end != delimiter or value[delimiter] != "=":
+        return False
+    padding_end = delimiter
+    while padding_end < len(value) and value[padding_end] == "=":
+        padding_end += 1
+        if padding_end - delimiter > 2:
+            return False
+    whole_text = start == 0 and padding_end == len(value)
+    quoted_token = (
+        start > 0
+        and padding_end < len(value)
+        and value[start - 1] == '"'
+        and value[padding_end] == '"'
+        and (start < 2 or value[start - 2] != "\\")
+    )
+    if not whole_text and not quoted_token:
+        return False
+    if quoted_token:
+        following = padding_end + 1
+        while following < len(value) and value[following].isspace():
+            following += 1
+        if following < len(value) and value[following] in ":=":
+            return False
+    size = padding_end - start
+    if size > MAX_CODEX_TEXT_BYTES:
+        return False
+    token = value[start:padding_end]
+    # This identifies a delimiter, not an encoding or safe content. Masking may
+    # have changed the token's length or padding bits; neither establishes an RHS.
+    return re.fullmatch(r"[A-Za-z0-9_-]+={1,2}", token) is not None
+
+
 def _classify_codex_oversized_text_key_fragments(value: str) -> tuple[bool, bool]:
     """Fail closed on structural keys beyond the bounded regex classifiers."""
 
@@ -3644,6 +3681,12 @@ def _classify_codex_oversized_text_key_fragments(value: str) -> tuple[bool, bool
             key = value[index:end]
             if _codex_key_is_sensitive(key):
                 sensitive = True
+            elif _normalise_codex_key(key) in _CODEX_HIDDEN_KEY_NORMALISATIONS:
+                hidden = True
+            elif _codex_assignment_delimiter_is_padding(value, index, end, after):
+                # Only this delimiter is padding. The ordinary key and secret
+                # classifiers still inspect the complete text independently.
+                pass
             else:
                 hidden = True
             if hidden and sensitive:
@@ -3992,6 +4035,22 @@ def _redact_codex_projection_fixed_point(
             sorted(set(categories) | set(repeated_categories))
         )
     return projected, categories, count
+
+
+def _require_codex_projection_final_fixed_point(
+    raw: bytes, categories: Sequence[str]
+) -> None:
+    """Require the actual byte-masked record to remain canonical and sanitised."""
+
+    try:
+        value = parse_json(raw, "byte-redacted Codex projection")
+    except (EvidenceCaptureError, RecursionError):
+        raise _CodexProjectionRedactionNotStable(sorted(set(categories))) from None
+    normalised, final_categories, _ = _redact_codex_projection_fixed_point(value)
+    if normalised != value or canonical_json(value) != raw:
+        raise _CodexProjectionRedactionNotStable(
+            sorted(set(categories) | set(final_categories))
+        )
 
 
 def _bounded_codex_text(value: str) -> object:
@@ -5090,6 +5149,9 @@ def stage_codex_user_visible_projection(
             emitted = False
         else:
             emitted = True
+        _require_codex_projection_final_fixed_point(
+            redacted, structured_categories + categories
+        )
         all_categories = structured_categories + categories
         all_count = structured_count + count
         for category in all_categories:

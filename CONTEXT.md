@@ -1,6 +1,6 @@
 # Current context
 
-Last updated: 1 September 2026
+Last updated: 4 September 2026
 
 ## Authority and reading order
 
@@ -42,8 +42,8 @@ whose accepted implementation commit is
 `a0e826384cf50d9d81b87489dbf3580e8e3602f7`. The Explorer is deployed and verified
 at <https://chris-page-gov.github.io/gis-ai-go/> from the later release commit
 recorded below. The latest protected-main implementation hand-off is
-`c331d3d7c04fee1a4a168abcc7ee762b46b07834`, accepted through
-[pull request 108](https://github.com/chris-page-gov/gis-ai-go/pull/108). Its
+`57e49322e305b499fccfbb6c46bc15e2a0ff38f9`, accepted through
+[pull request 112](https://github.com/chris-page-gov/gis-ai-go/pull/112). Its
 source-changing public-ingress seam remains
 `1c51991c2d34fd43c602890cfff36f7f33dcef5f` and its container-activation runtime
 baseline is `f253605ab26628e821d4ebc3809cf13c883d57ed`. It contains the
@@ -55,16 +55,17 @@ fail-closed real-socket loopback HTTP preflight harness, the bounded provider-ad
 lease, capacity-aware readiness and one strict provider-neutral public HTTPS
 authority seam. Exact protected-main repository, image, independent-derivation,
 provenance and CodeQL assurance passed in runs
-[`33301768557`](https://github.com/chris-page-gov/gis-ai-go/actions/runs/33301768557)
+[`33526203289`](https://github.com/chris-page-gov/gis-ai-go/actions/runs/33526203289)
 and
-[`33301768447`](https://github.com/chris-page-gov/gis-ai-go/actions/runs/33301768447).
-The fixed container entrypoint mounts the exact-five assembly, while the shipped
-generic, production and default operation arrays remain empty and their readiness
-remains `503`. There is no public MCP service, live provider call through the
-fixed-container candidate, external policy or identity service, deployment or
-`v0.2.0` release.
+[`33526203397`](https://github.com/chris-page-gov/gis-ai-go/actions/runs/33526203397).
+The fixed container and dedicated provider-free local evaluation entrypoints mount
+the exact-five assembly. The shipped generic, production and default operation
+arrays remain empty and their readiness remains `503`. There is no public MCP
+service, live provider call through the fixed-container candidate, external policy
+or identity service, deployment or `v0.2.0` release.
 
-[LOCAL-212](https://github.com/chris-page-gov/gis-ai-go/issues/111) supplies a
+[LOCAL-212](https://github.com/chris-page-gov/gis-ai-go/issues/111) was accepted
+through pull request 112 on 1 September 2026. It supplies a
 separately named provider-free local evaluation entrypoint over that same exact-five
 assembly. It binds only to `127.0.0.1:8787`, admits no arguments or provider
 configuration, returns one deterministic in-memory HTTP `503` and uses the exact
@@ -90,11 +91,19 @@ selected source evidence and verifiable metadata into an owner-only store outsid
 the repository before short-lived material expires. It does not start the
 retrospective, count attempts, infer causes or costs, publish private material,
 change the product runtime, deploy a service or alter the `v0.2.0` release boundary.
-The initial protected-main checkpoint is complete: the owner-only store contains
-5,925 journal events and 5,126 immutable objects occupying 2,649,437,251 bytes.
-Its complete offline verification passed on 1 September 2026 with nine recorded
-expiry warnings and no retrospective, publication or product-state boundary set.
-The store path and journal head remain private.
+The initial protected-main checkpoint recorded 5,925 journal events and 5,126
+immutable objects occupying 2,649,437,251 bytes. Its complete offline verification
+passed on 1 September 2026 with nine recorded expiry warnings and no retrospective,
+publication or product-state boundary set. This is a historical checkpoint: later
+verifier reports from 1 and 2 September require reconciliation. The predecessor
+store is retained unchanged at 6,011 journal events, 5,193 immutable objects and
+2,651,662,328 bytes; one legacy v1 record still fails semantic redaction
+verification. Recovery is in progress through a fresh owner-only successor on the
+same admitted encrypted internal volume. It must pass complete verification before
+scheduled captures switch to it. Neither the earlier checkpoint nor a future
+successor pass establishes that the predecessor's semantics passed. Store paths,
+journal checkpoints and the precise verification limit remain private. See the
+[preservation recovery procedure](docs/operations/EVID-211_CONTINUOUS_EVIDENCE_PRESERVATION.md#recovery-from-failed-verification).
 
 An experimental, standalone WebMCP Explorer candidate sits under
 `apps/webmcp-explorer` without changing that state. It exposes exactly two
@@ -241,7 +250,9 @@ override, production registration or live call. All local receipts remain non-li
 unscored and incomplete for release. Public hosting, independent-host acceptance,
 workload identity, governed ingress and storage, a real deployed rollback and
 patched image bytes or explicit owner disposition of the retained vulnerabilities
-remain gates.
+remained gates at that checkpoint. The later accepted UBI image at
+`dda0eb9f776e64bcd45069e77b4acbcd4d495e01` superseded the three Debian
+installed-package findings; every later release image still needs fresh assurance.
 
 EVID-204 trace and readiness integrity merged through
 [pull request 51](https://github.com/chris-page-gov/gis-ai-go/pull/51) as
