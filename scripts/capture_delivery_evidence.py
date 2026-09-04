@@ -4037,6 +4037,26 @@ def _redact_codex_projection_fixed_point(
     return projected, categories, count
 
 
+def _canonical_codex_projection_json(value: object) -> bytes:
+    """Serialise projection JSON strictly before its bytes can be preserved."""
+
+    try:
+        return (
+            json.dumps(
+                value,
+                ensure_ascii=False,
+                separators=(",", ":"),
+                sort_keys=True,
+                allow_nan=False,
+            )
+            + "\n"
+        ).encode("utf-8")
+    except ValueError:
+        # JSON numeric overflow can become a non-finite Python float even when
+        # the source contained a number rather than a forbidden JSON constant.
+        raise _CodexProjectionRedactionNotStable([]) from None
+
+
 def _require_codex_projection_final_fixed_point(
     raw: bytes, categories: Sequence[str]
 ) -> None:
@@ -4046,8 +4066,9 @@ def _require_codex_projection_final_fixed_point(
         value = parse_json(raw, "byte-redacted Codex projection")
     except (EvidenceCaptureError, RecursionError):
         raise _CodexProjectionRedactionNotStable(sorted(set(categories))) from None
-    normalised, final_categories, _ = _redact_codex_projection_fixed_point(value)
-    if normalised != value or canonical_json(value) != raw:
+    # Equality with one normalisation proves this value is itself a fixed point.
+    normalised, final_categories, _ = _redact_codex_projection_value(value)
+    if normalised != value or _canonical_codex_projection_json(value) != raw:
         raise _CodexProjectionRedactionNotStable(
             sorted(set(categories) | set(final_categories))
         )
@@ -5136,7 +5157,7 @@ def stage_codex_user_visible_projection(
         value, structured_categories, structured_count = (
             _redact_codex_projection_fixed_point(value)
         )
-        raw_value = canonical_json(value)
+        raw_value = _canonical_codex_projection_json(value)
         if len(raw_value) > MAX_CODEX_PROJECTED_LINE_BYTES:
             raise EvidenceCaptureError("projected Codex record exceeds the byte boundary")
         try:
@@ -5145,13 +5166,18 @@ def stage_codex_user_visible_projection(
             if fallback is None:
                 raise
             unredactable_categories.add(str(error))
-            redacted, categories, count = redact_projection_bytes(canonical_json(fallback))
+            redacted, categories, count = redact_projection_bytes(
+                _canonical_codex_projection_json(fallback)
+            )
             emitted = False
         else:
             emitted = True
-        _require_codex_projection_final_fixed_point(
-            redacted, structured_categories + categories
-        )
+        if redacted != raw_value:
+            # Identical bytes retain the canonical fixed-point proof above.
+            # Check every changed output, including an unredactable-secret stub.
+            _require_codex_projection_final_fixed_point(
+                redacted, structured_categories + categories
+            )
         all_categories = structured_categories + categories
         all_count = structured_count + count
         for category in all_categories:

@@ -3784,11 +3784,166 @@ class DeliveryEvidencePreservationTests(unittest.TestCase):
                 with self.assertRaises(capture._CodexProjectionRedactionNotStable):
                     capture._require_codex_projection_final_fixed_point(raw, [])
 
-    def test_byte_masking_failure_in_codex_header_or_footer_aborts_capture(self) -> None:
+    def test_unchanged_codex_bytes_reuse_the_existing_fixed_point_proof(self) -> None:
+        with mock.patch.object(
+            capture,
+            "_require_codex_projection_final_fixed_point",
+            wraps=capture._require_codex_projection_final_fixed_point,
+        ) as final_guard:
+            self._capture_minimal_codex_generation()
+        final_guard.assert_not_called()
+        self.assertTrue(verify.verify_store(self.store)["verified"])
+
+    def test_changed_codex_bytes_and_secret_fallback_receive_final_verification(self) -> None:
+        for label, message in (
+            ("masked", "ghp_" + "S" * 24),
+            ("fallback", PRIVATE_KEY_HEADER),
+        ):
+            with self.subTest(case=label):
+                sessions = self.root / f"sessions-final-guard-{label}"
+                sessions.mkdir(mode=0o700)
+                source = sessions / "root.jsonl"
+                source.write_bytes(
+                    capture.canonical_json(
+                        {
+                            "type": "session_meta",
+                            "payload": {
+                                "id": "root-thread",
+                                "session_id": "root-thread",
+                                "timestamp": "2026-08-30T08:00:00Z",
+                            },
+                        }
+                    )
+                    + capture.canonical_json(
+                        {"type": "event_msg", "payload": {"type": "user_message", "message": message}}
+                    )
+                )
+                source.chmod(0o600)
+                case_store = self.root / f"store-final-guard-{label}"
+                with (
+                    mock.patch.object(
+                        capture,
+                        "_require_codex_projection_final_fixed_point",
+                        wraps=capture._require_codex_projection_final_fixed_point,
+                    ) as final_guard,
+                    capture.private_umask(),
+                    capture.EvidenceStore(case_store) as store,
+                ):
+                    capture.capture_codex_thread_closure(
+                        store,
+                        thread_id="root-thread",
+                        session_roots=[sessions],
+                        trigger="pre-compaction",
+                        clone_function=fake_clone,
+                        filesystem_type_function=apfs,
+                    )
+                final_guard.assert_called_once()
+                guarded_bytes = final_guard.call_args.args[0]
+                self.assertNotIn(message.encode(), guarded_bytes)
+                guarded = capture.parse_json(guarded_bytes, "synthetic final guard")
+                self.assertEqual(
+                    "projected-rollout-record" if label == "masked" else "excluded-rollout-record",
+                    guarded["record"],
+                )
+                self.assertTrue(verify.verify_store(case_store)["verified"])
+
+    def test_final_codex_guard_needs_one_normalisation(self) -> None:
+        value = {"message": "safe visible output"}
+        with mock.patch.object(
+            capture,
+            "_redact_codex_projection_value",
+            wraps=capture._redact_codex_projection_value,
+        ) as normalise:
+            capture._require_codex_projection_final_fixed_point(
+                capture.canonical_json(value), []
+            )
+        normalise.assert_called_once_with(value)
+
+    def test_codex_canonical_bytes_reject_nonfinite_numbers(self) -> None:
+        for value in (float("inf"), float("-inf"), float("nan")):
+            with self.subTest(value=str(value)):
+                with self.assertRaises(capture._CodexProjectionRedactionNotStable):
+                    capture._canonical_codex_projection_json({"value": value})
+        for value in (0, -0.0, 1.25, 1e308):
+            with self.subTest(value=value):
+                self.assertEqual(
+                    capture.canonical_json({"value": value}),
+                    capture._canonical_codex_projection_json({"value": value}),
+                )
+        for raw in (b'{"value":1e999}\n', b'{"value":-1e999}\n'):
+            with self.subTest(raw=raw):
+                with self.assertRaises(capture._CodexProjectionRedactionNotStable):
+                    capture._require_codex_projection_final_fixed_point(raw, [])
+
+    def test_codex_numeric_overflow_uses_digest_bound_omission(self) -> None:
+        sessions = self.root / "sessions-numeric-overflow"
+        sessions.mkdir(mode=0o700)
+        source = sessions / "root.jsonl"
+        source_lines = [
+            capture.canonical_json(
+                {
+                    "type": "session_meta",
+                    "payload": {
+                        "id": "root-thread",
+                        "session_id": "root-thread",
+                        "timestamp": "2026-08-30T08:00:00Z",
+                    },
+                }
+            )
+        ]
+        source_lines.extend(
+            b'{"type":"event_msg","payload":{"type":"mcp_tool_call_end","result":'
+            + number
+            + b"}}\n"
+            for number in (b"1e999", b"-1e999")
+        )
+        source.write_bytes(b"".join(source_lines))
+        source.chmod(0o600)
+        with capture.private_umask(), capture.EvidenceStore(self.store) as store:
+            capture.capture_codex_thread_closure(
+                store,
+                thread_id="root-thread",
+                session_roots=[sessions],
+                trigger="pre-compaction",
+                clone_function=fake_clone,
+                filesystem_type_function=apfs,
+            )
+        event = next(
+            item
+            for item in self.journal()
+            if item["source"]["kind"] == "codex-user-visible-projection"
+        )
+        observed = verify._object_paths(self.store)
+        raw = gzip.decompress(observed[event["objects"][0]["sha256"]].read_bytes())
+        self.assertNotIn(b"Infinity", raw)
+        self.assertNotIn(b"NaN", raw)
+        records = [capture.parse_json(line, "finite projection") for line in raw.splitlines()]
+        stubs = [
+            value
+            for value in records
+            if value.get("source_type") == "projection:redaction-fixed-point"
+        ]
+        self.assertEqual(2, len(stubs))
+        for line_number, stub in enumerate(stubs, start=2):
+            self.assertEqual("excluded-rollout-record", stub["record"])
+            self.assertEqual(line_number, stub["source_line"])
+            self.assertEqual(len(source_lines[line_number - 1]), stub["source_bytes"])
+            self.assertEqual(
+                hashlib.sha256(source_lines[line_number - 1]).hexdigest(),
+                stub["source_line_sha256"],
+            )
+        self.assertTrue(verify.verify_store(self.store)["verified"])
+
+    def test_invalid_codex_header_or_footer_aborts_capture(self) -> None:
         original_redactor = capture.redact_projection_bytes
-        for target in ("projection-header", "projection-footer"):
-            with self.subTest(record=target):
-                sessions = self.root / f"sessions-{target}"
+        original_serialiser = capture._canonical_codex_projection_json
+        for target, failure_stage in (
+            (target, stage)
+            for target in ("projection-header", "projection-footer")
+            for stage in ("byte-mask", "nonfinite-number")
+        ):
+            with self.subTest(record=target, stage=failure_stage):
+                sessions = self.root / f"sessions-{target}-{failure_stage}"
                 sessions.mkdir(mode=0o700)
                 source = sessions / "root.jsonl"
                 source.write_bytes(
@@ -3804,17 +3959,35 @@ class DeliveryEvidencePreservationTests(unittest.TestCase):
                     )
                 )
                 source.chmod(0o600)
-                case_store = self.root / f"store-{target}"
+                case_store = self.root / f"store-{target}-{failure_stage}"
 
                 def invalid_byte_redaction(raw: bytes) -> tuple[bytes, list[str], int]:
                     redacted, categories, count = original_redactor(raw)
-                    if capture.parse_json(raw, "synthetic redactor").get("record") == target:
+                    if (
+                        failure_stage == "byte-mask"
+                        and capture.parse_json(raw, "synthetic redactor").get("record") == target
+                    ):
+                        # Reported redaction metadata must not decide whether a
+                        # changed output needs its final-byte proof.
+                        self.assertEqual(([], 0), (categories, count))
                         return redacted[:-1] + b"}\n", categories, count
                     return redacted, categories, count
+
+                def nonfinite_serialisation(value: object) -> bytes:
+                    if (
+                        failure_stage == "nonfinite-number"
+                        and isinstance(value, dict)
+                        and value.get("record") == target
+                    ):
+                        return original_serialiser({**value, "value": float("inf")})
+                    return original_serialiser(value)
 
                 with (
                     mock.patch.object(
                         capture, "redact_projection_bytes", side_effect=invalid_byte_redaction
+                    ),
+                    mock.patch.object(
+                        capture, "_canonical_codex_projection_json", side_effect=nonfinite_serialisation
                     ),
                     self.assertRaises(capture._CodexProjectionRedactionNotStable),
                     capture.private_umask(),
