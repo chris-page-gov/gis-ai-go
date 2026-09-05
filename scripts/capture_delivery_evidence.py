@@ -3545,6 +3545,43 @@ def _strip_codex_leading_ignorables(value: str) -> str:
     return value[index:]
 
 
+def _codex_assignment_delimiter_is_padding(
+    value: str, start: int, end: int, delimiter: int
+) -> bool:
+    """Distinguish terminal padding syntax with no value from an assignment."""
+
+    if end != delimiter or value[delimiter] != "=":
+        return False
+    padding_end = delimiter
+    while padding_end < len(value) and value[padding_end] == "=":
+        padding_end += 1
+        if padding_end - delimiter > 2:
+            return False
+    whole_text = start == 0 and padding_end == len(value)
+    quoted_token = (
+        start > 0
+        and padding_end < len(value)
+        and value[start - 1] == '"'
+        and value[padding_end] == '"'
+        and (start < 2 or value[start - 2] != "\\")
+    )
+    if not whole_text and not quoted_token:
+        return False
+    if quoted_token:
+        following = padding_end + 1
+        while following < len(value) and value[following].isspace():
+            following += 1
+        if following < len(value) and value[following] in ":=":
+            return False
+    size = padding_end - start
+    if size > MAX_CODEX_TEXT_BYTES:
+        return False
+    token = value[start:padding_end]
+    # This identifies a delimiter, not an encoding or safe content. Masking may
+    # have changed the token's length or padding bits; neither establishes an RHS.
+    return re.fullmatch(r"[A-Za-z0-9_-]+={1,2}", token) is not None
+
+
 def _classify_codex_oversized_text_key_fragments(value: str) -> tuple[bool, bool]:
     """Fail closed on structural keys beyond the bounded regex classifiers."""
 
@@ -3644,6 +3681,12 @@ def _classify_codex_oversized_text_key_fragments(value: str) -> tuple[bool, bool
             key = value[index:end]
             if _codex_key_is_sensitive(key):
                 sensitive = True
+            elif _normalise_codex_key(key) in _CODEX_HIDDEN_KEY_NORMALISATIONS:
+                hidden = True
+            elif _codex_assignment_delimiter_is_padding(value, index, end, after):
+                # Only this delimiter is padding. The ordinary key and secret
+                # classifiers still inspect the complete text independently.
+                pass
             else:
                 hidden = True
             if hidden and sensitive:
@@ -3992,6 +4035,43 @@ def _redact_codex_projection_fixed_point(
             sorted(set(categories) | set(repeated_categories))
         )
     return projected, categories, count
+
+
+def _canonical_codex_projection_json(value: object) -> bytes:
+    """Serialise projection JSON strictly before its bytes can be preserved."""
+
+    try:
+        return (
+            json.dumps(
+                value,
+                ensure_ascii=False,
+                separators=(",", ":"),
+                sort_keys=True,
+                allow_nan=False,
+            )
+            + "\n"
+        ).encode("utf-8")
+    except ValueError:
+        # JSON numeric overflow can become a non-finite Python float even when
+        # the source contained a number rather than a forbidden JSON constant.
+        raise _CodexProjectionRedactionNotStable([]) from None
+
+
+def _require_codex_projection_final_fixed_point(
+    raw: bytes, categories: Sequence[str]
+) -> None:
+    """Require the actual byte-masked record to remain canonical and sanitised."""
+
+    try:
+        value = parse_json(raw, "byte-redacted Codex projection")
+    except (EvidenceCaptureError, RecursionError):
+        raise _CodexProjectionRedactionNotStable(sorted(set(categories))) from None
+    # Equality with one normalisation proves this value is itself a fixed point.
+    normalised, final_categories, _ = _redact_codex_projection_value(value)
+    if normalised != value or _canonical_codex_projection_json(value) != raw:
+        raise _CodexProjectionRedactionNotStable(
+            sorted(set(categories) | set(final_categories))
+        )
 
 
 def _bounded_codex_text(value: str) -> object:
@@ -5077,7 +5157,7 @@ def stage_codex_user_visible_projection(
         value, structured_categories, structured_count = (
             _redact_codex_projection_fixed_point(value)
         )
-        raw_value = canonical_json(value)
+        raw_value = _canonical_codex_projection_json(value)
         if len(raw_value) > MAX_CODEX_PROJECTED_LINE_BYTES:
             raise EvidenceCaptureError("projected Codex record exceeds the byte boundary")
         try:
@@ -5086,10 +5166,18 @@ def stage_codex_user_visible_projection(
             if fallback is None:
                 raise
             unredactable_categories.add(str(error))
-            redacted, categories, count = redact_projection_bytes(canonical_json(fallback))
+            redacted, categories, count = redact_projection_bytes(
+                _canonical_codex_projection_json(fallback)
+            )
             emitted = False
         else:
             emitted = True
+        if redacted != raw_value:
+            # Identical bytes retain the canonical fixed-point proof above.
+            # Check every changed output, including an unredactable-secret stub.
+            _require_codex_projection_final_fixed_point(
+                redacted, structured_categories + categories
+            )
         all_categories = structured_categories + categories
         all_count = structured_count + count
         for category in all_categories:

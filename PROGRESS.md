@@ -1,6 +1,6 @@
 # Delivery progress
 
-Last updated: 1 September 2026
+Last updated: 5 September 2026
 
 ## Current outcome
 
@@ -11,7 +11,7 @@ The supported target active set is exactly `catalogue.search`,
 
 ## Active workstream
 
-`LOCAL-212 — Clean-clone provider-free local candidate`
+`LOCAL-212 — Clean-clone provider-free local candidate (accepted)`
 
 - provide one documented command that builds and starts the exact-five candidate on
   fixed IPv4 loopback for a separate local MCP client;
@@ -23,11 +23,22 @@ The supported target active set is exactly `catalogue.search`,
 - keep `v0.1.0` as the latest supported release until public HTTPS, live-provider,
   operational, rollback and publication evidence meets the accepted `v0.2.0` gate.
 
+This local slice merged through
+[pull request 112](https://github.com/chris-page-gov/gis-ai-go/pull/112) on
+1 September 2026 as protected-main commit
+`57e49322e305b499fccfbb6c46bc15e2a0ff38f9`.
+[CI run 33526203289](https://github.com/chris-page-gov/gis-ai-go/actions/runs/33526203289)
+passed repository and gateway-image assurance, independent derivation, byte
+comparison, provenance and attestation verification.
+[CodeQL run 33526203397](https://github.com/chris-page-gov/gis-ai-go/actions/runs/33526203397)
+passed all three analyses. This is the latest accepted runtime checkpoint;
+public deployment and the `v0.2.0` release remain outstanding.
+
 `TOOLS-205 — Closed local container activation candidate`
 
 - keep generic HTTP and STDIO entrypoints, metadata, default constructors and the
   production activation document blocked;
-- activate only the fixed image entrypoint through one closed exact-five builder,
+- mount the fixed image entrypoint through one closed exact-five builder,
   with no path, environment, command-line, serialised or arbitrary option seam;
 - admit and verify only the exact approved T04 cache record, while deriving direct,
   MCP, readiness and OpenAPI surfaces from the same unregistered assembly; and
@@ -108,11 +119,34 @@ The supported target active set is exactly `catalogue.search`,
   material explicitly rather than reconstructing it. This preservation lane does
   not start the gated retrospective in issue 86, analyse attempts or costs, publish
   private material, change runtime behaviour or block local `v0.2.0` completion;
-- complete the initial protected-main checkpoint over a Codex source inventory of
-  986 files and 40,119,920,014 bytes plus the selected GitHub evidence. The final
-  owner-only store has 5,925 journal events, 5,126 immutable objects,
+- retain the initial protected-main checkpoint over a Codex source inventory of
+  986 files and 40,119,920,014 bytes plus the selected GitHub evidence. At that
+  checkpoint the owner-only store had 5,925 journal events, 5,126 immutable objects,
   2,649,437,251 retained bytes and nine expiry warnings. Its four-worker complete
-  offline verification passed on 1 September 2026; and
+  offline verification passed on 1 September 2026. Later verifier reports from
+  1 and 2 September were assessed on 5 September.
+  Keep the initial pass as historical evidence and do not present it as a current
+  clean-store claim;
+- retain the predecessor unchanged at 6,011 events, 5,193 objects and
+  2,651,662,328 bytes, with its private inventory, journal checkpoint and precise
+  verification limit. All 5,193 objects passed integrity checks, but complete
+  semantic verification failed at a known legacy v1 record. The verifier stops at a
+  failure, so the result does not establish that no further failures exist. A
+  separate read-only checkpoint comparison confirmed the predecessor journal,
+  ledger and inventory are unchanged;
+- retain the initial verified successor baseline from 5 September 2026 on the same
+  admitted encrypted internal volume: 1,029 events, 1,023 objects, 927,740,346 bytes
+  and no warnings, with complete offline integrity and semantic verification
+  passed. The later selected GitHub capture added 157 events through 143 captures
+  and 14 unavailable records, with nine no-ops and no exclusions or warnings.
+  These are separate snapshots; the earlier verification does not attest the later
+  combined store;
+- require the repair to be accepted on protected `main` with passing mandatory
+  checks and complete verification of the selected current successor before
+  operational cutover. Record cutover, the current inventory and subsequent
+  verification privately; daily captures require complete verification. Keep the
+  predecessor's unresolved semantics explicit and grant no broad legacy exemption;
+  and
 - retain early v1 and v2 projections immutably for historical compatibility while
   using the fixed-point v3 projection for the current generation. Do not expose
   the private store path or journal head in repository or public material.
@@ -599,10 +633,12 @@ or release is claimed.
 - Direct routes and MCP transports now exist on protected `main`, but the
   exact-five assembly is `candidate-unregistered`, production registration is
   false, and the generic production/default capability arrays remain empty with
-  readiness `503`. The closed fixed-container entrypoint is the only activated
-  candidate: it reports readiness `200` when intact and `503` on a relevant
-  suspension, integrity failure or exhausted claim capacity, with no environment or
-  operator activation override. There is no public service deployment. The
+  readiness `503`. The closed fixed-container and dedicated LOCAL-212 loopback
+  entrypoints mount the exact-five candidate. They report readiness `200` when
+  intact and `503` on a relevant suspension, integrity failure or exhausted claim
+  capacity, with no environment or operator activation override. LOCAL-212 uses
+  deterministic provider-free execution and temporary session evidence. There is
+  no public service deployment. The
   repository-local matrix and accepted loopback HTTP projection are non-live. The
   accepted ChatGPT secure-tunnel result is not a public service endpoint and cannot
   establish live-provider, deployment or release readiness; those evidence gates
@@ -628,6 +664,16 @@ or release is claimed.
   the open product.
 
 ## Latest evidence
+
+- LOCAL-212 accepted runtime on 1 September 2026: exact protected-main
+  commit `57e49322e305b499fccfbb6c46bc15e2a0ff38f9` from
+  [pull request 112](https://github.com/chris-page-gov/gis-ai-go/pull/112) passed
+  [CI run 33526203289](https://github.com/chris-page-gov/gis-ai-go/actions/runs/33526203289)
+  and all three CodeQL analyses in
+  [run 33526203397](https://github.com/chris-page-gov/gis-ai-go/actions/runs/33526203397).
+  The separately named local entrypoint supplies a client-connectable exact-five
+  candidate with approved-cache evidence and no provider egress. It does not close
+  the public HTTPS, live-provider, operational, deployment or release gates;
 
 - ChatGPT exact-five remote-host capability through the OpenAI secure tunnel: the
   verifier-produced

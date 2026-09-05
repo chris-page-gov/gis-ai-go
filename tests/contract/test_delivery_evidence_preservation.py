@@ -1727,6 +1727,132 @@ class DeliveryEvidencePreservationTests(unittest.TestCase):
         self.assertEqual(0, exact_assignment_count)
         self.assertFalse(verify._contains_excluded_projection_key(exact_assignment))
 
+    def test_codex_oversized_assignment_scan_distinguishes_complete_padding(self) -> None:
+        for size, padding in ((145, "=="), (146, "="), (617, "=")):
+            token = base64.urlsafe_b64encode(
+                b"\x80" + bytes(index % 256 for index in range(size - 1))
+            ).decode("ascii")
+            with self.subTest(padding=padding):
+                self.assertTrue(token.endswith(padding))
+                self.assertGreater(len(token), capture._CODEX_ASSIGNMENT_KEY_FRAGMENT_LIMIT)
+                self.assertEqual(
+                    (False, False),
+                    capture._classify_codex_oversized_text_key_fragments(token),
+                )
+                self.assertEqual(
+                    (False, False), capture._classify_codex_text_key_fragments(token)
+                )
+                projected, categories, count = capture._redact_codex_projection_fixed_point(
+                    token
+                )
+                self.assertEqual(token, projected)
+                self.assertEqual([], categories)
+                self.assertEqual(0, count)
+                self.assertFalse(verify._contains_excluded_projection_key(token))
+                quoted = f'Public observation "{token}" remains opaque.'
+                self.assertEqual(
+                    (False, False),
+                    capture._classify_codex_oversized_text_key_fragments(quoted),
+                )
+                self.assertEqual(
+                    (quoted, [], 0), capture._redact_codex_projection_fixed_point(quoted)
+                )
+                self.assertFalse(verify._contains_excluded_projection_key(quoted))
+
+    def test_codex_padding_recognition_does_not_accept_assignment_values(self) -> None:
+        token = base64.urlsafe_b64encode(b"\x80" + b"a" * 144).decode("ascii")
+        over_bound = base64.urlsafe_b64encode(
+            b"\x80" + b"a" * capture.MAX_CODEX_TEXT_BYTES
+        ).decode("ascii")
+        cases = {
+            "too-much-padding": token + "=",
+            "invalid-alphabet": token[:2] + "." + token[3:],
+            "attached-value": token + "assigned-value",
+            "whitespace-value": token + " assigned-value",
+            "newline-value": token + "\nassigned-value",
+            "truncation-marker-and-prose": (
+                f'<truncated original_characters="256" />{token}\n\n'
+                "1. Later source text remains ambiguous."
+            ),
+            "whitespace-before-padding": token[:-2] + " ==",
+            "oversized-token": over_bound,
+            "quoted-assignment-key": f'"{token}":"assigned-value"',
+            "quoted-equals-key": f'"{token}" = assigned-value',
+            "mismatched-quotes": f'"{token}\' ',
+            "single-quotes": f"'{token}'",
+            "parentheses": f"({token})",
+            "backticks": f"`{token}`",
+            "escaped-opening-quote": f'\\"{token}"',
+        }
+        for label, value in cases.items():
+            with self.subTest(case=label):
+                self.assertEqual(
+                    (True, False),
+                    capture._classify_codex_oversized_text_key_fragments(value),
+                )
+                projected, _, _ = capture._redact_codex_projection_value(value)
+                self.assertIsInstance(projected, dict)
+                self.assertTrue(verify._contains_excluded_projection_key(value))
+
+    def test_codex_padding_is_lexical_and_preserves_full_key_checks(self) -> None:
+        token = base64.urlsafe_b64encode(b"\x80" + b"a" * 144).decode("ascii")
+        for value in (token[:-3] + "B==", token[:-2] + "A=="):
+            with self.subTest(size=len(value)):
+                self.assertEqual(
+                    (False, False), capture._classify_codex_text_key_fragments(value)
+                )
+                self.assertEqual(
+                    (value, [], 0), capture._redact_codex_projection_fixed_point(value)
+                )
+                self.assertEqual(
+                    (False, False),
+                    capture._classify_codex_text_key_fragments(f'Visible "{value}".'),
+                )
+
+        for key, expected in (
+            ("analysis" + "_" * 129, (True, False)),
+            ("developer" + "_" * 129 + "instructions", (True, False)),
+            ("a" * 129 + "token", (False, True)),
+        ):
+            for value in (key + "==", f'Visible "{key}==".'):
+                with self.subTest(key=key, quoted=value.startswith("Visible")):
+                    self.assertEqual(
+                        expected, capture._classify_codex_text_key_fragments(value)
+                    )
+                    projected, _, _ = capture._redact_codex_projection_value(value)
+                    self.assertIsInstance(projected, dict)
+
+    def test_codex_padding_does_not_disable_other_field_or_secret_checks(self) -> None:
+        token = base64.urlsafe_b64encode(b"\x80" + b"a" * 144).decode("ascii")
+        for label, value, expected in (
+            ("hidden-field", f'{token} "analysis":"PRIVATE-SYNTHETIC"', (True, False)),
+            ("sensitive-field", f'{token} password=PRIVATE-SYNTHETIC', (True, True)),
+            (
+                "quoted-token-with-hidden-field",
+                f'Observation "{token}"; "analysis":"PRIVATE-SYNTHETIC"',
+                (True, False),
+            ),
+            (
+                "quoted-token-with-sensitive-field",
+                f'Observation "{token}"; password=PRIVATE-SYNTHETIC',
+                (False, True),
+            ),
+        ):
+            with self.subTest(case=label):
+                self.assertEqual(expected, capture._classify_codex_text_key_fragments(value))
+                projected, _, _ = capture._redact_codex_projection_value(value)
+                self.assertNotIn("PRIVATE-SYNTHETIC", json.dumps(projected))
+
+        synthetic_secret = "ghp_" + "S" * 24
+        value = f'Observation "{token}"; {synthetic_secret}'
+        projected, _, _ = capture._redact_codex_projection_fixed_point(value)
+        redacted, categories, count = capture.redact_projection_bytes(
+            capture.canonical_json(projected)
+        )
+        self.assertNotIn(synthetic_secret.encode(), redacted)
+        self.assertEqual(["github-token"], categories)
+        self.assertEqual(1, count)
+
     def test_codex_text_key_classifier_uses_one_shared_structural_pass(self) -> None:
         class CountingPattern:
             def __init__(self, pattern: re.Pattern[str]) -> None:
@@ -3574,6 +3700,309 @@ class DeliveryEvidencePreservationTests(unittest.TestCase):
         self.assertRegex(stub["source_line_sha256"], r"^[0-9a-f]{64}$")
         self.assertTrue(verify.verify_store(self.store)["verified"])
 
+    def test_current_codex_byte_masking_cannot_write_invalid_structured_text(self) -> None:
+        sessions = self.root / "sessions-byte-redaction-fixed-point"
+        sessions.mkdir(mode=0o700)
+        source = sessions / "root.jsonl"
+        tool_record = {
+            "type": "response_item",
+            "payload": {
+                "type": "function_call",
+                "name": "bounded.call",
+                "arguments": {
+                    "database_url": (
+                        "postgres" + "://fixture-reader:fixture-password@"
+                        'database.example.invalid/catalogue"quoted'
+                    )
+                },
+            },
+        }
+        source.write_bytes(
+            capture.canonical_json(
+                {
+                    "timestamp": "2026-08-30T08:00:00Z",
+                    "type": "session_meta",
+                    "payload": {
+                        "id": "root-thread",
+                        "session_id": "root-thread",
+                        "timestamp": "2026-08-30T08:00:00Z",
+                    },
+                }
+            )
+            + capture.canonical_json(tool_record)
+        )
+        source.chmod(0o600)
+        first, categories, _ = capture._redact_codex_projection_fixed_point(tool_record)
+        self.assertEqual(tool_record, first)
+        masked, byte_categories, _ = capture.redact_projection_bytes(
+            capture.canonical_json(first)
+        )
+        self.assertIn("database-credential-url", byte_categories)
+        with self.assertRaises(capture.EvidenceCaptureError):
+            capture.parse_json(masked, "synthetic byte masking")
+        with self.assertRaises(capture._CodexProjectionRedactionNotStable):
+            capture._require_codex_projection_final_fixed_point(
+                masked, categories + byte_categories
+            )
+
+        with capture.private_umask(), capture.EvidenceStore(self.store) as store:
+            capture.capture_codex_thread_closure(
+                store,
+                thread_id="root-thread",
+                session_roots=[sessions],
+                trigger="pre-compaction",
+                clone_function=fake_clone,
+                filesystem_type_function=apfs,
+            )
+        event = next(
+            item
+            for item in self.journal()
+            if item["source"]["kind"] == "codex-user-visible-projection"
+        )
+        observed = verify._object_paths(self.store)
+        raw = gzip.decompress(observed[event["objects"][0]["sha256"]].read_bytes())
+        self.assertNotIn(b"database_url", raw)
+        values = [capture.parse_json(line, "byte masking projection") for line in raw.splitlines()]
+        stub = next(
+            value
+            for value in values
+            if value.get("source_type") == "projection:redaction-fixed-point"
+        )
+        self.assertEqual("excluded-rollout-record", stub["record"])
+        self.assertEqual(
+            hashlib.sha256(capture.canonical_json(tool_record)).hexdigest(),
+            stub["source_line_sha256"],
+        )
+        self.assertTrue(verify.verify_store(self.store)["verified"])
+
+    def test_final_codex_bytes_reject_normalisation_and_canonical_drift(self) -> None:
+        for label, raw in (
+            ("structured-redaction", capture.canonical_json({"text": "analysis: SYNTHETIC"})),
+            ("canonical-order", b'{"z":1,"a":2}\n'),
+        ):
+            with self.subTest(case=label):
+                with self.assertRaises(capture._CodexProjectionRedactionNotStable):
+                    capture._require_codex_projection_final_fixed_point(raw, [])
+
+    def test_unchanged_codex_bytes_reuse_the_existing_fixed_point_proof(self) -> None:
+        with mock.patch.object(
+            capture,
+            "_require_codex_projection_final_fixed_point",
+            wraps=capture._require_codex_projection_final_fixed_point,
+        ) as final_guard:
+            self._capture_minimal_codex_generation()
+        final_guard.assert_not_called()
+        self.assertTrue(verify.verify_store(self.store)["verified"])
+
+    def test_changed_codex_bytes_and_secret_fallback_receive_final_verification(self) -> None:
+        for label, message in (
+            ("masked", "ghp_" + "S" * 24),
+            ("fallback", PRIVATE_KEY_HEADER),
+        ):
+            with self.subTest(case=label):
+                sessions = self.root / f"sessions-final-guard-{label}"
+                sessions.mkdir(mode=0o700)
+                source = sessions / "root.jsonl"
+                source.write_bytes(
+                    capture.canonical_json(
+                        {
+                            "type": "session_meta",
+                            "payload": {
+                                "id": "root-thread",
+                                "session_id": "root-thread",
+                                "timestamp": "2026-08-30T08:00:00Z",
+                            },
+                        }
+                    )
+                    + capture.canonical_json(
+                        {"type": "event_msg", "payload": {"type": "user_message", "message": message}}
+                    )
+                )
+                source.chmod(0o600)
+                case_store = self.root / f"store-final-guard-{label}"
+                with (
+                    mock.patch.object(
+                        capture,
+                        "_require_codex_projection_final_fixed_point",
+                        wraps=capture._require_codex_projection_final_fixed_point,
+                    ) as final_guard,
+                    capture.private_umask(),
+                    capture.EvidenceStore(case_store) as store,
+                ):
+                    capture.capture_codex_thread_closure(
+                        store,
+                        thread_id="root-thread",
+                        session_roots=[sessions],
+                        trigger="pre-compaction",
+                        clone_function=fake_clone,
+                        filesystem_type_function=apfs,
+                    )
+                final_guard.assert_called_once()
+                guarded_bytes = final_guard.call_args.args[0]
+                self.assertNotIn(message.encode(), guarded_bytes)
+                guarded = capture.parse_json(guarded_bytes, "synthetic final guard")
+                self.assertEqual(
+                    "projected-rollout-record" if label == "masked" else "excluded-rollout-record",
+                    guarded["record"],
+                )
+                self.assertTrue(verify.verify_store(case_store)["verified"])
+
+    def test_final_codex_guard_needs_one_normalisation(self) -> None:
+        value = {"message": "safe visible output"}
+        with mock.patch.object(
+            capture,
+            "_redact_codex_projection_value",
+            wraps=capture._redact_codex_projection_value,
+        ) as normalise:
+            capture._require_codex_projection_final_fixed_point(
+                capture.canonical_json(value), []
+            )
+        normalise.assert_called_once_with(value)
+
+    def test_codex_canonical_bytes_reject_nonfinite_numbers(self) -> None:
+        for value in (float("inf"), float("-inf"), float("nan")):
+            with self.subTest(value=str(value)):
+                with self.assertRaises(capture._CodexProjectionRedactionNotStable):
+                    capture._canonical_codex_projection_json({"value": value})
+        for value in (0, -0.0, 1.25, 1e308):
+            with self.subTest(value=value):
+                self.assertEqual(
+                    capture.canonical_json({"value": value}),
+                    capture._canonical_codex_projection_json({"value": value}),
+                )
+        for raw in (b'{"value":1e999}\n', b'{"value":-1e999}\n'):
+            with self.subTest(raw=raw):
+                with self.assertRaises(capture._CodexProjectionRedactionNotStable):
+                    capture._require_codex_projection_final_fixed_point(raw, [])
+
+    def test_codex_numeric_overflow_uses_digest_bound_omission(self) -> None:
+        sessions = self.root / "sessions-numeric-overflow"
+        sessions.mkdir(mode=0o700)
+        source = sessions / "root.jsonl"
+        source_lines = [
+            capture.canonical_json(
+                {
+                    "type": "session_meta",
+                    "payload": {
+                        "id": "root-thread",
+                        "session_id": "root-thread",
+                        "timestamp": "2026-08-30T08:00:00Z",
+                    },
+                }
+            )
+        ]
+        source_lines.extend(
+            b'{"type":"event_msg","payload":{"type":"mcp_tool_call_end","result":'
+            + number
+            + b"}}\n"
+            for number in (b"1e999", b"-1e999")
+        )
+        source.write_bytes(b"".join(source_lines))
+        source.chmod(0o600)
+        with capture.private_umask(), capture.EvidenceStore(self.store) as store:
+            capture.capture_codex_thread_closure(
+                store,
+                thread_id="root-thread",
+                session_roots=[sessions],
+                trigger="pre-compaction",
+                clone_function=fake_clone,
+                filesystem_type_function=apfs,
+            )
+        event = next(
+            item
+            for item in self.journal()
+            if item["source"]["kind"] == "codex-user-visible-projection"
+        )
+        observed = verify._object_paths(self.store)
+        raw = gzip.decompress(observed[event["objects"][0]["sha256"]].read_bytes())
+        self.assertNotIn(b"Infinity", raw)
+        self.assertNotIn(b"NaN", raw)
+        records = [capture.parse_json(line, "finite projection") for line in raw.splitlines()]
+        stubs = [
+            value
+            for value in records
+            if value.get("source_type") == "projection:redaction-fixed-point"
+        ]
+        self.assertEqual(2, len(stubs))
+        for line_number, stub in enumerate(stubs, start=2):
+            self.assertEqual("excluded-rollout-record", stub["record"])
+            self.assertEqual(line_number, stub["source_line"])
+            self.assertEqual(len(source_lines[line_number - 1]), stub["source_bytes"])
+            self.assertEqual(
+                hashlib.sha256(source_lines[line_number - 1]).hexdigest(),
+                stub["source_line_sha256"],
+            )
+        self.assertTrue(verify.verify_store(self.store)["verified"])
+
+    def test_invalid_codex_header_or_footer_aborts_capture(self) -> None:
+        original_redactor = capture.redact_projection_bytes
+        original_serialiser = capture._canonical_codex_projection_json
+        for target, failure_stage in (
+            (target, stage)
+            for target in ("projection-header", "projection-footer")
+            for stage in ("byte-mask", "nonfinite-number")
+        ):
+            with self.subTest(record=target, stage=failure_stage):
+                sessions = self.root / f"sessions-{target}-{failure_stage}"
+                sessions.mkdir(mode=0o700)
+                source = sessions / "root.jsonl"
+                source.write_bytes(
+                    capture.canonical_json(
+                        {
+                            "type": "session_meta",
+                            "payload": {
+                                "id": "root-thread",
+                                "session_id": "root-thread",
+                                "timestamp": "2026-08-30T08:00:00Z",
+                            },
+                        }
+                    )
+                )
+                source.chmod(0o600)
+                case_store = self.root / f"store-{target}-{failure_stage}"
+
+                def invalid_byte_redaction(raw: bytes) -> tuple[bytes, list[str], int]:
+                    redacted, categories, count = original_redactor(raw)
+                    if (
+                        failure_stage == "byte-mask"
+                        and capture.parse_json(raw, "synthetic redactor").get("record") == target
+                    ):
+                        # Reported redaction metadata must not decide whether a
+                        # changed output needs its final-byte proof.
+                        self.assertEqual(([], 0), (categories, count))
+                        return redacted[:-1] + b"}\n", categories, count
+                    return redacted, categories, count
+
+                def nonfinite_serialisation(value: object) -> bytes:
+                    if (
+                        failure_stage == "nonfinite-number"
+                        and isinstance(value, dict)
+                        and value.get("record") == target
+                    ):
+                        return original_serialiser({**value, "value": float("inf")})
+                    return original_serialiser(value)
+
+                with (
+                    mock.patch.object(
+                        capture, "redact_projection_bytes", side_effect=invalid_byte_redaction
+                    ),
+                    mock.patch.object(
+                        capture, "_canonical_codex_projection_json", side_effect=nonfinite_serialisation
+                    ),
+                    self.assertRaises(capture._CodexProjectionRedactionNotStable),
+                    capture.private_umask(),
+                    capture.EvidenceStore(case_store) as store,
+                ):
+                    capture.capture_codex_thread_closure(
+                        store,
+                        thread_id="root-thread",
+                        session_roots=[sessions],
+                        trigger="pre-compaction",
+                        clone_function=fake_clone,
+                        filesystem_type_function=apfs,
+                    )
+                self.assertEqual([], capture.read_journal(case_store / "journal.jsonl"))
+
     def test_intermediate_v2_depth_drift_is_verified_but_not_reused(self) -> None:
         sessions = self.root / "sessions-intermediate-v2-depth-drift"
         sessions.mkdir(mode=0o700)
@@ -3616,6 +4045,8 @@ class DeliveryEvidencePreservationTests(unittest.TestCase):
                 "_redact_codex_projection_fixed_point",
                 side_effect=capture._redact_codex_projection_value,
             ),
+            # Reconstruct the historical pipeline before either fixed-point gate.
+            mock.patch.object(capture, "_require_codex_projection_final_fixed_point"),
             capture.private_umask(),
             capture.EvidenceStore(self.store) as store,
         ):

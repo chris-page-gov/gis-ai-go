@@ -247,7 +247,20 @@ unstable intermediate form. It emits a source-line-digest-bound
 `projection:redaction-maximum-depth` exclusion stub instead; any other
 non-idempotent transformation uses the corresponding closed fixed-point stub.
 Headers, footers and stubs have no fallback and fail the transaction if they are
-not already stable. The offline verifier independently repeats the same check.
+not already stable. Codex projection serialisation requires strict canonical JSON
+and rejects non-finite numbers, including numeric overflow. If final byte masking
+changes the serialised bytes, capture repeats the fixed-point and canonical-JSON
+checks before staging them. Byte-identical output retains the already established
+strict canonical fixed-point proof. The ordinary secret checks still run, and the
+offline verifier independently checks every retained line.
+
+The text classifier distinguishes terminal `=` padding with no following value
+from an assignment delimiter only in the closed whole-text or quoted-token forms.
+This is a lexical distinction, not a claim that the token is valid encoded data or
+safe content. The ordinary sensitive-key, excluded-internal-field and secret checks
+still apply independently to the complete text. Malformed mixed text receives no
+general padding or legacy exemption, and an actual assignment remains subject to
+key classification.
 
 Some v1 records also crossed the depth limit only after the closed projection
 wrapper was added, although every direct wrapper child remained independently
@@ -388,6 +401,41 @@ Keep the verifier independent of network access. A passing result proves only th
 the captured store is internally closed and byte-consistent; it does not attest the
 truth of a source statement or establish that uncaptured evidence never existed.
 
+## Recovery from failed verification
+
+A historical capture can be byte-consistent while failing current semantic or
+redaction verification. Keep that distinction explicit. Do not edit an old object,
+rebuild its journal to make a check pass or add a broad legacy exemption.
+
+1. Retain the predecessor store unchanged on its admitted owner-only volume. Record
+   its complete private inventory, journal checkpoint and the verifier's precise
+   limit, including which checks completed and which did not. Keep paths, digests
+   and retained content out of repository and public records.
+2. Create a fresh owner-only successor on an admitted volume. Re-capture only the
+   authorised current source scope using the current projection schema. Preserve
+   the selected source identifiers and capture bounds privately; record an expired
+   or unavailable source explicitly. Re-capture is a new observation and does not
+   reproduce an unavailable historical generation.
+3. Run the complete offline verifier against the successor. A successful inventory
+   check, partial semantic check or capture command alone is insufficient. Record
+   the complete result and its store identity privately, including expiry warnings
+   and exclusions.
+4. Admit the repair through protected `main` with all mandatory checks passing.
+   Switch scheduled captures only after the selected current successor has passed
+   complete verification. Record the operational cutover, admitted inventory and
+   complete verification result privately. Retain the predecessor and its
+   verification limit as historical evidence. If the successor fails, leave the
+   failed capture unpromoted.
+
+Daily captures require complete offline verification. Each pass applies to the
+privately identified store snapshot; it does not attest a later capture. The private
+operating record holds the current inventory and cutover state, while repository
+checkpoint figures remain dated historical measurements.
+
+A passing successor does not mean the predecessor's semantics passed. This is
+separate, non-blocking preservation maintenance; it does not start a retrospective,
+publish source material, deploy a service or change the product release state.
+
 ## Measured operating envelope
 
 These figures are measurements and planning estimates from the initial checkpoint,
@@ -441,14 +489,58 @@ The initial checkpoint completed on 1 September 2026:
   seconds and its four-worker Codex phase took about 17 minutes 56 seconds, about
   21 minutes 48 seconds in total.
 
-The current closure uses projection v3. Earlier v1 and v2 records remain immutable
-historical evidence and are accepted only through their narrow documented
+The checkpoint's current closure used projection v3. Earlier v1 and v2 records
+remain immutable historical evidence and are accepted only through their narrow documented
 compatibility rules. The result does not attest source truth or timestamps, and it
 has no independent anchor capable of detecting a coordinated whole-store rewrite.
 It did not start retrospective analysis, calculate costs, authorise publication,
 deploy a service, call a provider, activate the candidate, register tools, change a
 version, create a tag or release `v0.2.0`. The owner-only path and journal-head
 digest remain private.
+
+## Recovery status on 5 September 2026
+
+The later verifier reports from 1 and 2 September were assessed on 5 September.
+The initial checkpoint's pass remains a historical observation. The predecessor
+retained unchanged contains
+6,011 journal events and 5,193 immutable objects occupying 2,651,662,328 bytes. All
+5,193 objects passed integrity checks. Complete semantic verification then failed
+at a known legacy v1 record. Because semantic verification stops at a failure, this
+does not establish the absence of further semantic failures. A separate read-only
+checkpoint comparison confirmed that the predecessor journal, ledger and inventory
+remain unchanged. The terminal-padding correction does not justify accepting
+malformed mixed text or adding a general legacy exemption.
+
+An owner-only successor on the same admitted encrypted internal volume completed
+its initial authorised source capture on 5 September 2026:
+
+- the source inventory contained 1,028 files and 44,572,464,083 bytes;
+- capture recorded 1,029 journal events: 1,023 retained capture events and six
+  policy exclusions, with no unavailable records or warnings;
+- retained compressed projections occupied 925,615,899 bytes and generation-manifest
+  metadata occupied 2,124,447 bytes, totalling 927,740,346 captured bytes; and
+- capture took 3,863.086 seconds; the final topology check and atomic commit passed.
+
+Complete offline verification then passed for that initial successor baseline on
+5 September 2026: 1,029 journal events, 1,023 immutable objects, 927,740,346 bytes
+and no warnings. Both object integrity and complete projection semantics passed.
+This result applies to that baseline only.
+
+A later selected GitHub capture on 5 September 2026 completed 143 captures and
+added 157 journal events, with nine no-ops, no exclusions, 14 unavailable records
+and no warnings. Eleven unavailable records were outside the selected large-artefact
+size policy; three Pages archives failed archive validation. Their precise
+validation subreason was not established. Unavailable records remain explicit
+coverage limits, and the capture result does not attest complete verification of
+the combined store.
+
+Operational admission follows the recovery procedure above: accepted protected-main
+repair with passing mandatory checks and complete verification of the selected
+current successor are both required. The operational cutover, current inventory and
+subsequent verification results are recorded privately. These dated checkpoints do
+not claim a later combined-store pass or scheduler resumption. The predecessor's
+private checkpoint and exact verification limit remain separate from every
+successor result.
 
 ## Future retrospective hand-off
 
