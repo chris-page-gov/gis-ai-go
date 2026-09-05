@@ -420,10 +420,17 @@ rebuild its journal to make a check pass or add a broad legacy exemption.
    check, partial semantic check or capture command alone is insufficient. Record
    the complete result and its store identity privately, including expiry warnings
    and exclusions.
-4. Switch scheduled captures to the successor only after that complete verification
-   passes. Retain the predecessor and its verification limit as historical evidence.
-   If the successor fails, keep the recovery open and leave the failed capture
-   unpromoted.
+4. Admit the repair through protected `main` with all mandatory checks passing.
+   Switch scheduled captures only after the selected current successor has passed
+   complete verification. Record the operational cutover, admitted inventory and
+   complete verification result privately. Retain the predecessor and its
+   verification limit as historical evidence. If the successor fails, leave the
+   failed capture unpromoted.
+
+Daily captures require complete offline verification. Each pass applies to the
+privately identified store snapshot; it does not attest a later capture. The private
+operating record holds the current inventory and cutover state, while repository
+checkpoint figures remain dated historical measurements.
 
 A passing successor does not mean the predecessor's semantics passed. This is
 separate, non-blocking preservation maintenance; it does not start a retrospective,
@@ -491,20 +498,49 @@ deploy a service, call a provider, activate the candidate, register tools, chang
 version, create a tag or release `v0.2.0`. The owner-only path and journal-head
 digest remain private.
 
-## Recovery status on 4 September 2026
+## Recovery status on 5 September 2026
 
-Later verifier reports from 1 and 2 September require the initial checkpoint's pass
-to remain a historical observation. The predecessor now retained unchanged contains
-6,011 journal events and 5,193 immutable objects occupying 2,651,662,328 bytes. One
-legacy v1 record remains ambiguous under semantic redaction verification; the
-terminal-padding correction does not justify accepting malformed mixed text or
-adding a general legacy exemption.
+The later verifier reports from 1 and 2 September were assessed on 5 September.
+The initial checkpoint's pass remains a historical observation. The predecessor
+retained unchanged contains
+6,011 journal events and 5,193 immutable objects occupying 2,651,662,328 bytes. All
+5,193 objects passed integrity checks. Complete semantic verification then failed
+at a known legacy v1 record. Because semantic verification stops at a failure, this
+does not establish the absence of further semantic failures. A separate read-only
+checkpoint comparison confirmed that the predecessor journal, ledger and inventory
+remain unchanged. The terminal-padding correction does not justify accepting
+malformed mixed text or adding a general legacy exemption.
 
-An owner-only successor has been configured on the same admitted encrypted internal
-volume for a fresh capture of the authorised current sources. Recovery is in
-progress. Complete successor verification and the subsequent scheduler change are
-still outstanding. The predecessor's private checkpoint and exact verification
-limit remain separate from any later successor result.
+An owner-only successor on the same admitted encrypted internal volume completed
+its initial authorised source capture on 5 September 2026:
+
+- the source inventory contained 1,028 files and 44,572,464,083 bytes;
+- capture recorded 1,029 journal events: 1,023 retained capture events and six
+  policy exclusions, with no unavailable records or warnings;
+- retained compressed projections occupied 925,615,899 bytes and generation-manifest
+  metadata occupied 2,124,447 bytes, totalling 927,740,346 captured bytes; and
+- capture took 3,863.086 seconds; the final topology check and atomic commit passed.
+
+Complete offline verification then passed for that initial successor baseline on
+5 September 2026: 1,029 journal events, 1,023 immutable objects, 927,740,346 bytes
+and no warnings. Both object integrity and complete projection semantics passed.
+This result applies to that baseline only.
+
+A later selected GitHub capture on 5 September 2026 completed 143 captures and
+added 157 journal events, with nine no-ops, no exclusions, 14 unavailable records
+and no warnings. Eleven unavailable records were outside the selected large-artefact
+size policy; three Pages archives failed archive validation. Their precise
+validation subreason was not established. Unavailable records remain explicit
+coverage limits, and the capture result does not attest complete verification of
+the combined store.
+
+Operational admission follows the recovery procedure above: accepted protected-main
+repair with passing mandatory checks and complete verification of the selected
+current successor are both required. The operational cutover, current inventory and
+subsequent verification results are recorded privately. These dated checkpoints do
+not claim a later combined-store pass or scheduler resumption. The predecessor's
+private checkpoint and exact verification limit remain separate from every
+successor result.
 
 ## Future retrospective hand-off
 

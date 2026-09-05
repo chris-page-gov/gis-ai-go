@@ -1,6 +1,6 @@
 # Delivery progress
 
-Last updated: 4 September 2026
+Last updated: 5 September 2026
 
 ## Current outcome
 
@@ -124,17 +124,29 @@ public deployment and the `v0.2.0` release remain outstanding.
   checkpoint the owner-only store had 5,925 journal events, 5,126 immutable objects,
   2,649,437,251 retained bytes and nine expiry warnings. Its four-worker complete
   offline verification passed on 1 September 2026. Later verifier reports from
-  1 and 2 September require reconciliation.
+  1 and 2 September were assessed on 5 September.
   Keep the initial pass as historical evidence and do not present it as a current
   clean-store claim;
 - retain the predecessor unchanged at 6,011 events, 5,193 objects and
   2,651,662,328 bytes, with its private inventory, journal checkpoint and precise
-  verification limit. One legacy v1 record remains ambiguous under semantic
-  redaction verification. Recovery is in progress: re-capture authorised current
-  sources into a fresh owner-only successor on the same admitted encrypted internal
-  volume, then require a complete verification pass before switching scheduled
-  captures. Keep the predecessor's unresolved semantics explicit and grant no broad
-  legacy exemption; and
+  verification limit. All 5,193 objects passed integrity checks, but complete
+  semantic verification failed at a known legacy v1 record. The verifier stops at a
+  failure, so the result does not establish that no further failures exist. A
+  separate read-only checkpoint comparison confirmed the predecessor journal,
+  ledger and inventory are unchanged;
+- retain the initial verified successor baseline from 5 September 2026 on the same
+  admitted encrypted internal volume: 1,029 events, 1,023 objects, 927,740,346 bytes
+  and no warnings, with complete offline integrity and semantic verification
+  passed. The later selected GitHub capture added 157 events through 143 captures
+  and 14 unavailable records, with nine no-ops and no exclusions or warnings.
+  These are separate snapshots; the earlier verification does not attest the later
+  combined store;
+- require the repair to be accepted on protected `main` with passing mandatory
+  checks and complete verification of the selected current successor before
+  operational cutover. Record cutover, the current inventory and subsequent
+  verification privately; daily captures require complete verification. Keep the
+  predecessor's unresolved semantics explicit and grant no broad legacy exemption;
+  and
 - retain early v1 and v2 projections immutably for historical compatibility while
   using the fixed-point v3 projection for the current generation. Do not expose
   the private store path or journal head in repository or public material.

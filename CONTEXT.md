@@ -1,6 +1,6 @@
 # Current context
 
-Last updated: 4 September 2026
+Last updated: 5 September 2026
 
 ## Authority and reading order
 
@@ -94,15 +94,25 @@ change the product runtime, deploy a service or alter the `v0.2.0` release bound
 The initial protected-main checkpoint recorded 5,925 journal events and 5,126
 immutable objects occupying 2,649,437,251 bytes. Its complete offline verification
 passed on 1 September 2026 with nine recorded expiry warnings and no retrospective,
-publication or product-state boundary set. This is a historical checkpoint: later
-verifier reports from 1 and 2 September require reconciliation. The predecessor
-store is retained unchanged at 6,011 journal events, 5,193 immutable objects and
-2,651,662,328 bytes; one legacy v1 record still fails semantic redaction
-verification. Recovery is in progress through a fresh owner-only successor on the
-same admitted encrypted internal volume. It must pass complete verification before
-scheduled captures switch to it. Neither the earlier checkpoint nor a future
-successor pass establishes that the predecessor's semantics passed. Store paths,
-journal checkpoints and the precise verification limit remain private. See the
+publication or product-state boundary set. The later verifier reports from
+1 and 2 September were assessed on 5 September. The predecessor store is retained
+unchanged at 6,011 journal events, 5,193 immutable objects and
+2,651,662,328 bytes. All 5,193 objects passed integrity checks, but complete semantic
+verification failed at a known legacy v1 record; this does not establish the absence
+of further semantic failures. A separate read-only checkpoint comparison confirmed
+that the predecessor journal, ledger and inventory remain unchanged.
+
+On 5 September 2026, the initial owner-only successor baseline on the same admitted
+encrypted internal volume passed complete offline verification: 1,029 events,
+1,023 objects, 927,740,346 bytes and no warnings. A later selected GitHub capture
+is recorded separately in the runbook; that capture does not extend the earlier
+verification to a later store state. Operational admission requires the repair to
+be accepted on protected `main` with passing mandatory checks and the selected
+current successor to pass complete verification. The private operating record is
+the authority for cutover, the current inventory and subsequent verification;
+daily captures require complete verification. The successor pass does not establish
+that the predecessor's semantics passed. Store paths, journal checkpoints and the
+precise verification limit remain private. See the
 [preservation recovery procedure](docs/operations/EVID-211_CONTINUOUS_EVIDENCE_PRESERVATION.md#recovery-from-failed-verification).
 
 An experimental, standalone WebMCP Explorer candidate sits under
