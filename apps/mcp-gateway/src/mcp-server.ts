@@ -58,13 +58,14 @@ import {
   type CatalogueProblemContext,
 } from "./problem.js";
 import { haveExactlyLinkedReconciliationApplications } from "./reconciliation-applications.js";
+import { MCP_MAX_TOOL_RESULT_BYTES, MCP_PROTOCOL_VERSION } from "./mcp-constants.js";
+export { MCP_MAX_TOOL_RESULT_BYTES, MCP_PROTOCOL_VERSION } from "./mcp-constants.js";
 import {
   type SelectionResolveApplication,
   type SelectionResolveProblem,
   type SelectionResolveResult,
 } from "./selection-application.js";
 
-export const MCP_PROTOCOL_VERSION = "2026-07-28" as const;
 /** Legacy revision exposed only by the explicit STDIO conformance constructor. */
 export const MCP_LEGACY_CONFORMANCE_PROTOCOL_VERSION = "2025-06-18" as const;
 /**
@@ -104,8 +105,6 @@ export const MCP_CATALOGUE_RECORD_URI_TEMPLATE =
 export const MCP_EVIDENCE_RECEIPT_URI_TEMPLATE =
   "gis-ai-go://evidence/receipts/{receipt_id}" as const;
 
-/** Maximum encoded SDK tool result, including both compatibility representations. */
-export const MCP_MAX_TOOL_RESULT_BYTES = 1_048_576;
 /** Maximum encoded text body returned by any catalogue resource. */
 export const MCP_MAX_RESOURCE_TEXT_BYTES = 262_144;
 /** Evidence inspection text is bounded by the shared transport-neutral result. */

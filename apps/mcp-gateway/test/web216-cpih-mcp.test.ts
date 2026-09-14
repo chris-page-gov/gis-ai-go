@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -12,6 +13,7 @@ import { createCatalogueApplication } from "../src/catalogue-application.js";
 import { loadCatalogueSnapshot } from "../src/catalogue-snapshot.js";
 import { createWeb216CpihMcpServerFactory, WEB216_CPIH_MCP_SCHEMAS, WEB216_CPIH_MCP_TOOLS } from "../src/web216-cpih-mcp.js";
 import { MCP_MAX_TOOL_RESULT_BYTES, MCP_PROTOCOL_VERSION } from "../src/mcp-server.js";
+import { WEB216_CPIH_INPUT_SCHEMAS } from "../src/web216-cpih-input-schemas.js";
 
 const PROJECTION: unknown = JSON.parse(readFileSync(new URL("../../../../tests/fixtures/web216/current-cpih-projection.json", import.meta.url), "utf8"));
 const SOFTWARE = { name: "gis-ai-go-mcp-gateway", version: "0.1.0", revision: "a".repeat(40) } as const;
@@ -19,6 +21,18 @@ const NOW = () => new Date("2026-09-14T18:00:00.000Z");
 const KEY = ["gis-ai-go", "ik", "v1", "a".repeat(64)].join(":");
 const SECOND_KEY = ["gis-ai-go", "ik", "v1", "b".repeat(64)].join(":");
 const URL_BASE = "http://127.0.0.1:8788/mcp";
+
+test("input-only extraction preserves every original advertised schema byte", () => {
+  const beforeExtraction = {
+    web216_cpih_select: "d901263df137ff00dfaa3dbc846ebe30fcae9cd3e6ea8dd2aba2044e192a8268",
+    web216_cpih_query: "8e9f49d7bc71ed30a105b035bc2e36ea97821c6c83b0b7f309b8ee0ee799499a",
+    web216_cpih_inspect: "9002b8c3864d97f8e77e072aaf85faa20f8a6404778d343884516d56eed9743d",
+  } as const;
+  for (const name of WEB216_CPIH_MCP_TOOLS) {
+    assert.deepEqual(WEB216_CPIH_MCP_SCHEMAS[name].input, WEB216_CPIH_INPUT_SCHEMAS[name]);
+    assert.equal(createHash("sha256").update(JSON.stringify(WEB216_CPIH_MCP_SCHEMAS[name].input)).digest("hex"), beforeExtraction[name]);
+  }
+});
 
 function scenario(t: TestContext) {
   const root = mkdtempSync(join(tmpdir(), "web216-mcp-"));

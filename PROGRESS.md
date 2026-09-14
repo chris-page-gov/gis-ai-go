@@ -40,11 +40,17 @@ tree observation is not an accepted-build attestation or hosted capability claim
 See the [local walkthrough](docs/implementation/WEB-216_LOCAL_WORKBENCH_WALKTHROUGH.md).
 PR #131 is merged at `fd8106691bb5c3d63e5f11c21b16f1e7c26f4321`; required PR
 checks and protected-main source assurance passed. Both main image builds failed
-during packaging, including the single unchanged-source retry; full post-merge
-acceptance is not yet claimed. Packaging diagnostics are being isolated without
-repeating the failing run. The separate inactive hosted-storage
-foundation passes 35 focused tests and a real local Workers/D1 restart experiment.
-It adds no endpoint or deployment. See the
+during packaging, including the single unchanged-source retry; the inner failure
+cause was not retained. The following PR #132 storage foundation is now accepted at
+`b9729b5cacc77e9f2b12790c40ad6349fae7b370`: complete protected-main
+[assurance](https://github.com/chris-page-gov/gis-ai-go/actions/runs/34884325687)
+and [CodeQL](https://github.com/chris-page-gov/gis-ai-go/actions/runs/34884325565)
+passed, including both image derivations, attestation verification and provenance.
+This does not retrospectively explain the earlier failure. Bounded diagnostic
+improvements are isolated separately. The inactive storage foundation passes 35
+focused tests and a real local Workers/D1 restart experiment. It adds no endpoint
+or deployment. The next increment is validating the separate hosted MCP and
+browser mode in actual Workers before assembling any Site route. See the
 [storage experiment](docs/implementation/WEB-216_HOSTED_STORAGE_EXPERIMENT.md).
 The OS Open Names Warwick point is captured; ONS boundary metadata succeeded but
 three bounded point queries timed out (two GETs and one POST). A real MSOA join

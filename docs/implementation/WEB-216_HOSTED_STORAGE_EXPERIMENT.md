@@ -168,6 +168,61 @@ the successful restart. Both the failure and correction remain in the journal.
 
 ## Remaining hosted acceptance
 
+### Inactive MCP and browser integration
+
+The separate `createWeb216HostedCpihMcpServerFactory` exposes the same three
+experimental names and exact input schemas as the local CPIH constructor. Its
+output is a separately named hosted result/problem family. Query is explicitly
+stateful; selection and inspection grant no new authority. Every application call
+receives cancellation, including the existing conservative uncertain-write
+handling. The constructor adds no listener, route or database provisioning.
+
+The browser's default build still targets the loopback workbench. A separate
+`build:hosted` mode targets only the existing private Site's `/workbench/mcp`
+path, with same-origin credentials, no redirects and a 15-second deadline. The
+SDK cannot substitute another destination. The build mode, not a query parameter,
+model argument or returned payload, selects the hosted display contract. Output
+goes to `dist-hosted`; the existing Site and its old demonstration are not changed
+by building it. The canonical browser-build lane compiles both modes.
+
+The hosted page checks selected evidence links and the exact limitations before
+displaying success. It does not independently verify all content hashes or the
+complete stored chain, and it makes no freshness, rollback-protection or
+attestation claim. Real SDK/SQLite tests cover discovery, queries, replay,
+inspection, cancellation, capacity and malformed outputs. Workers runtime and
+deployed Site acceptance remain separate checks, not implications of those tests.
+
+The optional [MCP probe](../../scripts/web216_worker_mcp_probe.mjs) now runs the
+pinned official client against a genuine Workers MCP fixture and D1 database:
+
+```bash
+node scripts/web216_worker_mcp_probe.mjs --tooling-root /path/to/existing/tooling
+```
+
+It uses the same pre-existing tool versions as the storage probe, explicitly
+selects the SDK's Workers export and retains the exact input sources, bundle and
+bounded wire records privately. Its provisioning and state routes are test-only;
+they must never be deployed as product routes. Request times and software identity
+are synthetic. No provider requests or installation are permitted.
+
+The run from `2026-09-14T19:13:11.738Z` to `19:13:12.430Z` passed with 12 wire
+requests: discovery/list, selection, July `142.7` query, inspection, same-key
+replay, an invalid-input rejection, and identical receipt and complete snapshot
+after disposal/recreation. There was one record/event and zero outbound attempts.
+The bundle SHA-256 was
+`ce8c73d154c2e0acbb814a303fcb6fd17fb8bfb0a2a9987177e0eb5c1ab70ded`.
+This fixture tests finite JSON responses, not SSE, subscriptions, product ingress,
+Site identity, deployed persistence or disaster recovery.
+
+Two genuine compatibility failures preceded that pass. Importing constants from
+the legacy MCP module also loaded its filesystem-backed registry, preventing
+Workers startup. A side-effect-free constants module removes that dependency
+while retaining the original values and exports. The Workers schema validator
+then tried to annotate frozen public schemas. Giving each SDK validator a private
+mutable copy fixes the adapter boundary without changing the published immutable
+schemas or their predicates. Direct Workers-provider regression tests preserve
+the public schema bytes and check matching accepted/rejected values.
+
 Before presenting this as a working Site: prove Workers/D1 compatibility and
 exact restart, apply schema-only migrations, provision a reviewed store identity,
 add closed MCP/HTTP ingress and deadlines, verify the unchanged private audience,

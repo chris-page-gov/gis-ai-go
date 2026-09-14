@@ -1,6 +1,6 @@
 import "./styles.css";
 import { findData } from "./discovery";
-import { createMcpCall } from "./mcp-client";
+import { createHostedMcpCall, createMcpCall } from "./mcp-client";
 import { createWorkbench, type EvidenceResult, type Plan } from "./controller";
 import { registerPageTools } from "./webmcp";
 
@@ -14,7 +14,11 @@ function element(tag: string, text: string, className?: string) {
   if (className) item.className = className;
   return item;
 }
-const workbench = createWorkbench(createMcpCall(window.location));
+// Build-authored mode only: neither a URL argument nor returned evidence selects it.
+const hosted = import.meta.env.MODE === "hosted";
+const workbench = hosted
+  ? createWorkbench(createHostedMcpCall(window.location), { evidenceMode: "hosted-transaction" })
+  : createWorkbench(createMcpCall(window.location));
 let currentPlan: Plan | undefined, currentResult: EvidenceResult | undefined, active: AbortController | undefined;
 const status = node("status"), retrieveButton = node<HTMLButtonElement>("retrieve-button");
 function showDiscovery(input: unknown) {
@@ -60,17 +64,20 @@ function showResult(result: EvidenceResult, inspected = false) {
   const panel = node("observation"); panel.replaceChildren(); panel.hidden = false;
   panel.append(element("p", `${result.period === "2026-07" ? "July" : "January"} 2026 · CPIH all items`, "eyebrow"),
     element("div", result.value, "observation-value"), element("p", "Index level · 2015 = 100 · not an inflation percentage", "observation-meta"),
-    element("p", inspected ? "Existing receipt returned by MCP inspection. No new receipt was issued." : "Returned by the local MCP server from the admitted ONS capture. Receipt persisted.", "observation-meta"));
+    element("p", inspected ? "Existing receipt returned by MCP inspection. No new receipt was issued."
+      : hosted ? "Returned by the private Site's MCP route from the admitted ONS capture. Receipt found in the verified storage snapshot."
+      : "Returned by the local MCP server from the admitted ONS capture. Receipt persisted.", "observation-meta"));
+  if (hosted) panel.append(element("p", "The server checked the stored snapshot's content and chain. This page receives only the selected evidence: it does not independently prove the complete chain, freshness, rollback protection or an attestation.", "observation-meta"));
   node("receipt-actions").hidden = false; node("evidence-detail").hidden = false;
   node("evidence-json").textContent = JSON.stringify(result.raw, null, 2);
-  status.textContent = inspected ? "Stored evidence inspected; no live request or new receipt." : "Captured observation retrieved. Repeating this selection reuses its request key.";
+  status.textContent = inspected ? "Stored evidence inspected; no live provider request or new receipt." : "Captured observation retrieved. Repeating this selection reuses its request key.";
   return result.raw;
 }
 async function execute<T>(action: (signal: AbortSignal) => Promise<T>, signal?: AbortSignal): Promise<T> {
   if (active) throw new Error("An operation is already running.");
   const controller = new AbortController(); active = controller;
   const joined = signal ? AbortSignal.any([controller.signal, signal]) : controller.signal;
-  node("cancel-button").hidden = false; status.textContent = "Calling the local MCP server…";
+  node("cancel-button").hidden = false; status.textContent = hosted ? "Calling this private Site's MCP route…" : "Calling the local MCP server…";
   try { return await action(joined); }
   catch (error) { status.textContent = error instanceof Error ? error.message : "The operation could not be completed."; throw error; }
   finally { active = undefined; node("cancel-button").hidden = true; }
