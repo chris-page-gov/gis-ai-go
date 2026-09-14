@@ -81,15 +81,19 @@ REQUIRED_OBSERVED_MATERIALS = {
     ("compiled", "packages/evidence/dist/src/index.js"),
     ("build-receipt", "evaluation/qual-206-local-evaluation-receipts.v1.json"),
 }
+# Reviewed build from 4e6a842e2793efde5f6a58807274ce2368e40cf6. WEB-216 adds
+# only a v3 domain/export to this identity surface; canonical algorithms and the
+# fixed historical content-address test vector are unchanged. These exact pins
+# remain fail-closed rather than accepting whichever runtime happens to exist.
 PINNED_IDENTITY_RUNTIME_SHA256 = {
     "packages/evidence/dist/src/canonical-json.js": (
         "0b898e4597f5f4f90d5feda5ef9d80c9ea14409f531c2378ff2c9e0a3529c624"
     ),
     "packages/evidence/dist/src/digest.js": (
-        "295226181b1a5441b075b47efa9d00a36b664dd91b090daff9bfb046300fd81f"
+        "fe07e3349743e3ba6f8102140a3edfd2114351c33f39e791c3a2d6eef95b2327"
     ),
     "packages/evidence/dist/src/index.js": (
-        "51129a84578ed1cf46fa5bdf2f6afe32fa875874acd99c55e7416889c68070dd"
+        "9bb2c198c73200ab127089fbac5a2205a4a467256d363fb70874ec1e080d9ab3"
     ),
 }
 HISTORICAL_LINEAGE = [

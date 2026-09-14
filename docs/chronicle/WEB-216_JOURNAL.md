@@ -283,7 +283,8 @@ assertions. Contract validation checked 100 existing schemas and 153 records;
 link, changelog and baseline secret/path checks also passed. The new finite result
 core export supports later static wire schemas; exporting those public constants
 does not establish execution.
-# PR #130 source-bound receipt refresh
+
+## PR #130 source-bound receipt refresh
 
 Repository assurance on the initial PR #130 head found a stale deterministic
 QUAL-206 receipt set. Six changed source-material files altered suite identities;
@@ -293,3 +294,15 @@ later MCP transport work. Seventeen suites and 87 selected tests passed, as did
 six receipt-contract tests and a repeat byte-identical check. Six suite IDs, four
 case receipt IDs and the set ID changed; outcomes, limits and test selection did
 not. Canonical CI on the corrected PR head remains the acceptance gate.
+
+The next canonical run exposed a second stale binding in the historical-evidence
+compiler: its exact compiled `digest.js` and `index.js` hashes predated the
+additive v3 domain and export. Those two pins were refreshed from clean
+`4e6a842e2793efde5f6a58807274ce2368e40cf6`; canonicalisation and the fixed
+historical identity vector were unchanged. A regenerable local receipt set was
+also separated from genuinely immutable historical observations, while retaining
+an exact reviewed baseline. Thirty-two targeted tests passed, including rejection
+of drift in every pinned runtime before child execution. No historical observed
+artefact, scenario outcome or release boundary was rewritten. These sequential
+failures document cross-suite source-binding maintenance costs, not failed Claude
+observations or a reason to remove the bindings.

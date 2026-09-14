@@ -35,10 +35,13 @@ EXACT_RESOURCES = [
     "catalogue.record",
     "evidence.receipt",
 ]
+# This source-bound local set is deliberately regenerated after authorised source
+# changes; it is not an immutable observed-host artefact. Its exact 4e6a842
+# baseline is independently checked by test_qual_206_local_evaluation_receipts.
+REGENERABLE_LOCAL_RECEIPT_SHA256 = (
+    "2bb0dc8bc40f9eb7cb1cbd9ff0972db0fe3616f58550641a6c1d23c6156a4879"
+)
 HISTORICAL_V1_SHA256 = {
-    "evaluation/qual-206-local-evaluation-receipts.v1.json": (
-        "d700185e9f85321633dd301e4c169e626fbd67c5362b0b83e16a6efb5af6a24f"
-    ),
     "evaluation/qual-206-local-protocol-evidence-matrix.v1.json": (
         "91dc5a38125b5fd686d3028621f8452c0a3d77fe177dd67b110da6316bfc6039"
     ),
@@ -612,6 +615,30 @@ class Qual206StrictModernEvidenceTests(unittest.TestCase):
         third = COMPILER.compile_evidence(changed, changed_bytes)
         self.assertNotEqual(first["evidence_id"], third["evidence_id"])
 
+    def test_shared_identity_rejects_drift_in_every_pinned_runtime(self) -> None:
+        read_material = COMPILER.read_repository_material
+        for altered_path in COMPILER.PINNED_IDENTITY_RUNTIME_SHA256:
+            with self.subTest(path=altered_path):
+                def altered_material(path: str) -> bytes:
+                    value = read_material(path)
+                    return value + b"\n" if path == altered_path else value
+
+                with (
+                    mock.patch.object(
+                        COMPILER, "read_repository_material", side_effect=altered_material
+                    ),
+                    mock.patch.object(COMPILER.subprocess, "run") as run,
+                ):
+                    with self.assertRaisesRegex(
+                        COMPILER.EvidenceError, "shared canonical identity runtime drifted"
+                    ):
+                        COMPILER.compiler_contract(b"{}")
+                    with self.assertRaisesRegex(
+                        COMPILER.EvidenceError, "shared canonical identity runtime drifted"
+                    ):
+                        COMPILER.shared_content_address({"a": 1})
+                    run.assert_not_called()
+
     def test_public_projection_excludes_private_paths_and_telemetry_identity(self) -> None:
         fixture = self.fixture("capability_pass")
         private_digest = fixture.capture["telemetry"]["retained_private"]["sha256"]
@@ -771,6 +798,13 @@ class Qual206StrictModernEvidenceTests(unittest.TestCase):
                 fixture,
                 "request_count cannot support the observed stages",
             )
+
+    def test_regenerable_local_receipt_set_matches_reviewed_source_baseline(self) -> None:
+        path = ROOT / "evaluation" / "qual-206-local-evaluation-receipts.v1.json"
+        self.assertEqual(sha256_bytes(path.read_bytes()), REGENERABLE_LOCAL_RECEIPT_SHA256)
+        evidence = load_json(path)
+        self.assertEqual(evidence["classification"], "repository-only-non-live-unscored")
+        self.assertFalse(any(evidence["claims"].values()))
 
     def test_historical_v1_artifacts_remain_byte_exact(self) -> None:
         self.assertEqual(
