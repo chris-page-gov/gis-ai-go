@@ -3,7 +3,7 @@
 This package supplies deterministic canonical JSON, domain-separated SHA-256
 content identities and closed inline catalogue evidence receipts.
 
-It also supplies a parallel inactive public-read v2 receipt contract for
+It also supplies a parallel public-read v2 receipt contract, used by the local candidate, for
 `selection.resolve` and the exact bounded public ONS `data.query`. The v2 receipt
 binds the reviewed profile, provider, adapter, dataset version, fixed selections,
 rights evidence, operation-specific parameters and successful result core. A
@@ -59,9 +59,12 @@ operator override or deletion process. A new attempt requires a new key.
 The ledger and index are application-level integrity controls, not signatures,
 attestations, WORM media or malicious-operator defences. `evidence.inspect` is
 supplied as a transport-neutral application in the gateway. This package provides
-no public transport, identity integration, policy decision point, backup or general
-multi-writer ledger coordination. Same-key exclusion is scoped to processes sharing
-one governed index; one writer must still own the linked ledger.
+no public transport, identity integration, policy decision point or general
+multi-writer ledger coordination. It supplies stopped-writer checkpoint, verification
+and empty-root restore helpers; these do not provide an operated backup schedule,
+external retention service or deployment recovery evidence. Same-key exclusion is
+scoped to processes sharing one governed index; one writer must still own the linked
+ledger.
 
 The v1 receipt, inspection request, durable-record and event content-address domains
 are unchanged.

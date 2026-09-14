@@ -23,8 +23,13 @@ Build and test from the repository root:
 ```bash
 pnpm run build:webmcp-explorer
 pnpm run test:webmcp-explorer
-pnpm run test:webmcp-browser
+pnpm --filter @gis-ai-go/webmcp-explorer run test:browser
 ```
+
+The filtered browser command uses the build produced by the first command. For a
+standalone build-and-browser check, use `pnpm run test:webmcp-browser`; it already
+builds the application. These tests cover the page adapter and manual journey;
+actual AI-host discovery still needs the separate version-bound observation.
 
 For Chrome 152's experimental native WebMCP page API, run the read-only profile
 preflight:

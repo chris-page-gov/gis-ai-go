@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "baseline": "6c76c92a18da779766f8d49acbbd7dbbd31abb97",
+  "claims": [
+    {"id":"C01","kind":"fact","claim":"The owner authorised autonomous public delivery with explicit boundaries.","sources":["docs/decisions/ADR-0004-public-autonomous-delivery.md"],"limit":"Delegated authority does not establish that every later action complied."},
+    {"id":"C02","kind":"fact","claim":"v0.1.0 is an accepted static discovery release.","sources":["docs/operations/V0.1.0_RELEASE_EVIDENCE.md"],"limit":"It is not the hosted MCP service."},
+    {"id":"C03","kind":"fact","claim":"The read-only target has five active operations and seven planned profiles.","sources":["docs/decisions/ADR-0009-read-only-mcp-tool-lifecycle.md"],"limit":"A target profile does not prove public deployment."},
+    {"id":"C04","kind":"fact","claim":"The clean-clone candidate exposes the exact-five local journey without provider egress.","sources":["docs/decisions/ADR-0015-provider-free-loopback-local-candidate.md","docs/operations/LOCAL-212_CLEAN_CLONE_LOCAL_CANDIDATE.md"],"limit":"Approved cached data; temporary session evidence; unreleased candidate."},
+    {"id":"C05","kind":"fact","claim":"Claude exact-five capability has accepted public evidence.","sources":["docs/operations/QUAL-206_CLAUDE_EXACT_FIVE_CAPABILITY.md"],"limit":"Acceptance is scoped to recorded client, protocol, source and transport."},
+    {"id":"C06","kind":"fact","claim":"WebMCP and manual catalogue journeys have distinct host boundaries.","sources":["docs/decisions/ADR-0013-webmcp-page-tools-boundary.md","docs/demonstrations/WEBMCP_EXPLORER_RUN_THROUGH.md"],"limit":"Mock API tests and manual results do not prove current AI-host calling."},
+    {"id":"C07","kind":"fact","claim":"CI routing remains shadow-only at the baseline.","sources":["docs/implementation/CI_IMPACT_ROUTING.md",".github/workflows/ci.yml"],"limit":"No realised skip saving may be attributed to the planner alone."},
+    {"id":"C08","kind":"inference","claim":"Ordinary repeated preparation is a useful optimisation target.","sources":["package.json","apps/mcp-gateway/package.json"],"limit":"Savings require measurement; independent clean builds remain necessary."},
+    {"id":"C09","kind":"fact","claim":"The preservation design retains permitted projections and excludes internal reasoning.","sources":["docs/operations/EVID-211_CONTINUOUS_EVIDENCE_PRESERVATION.md"],"limit":"The public edition cannot prove completeness of private conversations."},
+    {"id":"C10","kind":"recommendation","claim":"Treat local completion as an explicit scoped product track while hosting is unavailable.","sources":["docs/decisions/ADR-0015-provider-free-loopback-local-candidate.md"],"limit":"A future decision and acceptance are required before changing release claims."}
+  ]
+}

@@ -14,7 +14,12 @@ The context permits only `catalogue.search` and `catalogue.describe`. Both
 operations require an inline receipt that is explicitly not persisted and not
 attested.
 
-`getPublicReadAuthorityContext()` exposes a separate inactive v2 context. It names
+`getPublicReadAuthorityContext()` exposes a separate v2 context used by the local
+candidate. It names
 only `data.query` and `selection.resolve` and preserves the same server-owned,
-anonymous-open, read-only, non-personal and non-protected boundary. Neither context
-accepts caller input or activates an operation.
+anonymous-open, read-only, non-personal and non-protected boundary.
+
+`getPublicEvidenceInspectionAuthorityContext()` supplies the v3 context for
+`evidence.inspect`. The current inspection has its own inline receipt while
+preserving the earlier stored receipt and creating no new ledger event. These
+contexts accept no caller identity input and do not themselves activate an operation.

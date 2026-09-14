@@ -2,7 +2,8 @@
 
 ## Branch and pull request flow
 
-- `main` is always releasable and accepts changes through pull requests.
+- `main` accepts changes through pull requests and retains its verified candidate
+  state. A supported release additionally requires the applicable release gates.
 - Use short-lived `codex/{work-item}-{description}` branches.
 - Use Conventional Commits, for example
   `feat(explorer): add catalogue facets` or `fix(policy): deny unknown licences`.
@@ -15,6 +16,12 @@
   independent controls are automated assurance and explicit evidence.
 
 ## Required assurance
+
+During development, run checks selected by the changed behaviour and its shared
+dependencies. Documentation-only edits need link, provenance and publication checks;
+they do not need invented runtime regression tests. Record the exact inputs and
+results so an unchanged pass can be reused. A new failure or material change
+justifies another affected check. This local workflow does not enable CI skipping.
 
 The stable required check is `assurance`. It must run type checks, unit and contract
 tests, source/link/research integrity, secret scanning, diagrams and SBOM generation.

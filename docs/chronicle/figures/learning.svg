@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="528" viewBox="0 0 640 528" role="img">
+<title>The learning route</title>
+<desc>Learn purpose and catalogue, then contracts and policy, then execution and evidence, then verification and publication, and finally delegation and improvement.</desc>
+<rect width="100%" height="100%" fill="white"/>
+<text x="320" y="30" text-anchor="middle" font-family="sans-serif" font-size="21" font-weight="bold" fill="#173a53">The learning route</text>
+<rect x="24" y="54" width="592" height="67" rx="7" fill="#f2f6f8" stroke="#426477" stroke-width="2"/>
+<text x="320" y="79" text-anchor="middle" font-family="sans-serif" font-size="19" font-weight="bold" fill="#173a53">1. Purpose and knowledge</text>
+<text x="320" y="103" text-anchor="middle" font-family="sans-serif" font-size="16" fill="#253a45">Catalogue, OKF, sources, rights and limitations</text>
+<path d="M320 124 V138 M314 133 L320 139 L326 133" fill="none" stroke="#426477" stroke-width="2"/>
+<rect x="24" y="144" width="592" height="67" rx="7" fill="#f2f6f8" stroke="#426477" stroke-width="2"/>
+<text x="320" y="169" text-anchor="middle" font-family="sans-serif" font-size="19" font-weight="bold" fill="#173a53">2. Requests and authority</text>
+<text x="320" y="193" text-anchor="middle" font-family="sans-serif" font-size="16" fill="#253a45">MCP, schemas, contracts, policy and lifecycle</text>
+<path d="M320 214 V228 M314 223 L320 229 L326 223" fill="none" stroke="#426477" stroke-width="2"/>
+<rect x="24" y="234" width="592" height="67" rx="7" fill="#f2f6f8" stroke="#426477" stroke-width="2"/>
+<text x="320" y="259" text-anchor="middle" font-family="sans-serif" font-size="19" font-weight="bold" fill="#173a53">3. Results and recovery</text>
+<text x="320" y="283" text-anchor="middle" font-family="sans-serif" font-size="16" fill="#253a45">Determinism, receipts, idempotency and capacity</text>
+<path d="M320 304 V318 M314 313 L320 319 L326 313" fill="none" stroke="#426477" stroke-width="2"/>
+<rect x="24" y="324" width="592" height="67" rx="7" fill="#f2f6f8" stroke="#426477" stroke-width="2"/>
+<text x="320" y="349" text-anchor="middle" font-family="sans-serif" font-size="19" font-weight="bold" fill="#173a53">4. Verification and publication</text>
+<text x="320" y="373" text-anchor="middle" font-family="sans-serif" font-size="16" fill="#253a45">Threats, tests, scans, provenance and rollback</text>
+<path d="M320 394 V408 M314 403 L320 409 L326 403" fill="none" stroke="#426477" stroke-width="2"/>
+<rect x="24" y="414" width="592" height="67" rx="7" fill="#f2f6f8" stroke="#426477" stroke-width="2"/>
+<text x="320" y="439" text-anchor="middle" font-family="sans-serif" font-size="19" font-weight="bold" fill="#173a53">5. How the work is organised</text>
+<text x="320" y="463" text-anchor="middle" font-family="sans-serif" font-size="16" fill="#253a45">Agents, human governance, model changes and review</text>
+</svg>

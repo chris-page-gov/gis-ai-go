@@ -16,8 +16,10 @@ The ONS adapter is suspended on both lifecycle planes by default. Its only accep
 request is dataset `weekly-deaths-region`, edition `time-series`, version `121` and
 the native ordered selection `time=2026`, `geography=E92000001`, `week=week-24`,
 `causeofdeath=all-causes`. It constructs the URL internally, sends no credential,
-does not follow redirects and never follows provider links. It is not registered in
-the gateway or execution service.
+does not follow redirects and never follows provider links. The fixed container
+candidate constructs it through the governed gateway assembly; the provider-free
+local launcher injects only an in-memory outage transport. It has no production
+registration and is not mounted in the private Python execution service.
 
 Fixed-egress routes bind the exact ordered decoded name/value pairs and the exact
 raw query bytes. Equivalent alternate encodings, substitutions, duplicates,

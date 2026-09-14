@@ -11,8 +11,8 @@
 
 ## Evidence
 
-- [ ] Relevant tests added or updated
-- [ ] `pnpm run check` passes
+- [ ] Relevant regression tests added or updated, or not applicable with a reason
+- [ ] Required assurance passes; affected local checks and canonical CI are recorded
 - [ ] Source, data, rights and licence provenance reviewed
 - [ ] Security and privacy boundary reviewed
 - [ ] Accessibility impact tested or marked not applicable with a reason

@@ -42,8 +42,14 @@ Run the focused checks with:
 ```bash
 pnpm --filter @gis-ai-go/public-explorer run typecheck
 pnpm --filter @gis-ai-go/public-explorer run test:unit
-pnpm run test:browser
+pnpm run build:explorer
+pnpm --filter @gis-ai-go/public-explorer run test:browser
 ```
+
+This sequence runs the public Explorer's browser checks. The root
+`pnpm run test:browser` command builds and checks both Explorer applications for
+cross-application assurance. If the current source has already been built by the
+sequence above, run the filtered browser command directly without rebuilding.
 
 After an accepted Pages deployment, the separate live suite uses explicit expected
 publication identities:
