@@ -383,3 +383,13 @@ separate the now-observed local path from unfinished real geography and hosted
 persistence. Read-only source inspection found no accessible, provenance-complete
 MSOA polygon payload. The unavailable external cache and postcode best-fit
 lookups cannot be substituted for the missing point-in-polygon evidence.
+
+PR #131's first CodeQL gate flagged a substring assertion in a negative test as
+incomplete URL sanitisation. The line was checking that a rejected caller URL was
+not echoed; it did not authorise an outbound request. The test was strengthened
+to compare the entire MCP error envelope, including closed fields and validated
+server-generated identifiers, instead of dismissing the alert or loosening runtime
+admission. A same-pattern search found no sibling host-substring assertion in the
+new app or gateway tests. The deterministic receipt refresh preceding this gate
+took 21.76 seconds across generation, repeat check and 32 contract tests; no
+historical observed-host evidence or compiler runtime pin changed.

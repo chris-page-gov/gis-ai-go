@@ -139,7 +139,22 @@ test("same-key replay returns the original stored result; conflicting selection 
   for (const args of [{ ...proposal(s), url: "https://example.org/private" }, { ...proposal(s), selection_plan_id: KEY }, { ...proposal(s), period: "latest" }]) {
     const rejected = await client.callTool({ name: call.name, arguments: args });
     assert.equal(rejected.isError, true); assert.equal(body(rejected).code, "invalid-request");
-    assert.equal(JSON.stringify(rejected).includes("example.org"), false);
+    const problem = body(rejected);
+    assert.match(problem.request_id, /^web216-[0-9a-f-]{36}$/u);
+    assert.match(problem.trace_id, /^[0-9a-f]{32}$/u);
+    assert.deepEqual(rejected, {
+      _meta: { "io.modelcontextprotocol/serverInfo": {
+        name: "gis-ai-go-web216-cpih-experiment", title: "GIS AI GO captured CPIH experiment",
+        version: "0.1.0",
+      } },
+      content: [{ type: "text", text: JSON.stringify(problem) }],
+      structuredContent: {
+        schema: "gis-ai-go.web216-cpih-mcp-problem.v1", code: "invalid-request",
+        message: "The experimental captured-data operation could not be completed.",
+        operation: call.name, request_id: problem.request_id, trace_id: problem.trace_id,
+      },
+      isError: true,
+    });
   }
   assert.equal(s.ledger.verify().event_count, 1); assert.equal(s.reconciliationIndex.verify().claim_count, 1);
 });
