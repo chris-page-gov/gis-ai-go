@@ -28,6 +28,12 @@ CodeQL and provenance passing. A bounded maintained-CPIH API observation returne
 two HTTP 200 responses; the full captured series passes the new offline validator.
 This is empirical API evidence, not a new live MCP operation or Site deployment.
 The retired `cpih01` source is explicitly distinguished from maintained L522/MM23.
+PR #128 is accepted at `4c8e6144dfb02ea5d9dcf4cb34fbe34f36529f3e`, with complete
+protected-main CI and CodeQL passing. PR #129's geography/storage experiments
+remain gated on its corrected exact-head assurance. The next inactive CPIH
+[contract/application increment](docs/implementation/WEB-216_CPIH_CONTRACTS.md)
+adds verified durable evidence and replay without activating a server or Site;
+M3's MCP wire and browser journey remain to be completed.
 See the [retrieval experiment](docs/implementation/WEB-216_ONS_RETRIEVAL_EXPERIMENT.md), the
 [work package](docs/implementation/WEB-216_PUBLIC_DATA_WORKBENCH.md),
 [experiment protocol](docs/implementation/WEB-216_EXPERIMENTS.md) and

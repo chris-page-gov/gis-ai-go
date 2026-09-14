@@ -6,3 +6,4 @@ export * from "./public-ledger.js";
 export * from "./public-read-receipt.js";
 export * from "./reconciliation-index.js";
 export * from "./receipt.js";
+export * from "./web216-cpih-receipt.js";

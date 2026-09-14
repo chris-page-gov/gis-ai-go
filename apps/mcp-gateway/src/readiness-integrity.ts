@@ -3,7 +3,9 @@ import { types as utilTypes } from "node:util";
 import {
   PublicEvidenceLedger,
   PublicEvidenceReconciliationIndex,
+  isWeb216CpihReconciliationIndex,
   type EvidenceReconciliationClaimCapacity,
+  type Web216CpihReconciliationIndex,
 } from "@gis-ai-go/evidence";
 
 export const EVIDENCE_READINESS_INTEGRITY_KIND =
@@ -26,6 +28,7 @@ const LEDGER_DISPATCH_METHODS = Object.freeze({
   persistReceipt: PublicEvidenceLedger.prototype.persistReceipt,
   inspect: PublicEvidenceLedger.prototype.inspect,
   inspectReceipts: PublicEvidenceLedger.prototype.inspectReceipts,
+  appendCapacity: PublicEvidenceLedger.prototype.appendCapacity,
 });
 const RECONCILIATION_DISPATCH_METHODS = Object.freeze({
   verify: VERIFY_RECONCILIATION,
@@ -52,6 +55,40 @@ function hasExactDispatchMethods(
     }
   }
   return true;
+}
+
+/** Closed experimental family; no caller-supplied verifier or dispatch registry. */
+export function createWeb216CpihReadinessIntegrity(
+  ledger: PublicEvidenceLedger,
+  index: Web216CpihReconciliationIndex,
+): EvidenceReadinessIntegrity {
+  function verify(): EvidenceReconciliationClaimCapacity {
+    if (typeof ledger !== "object" || ledger === null || utilTypes.isProxy(ledger) ||
+        Object.getPrototypeOf(ledger) !== LEDGER_PROTOTYPE ||
+        !isWeb216CpihReconciliationIndex(index) || index.ledger !== ledger ||
+        !Object.isFrozen(index) ||
+        !hasExactDispatchMethods(ledger, LEDGER_PROTOTYPE, LEDGER_DISPATCH_METHODS)) {
+      throw new TypeError(EVIDENCE_READINESS_INTEGRITY_FAILURE_MESSAGE);
+    }
+    // The branded facade delegates to a private engine on this same prototype.
+    // Check its original methods before freezing so pre-existing substitution
+    // cannot become trusted merely because the object is immutable afterwards.
+    for (const [name, implementation] of Object.entries(RECONCILIATION_DISPATCH_METHODS)) {
+      if (Object.getOwnPropertyDescriptor(RECONCILIATION_PROTOTYPE, name)?.value !== implementation) {
+        throw new TypeError(EVIDENCE_READINESS_INTEGRITY_FAILURE_MESSAGE);
+      }
+    }
+    VERIFY_LEDGER.call(ledger);
+    return index.claimCapacity();
+  }
+  verify();
+  Object.freeze(LEDGER_PROTOTYPE);
+  Object.freeze(RECONCILIATION_PROTOTYPE);
+  Object.freeze(ledger);
+  verify();
+  const integrity = Object.freeze({ kind: EVIDENCE_READINESS_INTEGRITY_KIND });
+  VERIFIERS.set(integrity, verify);
+  return integrity;
 }
 
 function assertExactStores(

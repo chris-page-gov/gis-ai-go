@@ -31,6 +31,7 @@ export const CANONICAL_DOMAINS = Object.freeze({
   evidenceInspectResultCoreV3: "gis-ai-go.evidence-inspect-result-core.v3",
   publicEvidenceRecord: "gis-ai-go.public-evidence-record.v1",
   publicEvidenceRecordV2: "gis-ai-go.public-evidence-record.v2",
+  publicEvidenceRecordV3: "gis-ai-go.public-evidence-record.v3",
   executionParameters: "gis-ai-go.execution-parameters.v1",
   executionResultData: "gis-ai-go.execution-result-data.v1",
   providerAdapterResult: "gis-ai-go.provider-adapter-result.v1",

@@ -1,0 +1,1 @@
+- Add separately identified, inactive captured-CPIH selection, receipt, durable ledger and reconciliation contracts, with a capacity-aware application and explicit legacy-family separation; preserve the existing local candidate and deployment/release gates.
