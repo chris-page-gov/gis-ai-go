@@ -16,6 +16,21 @@ Last updated: 14 September 2026
 
 ## Authorised current work
 
+The owner authorised [WEB-216 #125](https://github.com/chris-page-gov/gis-ai-go/issues/125):
+advance WebMCP into OKF-led ONS discovery and governed retrieval, with OS/ONS
+geography, consistent staff stories, reproducible experiments and a shared
+person/AI evidence interface. Continue until blocked and merge verified increments.
+The inception is merged through [PR #126](https://github.com/chris-page-gov/gis-ai-go/pull/126)
+at `87c5997eecc6b6ddf4487cc226d3905544f5595f`.
+The current increment builds metadata-only development experiments; no new live
+operation or Site deployment is claimed. See the
+[work package](docs/implementation/WEB-216_PUBLIC_DATA_WORKBENCH.md),
+[experiment protocol](docs/implementation/WEB-216_EXPERIMENTS.md) and
+[source-time journal](docs/chronicle/WEB-216_JOURNAL.md).
+`mcp-geo`, `okf-ons` and the `govuk-webmcp` competition entry remain read-only.
+
+## Earlier chronicle checkpoint
+
 The owner started [RETRO-208 #86](https://github.com/chris-page-gov/gis-ai-go/issues/86)
 and [CHRON-213 #117](https://github.com/chris-page-gov/gis-ai-go/issues/117) at this
 natural break. Work covers the private evidence analysis, public draft chronicle,
@@ -34,8 +49,10 @@ private evidence into a reviewed minimum of 31 outcomes. It corrects completion
 timestamps, joins the recovered asynchronous launches and keeps granular timing,
 costs and provenance private. Earlier archives are unchanged. The public revision
 contains reviewed paraphrases and aggregates, not private logs or identifiers.
-Issue #86 is open: a first-ever/exhaustive count cannot be certified across the
-remaining redaction/quarantine gaps. New follow-ons #122/#123 cover client-contract
+Issue #86 was closed on 14 September 2026 with owner approval on the basis
+“all recoverable evidence reconciled; irrecoverable gaps documented”. A
+first-ever/exhaustive count still cannot be certified across the remaining
+redaction/quarantine gaps. Follow-ons #122/#123 cover client-contract
 preflight and source-time attempt journalling without starting implementation.
 [LOCAL-214 #118](https://github.com/chris-page-gov/gis-ai-go/issues/118)
 defines the next local-edition stages; [IMPROVE-215 #119](https://github.com/chris-page-gov/gis-ai-go/issues/119)

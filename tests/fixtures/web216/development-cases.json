@@ -1,0 +1,7 @@
+[
+  {"id":"DEV-CPIH","query":"CPIH inflation housing costs","concepts":[],"expected_ids":["ons-data-api:cpih01"],"basis":"ONS-Q001; development adaptation, not held out"},
+  {"id":"DEV-POPULATION","query":"population estimates local authority age sex","concepts":["age","sex","geography"],"expected_ids":["nomis-dataset-definitions:NM_2002_1"],"basis":"ONS-Q003; development adaptation, not held out"},
+  {"id":"DEV-ROOMS","query":"occupancy rating rooms local authority","concepts":["occupancy-rooms","local-authority"],"expected_ids":["ons-data-api:TS053"],"basis":"ONS-Q012; development adaptation with author-supplied concept hints, not held out"},
+  {"id":"DEV-WIDER-COVERAGE","query":"deaths registered weekly region","concepts":[],"expected_ids":["ons-data-api:weekly-deaths-region"],"basis":"Source-title-derived development coverage control, deliberately outside seven-record story subset; not held out"},
+  {"id":"DEV-NO-MATCH","query":"qzxnonmatchingtoken","concepts":[],"expected_ids":[],"basis":"Synthetic lexical no-match control; not semantic abstention evidence"}
+]
