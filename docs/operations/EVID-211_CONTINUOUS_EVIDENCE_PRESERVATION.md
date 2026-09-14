@@ -172,7 +172,8 @@ uv run --locked --cache-dir .uv-cache python scripts/capture_delivery_evidence.p
   --store "$PRIVATE_STORE" \
   --trigger pre-compaction \
   --codex-thread-id <thread-id> \
-  --codex-session-root <explicit-session-root>
+  --codex-session-root <explicit-session-root> \
+  --codex-reuse-workers 4
 ```
 
 The projection reads session metadata to establish the task closure, uses an
@@ -183,6 +184,11 @@ non-user-visible reasoning are not retained. All projections in one closure and
 their generation manifest are committed as one ordered recoverable transaction:
 after an interruption the next writer either completes that exact transaction once
 or fails closed on an unprovable state.
+
+Reuse validation defaults to one process. Where several retained projections make
+that phase slow, `--codex-reuse-workers` may be set to 2, 3 or 4. This changes
+execution capacity, not coverage: every candidate object is still hash-checked,
+decompressed and semantically verified before reuse.
 
 The source task-completion field `time_to_first_token_ms` is a latency measurement,
 but its name is credential-shaped. The initial immutable capture therefore retains
@@ -270,7 +276,7 @@ independently passes the current depth and redaction checks unchanged, the compl
 record remains within the aggregate node cap and depth alone explains the old omission. It is
 rejected for v3, and any deep, over-wide or newly redacted child still fails closed.
 
-V1 and the intermediate v2 generation may also contain an owner-only user-message
+V1 and the intermediate v2 projection may also contain an owner-only user-message
 path which the current path scrubber would omit. The verifier recognises only that
 exact drift: the record must be a closed `user_message`, path replacement must be
 the sole redaction category and every other payload and top-level field must be
@@ -282,19 +288,31 @@ Before considering a prior generation for reuse, capture re-reads the durable
 journal, validates the closed generation manifest and its source events, and hashes
 every compressed projection against its declared object binding. It then reads the
 closed projection header from the same open file descriptor, retains that descriptor
-through semantic verification and then rechecks its inode, metadata and path. If any
-captured projection uses v1 or v2, the whole generation is incompatible with v3: none of
-its rows is accepted from the generation-level reuse result. The new sweep
-re-evaluates the complete closure. An unchanged objectless exclusion may then reuse
-its existing immutable event only after an exact source, disposition and repository
-fingerprint comparison; this permits a mixed generation to commit its new v3
-projections and manifest without duplicating the exclusion. A current v3 header is
-only a candidate signal; the existing full projection, redaction, lineage and
-generation verification must still pass before reuse. An unknown or malformed
-schema, wrong header binding, missing object, path replacement, byte mismatch or
-digest mismatch is an error rather than a cache miss. This avoids expanding a large,
-valid obsolete generation twice without weakening content-address or structural
-checks.
+through semantic verification and then rechecks its inode, metadata and path. With
+more than one reuse worker, the parent passes a duplicate of that already-open
+descriptor to the bounded worker rather than asking it to reopen the path; the parent
+still performs both final descriptor and path observations.
+
+Generation-manifest v1 remains immutable, authenticated historical evidence. Its
+objectless excluded-projection identity did not bind the source stat record, so a v1
+exclusion is never eligible for reuse. The next capture records a new v2 generation,
+whose excluded identity binds the same exact source-stat digest as a retained
+projection. This prevents byte-identical file replacement from colliding with a
+different source observation. The verifier accepts the old identity rule only inside
+an authenticated v1 manifest and requires the stat-bound rule for v2.
+
+If any captured projection uses projection schema v1 or v2, the whole generation is
+incompatible with projection v3: none of its rows is accepted from the
+generation-level reuse result. The new sweep re-evaluates the complete closure. An
+unchanged generation-v2 objectless exclusion may then reuse its existing immutable
+event only after an exact source, disposition and repository fingerprint comparison;
+this permits a mixed generation to commit its new v3 projections and manifest without
+duplicating the exclusion. A current v3 header is only a candidate signal; the
+existing full projection, redaction, lineage and generation verification must still
+pass before reuse. An unknown or malformed schema, wrong header binding, missing
+object, path replacement, byte mismatch or digest mismatch is an error rather than a
+cache miss. This avoids expanding a large, valid obsolete generation twice without
+weakening content-address or structural checks.
 
 The closure topology is fixed by the initial inventory. An existing active rollout
 may append after its immutable APFS snapshot without invalidating that point-in-time
@@ -355,11 +373,14 @@ uv run --locked --cache-dir .uv-cache python scripts/verify_delivery_evidence.py
 
 Only the independent decompressed Codex projection checks run concurrently. Store
 shape, object digests, journal continuity, generation manifests and topology remain
-parent-process checks. Capture reuse and schema-compatibility validation always use
-the serial path with their already-open descriptors. The process pool keeps at most
-twice the worker count in flight, each worker holds at most one bounded projection
-line, and the worker ceiling is 4. Parallel progress retains the same aggregate,
-path-free and monotonic fields; failures are reported in manifest projection order.
+parent-process checks. Capture reuse defaults to one process. When the operator sets
+`--codex-reuse-workers` to 2, 3 or 4, only semantic and schema-compatibility checks
+run in the bounded pool. Each worker receives a duplicate of the already-open
+projection descriptor; the parent retains its descriptor and rechecks both descriptor
+metadata and the path after completion. The pool keeps at most twice the worker count
+in flight, each worker holds at most one bounded projection line, and the worker
+ceiling is 4. Parallel progress retains the same aggregate, path-free and monotonic
+fields; failures are reported in manifest projection order.
 
 Verification must fail closed when:
 
@@ -443,8 +464,7 @@ not service-level promises:
 
 - a warm event-triggered Codex closure with little change should take about 1 to 5
   minutes, plus about 1 minute 28 seconds for each changed source GiB;
-- a cold or whole-root no-change closure currently takes about 25 to 30 minutes
-  because reusable-generation validation remains serial;
+- a one-worker cold or whole-root no-change closure takes about 25 to 30 minutes;
 - a selected GitHub sweep, including recovery of the initial bounded source set,
   takes about 90 minutes;
 - a complete four-worker offline verification takes about 22 to 25 minutes; and
@@ -455,8 +475,10 @@ not service-level promises:
 
 Event triggers should be debounced while one capture owns the store lock. An
 identical generation is a verified no-op, so capture frequency alone does not grow
-the store. A future optimisation may parallelise descriptor-bound reusable-generation
-validation, but it is not required for this preservation package.
+the store. Four-worker descriptor-bound reuse is available, but the serial planning
+baseline above must not be lowered until one protected-main v2 capture and complete
+verification have been timed. Record that result privately before amending these
+figures.
 
 ## Initial protected-main checkpoint
 

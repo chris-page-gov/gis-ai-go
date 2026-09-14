@@ -5488,7 +5488,7 @@ class DeliveryEvidencePreservationTests(unittest.TestCase):
         self.assertEqual(1, completion_calls)
         self.assertNotIn(str(self.root), str(raised.exception))
 
-    def test_worker_count_is_closed_and_capture_reuse_remains_serial(self) -> None:
+    def test_worker_count_is_closed_and_capture_reuse_is_bounded_parallel(self) -> None:
         bundle = self._capture_minimal_codex_generation()
         for workers in (False, 0, 5):
             with self.subTest(workers=workers):
@@ -5501,21 +5501,35 @@ class DeliveryEvidencePreservationTests(unittest.TestCase):
             verify.parser().parse_args(
                 ["--store", str(self.store), "--workers", "5"]
             )
+        with self.assertRaises(SystemExit), mock.patch("sys.stderr", io.StringIO()):
+            capture.parser().parse_args(
+                [
+                    "--store",
+                    str(self.store),
+                    "--trigger",
+                    "manual",
+                    "--codex-reuse-workers",
+                    "5",
+                ]
+            )
+        arguments = capture.parser().parse_args(
+            [
+                "--store",
+                str(self.store),
+                "--trigger",
+                "manual",
+                "--codex-reuse-workers",
+                "4",
+            ]
+        )
+        self.assertEqual(4, arguments.codex_reuse_workers)
 
         manifest_identity = bundle["manifest_event"]["source"]["identity"]
         with mock.patch.object(
             verify,
             "_verify_codex_projections_parallel",
-            side_effect=AssertionError("capture reuse must remain serial"),
+            side_effect=AssertionError("serial reuse must not start workers"),
         ):
-            self.assertTrue(
-                verify._verify_codex_generations(
-                    bundle["events"],
-                    bundle["observed"],
-                    required_projection_schema=capture.CODEX_PROJECTION_SCHEMA,
-                    workers=2,
-                )
-            )
             reused = verify.validate_reusable_codex_generation(
                 self.store,
                 bundle["events"],
@@ -5523,6 +5537,38 @@ class DeliveryEvidencePreservationTests(unittest.TestCase):
                 required_projection_schema=capture.CODEX_PROJECTION_SCHEMA,
             )
         self.assertIsNotNone(reused)
+
+        with mock.patch.object(
+            verify,
+            "_verify_codex_projections_parallel",
+            wraps=verify._verify_codex_projections_parallel,
+        ) as parallel:
+            reused = verify.validate_reusable_codex_generation(
+                self.store,
+                bundle["events"],
+                manifest_identity,
+                required_projection_schema=capture.CODEX_PROJECTION_SCHEMA,
+                workers=2,
+            )
+        self.assertIsNotNone(reused)
+        parallel.assert_called_once()
+        self.assertEqual(2, parallel.call_args.kwargs["workers"])
+        self.assertIsNotNone(parallel.call_args.kwargs["observed_descriptors"])
+
+        sessions = self.root / "minimal-codex-sessions"
+        records = capture._iter_explicit_codex_records([sessions])
+        with capture.private_umask(), capture.EvidenceStore(self.store) as store:
+            for workers in (False, 0, 5):
+                with self.subTest(reuse_workers=workers):
+                    with self.assertRaisesRegex(
+                        capture.EvidenceCaptureError,
+                        "reuse worker count is invalid",
+                    ):
+                        capture._reusable_codex_projections(
+                            store,
+                            records,
+                            workers=workers,
+                        )
 
     def test_reuse_deeply_rejects_semantically_invalid_canonical_manifest(self) -> None:
         bundle = self._capture_minimal_codex_generation()
@@ -5572,6 +5618,21 @@ class DeliveryEvidencePreservationTests(unittest.TestCase):
         self._rewrite_captured_generation_projection_schema(
             bundle,
             capture.LEGACY_CODEX_PROJECTION_SCHEMA,
+        )
+        events = self.journal()
+        manifest_event = next(
+            event
+            for event in events
+            if event["source"]["kind"] == "codex-thread-closure-generation-manifest"
+        )
+        self.assertIsNone(
+            verify.validate_reusable_codex_generation(
+                self.store,
+                events,
+                manifest_event["source"]["identity"],
+                required_projection_schema=capture.CODEX_PROJECTION_SCHEMA,
+                workers=2,
+            )
         )
         sessions = self.root / "minimal-codex-sessions"
         records = capture._iter_explicit_codex_records([sessions])
@@ -5652,15 +5713,51 @@ class DeliveryEvidencePreservationTests(unittest.TestCase):
                     capture.EvidenceCaptureError,
                     "prior Codex generation failed semantic validation",
                 ):
-                    capture._reusable_codex_projections(store, records)
+                    capture._reusable_codex_projections(store, records, workers=2)
         self.assertTrue(replaced)
         self.assertTrue(verify.verify_store(self.store)["verified"])
 
-    def test_unchanged_all_excluded_generation_is_a_repeatable_no_op(self) -> None:
-        sessions = self.root / "all-excluded-sessions"
+    def test_parallel_reuse_worker_reads_transferred_descriptor_not_replaced_path(
+        self,
+    ) -> None:
+        bundle = self._capture_minimal_codex_generation()
+        item = bundle["manifest_item"]
+        path = bundle["observed"][item["object_sha256"]]
+        original = path.read_bytes()
+        descriptor = os.open(path, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
+        replacement = path.with_name(f"{item['object_sha256']}.replacement")
+        private_file(replacement, b"not the authenticated gzip object")
+        os.replace(replacement, path)
+        try:
+            self.assertTrue(
+                verify._verify_codex_projections_parallel(
+                    [
+                        (
+                            item["source_identity"],
+                            path,
+                            item,
+                            bundle["projection_event"],
+                            frozenset({"root-thread"}),
+                            {"root-thread": ("root-thread", None)},
+                        )
+                    ],
+                    workers=2,
+                    progress_bytes_function=None,
+                    completed_function=lambda _: None,
+                    observed_descriptors={item["object_sha256"]: descriptor},
+                    required_projection_schema=capture.CODEX_PROJECTION_SCHEMA,
+                )
+            )
+        finally:
+            os.close(descriptor)
+            private_file(path, original)
+
+    def _write_all_excluded_codex_session(self, name: str) -> tuple[Path, Path]:
+        sessions = self.root / name
         sessions.mkdir(mode=0o700)
+        source = sessions / "root.jsonl"
         private_file(
-            sessions / "root.jsonl",
+            source,
             b"".join(
                 capture.canonical_json(value)
                 for value in (
@@ -5683,6 +5780,12 @@ class DeliveryEvidencePreservationTests(unittest.TestCase):
                 )
             ),
         )
+        return sessions, source
+
+    def test_unchanged_all_excluded_generation_is_a_repeatable_no_op(self) -> None:
+        sessions, _source = self._write_all_excluded_codex_session(
+            "all-excluded-sessions"
+        )
         with capture.private_umask(), capture.EvidenceStore(self.store) as store:
             capture.capture_codex_thread_closure(
                 store,
@@ -5698,7 +5801,15 @@ class DeliveryEvidencePreservationTests(unittest.TestCase):
             [event["disposition"]["status"] for event in before],
         )
         progress: list[dict[str, object]] = []
-        with capture.private_umask(), capture.EvidenceStore(self.store) as store:
+        with (
+            mock.patch.object(
+                capture,
+                "stage_codex_user_visible_projection",
+                side_effect=AssertionError("current excluded projection must be reused"),
+            ),
+            capture.private_umask(),
+            capture.EvidenceStore(self.store) as store,
+        ):
             capture.capture_codex_thread_closure(
                 store,
                 thread_id="root-thread",
@@ -5714,6 +5825,335 @@ class DeliveryEvidencePreservationTests(unittest.TestCase):
         self.assertEqual("commit-complete", progress[-1]["stage"])
         self.assertEqual(1, progress[-1]["reused_files"])
         self.assertTrue(verify.verify_store(self.store)["verified"])
+
+    def test_replaced_excluded_source_gets_a_distinct_stat_bound_identity(self) -> None:
+        sessions, source = self._write_all_excluded_codex_session(
+            "replaced-excluded-sessions"
+        )
+        with capture.private_umask(), capture.EvidenceStore(self.store) as store:
+            capture.capture_codex_thread_closure(
+                store,
+                thread_id="root-thread",
+                session_roots=[sessions],
+                trigger="pre-compaction",
+                clone_function=fake_clone,
+                filesystem_type_function=apfs,
+            )
+        first_events = self.journal()
+        first_identity = first_events[0]["source"]["identity"]
+        self.assertIn("source-stat-sha256:", first_identity)
+
+        replacement = source.with_name("root.replacement.jsonl")
+        private_file(replacement, source.read_bytes())
+        os.replace(replacement, source)
+        with capture.private_umask(), capture.EvidenceStore(self.store) as store:
+            capture.capture_codex_thread_closure(
+                store,
+                thread_id="root-thread",
+                session_roots=[sessions],
+                trigger="daily-safety-sweep",
+                clone_function=fake_clone,
+                filesystem_type_function=apfs,
+                reuse_workers=2,
+            )
+
+        events = self.journal()
+        excluded = [
+            event
+            for event in events
+            if event["disposition"]["status"] == "excluded"
+        ]
+        self.assertEqual(2, len(excluded))
+        identities = [event["source"]["identity"] for event in excluded]
+        self.assertEqual(2, len(set(identities)))
+        self.assertTrue(all("source-stat-sha256:" in value for value in identities))
+        self.assertTrue(verify.verify_store(self.store, workers=2)["verified"])
+
+        before_no_op = self.journal()
+        with capture.private_umask(), capture.EvidenceStore(self.store) as store:
+            capture.capture_codex_thread_closure(
+                store,
+                thread_id="root-thread",
+                session_roots=[sessions],
+                trigger="daily-safety-sweep",
+                clone_function=fake_clone,
+                filesystem_type_function=apfs,
+                reuse_workers=2,
+            )
+        self.assertEqual(before_no_op, self.journal())
+
+    def test_legacy_excluded_identity_verifies_but_is_reprojected_into_v2(self) -> None:
+        sessions, source = self._write_all_excluded_codex_session(
+            "legacy-excluded-sessions"
+        )
+
+        def legacy_identity(
+            record: capture.CodexSessionRecord,
+            *,
+            path_digest: str,
+            raw_source_sha256: str,
+            source_stat_before: dict[str, int],
+            category: str,
+        ) -> str:
+            self.assertTrue(source_stat_before)
+            return (
+                f"codex-user-visible-projection:thread:{record.thread_id}:"
+                f"session:{record.session_id}:path-sha256:{path_digest}:"
+                f"source-sha256:{raw_source_sha256}:excluded:{category}"
+            )
+
+        with (
+            mock.patch.object(
+                capture,
+                "CODEX_GENERATION_SCHEMA",
+                capture.LEGACY_CODEX_GENERATION_SCHEMA,
+            ),
+            mock.patch.object(
+                capture,
+                "_codex_excluded_projection_identity",
+                side_effect=legacy_identity,
+            ),
+            capture.private_umask(),
+            capture.EvidenceStore(self.store) as store,
+        ):
+            capture.capture_codex_thread_closure(
+                store,
+                thread_id="root-thread",
+                session_roots=[sessions],
+                trigger="pre-compaction",
+                clone_function=fake_clone,
+                filesystem_type_function=apfs,
+            )
+
+        legacy_events = self.journal()
+        self.assertNotIn(
+            "source-stat-sha256:",
+            legacy_events[0]["source"]["identity"],
+        )
+        self.assertTrue(verify.verify_store(self.store, workers=2)["verified"])
+
+        observed = verify._object_paths(self.store)
+        manifest_event = legacy_events[-1]
+        manifest_digest = manifest_event["objects"][0]["sha256"]
+        legacy_manifest = capture.parse_json(
+            observed[manifest_digest].read_bytes(),
+            "legacy excluded generation manifest",
+        )
+        self.assertEqual(
+            capture.LEGACY_CODEX_GENERATION_SCHEMA,
+            legacy_manifest["schema"],
+        )
+        downgraded_identity_manifest = json.loads(json.dumps(legacy_manifest))
+        downgraded_identity_manifest["schema"] = capture.CODEX_GENERATION_SCHEMA
+        variant_events, variant_observed = self._write_manifest_variant(
+            {"events": legacy_events, "observed": observed},
+            downgraded_identity_manifest,
+            "downgraded-excluded-identity-manifest.json",
+        )
+        with self.assertRaisesRegex(
+            verify.EvidenceVerificationError,
+            "excluded Codex identity differs",
+        ):
+            verify._verify_codex_generations(variant_events, variant_observed)
+
+        with capture.private_umask(), capture.EvidenceStore(self.store) as store:
+            capture.capture_codex_thread_closure(
+                store,
+                thread_id="root-thread",
+                session_roots=[sessions],
+                trigger="daily-safety-sweep",
+                clone_function=fake_clone,
+                filesystem_type_function=apfs,
+                reuse_workers=2,
+            )
+        v2_events = self.journal()
+        self.assertEqual(4, len(v2_events))
+        self.assertEqual(legacy_events, v2_events[: len(legacy_events)])
+        self.assertIn("source-stat-sha256:", v2_events[-2]["source"]["identity"])
+        self.assertTrue(verify.verify_store(self.store, workers=2)["verified"])
+
+        replacement = source.with_name("root.replacement.jsonl")
+        private_file(replacement, source.read_bytes())
+        os.replace(replacement, source)
+        with capture.private_umask(), capture.EvidenceStore(self.store) as store:
+            capture.capture_codex_thread_closure(
+                store,
+                thread_id="root-thread",
+                session_roots=[sessions],
+                trigger="daily-safety-sweep",
+                clone_function=fake_clone,
+                filesystem_type_function=apfs,
+                reuse_workers=2,
+            )
+
+        events = self.journal()
+        self.assertEqual(legacy_events, events[: len(legacy_events)])
+        manifests = []
+        observed = verify._object_paths(self.store)
+        for event in events:
+            if event["source"]["kind"] != "codex-thread-closure-generation-manifest":
+                continue
+            digest = event["objects"][0]["sha256"]
+            manifests.append(
+                capture.parse_json(
+                    observed[digest].read_bytes(),
+                    "versioned generation manifest",
+                )
+            )
+        self.assertEqual(
+            [
+                capture.LEGACY_CODEX_GENERATION_SCHEMA,
+                capture.CODEX_GENERATION_SCHEMA,
+                capture.CODEX_GENERATION_SCHEMA,
+            ],
+            [manifest["schema"] for manifest in manifests],
+        )
+        self.assertIn("source-stat-sha256:", events[-2]["source"]["identity"])
+        self.assertTrue(verify.verify_store(self.store, workers=2)["verified"])
+
+    def test_unknown_codex_generation_schema_is_rejected(self) -> None:
+        bundle = self._capture_minimal_codex_generation()
+        manifest = json.loads(json.dumps(bundle["manifest"]))
+        manifest["schema"] = "gis-ai-go.codex-thread-closure-generation.v999"
+        events, observed = self._write_manifest_variant(
+            bundle,
+            manifest,
+            "unknown-generation-schema.json",
+        )
+        with self.assertRaisesRegex(
+            verify.EvidenceVerificationError,
+            "Codex generation schema is invalid",
+        ):
+            verify._verify_codex_generations(events, observed)
+
+    def test_mixed_legacy_generation_reuses_retained_and_migrates_excluded(
+        self,
+    ) -> None:
+        sessions = self.root / "mixed-legacy-sessions"
+        sessions.mkdir(mode=0o700)
+
+        def write_rollout(
+            name: str,
+            thread_id: str,
+            parent_thread_id: str | None,
+            message: str,
+        ) -> None:
+            private_file(
+                sessions / name,
+                b"".join(
+                    capture.canonical_json(value)
+                    for value in (
+                        {
+                            "timestamp": "2026-08-30T08:00:00Z",
+                            "type": "session_meta",
+                            "payload": {
+                                "id": thread_id,
+                                "session_id": thread_id,
+                                "parent_thread_id": parent_thread_id,
+                                "timestamp": "2026-08-30T08:00:00Z",
+                            },
+                        },
+                        {
+                            "type": "event_msg",
+                            "payload": {
+                                "type": "user_message",
+                                "message": message,
+                            },
+                        },
+                    )
+                ),
+            )
+
+        write_rollout("root.jsonl", "root-thread", None, "safe retained request")
+        write_rollout(
+            "child.jsonl",
+            "child-thread",
+            "root-thread",
+            f"{PRIVATE_KEY_HEADER}\nexcluded child",
+        )
+
+        def legacy_identity(
+            record: capture.CodexSessionRecord,
+            *,
+            path_digest: str,
+            raw_source_sha256: str,
+            source_stat_before: dict[str, int],
+            category: str,
+        ) -> str:
+            self.assertTrue(source_stat_before)
+            return (
+                f"codex-user-visible-projection:thread:{record.thread_id}:"
+                f"session:{record.session_id}:path-sha256:{path_digest}:"
+                f"source-sha256:{raw_source_sha256}:excluded:{category}"
+            )
+
+        with (
+            mock.patch.object(
+                capture,
+                "CODEX_GENERATION_SCHEMA",
+                capture.LEGACY_CODEX_GENERATION_SCHEMA,
+            ),
+            mock.patch.object(
+                capture,
+                "_codex_excluded_projection_identity",
+                side_effect=legacy_identity,
+            ),
+            capture.private_umask(),
+            capture.EvidenceStore(self.store) as store,
+        ):
+            capture.capture_codex_thread_closure(
+                store,
+                thread_id="root-thread",
+                session_roots=[sessions],
+                trigger="pre-compaction",
+                clone_function=fake_clone,
+                filesystem_type_function=apfs,
+            )
+        legacy_events = self.journal()
+        self.assertEqual(3, len(legacy_events))
+
+        progress: list[dict[str, object]] = []
+        with capture.private_umask(), capture.EvidenceStore(self.store) as store:
+            capture.capture_codex_thread_closure(
+                store,
+                thread_id="root-thread",
+                session_roots=[sessions],
+                trigger="daily-safety-sweep",
+                clone_function=fake_clone,
+                filesystem_type_function=apfs,
+                progress_function=lambda value: progress.append(dict(value)),
+                reuse_workers=2,
+            )
+        migrated_events = self.journal()
+        self.assertEqual(legacy_events, migrated_events[: len(legacy_events)])
+        self.assertEqual(5, len(migrated_events))
+        self.assertEqual(1, progress[-1]["reused_files"])
+        self.assertEqual("excluded", migrated_events[-2]["disposition"]["status"])
+        self.assertIn(
+            "source-stat-sha256:",
+            migrated_events[-2]["source"]["identity"],
+        )
+        self.assertTrue(verify.verify_store(self.store, workers=2)["verified"])
+
+        with (
+            mock.patch.object(
+                capture,
+                "stage_codex_user_visible_projection",
+                side_effect=AssertionError("migrated mixed generation must be reusable"),
+            ),
+            capture.private_umask(),
+            capture.EvidenceStore(self.store) as store,
+        ):
+            capture.capture_codex_thread_closure(
+                store,
+                thread_id="root-thread",
+                session_roots=[sessions],
+                trigger="daily-safety-sweep",
+                clone_function=fake_clone,
+                filesystem_type_function=apfs,
+                reuse_workers=2,
+            )
+        self.assertEqual(migrated_events, self.journal())
 
     def test_valid_unchanged_codex_generation_reuse_is_a_true_no_op(self) -> None:
         self._capture_minimal_codex_generation()
