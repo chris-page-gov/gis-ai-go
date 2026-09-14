@@ -75,6 +75,8 @@ and an owned renewal or synthetic-profile plan.
 Acceptance:
 
 - startup explains missing/wrong prerequisites and port conflicts in plain English;
+- the three dependency alerts recorded in AUI-12 have an evidence-backed
+  disposition, with a compatible tested update where required;
 - readiness or a clearly separate local capability-health field explains cache
   expiry and preserves access to evidence recovery;
 - tests cover before, at and after the expiry instant without changing the system

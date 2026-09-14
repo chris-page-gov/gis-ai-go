@@ -46,6 +46,7 @@ The detailed reports link each assessment to the relevant source.
 | Execution control | Saturated work slots can reject cancellation traffic | Reserve bounded control capacity before broader execution workloads |
 | Provider deadlines | Preparation and actual transport start need separate deadline checks | Test delayed lease start and preserve absolute caller deadlines |
 | Failure evidence | CI omits the WebMCP browser failure directory from its upload | Retain both application failure artefacts |
+| Dependency advisories | Three existing medium-severity alerts match locked Hono 4.13.3 | Record per-advisory reachability and a tested update/disposition before local-edition acceptance |
 | Public scanning | Baseline credential signatures and excluded-tree traversal are limited | Strengthen publication checks and prune traversal without losing intended files |
 | Ordinary builds | Test commands rebuild common dependencies repeatedly | Build once for ordinary tests, preserve independent clean-build phases |
 | Modularity | Evidence, image and host-assurance modules combine many responsibilities | Extract one cohesive responsibility per reviewed change |

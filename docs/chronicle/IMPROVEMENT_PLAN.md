@@ -17,6 +17,7 @@ each accepted change.
 
 | Stage | Work | Acceptance evidence |
 | --- | --- | --- |
+| O0: dependency-alert disposition | Assess all three recorded Hono advisories and update the locked dependency where required | Per-advisory evidence; compatible SDK/HTTP tests, SBOM and image assurance; no silent waiver |
 | O1: measure and retain diagnostics | Record build/replay counts; retain both browser failure directories | Same test inventory; failure artefacts available; measured baseline |
 | O2: local reliability | Cache freshness/readiness, delayed lease deadline, cancellation capacity where applicable | Boundary-time and saturation regressions; unchanged allowed profile |
 | O3: ordinary build orchestration | Compile the shared dependency graph once for a check run | Same tests and outputs; fewer ordinary compiler invocations |

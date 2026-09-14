@@ -369,6 +369,34 @@ and preserve verification of existing archives. Acceptance requires identical
 decoded projections, no missing source events, compatible historical verification
 and evidence-backed resource savings, not simply a faster-looking progress log.
 
+### AUI-12 — Three existing dependency alerts need a recorded disposition
+
+External scanner observation, recorded on 14 September 2026; exploitability has
+not been established by this review.
+
+GitHub reported three open medium-severity Dependabot alerts against the locked
+`hono` dependency. The [lockfile](../../../pnpm-lock.yaml) pins `4.13.3`; the alert
+records identify versions below `4.13.5` as affected and `4.13.5` as the first
+patched version. All three alerts were created on 10 September 2026, before this
+review's baseline:
+
+| Public advisory | Reported concern |
+| --- | --- |
+| [GHSA-gqvv-2mrq-wpjv](https://github.com/honojs/hono/security/advisories/GHSA-gqvv-2mrq-wpjv) | `toSSG()` output-directory escape; incomplete earlier fix |
+| [GHSA-crvj-82cr-hjcx](https://github.com/honojs/hono/security/advisories/GHSA-crvj-82cr-hjcx) | Query parsing after a URL fragment can differ from cache/proxy interpretation |
+| [GHSA-g6gw-c38x-mqfc](https://github.com/honojs/hono/security/advisories/GHSA-g6gw-c38x-mqfc) | Unbounded dot-notation nesting in `parseBody()` can exhaust memory |
+
+A matching dependency version is not proof that GIS AI GO exposes each affected
+API to an attacker. This review does not establish the complete caller, input and
+control path for any of these three claims, and does not dismiss them as harmless.
+Static CodeQL success does not close dependency-advisory findings.
+
+The separate improvement stage must record one disposition per advisory, establish
+supported-path reachability and apply a tested compatible dependency update where
+required. Recreate relevant SDK/HTTP, lockfile, SBOM and image evidence before a
+local-edition acceptance claim. Do not silently waive the alerts or rewrite
+historical accepted evidence as if it used the later dependency.
+
 ## Separate implementation stage
 
 The following stage is a proposal, not a claim that the refactors have happened.
