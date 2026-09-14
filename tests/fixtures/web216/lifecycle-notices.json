@@ -1,0 +1,29 @@
+{
+  "schema_version": "web216.lifecycle-notice.v1",
+  "checked_on": "2026-09-14",
+  "notices": [
+    {
+      "record_id": "ons-data-api:cpih01",
+      "source_url": "https://www.ons.gov.uk/datasets/cpih01/editions/time-series/versions/67",
+      "notice_date": "2026-07-07",
+      "status": "updates-retired",
+      "latest_data_period": "2026-01",
+      "interpretation": "Version 67 is latest within this retired dataset, not proof of current CPIH data.",
+      "current_data_discovery_url": "https://www.ons.gov.uk/economy/inflationandpriceindices",
+      "replacement_execution_endpoint_verified": false,
+      "maintained_time_series_observation": {
+        "checked_on": "2026-09-14",
+        "cdid": "L522",
+        "dataset_id": "MM23",
+        "public_page": "https://www.ons.gov.uk/economy/inflationandpriceindices/timeseries/l522/mm23",
+        "api_capture_validated": true,
+        "latest_captured_period": "2026-07",
+        "mcp_integration_verified": false,
+        "qualification": "A later bounded research API observation, not authority to execute through the gateway."
+      },
+      "historical_observation_execution_verified": false,
+      "source_record_modified": false,
+      "authority_granted": false
+    }
+  ]
+}

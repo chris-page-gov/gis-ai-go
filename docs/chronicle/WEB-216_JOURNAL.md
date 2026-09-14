@@ -103,6 +103,51 @@ startup; the measured experiment body took 0.219 seconds. No provider or model
 requests occurred inside the experiment. Task-wide Codex effort and cost are not
 measured by this number and must not be reported as zero.
 
+## 14 September 2026: maintained CPIH retrieval and corrective review
+
+- 15:30:57: [PR #127](https://github.com/chris-page-gov/gis-ai-go/pull/127)
+  opened from `a30d2fdb1359ec67386da9de206b2507761320ba`; it merged at 15:41:15
+  as `52c46d9cd619d5c349472c250d2d03aebb3beb3c`. Required PR checks passed.
+  Exact protected-main [CI](https://github.com/chris-page-gov/gis-ai-go/actions/runs/34863798079),
+  including independent derivation, attestation and both provenance lanes, and
+  [CodeQL](https://github.com/chris-page-gov/gis-ai-go/actions/runs/34863799028)
+  subsequently passed.
+- Primary-source inspection found that `cpih01` version 67 ends in January 2026
+  and is no longer updated. Frozen OKF metadata was preserved unchanged, with a
+  separately dated lifecycle notice. Discovery ranking alone cannot establish
+  currency or execution support.
+- The main model checked the official migration guide and maintained L522/MM23
+  series page before making two bounded GET requests. At 15:42:57.497076–
+  15:42:57.906633 both returned HTTP 200, retaining 3,070 and 125,682 bytes.
+  The original source-time outcome remains “raw responses collected, schema
+  validation pending”; later validation is a separate derived result.
+- An existing child agent implemented the pure validator and a two-month public
+  projection. A second existing child reviewed it independently. That review
+  found that retrieval-time bounds alone admitted rows newer than the declared
+  release, and optional headline metadata could conceal a truncated latest row.
+  Both now fail closed. Source identity now binds the validator and its imported
+  corpus helper. The final 21 focused tests passed, then the main model ran the
+  corrected validator on both requested periods using the original full capture.
+- The [validated summary](data/web216-current-cpih-20260914.json) records 463
+  monthly rows covering January 1988–July 2026. July is `142.7` and January 2026
+  is `139.4`: index values with base 2015=100, not inflation percentages. The
+  source release timestamp is retained alongside its London date, 19 August 2026.
+  This dated observation does not promise perpetual freshness.
+- An earlier historical CMD probe draft passed eighteen mocked tests but was
+  rejected by the main model before integration: its assumed observation shape
+  differed from the official example. Its visible source and tests are preserved
+  outside Git as rejected evidence. No historical endpoint request was made.
+  The maintained route supplies both months, so the redundant eight/nine-request
+  route was not pursued. Passing mocks did not justify shipping it.
+- The source-time result distinguishes two provider requests from zero model
+  calls inside the probe. It is not an MCP-client success or gateway receipt.
+  Task-wide Codex effort and cost remain unknown here, not zero. See the
+  [full protocol and limitations](../implementation/WEB-216_ONS_RETRIEVAL_EXPERIMENT.md).
+- Local documentation assurance caught a second fragment-authoring mistake: the
+  new filename omitted its required `.added` category. This was corrected using
+  the existing checker contract before commit. It did not require rerunning the
+  provider observation or unchanged parser tests.
+
 ## Preservation scope
 
 The most recent independently checked continuous checkpoint at inception completed
@@ -110,7 +155,8 @@ on 14 September 2026 at 07:02:11: 3,361 journal events and 3,293 objects, with z
 expiry warnings. Its preceding capture had two declared exclusions and four
 unavailable sources. Those limits remain; “verified” is not “everything recovered”.
 
-The new milestone capture will include explicit WEB-216 GitHub discussions and
+The new milestone capture was started after PR #127's protected-main checks passed.
+It includes explicit WEB-216 GitHub discussions and
 available run logs, permitted user-visible root and transitive-agent projections,
 and selected public experiment artefacts. A new `commit-complete` capture and
 complete offline verification are required before claiming it is preserved. The
