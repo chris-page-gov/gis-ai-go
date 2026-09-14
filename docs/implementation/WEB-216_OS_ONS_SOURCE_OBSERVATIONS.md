@@ -2,6 +2,7 @@
 
 Status: bounded public-source evidence; no completed spatial join.  
 Observation date: 14 September 2026.
+Updated: `2026-09-14T18:31:37Z` (third bounded query attempt added).
 
 This record supports the [WEB-216 public-data workbench](WEB-216_PUBLIC_DATA_WORKBENCH.md).
 Its [machine-readable projection](../chronicle/data/web216-os-ons-source-observations-20260914.json)
@@ -14,8 +15,9 @@ personal data or a private machine path.
 The experiment established a source-bound OS Open Names representative point for
 the populated place `Warwick` and verified the metadata contract for a candidate
 ONS MSOA 2021 boundary layer. It did **not** establish which MSOA contains that
-point. Both bounded ONS point-query attempts timed out without a captured HTTP
-status or response body. Their result is therefore **unavailable**, not “no match”.
+point. All three bounded ONS point-query attempts — two GETs and one POST — timed
+out without a captured HTTP status or response body. Their result is therefore
+**unavailable**, not “no match”.
 
 The point and layer both declare British National Grid (`EPSG:27700`), but matching
 CRS labels do not establish containment. A later successful query must return one
@@ -33,6 +35,7 @@ URI may be substituted.
 | [ONS MSOA December 2021 BFC V7](https://www.data.gov.uk/dataset/b9d6e8eb-95a8-4a32-832f-e8a746252f43/middle-layer-super-output-areas-december-2021-boundaries-ew-bfc-v7) | Feature service item `12baf1e6a44441208ffe5ba5ed063a68`, layer 0 `MSOA_2021_EW_BFC_V7`, polygon geometry, `EPSG:27700`, object ID `FID`, display/GSS-code field `MSOA21CD` and England-and-Wales scope. | Service and layer metadata returned HTTP 200. The captured description and copyright fields were empty, so those responses do not establish rights. Preserve the December 2021 vintage and BFC V7 boundary variant. |
 | ONS full-geometry point query | A maximum-five, point-intersects request was attempted after metadata discovery. | It timed out. The exact query start time, HTTP status, body, candidate count and feature IDs are unknown. No response must be inferred. |
 | ONS two-stage point query | An attributes-first point-intersects request began at `2026-09-14T17:01:30.018616Z` and failed at `2026-09-14T17:01:50.095162Z`. | It timed out without a status or body. Because no unambiguous `FID` was returned, the conditional full-geometry request was not made. |
+| ONS attributes-first POST | A single form-encoded POST for `FID,MSOA21CD,MSOA21NM`, at most five records and no geometry began at `2026-09-14T18:00:00.733250Z` and ended at `2026-09-14T18:00:45.736260Z`. | The 45-second deadline expired without a status, headers or body. The zero-byte local capture is not a server response. The conditional geometry GET was not attempted; whether the server received or processed the POST is unknown. |
 
 ## Exact response evidence
 
@@ -52,6 +55,16 @@ They completed at `2026-09-14T16:57:38.209433Z` and
 `Wed, 10 Jul 2024 10:18:48 GMT`; that header is not a substitute for the named
 December 2021 boundary vintage.
 
+The third attempt's source-time plan fixed the same layer, OS point,
+`EPSG:27700` and `esriSpatialRelIntersects`, with a 524,288-byte response-capture
+limit and no credentials, environment proxies, redirects or retries. Its measured
+elapsed time was 45.002460 seconds, including exception handling. The response
+record marks the capture incomplete. The empty local file has SHA-256
+`e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`;
+that digest identifies a local artefact, **not** an empty response from ONS.
+The source-time plan cites the [ArcGIS layer-query contract](https://developers.arcgis.com/rest/services-reference/enterprise/query-feature-service-layer/)
+for GET/POST support; protocol support does not establish service availability.
+
 The retained collector-source export digests are:
 
 - OS product-metadata collector:
@@ -59,7 +72,16 @@ The retained collector-source export digests are:
 - first ONS metadata-and-query collector:
   `10e74655f20f498e6104b6b69afbd9fe69c0217a6df39192aa885196a1ac5726`;
 - second ONS attributes-first collector:
-  `a9e739b50948804239150239f2ab91102d8e121a338a5fb66ab5590024cad402`.
+  `a9e739b50948804239150239f2ab91102d8e121a338a5fb66ab5590024cad402`;
+- third ONS POST collector:
+  `d61f518327cea1bd0838d0184c891b6a4db08b044dc5e9f69424568600eb2601`.
+
+The third attempt's plan digest is
+`8580e9adcf8af4721614f44723391aa152498d70c69207ad55e0d613a4aabd82`;
+its response-record digest is
+`cde44e818ccf0ec2a2d25339d142f5abc1eff0b2b1c2440c4d5bd6506f50a0ef`.
+The machine-readable projection also retains the attempt-start and decision
+record digests. The decision did not permit a conditional geometry request.
 
 The archive capture has no separate collector-source export. Its bounded request
 plan, response records and manifest are retained instead; this document does not
@@ -111,5 +133,5 @@ the existing synthetic edge, overlap, zero-match, duplicate and vintage tests as
 contract evidence; a successful provider response and an appropriate deterministic
 geometry validator are still required before claiming the real join.
 
-No provider request was made while deriving this documentation. The two failed
+No provider request was made while deriving this documentation. The three failed
 ONS attempts remain preserved as failures rather than being retried or rewritten.

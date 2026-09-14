@@ -123,3 +123,17 @@ records real wire and browser observations against the implementation working
 tree. These observations do not replace exact-head canonical acceptance, prove
 hosted execution or close M4/M5. A successful local activation must not be
 described as the supported `v0.2.0` release.
+
+## Hosted-storage experiment
+
+The next inactive foundation uses a separate, bounded transactional snapshot and
+D1-compatible compare-and-swap adapter. It does not substitute a database row for
+the old filesystem evidence or silently claim equivalent operational guarantees.
+The asynchronous application returns a distinct result family and verifies full
+source material and chain internally before projecting a selected record.
+
+The [hosted-storage experiment](../implementation/WEB-216_HOSTED_STORAGE_EXPERIMENT.md)
+records atomicity, uncertainty, capacity, software-generation and retention limits.
+There is no HTTP mount or automatic migration/initialisation in this increment.
+Primary binding, freshness, deployment, retention operations and independent
+rollback evidence remain assembly/host obligations; local tests do not grant them.
