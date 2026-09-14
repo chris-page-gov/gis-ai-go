@@ -1,0 +1,101 @@
+{
+  "schema_version": "web216.local-storage-experiment.v1",
+  "experiment": "X05",
+  "classification": "local-development-storage-comparison-not-hosting-benchmark",
+  "started_at_utc": "2026-09-14T16:09:08.553850Z",
+  "ended_at_utc": "2026-09-14T16:09:08.744957Z",
+  "elapsed_seconds": 0.191045167,
+  "code_commit": "7ef61bebb52a4c8e0f4cb3caea097d3cc3796d60",
+  "code_file_sha256": {
+    "scripts/web216_corpus.py": "42dbeb81424308df5d398c28da11724b6266b8c983f77b86b877e3eded0fde10",
+    "scripts/web216_experiments.py": "6ccd81e6aed0b049c9bc0264c92e78039c774bb1b0527144e60ed9e7c9d96008",
+    "scripts/web216_storage_experiment.py": "3f2a502b56cc09ec31ee89d7753139238a69fd64184998f4464aba31be5659b7"
+  },
+  "config": {
+    "lookup_limit": "five identifiers times at most three cold/warm pairs per layout",
+    "partition_prefix_hex_digits": 1,
+    "ranking": "existing web216_experiments.build/rank with explicit case facets/concepts",
+    "repeats": 3,
+    "sample_ids": [
+      "nomis-dataset-definitions:NM_2002_1",
+      "nomis-dataset-definitions:NM_2006_1",
+      "ons-data-api:RM001",
+      "ons-data-api:RM002",
+      "ons-data-api:RM003"
+    ]
+  },
+  "config_sha256": "318cc8069d0dfdc02caf9acb7d50f072e18aa1bc5a67229a4d17a4b66e5834be",
+  "input_file_sha256": "134bbbeb8113c0add5afe17c3d15d7809470b507c0e1f5e99ab808f70b1d7875",
+  "input_records_sha256": "13124565845912238eebcd5708244701beec29ad42c1a794a124750c8eabf962",
+  "cases_sha256": "9bdfc5609d77fcc517a3b026418e44da7686e0ef386985b33864f90f856a64ca",
+  "record_count": 339,
+  "environment": {
+    "machine": "arm64",
+    "python": "3.14.6",
+    "sqlite": "3.53.4",
+    "system": "Darwin"
+  },
+  "provider_requests": 0,
+  "model_requests": 0,
+  "sites_or_d1_requests": 0,
+  "network_bytes": 0,
+  "hosting_cost": null,
+  "optimality_claimed": false,
+  "limitations": [
+    "Cold is a fresh application reader/connection including initialisation; OS/disk caches are uncontrolled.",
+    "Warm immediately repeats the same identifier on that reader; this is not a multi-user load test.",
+    "Initial bytes are eagerly read application payloads, not HTTP transfer or OS page I/O; SQLite is unknown.",
+    "Persisted bytes count generated files, not filesystem allocation, RAM, remote storage or D1 billing.",
+    "Local stdlib SQLite is not Sites D1; this does not test D1 limits, residency or deployment compatibility.",
+    "Digest-prefix JSON partitions are a surrogate, not Parquet, columnar compression or object-store measurements.",
+    "All five development queries rebuild the same existing rank state from reconstructed records; no native SQL ranking.",
+    "Small fixed corpus, at most three repetitions, no unseen relevance judgements or optimality claim.",
+    "Source file hashes agree at run start and end; this does not attest to earlier Python import state."
+  ],
+  "arms": {
+    "partitions": {
+      "persisted_bytes": 754476,
+      "initial_application_payload_bytes": 1576,
+      "logical_records_sha256": "13124565845912238eebcd5708244701beec29ad42c1a794a124750c8eabf962",
+      "record_count": 339,
+      "query_results_sha256": "2612ae26f942dcbc65f498ab282af2a7fdc7fb892f025bde4b17cc1c74716952",
+      "records_equal": true,
+      "ranked_ids_equal": true,
+      "cold_ms_median": 0.204375,
+      "warm_ms_median": 0.002042,
+      "sample_count": 15,
+      "files_count": 17
+    },
+    "sqlite": {
+      "persisted_bytes": 1638400,
+      "initial_application_payload_bytes": null,
+      "logical_records_sha256": "13124565845912238eebcd5708244701beec29ad42c1a794a124750c8eabf962",
+      "record_count": 339,
+      "query_results_sha256": "2612ae26f942dcbc65f498ab282af2a7fdc7fb892f025bde4b17cc1c74716952",
+      "records_equal": true,
+      "ranked_ids_equal": true,
+      "cold_ms_median": 0.094916,
+      "warm_ms_median": 0.020583,
+      "sample_count": 15,
+      "files_count": 1
+    },
+    "static": {
+      "persisted_bytes": 744770,
+      "initial_application_payload_bytes": 744770,
+      "logical_records_sha256": "13124565845912238eebcd5708244701beec29ad42c1a794a124750c8eabf962",
+      "record_count": 339,
+      "query_results_sha256": "2612ae26f942dcbc65f498ab282af2a7fdc7fb892f025bde4b17cc1c74716952",
+      "records_equal": true,
+      "ranked_ids_equal": true,
+      "cold_ms_median": 2.661791,
+      "warm_ms_median": 0.001459,
+      "sample_count": 15,
+      "files_count": 1
+    }
+  },
+  "publication_projection": {
+    "scope": "Summary of a preserved complete result; detailed sample timings, ranked identifier arrays and file inventories omitted here.",
+    "original_result_file_sha256": "2b6f92d2878e474d3ffeb274e67b7ea42c61b899a6c791b315640a904905ea27",
+    "original_result_sha256": "43f5d0e35ecedfa8b89ca0064536f79fc0711678bdc3adc5c24e27877540a784"
+  }
+}

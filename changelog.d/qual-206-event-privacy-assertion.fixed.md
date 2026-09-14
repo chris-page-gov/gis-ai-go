@@ -1,0 +1,1 @@
+- Make the strict-modern collector privacy regression inspect semantic event values and nested payloads, distinguishing genuine disclosure from incidental digits in schema-defined hashes, identifiers and numeric measurements without relaxing the independent capture verifier.
