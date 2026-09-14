@@ -1,0 +1,39 @@
+{
+  "experiment": "WEB-216-X01-X02-X06",
+  "source_commit": "f515814848c904982cc8964327da9f64eb862585",
+  "upstream_commit": "4aa41c71dd570ceccb661768af95c4d69f49162b",
+  "started_at": "2026-09-14T15:28:13.553365Z",
+  "completed_at": "2026-09-14T15:28:14.015087Z",
+  "classification": "development-not-confirmatory",
+  "files": {
+    "docs/implementation/WEB-216_EXPERIMENTS.md": "6f1a727897d39508844118262a21ddccec80e46a90468b0db212c8ae4d6b282a",
+    "scripts/web216_corpus.py": "42dbeb81424308df5d398c28da11724b6266b8c983f77b86b877e3eded0fde10",
+    "scripts/web216_experiments.py": "6ccd81e6aed0b049c9bc0264c92e78039c774bb1b0527144e60ed9e7c9d96008",
+    "tests/fixtures/web216/development-cases.json": "d89d9a5e21d47e450e0ddf17d8843d0ade73d9ec98a0552e82fa90fc6f67c890",
+    "tests/fixtures/web216/source-manifest.json": "79df06c4a8b9f743bb66b0c88e030b1659c3357751dc16211e7a1c7fdc598ae7"
+  },
+  "model_requests_in_experiment": 0,
+  "task_agent_cost": null,
+  "commands": [
+    {
+      "started_at": "2026-09-14T15:28:13.553601Z",
+      "completed_at": "2026-09-14T15:28:13.743895Z",
+      "elapsed_seconds": 0.19030249999195803,
+      "exit_code": 0
+    },
+    {
+      "started_at": "2026-09-14T15:28:13.743908Z",
+      "completed_at": "2026-09-14T15:28:14.015076Z",
+      "elapsed_seconds": 0.2711760410020361,
+      "exit_code": 0
+    }
+  ],
+  "outputs": {
+    "command-1.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "command-1.stdout.log": "ef32c726b5767fb6159c79ca948f842c62729c8ef85faa94c3e9d2eeca6711ee",
+    "command-2.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "command-2.stdout.log": "278815a97180bbb9ad218fbb6c156f09446c2383e46099f50fd8f2ac3288e906",
+    "comparison-corpus.json": "134bbbeb8113c0add5afe17c3d15d7809470b507c0e1f5e99ab808f70b1d7875",
+    "results.json": "c0b2a955730551fcb5cd9e0e14bc7bf4d47c3095a349141ee66e3d44f5041ee9"
+  }
+}
