@@ -58,6 +58,7 @@ from capture_delivery_evidence import (
     _redact_codex_projection_value,
     build_expiry_ledger,
     canonical_json,
+    codex_generation_coverage,
     format_time,
     parse_json,
     parse_time,
@@ -2892,6 +2893,7 @@ def _verify_codex_projection(
     header: dict[str, Any] | None = None
     footer: dict[str, Any] | None = None
     skipped: dict[str, int] = {}
+    quarantine_state = "clear"
     retained = 0
     source_line = 0
     source_bytes = 0
@@ -3127,6 +3129,34 @@ def _verify_codex_projection(
                     )
                     _expect(_is_positive_int(value.get("source_bytes")), "Codex source-line size is invalid")
                     source_bytes += value["source_bytes"]
+                    # Independent transition checks prevent a retained payload
+                    # or an ordinary omission from crossing a declared open key
+                    # span. These stubs attest omission, not the missing bytes.
+                    stub_type = value.get("source_type")
+                    is_quarantine = isinstance(stub_type, str) and stub_type.startswith(
+                        "quarantine-key-span-"
+                    )
+                    if is_quarantine:
+                        _expect(
+                            record_type == "excluded-rollout-record",
+                            "Codex quarantine must be a content-free exclusion",
+                        )
+                        transition = stub_type.removeprefix("quarantine-key-span-")
+                        allowed = {
+                            "clear": {"single": "clear", "open": "open", "uncertain": "uncertain"},
+                            "open": {"continue": "open", "close": "clear", "uncertain": "uncertain"},
+                            "uncertain": {"continue": "uncertain"},
+                        }
+                        _expect(
+                            transition in allowed[quarantine_state],
+                            "Codex quarantine transition is invalid",
+                        )
+                        quarantine_state = allowed[quarantine_state][transition]
+                    else:
+                        _expect(
+                            quarantine_state == "clear",
+                            "Codex record crosses an open private-key quarantine",
+                        )
                     if record_type == "projected-rollout-record":
                         _expect(
                             set(value)
@@ -4213,15 +4243,40 @@ def _verify_store_locked(
         for item in expected_ledger["entries"]
         if parse_time(item["warning_at_utc"], "warning") <= now
     )
+    latest_coverage: dict[str, dict[str, object]] = {}
+    for event in reversed(events):
+        if (
+            event["source"]["kind"] != "codex-thread-closure-generation-manifest"
+            or event["disposition"]["status"] != "captured"
+        ):
+            continue
+        binding = event["objects"][0]
+        manifest_raw = _read_codex_manifest(
+            observed[binding["sha256"]], binding["bytes"]
+        )
+        _expect(
+            hashlib.sha256(manifest_raw).hexdigest() == binding["sha256"],
+            "Codex coverage manifest changed after verification",
+        )
+        manifest = parse_json(
+            manifest_raw,
+            "verified Codex coverage manifest",
+        )
+        thread_id = manifest["thread_id"]
+        if thread_id not in latest_coverage:
+            latest_coverage[thread_id] = codex_generation_coverage(manifest)
     return {
         "verified": True,
+        "journal_sha256": hashlib.sha256(journal_raw).hexdigest(),
         "journal_events": len(events),
         "journal_head_sha256": events[-1]["event_sha256"] if events else None,
         "objects": len(observed),
         "bytes": sum(referenced.values()),
         "expiry_warnings": warning_count,
         "boundaries": BOUNDARIES,
+        "codex_latest_coverage": list(latest_coverage.values()),
         "limitations": {
+            "transcript_completeness_attested": False,
             "source_truth_attested": False,
             "timestamp_attested": False,
             "whole_store_rewrite_detectable_without_independent_anchor": False,

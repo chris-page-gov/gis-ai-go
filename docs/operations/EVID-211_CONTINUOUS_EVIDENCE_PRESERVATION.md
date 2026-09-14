@@ -185,6 +185,92 @@ their generation manifest are committed as one ordered recoverable transaction:
 after an interruption the next writer either completes that exact transaction once
 or fails closed on an unprovable state.
 
+### Selective private-key quarantine and recovery
+
+Earlier captures treated a private-key opening marker anywhere in the retained
+content as a reason to discard the entire thread projection. The source file was
+not deleted, but its otherwise safe records were not in the archive. The old
+`retained_records` count on an **excluded** source described an intermediate stream,
+not stored content; `redaction_count` counted blocking categories, not keys or
+affected records. Keep those historical events unchanged.
+
+Current capture scans the original JSONL stream before text shortening, including
+otherwise omitted records, with bounded JSON-escape decoding. It replaces affected
+whole records with content-free, source-line-digest-bound quarantine stubs. A
+recognised block closes only at its matching terminator. Nested, mismatched,
+malformed or unframed containers produce an uncertain quarantine through the end
+of the source snapshot. A new turn or tool call does not clear it. Safe records
+before that boundary remain recoverable; a quoted marker is not assumed harmless.
+The independent verifier rejects content crossing a declared open quarantine,
+invalid transitions and altered byte/record accounting. Neither hashes nor stubs
+prove the content of omitted records.
+
+An old `private-key-block` whole-thread exclusion is explicitly ineligible for
+reuse. Its next capture appends a new selective projection. An unchanged selective
+projection can then be reused after the usual full semantic verification. This
+does not retroactively apply the new scanner to every historical captured object,
+and does not weaken the whole-object exclusion policy for ordinary files or ZIPs.
+
+For a bounded recovery, select the exact affected source files and any required
+parent records, into a **new** private store:
+
+```bash
+uv run --locked --cache-dir .uv-cache python scripts/capture_delivery_evidence.py \
+  --store "$RECOVERY_STORE" \
+  --trigger authorised-selective-recovery \
+  --codex-thread-id <root-thread-id> \
+  --codex-session-file <explicit-root-jsonl> \
+  --codex-session-file <explicit-affected-child-jsonl>
+```
+
+`--codex-session-file` is an alias for the explicit source selector. Files must be
+real, safely owned JSONL files; no symlinks or opaque raw copies enter the archive.
+The manifest describes the target and descendants within **that selected source
+inventory**, not every historical agent. Do not splice a recovery subset into an
+older complete generation or label the subset a complete project capture.
+
+Both capture and verification expose path-free coverage counts separately from
+integrity. A `captured` object may have quarantined records. `coverage_warning`,
+root disposition, root retained counts and quarantine counts must be read even
+when verification succeeds. Exhaustive transcript completeness is never inferred
+from a successful archive check. If the current root has an uncertain tail, record
+the gap prominently; repeated capture cannot make that tail safe by itself.
+
+Recovery is an explicitly authorised analysis input, not permission to publish.
+Reconstruct chronology from verified projections, identify each source and omission,
+and distinguish tool invocations, authentication, polls, model observations and
+verifier reruns. Retained SDK cost estimates and token counts are not invoices or
+subscription charges. Missing billing remains unknown, not zero.
+
+### Separately authorised private indexing
+
+Indexing is analysis, not the daily preservation sweep. Run it only after the
+owner has authorised retrospective analysis, against a bounded recovery store:
+
+```bash
+uv run --locked --cache-dir .uv-cache python scripts/index_recovered_delivery_evidence.py \
+  --store "$RECOVERY_STORE" \
+  --output "$PRIVATE_INDEX"
+```
+
+The destination must be new, outside every Git checkout and the source store, on
+an admitted owner-controlled encrypted internal volume. The utility verifies the
+whole store before indexing its newest captured generation. It binds the exact
+verified journal bytes, generation manifest, projection objects and source lines;
+changed inputs fail closed. It does not read raw rollouts or overwrite any earlier
+index. It uses bounded reads and a private temporary database for correlation.
+
+The output includes user-visible messages, agent-assignment calls, Claude-related
+candidate calls and outputs, unambiguous asynchronous process links, retained turn
+activity, token-count snapshots and any finite non-negative SDK-reported USD cost
+fields. Ambiguous links remain unlinked. Polls are not model attempts; reported
+SDK cost fields are not invoices. The output manifest and README record these
+limits. All extracts stay owner-only and are **not cleared for publication**.
+Standard output contains aggregate counts only; publication of even an aggregate
+requires its own disclosure decision.
+
+### Reuse and historical compatibility
+
 Reuse validation defaults to one process. Where several retained projections make
 that phase slow, `--codex-reuse-workers` may be set to 2, 3 or 4. This changes
 execution capacity, not coverage: every candidate object is still hash-checked,
