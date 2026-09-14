@@ -23,6 +23,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from gateway_image import (  # noqa: E402
+    BUILDKIT_BUILD_TIMEOUT_SECONDS,
     BUILDKIT_CLASSIC_AMD64_CONFIG_ID,
     BUILDKIT_CLASSIC_AMD64_REPOSITORY_DIGEST,
     BUILDKIT_DIGEST,
@@ -31,11 +32,14 @@ from gateway_image import (  # noqa: E402
     BUILDKIT_VERSION,
     BUILDER_NAME,
     BUILDER_SOURCE_COPY_INSTRUCTIONS,
+    BuildkitBuildError,
     EXPECTED_ENVIRONMENT,
     EXPECTED_ENTRYPOINT,
     EXPECTED_HEALTH_CONFIGURATION,
     EXPECTED_REGISTRY_ID,
     FORBIDDEN_PACKAGE_LIFECYCLE_SCRIPTS,
+    MAX_BUILDKIT_CAPTURE_BYTES,
+    MAX_BUILDKIT_DIAGNOSTIC_BYTES,
     MAX_PRIVACY_MALFORMED_CHARS,
     MAX_PRIVACY_TEXT_BYTES,
     LIBSTDCXX_PATH,
@@ -59,6 +63,8 @@ from gateway_image import (  # noqa: E402
     UBI_RUNTIME_BASE_REFERENCE,
     UBI_RUNTIME_LIBRARY_DONOR_REFERENCE,
     _required_runtime_entries,
+    _BuildkitOutput,
+    _consume_buildkit_event,
     _summarise_rootfs,
     SourceIdentity,
     RootfsEntry,
@@ -79,6 +85,7 @@ from gateway_image import (  # noqa: E402
     prohibited_json_reason,
     prohibited_text_reason,
     run as run_gateway_command,
+    run_buildkit_build,
     select_build_context_paths,
     sha256_bytes,
     sha256_file,
@@ -88,6 +95,7 @@ from gateway_image import (  # noqa: E402
     verify_root_package_manager,
     verify_runtime_composition,
 )
+import package_gateway_oci as gateway_package  # noqa: E402
 import scan_gateway_image as gateway_scan  # noqa: E402
 from scan_gateway_image import (  # noqa: E402
     MAX_TRIVY_DIAGNOSTIC_BYTES,
@@ -753,6 +761,34 @@ def synthetic_oci(
 
 class GatewayImageContractTests(unittest.TestCase):
     @staticmethod
+    def _invoke_buildkit_fixture(
+        *,
+        stdout: bytes = b"",
+        stderr: bytes = b"",
+        return_code: int = 17,
+        replacements: tuple[tuple[str, str], ...] = (),
+    ) -> str:
+        command = (
+            "import base64,os,sys;"
+            "os.write(1,base64.b64decode(sys.argv[1]));"
+            "os.write(2,base64.b64decode(sys.argv[2]));"
+            "raise SystemExit(int(sys.argv[3]))"
+        )
+        arguments = (
+            sys.executable,
+            "-c",
+            command,
+            base64.b64encode(stdout).decode("ascii"),
+            base64.b64encode(stderr).decode("ascii"),
+            str(return_code),
+        )
+        try:
+            run_buildkit_build(arguments, replacements=replacements, timeout=10)
+        except BuildkitBuildError as error:
+            return str(error)
+        raise AssertionError("fixture BuildKit command unexpectedly succeeded")
+
+    @staticmethod
     def _builder_details() -> str:
         return "\n".join(
             (
@@ -838,7 +874,7 @@ class GatewayImageContractTests(unittest.TestCase):
             ),
         )
 
-    def test_gateway_build_discards_buildkit_output_without_buffering(self) -> None:
+    def test_gateway_build_uses_bounded_buildkit_diagnostics(self) -> None:
         source = SourceIdentity(
             revision="a" * 40,
             version="0.1.0",
@@ -853,7 +889,7 @@ class GatewayImageContractTests(unittest.TestCase):
             mock.patch("gateway_image.verify_pinned_builder"),
             mock.patch("gateway_image.build_context_inventory", return_value=()),
             mock.patch("gateway_image.materialise_build_context"),
-            mock.patch("gateway_image.run") as run_mock,
+            mock.patch("gateway_image.run_buildkit_build") as run_mock,
             mock.patch("gateway_image.canonicalise_oci_archive"),
             mock.patch(
                 "gateway_image.inspect_oci_archive", return_value=inspection
@@ -867,9 +903,202 @@ class GatewayImageContractTests(unittest.TestCase):
             )
 
         self.assertIs(result, inspection)
-        self.assertTrue(run_mock.call_args.kwargs["discard_output"])
-        self.assertNotIn("capture", run_mock.call_args.kwargs)
-        self.assertEqual(run_mock.call_args.kwargs["timeout"], 30 * 60)
+        self.assertEqual(
+            run_mock.call_args.kwargs["timeout"], BUILDKIT_BUILD_TIMEOUT_SECONDS
+        )
+        replacements = dict(run_mock.call_args.kwargs["replacements"])
+        self.assertEqual(replacements[str(ROOT)], "[repository-root]")
+        self.assertIn("[build-context]", replacements.values())
+        self.assertIn("[gateway-output]", replacements.values())
+
+    def test_buildkit_network_diagnostic_redacts_known_paths(self) -> None:
+        private = "/" + "home/runner/work/gis-ai-go/gis-ai-go"
+        diagnostic = self._invoke_buildkit_fixture(
+            stderr=(
+                b"#8 [builder 6/9] ERROR: failed to fetch registry metadata: "
+                b"connection timed out at " + private.encode() + b"/Containerfile\n"
+            ),
+            replacements=((private, "[repository-root]"),),
+        )
+        self.assertIn("build_stage=builder", diagnostic)
+        self.assertIn("error_class=network-or-registry", diagnostic)
+        self.assertIn("stderr_status=readable", diagnostic)
+        self.assertIn("[repository-root]/Containerfile", diagnostic)
+        self.assertNotIn(private, diagnostic)
+        self.assertIsNone(prohibited_text_reason(diagnostic))
+
+    def test_buildkit_checksum_and_compiler_diagnostics_are_classified(self) -> None:
+        cases = (
+            (
+                b"#4 [builder 3/9] sha512sum: package.tgz: FAILED; "
+                b"checksum did not match\n",
+                "checksum-or-integrity",
+            ),
+            (
+                b"#6 [builder 6/9] RUN node AbortSignal.timeout(60000)\n"
+                b"#11 [builder 8/9] error TS2322: Type 'string' is not "
+                b"assignable to type 'number'.\n",
+                "compiler",
+            ),
+        )
+        for payload, expected in cases:
+            with self.subTest(expected=expected):
+                diagnostic = self._invoke_buildkit_fixture(stderr=payload)
+                self.assertIn("build_stage=builder", diagnostic)
+                self.assertIn(f"error_class={expected}", diagnostic)
+                self.assertIn("stderr_status=readable", diagnostic)
+                self.assertIsNone(prohibited_text_reason(diagnostic))
+
+    def test_buildkit_diagnostic_withholds_secrets_and_unexpected_private_paths(self) -> None:
+        token = "ghp_" + "a" * 24
+        private = "/" + "Users/example/private/project"
+        cases = (
+            (f"ERROR bearer {token}\n".encode(), "sensitive", token),
+            (f"ERROR reading {private}\n".encode(), "private-path", private),
+        )
+        for payload, reason, prohibited in cases:
+            with self.subTest(reason=reason):
+                diagnostic = self._invoke_buildkit_fixture(stderr=payload)
+                self.assertIn("stderr_status=withheld", diagnostic)
+                self.assertIn(f"stderr_reason={reason}", diagnostic)
+                self.assertNotIn(prohibited, diagnostic)
+
+    def test_buildkit_diagnostic_withholds_excessive_output(self) -> None:
+        diagnostic = self._invoke_buildkit_fixture(
+            stdout=b"x" * (MAX_BUILDKIT_CAPTURE_BYTES + 1)
+        )
+        self.assertIn(
+            f"stdout_bytes={MAX_BUILDKIT_CAPTURE_BYTES + 1}", diagnostic
+        )
+        self.assertIn("stdout_status=withheld", diagnostic)
+        self.assertIn("stdout_reason=over-bound", diagnostic)
+        self.assertNotIn("x" * 128, diagnostic)
+
+    def test_buildkit_diagnostic_bounds_escaped_non_ascii_output(self) -> None:
+        payload = "é" * (MAX_BUILDKIT_DIAGNOSTIC_BYTES // 4)
+        diagnostic = self._invoke_buildkit_fixture(stderr=payload.encode("utf-8"))
+        self.assertIn("stderr_status=withheld", diagnostic)
+        self.assertIn("stderr_reason=encoded-bound", diagnostic)
+        self.assertNotIn("\\u00e9", diagnostic)
+
+    def test_successful_buildkit_command_remains_silent(self) -> None:
+        command = (
+            "import os;"
+            "os.write(1,b'ordinary progress');"
+            "os.write(2,b'ordinary diagnostic')"
+        )
+        result = run_buildkit_build(
+            (sys.executable, "-c", command), replacements=(), timeout=10
+        )
+        self.assertIsNone(result)
+
+    def test_zero_exit_with_stream_read_failure_fails_closed(self) -> None:
+        def fail_read(selector: Any, key: Any) -> None:
+            key.data.mark_unavailable("read-failed")
+            selector.unregister(key.fileobj)
+            key.fileobj.close()
+
+        command = "import os; os.write(1,b'progress')"
+        with (
+            mock.patch("gateway_image._consume_buildkit_event", side_effect=fail_read),
+            self.assertRaises(BuildkitBuildError) as raised,
+        ):
+            run_buildkit_build(
+                (sys.executable, "-c", command), replacements=(), timeout=10
+            )
+        diagnostic = str(raised.exception)
+        self.assertIn("process_status=process-or-stream-failed", diagnostic)
+        self.assertIn("stdout_reason=read-failed", diagnostic)
+
+    def test_buildkit_read_error_marks_stream_unavailable(self) -> None:
+        output = _BuildkitOutput("stdout")
+        stream = mock.Mock()
+        key = mock.Mock(fd=-1, fileobj=stream, data=output)
+        selector = mock.Mock()
+
+        _consume_buildkit_event(selector, key)
+
+        self.assertEqual(output.unavailable_reason, "read-failed")
+        selector.unregister.assert_called_once_with(stream)
+        stream.close.assert_called_once_with()
+
+    def test_escaped_descendant_pipe_is_bounded_by_drain_timeout(self) -> None:
+        command = (
+            "import subprocess,sys;"
+            "subprocess.Popen([sys.executable,'-c',"
+            "'import time;time.sleep(0.75)'],stdout=sys.stdout,stderr=sys.stderr,"
+            "start_new_session=True)"
+        )
+        started = time.monotonic()
+        with (
+            mock.patch("gateway_image.BUILDKIT_DRAIN_TIMEOUT_SECONDS", 0.05),
+            self.assertRaises(BuildkitBuildError) as raised,
+        ):
+            run_buildkit_build(
+                (sys.executable, "-c", command), replacements=(), timeout=10
+            )
+        self.assertLess(time.monotonic() - started, 1)
+        diagnostic = str(raised.exception)
+        self.assertIn("process_status=process-or-stream-failed", diagnostic)
+        self.assertIn("stdout_reason=drain-timeout", diagnostic)
+        self.assertIn("stderr_reason=drain-timeout", diagnostic)
+
+    def test_timed_out_buildkit_command_is_terminated_and_classified(self) -> None:
+        started = time.monotonic()
+        with self.assertRaises(BuildkitBuildError) as raised:
+            run_buildkit_build(
+                (sys.executable, "-c", "import time; time.sleep(60)"),
+                replacements=(),
+                timeout=1,
+            )
+        self.assertLess(time.monotonic() - started, 3)
+        self.assertIn("process_status=timed-out timeout_seconds=1", str(raised.exception))
+        self.assertIn("build_stage=unknown", str(raised.exception))
+        self.assertIn("error_class=unknown", str(raised.exception))
+
+    def test_package_cli_reports_buildkit_failure_without_a_traceback(self) -> None:
+        failure = (
+            "gateway BuildKit build failed; process_status=exit-code "
+            "process_exit_code=1; build_stage=builder; error_class=network-or-registry"
+        )
+        source = SourceIdentity(
+            revision="a" * 40,
+            version="0.1.0",
+            source_date_epoch=1_787_270_400,
+            created="2026-08-21T00:00:00Z",
+            clean=True,
+        )
+        with tempfile.TemporaryDirectory() as temporary:
+            stderr = io.StringIO()
+            with (
+                mock.patch.object(
+                    sys,
+                    "argv",
+                    [
+                        "package_gateway_oci.py",
+                        "--output-dir",
+                        str(Path(temporary) / "gateway"),
+                    ],
+                ),
+                mock.patch.object(gateway_package, "source_identity", return_value=source),
+                mock.patch.object(
+                    gateway_package, "build_context_inventory", return_value=()
+                ),
+                mock.patch.object(
+                    gateway_package, "build_context_manifest_bytes", return_value=b""
+                ),
+                mock.patch.object(
+                    gateway_package,
+                    "build_oci_archive",
+                    side_effect=BuildkitBuildError(failure),
+                ),
+                mock.patch.object(sys, "stderr", stderr),
+                self.assertRaises(SystemExit) as raised,
+            ):
+                gateway_package.main()
+        self.assertEqual(raised.exception.code, 1)
+        self.assertEqual(stderr.getvalue(), f"{failure}\n")
+        self.assertNotIn("Traceback", stderr.getvalue())
 
     def test_discarded_command_output_is_not_buffered_or_reflected(self) -> None:
         command = (

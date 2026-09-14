@@ -11,12 +11,15 @@ import io
 import json
 import os
 import re
+import selectors
 import shutil
+import signal
 import stat
 import string
 import subprocess
 import tarfile
 import tempfile
+import time
 import unicodedata
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -142,6 +145,11 @@ BUILDKIT_CLASSIC_AMD64_REPOSITORY_DIGEST = (
 )
 BUILDKIT_VERSION = "v0.32.2"
 BUILDER_NAME = "gis-ai-go-gateway"
+BUILDKIT_BUILD_TIMEOUT_SECONDS = 30 * 60
+BUILDKIT_DRAIN_TIMEOUT_SECONDS = 10
+MAX_BUILDKIT_CAPTURE_BYTES = 64 * 1024
+MAX_BUILDKIT_DIAGNOSTIC_BYTES = 4 * 1024
+BUILDKIT_OUTPUT_CHUNK_BYTES = 64 * 1024
 EXPECTED_RUNTIME_STAGE_SHA256 = (
     "a58ec217df86e43caa7b881080b8d7e51c503f2f0958f01f2474c24a77ccd9fa"
 )
@@ -3164,6 +3172,381 @@ class OciInspection:
     rootfs_regular_file_bytes: int
 
 
+class BuildkitBuildError(ValueError):
+    """Expose one bounded, public-safe BuildKit failure projection."""
+
+
+class _BuildkitOutput:
+    """Count a process stream while retaining only its bounded suffix."""
+
+    def __init__(self, label: str) -> None:
+        self.label = label
+        self.byte_count = 0
+        self._suffix = bytearray()
+        self.unavailable_reason: str | None = None
+
+    def append(self, chunk: bytes) -> None:
+        self.byte_count += len(chunk)
+        self._suffix.extend(chunk)
+        if len(self._suffix) > MAX_BUILDKIT_CAPTURE_BYTES:
+            del self._suffix[:-MAX_BUILDKIT_CAPTURE_BYTES]
+
+    def mark_unavailable(self, reason: str) -> None:
+        if self.unavailable_reason is None:
+            self.unavailable_reason = reason
+
+    def text(self, replacements: tuple[tuple[str, str], ...]) -> str | None:
+        try:
+            text = bytes(self._suffix).decode("utf-8", errors="strict")
+        except UnicodeDecodeError:
+            return None
+        for private, public in sorted(
+            replacements, key=lambda item: len(item[0]), reverse=True
+        ):
+            text = text.replace(private, public)
+        return text
+
+    def excerpt_text(self, replacements: tuple[tuple[str, str], ...]) -> str | None:
+        text = self.text(replacements)
+        if text is None:
+            return None
+        lines = [line.strip() for line in text.splitlines() if line.strip()]
+        return " | ".join(lines[-4:]) or "[empty]"
+
+    def diagnostic(self, replacements: tuple[tuple[str, str], ...]) -> str:
+        metadata = f"{self.label}_bytes={self.byte_count}"
+        if self.unavailable_reason is not None:
+            return (
+                f"{metadata} {self.label}_status=unavailable "
+                f"{self.label}_reason={self.unavailable_reason}"
+            )
+        if self.byte_count > MAX_BUILDKIT_CAPTURE_BYTES:
+            return (
+                f"{metadata} {self.label}_status=withheld "
+                f"{self.label}_reason=over-bound"
+            )
+        full_text = self.text(replacements)
+        if full_text is None:
+            return (
+                f"{metadata} {self.label}_status=withheld "
+                f"{self.label}_reason=invalid-utf8"
+            )
+        if any(
+            unicodedata.category(character).startswith("C")
+            and character not in "\t\n\r"
+            for character in full_text
+        ):
+            return (
+                f"{metadata} {self.label}_status=withheld "
+                f"{self.label}_reason=unsafe-control"
+            )
+        excerpt = self.excerpt_text(replacements)
+        if excerpt is None:
+            return (
+                f"{metadata} {self.label}_status=withheld "
+                f"{self.label}_reason=invalid-utf8"
+            )
+        encoded = excerpt.encode("utf-8")
+        if len(encoded) > MAX_BUILDKIT_DIAGNOSTIC_BYTES:
+            return (
+                f"{metadata} {self.label}_status=withheld "
+                f"{self.label}_reason=excerpt-over-bound"
+            )
+        reason = prohibited_text_reason(excerpt)
+        if reason is None:
+            reason = prohibited_text_reason(" ".join(excerpt.split()))
+        if reason is not None:
+            return (
+                f"{metadata} {self.label}_status=withheld "
+                f"{self.label}_reason={reason}"
+            )
+        if contains_diagnostic_private_path(" ".join(excerpt.split())):
+            return (
+                f"{metadata} {self.label}_status=withheld "
+                f"{self.label}_reason=private-path"
+            )
+        if any(line.lstrip().startswith("::") for line in excerpt.splitlines()):
+            return (
+                f"{metadata} {self.label}_status=withheld "
+                f"{self.label}_reason=workflow-command"
+            )
+        rendered = json.dumps(excerpt, ensure_ascii=True)
+        if len(rendered.encode("ascii")) > MAX_BUILDKIT_DIAGNOSTIC_BYTES:
+            return (
+                f"{metadata} {self.label}_status=withheld "
+                f"{self.label}_reason=encoded-bound"
+            )
+        digest = hashlib.sha256(encoded).hexdigest()
+        return (
+            f"{metadata} {self.label}_sha256={digest} "
+            f"{self.label}_status=readable {self.label}_text={rendered}"
+        )
+
+
+_BUILDKIT_STAGE = re.compile(
+    r"\[(builder|runtime-libraries|runtime-root|runtime)(?:\s|\])",
+    re.IGNORECASE,
+)
+_BUILDKIT_NETWORK_ERROR = re.compile(
+    r"(?:timed?\s*out|due\s+to\s+timeout|timeout\s+(?:error|exceeded|while)|"
+    r"deadline\s+exceeded|connection\s+(?:refused|reset)|"
+    r"could\s+not\s+resolve|temporary\s+failure\s+in\s+name\s+resolution|"
+    r"network\s+is\s+unreachable|tls\s+handshake|certificate\s+(?:error|verify)|"
+    r"unexpected\s+eof|i/o\s+timeout|failed\s+to\s+fetch|"
+    r"failed\s+to\s+resolve\s+source\s+metadata|pull\s+access\s+denied|"
+    r"manifest\s+unknown|(?:http\s+)?status(?:\s+code)?\s*[=:]?\s*"
+    r"(?:403|404|408|429|5[0-9]{2}))",
+    re.IGNORECASE,
+)
+_BUILDKIT_CHECKSUM_ERROR = re.compile(
+    r"(?:checksum\s+(?:failed|mismatch|did\s+not\s+match)|"
+    r"digest\s+(?:mismatch|did\s+not\s+match)|integrity\s+check\s+failed|"
+    r"sha(?:256|512)sum:.*(?:FAILED|WARNING))",
+    re.IGNORECASE,
+)
+_BUILDKIT_COMPILER_ERROR = re.compile(
+    r"(?:error\s+TS[0-9]{4}|typescript\s+(?:compiler\s+)?error|"
+    r"compilation\s+failed|tsc(?:\s|:).*exited)",
+    re.IGNORECASE,
+)
+
+
+def _buildkit_failure_classification(
+    outputs: tuple[_BuildkitOutput, _BuildkitOutput],
+    replacements: tuple[tuple[str, str], ...],
+) -> tuple[str, str]:
+    fragments = [output.excerpt_text(replacements) or "" for output in outputs]
+    text = "\n".join(fragments)
+    stages = _BUILDKIT_STAGE.findall(text)
+    stage = stages[-1].lower() if stages else "unknown"
+    if _BUILDKIT_COMPILER_ERROR.search(text):
+        error_class = "compiler"
+    elif _BUILDKIT_CHECKSUM_ERROR.search(text):
+        error_class = "checksum-or-integrity"
+    elif _BUILDKIT_NETWORK_ERROR.search(text):
+        error_class = "network-or-registry"
+    elif "failed to solve" in text.lower() or "exit code" in text.lower():
+        error_class = "build-command"
+    else:
+        error_class = "unknown"
+    return stage, error_class
+
+
+def _terminate_buildkit_process_group(process: subprocess.Popen[bytes]) -> None:
+    if os.name == "posix":
+        try:
+            os.killpg(process.pid, signal.SIGKILL)
+            return
+        except (OSError, ProcessLookupError):
+            pass
+    try:
+        if process.poll() is None:
+            process.kill()
+    except OSError:
+        pass
+
+
+def _retire_buildkit_stream(
+    selector: selectors.BaseSelector,
+    key: selectors.SelectorKey,
+    *,
+    unavailable_reason: str | None = None,
+) -> None:
+    output = key.data
+    if not isinstance(output, _BuildkitOutput):
+        raise TypeError("BuildKit selector data has an unexpected type")
+    if unavailable_reason is not None:
+        output.mark_unavailable(unavailable_reason)
+    try:
+        selector.unregister(key.fileobj)
+    except (KeyError, OSError, ValueError):
+        output.mark_unavailable("selector-failed")
+    try:
+        key.fileobj.close()
+    except OSError:
+        output.mark_unavailable("close-failed")
+
+
+def _consume_buildkit_event(
+    selector: selectors.BaseSelector,
+    key: selectors.SelectorKey,
+) -> None:
+    output = key.data
+    if not isinstance(output, _BuildkitOutput):
+        raise TypeError("BuildKit selector data has an unexpected type")
+    try:
+        chunk = os.read(key.fd, BUILDKIT_OUTPUT_CHUNK_BYTES)
+    except BlockingIOError:
+        return
+    except OSError:
+        _retire_buildkit_stream(selector, key, unavailable_reason="read-failed")
+        return
+    if not chunk:
+        _retire_buildkit_stream(selector, key)
+        return
+    output.append(chunk)
+
+
+def _wait_after_buildkit_termination(
+    process: subprocess.Popen[bytes],
+) -> tuple[int | None, bool]:
+    try:
+        return process.wait(timeout=BUILDKIT_DRAIN_TIMEOUT_SECONDS), False
+    except (OSError, subprocess.TimeoutExpired):
+        return None, True
+
+
+def run_buildkit_build(
+    arguments: Iterable[str],
+    *,
+    replacements: tuple[tuple[str, str], ...],
+    timeout: int = BUILDKIT_BUILD_TIMEOUT_SECONDS,
+) -> None:
+    """Run BuildKit with bounded output and expose only a safe failure projection."""
+    try:
+        process = subprocess.Popen(
+            tuple(arguments),
+            cwd=ROOT,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            start_new_session=True,
+        )
+    except (OSError, ValueError):
+        raise BuildkitBuildError(
+            "gateway BuildKit build failed; process_status=start-failed; "
+            "build_stage=not-started; error_class=process"
+        ) from None
+    if process.stdout is None or process.stderr is None:
+        _terminate_buildkit_process_group(process)
+        _wait_after_buildkit_termination(process)
+        raise BuildkitBuildError(
+            "gateway BuildKit build failed; process_status=stream-unavailable; "
+            "build_stage=unknown; error_class=process"
+        )
+
+    stdout = _BuildkitOutput("stdout")
+    stderr = _BuildkitOutput("stderr")
+    outputs = (stdout, stderr)
+    selector = selectors.DefaultSelector()
+    try:
+        for stream, output in zip(
+            (process.stdout, process.stderr), outputs, strict=True
+        ):
+            os.set_blocking(stream.fileno(), False)
+            selector.register(stream, selectors.EVENT_READ, output)
+    except (OSError, ValueError):
+        _terminate_buildkit_process_group(process)
+        _wait_after_buildkit_termination(process)
+        for stream in (process.stdout, process.stderr):
+            try:
+                stream.close()
+            except OSError:
+                pass
+        selector.close()
+        raise BuildkitBuildError(
+            "gateway BuildKit build failed; process_status=stream-unavailable; "
+            "build_stage=unknown; error_class=process"
+        ) from None
+
+    timed_out = False
+    wait_failed = False
+    drain_failed = False
+    poll_failed = False
+    return_code: int | None = None
+    build_deadline = time.monotonic() + timeout
+    drain_deadline: float | None = None
+    try:
+        while True:
+            if not poll_failed:
+                try:
+                    return_code = process.poll()
+                except OSError:
+                    poll_failed = True
+                    wait_failed = True
+                    _terminate_buildkit_process_group(process)
+                    return_code, termination_failed = _wait_after_buildkit_termination(
+                        process
+                    )
+                    wait_failed = wait_failed or termination_failed
+                    drain_deadline = time.monotonic() + BUILDKIT_DRAIN_TIMEOUT_SECONDS
+
+            now = time.monotonic()
+            if return_code is None and not wait_failed and now >= build_deadline:
+                timed_out = True
+                _terminate_buildkit_process_group(process)
+                return_code, wait_failed = _wait_after_buildkit_termination(process)
+                drain_deadline = time.monotonic() + BUILDKIT_DRAIN_TIMEOUT_SECONDS
+            elif return_code is not None and drain_deadline is None:
+                drain_deadline = now + BUILDKIT_DRAIN_TIMEOUT_SECONDS
+
+            registered = tuple(selector.get_map().values())
+            if return_code is not None and not registered:
+                break
+            if drain_deadline is not None and now >= drain_deadline:
+                drain_failed = bool(registered)
+                if drain_failed:
+                    _terminate_buildkit_process_group(process)
+                    for key in registered:
+                        _retire_buildkit_stream(
+                            selector, key, unavailable_reason="drain-timeout"
+                        )
+                break
+
+            interval = 0.1
+            deadline = drain_deadline if drain_deadline is not None else build_deadline
+            interval = min(interval, max(0.0, deadline - now))
+            if not registered:
+                time.sleep(interval)
+                continue
+            try:
+                events = selector.select(timeout=interval)
+            except (OSError, ValueError):
+                wait_failed = True
+                _terminate_buildkit_process_group(process)
+                for key in registered:
+                    _retire_buildkit_stream(
+                        selector, key, unavailable_reason="selector-failed"
+                    )
+                return_code, termination_failed = _wait_after_buildkit_termination(
+                    process
+                )
+                wait_failed = wait_failed or termination_failed
+                break
+            for key, _ in events:
+                _consume_buildkit_event(selector, key)
+    finally:
+        for key in tuple(selector.get_map().values()):
+            _retire_buildkit_stream(
+                selector, key, unavailable_reason="stream-incomplete"
+            )
+        selector.close()
+
+    stream_failed = any(output.unavailable_reason is not None for output in outputs)
+    if (
+        return_code == 0
+        and not timed_out
+        and not wait_failed
+        and not drain_failed
+        and not stream_failed
+    ):
+        return
+
+    stage, error_class = _buildkit_failure_classification(outputs, replacements)
+    diagnostics = "; ".join(output.diagnostic(replacements) for output in outputs)
+    if timed_out:
+        process_status = f"timed-out timeout_seconds={timeout}"
+    elif wait_failed or drain_failed or stream_failed:
+        process_status = "process-or-stream-failed"
+    else:
+        exit_code = return_code if type(return_code) is int else "unknown"
+        process_status = f"exit-code process_exit_code={exit_code}"
+    raise BuildkitBuildError(
+        f"gateway BuildKit build failed; process_status={process_status}; "
+        f"build_stage={stage}; error_class={error_class}; {diagnostics}"
+    ) from None
+
+
 def run(
     arguments: Iterable[str],
     *,
@@ -5171,7 +5554,15 @@ def build_oci_archive(
             arguments.append("--no-cache")
         arguments.append(str(context))
         try:
-            run(arguments, discard_output=True, timeout=30 * 60)
+            run_buildkit_build(
+                arguments,
+                replacements=(
+                    (str(raw), "[gateway-output]"),
+                    (str(context), "[build-context]"),
+                    (str(ROOT), "[repository-root]"),
+                ),
+                timeout=BUILDKIT_BUILD_TIMEOUT_SECONDS,
+            )
             canonicalise_oci_archive(raw, output)
         finally:
             raw.unlink(missing_ok=True)

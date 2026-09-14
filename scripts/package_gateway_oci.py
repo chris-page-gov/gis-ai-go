@@ -5,12 +5,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 import tempfile
 from pathlib import Path
 
 from jsonschema import Draft202012Validator, FormatChecker
 
 from gateway_image import (
+    BuildkitBuildError,
     RECEIPT_SCHEMA,
     ROOT,
     build_context_inventory,
@@ -41,12 +43,16 @@ def main() -> None:
 
     archive = output / "gateway-image.oci.tar"
     tag = f"gis-ai-go-gateway:deploy-207-{source.revision[:12]}"
-    inspection = build_oci_archive(
-        archive,
-        source=source,
-        platform=args.platform,
-        tag=tag,
-    )
+    try:
+        inspection = build_oci_archive(
+            archive,
+            source=source,
+            platform=args.platform,
+            tag=tag,
+        )
+    except BuildkitBuildError as error:
+        sys.stderr.write(f"{error}\n")
+        raise SystemExit(1) from None
     receipt = make_image_receipt(
         source=source,
         inspection=inspection,
