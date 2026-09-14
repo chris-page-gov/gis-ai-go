@@ -39,6 +39,8 @@ from typing import Any, Callable, Iterable, Iterator, Mapping, Sequence
 from urllib.parse import quote, urlsplit, urlunsplit
 from zoneinfo import ZoneInfo
 
+from codex_key_quarantine import CodexKeyQuarantine
+
 
 # Reuse this module instance when the CLI lazily loads the candidate-scoped
 # verifier; otherwise Python would load a second copy under the import name.
@@ -2181,6 +2183,7 @@ class EvidenceStore:
         self.capture_metadata_bytes = 0
         self.github_capture_started = time.monotonic()
         self.fault_injector = fault_injector
+        self.codex_coverage: dict[str, object] | None = None
 
     def __enter__(self) -> "EvidenceStore":
         initialise_store(self.root)
@@ -3195,6 +3198,7 @@ class EvidenceStore:
             "journal_events": len(self.events),
             "journal_head_sha256": self.events[-1]["event_sha256"] if self.events else None,
             "boundaries": BOUNDARIES,
+            "codex_coverage": self.codex_coverage,
         }
 
 
@@ -5112,6 +5116,7 @@ def stage_codex_user_visible_projection(
     provenance_stat_after: dict[str, int] | None = None,
     source_changed_after_snapshot: bool = False,
     max_projection_bytes: int = MAX_OBJECT_BYTES,
+    quarantine_private_keys: bool = True,
 ) -> CodexProjection:
     """Stream one rollout into a redacted, deterministic, user-visible projection."""
 
@@ -5167,6 +5172,9 @@ def stage_codex_user_visible_projection(
     next_free_space_check = 0
     redaction_totals: dict[str, int] = {}
     unredactable_categories: set[str] = set()
+    # The false setting exists solely to reproduce immutable historical fixtures.
+    # Live capture always uses the selective, cross-record quarantine policy.
+    quarantine = CodexKeyQuarantine() if quarantine_private_keys else None
     authoritative_forked_from_id_sha256: str | None = None
 
     def emit_projection_line(
@@ -5186,7 +5194,15 @@ def stage_codex_user_visible_projection(
         except UnredactableSecretError as error:
             if fallback is None:
                 raise
-            unredactable_categories.add(str(error))
+            if quarantine is None:
+                unredactable_categories.add(str(error))
+            else:
+                # A later normalisation may expose a marker absent from the raw
+                # JSON scan. No subsequent content may cross that uncertain edge.
+                quarantine.force_uncertain()
+                if not isinstance(fallback, dict):
+                    raise EvidenceCaptureError("Codex secret fallback is invalid")
+                fallback["source_type"] = "quarantine-key-span-uncertain"
             redacted, categories, count = redact_projection_bytes(
                 _canonical_codex_projection_json(fallback)
             )
@@ -5242,6 +5258,9 @@ def stage_codex_user_visible_projection(
                 if not prefix:
                     break
                 line_number += 1
+                if quarantine is not None:
+                    quarantine.begin_record()
+                    quarantine.feed(prefix)
                 if prefix.endswith(b"\n"):
                     raw = prefix
                 else:
@@ -5256,9 +5275,16 @@ def stage_codex_user_visible_projection(
                             if not final_chunk:
                                 break
                             consumed += len(final_chunk)
+                            if quarantine is not None:
+                                quarantine.feed(final_chunk)
                             raw_digest.update(final_chunk)
                             line_digest.update(final_chunk)
-                        skipped_type = str(top_level_type)
+                        quarantine_type = (
+                            quarantine.end_record() if quarantine is not None else None
+                        )
+                        if line_number == 1 and quarantine_type is not None:
+                            raise EvidenceCaptureError("Codex authoritative metadata is quarantined")
+                        skipped_type = quarantine_type or str(top_level_type)
                         skipped[skipped_type] = skipped.get(skipped_type, 0) + 1
                         stub = {
                             "record": "excluded-rollout-record",
@@ -5277,6 +5303,8 @@ def stage_codex_user_visible_projection(
                         if not final_chunk:
                             break
                         total += len(final_chunk)
+                        if quarantine is not None:
+                            quarantine.feed(final_chunk)
                         if total > MAX_CODEX_LINE_BYTES:
                             raise EvidenceCaptureError(
                                 "allowed or unknown Codex record exceeds the line boundary"
@@ -5285,6 +5313,23 @@ def stage_codex_user_visible_projection(
                     raw = b"".join(chunks)
                 raw_digest.update(raw)
                 line_sha256 = sha256_bytes(raw)
+                quarantine_type = (
+                    quarantine.end_record() if quarantine is not None else None
+                )
+                if quarantine_type is not None:
+                    if line_number == 1:
+                        raise EvidenceCaptureError("Codex authoritative metadata is quarantined")
+                    skipped[quarantine_type] = skipped.get(quarantine_type, 0) + 1
+                    emit_projection_line(
+                        {
+                            "record": "excluded-rollout-record",
+                            "source_line": line_number,
+                            "source_line_sha256": line_sha256,
+                            "source_bytes": len(raw),
+                            "source_type": quarantine_type,
+                        }
+                    )
+                    continue
                 if not raw.strip():
                     skipped["blank"] = skipped.get("blank", 0) + 1
                     stub = {
@@ -5402,7 +5447,7 @@ def stage_codex_user_visible_projection(
                 if emitted:
                     retained += 1
                 else:
-                    skipped_type = "unredactable-secret:private-key-block"
+                    skipped_type = str(secret_stub["source_type"])
                     skipped[skipped_type] = skipped.get(skipped_type, 0) + 1
         after_fd = os.fstat(source_descriptor)
         after_path = (
@@ -5618,6 +5663,14 @@ def _iter_explicit_codex_records(roots: Sequence[Path]) -> list[CodexSessionReco
     seen_paths: set[Path] = set()
     for root in roots:
         root_metadata = root.lstat()
+        if not root.is_symlink() and stat.S_ISREG(root_metadata.st_mode):
+            if root.suffix != ".jsonl":
+                raise EvidenceCaptureError("explicit Codex source file must be JSONL")
+            resolved = root.resolve(strict=True)
+            if resolved not in seen_paths:
+                seen_paths.add(resolved)
+                records.append(_read_codex_session_record(root))
+            continue
         if root.is_symlink() or not stat.S_ISDIR(root_metadata.st_mode):
             raise EvidenceCaptureError("Codex session root must be an explicit real directory")
         for current, directory_names, file_names in os.walk(root, followlinks=False):
@@ -5914,6 +5967,14 @@ def _reusable_codex_projections(
                 continue
             if (
                 disposition == "excluded"
+                and source_event["disposition"]["reason"]
+                == "unredactable-secret-category:private-key-block"
+            ):
+                # Historical whole-thread exclusions are not the result of the
+                # selective policy. Reconsider once, preserving the old event.
+                continue
+            if (
+                disposition == "excluded"
                 and manifest["schema"] == LEGACY_CODEX_GENERATION_SCHEMA
             ):
                 # Legacy excluded identities were not source-stat-bound. Keep
@@ -5947,6 +6008,48 @@ def _reusable_codex_projections(
         if wanted_paths <= considered_paths:
             break
     return reusable
+
+
+def codex_generation_coverage(manifest: Mapping[str, Any]) -> dict[str, object]:
+    """Path-free coverage facts; archive integrity is not transcript completeness."""
+
+    files = manifest["files"]
+    roots = [item for item in files if item["thread_id"] == manifest["thread_id"]]
+    if not roots:
+        roots = [
+            item for item in files
+            if item["session_id"] == manifest["thread_id"]
+            and item["parent_thread_id"] is None
+        ]
+    if len(roots) != 1:
+        raise EvidenceCaptureError("Codex coverage target is not unique")
+    root = roots[0]
+
+    def quarantined(item: Mapping[str, Any]) -> int:
+        return sum(
+            count for category, count in item["skipped_record_types"].items()
+            if category.startswith("quarantine-key-span-")
+        )
+
+    quarantined_records = sum(quarantined(item) for item in files)
+    excluded_files = sum(item["disposition"] != "captured" for item in files)
+    return {
+        "scope": "explicit-source-inventory-only",
+        "selected_files": len(files),
+        "captured_files": len(files) - excluded_files,
+        "excluded_files": excluded_files,
+        "retained_records": sum(
+            item["retained_records"] for item in files if item["disposition"] == "captured"
+        ),
+        "private_key_quarantined_records": quarantined_records,
+        "root_disposition": root["disposition"],
+        "root_retained_records": (
+            root["retained_records"] if root["disposition"] == "captured" else 0
+        ),
+        "root_private_key_quarantined_records": quarantined(root),
+        "coverage_warning": bool(excluded_files or quarantined_records),
+        "exhaustive_transcript_attested": False,
+    }
 
 
 def capture_codex_thread_closure(
@@ -6392,6 +6495,7 @@ def capture_codex_thread_closure(
         )
         if captures:
             store.commit_capture_batch(captures)
+        store.codex_coverage = codex_generation_coverage(manifest)
         report_progress(
             "commit-complete",
             completed_files=completed_files,
@@ -7639,7 +7743,11 @@ def parser() -> argparse.ArgumentParser:
     value.add_argument("--local-directory", type=Path, action="append", default=[])
     value.add_argument("--redacted-local-jsonl", type=Path, action="append", default=[])
     value.add_argument("--codex-thread-id")
-    value.add_argument("--codex-session-root", type=Path, action="append", default=[])
+    value.add_argument(
+        "--codex-session-root", "--codex-session-file",
+        dest="codex_session_root", type=Path, action="append", default=[],
+        help="explicit directory or JSONL file; file selection supports bounded private recovery",
+    )
     value.add_argument(
         "--codex-reuse-workers",
         type=int,

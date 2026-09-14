@@ -29,9 +29,13 @@ private evidence remains local.
 
 The review edition contains 12 chapters, eight diagrams, a 14-part learning path,
 source-linked code findings and a pseudonymous census of 1,043 task threads.
-The Claude chronology supports at least 12 outcomes, not a complete attempt/cost
-ledger: the original root projection is excluded in every retained generation.
-#86 therefore remains open. [LOCAL-214 #118](https://github.com/chris-page-gov/gis-ai-go/issues/118)
+The Volume 1 Claude chronology supports at least 12 outcomes, not a complete
+attempt/cost ledger. Its retained generations excluded the original root projection.
+The owner has subsequently authorised selective private recovery and source-linked
+indexing. The technical repair preserves safe records, makes quarantine gaps
+explicit and does not authorise publication of the recovered private material.
+Issue #86 is currently closed; that UI state does not establish exhaustive
+attempt or billing coverage. [LOCAL-214 #118](https://github.com/chris-page-gov/gis-ai-go/issues/118)
 defines the next local-edition stages; [IMPROVE-215 #119](https://github.com/chris-page-gov/gis-ai-go/issues/119)
 holds the separate implementation plan. Neither plan has changed runtime behaviour.
 

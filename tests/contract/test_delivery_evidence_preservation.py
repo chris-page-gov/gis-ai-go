@@ -44,6 +44,13 @@ NETWORK_SERVERS_ROOT = "/" + "Network/Servers"
 PRIVATE_KEY_HEADER = "-----BEGIN " + "PRIVATE KEY-----"
 ENCRYPTED_PRIVATE_KEY_HEADER = "-----BEGIN ENCRYPTED " + "PRIVATE KEY-----"
 REAL_CAPTURE_VOLUME_BOUNDARY = capture._require_enforced_volume_ownership
+REAL_CODEX_PROJECTION_STAGE = capture.stage_codex_user_visible_projection
+
+
+def historical_codex_projection(*args: Any, **kwargs: Any) -> capture.CodexProjection:
+    """Reproduce the old whole-thread exclusion in immutable-history fixtures only."""
+    kwargs["quarantine_private_keys"] = False
+    return REAL_CODEX_PROJECTION_STAGE(*args, **kwargs)
 
 
 def private_file(path: Path, raw: bytes) -> Path:
@@ -3823,6 +3830,15 @@ class DeliveryEvidencePreservationTests(unittest.TestCase):
                 with (
                     mock.patch.object(
                         capture,
+                        "stage_codex_user_visible_projection",
+                        side_effect=(
+                            historical_codex_projection
+                            if label == "fallback"
+                            else REAL_CODEX_PROJECTION_STAGE
+                        ),
+                    ),
+                    mock.patch.object(
+                        capture,
                         "_require_codex_projection_final_fixed_point",
                         wraps=capture._require_codex_projection_final_fixed_point,
                     ) as final_guard,
@@ -3846,6 +3862,46 @@ class DeliveryEvidencePreservationTests(unittest.TestCase):
                     guarded["record"],
                 )
                 self.assertTrue(verify.verify_store(case_store)["verified"])
+
+    def test_codex_normalisation_secret_fallback_quarantines_the_remaining_tail(self) -> None:
+        # One JSON string layer hides the marker from the initial lexical pass.
+        # Structured-text normalisation subsequently exposes it to the independent
+        # byte scanner; the current policy must keep the prefix and omit the tail.
+        escaped_marker = "".join(f"\\u{ord(character):04x}" for character in PRIVATE_KEY_HEADER)
+        message = '{"text":"' + escaped_marker + '"}'
+        raw_record = capture.canonical_json(
+            {"type": "event_msg", "payload": {"type": "user_message", "message": message}}
+        )
+        quarantine = capture.CodexKeyQuarantine()
+        quarantine.begin_record()
+        quarantine.feed(raw_record)
+        self.assertIsNone(quarantine.end_record())
+
+        with mock.patch.object(
+            capture,
+            "_require_codex_projection_final_fixed_point",
+            wraps=capture._require_codex_projection_final_fixed_point,
+        ) as final_guard:
+            bundle = self._capture_quarantined_codex_generation(
+                ["SAFE-PREFIX", message, "UNPROVEN-NORMALISATION-SUFFIX"]
+            )
+        final_guard.assert_called_once()
+        guarded = capture.parse_json(final_guard.call_args.args[0], "normalisation fallback")
+        self.assertEqual("excluded-rollout-record", guarded["record"])
+        self.assertEqual("quarantine-key-span-uncertain", guarded["source_type"])
+        values = self._projection_values(bundle)
+        text = json.dumps(values)
+        self.assertIn("SAFE-PREFIX", text)
+        self.assertNotIn("UNPROVEN-NORMALISATION-SUFFIX", text)
+        self.assertNotIn(PRIVATE_KEY_HEADER, text)
+        self.assertNotIn(escaped_marker, text)
+        self.assertEqual("captured", bundle["manifest_item"]["disposition"])
+        self.assertEqual(2, bundle["manifest_item"]["retained_records"])
+        self.assertEqual(
+            {"quarantine-key-span-uncertain": 1, "quarantine-key-span-continue": 1},
+            bundle["manifest_item"]["skipped_record_types"],
+        )
+        self.assertTrue(verify.verify_store(self.store)["verified"])
 
     def test_final_codex_guard_needs_one_normalisation(self) -> None:
         value = {"message": "safe visible output"}
@@ -4861,10 +4917,15 @@ class DeliveryEvidencePreservationTests(unittest.TestCase):
                 raise RuntimeError("synthetic closure batch crash")
 
         with self.assertRaisesRegex(RuntimeError, "closure batch crash"):
-            with capture.private_umask(), capture.EvidenceStore(
-                self.store,
-                fault_injector=inject,
-            ) as store:
+            with (
+                mock.patch.object(
+                    capture,
+                    "stage_codex_user_visible_projection",
+                    side_effect=historical_codex_projection,
+                ),
+                capture.private_umask(),
+                capture.EvidenceStore(self.store, fault_injector=inject) as store,
+            ):
                 capture.capture_codex_thread_closure(
                     store,
                     thread_id="root-thread",
@@ -4926,7 +4987,7 @@ class DeliveryEvidencePreservationTests(unittest.TestCase):
                 filesystem_type_function=apfs,
             )
         self.assertEqual(2, captured)
-        self.assertEqual(5, len(self.journal()))
+        self.assertEqual(6, len(self.journal()))
         self.assertTrue(verify.verify_store(self.store)["verified"])
 
     def test_verifier_rejects_projection_without_completion_manifest(self) -> None:
@@ -4984,7 +5045,12 @@ class DeliveryEvidencePreservationTests(unittest.TestCase):
         with self.assertRaisesRegex(verify.EvidenceVerificationError, "partial"):
             verify.verify_store(self.store)
 
-    def _capture_minimal_codex_generation(self) -> dict[str, object]:
+    def _capture_minimal_codex_generation(
+        self,
+        *,
+        session_id: str = "root-thread",
+        target_id: str = "root-thread",
+    ) -> dict[str, object]:
         sessions = self.root / "minimal-codex-sessions"
         sessions.mkdir(mode=0o700)
         source = sessions / "root.jsonl"
@@ -4997,7 +5063,7 @@ class DeliveryEvidencePreservationTests(unittest.TestCase):
                         "type": "session_meta",
                         "payload": {
                             "id": "root-thread",
-                            "session_id": "root-thread",
+                            "session_id": session_id,
                             "timestamp": "2026-08-30T08:00:00Z",
                         },
                     },
@@ -5012,7 +5078,7 @@ class DeliveryEvidencePreservationTests(unittest.TestCase):
         with capture.private_umask(), capture.EvidenceStore(self.store) as store:
             capture.capture_codex_thread_closure(
                 store,
-                thread_id="root-thread",
+                thread_id=target_id,
                 session_roots=[sessions],
                 trigger="pre-compaction",
                 clone_function=fake_clone,
@@ -5043,6 +5109,71 @@ class DeliveryEvidencePreservationTests(unittest.TestCase):
             "manifest": manifest,
             "manifest_item": manifest["files"][0],
         }
+
+    def test_codex_coverage_accepts_a_unique_root_session_alias(self) -> None:
+        bundle = self._capture_minimal_codex_generation(
+            session_id="root-session-alias", target_id="root-session-alias"
+        )
+        self.assertEqual("root-session-alias", bundle["manifest"]["thread_id"])
+        self.assertEqual("root-thread", bundle["manifest_item"]["thread_id"])
+        self.assertEqual("root-session-alias", bundle["manifest_item"]["session_id"])
+        self.assertIsNone(bundle["manifest_item"]["parent_thread_id"])
+        coverage = capture.codex_generation_coverage(bundle["manifest"])
+        self.assertEqual("captured", coverage["root_disposition"])
+        self.assertEqual(2, coverage["root_retained_records"])
+        self.assertEqual(1, coverage["selected_files"])
+        self.assertEqual(0, coverage["root_private_key_quarantined_records"])
+        self.assertFalse(coverage["coverage_warning"])
+        self.assertFalse(coverage["exhaustive_transcript_attested"])
+        result = verify.verify_store(self.store)
+        self.assertTrue(result["verified"])
+        self.assertEqual([coverage], result["codex_latest_coverage"])
+
+    def test_codex_coverage_rejects_same_size_manifest_mutation_after_verification(self) -> None:
+        bundle = self._capture_minimal_codex_generation()
+        manifest_digest = bundle["manifest_event"]["objects"][0]["sha256"]
+        manifest_path = bundle["observed"][manifest_digest]
+        original_bytes = manifest_path.read_bytes()
+        changed_bytes = original_bytes.replace(
+            b'"retained_records": 2', b'"retained_records": 9', 1
+        )
+        self.assertNotEqual(original_bytes, changed_bytes)
+        self.assertEqual(len(original_bytes), len(changed_bytes))
+        original_verification = verify._verify_codex_generations
+        original_read = verify._read_codex_manifest
+        main_verification_finished = False
+        coverage_mutations = 0
+
+        def finish_main_verification(*args: Any, **kwargs: Any) -> object:
+            nonlocal main_verification_finished
+            result = original_verification(*args, **kwargs)
+            main_verification_finished = True
+            return result
+
+        def mutate_before_coverage_read(
+            path: Path, expected_bytes: object, *, read_descriptor: int | None = None
+        ) -> bytes:
+            nonlocal coverage_mutations
+            if main_verification_finished and path == manifest_path:
+                coverage_mutations += 1
+                private_file(path, changed_bytes)
+            return original_read(path, expected_bytes, read_descriptor=read_descriptor)
+
+        with (
+            mock.patch.object(
+                verify, "_verify_codex_generations", side_effect=finish_main_verification
+            ),
+            mock.patch.object(
+                verify, "_read_codex_manifest", side_effect=mutate_before_coverage_read
+            ),
+        ):
+            with self.assertRaisesRegex(
+                verify.EvidenceVerificationError,
+                "coverage manifest changed after verification",
+            ):
+                verify.verify_store(self.store)
+        self.assertTrue(main_verification_finished)
+        self.assertEqual(1, coverage_mutations)
 
     def _projection_values(self, bundle: dict[str, object]) -> list[dict[str, object]]:
         item = bundle["manifest_item"]
@@ -5782,11 +5913,239 @@ class DeliveryEvidencePreservationTests(unittest.TestCase):
         )
         return sessions, source
 
-    def test_unchanged_all_excluded_generation_is_a_repeatable_no_op(self) -> None:
+    def _capture_quarantined_codex_generation(
+        self,
+        messages: list[str],
+        *,
+        file_only: bool = False,
+    ) -> dict[str, object]:
+        """Capture synthetic visible records, retaining their exact source bindings."""
+        sessions = self.root / "quarantine-codex-sessions"
+        sessions.mkdir(mode=0o700)
+        source = sessions / "root.jsonl"
+        records = [
+            {
+                "timestamp": "2026-08-30T08:00:00Z",
+                "type": "session_meta",
+                "payload": {
+                    "id": "root-thread",
+                    "session_id": "root-thread",
+                    "timestamp": "2026-08-30T08:00:00Z",
+                },
+            },
+            *[
+                {
+                    "type": "event_msg",
+                    "payload": {"type": "user_message", "message": message},
+                }
+                for message in messages
+            ],
+        ]
+        source_lines = [capture.canonical_json(value) for value in records]
+        private_file(source, b"".join(source_lines))
+        if file_only:
+            # A broken adjacent rollout must not widen a file-only recovery.
+            private_file(sessions / "unselected.jsonl", b"invalid adjacent session\n")
+        with capture.private_umask(), capture.EvidenceStore(self.store) as store:
+            capture.capture_codex_thread_closure(
+                store,
+                thread_id="root-thread",
+                session_roots=[source, source] if file_only else [sessions],
+                trigger="pre-compaction",
+                clone_function=fake_clone,
+                filesystem_type_function=apfs,
+            )
+        events = self.journal()
+        observed = verify._object_paths(self.store)
+        projection_event = events[0]
+        manifest_event = events[-1]
+        manifest = capture.parse_json(
+            observed[manifest_event["objects"][0]["sha256"]].read_bytes(),
+            "synthetic quarantine generation manifest",
+        )
+        return {
+            "events": events,
+            "observed": observed,
+            "projection_event": projection_event,
+            "manifest_event": manifest_event,
+            "manifest": manifest,
+            "manifest_item": manifest["files"][0],
+            "source": source,
+            "source_lines": source_lines,
+        }
+
+    def test_codex_private_key_quarantine_retains_safe_root_prefix_and_suffix(self) -> None:
+        footer = "-----END " + "PRIVATE KEY-----"
+        bundle = self._capture_quarantined_codex_generation(
+            [
+                "SAFE-PREFIX: first authorised attempt",
+                f"{PRIVATE_KEY_HEADER}\nSYNTHETIC-KEY-CONTENT\n{footer}",
+                "SAFE-SUFFIX: recorded outcome",
+            ]
+        )
+        values = self._projection_values(bundle)
+        text = json.dumps(values)
+        self.assertIn("SAFE-PREFIX", text)
+        self.assertIn("SAFE-SUFFIX", text)
+        for excluded in (PRIVATE_KEY_HEADER, footer, "SYNTHETIC-KEY-CONTENT"):
+            self.assertNotIn(excluded, text)
+        self.assertEqual("captured", bundle["projection_event"]["disposition"]["status"])
+        self.assertEqual("captured", bundle["manifest_item"]["disposition"])
+        self.assertEqual(3, bundle["manifest_item"]["retained_records"])
+        self.assertEqual(
+            {"quarantine-key-span-single": 1},
+            bundle["manifest_item"]["skipped_record_types"],
+        )
+        stub = next(value for value in values if value.get("source_line") == 3)
+        self.assertEqual(
+            {
+                "record": "excluded-rollout-record",
+                "source_line": 3,
+                "source_line_sha256": capture.sha256_bytes(bundle["source_lines"][2]),
+                "source_bytes": len(bundle["source_lines"][2]),
+                "source_type": "quarantine-key-span-single",
+            },
+            stub,
+        )
+        self.assertEqual(b"".join(bundle["source_lines"]), bundle["source"].read_bytes())
+        coverage = capture.codex_generation_coverage(bundle["manifest"])
+        self.assertEqual("captured", coverage["root_disposition"])
+        self.assertEqual(3, coverage["root_retained_records"])
+        self.assertEqual(1, coverage["root_private_key_quarantined_records"])
+        self.assertTrue(coverage["coverage_warning"])
+        self.assertFalse(coverage["exhaustive_transcript_attested"])
+        self.assertTrue(verify.verify_store(self.store)["verified"])
+
+    def test_codex_private_key_quarantine_spans_records_then_resumes_safe_suffix(self) -> None:
+        footer = "-----END " + "PRIVATE KEY-----"
+        bundle = self._capture_quarantined_codex_generation(
+            [
+                "SAFE-PREFIX", PRIVATE_KEY_HEADER, "SYNTHETIC-SPLIT-BODY",
+                footer, "SAFE-SUFFIX",
+            ]
+        )
+        values = self._projection_values(bundle)
+        stubs = [
+            value for value in values if value.get("record") == "excluded-rollout-record"
+        ]
+        self.assertEqual(
+            [
+                "quarantine-key-span-open", "quarantine-key-span-continue",
+                "quarantine-key-span-close",
+            ],
+            [value["source_type"] for value in stubs],
+        )
+        self.assertEqual([3, 4, 5], [value["source_line"] for value in stubs])
+        for stub in stubs:
+            raw = bundle["source_lines"][stub["source_line"] - 1]
+            self.assertEqual(capture.sha256_bytes(raw), stub["source_line_sha256"])
+            self.assertEqual(len(raw), stub["source_bytes"])
+            self.assertNotIn("payload", stub)
+        text = json.dumps(values)
+        self.assertIn("SAFE-PREFIX", text)
+        self.assertIn("SAFE-SUFFIX", text)
+        self.assertNotIn("SYNTHETIC-SPLIT-BODY", text)
+        self.assertEqual(3, bundle["manifest_item"]["retained_records"])
+        self.assertTrue(verify.verify_store(self.store)["verified"])
+
+    def test_codex_private_key_uncertain_tail_retains_no_later_content(self) -> None:
+        bundle = self._capture_quarantined_codex_generation(
+            [
+                "SAFE-PREFIX",
+                "-----BEGIN " + "PRIVATE KEY",
+                "SYNTHETIC-UNCERTAIN-BODY",
+                "-----END " + "PRIVATE KEY-----",
+                "UNPROVEN-SAFE-SUFFIX",
+            ]
+        )
+        values = self._projection_values(bundle)
+        text = json.dumps(values)
+        self.assertIn("SAFE-PREFIX", text)
+        self.assertNotIn("SYNTHETIC-UNCERTAIN-BODY", text)
+        self.assertNotIn("UNPROVEN-SAFE-SUFFIX", text)
+        tail = [value for value in values if value.get("source_line", 0) >= 3]
+        self.assertEqual(4, len(tail))
+        self.assertEqual(
+            ["quarantine-key-span-uncertain", *["quarantine-key-span-continue"] * 3],
+            [value["source_type"] for value in tail],
+        )
+        self.assertTrue(all(value["record"] == "excluded-rollout-record" for value in tail))
+        self.assertTrue(all("payload" not in value for value in tail))
+        self.assertEqual(2, bundle["manifest_item"]["retained_records"])
+        self.assertTrue(verify.verify_store(self.store)["verified"])
+
+    def test_codex_verifier_rejects_retained_payload_inside_open_key_quarantine(self) -> None:
+        footer = "-----END " + "PRIVATE KEY-----"
+        bundle = self._capture_quarantined_codex_generation(
+            [
+                "SAFE-PREFIX", PRIVATE_KEY_HEADER, "SYNTHETIC-SPLIT-BODY",
+                footer, "SAFE-SUFFIX",
+            ]
+        )
+        values = self._projection_values(bundle)
+        retained_template = next(
+            value
+            for value in values
+            if value.get("record") == "projected-rollout-record"
+            and value.get("source_type") == "event_msg"
+        )
+        index = next(
+            index for index, value in enumerate(values) if value.get("source_line") == 4
+        )
+        injected = {
+            **values[index], "record": "projected-rollout-record", "source_type": "event_msg"
+        }
+        injected["payload"] = json.loads(json.dumps(retained_template["payload"]))
+        values[index] = injected
+        # Keep all aggregate counts and hashes consistent, isolating the state gate.
+        values[-1]["retained_records"] += 1
+        del values[-1]["skipped_record_types"]["quarantine-key-span-continue"]
+        path, item = self._write_projection_variant(
+            values, bundle["manifest_item"], "injected-open-quarantine.jsonl.gz"
+        )
+        item["retained_records"] += 1
+        del item["skipped_record_types"]["quarantine-key-span-continue"]
+        with self.assertRaisesRegex(
+            verify.EvidenceVerificationError, "crosses an open private-key quarantine"
+        ):
+            verify._verify_codex_projection(path, item, bundle["projection_event"])
+
+    def test_codex_explicit_jsonl_file_recovery_does_not_inventory_adjacent_sessions(self) -> None:
+        with mock.patch.object(
+            capture, "_read_codex_session_record", wraps=capture._read_codex_session_record
+        ) as read_session:
+            bundle = self._capture_quarantined_codex_generation(
+                ["SAFE-SELECTED-ROOT"], file_only=True
+            )
+        self.assertEqual(2, read_session.call_count)
+        self.assertTrue(
+            all(call.args == (bundle["source"],) for call in read_session.call_args_list)
+        )
+        self.assertEqual(1, len(bundle["manifest"]["files"]))
+        self.assertIn("SAFE-SELECTED-ROOT", json.dumps(self._projection_values(bundle)))
+        self.assertTrue(verify.verify_store(self.store)["verified"])
+
+        wrong_extension = private_file(self.root / "not-a-rollout.txt", b"synthetic\n")
+        with self.assertRaisesRegex(capture.EvidenceCaptureError, "source file must be JSONL"):
+            capture._iter_explicit_codex_records([wrong_extension])
+        linked = self.root / "linked-rollout.jsonl"
+        linked.symlink_to(bundle["source"])
+        with self.assertRaises(capture.EvidenceCaptureError):
+            capture._iter_explicit_codex_records([linked])
+
+    def test_unchanged_all_excluded_generation_is_reprojected_once_then_no_op(self) -> None:
         sessions, _source = self._write_all_excluded_codex_session(
             "all-excluded-sessions"
         )
-        with capture.private_umask(), capture.EvidenceStore(self.store) as store:
+        with (
+            mock.patch.object(
+                capture,
+                "stage_codex_user_visible_projection",
+                side_effect=historical_codex_projection,
+            ),
+            capture.private_umask(),
+            capture.EvidenceStore(self.store) as store,
+        ):
             capture.capture_codex_thread_closure(
                 store,
                 thread_id="root-thread",
@@ -5800,12 +6159,26 @@ class DeliveryEvidencePreservationTests(unittest.TestCase):
             ["excluded", "captured"],
             [event["disposition"]["status"] for event in before],
         )
+        with capture.private_umask(), capture.EvidenceStore(self.store) as store:
+            capture.capture_codex_thread_closure(
+                store,
+                thread_id="root-thread",
+                session_roots=[sessions],
+                trigger="daily-safety-sweep",
+                clone_function=fake_clone,
+                filesystem_type_function=apfs,
+            )
+        recovered = self.journal()
+        self.assertEqual(before, recovered[: len(before)])
+        self.assertEqual(4, len(recovered))
+        self.assertEqual("captured", recovered[-2]["disposition"]["status"])
+        self.assertEqual(1, len(recovered[-2]["objects"]))
         progress: list[dict[str, object]] = []
         with (
             mock.patch.object(
                 capture,
                 "stage_codex_user_visible_projection",
-                side_effect=AssertionError("current excluded projection must be reused"),
+                side_effect=AssertionError("current selective projection must be reused"),
             ),
             capture.private_umask(),
             capture.EvidenceStore(self.store) as store,
@@ -5820,7 +6193,7 @@ class DeliveryEvidencePreservationTests(unittest.TestCase):
                 progress_function=lambda value: progress.append(dict(value)),
             )
             summary = store.summary()
-        self.assertEqual(before, self.journal())
+        self.assertEqual(recovered, self.journal())
         self.assertGreaterEqual(summary["no_op"], 2)
         self.assertEqual("commit-complete", progress[-1]["stage"])
         self.assertEqual(1, progress[-1]["reused_files"])
@@ -5830,7 +6203,15 @@ class DeliveryEvidencePreservationTests(unittest.TestCase):
         sessions, source = self._write_all_excluded_codex_session(
             "replaced-excluded-sessions"
         )
-        with capture.private_umask(), capture.EvidenceStore(self.store) as store:
+        with (
+            mock.patch.object(
+                capture,
+                "stage_codex_user_visible_projection",
+                side_effect=historical_codex_projection,
+            ),
+            capture.private_umask(),
+            capture.EvidenceStore(self.store) as store,
+        ):
             capture.capture_codex_thread_closure(
                 store,
                 thread_id="root-thread",
@@ -5858,13 +6239,18 @@ class DeliveryEvidencePreservationTests(unittest.TestCase):
             )
 
         events = self.journal()
-        excluded = [
+        projections = [
             event
             for event in events
-            if event["disposition"]["status"] == "excluded"
+            if event["source"]["kind"] == "codex-user-visible-projection"
         ]
-        self.assertEqual(2, len(excluded))
-        identities = [event["source"]["identity"] for event in excluded]
+        self.assertEqual(2, len(projections))
+        self.assertEqual(
+            ["excluded", "captured"],
+            [event["disposition"]["status"] for event in projections],
+        )
+        self.assertEqual(first_events, events[: len(first_events)])
+        identities = [event["source"]["identity"] for event in projections]
         self.assertEqual(2, len(set(identities)))
         self.assertTrue(all("source-stat-sha256:" in value for value in identities))
         self.assertTrue(verify.verify_store(self.store, workers=2)["verified"])
@@ -5912,6 +6298,11 @@ class DeliveryEvidencePreservationTests(unittest.TestCase):
                 capture,
                 "_codex_excluded_projection_identity",
                 side_effect=legacy_identity,
+            ),
+            mock.patch.object(
+                capture,
+                "stage_codex_user_visible_projection",
+                side_effect=historical_codex_projection,
             ),
             capture.private_umask(),
             capture.EvidenceStore(self.store) as store,
@@ -5969,6 +6360,7 @@ class DeliveryEvidencePreservationTests(unittest.TestCase):
         v2_events = self.journal()
         self.assertEqual(4, len(v2_events))
         self.assertEqual(legacy_events, v2_events[: len(legacy_events)])
+        self.assertEqual("captured", v2_events[-2]["disposition"]["status"])
         self.assertIn("source-stat-sha256:", v2_events[-2]["source"]["identity"])
         self.assertTrue(verify.verify_store(self.store, workers=2)["verified"])
 
@@ -6098,6 +6490,11 @@ class DeliveryEvidencePreservationTests(unittest.TestCase):
                 "_codex_excluded_projection_identity",
                 side_effect=legacy_identity,
             ),
+            mock.patch.object(
+                capture,
+                "stage_codex_user_visible_projection",
+                side_effect=historical_codex_projection,
+            ),
             capture.private_umask(),
             capture.EvidenceStore(self.store) as store,
         ):
@@ -6111,6 +6508,7 @@ class DeliveryEvidencePreservationTests(unittest.TestCase):
             )
         legacy_events = self.journal()
         self.assertEqual(3, len(legacy_events))
+        self.assertTrue(verify.verify_store(self.store, workers=2)["verified"])
 
         progress: list[dict[str, object]] = []
         with capture.private_umask(), capture.EvidenceStore(self.store) as store:
@@ -6128,7 +6526,7 @@ class DeliveryEvidencePreservationTests(unittest.TestCase):
         self.assertEqual(legacy_events, migrated_events[: len(legacy_events)])
         self.assertEqual(5, len(migrated_events))
         self.assertEqual(1, progress[-1]["reused_files"])
-        self.assertEqual("excluded", migrated_events[-2]["disposition"]["status"])
+        self.assertEqual("captured", migrated_events[-2]["disposition"]["status"])
         self.assertIn(
             "source-stat-sha256:",
             migrated_events[-2]["source"]["identity"],
