@@ -161,7 +161,7 @@ export interface DirectRequestAbortBridge {
   readonly close: () => void;
 }
 
-class BodyReadError extends Error {
+export class BodyReadError extends Error {
   public constructor(public readonly failure: BodyFailure) {
     super(failure);
     this.name = "BodyReadError";
@@ -461,7 +461,7 @@ function allowedMcpOrigins(configured: readonly string[]): ReadonlySet<string> {
   return origins;
 }
 
-function declaredLength(request: IncomingMessage, maximum: number): number | undefined {
+export function declaredLength(request: IncomingMessage, maximum: number): number | undefined {
   const value = request.headers["content-length"];
   if (value === undefined) return undefined;
   if (!/^(?:0|[1-9][0-9]*)$/u.test(value)) throw new BodyReadError("malformed");
@@ -471,7 +471,7 @@ function declaredLength(request: IncomingMessage, maximum: number): number | und
   return parsed;
 }
 
-async function readBoundedBody(
+export async function readBoundedBody(
   request: IncomingMessage,
   maximum: number,
 ): Promise<Uint8Array> {

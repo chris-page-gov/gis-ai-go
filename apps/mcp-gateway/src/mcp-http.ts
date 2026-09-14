@@ -21,6 +21,8 @@ import type { GovernedCandidateAssembly } from "./governed-assembly.js";
 import { snapshotGovernedCandidateOptions } from "./governed-assembly.js";
 import { withMcpHttpDataQuerySignal } from "./mcp-request-signal.js";
 import { BoundedJsonError, parseBoundedJsonBytes } from "./http-app.js";
+import type { Web216CpihApplication } from "./web216-cpih-application.js";
+import { createWeb216CpihMcpServerFactory } from "./web216-cpih-mcp.js";
 
 const HEADER_MISMATCH = -32_020;
 const TRANSPORT_ERROR = -32_000;
@@ -177,7 +179,11 @@ async function prepareBody(
       if (item.value !== undefined) {
         length += item.value.byteLength;
         if (length > MCP_HTTP_MAX_STANDALONE_BODY_BYTES) {
-          await reader.cancel();
+          // clone() tees the stream: awaiting cancellation of only this reader
+          // waits for the untouched original branch and can prevent the 413.
+          // Cancel both branches without letting producer cleanup delay refusal.
+          void reader.cancel().catch(() => undefined);
+          void request.body?.cancel().catch(() => undefined);
           return {
             response: errorResponse(
               413,
@@ -298,17 +304,18 @@ function rejectMissingModernProtocolHeader(
 }
 
 function isDataQueryCall(request: Request, body: unknown): boolean {
+  const name = request.headers.get("mcp-name");
   if (
     request.method.toUpperCase() !== "POST" ||
     request.headers.get("mcp-protocol-version") !== MCP_PROTOCOL_VERSION ||
     request.headers.get("mcp-method") !== "tools/call" ||
-    request.headers.get("mcp-name") !== "data.query" ||
+    (name !== "data.query" && name !== "web216_cpih_query") ||
     !isModernRequest(body) ||
     body.method !== "tools/call"
   ) {
     return false;
   }
-  if (!isPlainObject(body.params) || body.params.name !== "data.query") return false;
+  if (!isPlainObject(body.params) || body.params.name !== name) return false;
   const meta = body.params._meta;
   if (!isPlainObject(meta)) return false;
   const clientCapabilities = meta["io.modelcontextprotocol/clientCapabilities"];
@@ -363,6 +370,35 @@ export function createGovernedCandidateMcpHttpHandler(
     createGovernedCandidateMcpServerFactory(assembly, exactOptions),
     exactOptions.onerror,
   );
+}
+
+/**
+ * Inactive loopback-only Fetch face for the separately branded CPIH experiment.
+ * This opens no port. A future Node listener still owns concurrency, timeouts and
+ * socket-level Host validation; it cannot infer activation from this constructor.
+ */
+export function createWeb216CpihMcpHttpHandler(
+  application: Web216CpihApplication,
+): McpHttpHandler {
+  const handler = createBoundedMcpHttpHandler(createWeb216CpihMcpServerFactory(application), undefined);
+  return {
+    ...handler,
+    fetch: (request) => {
+      const url = new URL(request.url);
+      const host = request.headers.get("host");
+      const origin = request.headers.get("origin");
+      if (url.protocol !== "http:" || url.host !== "127.0.0.1:8788" ||
+          url.username !== "" || url.password !== "" || url.pathname !== "/mcp" ||
+          url.search !== "" || url.hash !== "" ||
+          (host !== null && host !== url.host) || (origin !== null && origin !== url.origin)) {
+        return Promise.resolve(errorResponse(403, TRANSPORT_ERROR, "Experimental MCP ingress rejected", {
+          reason: "experimental_loopback_boundary",
+        }));
+      }
+      // Always parse the actual bounded wire bytes; no caller-supplied parsed body.
+      return handler.fetch(request);
+    },
+  };
 }
 
 function createBoundedMcpHttpHandler(

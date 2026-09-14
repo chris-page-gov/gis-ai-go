@@ -306,3 +306,80 @@ of drift in every pinned runtime before child execution. No historical observed
 artefact, scenario outcome or release boundary was rewritten. These sequential
 failures document cross-suite source-binding maintenance costs, not failed Claude
 observations or a reason to remove the bindings.
+
+## Accepted component checkpoints and local browser journey
+
+PR #129 was squash-merged at `2026-09-14T16:50:54Z` as
+`806fdcc5b39cee75c6a9144ffa18cc92a66bfc2a`. Protected-main CI
+[34871132679](https://github.com/chris-page-gov/gis-ai-go/actions/runs/34871132679)
+and CodeQL [34871132304](https://github.com/chris-page-gov/gis-ai-go/actions/runs/34871132304)
+completed successfully. PR #130 was squash-merged at `2026-09-14T17:28:47Z` as
+`f4b1a90d64b4aea4c6be3f4b08bcbee1cdfe68ec`; complete CI
+[34874999240](https://github.com/chris-page-gov/gis-ai-go/actions/runs/34874999240)
+and CodeQL [34874999775](https://github.com/chris-page-gov/gis-ai-go/actions/runs/34874999775)
+passed, including independent image derivation and attestation verification.
+
+The next increment adds a separately named local workbench on port 8788, leaving
+the supported candidate's port 8787, default inactive operations, Site `/demo` and
+release boundaries unchanged. One reused agent implemented the closed three-tool
+MCP transport, bounded listener and retained state launcher. The main model built
+the seven-record browser projection, accessible manual controls and four page tools.
+A second reused agent independently reviewed the runtime; another reviewed the
+browser controller and assurance integration. These are bounded assignments,
+not hundreds of concurrent agents or human-authored agent definitions.
+
+Review found and corrected four browser issues: delayed selection could restore
+an old month; returned periods and inspection receipt IDs were not bound tightly
+enough; inherited object properties could reach the search postings lookup; and a
+failed page-tool search could leave stale result cards. Thirteen focused controller
+tests passed after correction. Browser values are never taken from the metadata
+projection or invented by the front end.
+
+Real-loopback and retained-state tests covered the three MCP tools, wire schemas,
+Host/Origin admission, bounded assets and request bodies, corrupt-state readiness,
+duplicate requests and restart. The production Vite build exposed a separate
+integration error before publication: its `./assets/…` references were stricter
+than the listener's accepted spelling. The listener now normalises only the two
+approved root/relative asset forms while rejecting traversal, query, fragment,
+external and bare paths. Both real built assets returned exact bytes. A shared
+request-clone overflow cancellation hang was also fixed, with an existing
+catalogue-path regression; no input limit was relaxed.
+
+The root model exercised all four real page tools in the in-app browser: metadata
+search, July selection, retrieval of `142.7` and inspection of the same persisted
+record. Exact JSON serialisation matched between retrieval and inspection, and
+again after graceful server restart. The manual in-app path returned January
+`139.4`. Chrome `153.0.8010.36` returned July `142.7`; Edge `153.0.4234.32` returned
+and inspected July. Installed versions were read from application metadata. Both
+external-browser connections lacked a callable WebMCP capability, despite the
+page reporting four registrations. No Gemini or Copilot success is inferred.
+
+Four invalid real page-tool calls were rejected: too many normalised terms,
+unsupported month, unissued plan ID and missing receipt ID. The old matches were
+cleared after the invalid search. No external provider or model API request was
+introduced by these local tools. The conversation's own model usage is not zero;
+an attributable currency total is not available from this observation.
+
+The private source-time record retains original viewport screenshots and the
+actual page-tool outputs. A malformed full-page stitched screenshot was retained
+but excluded from the public illustrations. Narrow/desktop checks found no
+horizontal document overflow at effective CSS widths 325/1,200; these are not
+full accessibility or user-research certification. The first graceful-stop
+command hit the sandbox permission boundary; an attempted second launcher failed
+closed on the occupied port. A narrowly authorised stop then succeeded, followed
+by the successful retained-receipt restart check. No unrelated process was stopped.
+
+The browser observations used an explicitly unattested working-tree build based
+on `1f9fc53f91578ec1d86bbe01841869c41c393a31`, not the later exact accepted source.
+Lifecycle output distinguished checkout HEAD from runtime/static attestation.
+The final production front-end build passed. Independent review found its build
+missing from the canonical browser-build chain; the new package was added without
+removing either existing build. Typechecking and unit-test routing were already
+present. Canonical PR and protected-main acceptance remain required.
+
+The [illustrated local walkthrough](../implementation/WEB-216_LOCAL_WORKBENCH_WALKTHROUGH.md)
+and [OS/ONS observation record](../implementation/WEB-216_OS_ONS_SOURCE_OBSERVATIONS.md)
+separate the now-observed local path from unfinished real geography and hosted
+persistence. Read-only source inspection found no accessible, provenance-complete
+MSOA polygon payload. The unavailable external cache and postcode best-fit
+lookups cannot be substituted for the missing point-in-polygon evidence.

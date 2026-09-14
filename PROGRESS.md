@@ -29,11 +29,18 @@ two HTTP 200 responses; the full captured series passes the new offline validato
 This is empirical API evidence, not a new live MCP operation or Site deployment.
 The retired `cpih01` source is explicitly distinguished from maintained L522/MM23.
 PR #128 is accepted at `4c8e6144dfb02ea5d9dcf4cb34fbe34f36529f3e`, with complete
-protected-main CI and CodeQL passing. PR #129's geography/storage experiments
-remain gated on its corrected exact-head assurance. The next inactive CPIH
-[contract/application increment](docs/implementation/WEB-216_CPIH_CONTRACTS.md)
-adds verified durable evidence and replay without activating a server or Site;
-M3's MCP wire and browser journey remain to be completed.
+protected-main CI and CodeQL passing. PR #129 is accepted at
+`806fdcc5b39cee75c6a9144ffa18cc92a66bfc2a`; PR #130's closed CPIH contracts and
+application are accepted at `f4b1a90d64b4aea4c6be3f4b08bcbee1cdfe68ec`. Both
+complete protected-main CI and CodeQL runs passed. The separate local workbench
+increment has demonstrated genuine in-app-browser page tools calling MCP,
+durable July retrieval/inspection, and identical receipt inspection after restart.
+Manual January retrieval and Chrome/Edge July retrieval also passed. This working
+tree observation is not an accepted-build attestation or hosted capability claim.
+See the [local walkthrough](docs/implementation/WEB-216_LOCAL_WORKBENCH_WALKTHROUGH.md).
+The OS Open Names Warwick point is captured; ONS boundary metadata succeeded but
+both bounded point queries timed out. A real MSOA join and hosted persistence
+acceptance remain open. No new Site deployment or supported release has occurred.
 See the [retrieval experiment](docs/implementation/WEB-216_ONS_RETRIEVAL_EXPERIMENT.md), the
 [work package](docs/implementation/WEB-216_PUBLIC_DATA_WORKBENCH.md),
 [experiment protocol](docs/implementation/WEB-216_EXPERIMENTS.md) and

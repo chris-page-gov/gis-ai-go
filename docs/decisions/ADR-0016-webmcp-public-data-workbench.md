@@ -1,6 +1,6 @@
 # ADR-0016: experimental public-data workbench
 
-- status: accepted for inactive experimental contracts; activation acceptance remains open
+- status: accepted experimental boundary; local activation implementation under assurance
 - date: 14 September 2026
 - decision owner: Chris Page
 - work item: [WEB-216 #125](https://github.com/chris-page-gov/gis-ai-go/issues/125)
@@ -112,5 +112,14 @@ equivalents. No paid commitment or protected-data access is authorised by this A
 6. Independent review and canonical PR/protected-main assurance before acceptance;
    later hosting, deployment and rollback evidence before a hosted capability claim.
 
-This decision defines the implementation boundary. Inactive contracts and passing
-component tests must not be presented as an activated or completed workbench.
+The separately named local launcher binds exactly `127.0.0.1:8788`, serves its
+admitted static assets and three experimental MCP tools, and retains a separate
+owner-only evidence store. It has no arguments or provider configuration. The
+browser registers four page tools, including local discovery; the supported
+five-tool candidate on port 8787 and the old two-tool Site remain unchanged.
+
+The [local walkthrough](../implementation/WEB-216_LOCAL_WORKBENCH_WALKTHROUGH.md)
+records real wire and browser observations against the implementation working
+tree. These observations do not replace exact-head canonical acceptance, prove
+hosted execution or close M4/M5. A successful local activation must not be
+described as the supported `v0.2.0` release.
