@@ -49,10 +49,26 @@ not establish simultaneous concurrency. Follow-up work can reuse an existing
 agent. The model writes a task request and calls a host facility; the host creates
 the execution context and enforces its permissions and resource limits.
 
-Count Claude observations separately from code patches, verification reruns and
-authentication attempts. Deduplicate copied event generations before totalling.
-Retain failed, aborted and unscored observations. Anchor the first attempt and the
-accepted final result where primary records permit it.
+Count Claude observations separately from code patches, verification reruns,
+authentication checks and reads of saved results. Include failed preflights and
+diagnostics in explicitly labelled categories; neither a harness launch nor a
+completed model response establishes a successful MCP operation. Deduplicate copied
+generations, match launch/wait/terminal events and crosswalk the earlier public
+rows before totalling. A redacted command is not automatically a source read:
+retained arguments, outcomes and corroborating source revisions can establish a
+launch even when the executable path is withheld. Anchor the first retained
+attempt and accepted final result, without asserting that missing earlier attempts
+did not exist.
+
+The 14 September recovery supplement admits permitted records from previously
+excluded roots under the repaired EVID-211 policy. Earlier archives are unchanged.
+Quarantined records and internal reasoning were not read for the retrospective.
+Public chronology v2 distinguishes telemetry intervals, unclassified observation
+instants and native completion instants. In particular, the accepted Claude
+projections' `observed_at` comes from `execution.finished_at`, not launch time.
+The private revision binds input hashes, source-line references, asynchronous
+joins and excluded candidates. The public JSON/CSV carries the approved chronology
+and old-to-new reference crosswalk, not the private index.
 
 Separate elapsed time, active model/tool execution, CI wait, authorisation or
 authentication wait, machine unavailability and operator time. Concurrent work

@@ -15,6 +15,14 @@ each accepted change.
 
 ## Sequence
 
+The Claude retrospective adds two separately scoped P1 prerequisites for a future
+client investigation: [pinned client-contract preflight #122](https://github.com/chris-page-gov/gis-ai-go/issues/122)
+and [an attempt/outcome journal #123](https://github.com/chris-page-gov/gis-ai-go/issues/123).
+They are backlog items, not functionality implemented by this report. The existing
+CI-selection work in #97 and archive-throughput work in #116 retain their own
+acceptance gates. Evaluate fewer avoidable attempts and repeated checks on
+comparable workloads; do not claim savings from these proposals alone.
+
 | Stage | Work | Acceptance evidence |
 | --- | --- | --- |
 | O0: dependency-alert disposition | Assess all three recorded Hono advisories and update the locked dependency where required | Per-advisory evidence; compatible SDK/HTTP tests, SBOM and image assurance; no silent waiver |

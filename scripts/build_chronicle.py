@@ -273,6 +273,15 @@ section{break-before:page}figure,pre{break-inside:avoid}nav{display:none}a{color
     return "\n".join(output)
 
 
+def pdf_table_widths(header: list[str], width: float) -> list[float]:
+    """Keep short chronology identifiers from consuming prose space on A4."""
+    ratios = {
+        ("Ref", "August date", "Concise outcome", "Source"): (0.09, 0.13, 0.60, 0.18),
+        ("Ref", "August date", "Classification", "Retained outcome"): (0.09, 0.13, 0.24, 0.54),
+    }.get(tuple(header))
+    return [width * value for value in ratios] if ratios else [width / len(header)] * len(header)
+
+
 def build_pdf(path: Path, chapters: list, figures: dict) -> None:
     from reportlab.lib import colors
     from reportlab.lib.enums import TA_LEFT
@@ -344,7 +353,7 @@ def build_pdf(path: Path, chapters: list, figures: dict) -> None:
                 if len({len(row) for row in data}) != 1:
                     raise ValueError("Ragged Markdown table")
                 rows=[[Paragraph(inline(cell,name,True),styles["Cell"]) for cell in row] for row in data]
-                table=Table(rows,colWidths=[width/len(data[0])]*len(data[0]),repeatRows=1,hAlign="LEFT")
+                table=Table(rows,colWidths=pdf_table_widths(data[0],width),repeatRows=1,hAlign="LEFT")
                 table.setStyle(TableStyle([("VALIGN",(0,0),(-1,-1),"TOP"),("BACKGROUND",(0,0),(-1,0),colors.HexColor("#e8eff3")),
                                            ("GRID",(0,0),(-1,-1),0.3,colors.HexColor("#a5b6c0")),("LEFTPADDING",(0,0),(-1,-1),5),
                                            ("RIGHTPADDING",(0,0),(-1,-1),5),("TOPPADDING",(0,0),(-1,-1),5),("BOTTOMPADDING",(0,0),(-1,-1),5)]))
