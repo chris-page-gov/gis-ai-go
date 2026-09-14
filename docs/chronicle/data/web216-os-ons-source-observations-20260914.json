@@ -1,0 +1,425 @@
+{
+  "schema_version": "web216.os-ons-source-observations.v1",
+  "created_at_utc": "2026-09-14T17:24:45Z",
+  "status": "public-safe-derived-record",
+  "classification": "bounded-source-observations-no-completed-spatial-join",
+  "publication_boundary": {
+    "raw_archive_in_repository": false,
+    "raw_archive_member_in_repository": false,
+    "signed_download_url_published": false,
+    "personal_data_published": false,
+    "private_machine_path_published": false,
+    "selected_projection": "One field-limited OS Open Names Warwick populated-place point",
+    "source_capture_references": [
+      "os-open-names-metadata-20260914T160611Z",
+      "os-open-names-payload-20260914T161326Z",
+      "ons-msoa-point-20260914T165616Z",
+      "ons-msoa-two-stage-20260914T170016Z"
+    ]
+  },
+  "sources": {
+    "os_open_names_metadata": {
+      "publisher": "Ordnance Survey",
+      "capture_reference": "os-open-names-metadata-20260914T160611Z",
+      "capture_created_at_utc": "2026-09-14T16:06:11Z",
+      "network_accounting": {
+        "authorised_get_maximum": 3,
+        "attempted_gets": 2,
+        "completed_responses": 2,
+        "redirects_followed": 0,
+        "retries": 0
+      },
+      "stable_urls": {
+        "product": "https://api.os.uk/downloads/v1/products/OpenNames",
+        "downloads": "https://api.os.uk/downloads/v1/products/OpenNames/downloads",
+        "technical_specification": "https://docs.os.uk/os-downloads/products/addresses-and-names-portfolio/os-open-names/os-open-names-technical-specification",
+        "downloads_api": "https://docs.os.uk/os-apis/accessing-os-apis/os-downloads-api/technical-specification"
+      },
+      "observed_product": {
+        "id": "OpenNames",
+        "name": "OS Open Names",
+        "version": "2026-07",
+        "area": "GB",
+        "formats": [
+          "CSV",
+          "GML 3",
+          "GeoPackage"
+        ],
+        "data_structure": "Vector"
+      },
+      "responses": [
+        {
+          "sequence": 1,
+          "kind": "product-details",
+          "http_status": 200,
+          "source_response_time_utc": "2026-09-14T16:07:25Z",
+          "source_response_time_basis": "HTTP Date header",
+          "elapsed_seconds": 0.165528,
+          "body_bytes": 1056,
+          "body_sha256": "0686ddc14e500d9077b23d68c061739dd012accd4ad364c3ef1d4de3a4f1d03f",
+          "headers_sha256": "987a0b3ec21387fd5aef9d2a50532377a21863e031512379c6f9876608800650"
+        },
+        {
+          "sequence": 2,
+          "kind": "download-metadata",
+          "http_status": 200,
+          "source_response_time_utc": "2026-09-14T16:07:52Z",
+          "source_response_time_basis": "HTTP Date header",
+          "elapsed_seconds": 0.142459,
+          "body_bytes": 687,
+          "body_sha256": "066d2264b9c9caa2f4da09d0dda40133e83cb0d40fe1eadd671d3d47150b73ac",
+          "headers_sha256": "f93b40f0738ce2accf46a3f5fdf70499c3e581ad64ab6b4df68c6f1f3af004d1"
+        }
+      ],
+      "download_metadata": {
+        "area_specific_to_sp_offered": false,
+        "offerings": [
+          {
+            "area": "GB",
+            "format": "CSV",
+            "file_name": "opname_csv_gb.zip",
+            "bytes": 103259564,
+            "metadata_md5": "4a7d2d0d24be0470771b9cc170ca2aee"
+          },
+          {
+            "area": "GB",
+            "format": "GML 3",
+            "file_name": "opname_gml3_gb.zip",
+            "bytes": 251696283,
+            "metadata_md5": "822a87b8fbdb7c0ef111118cdb464a2d"
+          },
+          {
+            "area": "GB",
+            "format": "GeoPackage",
+            "file_name": "opname_gpkg_gb.zip",
+            "bytes": 212485849,
+            "metadata_md5": "eddbba14af1967e5072c47438bcd308b"
+          }
+        ]
+      },
+      "collector_source_export_sha256": "4fbff7e83c0f0ab7430a18339d25dcf6a42513286f0a0b60114ab8d71d5e4e62",
+      "capture_summary_sha256": "2168c9909ffad479f2780751aa96d41a9ebbf7361caf4e2cfa6f38ab0fa4dd5e",
+      "limits": [
+        "The metadata response offered nationwide GB downloads only; it did not offer an SP-area archive.",
+        "Metadata did not by itself establish archive availability, content, member layout or current payload terms.",
+        "No credential, premium product, redirect follow or payload download was used in this metadata capture."
+      ]
+    },
+    "os_open_names_archive_and_point": {
+      "publisher": "Ordnance Survey",
+      "capture_reference": "os-open-names-payload-20260914T161326Z",
+      "capture_created_at_utc": "2026-09-14T16:13:26Z",
+      "network_accounting": {
+        "authorised_get_maximum": 3,
+        "attempted_gets": 2,
+        "completed_responses": 2,
+        "redirects_followed_automatically": 0,
+        "retries": 0
+      },
+      "stable_urls": {
+        "redirect_request": "https://api.os.uk/downloads/v1/products/OpenNames/downloads?area=GB&format=CSV&redirect",
+        "terms_as_supplied_in_archive": "http://os.uk/opendata/licence"
+      },
+      "network_observations": {
+        "redirect_response": {
+          "http_status": 307,
+          "source_response_time_utc": "2026-09-14T16:14:44Z",
+          "source_response_time_basis": "HTTP Date header",
+          "elapsed_seconds": 1.54846,
+          "body_bytes": 213,
+          "body_sha256": "3707b4d00b9d7adc818ab56ea7920c416fe4b47d0e947140c0bf0c84ea2b6af3",
+          "headers_bytes": 1089,
+          "headers_sha256": "c30f63be9a98bb81de38402601db4de5d5cbd1eda8c523e6876ca5823c6c8745",
+          "signed_query_published": false
+        },
+        "archive_response": {
+          "http_status": 200,
+          "source_response_time_utc": "2026-09-14T16:17:03Z",
+          "source_response_time_basis": "HTTP Date header",
+          "source_last_modified_utc": "2026-08-12T13:16:42Z",
+          "elapsed_seconds": 5.213187,
+          "content_type": "application/octet-stream",
+          "body_bytes": 103259564,
+          "headers_bytes": 1055,
+          "headers_sha256": "8eba9efc1fec602bd0744a8cd5d2eaa12f1757599d3914e6ba22095429344f28",
+          "redirects_followed_automatically": false,
+          "retries": 0,
+          "credentials_supplied": false
+        }
+      },
+      "archive": {
+        "file_name": "opname_csv_gb.zip",
+        "product_version": "2026-07",
+        "area": "GB",
+        "format": "CSV",
+        "bytes": 103259564,
+        "md5": "4a7d2d0d24be0470771b9cc170ca2aee",
+        "sha256": "6175912f1a3be7fffe556b4621a8d0686f1ea145e20ca61ce2b115a75a9bd69f",
+        "sha256_basis": "Recorded during the source-time capture; not recalculated while producing this public record.",
+        "metadata_md5_matched": true,
+        "http_content_md5_matched": true,
+        "independently_authenticated_by_publisher_signature": false,
+        "retention": "Retained outside the repository; the archive is not redistributed by this record."
+      },
+      "zip_safety_observation": {
+        "member_count": 824,
+        "data_csv_member_count": 819,
+        "declared_total_uncompressed_bytes": 1806068128,
+        "duplicate_name_count": 0,
+        "encrypted_member_count": 0,
+        "unsafe_path_count": 0,
+        "symlink_count": 0,
+        "selected_member_crc_checks_completed": true,
+        "whole_archive_extracted": false,
+        "whole_archive_decompressed_and_checked": false,
+        "central_directory_inventory_sha256": "4884b60880c28582ca57fad7d047ab9b63edd479ea61ef2220758eb48ea59e51"
+      },
+      "selected_members": {
+        "licence": {
+          "name": "Doc/licence.txt",
+          "uncompressed_bytes": 438,
+          "sha256": "1be838dcdba14daa10f6a5015833100858711fcda9e495a9442c9295d357f99f"
+        },
+        "header": {
+          "name": "Doc/OS_Open_Names_Header.csv",
+          "uncompressed_bytes": 473,
+          "sha256": "fe2b5c26ba4373805349cd3bef7c3a689347416482add9feed737863d457d4c7"
+        },
+        "data_tile": {
+          "name": "Data/SP26.csv",
+          "uncompressed_bytes": 8199956,
+          "record_count": 13377,
+          "sha256": "55aac6727a59eddf834256c9f432c2c0ceaf298d6249248cb90351a0be052845",
+          "exact_name_matches_for_warwick": 2,
+          "matching_types": [
+            "populatedPlace/Town",
+            "transportNetwork/Railway Station"
+          ]
+        }
+      },
+      "selected_point": {
+        "selection": "Exact case-insensitive NAME1 Warwick, TYPE populatedPlace and LOCAL_TYPE Town in the selected SP26 member",
+        "source_record_number": 3,
+        "source_physical_line_number": 3,
+        "source_raw_line_bytes": 669,
+        "source_raw_line_sha256": "bf68888d857f4e52e79d69a5ad9e8013969be8255bff85351fa8d97715ce952e",
+        "native_id": "osgb4000000074555874",
+        "names_uri": "http://data.ordnancesurvey.co.uk/id/4000000074555874",
+        "name_1": "Warwick",
+        "name_1_language": null,
+        "type": "populatedPlace",
+        "local_type": "Town",
+        "point": {
+          "crs": "EPSG:27700",
+          "crs_name": "OSGB36 / British National Grid",
+          "geometry_x_source_value": "428119",
+          "geometry_y_source_value": "265114",
+          "easting": 428119,
+          "northing": 265114
+        }
+      },
+      "rights_observation": {
+        "terms_url_as_supplied": "http://os.uk/opendata/licence",
+        "attribution_statements": [
+          "Contains OS data © Crown Copyright and database rights 2026.",
+          "Contains Royal Mail data © Royal Mail copyright and database right 2026.",
+          "Contains National Statistics data © Crown copyright and database right 2026"
+        ],
+        "automatic_permission_decision": false,
+        "redistribution_statement": "This repository record contains the bounded point projection and provenance, not the source archive or selected member payloads. Reuse remains subject to the official terms and attribution."
+      },
+      "capture_manifest_created_at_utc": "2026-09-14T16:23:18Z",
+      "capture_manifest_sha256": "8e17274a6d9eaf335baa3c9dbdca6c633ab192e3f1e94a7249eeebba5bd3a9fc",
+      "collector_source_export_sha256": null,
+      "collector_source_note": "No separate collector-source export is present in this capture; the bounded request plan, observations and manifest are retained instead.",
+      "limits": [
+        "This is one source-bound named-place row, not proof that Warwick is globally unique.",
+        "The Town point is a representative point, not a settlement boundary, postcode, property, address or whole-town geometry.",
+        "No administrative context URI was treated as an authoritative geography join.",
+        "No coordinate transformation or positional-accuracy claim was made."
+      ]
+    },
+    "ons_open_geography_metadata": {
+      "publisher": "Office for National Statistics",
+      "hosting_platform": "ArcGIS Online",
+      "capture_reference": "ons-msoa-point-20260914T165616Z",
+      "network_accounting": {
+        "authorised_get_maximum": 3,
+        "attempted_gets": 3,
+        "completed_responses": 2,
+        "captured_response_bodies": 2,
+        "retries": 0,
+        "redirects": 0
+      },
+      "stable_urls": {
+        "official_catalogue": "https://www.data.gov.uk/dataset/b9d6e8eb-95a8-4a32-832f-e8a746252f43/middle-layer-super-output-areas-december-2021-boundaries-ew-bfc-v7",
+        "feature_service": "https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Middle_layer_Super_Output_Areas_December_2021_Boundaries_EW_BFC_V7/FeatureServer",
+        "layer": "https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Middle_layer_Super_Output_Areas_December_2021_Boundaries_EW_BFC_V7/FeatureServer/0",
+        "query_endpoint": "https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Middle_layer_Super_Output_Areas_December_2021_Boundaries_EW_BFC_V7/FeatureServer/0/query",
+        "ons_licence_guidance": "https://www.ons.gov.uk/methodology/geography/licences"
+      },
+      "service": {
+        "service_item_id": "12baf1e6a44441208ffe5ba5ed063a68",
+        "current_rest_version": 12,
+        "layer_id": 0,
+        "layer_name": "MSOA_2021_EW_BFC_V7",
+        "geography": "Middle layer Super Output Areas",
+        "vintage": "December 2021",
+        "coverage": "England and Wales",
+        "boundary_variant": "BFC V7",
+        "geometry_type": "esriGeometryPolygon",
+        "crs": "EPSG:27700",
+        "object_id_field": "FID",
+        "display_field": "MSOA21CD",
+        "global_id_field": "GlobalID",
+        "native_fields": [
+          "FID",
+          "MSOA21CD",
+          "MSOA21NM",
+          "MSOA21NMW",
+          "BNG_E",
+          "BNG_N",
+          "LAT",
+          "LONG",
+          "Shape__Area",
+          "Shape__Length",
+          "GlobalID"
+        ],
+        "capabilities": [
+          "Query",
+          "Extract",
+          "ChangeTracking"
+        ],
+        "max_record_count": 2000,
+        "service_description": "Boundaries",
+        "layer_description": "",
+        "service_copyright_text": "",
+        "layer_copyright_text": ""
+      },
+      "responses": [
+        {
+          "sequence": 1,
+          "kind": "service-metadata",
+          "http_status": 200,
+          "requested_at_utc": "2026-09-14T16:57:37.912657Z",
+          "completed_at_utc": "2026-09-14T16:57:38.209433Z",
+          "body_bytes": 3642,
+          "body_sha256": "bba8ac07aaf5ca46890ba9a6b35b9d739bad732c0f24b0a4d7289199011e8233",
+          "etag": "sds_-1191199079",
+          "last_modified_http": "Wed, 10 Jul 2024 10:18:48 GMT"
+        },
+        {
+          "sequence": 2,
+          "kind": "layer-metadata",
+          "http_status": 200,
+          "requested_at_utc": "2026-09-14T16:57:38.209651Z",
+          "completed_at_utc": "2026-09-14T16:57:38.453606Z",
+          "body_bytes": 9675,
+          "body_sha256": "9017c62a1e48fe170c7cbece16dc2ef9e8d07a3fe3b4314d378b2f338455f7e9",
+          "etag": "1542386786",
+          "last_modified_http": "Wed, 10 Jul 2024 10:18:48 GMT"
+        }
+      ],
+      "collector_source_export_sha256": "10e74655f20f498e6104b6b69afbd9fe69c0217a6df39192aa885196a1ac5726",
+      "capture_manifest_sha256": "7e48b0131c0966a4821118065d97bd0e09e82ce36cb539ebb973815732a89833",
+      "rights_limit": "The captured service and layer copyright fields were empty. They do not establish permission or remove the need to follow official ONS geography licence guidance and any identified third-party rights."
+    },
+    "ons_point_query_attempts": [
+      {
+        "attempt": 1,
+        "capture_reference": "ons-msoa-point-20260914T165616Z",
+        "purpose": "Return at most five features and full native geometry intersecting the retained OS point",
+        "endpoint": "https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Middle_layer_Super_Output_Areas_December_2021_Boundaries_EW_BFC_V7/FeatureServer/0/query",
+        "method": "GET",
+        "point": {
+          "x": 428119,
+          "y": 265114,
+          "crs": "EPSG:27700"
+        },
+        "parameters": {
+          "spatial_relationship": "esriSpatialRelIntersects",
+          "result_record_count_maximum": 5,
+          "return_geometry": true,
+          "out_crs": "EPSG:27700",
+          "out_fields": "*"
+        },
+        "run_started_at_utc": "2026-09-14T16:57:37.904508Z",
+        "query_requested_at_utc": null,
+        "query_requested_at_note": "The exact query start time was not recorded. It occurred after the layer response completed at 2026-09-14T16:57:38.453606Z and before the run completed.",
+        "run_completed_at_utc": "2026-09-14T16:57:58.503529Z",
+        "run_elapsed_seconds": 20.59864,
+        "outcome": "unavailable-timeout-not-no-match",
+        "http_status": null,
+        "body_bytes": null,
+        "body_sha256": null,
+        "candidate_count": null,
+        "retries": 0,
+        "redirects": 0,
+        "failure_record_sha256": "a5aa9be878fc070e6be65c87821cdf2ebc42af7aaeb1bf80d2e4891b4de9490b",
+        "run_status_sha256": "2e67a1a47b68ffdf50916cf45390eec51347e5fc22f8dd0ceb7bba946ab810aa"
+      },
+      {
+        "attempt": 2,
+        "capture_reference": "ons-msoa-two-stage-20260914T170016Z",
+        "network_accounting": {
+          "authorised_get_maximum": 2,
+          "attempted_gets": 1,
+          "completed_responses": 0,
+          "captured_response_bodies": 0,
+          "retries": 0,
+          "redirects": 0
+        },
+        "purpose": "Request point-intersecting attributes first, then request full geometry only for one unambiguous returned FID",
+        "endpoint": "https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Middle_layer_Super_Output_Areas_December_2021_Boundaries_EW_BFC_V7/FeatureServer/0/query",
+        "method": "GET",
+        "point": {
+          "x": 428119,
+          "y": 265114,
+          "crs": "EPSG:27700"
+        },
+        "parameters": {
+          "spatial_relationship": "esriSpatialRelIntersects",
+          "result_record_count_maximum": 5,
+          "return_geometry": false,
+          "out_fields": "*"
+        },
+        "run_started_at_utc": "2026-09-14T17:01:30.011268Z",
+        "query_requested_at_utc": "2026-09-14T17:01:30.018616Z",
+        "query_failed_at_utc": "2026-09-14T17:01:50.095162Z",
+        "run_completed_at_utc": "2026-09-14T17:01:50.095180Z",
+        "run_elapsed_seconds": 20.083455,
+        "outcome": "unavailable-timeout-not-no-match",
+        "http_status": null,
+        "body_bytes": null,
+        "body_sha256": null,
+        "candidate_count": null,
+        "conditional_geometry_request_attempted": false,
+        "retries": 0,
+        "redirects": 0,
+        "collector_source_export_sha256": "a9e739b50948804239150239f2ab91102d8e121a338a5fb66ab5590024cad402",
+        "capture_manifest_sha256": "3089c830d2a3ff7cfab8920c76e7cb119a7a2d87a893478a5c2aeeaed3e87d1c",
+        "run_status_sha256": "931b8c93a743f7ec1aaa3f5b65c3f7aff928593e59c79ede05229c2556f54a18"
+      }
+    ]
+  },
+  "comparison": {
+    "coordinate_reference_system_match": "Both retained source descriptions use EPSG:27700.",
+    "vintage_difference": "The OS point is from product version 2026-07; the candidate ONS boundary is the December 2021 MSOA BFC V7 release.",
+    "intended_join": "Strict point-in-polygon or point-intersects selection followed by a statistics join using returned MSOA21CD, never a name or OS context URI.",
+    "actual_join_status": "not-established",
+    "returned_ons_feature_id": null,
+    "returned_msoa21cd": null,
+    "returned_boundary_geometry": null,
+    "reason": "Both ONS point-query attempts timed out without a captured status or body. Candidate count is unknown, so the evidence is unavailable rather than a no-match.",
+    "interpretation": "The retained OS Town point is not a boundary for Warwick, a postcode, a property, an address or evidence about the whole town."
+  },
+  "overall_limits": [
+    "No actual MSOA join was established.",
+    "No ONS feature, FID, MSOA21CD or geometry was returned.",
+    "Matching coordinate-reference-system labels do not prove spatial containment.",
+    "The 2026 OS product and 2021 ONS boundary vintages must remain distinct in any later join.",
+    "Timeout means unavailable for this bounded attempt, not no matching feature.",
+    "The record contains no postcode, private address, property-level fact or whole-town claim.",
+    "Provider metadata, licence links and source hashes are evidence, not an automatic rights or authenticity decision."
+  ]
+}

@@ -52,6 +52,28 @@ importers:
         specifier: 2.0.0
         version: 2.0.0
 
+  apps/public-data-workbench:
+    dependencies:
+      '@modelcontextprotocol/client':
+        specifier: 2.0.0
+        version: 2.0.0
+    devDependencies:
+      '@axe-core/playwright':
+        specifier: 4.13.0
+        version: 4.13.0(playwright-core@1.62.1)
+      '@playwright/test':
+        specifier: 1.62.1
+        version: 1.62.1
+      jsdom:
+        specifier: 30.0.1
+        version: 30.0.1
+      vite:
+        specifier: 8.2.1
+        version: 8.2.1(@types/node@24.13.3)
+      vitest:
+        specifier: 4.1.11
+        version: 4.1.11(@types/node@24.13.3)(jsdom@30.0.1)(vite@8.2.1(@types/node@24.13.3))
+
   apps/public-explorer:
     dependencies:
       '@gis-ai-go/contracts':

@@ -42,6 +42,7 @@ class ReleaseMetadataTests(unittest.TestCase):
         expected_manifests = (
             "package.json",
             "apps/mcp-gateway/package.json",
+            "apps/public-data-workbench/package.json",
             "apps/public-explorer/package.json",
             "apps/webmcp-explorer/package.json",
             "packages/authority-context/package.json",
@@ -83,6 +84,25 @@ class ReleaseMetadataTests(unittest.TestCase):
                     r"packages/evidence/package\.json=9\.9\.9",
                 ):
                     check_versions.main([])
+
+            # Newly added apps are version-governed just like existing siblings.
+            (root / "packages/evidence/package.json").write_text(
+                json.dumps({"version": "0.1.0"}), encoding="utf-8"
+            )
+            for app in ("public-data-workbench", "public-explorer", "webmcp-explorer"):
+                relative = f"apps/{app}/package.json"
+                with self.subTest(app=app):
+                    (root / relative).write_text(
+                        json.dumps({"version": "9.9.9"}), encoding="utf-8"
+                    )
+                    with patch.object(check_versions, "ROOT", root):
+                        with self.assertRaisesRegex(
+                            SystemExit, rf"apps/{app}/package\.json=9\.9\.9"
+                        ):
+                            check_versions.main([])
+                    (root / relative).write_text(
+                        json.dumps({"version": "0.1.0"}), encoding="utf-8"
+                    )
 
             extra_manifest = root / "packages" / "future-package" / "package.json"
             extra_manifest.parent.mkdir(parents=True)

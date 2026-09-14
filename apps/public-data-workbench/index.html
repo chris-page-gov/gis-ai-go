@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light" />
+    <title>Public data workbench · GIS AI GO</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to workbench</a>
+    <header><a class="brand" href="/" aria-label="GIS AI GO home"><span class="brand-mark" aria-hidden="true">G</span> GIS AI GO</a><span class="edition">PUBLIC DATA LAB <span>Experimental · local</span></span></header>
+    <main id="main">
+      <div class="page-heading"><div><p class="eyebrow">Evidence for people and their AI</p><h1>From a question to its source.</h1><p class="intro">Find the right public data, review the selection and follow the evidence.<br class="desktop-only" /> You bring the question. Your AI can use the same tools as you.</p></div><a class="quiet-link" href="#how-it-works">How this works <span aria-hidden="true">↗</span></a></div>
+      <div class="boundary-strip"><span class="status-dot" aria-hidden="true"></span><strong>Captured data, not a live service</strong><span>This local experiment retrieves two ONS CPIH observations. Other datasets are discovery only.</span></div>
+      <div class="workspace">
+        <section class="discovery" aria-labelledby="find-heading">
+          <div class="section-heading"><span class="step">01</span><div><p class="eyebrow">Find the evidence</p><h2 id="find-heading">What are you working on?</h2></div></div>
+          <form id="search-form"><label for="query">Search the catalogue</label><div class="search-row"><input id="query" name="query" value="consumer prices" maxlength="256" aria-describedby="search-help" autocomplete="off" /><button type="submit">Find data</button></div><p id="search-help" class="hint">Use up to 10 English keywords, not a full question. Do not enter personal information.</p></form>
+          <p class="label">Try a staff task</p><div class="story-buttons"><button type="button" data-query="consumer prices">Budget context</button><button type="button" data-query="occupancy rooms">Housing pressure</button><button type="button" data-query="population age">Service planning</button></div>
+          <div class="result-count"><span id="result-count">Searching seven metadata records…</span><span>OKF-led discovery</span></div>
+          <div id="results"></div>
+          <details class="discovery-note"><summary>What does OKF add?</summary><p>A shared knowledge structure connects source-native dataset identifiers to their concepts and dimensions. These seven frozen records are a small development sample, not the whole ONS catalogue. A match is a candidate for review, not permission to retrieve data.</p><p>Concept mappings are authored engineering choices. This search does not use an AI model or claim to understand a full question.</p></details>
+        </section>
+        <section class="evidence-desk" aria-labelledby="desk-heading">
+          <div class="section-heading"><span class="step">02</span><div><p class="eyebrow">Review, retrieve, inspect</p><h2 id="desk-heading">Your evidence desk</h2></div><span class="badge">One bounded story</span></div>
+          <div class="dataset-heading"><span class="source-label">OFFICE FOR NATIONAL STATISTICS</span><h3>CPIH: all items index</h3><p>Maintained series <code>L522 / MM23</code> · UK · base year 2015 = 100</p></div>
+          <p class="notice">The catalogue's older <code>cpih01</code> endpoint was retired. This experiment uses a separate, explicitly captured maintained series. It does not silently substitute data.</p>
+          <form id="selection-form"><label for="period">Choose a captured month</label><div class="search-row"><select id="period"><option value="2026-07">July 2026</option><option value="2026-01">January 2026</option></select><button type="submit" id="select-button" class="secondary">Review selection</button></div></form>
+          <div id="selection" class="selection-placeholder"><span aria-hidden="true">↗</span><div><strong>Review before retrieving</strong><p>The server will return a non-authorising selection plan. Reading the observation then creates a durable receipt.</p></div></div>
+          <div class="actions"><button type="button" id="retrieve-button" disabled>Retrieve captured observation</button><button type="button" id="cancel-button" class="text-button" hidden>Cancel</button></div>
+          <div id="status" role="status" aria-live="polite">Choose a month, then review the selection.</div>
+          <div id="observation" hidden></div>
+          <div id="receipt-actions" class="actions" hidden><button type="button" id="inspect-button" class="secondary">Inspect stored receipt</button><button type="button" id="download-button" class="text-button">Download result and evidence</button></div>
+          <details id="evidence-detail" hidden><summary>See the exact machine-readable evidence</summary><pre id="evidence-json"></pre></details>
+          <div class="source-footer"><span>Source capture</span><strong>14 September 2026</strong><a href="https://www.ons.gov.uk/economy/inflationandpriceindices/timeseries/l522/mm23" target="_blank" rel="noopener noreferrer">Open the ONS source ↗</a></div>
+        </section>
+      </div>
+      <section id="how-it-works" class="explain-grid" aria-label="Understand the experiment"><div><p class="eyebrow">The journey</p><h2>One interface. Two ways in.</h2><p>Use the controls above yourself, or ask a compatible AI connected to this page. Both use the same selection, MCP retrieval and visible evidence path.</p></div><div><h3>Where are “Site tools”?</h3><p>They are the page functions a supporting browser exposes to your AI. They are not a menu on this website. Chrome or Edge being up to date does not, by itself, connect an AI to these functions.</p><p id="webmcp-status" class="capability">Checking this page's WebMCP interface…</p></div><div><h3>What this cannot do yet</h3><p>No live provider requests, arbitrary datasets, OS maps or inferred geography. No embedded AI, external account or public MCP service. The older demonstration and supported release are unchanged.</p><a href="https://github.com/chris-page-gov/gis-ai-go/issues/125" target="_blank" rel="noopener noreferrer">Follow the implementation ↗</a></div></section>
+    </main>
+    <footer><strong>GIS AI GO</strong><span>Governed geospatial knowledge and action · Experimental WEB-216</span><a href="https://github.com/chris-page-gov/gis-ai-go">Source and methods</a></footer>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

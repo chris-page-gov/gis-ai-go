@@ -8,6 +8,7 @@ import subprocess
 import unittest
 from pathlib import Path
 from typing import Any
+from unittest.mock import patch
 
 from jsonschema import Draft202012Validator
 
@@ -22,6 +23,13 @@ MATRIX_PATH = (
 GATEWAY_MANIFEST_PATH = ROOT / "apps" / "mcp-gateway" / "package.json"
 LOCKFILE_PATH = ROOT / "pnpm-lock.yaml"
 RUNTIME_BASE_COMMIT = "f253605ab26628e821d4ebc3809cf13c883d57ed"
+CURRENT_COMPATIBILITY_PATH = (
+    ROOT / "tests" / "interoperability" / "evidence"
+    / "qual-206-web216-current-runtime-compatibility.v1.json"
+)
+CURRENT_COMPATIBILITY_SHA256 = (
+    "d1eebe08df41e2fe1b614d81671cdd0ed9c7e655d1732dcdc35c5579448c0455"
+)
 BOUNDARY = (
     "Repository-material-bound deterministic source matrix. It is repository-only, "
     "non-live and unscored; coverage rows and subprocess sections bind source "
@@ -242,6 +250,110 @@ class Qual206LocalProtocolEvidenceMatrixTests(unittest.TestCase):
     def assert_invalid(self, value: object) -> None:
         self.assertTrue(list(self.validator.iter_errors(value)))
 
+    def assert_current_compatibility(self, document: dict[str, Any]) -> dict[str, str]:
+        # Pin the complete additive record: callers cannot add an exception,
+        # change a hash or inflate a claim by editing and rehashing its contents.
+        encoded = (json.dumps(document, ensure_ascii=False, indent=2) + "\n").encode()
+        self.assertEqual(sha256_bytes(encoded), CURRENT_COMPATIBILITY_SHA256)
+        self.assertEqual(
+            document["classification"],
+            "reviewed-source-compatibility-not-execution-evidence",
+        )
+        self.assertEqual(set(document["claims"].values()), {False})
+        historical = document["historical_matrix"]
+        self.assertEqual(historical["runtime_base_commit"], RUNTIME_BASE_COMMIT)
+        self.assertEqual(historical["path"], MATRIX_PATH.relative_to(ROOT).as_posix())
+        self.assertEqual(historical["sha256"], sha256(MATRIX_PATH))
+
+        current = document["current_runtime_material"]
+        self.assertEqual(current["path"], "apps/mcp-gateway/src/mcp-http.ts")
+        self.assertEqual(
+            current["historical_sha256"],
+            sha256_bytes(git_blob(RUNTIME_BASE_COMMIT, current["path"])),
+        )
+        self.assertEqual(current["sha256"], sha256(ROOT / current["path"]))
+        source = document["regression_source"]
+        source_path = ROOT / source["path"]
+        self.assertEqual(source["sha256"], sha256(source_path))
+        for name in source["source_test_names"]:
+            self.assertRegex(
+                source_path.read_text(encoding="utf-8"),
+                rf"(?m)^[ \t]*test\([ \t]*{re.escape(json.dumps(name))}[ \t]*,",
+            )
+        # The reviewed commit is a provenance reference, not a protected-main
+        # ancestry assertion: accepted source changes are squash-merged.
+        self.assertRegex(document["reviewed_source_commit"], r"^[0-9a-f]{40}$")
+        return current
+
+    def assert_current_material_hash(
+        self, material: dict[str, Any], current_compatibility: dict[str, str]
+    ) -> None:
+        expected_current_hash = (
+            current_compatibility["sha256"]
+            if material["path"] == current_compatibility["path"]
+            else material["sha256"]
+        )
+        self.assertEqual(expected_current_hash, sha256(ROOT / material["path"]))
+
+    def test_current_compatibility_record_is_exact_and_non_attesting(self) -> None:
+        self.assertEqual(sha256(CURRENT_COMPATIBILITY_PATH), CURRENT_COMPATIBILITY_SHA256)
+        self.assert_current_compatibility(load_json(CURRENT_COMPATIBILITY_PATH))
+
+    def test_current_compatibility_rejects_changed_scope_hashes_and_claims(self) -> None:
+        original = load_json(CURRENT_COMPATIBILITY_PATH)
+        for field, key, value in (
+            ("current_runtime_material", "sha256", "0" * 64),
+            ("current_runtime_material", "path", "apps/mcp-gateway/src/mcp-server.ts"),
+            ("regression_source", "sha256", "0" * 64),
+            ("claims", "historical_matrix_rerun", True),
+            ("claims", "historical_attestation_extended", True),
+            ("claims", "test_execution_recorded", True),
+        ):
+            with self.subTest(field=field, key=key):
+                changed = copy.deepcopy(original)
+                changed[field][key] = value
+                with self.assertRaises(AssertionError):
+                    self.assert_current_compatibility(changed)
+        unknown = copy.deepcopy(original)
+        unknown["unreviewed_exception"] = "apps/mcp-gateway/src/mcp-server.ts"
+        with self.assertRaises(AssertionError):
+            self.assert_current_compatibility(unknown)
+
+    def test_current_compatibility_rejects_runtime_or_regression_source_drift(self) -> None:
+        document = load_json(CURRENT_COMPATIBILITY_PATH)
+        original_sha256 = sha256
+        for material in (
+            document["current_runtime_material"], document["regression_source"]
+        ):
+            changed_path = ROOT / material["path"]
+            with self.subTest(path=material["path"]):
+                with patch(
+                    f"{__name__}.sha256",
+                    side_effect=lambda path: (
+                        "0" * 64 if path == changed_path else original_sha256(path)
+                    ),
+                ):
+                    with self.assertRaises(AssertionError):
+                        self.assert_current_compatibility(document)
+
+    def test_current_compatibility_does_not_exempt_adjacent_historical_runtime(self) -> None:
+        original_sha256 = sha256
+        changed_path = ROOT / "apps/mcp-gateway/src/mcp-server.ts"
+        current = self.assert_current_compatibility(load_json(CURRENT_COMPATIBILITY_PATH))
+        adjacent = next(
+            item for item in self.document["repository_binding"]["runtime_materials"]
+            if item["path"] == "apps/mcp-gateway/src/mcp-server.ts"
+        )
+        with patch(
+            f"{__name__}.sha256",
+            side_effect=lambda path: (
+                "0" * 64 if path == changed_path else original_sha256(path)
+            ),
+        ):
+            with self.assertRaises(AssertionError):
+                # Exercise the same exact comparison used by the matrix below.
+                self.assert_current_material_hash(adjacent, current)
+
     def test_closed_schema_accepts_canonical_matrix(self) -> None:
         Draft202012Validator.check_schema(self.schema)
         assert_contract_objects_are_closed(self, self.schema)
@@ -263,6 +375,9 @@ class Qual206LocalProtocolEvidenceMatrixTests(unittest.TestCase):
         self.assertEqual(MATRIX_PATH.read_bytes(), expected_bytes)
 
     def test_matrix_binds_exact_base_git_materials_and_source_labels(self) -> None:
+        current_compatibility = self.assert_current_compatibility(
+            load_json(CURRENT_COMPATIBILITY_PATH)
+        )
         self.assertEqual(
             self.document["schema_contract"],
             {
@@ -323,14 +438,15 @@ class Qual206LocalProtocolEvidenceMatrixTests(unittest.TestCase):
                 # The manifest and lockfile bindings record the protected runtime
                 # base. Unrelated scripts or workspace importers may change without
                 # changing the pinned gateway client. Its current exact dependency
-                # is checked separately below, while runtime and source materials
-                # must remain byte-identical to the base commit.
+                # is checked separately below. Only the explicit additive WEB-216
+                # runtime admission uses its new exact reviewed hash; every other
+                # runtime/source material remains byte-identical to the base.
                 current_client_projection_paths = {
                     self.document["official_client"]["manifest"]["path"],
                     self.document["official_client"]["lockfile"]["path"],
                 }
                 if material["path"] not in current_client_projection_paths:
-                    self.assertEqual(material["sha256"], sha256(path))
+                    self.assert_current_material_hash(material, current_compatibility)
 
         actual_source_names = {
             row["id"]: [

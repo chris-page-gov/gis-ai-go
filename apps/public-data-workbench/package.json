@@ -1,0 +1,25 @@
+{
+  "name": "@gis-ai-go/public-data-workbench",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Experimental local OKF discovery and captured-data MCP workbench",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "prepare:data": "cd ../.. && uv run --locked --cache-dir .uv-cache python scripts/web216_build_workbench_data.py",
+    "build": "pnpm run prepare:data && vite build",
+    "typecheck": "pnpm run prepare:data && tsc --project tsconfig.json --noEmit",
+    "test:unit": "pnpm run prepare:data && vitest run",
+    "preview": "vite preview --host 127.0.0.1 --port 4176 --strictPort"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/client": "2.0.0"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
+    "@playwright/test": "1.62.1",
+    "jsdom": "30.0.1",
+    "vite": "8.2.1",
+    "vitest": "4.1.11"
+  }
+}
