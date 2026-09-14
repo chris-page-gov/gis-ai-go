@@ -5,10 +5,17 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 import tempfile
 from pathlib import Path
 
-from gateway_image import ROOT, build_oci_archive, inspect_oci_archive, source_identity
+from gateway_image import (
+    BuildkitBuildError,
+    ROOT,
+    build_oci_archive,
+    inspect_oci_archive,
+    source_identity,
+)
 
 
 def main() -> None:
@@ -33,12 +40,16 @@ def main() -> None:
         raise ValueError("reference image receipt lacks its platform")
     with tempfile.TemporaryDirectory(prefix="gis-ai-go-gateway-repro-") as temporary:
         repeated_path = Path(temporary) / "gateway-image.oci.tar"
-        repeated = build_oci_archive(
-            repeated_path,
-            source=source,
-            platform=platform,
-            tag=f"gis-ai-go-gateway:deploy-207-{source.revision[:12]}",
-        )
+        try:
+            repeated = build_oci_archive(
+                repeated_path,
+                source=source,
+                platform=platform,
+                tag=f"gis-ai-go-gateway:deploy-207-{source.revision[:12]}",
+            )
+        except BuildkitBuildError as error:
+            sys.stderr.write(f"{error}\n")
+            raise SystemExit(1) from None
         if repeated != expected or repeated_path.read_bytes() != reference.read_bytes():
             raise AssertionError("two clean gateway OCI builds are not byte-identical")
     print(
