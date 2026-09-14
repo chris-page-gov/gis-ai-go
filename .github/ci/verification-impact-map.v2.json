@@ -193,6 +193,17 @@
       "force_full": false
     },
     {
+      "id": "public-data-workbench-candidate",
+      "description": "Experimental workbench frontend and its unit/build configuration require repository assurance; gateway source retains its separate image route.",
+      "patterns": [
+        "apps/public-data-workbench/**"
+      ],
+      "lanes": [
+        "repository_assurance"
+      ],
+      "force_full": false
+    },
+    {
       "id": "qual-206-evidence",
       "description": "QUAL-206 harness, fixture and evidence changes require repository assurance.",
       "patterns": [

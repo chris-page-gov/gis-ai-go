@@ -393,3 +393,27 @@ admission. A same-pattern search found no sibling host-substring assertion in th
 new app or gateway tests. The deterministic receipt refresh preceding this gate
 took 21.76 seconds across generation, repeat check and 32 contract tests; no
 historical observed-host evidence or compiler runtime pin changed.
+
+The next canonical repository check found 16 failures in three integration
+contracts: 14 newly introduced workbench paths lacked explicit shadow routing;
+the workspace-version inventory omitted the new app; and the historical protocol
+matrix still required the changed MCP HTTP source to match its original bytes.
+The deterministic seven-receipt check itself passed. A reused assurance agent
+diagnosed and corrected the routing/inventory omissions and added a separately
+pinned, explicitly non-attesting current-source compatibility record. The original
+v1 matrix, original Git-blob assertions and deterministic receipts remain unchanged.
+Sibling-path, version-drift and compatibility-tampering regressions were added;
+71 affected tests passed in 2.572 seconds. The root reviewed the exact changes
+before submission. These are integration omissions, not evidence that the
+successful browser observations occurred on an accepted protected-main build.
+
+The owner then supplied screenshots comparing the in-app browser with a separate
+Chrome ChatGPT-extension session. The latter could read the page but reported no
+WebMCP capability, even after a duplicated tab resolved an ownership conflict.
+A fresh Edge connection likewise exposed only `pageAssets` and `cdp`; its manual
+selection call succeeded. The requested repeat retrieval was not executed after
+the approval layer refused its durable-write side effect in the side-check scope.
+Earlier successful Edge retrieval/inspection remains separately recorded above.
+The owner's Gemini screenshot reports no tool-definition or execution access.
+This is recorded as an owner-observed client limitation, not a universal claim
+about Gemini or an inferred tool execution. No browser settings were changed.

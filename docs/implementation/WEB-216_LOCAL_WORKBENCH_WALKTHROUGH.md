@@ -137,13 +137,23 @@ The server separately exposes three closed MCP tools, not the candidate's five.
 | Surface tested | Manual path | Page registration | Actual AI-host tool calls |
 | --- | --- | --- | --- |
 | Codex in-app browser | January `139.4`; July inspection | Four tools | All four succeeded; July `142.7`; same receipt inspected after restart. |
-| Chrome `153.0.8010.36`, macOS arm64 | July `142.7` retrieved | Four tools reported | Not exposed by this browser connection; Gemini not tested. |
+| Chrome `153.0.8010.36`, macOS arm64, ChatGPT extension | July `142.7` retrieved | Four tools reported | Not exposed by the tested connection; the owner's separate extension session reported the same limitation. |
 | Edge `153.0.4234.32`, macOS arm64 | July `142.7` retrieved and inspected | Four tools reported | Not exposed by this browser connection; Copilot not tested. |
+| Gemini sidebar in Chrome, owner observation | Not independently retested through Gemini | Sidebar acknowledged the page's four-tool status | Reported no access to tool definitions or execution; no successful tool call observed. |
 
 Versions were read from installed applications, not checked for newer updates.
 Registration may depend on the connected environment; it is not proof of a native
 browser standard implementation. No flags, profile identity, authentication or
 security settings were changed. Unsupported hosts retain the manual controls.
+
+The owner reproduced the distinction using the same local URL in a separate
+Chrome tab. Duplicating a tab resolved an automation-ownership conflict, but the
+ChatGPT extension still reported only page assets and developer-protocol access,
+not a callable WebMCP connection. These are separate prerequisites. A subsequent
+Edge recheck likewise exposed only `pageAssets` and `cdp`; manual selection still
+worked. Neither browser access nor an AI reading the page's registration message
+demonstrates a WebMCP call. The Gemini row is a screenshot-backed owner report,
+not a vendor-wide implementation claim or an independently executed tool test.
 
 ## Assurance and remaining limits
 

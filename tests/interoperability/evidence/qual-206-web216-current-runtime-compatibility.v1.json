@@ -1,0 +1,43 @@
+{
+  "record_type": "gis-ai-go.qual-206-current-runtime-compatibility.v1",
+  "classification": "reviewed-source-compatibility-not-execution-evidence",
+  "historical_matrix": {
+    "path": "evaluation/qual-206-local-protocol-evidence-matrix.v1.json",
+    "sha256": "91dc5a38125b5fd686d3028621f8452c0a3d77fe177dd67b110da6316bfc6039",
+    "runtime_base_commit": "f253605ab26628e821d4ebc3809cf13c883d57ed"
+  },
+  "reviewed_source_commit": "6afbab8e70f0154465f6da33b6feb9af98b1f246",
+  "current_runtime_material": {
+    "path": "apps/mcp-gateway/src/mcp-http.ts",
+    "sha256": "84b020eeb7ef95d3d5219dfe0812d2dc835ce5577d177686aaadea109419b459",
+    "historical_sha256": "bcbebca4c5a0b86ee9c6a3c191cbc683b65e94fef2294835acbd792f869b0ad9"
+  },
+  "change_scope": [
+    "Separately named loopback-only CPIH HTTP constructor reuses the existing bounded modern MCP transport.",
+    "The explicit CPIH query name shares request-signal classification without registering it in the original exact-five assembly.",
+    "Oversized streaming requests cancel both tee branches without awaiting producer cleanup, including through the existing catalogue wrapper."
+  ],
+  "regression_source": {
+    "path": "apps/mcp-gateway/test/web216-cpih-mcp.test.ts",
+    "sha256": "bcd2ba3ebe377598bf4490edfe5db9486f36cccc50f420b2380d670540a1fcde",
+    "source_test_names": [
+      "official SDK discovers exactly three closed experimental tools with truthful write effects",
+      "read-only missing lookup and pre-admission HTTP cancellation return bounded problems without writes",
+      "loopback authority, Origin, Host and route are closed before application calls",
+      "sensitive JSON-RPC control fields and oversized wire bodies are rejected without reflection or writes",
+      "the existing catalogue wrapper also refuses oversized streaming bodies without waiting for producer cleanup",
+      "the experimental wrapper parses wire bytes, not supplied parsed-body overrides, and retains protocol guards"
+    ]
+  },
+  "claims": {
+    "test_execution_recorded": false,
+    "historical_matrix_rerun": false,
+    "historical_attestation_extended": false,
+    "complete_dependency_closure_bound": false,
+    "live_host_session": false,
+    "live_provider_call": false,
+    "production_activation": false,
+    "release_ready": false
+  },
+  "boundary": "This additive source-review record admits only the exact changed MCP HTTP file and names its regression source. The original v1 matrix and its Git-blob bindings remain historical and unchanged. Source declarations are not test outcomes, an attestation, complete runtime dependency provenance or independent-host evidence; current execution remains a separate CI result."
+}

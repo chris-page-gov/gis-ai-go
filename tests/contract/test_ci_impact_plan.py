@@ -250,6 +250,42 @@ class CiImpactPlanTests(unittest.TestCase):
             plan["selected_lanes"], ["gateway_image", "repository_assurance"]
         )
 
+    def test_each_frontend_has_an_explicit_source_and_configuration_route(self) -> None:
+        for app, rule in (
+            ("public-explorer", "public-explorer-publication"),
+            ("webmcp-explorer", "webmcp-explorer-candidate"),
+            ("public-data-workbench", "public-data-workbench-candidate"),
+        ):
+            for relative in (
+                ".gitignore", "README.md", "index.html", "package.json",
+                "src/future-module.ts", "test/future-module.test.ts",
+                "tsconfig.json", "vite.config.ts", "vitest.config.ts",
+            ):
+                with self.subTest(app=app, relative=relative):
+                    plan = self.plan(f"apps/{app}/{relative}")
+                    self.assertEqual(plan["unmatched_paths"], [])
+                    self.assertEqual(plan["matched_rule_ids"], [rule])
+                    self.assertEqual(plan["selected_lanes"], ["repository_assurance"])
+                    self.assertFalse(plan["force_full"])
+                    self.assertFalse(plan["gateway_image_required"])
+                    self.assertIs(plan["enforced"], False)
+        # The explicit app rule must not admit a similarly named future sibling.
+        unknown = self.plan("apps/public-data-workbench-next/src/main.ts")
+        self.assertEqual(unknown["reason"], "unmatched-path")
+        self.assertTrue(unknown["force_full"])
+
+    def test_workbench_main_changes_still_require_full_exact_commit_assurance(self) -> None:
+        plan = plan_for_paths(
+            self.impact_map,
+            ["apps/public-data-workbench/src/controller.ts"],
+            base_commit=BASE,
+            head_commit=HEAD,
+            event="push_main",
+        )
+        self.assertEqual(plan["reason"], "protected-main-exact-commit")
+        self.assertEqual(plan["selected_lanes"], list(self.impact_map.full_lanes))
+        self.assertTrue(plan["force_full"])
+
     def test_empty_change_set_fails_closed_to_every_lane(self) -> None:
         plan = self.plan()
         self.assertTrue(plan["force_full"])
