@@ -81,10 +81,11 @@ REQUIRED_OBSERVED_MATERIALS = {
     ("compiled", "packages/evidence/dist/src/index.js"),
     ("build-receipt", "evaluation/qual-206-local-evaluation-receipts.v1.json"),
 }
-# Reviewed build from 4e6a842e2793efde5f6a58807274ce2368e40cf6. WEB-216 adds
-# only a v3 domain/export to this identity surface; canonical algorithms and the
-# fixed historical content-address test vector are unchanged. These exact pins
-# remain fail-closed rather than accepting whichever runtime happens to exist.
+# Reviewed clean build from 5ebe20d9723aa12d413ce88222daa47021679000.
+# WEB-216 adds two inactive evidence exports. The canonical/digest bytes and
+# fixed historical content-address vector remain unchanged; only the barrel's
+# exact compiled pin advances. Historical observations are not rewritten and
+# arbitrary locally generated runtime drift remains rejected before execution.
 PINNED_IDENTITY_RUNTIME_SHA256 = {
     "packages/evidence/dist/src/canonical-json.js": (
         "0b898e4597f5f4f90d5feda5ef9d80c9ea14409f531c2378ff2c9e0a3529c624"
@@ -93,7 +94,7 @@ PINNED_IDENTITY_RUNTIME_SHA256 = {
         "fe07e3349743e3ba6f8102140a3edfd2114351c33f39e791c3a2d6eef95b2327"
     ),
     "packages/evidence/dist/src/index.js": (
-        "9bb2c198c73200ab127089fbac5a2205a4a467256d363fb70874ec1e080d9ab3"
+        "7519018d7d410d2418d3a50d0ba8719f7e0f918063c7e79bb4d499e23a0ae7d8"
     ),
 }
 HISTORICAL_LINEAGE = [

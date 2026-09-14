@@ -417,3 +417,80 @@ Earlier successful Edge retrieval/inspection remains separately recorded above.
 The owner's Gemini screenshot reports no tool-definition or execution access.
 This is recorded as an owner-observed client limitation, not a universal claim
 about Gemini or an inferred tool execution. No browser settings were changed.
+
+## Hosted-storage foundation and runtime correction
+
+PR #131 merged at `2026-09-14T18:29:01Z` as
+`fd8106691bb5c3d63e5f11c21b16f1e7c26f4321`, after all required PR checks passed.
+Its source tree is identical to that checked PR head. The first protected-main
+repository assurance passed, but both image builders failed during packaging;
+retained logs did not expose the underlying builder output. Only failed jobs were
+retried at the unchanged commit. Full post-merge acceptance remained pending at
+this journal entry; source assurance alone was not presented as an image pass.
+
+A reused runtime agent built a separate transaction model, D1-compatible adapter
+and asynchronous capture application. The root retained architecture, integration
+and publication responsibility. Another reused agent reviewed the six source/test
+files independently. Review corrected initial-write uncertainty, replay chronology
+and the distinction between verified adapter data and a proven primary/fresh
+database result. The root also required cancellation checks immediately before
+write issuance and conservative uncertainty after issuance. Both affected packages
+built; 35 focused checks passed, followed by 10 application checks after the
+evidence wording correction. The existing seven deterministic QUAL-206 receipts
+still verified unchanged. An initial loopback test was sandbox-denied and then
+passed with the existing local-socket authority; no test limit was removed.
+
+The main model tested Node validation primitives in the actual local Workers
+runtime, then attempted the D1 adapter. Its initial diagnosis wrongly attributed
+an empty HTTP 500 to the first request; the retained first response was actually
+HTTP 200 with two records. A reused assurance agent identified the later restart
+as the failing stage and read the installed runtime contract. Miniflare
+`5.20260911.1-alpha` silently discarded the obsolete `d1Persist` option, so disposal
+removed ephemeral data. The documented `resourcePersistencePath` corrected the
+harness without changing the worker or application. This records an avoidable
+harness-contract mistake and diagnostic correction, not an application fix.
+
+After a separately recorded sandbox loopback denial, the corrected local probe
+ran from `2026-09-14T18:33:55.275Z` to `2026-09-14T18:33:55.564Z`. Both the write
+and fresh-instance read returned HTTP 200; two records and the complete canonical
+snapshot survived disposal/recreation identically. The executed 62,098-byte bundle
+had SHA-256 `64b6b5040522023aa674f28103a623ce0be2c5ea083064aeeddbb1fad88314c1`.
+Workerd was `1.20260911.1` and esbuild `0.28.1`. Single local write/read-back timings
+were 6 ms and 9 ms, not cloud latency guarantees. Test software identities and
+timestamps were synthetic; this was not an accepted-build attestation, hosted
+deployment, crash-recovery or disaster-recovery proof. Original failed and
+successful records remain private.
+
+In the independent geography lane, one attributes-first POST to the exact ONS
+MSOA BFC V7 layer timed out after 45.002460 seconds. The three bounded attempts
+are now two GETs and one POST. There is still no HTTP result, feature or completed
+join; the conditional geometry request was not made. Earlier records are unchanged
+in the [source observations](../implementation/WEB-216_OS_ONS_SOURCE_OBSERVATIONS.md).
+
+The owner noted access to Daybreak Blue for security testing. This is a possible
+future reviewer selection, not a claim that that model has run or certified this
+increment. Model availability does not alter reproduction, regression or release
+gates. The [storage experiment](../implementation/WEB-216_HOSTED_STORAGE_EXPERIMENT.md)
+explains the still-unmet hosting obligations.
+
+The root requested a portable repository version of the successful D1 probe so
+the result would not depend on an agent-local script. The reused assurance agent
+added two development-only files and ran one bounded check using the already
+installed, version-verified tools. From `18:39:43.835Z` to `18:39:44.421Z`, both
+requests returned HTTP 200 with two recovered records/events and an identical
+canonical snapshot; zero outbound attempts were observed. The runner hash was
+`912aa0d677935b70d352c4caaf47a62a09c7c8d6bc9abd660d8d3561954a4f38`
+and fixture hash `c7a9d509d6828e377491f87bbec61997bf4f649aa72a63e65dd119cd69634650`.
+This is a separately observed portable run, not a rewrite of the original probe.
+
+After the new foundation was committed and rebased onto the unchanged PR #131
+merge tree, a clean build at `5ebe20d9723aa12d413ce88222daa47021679000` verified
+unchanged canonicalisation/digest bytes and the new additive export barrel. The
+historical compiler's exact barrel pin was advanced to that reviewed build;
+earlier observations, identity vectors and the seven deterministic local receipts
+were not regenerated. The affected contract run had caught this specific stale
+pin before CI submission. This remains a maintenance cost of the shared export
+surface, not a runtime behaviour change or relaxed evidence gate.
+
+The one unchanged-source image retry also failed. No further identical retry was
+started; diagnosis remained separate from the passing source and storage checks.

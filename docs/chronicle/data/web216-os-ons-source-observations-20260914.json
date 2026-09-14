@@ -1,6 +1,7 @@
 {
   "schema_version": "web216.os-ons-source-observations.v1",
   "created_at_utc": "2026-09-14T17:24:45Z",
+  "updated_at_utc": "2026-09-14T18:31:37Z",
   "status": "public-safe-derived-record",
   "classification": "bounded-source-observations-no-completed-spatial-join",
   "publication_boundary": {
@@ -14,7 +15,8 @@
       "os-open-names-metadata-20260914T160611Z",
       "os-open-names-payload-20260914T161326Z",
       "ons-msoa-point-20260914T165616Z",
-      "ons-msoa-two-stage-20260914T170016Z"
+      "ons-msoa-two-stage-20260914T170016Z",
+      "ons-msoa-post-20260914T180000Z"
     ]
   },
   "sources": {
@@ -399,6 +401,75 @@
         "collector_source_export_sha256": "a9e739b50948804239150239f2ab91102d8e121a338a5fb66ab5590024cad402",
         "capture_manifest_sha256": "3089c830d2a3ff7cfab8920c76e7cb119a7a2d87a893478a5c2aeeaed3e87d1c",
         "run_status_sha256": "931b8c93a743f7ec1aaa3f5b65c3f7aff928593e59c79ede05229c2556f54a18"
+      },
+      {
+        "attempt": 3,
+        "capture_reference": "ons-msoa-post-20260914T180000Z",
+        "capture_reference_basis": "Public reference derived from the recorded POST start, not a private directory name.",
+        "network_accounting": {
+          "authorised_post_maximum": 1,
+          "authorised_conditional_get_maximum": 1,
+          "attempted_posts": 1,
+          "attempted_gets": 0,
+          "completed_responses": 0,
+          "captured_response_bodies": 0,
+          "retries": 0,
+          "redirects": 0,
+          "credentials_supplied": false,
+          "environment_proxies_used": false
+        },
+        "purpose": "POST point-intersecting attributes first, then request full geometry only for one unambiguous returned FID and code",
+        "endpoint": "https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Middle_layer_Super_Output_Areas_December_2021_Boundaries_EW_BFC_V7/FeatureServer/0/query",
+        "method": "POST",
+        "content_type": "application/x-www-form-urlencoded",
+        "point": {
+          "x": 428119,
+          "y": 265114,
+          "crs": "EPSG:27700"
+        },
+        "parameters": {
+          "spatial_relationship": "esriSpatialRelIntersects",
+          "geometry_type": "esriGeometryPoint",
+          "result_record_count_maximum": 5,
+          "return_geometry": false,
+          "out_fields": "FID,MSOA21CD,MSOA21NM",
+          "where": "1=1",
+          "format": "json"
+        },
+        "request_plan_created_at_utc": "2026-09-14T17:59:39.134531Z",
+        "query_requested_at_utc": "2026-09-14T18:00:00.733250Z",
+        "query_failed_at_utc": "2026-09-14T18:00:45.736260Z",
+        "query_elapsed_seconds": 45.00246,
+        "query_elapsed_basis": "Recorded measured elapsed time, including exception handling; not inferred from wall-clock timestamps.",
+        "query_deadline_seconds": 45,
+        "response_capture_byte_limit": 524288,
+        "outcome": "unavailable-timeout-not-no-match",
+        "failure": "total-request-deadline",
+        "http_status": null,
+        "response_headers": null,
+        "body_bytes": null,
+        "body_sha256": null,
+        "local_incomplete_capture": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "complete": false,
+          "interpretation": "Empty local capture only; not evidence of an empty server response."
+        },
+        "server_received_or_processed_request": null,
+        "candidate_count": null,
+        "conditional_geometry_allowed": false,
+        "conditional_geometry_request_attempted": false,
+        "decision_record_created_at_utc": "2026-09-14T18:00:45.736674Z",
+        "collector_source_export_sha256": "d61f518327cea1bd0838d0184c891b6a4db08b044dc5e9f69424568600eb2601",
+        "request_plan_sha256": "8580e9adcf8af4721614f44723391aa152498d70c69207ad55e0d613a4aabd82",
+        "attempt_start_record_sha256": "8559b2995809017c322b90bd235b8e8429e4e42f547c7a97b94e7a5e250cad90",
+        "response_record_sha256": "cde44e818ccf0ec2a2d25339d142f5abc1eff0b2b1c2440c4d5bd6506f50a0ef",
+        "decision_record_sha256": "20fbfb8841abc09bc237e42a24115c9cb841ecd99ad2a6968ff127a99a4696d0",
+        "contract_documentation": {
+          "url": "https://developers.arcgis.com/rest/services-reference/enterprise/query-feature-service-layer/",
+          "source_plan_checked_on": "2026-09-14",
+          "interpretation": "GET/POST support and a Query capability declaration do not establish that a request will receive a response."
+        }
       }
     ]
   },
@@ -410,7 +481,14 @@
     "returned_ons_feature_id": null,
     "returned_msoa21cd": null,
     "returned_boundary_geometry": null,
-    "reason": "Both ONS point-query attempts timed out without a captured status or body. Candidate count is unknown, so the evidence is unavailable rather than a no-match.",
+    "query_attempt_counts": {
+      "total": 3,
+      "get": 2,
+      "post": 1,
+      "timeouts": 3,
+      "completed_responses": 0
+    },
+    "reason": "All three ONS point-query attempts (two GETs and one POST) timed out without a captured status or response body. The POST's zero-byte local capture is not a server response. Candidate count is unknown, so the evidence is unavailable rather than a no-match.",
     "interpretation": "The retained OS Town point is not a boundary for Warwick, a postcode, a property, an address or evidence about the whole town."
   },
   "overall_limits": [
