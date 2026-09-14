@@ -124,6 +124,10 @@ for verification and client examples.
 
 ## Repository map
 
+For the build history, agent roles and a beginner explanation of the methodology,
+read [How we built GIS AI GO](docs/chronicle/README.md). It includes the code review,
+model/guidance changes, local-completion plan and A4 print edition instructions.
+
 - `apps/public-explorer/` — static accessible catalogue Explorer
 - `apps/mcp-gateway/` — TypeScript gateway; generic/default entrypoints fail closed,
   while the fixed container and dedicated loopback-only local evaluation entrypoint

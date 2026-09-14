@@ -1,0 +1,2031 @@
+{
+  "schema": "gis-ai-go.chronicle-assurance-source-inventory.v1",
+  "reviewed_on": "2026-09-14",
+  "source_commit": "6c76c92a18da779766f8d49acbbd7dbbd31abb97",
+  "scope": "All Git-tracked executable source and build-control files under scripts, both Explorer applications and checked-in workflow/impact configuration; root build controls; executable tests under tests and both Explorer test trees.",
+  "exclusions": [
+    "Generated outputs and installed dependencies",
+    "Non-executable test fixtures and evidence data",
+    "Static icons and documents",
+    "Other runtime/packages/services code reviewed separately"
+  ],
+  "meaning": {
+    "complete-source-read": "The source was read, not a claim of exhaustive semantic proof, branch coverage or a fresh test pass.",
+    "targeted-source-review": "The listed ranges were directly inspected in context, with whole-file structural/function inventory. Remaining bodies are not closed review coverage.",
+    "structural-only": "File inventoried and structural or routing patterns checked; not substantive function-by-function source-review completion."
+  },
+  "verification_boundary": "No live provider or AI client, full test suite or deployment was run. Baseline fingerprints describe reviewed code; documentation-only corrections do not change these code fingerprints.",
+  "summary": {
+    "maintained-source-or-build-control:complete-source-read": 70,
+    "test:structural-only": 85,
+    "maintained-source-or-build-control:targeted-source-review": 40,
+    "test:complete-source-read": 2
+  },
+  "files": [
+    {
+      "path": ".github/ci/verification-impact-map.v2.json",
+      "lines": 277,
+      "sha256": "192446400aca2d90a6d78b0f4d1bc6ae4cc570ce0ab532caa3ca244096b3c2a1",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "lines": 614,
+      "sha256": "57e2ab76c929ae57e7c0e0996ee122d1e140a898ae64597aaa165185f68a7754",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": ".github/workflows/pages.yml",
+      "lines": 489,
+      "sha256": "cf2596c2dae3b00b24b42f689e5a3a4724a739f3eaec3ebbfc171534f4056b76",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "apps/public-explorer/index.html",
+      "lines": 66,
+      "sha256": "0dbc5279415a1f59e4e1a35038e6ae643e420c16025b7cd38f84ca497db2cb78",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "apps/public-explorer/package.json",
+      "lines": 30,
+      "sha256": "a50c8731c75495dd0f9d4b8af9125f0a7d121f32aacaf7c3cb12c2654dd1404b",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "apps/public-explorer/playwright.config.ts",
+      "lines": 35,
+      "sha256": "7d034e93cd75e589d057ffc9f72993a993f65cbbe368032e1d04593e5b092945",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "apps/public-explorer/playwright.public.config.ts",
+      "lines": 55,
+      "sha256": "3ac4b99d6d27b1101c25e996cc44d824383a3c4a0b904669018e08c16e8e6ae8",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "apps/public-explorer/scripts/build-boundary.mjs",
+      "lines": 172,
+      "sha256": "4dfb6b15ef05f33574a860abe76118e816a586c281d47826eb7fdf93d983dcc9",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "apps/public-explorer/scripts/check-build-boundary.mjs",
+      "lines": 14,
+      "sha256": "500ec9e864deccd5e22a56ebe36486199090326d937bf912e6a5e3475e15ccac",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "apps/public-explorer/scripts/check-dist.mjs",
+      "lines": 198,
+      "sha256": "0fae7525e9d1b8d61675c2502c05e79fb0b377e5b97f48a8e01c252a61ef682a",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "apps/public-explorer/scripts/dist-policy.mjs",
+      "lines": 119,
+      "sha256": "96438cd14ddc56e95c0356427ba1459eb135dd2bc4e13917c34ea162faf2bbc0",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "apps/public-explorer/scripts/prepare-data.mjs",
+      "lines": 130,
+      "sha256": "8e1f3a3779a18a52a3ff04fda15d6a53f66cd1af5bd2ec36d28cdc2d237c6b86",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "apps/public-explorer/src/catalogue.ts",
+      "lines": 32,
+      "sha256": "994fdca1f76316fc30372eb2fbd8c85b858b69535d62f0804862da2b5c1bc366",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "apps/public-explorer/src/dom.ts",
+      "lines": 158,
+      "sha256": "5a03a0170b0ae33ef768d787cf4e2895f189d9dd326aad44a26d9f11e333ac5a",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "apps/public-explorer/src/links.ts",
+      "lines": 4,
+      "sha256": "38a9d840a9f447ef751c84a5dc1b40fc4e622eba308a38ab3e220ce084fae9d1",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "apps/public-explorer/src/main.ts",
+      "lines": 625,
+      "sha256": "f7575aacc154d8201ec97a958eb22a53d841a9fda870a51e979642f666a8c82f",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "apps/public-explorer/src/state.ts",
+      "lines": 212,
+      "sha256": "d84d960bda24ed5b259e840d68febc9dc027b338d57ed4cea8c7ed75c9f3b85e",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "apps/public-explorer/src/styles.css",
+      "lines": 659,
+      "sha256": "b1403ec278167ba6fada3aacf82ad391c262ac680cb2fa554d57d00ff7331ddd",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "apps/public-explorer/src/types.ts",
+      "lines": 42,
+      "sha256": "5032a5ba14ec1782e112f461427dea13390f31a159784963e5095eec4fb59f10",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "apps/public-explorer/src/views/cards.ts",
+      "lines": 350,
+      "sha256": "1c99f1eedbc2585d710163def179749a85ec73f8ce4aaf280a96b7d5f7602435",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "apps/public-explorer/src/views/graph.ts",
+      "lines": 216,
+      "sha256": "796b09f85ea464644c8dbb80f9bf02d436a0e9101964bfae60509f2407deb1d8",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "apps/public-explorer/src/views/map.ts",
+      "lines": 173,
+      "sha256": "d90238bd87925f64444752c9cccec4b1c4cdb5ebc864e640226a33c7f091eb3b",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "apps/public-explorer/src/views/timeline.ts",
+      "lines": 134,
+      "sha256": "fea4cc88a55ce1162b5e2d03c1277bd30cb41dacd38c06fefbf7788d8ce1fb33",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "apps/public-explorer/test/browser/accessibility.spec.ts",
+      "lines": 158,
+      "sha256": "1308b589abbe73c6f462a646f5fc475b25dc05043982222d423bff22ed784b31",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "apps/public-explorer/test/browser/downloads.spec.ts",
+      "lines": 72,
+      "sha256": "471bec9c8a3630799d096ac9fb11d30a742889f01161e06bf4618ecab146f2bf",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "apps/public-explorer/test/browser/journeys.spec.ts",
+      "lines": 310,
+      "sha256": "bc24b6accaf0402e72c3e77db3ee48bccada908d2cb5a7b66fa532a7def4bdfe",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "apps/public-explorer/test/browser/public-deployment.spec.ts",
+      "lines": 313,
+      "sha256": "b758bb19d8ba28ea5c1321af8ee8b0f7d66c7dc0a8382f58e09817af77846bdd",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "apps/public-explorer/test/browser/reviewed-examples.spec.ts",
+      "lines": 205,
+      "sha256": "2cb10b42b01395fb5c9385dc1f1c49a4c54d50b9f0aca0b05ef685e81f9eadb3",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "apps/public-explorer/test/browser/security.spec.ts",
+      "lines": 68,
+      "sha256": "ea6194380bfe6b234d42ebe981f4ea19354b7e48358a6d9087db48443e4ba5d8",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "apps/public-explorer/test/build/build-boundary.test.mjs",
+      "lines": 89,
+      "sha256": "a4f3c3f317ec8a8bec99f8bebf686f92539545d2761246588698d8215353f251",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "apps/public-explorer/test/build/dist-policy.test.mjs",
+      "lines": 109,
+      "sha256": "80ecff8483d4dc6473c65db07c74dbc0169293793a1e6dc1431f5d811bcb8b2f",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "apps/public-explorer/test/component/cards.test.ts",
+      "lines": 116,
+      "sha256": "a89718ae98a58adf9d66ab1a5ddd3bd31bf767d0ceb7423eb84e42645869367c",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "apps/public-explorer/test/component/fixtures.ts",
+      "lines": 193,
+      "sha256": "bcaa04566f5c7a771560156070dad5a118c9efecd273259c422fb1c70e8beea5",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "apps/public-explorer/test/component/graph.test.ts",
+      "lines": 61,
+      "sha256": "6b8e7278ea77cc5b8c9cc86774bcc9b0cb5f4b70bb494f920209cd138628dbde",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "apps/public-explorer/test/component/map.test.ts",
+      "lines": 22,
+      "sha256": "2827995b4ac428384478515e5fe4b6c294cda436fb6517a800e73a23d59faa80",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "apps/public-explorer/test/component/timeline.test.ts",
+      "lines": 54,
+      "sha256": "a66dd438ebcf30084326a3515b808752b212c03e13ed63e7645a6cfed6216093",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "apps/public-explorer/test/fixtures/assurance.ts",
+      "lines": 56,
+      "sha256": "895bd86e415bea5ac835d8a7883228200ae3b28b29a8d1b1f1e6549aaecb774f",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Executable fixture inventoried separately from fixture data; not a claim of every branch being read."
+    },
+    {
+      "path": "apps/public-explorer/test/fixtures/network.ts",
+      "lines": 3,
+      "sha256": "4171ce1af2b0c4110f7c230e646c57b434df08a219c383ef6370764771250ec7",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Executable fixture inventoried separately from fixture data; not a claim of every branch being read."
+    },
+    {
+      "path": "apps/public-explorer/test/fixtures/publication.ts",
+      "lines": 103,
+      "sha256": "e9dc154bd94006f872959c7c5a4cae102b5c443d2faf8e2906046d541ad184c1",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Executable fixture inventoried separately from fixture data; not a claim of every branch being read."
+    },
+    {
+      "path": "apps/public-explorer/test/unit/catalogue.test.ts",
+      "lines": 223,
+      "sha256": "7c1ada3187ead38f970ee0b356801dfb3df2629a550cb0c5c75318362ad8ab12",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "apps/public-explorer/test/unit/fixtures.ts",
+      "lines": 122,
+      "sha256": "97167ace8ddb4700ef25dabf4f5475884c5144a8eb5b5966eeadcd0254b3972b",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "apps/public-explorer/test/unit/links.test.ts",
+      "lines": 37,
+      "sha256": "55962fad74e5d8531c54bccee362954bb0f7a6425bfa19dda92f23debdc5dce9",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "apps/public-explorer/test/unit/network.test.ts",
+      "lines": 22,
+      "sha256": "d6163fde6237d95cfa2dde66dedbfc380d3d95b01aec1fdce2e9d457ca23bd03",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "apps/public-explorer/test/unit/publication.test.ts",
+      "lines": 47,
+      "sha256": "6bffb8b52b360452b01017d73bd62313026d41443e6d435ecd72965fc80a3370",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "apps/public-explorer/test/unit/state.test.ts",
+      "lines": 111,
+      "sha256": "a8e5ec4cd95c26905dfc10384a3a342f4cfa64d5fd0be753539d94f7cd3121c4",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "apps/public-explorer/tsconfig.json",
+      "lines": 17,
+      "sha256": "7378ff3e118634f443f9f8f8419fc5b97a8ed46fe842c8d790067d92ad13935a",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "apps/public-explorer/vite.config.ts",
+      "lines": 10,
+      "sha256": "6fb98663aa49596083268c82bc8bc3474e3d619c0967aa539bc8e39c68e0cf6f",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "apps/public-explorer/vitest.config.ts",
+      "lines": 8,
+      "sha256": "ee4294b727274324d9932f21e91062db0284b9a37dbfaf8204fd630136784d66",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "apps/webmcp-explorer/index.html",
+      "lines": 283,
+      "sha256": "5cee379aa7c84f6afcdd78a51d2741048b11cade3b4b545f3e4bd035abb97084",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "apps/webmcp-explorer/package.json",
+      "lines": 29,
+      "sha256": "60ed86b42d30f1e642ff0ca420db00e483b2a3d32bcbeb80c6988c8f2b3b5cec",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "apps/webmcp-explorer/playwright.config.ts",
+      "lines": 32,
+      "sha256": "5b3dec02a4eced698ea3522e1794600b14f18403d78865b66eccf61cbfcd8587",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "apps/webmcp-explorer/scripts/build-boundary.mjs",
+      "lines": 133,
+      "sha256": "4efb669345f2b211e1f4f39de46b9caa38b185415c585d52590cba5446446ff3",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "apps/webmcp-explorer/scripts/check-dist.mjs",
+      "lines": 62,
+      "sha256": "808c2b43f0e3a9c8f42e7cda3f9fd5c9cb5944f0427d33b7834beffd3e3d5e48",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "apps/webmcp-explorer/scripts/chrome-preflight.mjs",
+      "lines": 227,
+      "sha256": "a052dc25bd7ad90d4a542381151a51c8ac6779f9bdcd4cb80a88a449fe988fc8",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "apps/webmcp-explorer/scripts/html-boundary.mjs",
+      "lines": 120,
+      "sha256": "ce0ddf417cf586c329f77c30f63c11ef80a4590f0494f1f0e454c2cb235506c8",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "apps/webmcp-explorer/scripts/prepare-data.mjs",
+      "lines": 50,
+      "sha256": "1aa5c3bc0b938b140c7d5398b45abfefbd4e5a6cbc9311d9cf9b303ea834b78a",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "apps/webmcp-explorer/src/catalogue-tools.ts",
+      "lines": 389,
+      "sha256": "452912eab9ebce9333609081d73bebfd90646ff100150dcc4d9d6a5f2be92528",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "apps/webmcp-explorer/src/dom.ts",
+      "lines": 28,
+      "sha256": "7342cb5e8aec75f3aace17ba8167c66c2b2ee48cdc899a0e4989c152ceaf5257",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "apps/webmcp-explorer/src/main.ts",
+      "lines": 187,
+      "sha256": "35445d49c8aee53220a339194e04c81d47e7ecf1ce690cc3b9737399187af6dc",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "apps/webmcp-explorer/src/styles.css",
+      "lines": 656,
+      "sha256": "cc64b07d876f105a16110fbffd2d9d11418d4a430960cafb3da58eab1d4b9415",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "apps/webmcp-explorer/src/webmcp-adapter.ts",
+      "lines": 226,
+      "sha256": "aaf378b79daae64aaee8e1aec2e8692262b79c4984d4d801322d418359e3630f",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "apps/webmcp-explorer/test/browser/accessibility.spec.ts",
+      "lines": 115,
+      "sha256": "e315497d49ef54ebf15cfee130507ca71ddf5c9183b132f3254e16f51685478f",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "apps/webmcp-explorer/test/browser/journeys.spec.ts",
+      "lines": 269,
+      "sha256": "ad14c5da51b5ce79af20e0854d3250977be1daf575bafc92471891ec08c57df6",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "apps/webmcp-explorer/test/browser/security.spec.ts",
+      "lines": 209,
+      "sha256": "dfa01a1efb20286b0e3da1eac8c027ef468219df24eca2462a5e3f93d86ea74b",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "apps/webmcp-explorer/test/build/build-boundary.test.mjs",
+      "lines": 93,
+      "sha256": "885e0a4f33c0665d4413d23cd8b04d9bf56e5d7eb009e27d7842d7721d029ff2",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "apps/webmcp-explorer/test/build/chrome-preflight.test.mjs",
+      "lines": 122,
+      "sha256": "77d034405d76349f6d1494af22e2f0331ef444df34274d0e05723b38df1e8607",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "apps/webmcp-explorer/test/unit/catalogue-tools.test.ts",
+      "lines": 75,
+      "sha256": "9706e3204fddbd73aec6c1256429fa17dd43f205316640a98b848952cd0cebdc",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "apps/webmcp-explorer/test/unit/fixture.ts",
+      "lines": 109,
+      "sha256": "8e4b349c53e6eada940658021028fcf9f12b2ee7dc4c361a11142506a2d726c3",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "apps/webmcp-explorer/test/unit/webmcp-adapter.test.ts",
+      "lines": 96,
+      "sha256": "177908ad6e609bffa65149c7c74ba180cc09764342b513ed1ec20dc69ab7e6a6",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "apps/webmcp-explorer/tsconfig.json",
+      "lines": 17,
+      "sha256": "7378ff3e118634f443f9f8f8419fc5b97a8ed46fe842c8d790067d92ad13935a",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "apps/webmcp-explorer/vite.config.ts",
+      "lines": 10,
+      "sha256": "6fb98663aa49596083268c82bc8bc3474e3d619c0967aa539bc8e39c68e0cf6f",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "apps/webmcp-explorer/vitest.config.ts",
+      "lines": 8,
+      "sha256": "708a6d4bdbcec2ae94251922990beead9752ed227ba44ac1ae41a81b75a57608",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "package.json",
+      "lines": 61,
+      "sha256": "399be8cc5c96a2381473530a0ad982fd428cf8df38ca15ef274d2097668536ea",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "pnpm-workspace.yaml",
+      "lines": 3,
+      "sha256": "253208fa7c1b64372c219b9e19cef15ed70ca93b66a4d5c4c4d2297a5aff8880",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "pyproject.toml",
+      "lines": 18,
+      "sha256": "959b6fb65beec7db1191ef1bc2787a3bfcdb9dbcad093d1aaca597a0137cff70",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "scripts/build_okf.py",
+      "lines": 1537,
+      "sha256": "a83ff37cbf408240ae8ecd2813885dc611453f80fdaf951f789d4fe4ac8fb819",
+      "kind": "maintained-source-or-build-control",
+      "function_count": 43,
+      "review_depth": "targeted-source-review",
+      "review_notes": "Source-lock validation and build/output entrypoints; AST structure for all functions.",
+      "inspected_ranges": [
+        {
+          "start_line": 1282,
+          "end_line": 1395
+        },
+        {
+          "start_line": 1504,
+          "end_line": 1537
+        }
+      ]
+    },
+    {
+      "path": "scripts/capture_delivery_evidence.py",
+      "lines": 7765,
+      "sha256": "44e3beef189417b10c971f4414795b6f557bc447a0e51fdcb49f39c45d27ecaa",
+      "kind": "maintained-source-or-build-control",
+      "function_count": 206,
+      "review_depth": "targeted-source-review",
+      "review_notes": "Store locks, recovery and journal append; projection compression and reuse; fresh Codex loop; bounded GitHub retrieval. Remaining helper bodies require deeper audit.",
+      "inspected_ranges": [
+        {
+          "start_line": 2157,
+          "end_line": 2245
+        },
+        {
+          "start_line": 2338,
+          "end_line": 2505
+        },
+        {
+          "start_line": 2699,
+          "end_line": 2914
+        },
+        {
+          "start_line": 5034,
+          "end_line": 5128
+        },
+        {
+          "start_line": 5960,
+          "end_line": 6100
+        },
+        {
+          "start_line": 6400,
+          "end_line": 6585
+        }
+      ]
+    },
+    {
+      "path": "scripts/check_changelog_fragments.py",
+      "lines": 152,
+      "sha256": "dfe82fd6b452ac3fc1e6ade9882ca2132eb773a7561ee43fe6019ab10994dc40",
+      "kind": "maintained-source-or-build-control",
+      "function_count": 5,
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "scripts/check_evidence_checkpoint.mjs",
+      "lines": 82,
+      "sha256": "62e00b89d664e99bf1783ccf06ec4ff7e2c8cd9eb29201b23c25d04389c51af3",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "scripts/check_evidence_filesystem_capabilities.mjs",
+      "lines": 289,
+      "sha256": "06039b478b7acc9e378dba3f3dbdf00e60dc79bcf87969975f064d672a022fbb",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "scripts/check_execution_container.py",
+      "lines": 118,
+      "sha256": "8ea0b8f0681e04f955ee38eb79f52f85460808a51f236f005ce0241eef54da47",
+      "kind": "maintained-source-or-build-control",
+      "function_count": 2,
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "scripts/check_gateway_container.py",
+      "lines": 1441,
+      "sha256": "8f452c0da80b184eeb98beada74571e7018135e7d7e556b17e04f0f279fe57d2",
+      "kind": "maintained-source-or-build-control",
+      "function_count": 36,
+      "review_depth": "targeted-source-review",
+      "review_notes": "Bounded command wrapper and accepted-image/Compose/runtime acceptance entrypoint; remaining control helpers structurally inventoried.",
+      "inspected_ranges": [
+        {
+          "start_line": 148,
+          "end_line": 167
+        },
+        {
+          "start_line": 1176,
+          "end_line": 1290
+        }
+      ]
+    },
+    {
+      "path": "scripts/check_gateway_image_reproducibility.py",
+      "lines": 51,
+      "sha256": "06d5f037094cb1d3798565185fa9ffa2db7266d46afea0d77e3d2b53971b909c",
+      "kind": "maintained-source-or-build-control",
+      "function_count": 1,
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "scripts/check_links.py",
+      "lines": 142,
+      "sha256": "e18e922ced43f0f2474130fa03fec2400997d53949e83a41a517e489bab1804c",
+      "kind": "maintained-source-or-build-control",
+      "function_count": 7,
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "scripts/check_public_read_v2.mjs",
+      "lines": 559,
+      "sha256": "506c32e2c9b4ee31ad8fbfa3c930c460971d5751aa6e2f551f72c822a2af7634",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "targeted-source-review",
+      "review_notes": "Deterministic profile ranking derivation and input identity admission.",
+      "inspected_ranges": [
+        {
+          "start_line": 100,
+          "end_line": 220
+        }
+      ]
+    },
+    {
+      "path": "scripts/check_release_reproducibility.py",
+      "lines": 393,
+      "sha256": "27945e39195421023b2ffe4a542856d5e0f9cf95ee5913b4427d2990ede26d87",
+      "kind": "maintained-source-or-build-control",
+      "function_count": 18,
+      "review_depth": "targeted-source-review",
+      "review_notes": "Material inventory and independent build/compare orchestration.",
+      "inspected_ranges": [
+        {
+          "start_line": 1,
+          "end_line": 140
+        },
+        {
+          "start_line": 330,
+          "end_line": 393
+        }
+      ]
+    },
+    {
+      "path": "scripts/check_versions.py",
+      "lines": 159,
+      "sha256": "7f118b81ef6a688ecece275f72a070cd3c71d4891148ca6bf251de14a11fbfdb",
+      "kind": "maintained-source-or-build-control",
+      "function_count": 7,
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "scripts/compile_qual_206_strict_modern_evidence.py",
+      "lines": 1112,
+      "sha256": "e7eba0d2d8f6e1117e3078b4a1c677e4a1acc90a53e61ef7c0c8015bace2feaf",
+      "kind": "maintained-source-or-build-control",
+      "function_count": 40,
+      "review_depth": "targeted-source-review",
+      "review_notes": "Compiler entrypoint, input/schema/source checks and public-output validation call graph; helper bodies structurally inventoried.",
+      "inspected_ranges": [
+        {
+          "start_line": 1046,
+          "end_line": 1112
+        }
+      ]
+    },
+    {
+      "path": "scripts/create_evidence_checkpoint.mjs",
+      "lines": 40,
+      "sha256": "c8604e6607c32db9f9b05f74af671f5d0f2b7e366f36890d8d3c164e60f93265",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "scripts/evidence_checkpoint_operator_common.mjs",
+      "lines": 126,
+      "sha256": "26e2cb235bd1659e36e7f2b89bf0582577993672dd1fafb8a67edce571e9f6b0",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "scripts/evidence_checkpoint_rehearsal_fixture_writer.mjs",
+      "lines": 52,
+      "sha256": "1f6662e605165a762ed1acfd9c8d92ea4e00ddd0a93c502969e8fbed6eb6fafe",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "scripts/finalise_qual_206_chatgpt_tunnel_exact_five.py",
+      "lines": 241,
+      "sha256": "2ae6f9b2c250ca5805233e17411fb60e096cfbe6d67562916e1f30cb2ad23986",
+      "kind": "maintained-source-or-build-control",
+      "function_count": 5,
+      "review_depth": "targeted-source-review",
+      "review_notes": "Exclusive final manifest write and CLI entrypoint.",
+      "inspected_ranges": [
+        {
+          "start_line": 187,
+          "end_line": 241
+        }
+      ]
+    },
+    {
+      "path": "scripts/gateway_evidence.py",
+      "lines": 191,
+      "sha256": "b5a5f0b4275f2944ee5bfa367bdcac40445df2604045bf5aad07d91112787d04",
+      "kind": "maintained-source-or-build-control",
+      "function_count": 5,
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "scripts/gateway_image.py",
+      "lines": 5764,
+      "sha256": "7a282c5673745033f0dd947fecddad434786e3ede98281d86364a24b4dce1bb3",
+      "kind": "maintained-source-or-build-control",
+      "function_count": 138,
+      "review_depth": "targeted-source-review",
+      "review_notes": "Privacy-classifier entrypoint, bounded reads and strict JSON, tracked build context, OCI closed inventory and runtime composition; detailed privacy parser and layer helpers remain targeted-review gaps.",
+      "inspected_ranges": [
+        {
+          "start_line": 1,
+          "end_line": 115
+        },
+        {
+          "start_line": 2931,
+          "end_line": 3452
+        },
+        {
+          "start_line": 4884,
+          "end_line": 5183
+        },
+        {
+          "start_line": 5334,
+          "end_line": 5416
+        }
+      ]
+    },
+    {
+      "path": "scripts/generate_gateway_image_sbom.py",
+      "lines": 181,
+      "sha256": "d58f6fca08756455be329480c8380c0beee47f7901d9dfb1e58d9c64cec306a6",
+      "kind": "maintained-source-or-build-control",
+      "function_count": 2,
+      "review_depth": "targeted-source-review",
+      "review_notes": "SBOM generation entrypoint and output bounds; middle component assembly structurally reviewed.",
+      "inspected_ranges": [
+        {
+          "start_line": 35,
+          "end_line": 90
+        },
+        {
+          "start_line": 142,
+          "end_line": 181
+        }
+      ]
+    },
+    {
+      "path": "scripts/generate_sbom.py",
+      "lines": 234,
+      "sha256": "67e7c8e3f73aac29542dfda1a5ae85a624e8fdc20b46cf7ecc5d1c0fc2853ef7",
+      "kind": "maintained-source-or-build-control",
+      "function_count": 7,
+      "review_depth": "targeted-source-review",
+      "review_notes": "Main component collection, package-lock inputs and output generation.",
+      "inspected_ranges": [
+        {
+          "start_line": 180,
+          "end_line": 234
+        }
+      ]
+    },
+    {
+      "path": "scripts/node_runtime_advisory.py",
+      "lines": 1599,
+      "sha256": "43ea8cf48212afc70f71536815a30eabf1b17d722775f4ac5904139d5e4864a2",
+      "kind": "maintained-source-or-build-control",
+      "function_count": 41,
+      "review_depth": "targeted-source-review",
+      "review_notes": "Pinned strict-TLS archive download and CLI entrypoint; advisory database classification helpers structurally inventoried.",
+      "inspected_ranges": [
+        {
+          "start_line": 331,
+          "end_line": 370
+        },
+        {
+          "start_line": 1583,
+          "end_line": 1599
+        }
+      ]
+    },
+    {
+      "path": "scripts/package_gateway_oci.py",
+      "lines": 73,
+      "sha256": "7a684a00eb862eeb970584bfe8516b2f1046a041ad3e57a3d50d8b3797a1c391",
+      "kind": "maintained-source-or-build-control",
+      "function_count": 1,
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "scripts/package_pages.py",
+      "lines": 550,
+      "sha256": "d4d0256f0de456ec4a2f1ee9dc96e29f8b7866f4b92fedc942e2685d2f3b2e21",
+      "kind": "maintained-source-or-build-control",
+      "function_count": 18,
+      "review_depth": "targeted-source-review",
+      "review_notes": "Identity-bound publication payload assembly and CLI; remaining archive helpers structurally inventoried.",
+      "inspected_ranges": [
+        {
+          "start_line": 370,
+          "end_line": 420
+        },
+        {
+          "start_line": 525,
+          "end_line": 550
+        }
+      ]
+    },
+    {
+      "path": "scripts/plan_ci_impact.py",
+      "lines": 634,
+      "sha256": "4b2cf2d3945416a6af6bb34d01e2acfc8cb7f901eb65c7f688cca41e658ba6ce",
+      "kind": "maintained-source-or-build-control",
+      "function_count": 22,
+      "review_depth": "targeted-source-review",
+      "review_notes": "Path routing and fail-full/shadow output flow, map application and CI relationship.",
+      "inspected_ranges": [
+        {
+          "start_line": 1,
+          "end_line": 145
+        },
+        {
+          "start_line": 350,
+          "end_line": 634
+        }
+      ]
+    },
+    {
+      "path": "scripts/qual_206_chatgpt_tunnel_exact_five_harness.mjs",
+      "lines": 1248,
+      "sha256": "e7a9ad81428157f7473396a4a672e190cc3e72963c1c20e5ead468a8df39a932",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "targeted-source-review",
+      "review_notes": "Verified-client bounded invocation, connect/status/stop failure cleanup and CLI.",
+      "inspected_ranges": [
+        {
+          "start_line": 626,
+          "end_line": 711
+        },
+        {
+          "start_line": 1172,
+          "end_line": 1248
+        }
+      ]
+    },
+    {
+      "path": "scripts/qual_206_chatgpt_tunnel_exact_five_observer.mjs",
+      "lines": 1711,
+      "sha256": "26173ade8d0711e278ea309618536a057a122ae8c86fe36cb93c23ab445b2e0d",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "targeted-source-review",
+      "review_notes": "Separate pre-frame/idle/overall deadlines and private source-bound event capture start.",
+      "inspected_ranges": [
+        {
+          "start_line": 677,
+          "end_line": 850
+        }
+      ]
+    },
+    {
+      "path": "scripts/qual_206_claude_capability_harness.mjs",
+      "lines": 1892,
+      "sha256": "2886c0d58408f97f51e233020f237c29312d3e14e554f08dda4ad0995f8746f5",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "targeted-source-review",
+      "review_notes": "Closed tool permission and settings configuration, bounded process-group launcher and profile/source/runtime/auth admission.",
+      "inspected_ranges": [
+        {
+          "start_line": 1274,
+          "end_line": 1371
+        },
+        {
+          "start_line": 1454,
+          "end_line": 1740
+        }
+      ]
+    },
+    {
+      "path": "scripts/qual_206_claude_exact_five_capability_harness.mjs",
+      "lines": 62,
+      "sha256": "e78c23f781f0d2e60d34de2af022d53e40953a77d22fa87f7425144c0780f930",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "scripts/qual_206_claude_runtime_closure.mjs",
+      "lines": 530,
+      "sha256": "b371d799ecd502db4605f71a9e6d04bc241d6cd2872fc7de81d3ccf58a1daf83",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "targeted-source-review",
+      "review_notes": "Stable file hashing, generated-file traversal and measured closure.",
+      "inspected_ranges": [
+        {
+          "start_line": 288,
+          "end_line": 388
+        }
+      ]
+    },
+    {
+      "path": "scripts/qual_206_claude_stdio_observer.mjs",
+      "lines": 2478,
+      "sha256": "f780f44865e4389ea22b95e4dd8cd216eeb6f9cfbfccb57a87fa0c6d758c118e",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "targeted-source-review",
+      "review_notes": "Capability authority and credential boundary, private capture start; request/response helpers structurally inventoried.",
+      "inspected_ranges": [
+        {
+          "start_line": 1324,
+          "end_line": 1410
+        }
+      ]
+    },
+    {
+      "path": "scripts/qual_206_conformance_server.mjs",
+      "lines": 61,
+      "sha256": "aba0f4415bc9f94443be8b79eee06b03bdd275ca9854218dee30102c20a6778f",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "scripts/qual_206_exact_five_event_collector.mjs",
+      "lines": 2341,
+      "sha256": "dafe07b4be3354f5ac6f85e3d10e8d3e11c1226d6393566ff911234e228f9714",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "targeted-source-review",
+      "review_notes": "Parent/source/material identity and private chained-event capture start; remaining analyser bodies structurally inventoried.",
+      "inspected_ranges": [
+        {
+          "start_line": 1505,
+          "end_line": 1600
+        }
+      ]
+    },
+    {
+      "path": "scripts/qual_206_legacy_conformance_server.mjs",
+      "lines": 70,
+      "sha256": "bf87bec24357d5fd6d419bd8b4374642ab46a2f3dfa6d9baebde46f7498edb9c",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "scripts/qual_206_local_demo.mjs",
+      "lines": 959,
+      "sha256": "18bcafc3dfafc6a0d0012c83038349ee6ea89b6e3c457dbad7cf86657424e0ff",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "targeted-source-review",
+      "review_notes": "Fixture startup, event/request correlation and child-output capture; cleanup and semantics structurally inventoried.",
+      "inspected_ranges": [
+        {
+          "start_line": 549,
+          "end_line": 650
+        }
+      ]
+    },
+    {
+      "path": "scripts/qual_206_local_evaluations.mjs",
+      "lines": 783,
+      "sha256": "ed69f581e61858863f98982f54017833e5837fd77ce2a5e562f4fab28d20075a",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "targeted-source-review",
+      "review_notes": "Exact selected-test dispatch, output parsing and command boundaries.",
+      "inspected_ranges": [
+        {
+          "start_line": 568,
+          "end_line": 628
+        },
+        {
+          "start_line": 682,
+          "end_line": 783
+        }
+      ]
+    },
+    {
+      "path": "scripts/qual_206_local_http_preflight.mjs",
+      "lines": 1070,
+      "sha256": "431cdcd920204739f87dc0be3dd072d78022f541a290db6ca86d8b259056a952",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "targeted-source-review",
+      "review_notes": "Clean source binding, isolated bounded transport/audit capture and initial request sequence.",
+      "inspected_ranges": [
+        {
+          "start_line": 744,
+          "end_line": 855
+        }
+      ]
+    },
+    {
+      "path": "scripts/qual_206_strict_modern_identity.mjs",
+      "lines": 47,
+      "sha256": "c0171781672029e1efb50237d92fe42fcd5689f1d9832e2552c528f425f58514",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "scripts/qual_206_telemetry_proxy.mjs",
+      "lines": 281,
+      "sha256": "3800e4458932ee1324ad03d64007f23f76f49682a6eabdc191ecf6eaccb501d5",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "targeted-source-review",
+      "review_notes": "CLI/private log boundary, frame streaming, closed child environment, shutdown; middle frame projection structurally reviewed.",
+      "inspected_ranges": [
+        {
+          "start_line": 1,
+          "end_line": 100
+        },
+        {
+          "start_line": 176,
+          "end_line": 281
+        }
+      ]
+    },
+    {
+      "path": "scripts/qual_206_validate_local_http_schemas.mjs",
+      "lines": 47,
+      "sha256": "242961bfaaf49c210f52e877c78359b6664ca9dcfe277d054a3f9f20f1081715",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "scripts/qual_206_verify_local_http_preflight.py",
+      "lines": 1826,
+      "sha256": "c9ed65df029697690997f4a2c88c59ea43b96ec35e3571eba21adf3b9983728c",
+      "kind": "maintained-source-or-build-control",
+      "function_count": 41,
+      "review_depth": "targeted-source-review",
+      "review_notes": "Path-free projection, replay/source-binding entrypoint and CLI.",
+      "inspected_ranges": [
+        {
+          "start_line": 1357,
+          "end_line": 1418
+        },
+        {
+          "start_line": 1776,
+          "end_line": 1826
+        }
+      ]
+    },
+    {
+      "path": "scripts/reconcile_evidence_checkpoint_publication.mjs",
+      "lines": 81,
+      "sha256": "b926bb3eea63d8e28215129e927ed2d172e07b77d61fdc27294ce56deaa2dc59",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "scripts/rehearse_evidence_checkpoint_recovery.mjs",
+      "lines": 237,
+      "sha256": "e9a167d2390a1f6bfe5e91abaac42c8a3a9763ba2922412233571850ecd6c3a3",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "scripts/render_diagrams.mjs",
+      "lines": 86,
+      "sha256": "358c2d73fc600cb989e4323573ed993d53ae9ef951044f689ab9b07ededf1ea5",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "scripts/restore_evidence_checkpoint.mjs",
+      "lines": 40,
+      "sha256": "fc5b2850a3fcbe28080f941c085b16d6ff778f1bb5fb1750026e0f857431a34f",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "scripts/run_gateway_image_assurance.py",
+      "lines": 580,
+      "sha256": "48847e993b10505bf400fb66ec6b1431804c87d01501c4eaeab0516b781f3e75",
+      "kind": "maintained-source-or-build-control",
+      "function_count": 20,
+      "review_depth": "targeted-source-review",
+      "review_notes": "Assurance phases, bounds, verification and accepted/quarantined output orchestration.",
+      "inspected_ranges": [
+        {
+          "start_line": 249,
+          "end_line": 580
+        }
+      ]
+    },
+    {
+      "path": "scripts/scan_gateway_image.py",
+      "lines": 2297,
+      "sha256": "f8915aa58ade397342a5c289b3fcc9ca5d3e9071d3de21c01a613e7a70f653e6",
+      "kind": "maintained-source-or-build-control",
+      "function_count": 45,
+      "review_depth": "targeted-source-review",
+      "review_notes": "Pinned database acquisition, offline Docker scan and CLI; vulnerability classifiers structurally inventoried.",
+      "inspected_ranges": [
+        {
+          "start_line": 1730,
+          "end_line": 1849
+        },
+        {
+          "start_line": 2265,
+          "end_line": 2297
+        }
+      ]
+    },
+    {
+      "path": "scripts/scan_secrets.py",
+      "lines": 65,
+      "sha256": "48813bc11e2341dfa1480012c7988f7f2692ece3879d2040a37c3b736d2e9d47",
+      "kind": "maintained-source-or-build-control",
+      "function_count": 1,
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "scripts/stage_pages_payload.py",
+      "lines": 466,
+      "sha256": "b54397184161493138806c2ca5aa452ada2f7f5e77bf7a144b5c535eb039d24e",
+      "kind": "maintained-source-or-build-control",
+      "function_count": 14,
+      "review_depth": "targeted-source-review",
+      "review_notes": "Verified archive re-read and digest binding, descriptor-pinned staging inventory and CLI; low-level directory/file helpers structurally reviewed.",
+      "inspected_ranges": [
+        {
+          "start_line": 337,
+          "end_line": 466
+        }
+      ]
+    },
+    {
+      "path": "scripts/start-local-candidate",
+      "lines": 12,
+      "sha256": "ef07383df4b027bdd4d09a3a37dbadb3bb976c21205656d099658efc7ca7015e",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "scripts/validate_contracts.py",
+      "lines": 1167,
+      "sha256": "d51a1c7120dd14c3c42089035917353c97647e4b1318d8549d0547d2c6be0ba5",
+      "kind": "maintained-source-or-build-control",
+      "function_count": 8,
+      "review_depth": "targeted-source-review",
+      "review_notes": "Schema/test dispatch and mutation-validation entrypoints; schema reference inventory structure.",
+      "inspected_ranges": [
+        {
+          "start_line": 1,
+          "end_line": 130
+        },
+        {
+          "start_line": 1020,
+          "end_line": 1167
+        }
+      ]
+    },
+    {
+      "path": "scripts/verify_delivery_evidence.py",
+      "lines": 4321,
+      "sha256": "0375e992dc03932b16b52c45975ee09f25e8660279e0808d6206308376fbf893",
+      "kind": "maintained-source-or-build-control",
+      "function_count": 58,
+      "review_depth": "targeted-source-review",
+      "review_notes": "Private-directory policy, object streaming and projection semantics, shared lock and full-verification entrypoints; remaining collectors structurally inventoried.",
+      "inspected_ranges": [
+        {
+          "start_line": 1,
+          "end_line": 145
+        },
+        {
+          "start_line": 2853,
+          "end_line": 2980
+        },
+        {
+          "start_line": 4025,
+          "end_line": 4135
+        },
+        {
+          "start_line": 4232,
+          "end_line": 4321
+        }
+      ]
+    },
+    {
+      "path": "scripts/verify_deployment_admission.py",
+      "lines": 551,
+      "sha256": "0617d8a9428fbebbe8b9f49ee7c0822a54f57f78a93e74ea74a0fb108db51d7d",
+      "kind": "maintained-source-or-build-control",
+      "function_count": 18,
+      "review_depth": "targeted-source-review",
+      "review_notes": "Plan, transport, live and filesystem semantic binding plus synthetic/real scope distinctions and CLI.",
+      "inspected_ranges": [
+        {
+          "start_line": 64,
+          "end_line": 73
+        },
+        {
+          "start_line": 168,
+          "end_line": 551
+        }
+      ]
+    },
+    {
+      "path": "scripts/verify_gateway_image_evidence.py",
+      "lines": 617,
+      "sha256": "23353fb62f19a3d4d88da8f1a62c812941b4e3a46ab053686859326984f51cec",
+      "kind": "maintained-source-or-build-control",
+      "function_count": 14,
+      "review_depth": "targeted-source-review",
+      "review_notes": "Closed accepted file inventory and transitive OCI/SBOM/scan/acceptance binding.",
+      "inspected_ranges": [
+        {
+          "start_line": 494,
+          "end_line": 617
+        }
+      ]
+    },
+    {
+      "path": "scripts/verify_gateway_oci.py",
+      "lines": 140,
+      "sha256": "69a6d5dbe042ae97b2d22f69cdb85a58b26ad4da808ab7dc24a322e95ab8cf37",
+      "kind": "maintained-source-or-build-control",
+      "function_count": 2,
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    },
+    {
+      "path": "scripts/verify_gateway_provenance.py",
+      "lines": 645,
+      "sha256": "2bc3ef158615780df2b024717c7882ef1a7f49b01eccfa81e52dc5dbfffc4f49",
+      "kind": "maintained-source-or-build-control",
+      "function_count": 18,
+      "review_depth": "targeted-source-review",
+      "review_notes": "Streamed stable file measurement and exact-rebuild comparison; CLI.",
+      "inspected_ranges": [
+        {
+          "start_line": 140,
+          "end_line": 252
+        },
+        {
+          "start_line": 609,
+          "end_line": 645
+        }
+      ]
+    },
+    {
+      "path": "scripts/verify_pages_archive.py",
+      "lines": 683,
+      "sha256": "dd43116dac62ea2a9e1f8f97af2043abe21f516ee9b6214d96cfcf1285085cf0",
+      "kind": "maintained-source-or-build-control",
+      "function_count": 19,
+      "review_depth": "targeted-source-review",
+      "review_notes": "Immutable archive/checksum/manifest/payload verification entrypoint; remaining provenance/SBOM helpers structurally inventoried.",
+      "inspected_ranges": [
+        {
+          "start_line": 364,
+          "end_line": 525
+        },
+        {
+          "start_line": 654,
+          "end_line": 683
+        }
+      ]
+    },
+    {
+      "path": "scripts/verify_qual_206_chatgpt_tunnel_exact_five.py",
+      "lines": 1359,
+      "sha256": "5ad4eeead78af62246b127ec702ed7e32659b7c42051423a9ec768dcc05adf55",
+      "kind": "maintained-source-or-build-control",
+      "function_count": 35,
+      "review_depth": "targeted-source-review",
+      "review_notes": "Private final capture inventory, status binding and independent runtime/result replay entrypoint.",
+      "inspected_ranges": [
+        {
+          "start_line": 1101,
+          "end_line": 1200
+        }
+      ]
+    },
+    {
+      "path": "scripts/verify_qual_206_chatgpt_tunnel_exact_five_results.mjs",
+      "lines": 337,
+      "sha256": "9abbc97f5e4ebf1ffd81e1cbc7da9a3e5a5af3cd90089512d6a92557677912f7",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "targeted-source-review",
+      "review_notes": "Exact envelope and method sequence, closed discovery and result checks; remaining receipt helpers structurally inventoried.",
+      "inspected_ranges": [
+        {
+          "start_line": 175,
+          "end_line": 240
+        }
+      ]
+    },
+    {
+      "path": "scripts/verify_qual_206_claude_capability.py",
+      "lines": 1448,
+      "sha256": "36cd47c43de5b2d38c6b8cf0c744380a31c45e325d38f5dfad2806c5bf652c5a",
+      "kind": "maintained-source-or-build-control",
+      "function_count": 26,
+      "review_depth": "targeted-source-review",
+      "review_notes": "Source/private configuration and session/output acceptance entrypoint.",
+      "inspected_ranges": [
+        {
+          "start_line": 1181,
+          "end_line": 1270
+        }
+      ]
+    },
+    {
+      "path": "scripts/verify_qual_206_claude_composite_observation.py",
+      "lines": 1314,
+      "sha256": "7076abbe93d5079fdf81be686cd3815ebf4a2b50b747238fb0b90e43b77f59d8",
+      "kind": "maintained-source-or-build-control",
+      "function_count": 33,
+      "review_depth": "targeted-source-review",
+      "review_notes": "Two-session stable private inventory, identity and profile composition acceptance.",
+      "inspected_ranges": [
+        {
+          "start_line": 1169,
+          "end_line": 1265
+        }
+      ]
+    },
+    {
+      "path": "scripts/verify_qual_206_claude_exact_five_capability.py",
+      "lines": 1408,
+      "sha256": "97674c14d039c1871f02f71f395f99e9c5337d19f506495694952e5738e5a854",
+      "kind": "maintained-source-or-build-control",
+      "function_count": 26,
+      "review_depth": "targeted-source-review",
+      "review_notes": "Bounded CLI result, terminal/stop reason semantics, structured exact-five result binding and projection entrypoint.",
+      "inspected_ranges": [
+        {
+          "start_line": 1017,
+          "end_line": 1215
+        }
+      ]
+    },
+    {
+      "path": "scripts/verify_qual_206_claude_exact_five_results.mjs",
+      "lines": 403,
+      "sha256": "d91002542c2609b161d69f4db8578cbb24563207ef53c11f7507cc21988fd8ab",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "targeted-source-review",
+      "review_notes": "Independent presented-tool projection binding and closed negotiation/capability sequence acceptance.",
+      "inspected_ranges": [
+        {
+          "start_line": 190,
+          "end_line": 283
+        }
+      ]
+    },
+    {
+      "path": "scripts/verify_qual_206_strict_modern_host_events.py",
+      "lines": 943,
+      "sha256": "8b8b7c7451bebbfad6b05069bbe13376c97a940552c97e946e6f338322608df2",
+      "kind": "maintained-source-or-build-control",
+      "function_count": 25,
+      "review_depth": "targeted-source-review",
+      "review_notes": "Private sibling file identity, canonical hash-chain and event-sequence verification.",
+      "inspected_ranges": [
+        {
+          "start_line": 651,
+          "end_line": 756
+        }
+      ]
+    },
+    {
+      "path": "tests/__init__.py",
+      "lines": 1,
+      "sha256": "21b0b85ea8ccf8f39a381d7d35425bc882e241b45cb525fcfe1432949410ebd9",
+      "kind": "test",
+      "function_count": 0,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/contract/__init__.py",
+      "lines": 1,
+      "sha256": "fb87653d2e842d2d991bf9d67393657ae1b31ace3457a8902b920ca35efad6fd",
+      "kind": "test",
+      "function_count": 0,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/contract/test_catalogue_api_schemas.py",
+      "lines": 437,
+      "sha256": "eee17b0f978427e7d6055573d06299aec288b87dfa78cc1f7d174a06bb5eea12",
+      "kind": "test",
+      "function_count": 13,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/contract/test_changelog_fragments.py",
+      "lines": 98,
+      "sha256": "3028a6e8a7ac195a32290d4465a4c765a87c631ee5f0961d5ba7da870effcb21",
+      "kind": "test",
+      "function_count": 5,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/contract/test_ci_impact_plan.py",
+      "lines": 544,
+      "sha256": "89808cc0f553cbe435938f72737fa9d20ba8421610c0abd4fc9680299abdf3fe",
+      "kind": "test",
+      "function_count": 30,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/contract/test_data_query_contracts.py",
+      "lines": 340,
+      "sha256": "3a24805326a795bd8fc1b447da48c581ae59440eaa0d70d44203e7317992ba03",
+      "kind": "test",
+      "function_count": 11,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/contract/test_delivery_evidence_preservation.py",
+      "lines": 9116,
+      "sha256": "4183f3fc7ca9f129e88235ed7508c3a6f01faffea51334fca723e78d53c0f0b2",
+      "kind": "test",
+      "function_count": 281,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/contract/test_deployment_admission.py",
+      "lines": 667,
+      "sha256": "e127c641cd72bb9262517a239a9af49c6416ed1ac5926ac1ec38eefbecc929d6",
+      "kind": "test",
+      "function_count": 24,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/contract/test_evidence_checkpoint_contracts.py",
+      "lines": 435,
+      "sha256": "0d9336f7768599dda24f6b506656ac77566d487a5f2d66fa5be117e3c18a8375",
+      "kind": "test",
+      "function_count": 12,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/contract/test_evidence_schemas.py",
+      "lines": 994,
+      "sha256": "6ed8af32bd729cfbd93d904886dc1fb326d07d29cd222b4b2c0687bf27327e67",
+      "kind": "test",
+      "function_count": 23,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/contract/test_execution_schemas.py",
+      "lines": 189,
+      "sha256": "4aa3df59d42c9cf31ec5b3732595c7325b5c211ff92e28ddfa7165f50421b9df",
+      "kind": "test",
+      "function_count": 10,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/contract/test_gateway_container_diagnostics.py",
+      "lines": 389,
+      "sha256": "752cd7d093582fc0370b437afa17604ef719141914faef5799a73eaeca0aafa0",
+      "kind": "test",
+      "function_count": 17,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/contract/test_gateway_image_assurance.py",
+      "lines": 946,
+      "sha256": "e11675cd9ff1816290cbca8e961aa4f7c737a25bd13bfae060f404b25039c356",
+      "kind": "test",
+      "function_count": 38,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/contract/test_gateway_image_contract.py",
+      "lines": 5764,
+      "sha256": "3bb24fd3d8229eb684434fd99b6f98138808bac72f9141f1b93da0c88d0e9882",
+      "kind": "test",
+      "function_count": 101,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/contract/test_gateway_oci_compatibility.py",
+      "lines": 365,
+      "sha256": "d895fa96371d12d29f5016597fabaacc6412d119f27f35d826440f303a1ae906",
+      "kind": "test",
+      "function_count": 10,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/contract/test_gateway_provenance.py",
+      "lines": 532,
+      "sha256": "22aaff730ea46920057bb8ad7fd19c17885b5d4c2584d831165ff6cebc20bbf5",
+      "kind": "test",
+      "function_count": 17,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/contract/test_node_runtime_advisory.py",
+      "lines": 1112,
+      "sha256": "12a75cf8436087816f241a00ae9b91cb95d08273340f859046b8f4c5430e5471",
+      "kind": "test",
+      "function_count": 29,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/contract/test_okf_bundle.py",
+      "lines": 848,
+      "sha256": "8f678c0bf01828ae310fd8a715d893ba9550363a19fe2751991c8ba23e8632ff",
+      "kind": "test",
+      "function_count": 33,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/contract/test_pages_publication.py",
+      "lines": 440,
+      "sha256": "c222fd85ee6ca74fe0172d67cf0ed7aead85688dacddd8a14ce680be043d6897",
+      "kind": "test",
+      "function_count": 30,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/contract/test_pages_staging.py",
+      "lines": 306,
+      "sha256": "a9686ef47f033ad3f39318977df14716e62e482e9af6a18ef824bd2d8fe28f09",
+      "kind": "test",
+      "function_count": 20,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/contract/test_pages_workflows.py",
+      "lines": 888,
+      "sha256": "8b9db34135f06ef204cd9fe01dc3e0e38b54d820933e730d7bb926f0c1835eaf",
+      "kind": "test",
+      "function_count": 23,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/contract/test_qual_206_chatgpt_tunnel_exact_five.py",
+      "lines": 1630,
+      "sha256": "ae7f86db07a31eac555654d87145d59494da38686ba16bc7bb4e40349ddee006",
+      "kind": "test",
+      "function_count": 56,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/contract/test_qual_206_claude_capability.py",
+      "lines": 1121,
+      "sha256": "9edcc34ed7130ffabd0a44f39a8cdb78f98a84ca9de86992aa8f644c20fe6488",
+      "kind": "test",
+      "function_count": 18,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/contract/test_qual_206_claude_code_stdio_observation.py",
+      "lines": 530,
+      "sha256": "41f77dcb799c9ec6c8584f3670aa735df32de06523feaac1bee58b06190c6877",
+      "kind": "test",
+      "function_count": 18,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/contract/test_qual_206_claude_composite_observation.py",
+      "lines": 822,
+      "sha256": "6753b0795f6b7193a8f8f97dad92f110b2c6b474c4a1ce72a3f4d07445a5f233",
+      "kind": "test",
+      "function_count": 31,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/contract/test_qual_206_claude_composite_stdio_readiness.py",
+      "lines": 373,
+      "sha256": "f2669c304867dcc3fcd673658911f86247e4f7f23acb5173597cafca347be255",
+      "kind": "test",
+      "function_count": 17,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/contract/test_qual_206_claude_composite_stdio_readiness_v2.py",
+      "lines": 373,
+      "sha256": "70ce3aacf3ebf5df77449473ba270028e0fa2674ca0caa430c20c4fef7e7e8cb",
+      "kind": "test",
+      "function_count": 17,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/contract/test_qual_206_claude_exact_five_capability.py",
+      "lines": 1024,
+      "sha256": "24292db900e15c482565d8f716eda48f189d54531eb952f3c663772aa5395021",
+      "kind": "test",
+      "function_count": 14,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/contract/test_qual_206_legacy_stdio_readiness.py",
+      "lines": 378,
+      "sha256": "ae76321a42c1aab88526f978802220687dbb1422b2338cb5ece37106e4c94467",
+      "kind": "test",
+      "function_count": 15,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/contract/test_qual_206_local_evaluation_receipts.py",
+      "lines": 330,
+      "sha256": "a4491bb000a5458acebfba056043dffade1ce95c5b19d9f6ce0f6a8df11aa7d6",
+      "kind": "test",
+      "function_count": 13,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/contract/test_qual_206_local_http_transport_evidence.py",
+      "lines": 378,
+      "sha256": "165cf491d5b75b0fd23f55baade56437c777c9550408d517da3a0150feea0006",
+      "kind": "test",
+      "function_count": 15,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/contract/test_qual_206_local_protocol_evidence_matrix.py",
+      "lines": 589,
+      "sha256": "0dd5a64387c9da928068513d5a3c5bbb568f94cbcf7996693e484b35721ef10b",
+      "kind": "test",
+      "function_count": 15,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/contract/test_qual_206_strict_modern_evidence.py",
+      "lines": 804,
+      "sha256": "3c4433807edac433de6db05351194f196c411128abce1ac2e0e41882ce61a9b0",
+      "kind": "test",
+      "function_count": 42,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/contract/test_qual_206_strict_modern_host_events.py",
+      "lines": 663,
+      "sha256": "6b1b298617cf3b03dbf1a35cde44a674bcb20b6270975e620bc09ef0f52e53eb",
+      "kind": "test",
+      "function_count": 35,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/contract/test_release_metadata.py",
+      "lines": 228,
+      "sha256": "45776359cbdcefd7f8e3316d930700fabb30f66aba19d7a55b517ec6672b035f",
+      "kind": "test",
+      "function_count": 6,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/contract/test_release_reproducibility.py",
+      "lines": 111,
+      "sha256": "74b0fe0f4c934b7dab985b43e4b94b5809a241822772dc7a32f2b439729452b5",
+      "kind": "test",
+      "function_count": 9,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/contract/test_repository_boundary.py",
+      "lines": 109,
+      "sha256": "4152fe744c471dd5affd2bafb6fce9df64748ee021ed7d6c412747682b6be987",
+      "kind": "test",
+      "function_count": 6,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/contract/test_research_source_boundaries.py",
+      "lines": 217,
+      "sha256": "8aaac67a7f1e44622a4ce1aa5e1e623c228d54452431e95f163a58a3703a775d",
+      "kind": "test",
+      "function_count": 6,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/contract/test_tool_registry.py",
+      "lines": 329,
+      "sha256": "ab05df432e610d60f1fc39dab7d427f9c44a298e6685a4d0fefcf7667f262426",
+      "kind": "test",
+      "function_count": 9,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/interoperability/fixtures/qual_206_exact_five_stdio_server.mjs",
+      "lines": 323,
+      "sha256": "c7da5d258cce9addd2ebf7180138756ee5531b47f1a283e0d54a9a8e84f9aa18",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Executable fixture inventoried separately from fixture data; not a claim of every branch being read."
+    },
+    {
+      "path": "tests/interoperability/fixtures/qual_206_fake_claude_capability_client.mjs",
+      "lines": 281,
+      "sha256": "3d03d80051efa8d9fe15454e3d31a6d4ed6a3f10563fa87489978ae06f108fa9",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Executable fixture inventoried separately from fixture data; not a claim of every branch being read."
+    },
+    {
+      "path": "tests/interoperability/fixtures/qual_206_fake_claude_exact_five_client.mjs",
+      "lines": 340,
+      "sha256": "7e8d5a64f2f9ca977f7b485bd8d81e3d81014876e7c58ffa2644a311e33053d6",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Executable fixture inventoried separately from fixture data; not a claim of every branch being read."
+    },
+    {
+      "path": "tests/interoperability/fixtures/qual_206_provider_egress_guard.mjs",
+      "lines": 65,
+      "sha256": "f34757b6c7c555adb37a2d5fffbb164a264a689fe603e12f25703fea8d46eafe",
+      "kind": "test",
+      "review_depth": "complete-source-read",
+      "review_notes": "Synthetic fixture source read. The provider guard intercepts its named APIs; it is not a universal operating-system network sandbox."
+    },
+    {
+      "path": "tests/interoperability/fixtures/qual_206_strict_modern_event_server.mjs",
+      "lines": 385,
+      "sha256": "f3acc6c53f951b784d02619c3198f2aad0a843675e5c62db97b9055be562bf4c",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Executable fixture inventoried separately from fixture data; not a claim of every branch being read."
+    },
+    {
+      "path": "tests/interoperability/fixtures/qual_206_unresponsive_child.mjs",
+      "lines": 14,
+      "sha256": "213a244b81dc6607024acc5c4ddda200e8c9a6effb30c4f92f837569d691f13c",
+      "kind": "test",
+      "review_depth": "complete-source-read",
+      "review_notes": "Synthetic fixture source read. The provider guard intercepts its named APIs; it is not a universal operating-system network sandbox."
+    },
+    {
+      "path": "tests/interoperability/test_qual_206_chatgpt_tunnel_exact_five_harness.mjs",
+      "lines": 1126,
+      "sha256": "1c652ff3af9fdd2f1d6ac90f9c04930ac63f649e1a88dd679978e0b1e6d72e8a",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/interoperability/test_qual_206_chatgpt_tunnel_exact_five_observer.mjs",
+      "lines": 879,
+      "sha256": "f176b0d1189919f961b349ee26ebfcd896d22e8cf57c87b775f81ac5e8ab11b9",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/interoperability/test_qual_206_claude_capability_harness.mjs",
+      "lines": 580,
+      "sha256": "2e60a56df0bd72c7fe0f29d8bea21cae256b013137be05085fc9e07e97784e5b",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/interoperability/test_qual_206_claude_exact_five_capability_harness.mjs",
+      "lines": 452,
+      "sha256": "0b7cdbbb7d04741a735f576305f00abd1392592219bc244bd69a85d8daaee9bc",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/interoperability/test_qual_206_claude_stdio_observer.mjs",
+      "lines": 883,
+      "sha256": "7f6a45a2a199d84b5801b7f2ebf130d374095fd69b1aaa63c1b5868a6a4af51d",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/interoperability/test_qual_206_event_collector.mjs",
+      "lines": 1040,
+      "sha256": "1aa29423049b8b67835ddcba96718ddd1ac43665b7c52abf6e5ddd690551b8c4",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/interoperability/test_qual_206_exact_five_stdio.mjs",
+      "lines": 634,
+      "sha256": "5e8a250771ba8f2ff62c02ab9259f4bbd3a8e5b5ce4d76a6f0d73561723f2c50",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/interoperability/test_qual_206_harness.mjs",
+      "lines": 953,
+      "sha256": "8b6b6d2de567dc23dc29f806237f854b4bba76b0fd41894ec50df4ee9efc55b0",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/interoperability/test_qual_206_local_demo.mjs",
+      "lines": 276,
+      "sha256": "22223cdf11af6e1bc1b94d79bd47e3997a58c32a3061860dc95e619439edc8b0",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/interoperability/test_qual_206_local_http_preflight.mjs",
+      "lines": 473,
+      "sha256": "2d3b55e2b52bba263881bc9c7c0c776ae53b14b687be2b8a69ec69547531c0b6",
+      "kind": "test",
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/interoperability/test_qual_206_local_http_preflight.py",
+      "lines": 867,
+      "sha256": "453f4687d33fc2d8ffcf4afd93104062c5afc165fe0b60d97ee5ff30ac0888af",
+      "kind": "test",
+      "function_count": 34,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tests/test_qual_206_local_http_preflight.py",
+      "lines": 8,
+      "sha256": "a1c877ceb8b30be46c207a41879601eeb3b0234ac4335e6eb559cd825b8c952b",
+      "kind": "test",
+      "function_count": 0,
+      "review_depth": "structural-only",
+      "review_notes": "Inventory and test-routing/pattern sweep; selected mutation/browser examples are discussed in the report, not a claim of every assertion being read."
+    },
+    {
+      "path": "tsconfig.base.json",
+      "lines": 15,
+      "sha256": "831c239b25b959108dd1aa54e3103d88a6ecb403dbaeea8fe102098135b7a324",
+      "kind": "maintained-source-or-build-control",
+      "review_depth": "complete-source-read",
+      "review_notes": "Source read with related invocation/control-flow context; no fresh execution or proof of every branch."
+    }
+  ]
+}

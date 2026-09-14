@@ -28,6 +28,19 @@ and milestones are the source of truth for item-level status.
 - `QUAL-206` — complete protocol, provider, security and interoperability evidence.
 - `DEPLOY-207` — deploy, verify and document rollback for the open service.
 
+## Current learning and local-completion work
+
+- `RETRO-208` — reconstruct the Claude investigation in
+  [issue #86](https://github.com/chris-page-gov/gis-ai-go/issues/86); start authorised
+  on 14 September 2026 after the local candidate milestone.
+- `CHRON-213` — build the programme chronicle, learning path, agent history, code
+  review and guidance review in [issue #117](https://github.com/chris-page-gov/gis-ai-go/issues/117).
+- [LOCAL-214 #118](https://github.com/chris-page-gov/gis-ai-go/issues/118) — complete
+  the investigation of the additive local edition described
+  in [the plan](../chronicle/LOCAL_COMPLETION_PLAN.md), without closing hosted-service gates.
+- [IMPROVE-215 #119](https://github.com/chris-page-gov/gis-ai-go/issues/119) — a separate implementation stage under
+  [the review plan](../chronicle/IMPROVEMENT_PLAN.md), including existing #97 and #116.
+
 ## `v0.3.0` governed open platform
 
 - `AUTH-301` — construct trusted authority context from validated inputs.

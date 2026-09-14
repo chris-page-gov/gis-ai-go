@@ -131,7 +131,8 @@ active ONS lifecycle and approved cache internally, and only the container
 entrypoint calls it. The evidence
 inspector's top-level identity belongs to the current inspection, while its nested
 receipt and policy decision belong to the earlier inspected call; inspection
-creates no replacement receipt or ledger event.
+returns a distinct inline receipt for the current call, preserves the inspected
+stored receipt and creates no new ledger event.
 
 The generic HTTP and STDIO entrypoints do not mount application functions. Explicit
 constructor options remain local-conformance seams and every default constructor
@@ -179,8 +180,7 @@ pnpm --filter @gis-ai-go/mcp-gateway run test
 To inspect the deliberately blocked generic HTTP surface after building the candidate:
 
 ```bash
-pnpm run build:okf
-pnpm --filter @gis-ai-go/contracts run build
+pnpm --filter @gis-ai-go/mcp-gateway run prepare:test
 pnpm --filter @gis-ai-go/mcp-gateway run build
 pnpm --filter @gis-ai-go/mcp-gateway run start:http
 ```

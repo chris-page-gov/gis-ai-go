@@ -1,0 +1,90 @@
+{
+  "governance": {
+    "title": "Human governance and delegated delivery",
+    "description": "The owner sets scope. The lead defines and delegates tasks. Children return changes and evidence. Checks and integration produce a reviewable result.",
+    "steps": [
+      ["Human owner", "Purpose, priorities, rights and external commitments"],
+      ["Lead model", "Plan the task and write bounded child assignments"],
+      ["Host creates agent contexts", "Permissions and concurrency remain host-controlled"],
+      ["Delegated work and review", "Allocated files, findings, tests and evidence"],
+      ["Lead integration and required checks", "Resolve findings and record accepted outcome"]
+    ]
+  },
+  "request": {
+    "title": "A question becomes a governed result",
+    "description": "Client intent becomes structured arguments. Runtime validation, policy and bounded deterministic execution precede a result and its inspectable evidence.",
+    "steps": [
+      ["Client intent", "A person or their AI chooses a named operation"],
+      ["Contract validation", "Check fields, types, bounds and supported protocol"],
+      ["Policy and lifecycle", "Admit only an allowed operation and resource"],
+      ["Deterministic execution", "Resolve, query or inspect within the fixed boundary"],
+      ["Result with evidence", "Return plain text, structured output and a receipt"]
+    ]
+  },
+  "evidence": {
+    "title": "From retained evidence to a public account",
+    "description": "Sources are preserved and verified. Private analysis links claims to sources. An approved public projection produces the reader, PDF and evidence index.",
+    "steps": [
+      ["Primary records", "Source revisions, observations, reviews and tool events"],
+      ["Preserve and verify", "Retain permitted content; record exclusions and gaps"],
+      ["Private reconstruction", "Deduplicate, link decisions and reconcile counts"],
+      ["Public source review", "Clear claims, excerpts, rights and aggregate metrics"],
+      ["Versioned public edition", "Narrative, learning path, PDF and evidence index"]
+    ]
+  },
+  "learning": {
+    "title": "The learning route",
+    "description": "Learn purpose and catalogue, then contracts and policy, then execution and evidence, then verification and publication, and finally delegation and improvement.",
+    "steps": [
+      ["1. Purpose and knowledge", "Catalogue, OKF, sources, rights and limitations"],
+      ["2. Requests and authority", "MCP, schemas, contracts, policy and lifecycle"],
+      ["3. Results and recovery", "Determinism, receipts, idempotency and capacity"],
+      ["4. Verification and publication", "Threats, tests, scans, provenance and rollback"],
+      ["5. How the work is organised", "Agents, human governance, model changes and review"]
+    ]
+  },
+  "agent-lineage": {
+    "title": "Observed delegation depth",
+    "description": "The selected historical generation has one root, 586 first-level children, 432 second-level descendants and 24 third-level descendants. Counts are totals at each depth, not simultaneous workers.",
+    "steps": [
+      ["1 programme root", "Lead task context at depth zero"],
+      ["586 direct children", "Total task threads at depth one"],
+      ["432 further descendants", "Total task threads at depth two"],
+      ["24 further descendants", "Total task threads at depth three"],
+      ["1,043 task threads in this generation", "Historical population; simultaneous activity is unknown"]
+    ]
+  },
+  "contracts": {
+    "title": "A contract becomes a test",
+    "description": "A requirement defines accepted input and output. A valid fixture exercises the intended path. Hostile variants test rejection. Runtime validation enforces the contract for real callers.",
+    "steps": [
+      ["Requirement", "Only a named, bounded read-only operation is allowed"],
+      ["Schema and types", "Define required fields, limits, result and error shapes"],
+      ["Accepted example", "Check the intended input and complete output"],
+      ["Rejected examples", "Unknown fields, oversized values and forbidden targets"],
+      ["Runtime enforcement", "Every caller is checked at the executable boundary"]
+    ]
+  },
+  "assurance": {
+    "title": "Questions asked by assurance",
+    "description": "Tests, security analysis, reproducible builds and provenance supply different evidence. The acceptance gate evaluates the named evidence and its limits.",
+    "steps": [
+      ["Tests and reviews", "Does the implementation behave as the contract requires?"],
+      ["Security and dependency analysis", "Which known dangerous patterns or components remain?"],
+      ["Independent build verification", "Do identified inputs produce the expected artefact bytes?"],
+      ["Provenance and retained evidence", "Which source and process produced this result?"],
+      ["Acceptance gate", "Does the required evidence justify this particular claim?"]
+    ]
+  },
+  "improvement": {
+    "title": "A measured improvement stage",
+    "description": "Start with the reviewed baseline. Fix observable defects, remove repeated ordinary work, extract modules, verify preserved invariants and compare measurements.",
+    "steps": [
+      ["Record the baseline", "Behaviour, test inventory, time, memory and bytes read"],
+      ["Fix observable gaps", "Cancellation, readiness and retained failure evidence"],
+      ["Remove repeated ordinary work", "Build once for tests; retain independent derivation"],
+      ["Extract one responsibility", "Small modules with stable contracts and output bytes"],
+      ["Compare and accept", "Verify behaviour and measure the actual improvement"]
+    ]
+  }
+}

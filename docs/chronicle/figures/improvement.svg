@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="528" viewBox="0 0 640 528" role="img">
+<title>A measured improvement stage</title>
+<desc>Start with the reviewed baseline. Fix observable defects, remove repeated ordinary work, extract modules, verify preserved invariants and compare measurements.</desc>
+<rect width="100%" height="100%" fill="white"/>
+<text x="320" y="30" text-anchor="middle" font-family="sans-serif" font-size="21" font-weight="bold" fill="#173a53">A measured improvement stage</text>
+<rect x="24" y="54" width="592" height="67" rx="7" fill="#f2f6f8" stroke="#426477" stroke-width="2"/>
+<text x="320" y="79" text-anchor="middle" font-family="sans-serif" font-size="19" font-weight="bold" fill="#173a53">Record the baseline</text>
+<text x="320" y="103" text-anchor="middle" font-family="sans-serif" font-size="16" fill="#253a45">Behaviour, test inventory, time, memory and bytes read</text>
+<path d="M320 124 V138 M314 133 L320 139 L326 133" fill="none" stroke="#426477" stroke-width="2"/>
+<rect x="24" y="144" width="592" height="67" rx="7" fill="#f2f6f8" stroke="#426477" stroke-width="2"/>
+<text x="320" y="169" text-anchor="middle" font-family="sans-serif" font-size="19" font-weight="bold" fill="#173a53">Fix observable gaps</text>
+<text x="320" y="193" text-anchor="middle" font-family="sans-serif" font-size="16" fill="#253a45">Cancellation, readiness and retained failure evidence</text>
+<path d="M320 214 V228 M314 223 L320 229 L326 223" fill="none" stroke="#426477" stroke-width="2"/>
+<rect x="24" y="234" width="592" height="67" rx="7" fill="#f2f6f8" stroke="#426477" stroke-width="2"/>
+<text x="320" y="259" text-anchor="middle" font-family="sans-serif" font-size="19" font-weight="bold" fill="#173a53">Remove repeated ordinary work</text>
+<text x="320" y="283" text-anchor="middle" font-family="sans-serif" font-size="16" fill="#253a45">Build once for tests; retain independent derivation</text>
+<path d="M320 304 V318 M314 313 L320 319 L326 313" fill="none" stroke="#426477" stroke-width="2"/>
+<rect x="24" y="324" width="592" height="67" rx="7" fill="#f2f6f8" stroke="#426477" stroke-width="2"/>
+<text x="320" y="349" text-anchor="middle" font-family="sans-serif" font-size="19" font-weight="bold" fill="#173a53">Extract one responsibility</text>
+<text x="320" y="373" text-anchor="middle" font-family="sans-serif" font-size="16" fill="#253a45">Small modules with stable contracts and output bytes</text>
+<path d="M320 394 V408 M314 403 L320 409 L326 403" fill="none" stroke="#426477" stroke-width="2"/>
+<rect x="24" y="414" width="592" height="67" rx="7" fill="#f2f6f8" stroke="#426477" stroke-width="2"/>
+<text x="320" y="439" text-anchor="middle" font-family="sans-serif" font-size="19" font-weight="bold" fill="#173a53">Compare and accept</text>
+<text x="320" y="463" text-anchor="middle" font-family="sans-serif" font-size="16" fill="#253a45">Verify behaviour and measure the actual improvement</text>
+</svg>

@@ -11,7 +11,10 @@ Before proposing a change:
 5. preserve the immutable research pack unchanged;
 6. add tests and provenance for every promoted contract or decision;
 7. add a changelog fragment for a material change;
-8. run `pnpm run check` from the repository root.
+8. run affected local checks and record them in the pull request. Canonical CI
+   still runs the full required assurance. Use `pnpm run check` for a complete
+   local gate when the change or release needs it; avoid repeating identical
+   passing work solely to fill a checklist.
 
 Use British English and plain language. Keep facts, assumptions, recommendations and
 unresolved questions distinct. Do not add a dependency without pinning it, updating

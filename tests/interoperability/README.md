@@ -1,7 +1,12 @@
 # Interoperability-test boundary
 
-The supported public product remains the static `v0.1.0` Explorer. The accepted MCP
-gateway has empty production activation arrays and readiness remains `503`.
+The supported public product remains the static `v0.1.0` Explorer. The generic
+HTTP and STDIO gateway entrypoints retain empty production activation arrays and
+blocked readiness. The separately named fixed-container and provider-free local
+entrypoints mount the accepted unregistered exact-five candidate; their behaviour
+must not be inferred from the generic defaults. Current acceptance is recorded in
+[`PROGRESS.md`](../../PROGRESS.md), with the clean-clone journey in
+[LOCAL-212](../../docs/operations/LOCAL-212_CLEAN_CLONE_LOCAL_CANDIDATE.md).
 
 QUAL-206 may exercise the explicit local host-conformance seam with exactly
 `catalogue.search`, `catalogue.describe`, the public catalogue resource and the
@@ -20,10 +25,13 @@ remote-host acceptance is false.
 The separate accepted Claude Code exact-five projection closes local STDIO model
 capability only; it does not upgrade this HTTP result or close remote-host
 acceptance.
-The additive ChatGPT secure-tunnel exact-five pack is an evidence-preparation
-surface only. It pins the current reviewed tunnel client, keeps its local MCP child
-on STDIO, requires all five calls in one claimed session and publishes no live result
-in its implementation bytes. See the
+The ChatGPT secure-tunnel exact-five pack began as an evidence-preparation surface.
+A later [accepted observation on 28 August 2026](evidence/chatgpt-tunnel-exact-five-2026-08-28.json)
+records all five ordered calls and independently verified receipts through the
+reviewed secure tunnel to a deterministic local STDIO child. This establishes
+that version-bound host-through-tunnel capability. Direct public Streamable
+HTTP/TLS, live-provider use, registry publication, deployment and release require
+their own evidence. See the
 [dedicated runbook](../../docs/operations/QUAL-206_CHATGPT_TUNNEL_EXACT_FIVE.md).
 The normal gateway suite also routes the owner-only capture and independent
 verifier regressions, including safe Git object resolution, atomic public-output
@@ -57,8 +65,13 @@ fixture controls and three parent-owned temporary-path variables to the child,
 reports whether the checkout is clean, opens no listener, changes no client registry
 and makes no live provider call. A tested preload guard blocks the Node APIs used by
 the live provider transport; operating-system network isolation is not enforced, so
-this is not a network sandbox. The shipped HTTP, STDIO and container entrypoints
-remain blocked.
+this is not a network sandbox. The generic HTTP and STDIO entrypoints remain
+blocked. The fixed-container candidate and the provider-free local entrypoint
+are separate accepted paths. To connect a local client to the persistent,
+loopback-only candidate, follow
+[LOCAL-212](../../docs/operations/LOCAL-212_CLEAN_CLONE_LOCAL_CANDIDATE.md) and use
+`pnpm run start:local-candidate`; that entrypoint makes no provider egress and
+records its exact approved-cache fallback in receipts.
 
 The [evaluation corpus](qual_206_cases.json) distinguishes public-safe behaviours
 derived from the exact source-hashed `mcp-geo` archive from candidate-specific

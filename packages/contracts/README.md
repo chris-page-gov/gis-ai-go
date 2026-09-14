@@ -8,9 +8,9 @@ contracts. It currently provides:
 - the navigation-link policy used by catalogue consumers; and
 - TypeScript types corresponding to the canonical public OKF publication.
 
-The static Explorer imports this package through a compatibility adapter. Future
-MCP and direct-API transports must use the same functions rather than copy or
-reinterpret catalogue fields.
+The static Explorer imports this package through a compatibility adapter. The MCP
+and direct-API catalogue applications use the same functions; future consumers must
+preserve this shared interpretation of catalogue fields.
 
 JSON Schema files under [`../../schemas`](../../schemas/) remain the machine-readable
 authority for transport requests and responses. The checksum-verified OKF bundle is
