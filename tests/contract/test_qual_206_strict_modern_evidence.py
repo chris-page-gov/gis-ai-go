@@ -36,10 +36,10 @@ EXACT_RESOURCES = [
     "evidence.receipt",
 ]
 # This source-bound local set is deliberately regenerated after authorised source
-# changes; it is not an immutable observed-host artefact. Its exact 3e2303e
-# baseline is independently checked by test_qual_206_local_evaluation_receipts.
+# changes; it is not an immutable observed-host artefact. Current material bindings
+# are independently checked by test_qual_206_local_evaluation_receipts.
 REGENERABLE_LOCAL_RECEIPT_SHA256 = (
-    "6a4b9713865fb6d0e478e8681082724cde83ce89117326da8f849dfa1d1f9976"
+    "fe0c0e61ab0253c550d17d8681dab4ec547498ba1fb50948b4d0817ee7a4a9d9"
 )
 HISTORICAL_V1_SHA256 = {
     "evaluation/qual-206-local-protocol-evidence-matrix.v1.json": (

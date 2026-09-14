@@ -8,6 +8,7 @@
   "scripts": {
     "prepare:data": "cd ../.. && uv run --locked --cache-dir .uv-cache python scripts/web216_build_workbench_data.py",
     "build": "pnpm run prepare:data && vite build",
+    "build:hosted": "pnpm run prepare:data && vite build --mode hosted",
     "typecheck": "pnpm run prepare:data && tsc --project tsconfig.json --noEmit",
     "test:unit": "pnpm run prepare:data && vitest run",
     "preview": "vite preview --host 127.0.0.1 --port 4176 --strictPort"

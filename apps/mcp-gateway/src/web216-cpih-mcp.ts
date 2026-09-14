@@ -17,6 +17,7 @@ import { resolveWeb216CpihSelection, Web216CpihSelectionError } from "./web216-c
 import { MCP_MAX_TOOL_RESULT_BYTES, MCP_PROTOCOL_VERSION } from "./mcp-server.js";
 import { dataQueryRequestSignal } from "./mcp-request-signal.js";
 import { gatewayMetadata } from "./metadata.js";
+import { WEB216_CPIH_INPUT_SCHEMAS } from "./web216-cpih-input-schemas.js";
 
 export const WEB216_CPIH_MCP_TOOLS = Object.freeze([
   "web216_cpih_select", "web216_cpih_query", "web216_cpih_inspect",
@@ -97,14 +98,14 @@ const problemSchema = closed({
 
 export const WEB216_CPIH_MCP_SCHEMAS = canonicalJsonClone({
   web216_cpih_select: {
-    input: closed({ period }), output: { type: "object", oneOf: [planSchema, problemSchema] },
+    input: WEB216_CPIH_INPUT_SCHEMAS.web216_cpih_select, output: { type: "object", oneOf: [planSchema, problemSchema] },
   },
   web216_cpih_query: {
-    input: closed({ period, selection_plan_id: text("^gis-ai-go:web216-cpih-selection-plan:sha256:[0-9a-f]{64}$"), idempotency_key: key }),
+    input: WEB216_CPIH_INPUT_SCHEMAS.web216_cpih_query,
     output: { type: "object", oneOf: [resultSchema, problemSchema] },
   },
   web216_cpih_inspect: {
-    input: { type: "object", oneOf: [closed({ receipt_id: id("evidence-receipt") }), closed({ idempotency_key: key })] },
+    input: WEB216_CPIH_INPUT_SCHEMAS.web216_cpih_inspect,
     output: { type: "object", oneOf: [resultSchema, problemSchema] },
   },
 } as const);

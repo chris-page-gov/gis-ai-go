@@ -40,7 +40,7 @@
     "build:okf": "uv run --locked --cache-dir .uv-cache python scripts/build_okf.py --output artifacts/okf",
     "build:explorer": "pnpm run build:okf && pnpm --filter @gis-ai-go/public-explorer run build",
     "build:webmcp-explorer": "pnpm run build:okf && pnpm --filter @gis-ai-go/webmcp-explorer run build",
-    "build:explorers": "pnpm run build:okf && pnpm --filter @gis-ai-go/public-explorer run build && pnpm --filter @gis-ai-go/webmcp-explorer run build && pnpm --filter @gis-ai-go/public-data-workbench run build",
+    "build:explorers": "pnpm run build:okf && pnpm --filter @gis-ai-go/public-explorer run build && pnpm --filter @gis-ai-go/webmcp-explorer run build && pnpm --filter @gis-ai-go/public-data-workbench run build && pnpm --filter @gis-ai-go/public-data-workbench run build:hosted",
     "validate:release-reproducibility": "uv run --locked --cache-dir .uv-cache python scripts/check_release_reproducibility.py",
     "validate:public-read-v2": "pnpm --filter @gis-ai-go/policy-client run prepare:test && pnpm --filter @gis-ai-go/policy-client run build && node scripts/check_public_read_v2.mjs",
     "validate:contracts": "uv run --locked --cache-dir .uv-cache python scripts/validate_contracts.py",

@@ -494,3 +494,71 @@ surface, not a runtime behaviour change or relaxed evidence gate.
 
 The one unchanged-source image retry also failed. No further identical retry was
 started; diagnosis remained separate from the passing source and storage checks.
+
+### Hosted transport and preservation checkpoint
+
+PR [#132](https://github.com/chris-page-gov/gis-ai-go/pull/132) passed all required
+pull-request checks, including gateway image assurance, and merged at
+`b9729b5cacc77e9f2b12790c40ad6349fae7b370` on `2026-09-14T19:01:04Z`.
+Its complete protected-main [assurance](https://github.com/chris-page-gov/gis-ai-go/actions/runs/34884325687)
+and [CodeQL](https://github.com/chris-page-gov/gis-ai-go/actions/runs/34884325565)
+then passed, including independent image derivation, attestation verification and
+provenance. This does not retrospectively explain or certify the failed earlier builds.
+
+The source-only preservation run completed with successful full-store verification:
+3,490 immutable objects, 1,062,018,069 bytes and 3,622 journal events, with no expiry
+warnings. The capture added 92 selected items; one item was excluded and six were
+unavailable. Its exit code 2 recorded the exclusion, not a failed full-store
+verification. The licensed source archive remains unchanged at its local capture
+location and was deliberately not copied into this store. This run did not refresh
+conversation coverage or establish an exhaustive transcript; those earlier limits
+remain explicit.
+
+The wrapper started at `17:00:26Z`; local output-file times put completion at
+`18:58:41Z`, about 118 minutes later. About 116 minutes were spent in full
+single-worker verification, including semantic checks of retained conversation
+projections. These are local timing observations, not attested timestamps. The
+wrapper had omitted the existing four-worker and progress options. The root
+corrected future invocations to use them without reducing the verified material
+or rerunning the completed capture. No future duration is asserted from this
+single-worker measurement.
+
+Two reused agents implemented an inactive asynchronous MCP constructor and a
+separately selected hosted display contract. The root wired a build-authored
+private-Site mode, a fixed same-origin MCP path, explicit credential/redirect
+limits and a separate output directory that does not replace the local build.
+The existing three MCP input schemas retain their exact bytes. The first frontend
+typecheck caught unchecked test indexes and untyped replacement pairs; these were
+corrected without relaxing runtime checks. Nineteen affected MCP tests and 28
+browser-controller/transport tests passed, as did the frontend typecheck and hosted
+bundle build. This is not yet a deployed Site or a real Workers MCP observation.
+The owner-private audience, existing two-tool demonstration and local runtime
+remain unchanged.
+
+The expanded canonical browser build changed the root package manifest. The
+deterministic receipt contract correctly rejected its old manifest hash; the root
+ran the existing non-live generator under the owner's standing regeneration
+authority, then verified the six affected receipt-contract tests. This was a
+build-metadata refresh, not a repeat provider/client observation. Independent
+review also corrected “no live request” to “no live provider request”: a captured
+dataset still travels through a real MCP service.
+
+The actual Workers MCP probe preserved an initial sandbox listener denial, then
+found two product portability failures rather than treating passing Node tests
+as hosted proof. A constant import pulled in the older filesystem registry at
+module initialisation. The reused runtime agent extracted just the two shared
+constants and retained the old exports and exact values. This removed the legacy
+server dependency and reduced the observed bundle from 1,024,221 to 675,424 bytes.
+Next, the Workers SDK validator attempted to annotate frozen advertised schemas.
+Private mutable copies at validator construction retained the public schema bytes
+and validation predicates; a direct Workers-provider regression now covers this.
+
+After those corrections, the genuine local Workers MCP/D1 run passed from
+`19:13:11.738Z` to `19:13:12.430Z`: 12 wire requests, exactly three MCP tools,
+July index string `142.7`, selection/query/inspection/replay, invalid-input denial,
+and exact receipt/snapshot preservation after orderly runtime recreation. One
+record/event remained and zero outbound requests occurred. The successful bundle
+hash is recorded in the [storage experiment](../implementation/WEB-216_HOSTED_STORAGE_EXPERIMENT.md).
+Failed attempts, input-source blobs and exact wire records remain private. The
+fixture is JSON-only and does not establish SSE, subscriptions, product ingress,
+hosted identity or cloud disaster recovery. No Site was deployed by this test.
