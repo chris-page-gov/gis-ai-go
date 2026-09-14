@@ -10,7 +10,7 @@ import {
   WEB216_CPIH_CAPTURE, WEB216_CPIH_DOMAINS, WEB216_CPIH_POLICY_SCOPE,
   WEB216_CPIH_RESULT_CORES, WEB216_TRANSACTIONAL_DOMAINS, WEB216_TRANSACTIONAL_MAX_RECORDS,
   WEB216_TRANSACTIONAL_RETENTION_DAYS,
-} from "@gis-ai-go/evidence";
+} from "@gis-ai-go/evidence/web216-pure";
 import {
   isWeb216HostedCpihApplication, Web216HostedCpihApplicationError,
   type Web216HostedCpihApplication, type Web216HostedCpihResult,

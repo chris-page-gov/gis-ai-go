@@ -17,6 +17,7 @@ import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { types as utilTypes } from "node:util";
 
 import { canonicalJson, canonicalJsonClone } from "./canonical-json.js";
+import { PUBLIC_IDEMPOTENCY_KEY } from "./idempotency-constants.js";
 import {
   CANONICAL_DOMAINS,
   contentAddress,
@@ -77,7 +78,7 @@ const PRIVATE_TEXT =
   /(?:^\/(?:Users|home)\/|^[A-Za-z]:\\Users\\|\bBearer\s+|-----BEGIN [^-]*PRIVATE KEY-----)/u;
 
 /** A non-secret, caller-generated 256-bit correlation identity. */
-export const PUBLIC_IDEMPOTENCY_KEY = /^gis-ai-go:ik:v1:[0-9a-f]{64}$/u;
+export { PUBLIC_IDEMPOTENCY_KEY } from "./idempotency-constants.js";
 
 export type EvidenceReconciliationIndexErrorCode =
   | "capacity"

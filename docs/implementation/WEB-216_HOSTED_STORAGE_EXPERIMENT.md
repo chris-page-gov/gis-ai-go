@@ -234,3 +234,37 @@ Security review must cover the assembled service, including origin/host checks,
 identity, body/result limits and cancellation. A stronger review model can assist;
 its availability or opinion is not a substitute for a reproduced finding,
 executable regression or deployment evidence.
+
+## Guarded hosted HTTP import boundary
+
+The separate hosted constructor now reuses the existing strict UTF-8/JSON parser,
+Accept, request-ID, privacy and modern-protocol guards through a narrow shared
+core. Legacy wrappers re-export the same objects and retain their prior behaviour;
+the hosted face never accepts a supplied parsed-body override. A pure evidence
+subpath avoids the filesystem ledger and registry import graph without duplicating
+class identities or weakening the shared idempotency grammar.
+
+The actual local Workers run from `2026-09-14T19:40:47.025Z` to `19:40:48.166Z`
+passed with 19 wire requests, including five rejected requests for incomplete
+Accept, unsupported version, a privacy-sensitive ID, an oversized body and a
+fabricated parsed-body override over duplicate-key wire bytes. Their before/after
+D1 snapshots were identical. The successful discovery, selection, query, replay,
+inspection and restart sequence retained one record and zero outbound attempts.
+Its bundle SHA-256 is
+`007c4ef4f6ed1db209ac723de2aaf0180a864d2a6240db605541bd7c84f2f390`.
+The observed graph contains one tracked pure evidence instance, the Workers SDK
+shim and only `node:async_hooks`, `node:crypto` and `node:util` external imports.
+Legacy gateway/registry and filesystem evidence modules are explicitly refused.
+
+This remains a test-only fixture, not Site ingress or identity proof. The SDK's
+JSON mode does not prohibit every subscription stream: the final Site wrapper
+must independently reject SSE, bound the complete result and retain request
+capacity until asynchronous cancellation has settled.
+
+The offline [runtime packager](../../scripts/package_web216_hosted_runtime.mjs)
+requires clean, exact tracked source, selects the explicit Workers entry and
+retains hashes and bytes for its material inputs plus dependency notices. It
+refuses existing output directories, legacy imports and unreviewed Node imports.
+Its manifest distinguishes tracked source from observed installed dependencies;
+neither is a substitute for build attestation or the separate Site assembly review.
+It installs nothing, provisions no database and deploys no service.

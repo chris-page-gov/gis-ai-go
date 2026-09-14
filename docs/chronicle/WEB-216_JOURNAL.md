@@ -570,3 +570,31 @@ unchanged. Eleven focused contract tests passed, including changed-scope, hash,
 claim and adjacent-file refusal cases. This is source-review provenance, not a
 new historical host observation, execution attestation or complete dependency
 closure claim.
+
+The build-diagnostics repair merged through PR #133 at
+`67ab535ff4d16f54f777dd45787c2f4742a5150c`. Complete protected-main assurance
+and CodeQL passed, including independent image derivation and provenance. The
+hosted transport increment then passed its canonical PR checks and merged through
+PR #134 at `1a89c73c7e8dec671cb3abd92c271d3d071c2830`; its protected-main
+acceptance is recorded separately when complete.
+
+Three reused agents then divided the bounded extraction, pure evidence import
+boundary and actual Workers probe. Mechanical comparisons confirmed that the
+moved parser, privacy guards and legacy wrapper bodies were unchanged. Eighty-nine
+affected gateway tests and 71 evidence tests passed; the final four graph tests
+also passed. The guarded Workers experiment made 19 requests in about 1.1 seconds,
+refused five deliberately invalid wire requests without changing stored state,
+and preserved the receipt across runtime recreation with zero provider egress.
+Its exact source and wire evidence remain private.
+
+The root began the separate Site admission wrapper without deploying it. Read-only
+review reproduced early capacity release during asynchronous response cleanup and
+a body-bearing `202` acknowledgement. The root retained capacity until memoised
+cleanup settles and rejected that acknowledgement; seven focused tests passed.
+The wrapper also preserves the MCP method/name headers needed by the existing
+cancellation bridge, while discarding browser credentials and identity before
+MCP dispatch. None of these local tests establishes deployed authentication.
+
+One authorised non-live receipt regeneration bound the extracted source modules:
+17 suites, 87 selected tests and seven receipts, followed by 33 passing receipt
+contracts. The historical host observations were not rewritten or rerun.

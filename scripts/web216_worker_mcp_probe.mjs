@@ -12,8 +12,10 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const FIXTURE = join(ROOT, "scripts/web216_worker_mcp_fixture.ts");
+const PURE_EVIDENCE_SOURCE = "packages/evidence/src/web216-pure.ts";
 const VERSIONS = { miniflare: "5.20260911.1-alpha", workerd: "1.20260911.1", esbuild: "0.28.1" };
 const PROTOCOL = "2026-07-28";
+const MCP_BODY_LIMIT = 65_536;
 const TOOLS = ["web216_cpih_select", "web216_cpih_query", "web216_cpih_inspect"];
 const KEY = ["gis-ai-go", "ik", "v1", "a".repeat(64)].join(":");
 const args = process.argv.slice(2);
@@ -54,7 +56,8 @@ const plan = { experiment: "local-workerd-mcp-d1-not-hosted", started_at: starte
   source_state: "working-tree-inputs-not-attested", conditions: ["workerd"],
   provider_egress: false, telemetry: false, deployment: false,
   response_deadline_ms: 20_000, overall_deadline_ms: 120_000,
-  response_byte_limit: 1_048_576, request_byte_limit: 16_384, maximum_wire_requests: 20,
+  response_byte_limit: 1_048_576, request_byte_limit: 70_000,
+  mcp_body_limit: MCP_BODY_LIMIT, maximum_wire_requests: 32,
   synthetic_software_revision: "a".repeat(40), synthetic_clock: "2026-09-14T18:00:00.000Z",
   limitation: "Local SDK/Workers compatibility and orderly D1 reopen only; no product ingress, identity, crash recovery, cloud durability or accepted-build attestation." };
 // Workerd startup can raise an uncaught listener error outside its constructor's
@@ -114,6 +117,49 @@ async function json(path, method = "GET") {
   const response = await requestWorker(`http://localhost/${path}`, { method });
   assert.equal(response.status, 200, "See preserved non-200 fixture response"); return response.json();
 }
+async function rawMcp(body, headers = {}) {
+  return requestWorker("http://localhost/mcp", {
+    method: "POST",
+    headers: {
+      accept: "application/json, text/event-stream",
+      "content-type": "application/json",
+      "mcp-protocol-version": PROTOCOL,
+      "mcp-method": "tools/call",
+      "mcp-name": "web216_cpih_select",
+      ...headers,
+    },
+    body: typeof body === "string" ? body : JSON.stringify(body),
+  });
+}
+function selectCall(id, protocol = PROTOCOL) {
+  return {
+    jsonrpc: "2.0",
+    id,
+    method: "tools/call",
+    params: {
+      name: "web216_cpih_select",
+      arguments: { period: "2026-01" },
+      _meta: {
+        "io.modelcontextprotocol/protocolVersion": protocol,
+        "io.modelcontextprotocol/clientCapabilities": {},
+        "io.modelcontextprotocol/clientInfo": {
+          name: "web216-local-worker-probe",
+          version: "1.0.0",
+        },
+      },
+    },
+  };
+}
+async function rejectedWire(responsePromise, status, code, reason) {
+  const response = await responsePromise;
+  assert.equal(response.status, status);
+  const value = await response.json();
+  assert.equal(value.jsonrpc, "2.0");
+  assert.equal(value.error.code, code);
+  if (reason !== undefined) assert.equal(value.error.data.reason, reason);
+  assert(!JSON.stringify(value).includes(KEY), "Raw key must not be reflected by a wire error");
+  return value;
+}
 function result(response, error = false) {
   assert.equal(response.isError === true, error);
   assert.equal(response.content.length, 1); assert.equal(response.content[0].type, "text");
@@ -145,6 +191,7 @@ try {
   phase = "bundle";
   const compiled = await build({ absWorkingDir: ROOT, entryPoints: [FIXTURE], bundle: true, write: false,
     format: "esm", platform: "neutral", target: "es2023", conditions: plan.conditions,
+    alias: { "@gis-ai-go/evidence/web216-pure": join(ROOT, PURE_EVIDENCE_SOURCE) },
     nodePaths: [join(ROOT, "apps/mcp-gateway/node_modules")], external: ["node:*"], metafile: true });
   const script = compiled.outputFiles[0].text;
   await save("worker.mjs", script); await save("bundle-metafile.json", compiled.metafile);
@@ -155,12 +202,38 @@ try {
     assert(inside(ROOT, actual), "Worker bundle input must be inside the implementation worktree");
     plan.compiled_inputs.push(await preserveSource(actual));
   }
-  const inputs = Object.keys(compiled.metafile.inputs);
-  assert(inputs.some((path) => path.endsWith("/shimsWorkerd.mjs")), "SDK must resolve its actual Workers shim");
-  assert(!inputs.some((path) => /\/shims(?:Node|Browser)\.mjs$/u.test(path)), "Unexpected SDK shim");
-  plan.graph_concerns = { mcp_server_source_in_graph: inputs.includes("apps/mcp-gateway/src/mcp-server.ts"),
-    emitted_node_imports: [...new Set(Object.values(compiled.metafile.outputs).flatMap((output) => output.imports.map((entry) => entry.path)))].sort(),
-    note: "Metafile includes parsed/tree-shaken inputs; emitted bytes and runtime success do not establish that all source modules are Workers-portable." };
+  const inputs = Object.keys(compiled.metafile.inputs).map((path) => path.replaceAll("\\", "/"));
+  const forbiddenInputs = inputs.filter((path) =>
+    /apps\/mcp-gateway\/src\/(?:mcp-server|governed-assembly|http-app|openapi)\.ts$/u.test(path)
+    || path.includes("packages/tool-registry/")
+    || path.includes("packages/evidence/dist/")
+    || /packages\/evidence\/(?:src|dist\/src)\/(?:index|checkpoint|public-ledger|reconciliation-index)\.(?:ts|js)$/u.test(path));
+  const pureEvidenceInputs = inputs.filter((path) =>
+    path === PURE_EVIDENCE_SOURCE || path.endsWith(`/${PURE_EVIDENCE_SOURCE}`));
+  const emittedNodeImports = [...new Set(Object.values(compiled.metafile.outputs)
+    .flatMap((output) => output.imports.map((entry) => entry.path)))]
+    .filter((path) => path.startsWith("node:"))
+    .sort();
+  const emittedFsImports = emittedNodeImports.filter((path) =>
+    path === "node:fs" || path.startsWith("node:fs/"));
+  assert(inputs.some((path) => path.endsWith("/shimsWorkerd.mjs")),
+    "SDK must resolve its actual Workers shim");
+  assert(!inputs.some((path) => /\/shims(?:Node|Browser)\.mjs$/u.test(path)),
+    "Unexpected SDK shim");
+  assert.equal(pureEvidenceInputs.length, 1,
+    "Hosted Worker bundle must use one tracked pure evidence module instance");
+  assert.deepEqual(forbiddenInputs, [], "Hosted Worker bundle reached a forbidden legacy module");
+  assert.deepEqual(emittedFsImports, [], "Hosted Worker bundle emitted a filesystem import");
+  plan.graph_assurance = {
+    forbidden_inputs: forbiddenInputs,
+    emitted_node_imports: emittedNodeImports,
+    emitted_filesystem_imports: emittedFsImports,
+    evidence_pure_source: PURE_EVIDENCE_SOURCE,
+    evidence_pure_instances: pureEvidenceInputs.length,
+    workers_shim: "shimsWorkerd.mjs",
+    compatibility_flag: "nodejs_compat",
+    limitation: "The closed exclusions prove only this bundled entry graph; they do not establish product ingress or universal Workers portability.",
+  };
   const options = () => ({ ...convertV4MiniflareOptions({ name: "web216-mcp-probe", modules: true, script,
     host: "127.0.0.1", cf: false, compatibilityDate: "2026-09-14", compatibilityFlags: ["nodejs_compat"],
     d1Databases: { DB: "web216-mcp-public-fixture" }, resourcePersistencePath: join(directory, "database"),
@@ -176,6 +249,44 @@ try {
   };
   phase = "explicit-test-provisioning"; worker = new Miniflare(options());
   assert.equal((await json("provision", "POST")).record_count, 0);
+  phase = "guarded-http-negative-cases";
+  const beforeNegativeCases = await json("state");
+  await rejectedWire(
+    rawMcp(selectCall("guard-accept"), { accept: "application/json" }),
+    406, -32_000, "missing_required_accept_types",
+  );
+  await rejectedWire(
+    rawMcp(selectCall("guard-version", "2099-01-01"), {
+      "mcp-protocol-version": "2099-01-01",
+    }),
+    400, -32_022,
+  );
+  await rejectedWire(
+    rawMcp(selectCall(KEY)),
+    400, -32_600, "invalid_request_id",
+  );
+  const oversizedBody = JSON.stringify({
+    ...selectCall("guard-oversize"),
+    padding: "x".repeat(MCP_BODY_LIMIT),
+  });
+  assert(Buffer.byteLength(oversizedBody) > MCP_BODY_LIMIT);
+  assert(Buffer.byteLength(oversizedBody) <= plan.request_byte_limit);
+  await rejectedWire(
+    rawMcp(oversizedBody),
+    413, -32_000, "request_body_too_large",
+  );
+  await rejectedWire(
+    rawMcp(
+      '{"jsonrpc":"2.0","id":"actual-a","id":"actual-b","method":"tools/call","params":{}}',
+      {
+        "mcp-name": "web216_cpih_query",
+        "x-web216-probe-parsed-body-bypass": "1",
+      },
+    ),
+    400, -32_700, "malformed_json",
+  );
+  assert.deepEqual(await json("state"), beforeNegativeCases,
+    "Rejected wire requests must not change the D1 state");
   phase = "sdk-discover-list"; await connect();
   const listed = await bounded(() => client.listTools());
   assert.deepEqual(listed.tools.map((tool) => tool.name).sort(), [...TOOLS].sort());
@@ -216,6 +327,7 @@ try {
     receipt_id: first.evidence.receipt.receipt_id, restart_exact_match: true, snapshot_sha256: sha256(after.canonical),
     wire_requests: wireCount, outbound_attempts: outboundAttempts, runtime_errors: runtimeErrors,
     bundle_sha256: plan.bundle_sha256, plan_sha256: sha256(await readFile(join(directory, "attempt-plan.json"))),
+    guarded_http_negative_cases: 5, guarded_graph_exclusions: true,
     product_ingress_tested: false, hosted_deployment: false, crash_recovery_established: false, attested: false };
   await save("outcome.json", outcome); console.log(JSON.stringify({ directory, ...outcome }));
 } catch (error) {
