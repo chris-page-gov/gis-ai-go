@@ -200,6 +200,29 @@ provider/model/Sites requests; that is not total development effort or cost.
 
 See the [protocol and geographic source limits](../implementation/WEB-216_GEOGRAPHY_AND_STORAGE_EXPERIMENTS.md).
 
+### PR #129 assurance correction
+
+The first repository-assurance run, [34867314043](https://github.com/chris-page-gov/gis-ai-go/actions/runs/34867314043),
+failed on 14 September at 16:18:24 UTC in an existing collector privacy assertion:
+`raw value leaked: 10471`. The preceding independent schema and replay checks had
+passed. The assertion searched the complete serialised log, including hashes,
+random identifiers and measured timings, for the observation's digits. The
+ephemeral failing capture had already been removed by test cleanup, so its exact
+matching field is unknown; a deterministic synthetic digest reproduces the
+incidental-substring failure but is not claimed to be that CI value.
+
+The main model assigned one reused agent the diagnostic and test-only correction.
+The assertion now uses the closed event schema to distinguish declared numeric
+measurements and validated identity fields from semantic payloads. Regression
+cases retain rejection of string/numeric observations, raw keys, nested errors,
+JSON-escaped content, malformed identities and unexpected fields. Runtime logging
+and independent replay validation are unchanged. The affected Python wrapper ran
+all nine Node collector tests successfully in 1.942 seconds. The first sandboxed
+attempt stopped at the existing macOS process-inspection restriction; its bounded
+local-permission rerun passed. Local validation used the working tree, including
+uncommitted later component builds, not an isolated PR #129 runtime; canonical CI
+must independently establish the exact corrected PR outcome.
+
 ## Preservation scope
 
 The most recent independently checked continuous checkpoint at inception completed

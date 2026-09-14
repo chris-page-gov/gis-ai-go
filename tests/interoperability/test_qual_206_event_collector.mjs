@@ -48,6 +48,10 @@ import {
 } from "../../scripts/qual_206_exact_five_event_collector.mjs";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
+const EVENT_CAPTURE_SCHEMA = JSON.parse(readFileSync(
+  join(ROOT, "schemas", "qual-206-strict-modern-host-event-v1.schema.json"),
+  "utf8",
+));
 const COLLECTOR = join(ROOT, "scripts", "qual_206_exact_five_event_collector.mjs");
 const CAPTURE_FLAG = "GIS_AI_GO_QUAL_206_EVENT_CAPTURE";
 const AUTHORITY_ARGUMENT = "--exact-five-event-capture-only";
@@ -365,6 +369,109 @@ function readCompleteEvents(logPath) {
     throw error;
   }
 }
+
+function captureSchemaNode(schema) {
+  if (schema?.$ref?.startsWith("#/$defs/")) {
+    return EVENT_CAPTURE_SCHEMA.$defs[schema.$ref.slice("#/$defs/".length)];
+  }
+  return schema;
+}
+
+function isCaptureMeasurementOrIdentity(value, schema) {
+  // Exempt only exact schema-declared metadata paths, not arbitrary values that
+  // happen to look hexadecimal or fields with a digest-like name. The full
+  // independent schema/replay check still runs before the journey privacy check.
+  if (["#/$defs/sha256", "#/$defs/sourceCommit", "#/$defs/sessionId"].includes(schema?.$ref)) {
+    const resolved = captureSchemaNode(schema);
+    return typeof value === "string" && new RegExp(resolved.pattern, "u").test(value);
+  }
+  const resolved = captureSchemaNode(schema);
+  if (resolved?.oneOf !== undefined) {
+    return resolved.oneOf.some((option) => isCaptureMeasurementOrIdentity(value, option));
+  }
+  if (typeof value !== "number" || !Number.isFinite(value)) return false;
+  if (typeof resolved?.const === "number") return value === resolved.const;
+  if (resolved?.type !== "number" && resolved?.type !== "integer") return false;
+  return (resolved.type !== "integer" || Number.isSafeInteger(value)) &&
+    (resolved.minimum === undefined || value >= resolved.minimum) &&
+    (resolved.maximum === undefined || value <= resolved.maximum);
+}
+
+function assertNoRawCaptureValues(events, rawValues) {
+  function checkText(value, path) {
+    for (const raw of rawValues) {
+      assert.equal(value.includes(raw), false, `raw value leaked at ${path}`);
+    }
+  }
+  function visit(value, schema, path) {
+    if (isCaptureMeasurementOrIdentity(value, schema)) return;
+    if (Array.isArray(value)) {
+      value.forEach((item, index) => visit(item, undefined, `${path}/${index}`));
+    } else if (value !== null && typeof value === "object") {
+      const properties = captureSchemaNode(schema)?.properties;
+      for (const [key, member] of Object.entries(value)) {
+        checkText(key, `${path}/<key>`);
+        visit(member, properties?.[key], `${path}/${key}`);
+      }
+    } else if (typeof value === "string") {
+      checkText(value, path);
+      // A body/error string may contain JSON-escaped keys or values. Decode it
+      // without treating its inner fields as trusted event metadata.
+      let decoded;
+      try { decoded = JSON.parse(value); } catch { return; }
+      if (decoded !== value) visit(decoded, undefined, `${path}/<encoded-json>`);
+    } else if (typeof value === "number") {
+      checkText(String(value), path);
+    }
+  }
+  events.forEach((event, index) => visit(event, EVENT_CAPTURE_SCHEMA, `event/${index}`));
+}
+
+test("privacy checks distinguish semantic payloads from incidental metadata substrings", () => {
+  // Fixed reproducer for PR #129, run 34867314043: a real SHA-256 digest
+  // contains the raw observation's digits, without containing that observation.
+  const digest = createHash("sha256")
+    .update(JSON.stringify({ synthetic_case: 22431 }))
+    .digest("hex");
+  assert.equal(digest, "4ffe0067c44f0ce667b87c6e935e7a6fa22ab17c372010471e1b74f3cbf2c331");
+  const metadata = {
+    event_sha256: digest,
+    frame_sha256: digest,
+    previous_event_sha256: digest,
+    request_id_sha256: digest,
+    source_commit: `a${"0".repeat(34)}10471`,
+    session_id: "a0010471-0000-4000-8000-000000000000",
+    duration_ms: 2.10471,
+    frame_bytes: 10471,
+    immediate_parent: { bytes: 10471, sha256: digest },
+    runtime_materials: { bytes: 10471, file_count: 5, manifest_sha256: digest },
+  };
+  assert.equal(JSON.stringify(metadata).includes("10471"), true);
+  assert.doesNotThrow(() => assertNoRawCaptureValues([metadata], ["10471"]));
+  for (const leaked of [
+    { observations: [{ value: "10471" }] },
+    { facts: { observation: 10471 } },
+    { error: { message: "Observation was 10471" } },
+    { body: JSON.stringify({ observations: [{ value: "10471" }] }) },
+    { error: '{"value":"\\u0031\\u0030\\u0034\\u0037\\u0031"}' },
+    { "observation-10471": true },
+    { body: { event_sha256: digest } },
+    { frame_sha256: "10471" },
+    { duration_ms: "10471" },
+    { client: `unexpected-${digest}` },
+  ]) {
+    assert.throws(() => assertNoRawCaptureValues([leaked], ["10471"]), /raw value leaked/u);
+  }
+  for (const leaked of [
+    { client: "INSPIRE" },
+    { body: { raw_request_id: "tools-list-2" } },
+    { error: { message: `Do not echo ${DATA_QUERY_REQUEST.idempotency_key}` } },
+  ]) {
+    assert.throws(() => assertNoRawCaptureValues([leaked], [
+      "INSPIRE", "tools-list-2", DATA_QUERY_REQUEST.idempotency_key,
+    ]), /raw value leaked/u);
+  }
+});
 
 function safeLogDiagnostics(logPath) {
   try {
@@ -903,7 +1010,6 @@ test(
       /^QUAL-206 private event capture verified \(\d+ events; passed\)\.\n$/u,
     );
 
-    const logText = readFileSync(completed.logPath, "utf8");
     const events = readCompleteEvents(completed.logPath);
     const sessionEnd = events.at(-1);
     assert.equal(sessionEnd.event, "session_end");
@@ -917,7 +1023,7 @@ test(
         .map(({ request_id_kind: kind }) => kind),
     );
     assert.deepEqual([...requestIdKinds].sort(), ["integer", "string"]);
-    for (const secret of [
+    assertNoRawCaptureValues(events, [
       "INSPIRE",
       "LR-Q003",
       SELECTION_QUESTION,
@@ -936,9 +1042,7 @@ test(
       "receipt-read-12",
       "prompts-list-14",
       ...Object.values(INTEGER_IDS).map(String),
-    ]) {
-      assert.equal(logText.includes(secret), false, `raw value leaked: ${secret}`);
-    }
+    ]);
   },
 );
 
