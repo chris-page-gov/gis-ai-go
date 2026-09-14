@@ -1,0 +1,60 @@
+{
+  "record_type": "gis-ai-go.qual-206-current-runtime-compatibility.v2",
+  "classification": "reviewed-source-compatibility-not-execution-evidence",
+  "predecessor": {
+    "path": "tests/interoperability/evidence/qual-206-web216-current-runtime-compatibility.v1.json",
+    "sha256": "d1eebe08df41e2fe1b614d81671cdd0ed9c7e655d1732dcdc35c5579448c0455"
+  },
+  "historical_matrix": {
+    "path": "evaluation/qual-206-local-protocol-evidence-matrix.v1.json",
+    "sha256": "91dc5a38125b5fd686d3028621f8452c0a3d77fe177dd67b110da6316bfc6039",
+    "runtime_base_commit": "f253605ab26628e821d4ebc3809cf13c883d57ed"
+  },
+  "reviewed_source_commit": "770626d7eb3ddbeb8459f143fbc44686afe03581",
+  "current_runtime_materials": [
+    {
+      "path": "apps/mcp-gateway/src/mcp-http.ts",
+      "sha256": "84b020eeb7ef95d3d5219dfe0812d2dc835ce5577d177686aaadea109419b459",
+      "historical_sha256": "bcbebca4c5a0b86ee9c6a3c191cbc683b65e94fef2294835acbd792f869b0ad9"
+    },
+    {
+      "path": "apps/mcp-gateway/src/mcp-server.ts",
+      "sha256": "450dc4545faa3121cfe66ced2a865a59da0e15d52d835621b8f2a0881afa3108",
+      "historical_sha256": "e2c5cec027f3049d0a501b885a0ab6336d7e6059690df54ac7b257945807b454"
+    },
+    {
+      "path": "apps/mcp-gateway/src/mcp-constants.ts",
+      "sha256": "a5b942cc3622da526ee07e4afc48f2c2a058d6ca418ba7abf83faf6aeafd372c",
+      "historical_sha256": null
+    }
+  ],
+  "change_scope": [
+    "Retain the predecessor's exact reviewed MCP HTTP wrapper without a further HTTP source change.",
+    "Extract the unchanged modern protocol revision and maximum tool-result byte limit into one side-effect-free module; the original server imports and re-exports those constants without changing registration defaults.",
+    "Bind the updated local CPIH regression source, including the explicit check that input-only schema extraction preserves every original advertised schema byte."
+  ],
+  "regression_source": {
+    "path": "apps/mcp-gateway/test/web216-cpih-mcp.test.ts",
+    "sha256": "003a38b967d90921c0eb3297d0c09742fe260d20303f2599aec166fb724a8f69",
+    "source_test_names": [
+      "official SDK discovers exactly three closed experimental tools with truthful write effects",
+      "read-only missing lookup and pre-admission HTTP cancellation return bounded problems without writes",
+      "loopback authority, Origin, Host and route are closed before application calls",
+      "sensitive JSON-RPC control fields and oversized wire bodies are rejected without reflection or writes",
+      "the existing catalogue wrapper also refuses oversized streaming bodies without waiting for producer cleanup",
+      "the experimental wrapper parses wire bytes, not supplied parsed-body overrides, and retains protocol guards",
+      "input-only extraction preserves every original advertised schema byte"
+    ]
+  },
+  "claims": {
+    "test_execution_recorded": false,
+    "historical_matrix_rerun": false,
+    "historical_attestation_extended": false,
+    "complete_dependency_closure_bound": false,
+    "live_host_session": false,
+    "live_provider_call": false,
+    "production_activation": false,
+    "release_ready": false
+  },
+  "boundary": "This additive source-review record admits only the three exact named runtime files and binds the updated regression source. The predecessor v1 record, original matrix and original Git-blob bindings remain historical and unchanged. A null historical hash means the constants module was absent from the historical runtime base; it is not an exemption for any other source. This record neither certifies the complete hosted implementation nor records execution, an attestation, complete runtime dependency provenance or independent-host evidence. Current test execution, deployment and release acceptance remain separate evidence."
+}

@@ -562,3 +562,11 @@ hash is recorded in the [storage experiment](../implementation/WEB-216_HOSTED_ST
 Failed attempts, input-source blobs and exact wire records remain private. The
 fixture is JSON-only and does not establish SSE, subscriptions, product ingress,
 hosted identity or cloud disaster recovery. No Site was deployed by this test.
+
+A separate v2 source-compatibility record binds the three precisely reviewed
+runtime files at `770626d7eb3ddbeb8459f143fbc44686afe03581` and the updated
+schema-byte regression. Its predecessor and the historical protocol matrix remain
+unchanged. Eleven focused contract tests passed, including changed-scope, hash,
+claim and adjacent-file refusal cases. This is source-review provenance, not a
+new historical host observation, execution attestation or complete dependency
+closure claim.
