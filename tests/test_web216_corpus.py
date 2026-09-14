@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import hashlib
+import io
 import json
 from pathlib import Path
 import subprocess
@@ -216,12 +217,84 @@ class Web216CorpusTests(unittest.TestCase):
     def test_cli_refuses_any_output_in_the_read_only_source_repository(self) -> None:
         arguments = ["web216_corpus.py", "--source-repo", self.directory.name,
                      "--output", str(self.path)]
-        with patch("sys.argv", arguments), patch.object(corpus, "import_pinned") as read:
+        with (patch("sys.argv", arguments), patch.object(corpus, "import_pinned") as read,
+              patch.object(corpus, "_protected_source_paths", return_value=(self.path.parent,))):
             with self.assertRaises(SystemExit) as error:
                 corpus.main()
         self.assertEqual(error.exception.code, 1)
         read.assert_not_called()
         self.assertFalse(self.path.exists())
+
+    def test_source_subdirectory_does_not_allow_output_at_actual_worktree_root(self) -> None:
+        root = self.path.parent / "protected-source"
+        source_subdirectory = root / "nested"
+        destination = root / "new-corpus.json"
+        metadata = root / ".git"
+        result = subprocess.CompletedProcess([], 0, stdout=(
+            f"{root}\n{metadata}\n{metadata}\n".encode()), stderr=b"")
+        arguments = ["web216_corpus.py", "--source-repo", str(source_subdirectory),
+                     "--output", str(destination)]
+        with (patch("sys.argv", arguments), patch("sys.stderr", new_callable=io.StringIO) as stderr,
+              patch.object(corpus.subprocess, "run", return_value=result) as resolve,
+              patch.object(corpus, "import_pinned") as read, patch.object(corpus, "_write") as write):
+            with self.assertRaises(SystemExit) as error:
+                corpus.main()
+        self.assertEqual(error.exception.code, 1)
+        self.assertIn("read-only source worktree", stderr.getvalue())
+        self.assertEqual(resolve.call_args.args[0][4], str(source_subdirectory))
+        self.assertIn("rev-parse", resolve.call_args.args[0])
+        read.assert_not_called()
+        write.assert_not_called()
+        self.assertFalse(root.exists())
+
+    def test_linked_worktree_git_and_common_directories_are_protected(self) -> None:
+        root = self.path.parent / "linked-source"
+        git_directory = self.path.parent / "primary-source/.git/worktrees/linked-source"
+        common_directory = self.path.parent / "primary-source/.git"
+        result = subprocess.CompletedProcess([], 0, stdout=(
+            f"{root}\n{git_directory}\n{common_directory}\n".encode()), stderr=b"")
+        for protected in (root, git_directory, common_directory):
+            for option in ("--output", "--manifest-output"):
+                destination = protected / "new-output.json"
+                arguments = ["web216_corpus.py", "--source-repo", str(root),
+                             "--output", str(destination if option == "--output" else self.path)]
+                if option == "--manifest-output":
+                    arguments.extend([option, str(destination)])
+                with (self.subTest(protected=protected, option=option),
+                      patch("sys.argv", arguments), patch("sys.stderr", new_callable=io.StringIO),
+                      patch.object(corpus.subprocess, "run", return_value=result),
+                      patch.object(corpus, "import_pinned") as read,
+                      patch.object(corpus, "_write") as write):
+                    with self.assertRaises(SystemExit) as error:
+                        corpus.main()
+                    self.assertEqual(error.exception.code, 1)
+                    read.assert_not_called()
+                    write.assert_not_called()
+        self.assertFalse(root.exists())
+        self.assertFalse(common_directory.exists())
+
+    def test_symlinked_destination_is_resolved_before_source_output_guard(self) -> None:
+        root = self.path.parent / "protected-source"
+        root.mkdir()
+        alias = self.path.parent / "alias"
+        alias.symlink_to(root, target_is_directory=True)
+        arguments = ["web216_corpus.py", "--source-repo", str(root / "nested"),
+                     "--output", str(alias / "output.json")]
+        with (patch("sys.argv", arguments), patch("sys.stderr", new_callable=io.StringIO),
+              patch.object(corpus, "_protected_source_paths", return_value=(root,)),
+              patch.object(corpus, "import_pinned") as read, patch.object(corpus, "_write") as write):
+            with self.assertRaises(SystemExit):
+                corpus.main()
+        read.assert_not_called()
+        write.assert_not_called()
+        self.assertEqual(list(root.iterdir()), [])
+
+    def test_source_root_resolution_fails_closed_on_ambiguous_output(self) -> None:
+        for output in (b"relative\n/git\n/common\n", b"/root\n/git\n", b"/root\n/git\n/common\n/extra\n"):
+            result = subprocess.CompletedProcess([], 0, stdout=output, stderr=b"")
+            with (self.subTest(output=output), patch.object(corpus.subprocess, "run", return_value=result),
+                  self.assertRaisesRegex(ValueError, "Cannot resolve")):
+                corpus._protected_source_paths(Path("source"))
 
 
 if __name__ == "__main__":

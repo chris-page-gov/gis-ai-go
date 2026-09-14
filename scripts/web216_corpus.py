@@ -299,6 +299,25 @@ def _write(path: Path, value: dict[str, Any], replace: bool) -> None:
             raise ValueError("Output exists; --replace permits only byte-identical regeneration") from None
 
 
+def _protected_source_paths(source_repo: Path) -> tuple[Path, ...]:
+    """Resolve actual worktree and Git metadata roots without changing the source.
+
+    Git accepts a worktree subdirectory for ``-C``. Linked worktrees may also
+    keep their Git directory and common object/configuration store elsewhere.
+    None of those locations may become an importer output destination.
+    """
+    result = subprocess.run(
+        ["git", "--no-pager", "--no-replace-objects", "-C", str(source_repo), "rev-parse",
+         "--path-format=absolute", "--show-toplevel", "--absolute-git-dir", "--git-common-dir"],
+        check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=30,
+        env=dict(os.environ, GIT_NO_LAZY_FETCH="1", GIT_TERMINAL_PROMPT="0", GIT_OPTIONAL_LOCKS="0"),
+    )
+    paths = result.stdout.decode("utf-8").splitlines()
+    if len(paths) != 3 or any(not path or not Path(path).is_absolute() for path in paths):
+        raise ValueError("Cannot resolve the read-only source worktree and Git metadata roots")
+    return tuple(Path(path).resolve() for path in paths)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source-repo", type=Path, required=True)
@@ -310,9 +329,10 @@ def main() -> int:
                         help="Accept an existing output only if already byte-identical")
     args = parser.parse_args()
     try:
+        protected_roots = _protected_source_paths(args.source_repo)
         for path in (args.output, args.manifest_output):
-            if path is not None and path.resolve().is_relative_to(args.source_repo.resolve()):
-                raise ValueError("Outputs must be outside the read-only source repository")
+            if path is not None and any(path.resolve().is_relative_to(root) for root in protected_roots):
+                raise ValueError("Outputs must be outside the read-only source worktree and Git metadata")
         comparison = import_pinned(args.source_repo, "comparison")
         corpus = _assemble(comparison["sources"], comparison["records"], args.scope)
         _write(args.output, corpus, args.replace)

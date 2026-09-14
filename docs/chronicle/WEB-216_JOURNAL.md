@@ -47,6 +47,11 @@ reasoning. Detailed private capture remains local under
   It was corrected to the repository's single-bullet format; this was an authoring
   error, not a runtime failure. Passing unchanged checks are not rerun merely to
   consume CI wait time.
+- Final importer review found that checking only the supplied source directory
+  was insufficient: Git accepts a repository subdirectory. Output checks now
+  protect the actual worktree, Git directory and common Git directory, including
+  resolved symlink destinations. No protected source was written. The integrated
+  set now passes 32 tests, including the new regression and related worktree cases.
 
 ## Preservation scope
 
