@@ -1,0 +1,1 @@
+- Add synthetic OS/ONS join-contract tests with exact integer geometry and a source-bound local static/SQLite/partition storage comparison, retaining identical records and development rankings without claiming production geography or hosting performance.

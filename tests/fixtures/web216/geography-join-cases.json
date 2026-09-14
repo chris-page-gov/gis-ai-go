@@ -1,0 +1,202 @@
+{
+  "schema_version": "web216.synthetic-geography-join-fixtures.v1",
+  "fixture_notice": "Every identifier, coordinate, geometry and count is invented for contract testing. No ONS or OS payload is included. Source links and rights labels are untrusted evidence strings, not proof of origin or permission.",
+  "base_case": {
+    "schema_version": "web216.synthetic-geography-join.v1",
+    "classification": "synthetic-only-not-ons-or-os-payload",
+    "fixture_notice": "Every identifier, coordinate, geometry and count is invented for contract testing. No ONS or OS payload is included.",
+    "geography": {
+      "crs": "EPSG:27700",
+      "vintage": "Census 2021",
+      "identifier_field": "MSOA21CD",
+      "features": [
+        {
+          "MSOA21CD": "SYN-MSOA-001",
+          "label": "Synthetic western area",
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [100000, 200000],
+                [110000, 200000],
+                [110000, 210000],
+                [100000, 210000],
+                [100000, 200000]
+              ]
+            ]
+          }
+        },
+        {
+          "MSOA21CD": "SYN-MSOA-002",
+          "label": "Synthetic eastern area",
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [110000, 200000],
+                [120000, 200000],
+                [120000, 210000],
+                [110000, 210000],
+                [110000, 200000]
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    "representative_points": {
+      "crs": "EPSG:27700",
+      "vintage": "2026 named point",
+      "items": [
+        {
+          "id": "SYN-POINT-001",
+          "name": "Synthetic western place",
+          "coordinates": [105000, 205000]
+        },
+        {
+          "id": "SYN-POINT-002",
+          "name": "Synthetic eastern place",
+          "coordinates": [115000, 205000]
+        }
+      ]
+    },
+    "statistics": {
+      "geography_vintage": "Census 2021",
+      "join_field": "MSOA21CD",
+      "category_dimension": "residence_type",
+      "expected_categories": [
+        "household-resident",
+        "communal-establishment-resident"
+      ],
+      "fixed_dimensions": {
+        "measure": "usual-residents",
+        "time": "2021"
+      },
+      "rows": [
+        {
+          "MSOA21CD": "SYN-MSOA-001",
+          "dimensions": {
+            "measure": "usual-residents",
+            "time": "2021",
+            "residence_type": "household-resident"
+          },
+          "count": 18
+        },
+        {
+          "MSOA21CD": "SYN-MSOA-001",
+          "dimensions": {
+            "measure": "usual-residents",
+            "time": "2021",
+            "residence_type": "communal-establishment-resident"
+          },
+          "count": 2
+        },
+        {
+          "MSOA21CD": "SYN-MSOA-002",
+          "dimensions": {
+            "measure": "usual-residents",
+            "time": "2021",
+            "residence_type": "household-resident"
+          },
+          "count": 9
+        },
+        {
+          "MSOA21CD": "SYN-MSOA-002",
+          "dimensions": {
+            "measure": "usual-residents",
+            "time": "2021",
+            "residence_type": "communal-establishment-resident"
+          },
+          "count": 1
+        }
+      ]
+    },
+    "source_evidence": [
+      {
+        "source_id": "SYNTHETIC-BOUNDARIES",
+        "title": "Synthetic MSOA boundary test layer",
+        "rights": {
+          "label": "Illustrative Open Government Licence metadata; not a rights decision",
+          "url": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
+        },
+        "links": [
+          {
+            "label": "ONS Census geography guidance for person verification",
+            "url": "https://www.ons.gov.uk/methodology/geography/ukgeographies/censusgeography"
+          }
+        ]
+      },
+      {
+        "source_id": "SYNTHETIC-STATISTICS",
+        "title": "Synthetic Census category count test rows",
+        "rights": {
+          "label": "Illustrative Open Government Licence metadata; not a rights decision",
+          "url": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
+        },
+        "links": [
+          {
+            "label": "ONS Census 2021 dictionary for person verification",
+            "url": "https://www.ons.gov.uk/census/census2021dictionary"
+          }
+        ]
+      }
+    ]
+  },
+  "cases": [
+    {
+      "id": "valid-strict-membership",
+      "mutation": "none",
+      "expected": "accepted"
+    },
+    {
+      "id": "outside-is-unsupported",
+      "mutation": "move-first-point-outside",
+      "expected_error": "UNSUPPORTED_POINT_LOCATION"
+    },
+    {
+      "id": "shared-edge-is-ambiguous",
+      "mutation": "move-first-point-to-shared-edge",
+      "expected_error": "AMBIGUOUS_POINT_LOCATION"
+    },
+    {
+      "id": "overlap-is-ambiguous",
+      "mutation": "add-overlapping-polygon",
+      "expected_error": "AMBIGUOUS_POINT_LOCATION"
+    },
+    {
+      "id": "duplicate-geography-code",
+      "mutation": "duplicate-first-geography",
+      "expected_error": "DUPLICATE_GEOGRAPHY_IDENTIFIER"
+    },
+    {
+      "id": "duplicate-statistic-tuple",
+      "mutation": "duplicate-first-statistic",
+      "expected_error": "DUPLICATE_STATISTIC_TUPLE"
+    },
+    {
+      "id": "missing-expected-category",
+      "mutation": "remove-first-area-category",
+      "expected_error": "MISSING_EXPECTED_CATEGORY"
+    },
+    {
+      "id": "point-crs-mismatch",
+      "mutation": "change-point-crs",
+      "expected_error": "INCOMPATIBLE_CRS"
+    },
+    {
+      "id": "statistics-vintage-mismatch",
+      "mutation": "change-statistics-vintage",
+      "expected_error": "INCOMPATIBLE_VINTAGE"
+    },
+    {
+      "id": "unsupported-geometry-type",
+      "mutation": "change-first-geometry-to-multipolygon",
+      "expected_error": "UNSUPPORTED_GEOMETRY"
+    },
+    {
+      "id": "unknown-code-cannot-match-label",
+      "mutation": "make-statistic-code-match-label-only",
+      "expected_error": "UNKNOWN_GEOGRAPHY_IDENTIFIER"
+    }
+  ]
+}
