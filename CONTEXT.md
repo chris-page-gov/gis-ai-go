@@ -26,6 +26,18 @@ unavailable. See [issue 117](https://github.com/chris-page-gov/gis-ai-go/issues/
 Runtime optimisation is a separate planned stage. EVID-211 continues to preserve
 evidence independently of the now-authorised retrospective analysis.
 
+Later on 14 September 2026 the owner authorised
+[WEB-216](docs/implementation/WEB-216_PUBLIC_DATA_WORKBENCH.md): develop the
+WebMCP public-data workbench, investigate and implement the bounded OS/ONS and
+OKF integration, reconcile source personas and stories, merge verified increments
+and preserve detailed permitted evidence for the continuing chronicle. This does
+not authorise modifying the `govuk-webmcp` competition repository or the other
+source repositories, obtaining paid services, or weakening existing provider,
+identity, evidence, deployment or release gates. Metadata discovery and authority
+to retrieve data remain separate. Follow the
+[experiment protocol](docs/implementation/WEB-216_EXPERIMENTS.md) for the current
+offline foundation work.
+
 ## Product identity and repository
 
 - product: **GIS AI GO**;

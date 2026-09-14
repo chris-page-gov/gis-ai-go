@@ -1,0 +1,541 @@
+{
+  "actual_network_bytes": null,
+  "agent_token_cost": null,
+  "arms": {
+    "comparison-full": {
+      "build_ms_median": 14.996,
+      "build_ms_samples": [
+        15.351416,
+        14.8365,
+        14.927,
+        15.079834,
+        14.996
+      ],
+      "cases": [
+        {
+          "case_id": "DEV-CPIH",
+          "empty_result": false,
+          "expected_present": true,
+          "first_detail_bytes": 0,
+          "first_relevant_rank": 1,
+          "mode": "keyword-facet",
+          "ranking_ms": 0.011625,
+          "recall_at_five": 1.0,
+          "top_five": [
+            "ons-data-api:cpih01",
+            "ons-data-api:generational-income",
+            "ons-data-api:index-private-housing-rental-prices",
+            "ons-data-api:house-prices-local-authority",
+            "ons-data-api:output-in-the-construction-industry"
+          ]
+        },
+        {
+          "case_id": "DEV-CPIH",
+          "empty_result": false,
+          "expected_present": true,
+          "first_detail_bytes": 0,
+          "first_relevant_rank": 1,
+          "mode": "keyword-facet-concepts",
+          "ranking_ms": 0.004875,
+          "recall_at_five": 1.0,
+          "top_five": [
+            "ons-data-api:cpih01",
+            "ons-data-api:generational-income",
+            "ons-data-api:index-private-housing-rental-prices",
+            "ons-data-api:house-prices-local-authority",
+            "ons-data-api:output-in-the-construction-industry"
+          ]
+        },
+        {
+          "case_id": "DEV-POPULATION",
+          "empty_result": false,
+          "expected_present": true,
+          "first_detail_bytes": 0,
+          "first_relevant_rank": 1,
+          "mode": "keyword-facet",
+          "ranking_ms": 0.073584,
+          "recall_at_five": 1.0,
+          "top_five": [
+            "nomis-dataset-definitions:NM_2002_1",
+            "nomis-dataset-definitions:NM_2006_1",
+            "ons-data-api:ageing-population-estimates",
+            "ons-data-api:older-people-sex-ratios",
+            "ons-data-api:ageing-population-projections"
+          ]
+        },
+        {
+          "case_id": "DEV-POPULATION",
+          "empty_result": false,
+          "expected_present": true,
+          "first_detail_bytes": 0,
+          "first_relevant_rank": 1,
+          "mode": "keyword-facet-concepts",
+          "ranking_ms": 0.08375,
+          "recall_at_five": 1.0,
+          "top_five": [
+            "nomis-dataset-definitions:NM_2002_1",
+            "nomis-dataset-definitions:NM_2006_1",
+            "ons-data-api:ageing-population-estimates",
+            "ons-data-api:older-people-sex-ratios",
+            "ons-data-api:ageing-population-projections"
+          ]
+        },
+        {
+          "case_id": "DEV-ROOMS",
+          "empty_result": false,
+          "expected_present": true,
+          "first_detail_bytes": 0,
+          "first_relevant_rank": 7,
+          "mode": "keyword-facet",
+          "ranking_ms": 0.017292,
+          "recall_at_five": 0.0,
+          "top_five": [
+            "ons-data-api:RM029",
+            "ons-data-api:RM100",
+            "ons-data-api:RM101",
+            "ons-data-api:RM141",
+            "ons-data-api:RM172"
+          ]
+        },
+        {
+          "case_id": "DEV-ROOMS",
+          "empty_result": false,
+          "expected_present": true,
+          "first_detail_bytes": 0,
+          "first_relevant_rank": 3,
+          "mode": "keyword-facet-concepts",
+          "ranking_ms": 0.060666,
+          "recall_at_five": 1.0,
+          "top_five": [
+            "ons-data-api:RM172",
+            "ons-data-api:RM187",
+            "ons-data-api:TS053",
+            "ons-data-api:RM029",
+            "ons-data-api:RM100"
+          ]
+        },
+        {
+          "case_id": "DEV-WIDER-COVERAGE",
+          "empty_result": false,
+          "expected_present": true,
+          "first_detail_bytes": 0,
+          "first_relevant_rank": 1,
+          "mode": "keyword-facet",
+          "ranking_ms": 0.010208,
+          "recall_at_five": 1.0,
+          "top_five": [
+            "ons-data-api:weekly-deaths-region",
+            "ons-data-api:weekly-deaths-age-sex",
+            "ons-data-api:weekly-deaths-health-board",
+            "ons-data-api:weekly-deaths-local-authority",
+            "ons-data-api:ashe-table-5"
+          ]
+        },
+        {
+          "case_id": "DEV-WIDER-COVERAGE",
+          "empty_result": false,
+          "expected_present": true,
+          "first_detail_bytes": 0,
+          "first_relevant_rank": 1,
+          "mode": "keyword-facet-concepts",
+          "ranking_ms": 0.006834,
+          "recall_at_five": 1.0,
+          "top_five": [
+            "ons-data-api:weekly-deaths-region",
+            "ons-data-api:weekly-deaths-age-sex",
+            "ons-data-api:weekly-deaths-health-board",
+            "ons-data-api:weekly-deaths-local-authority",
+            "ons-data-api:ashe-table-5"
+          ]
+        },
+        {
+          "case_id": "DEV-NO-MATCH",
+          "empty_result": true,
+          "expected_present": false,
+          "first_detail_bytes": 0,
+          "first_relevant_rank": null,
+          "mode": "keyword-facet",
+          "ranking_ms": 0.002666,
+          "recall_at_five": null,
+          "top_five": []
+        },
+        {
+          "case_id": "DEV-NO-MATCH",
+          "empty_result": true,
+          "expected_present": false,
+          "first_detail_bytes": 0,
+          "first_relevant_rank": null,
+          "mode": "keyword-facet-concepts",
+          "ranking_ms": 0.001875,
+          "recall_at_five": null,
+          "top_five": []
+        }
+      ],
+      "full_record_json_bytes": 744770,
+      "initial_gzip_bytes": null,
+      "initial_json_bytes": 744770,
+      "logical_sha256": "d88a08373789e216dedb6034e54a50adb59daee2a9b2981a168a55761357502a",
+      "record_count": 339
+    },
+    "comparison-lazy-detail": {
+      "build_ms_median": 15.734125,
+      "build_ms_samples": [
+        15.515,
+        15.586666,
+        15.734125,
+        16.123791,
+        17.103959
+      ],
+      "cases": [
+        {
+          "case_id": "DEV-CPIH",
+          "empty_result": false,
+          "expected_present": true,
+          "first_detail_bytes": 2627,
+          "first_relevant_rank": 1,
+          "mode": "keyword-facet",
+          "ranking_ms": 0.016792,
+          "recall_at_five": 1.0,
+          "top_five": [
+            "ons-data-api:cpih01",
+            "ons-data-api:generational-income",
+            "ons-data-api:index-private-housing-rental-prices",
+            "ons-data-api:house-prices-local-authority",
+            "ons-data-api:output-in-the-construction-industry"
+          ]
+        },
+        {
+          "case_id": "DEV-CPIH",
+          "empty_result": false,
+          "expected_present": true,
+          "first_detail_bytes": 2627,
+          "first_relevant_rank": 1,
+          "mode": "keyword-facet-concepts",
+          "ranking_ms": 0.0055,
+          "recall_at_five": 1.0,
+          "top_five": [
+            "ons-data-api:cpih01",
+            "ons-data-api:generational-income",
+            "ons-data-api:index-private-housing-rental-prices",
+            "ons-data-api:house-prices-local-authority",
+            "ons-data-api:output-in-the-construction-industry"
+          ]
+        },
+        {
+          "case_id": "DEV-POPULATION",
+          "empty_result": false,
+          "expected_present": true,
+          "first_detail_bytes": 6019,
+          "first_relevant_rank": 1,
+          "mode": "keyword-facet",
+          "ranking_ms": 0.095875,
+          "recall_at_five": 1.0,
+          "top_five": [
+            "nomis-dataset-definitions:NM_2002_1",
+            "nomis-dataset-definitions:NM_2006_1",
+            "ons-data-api:ageing-population-estimates",
+            "ons-data-api:older-people-sex-ratios",
+            "ons-data-api:ageing-population-projections"
+          ]
+        },
+        {
+          "case_id": "DEV-POPULATION",
+          "empty_result": false,
+          "expected_present": true,
+          "first_detail_bytes": 6019,
+          "first_relevant_rank": 1,
+          "mode": "keyword-facet-concepts",
+          "ranking_ms": 0.082583,
+          "recall_at_five": 1.0,
+          "top_five": [
+            "nomis-dataset-definitions:NM_2002_1",
+            "nomis-dataset-definitions:NM_2006_1",
+            "ons-data-api:ageing-population-estimates",
+            "ons-data-api:older-people-sex-ratios",
+            "ons-data-api:ageing-population-projections"
+          ]
+        },
+        {
+          "case_id": "DEV-ROOMS",
+          "empty_result": false,
+          "expected_present": true,
+          "first_detail_bytes": 2147,
+          "first_relevant_rank": 7,
+          "mode": "keyword-facet",
+          "ranking_ms": 0.018416,
+          "recall_at_five": 0.0,
+          "top_five": [
+            "ons-data-api:RM029",
+            "ons-data-api:RM100",
+            "ons-data-api:RM101",
+            "ons-data-api:RM141",
+            "ons-data-api:RM172"
+          ]
+        },
+        {
+          "case_id": "DEV-ROOMS",
+          "empty_result": false,
+          "expected_present": true,
+          "first_detail_bytes": 2401,
+          "first_relevant_rank": 3,
+          "mode": "keyword-facet-concepts",
+          "ranking_ms": 0.060042,
+          "recall_at_five": 1.0,
+          "top_five": [
+            "ons-data-api:RM172",
+            "ons-data-api:RM187",
+            "ons-data-api:TS053",
+            "ons-data-api:RM029",
+            "ons-data-api:RM100"
+          ]
+        },
+        {
+          "case_id": "DEV-WIDER-COVERAGE",
+          "empty_result": false,
+          "expected_present": true,
+          "first_detail_bytes": 1579,
+          "first_relevant_rank": 1,
+          "mode": "keyword-facet",
+          "ranking_ms": 0.012125,
+          "recall_at_five": 1.0,
+          "top_five": [
+            "ons-data-api:weekly-deaths-region",
+            "ons-data-api:weekly-deaths-age-sex",
+            "ons-data-api:weekly-deaths-health-board",
+            "ons-data-api:weekly-deaths-local-authority",
+            "ons-data-api:ashe-table-5"
+          ]
+        },
+        {
+          "case_id": "DEV-WIDER-COVERAGE",
+          "empty_result": false,
+          "expected_present": true,
+          "first_detail_bytes": 1579,
+          "first_relevant_rank": 1,
+          "mode": "keyword-facet-concepts",
+          "ranking_ms": 0.00725,
+          "recall_at_five": 1.0,
+          "top_five": [
+            "ons-data-api:weekly-deaths-region",
+            "ons-data-api:weekly-deaths-age-sex",
+            "ons-data-api:weekly-deaths-health-board",
+            "ons-data-api:weekly-deaths-local-authority",
+            "ons-data-api:ashe-table-5"
+          ]
+        },
+        {
+          "case_id": "DEV-NO-MATCH",
+          "empty_result": true,
+          "expected_present": false,
+          "first_detail_bytes": 0,
+          "first_relevant_rank": null,
+          "mode": "keyword-facet",
+          "ranking_ms": 0.00275,
+          "recall_at_five": null,
+          "top_five": []
+        },
+        {
+          "case_id": "DEV-NO-MATCH",
+          "empty_result": true,
+          "expected_present": false,
+          "first_detail_bytes": 0,
+          "first_relevant_rank": null,
+          "mode": "keyword-facet-concepts",
+          "ranking_ms": 0.001875,
+          "recall_at_five": null,
+          "top_five": []
+        }
+      ],
+      "full_record_json_bytes": 744770,
+      "initial_gzip_bytes": null,
+      "initial_json_bytes": 239298,
+      "logical_sha256": "d88a08373789e216dedb6034e54a50adb59daee2a9b2981a168a55761357502a",
+      "record_count": 339
+    },
+    "story-subset": {
+      "build_ms_median": 0.377833,
+      "build_ms_samples": [
+        0.446333,
+        0.377833,
+        0.356125,
+        0.386958,
+        0.347625
+      ],
+      "cases": [
+        {
+          "case_id": "DEV-CPIH",
+          "empty_result": false,
+          "expected_present": true,
+          "first_detail_bytes": 0,
+          "first_relevant_rank": 1,
+          "mode": "keyword-facet",
+          "ranking_ms": 0.006833,
+          "recall_at_five": 1.0,
+          "top_five": [
+            "ons-data-api:cpih01"
+          ]
+        },
+        {
+          "case_id": "DEV-CPIH",
+          "empty_result": false,
+          "expected_present": true,
+          "first_detail_bytes": 0,
+          "first_relevant_rank": 1,
+          "mode": "keyword-facet-concepts",
+          "ranking_ms": 0.004875,
+          "recall_at_five": 1.0,
+          "top_five": [
+            "ons-data-api:cpih01"
+          ]
+        },
+        {
+          "case_id": "DEV-POPULATION",
+          "empty_result": false,
+          "expected_present": true,
+          "first_detail_bytes": 0,
+          "first_relevant_rank": 1,
+          "mode": "keyword-facet",
+          "ranking_ms": 0.005875,
+          "recall_at_five": 1.0,
+          "top_five": [
+            "nomis-dataset-definitions:NM_2002_1",
+            "nomis-dataset-definitions:NM_2006_1",
+            "ons-data-api:TS001",
+            "ons-data-api:TS017",
+            "ons-data-api:TS052"
+          ]
+        },
+        {
+          "case_id": "DEV-POPULATION",
+          "empty_result": false,
+          "expected_present": true,
+          "first_detail_bytes": 0,
+          "first_relevant_rank": 1,
+          "mode": "keyword-facet-concepts",
+          "ranking_ms": 0.007041,
+          "recall_at_five": 1.0,
+          "top_five": [
+            "nomis-dataset-definitions:NM_2002_1",
+            "nomis-dataset-definitions:NM_2006_1",
+            "ons-data-api:TS001",
+            "ons-data-api:TS017",
+            "ons-data-api:TS052"
+          ]
+        },
+        {
+          "case_id": "DEV-ROOMS",
+          "empty_result": false,
+          "expected_present": true,
+          "first_detail_bytes": 0,
+          "first_relevant_rank": 1,
+          "mode": "keyword-facet",
+          "ranking_ms": 0.004125,
+          "recall_at_five": 1.0,
+          "top_five": [
+            "ons-data-api:TS053",
+            "nomis-dataset-definitions:NM_2002_1",
+            "nomis-dataset-definitions:NM_2006_1",
+            "ons-data-api:TS052"
+          ]
+        },
+        {
+          "case_id": "DEV-ROOMS",
+          "empty_result": false,
+          "expected_present": true,
+          "first_detail_bytes": 0,
+          "first_relevant_rank": 1,
+          "mode": "keyword-facet-concepts",
+          "ranking_ms": 0.004792,
+          "recall_at_five": 1.0,
+          "top_five": [
+            "ons-data-api:TS053",
+            "ons-data-api:TS052",
+            "nomis-dataset-definitions:NM_2002_1",
+            "nomis-dataset-definitions:NM_2006_1",
+            "ons-data-api:TS001"
+          ]
+        },
+        {
+          "case_id": "DEV-WIDER-COVERAGE",
+          "empty_result": true,
+          "expected_present": false,
+          "first_detail_bytes": 0,
+          "first_relevant_rank": null,
+          "mode": "keyword-facet",
+          "ranking_ms": 0.002834,
+          "recall_at_five": 0.0,
+          "top_five": []
+        },
+        {
+          "case_id": "DEV-WIDER-COVERAGE",
+          "empty_result": true,
+          "expected_present": false,
+          "first_detail_bytes": 0,
+          "first_relevant_rank": null,
+          "mode": "keyword-facet-concepts",
+          "ranking_ms": 0.002291,
+          "recall_at_five": 0.0,
+          "top_five": []
+        },
+        {
+          "case_id": "DEV-NO-MATCH",
+          "empty_result": true,
+          "expected_present": false,
+          "first_detail_bytes": 0,
+          "first_relevant_rank": null,
+          "mode": "keyword-facet",
+          "ranking_ms": 0.001666,
+          "recall_at_five": null,
+          "top_five": []
+        },
+        {
+          "case_id": "DEV-NO-MATCH",
+          "empty_result": true,
+          "expected_present": false,
+          "first_detail_bytes": 0,
+          "first_relevant_rank": null,
+          "mode": "keyword-facet-concepts",
+          "ranking_ms": 0.001417,
+          "recall_at_five": null,
+          "top_five": []
+        }
+      ],
+      "full_record_json_bytes": 18926,
+      "initial_gzip_bytes": null,
+      "initial_json_bytes": 18926,
+      "logical_sha256": "99757982288f8f5b0ffd16a76d201ac32cae33db4909f5447197c35d915994e5",
+      "record_count": 7
+    }
+  },
+  "cases_sha256": "9bdfc5609d77fcc517a3b026418e44da7686e0ef386985b33864f90f856a64ca",
+  "classification": "development-not-confirmatory",
+  "concept_vocabulary": "web216.curated-dimension-vocabulary.v1",
+  "corpus_sha256": "13124565845912238eebcd5708244701beec29ad42c1a794a124750c8eabf962",
+  "elapsed_seconds": 0.2188129425048828,
+  "environment": {
+    "machine": "arm64",
+    "python": "3.14.6",
+    "system": "Darwin"
+  },
+  "incremental": {
+    "deleted_identity_absent": true,
+    "equal_logical_output": true,
+    "full_sha256": "6ac7565e5b1d675259a6fa7539de14c58d6758631187b9e959baa373f917f28c",
+    "incremental_sha256": "6ac7565e5b1d675259a6fa7539de14c58d6758631187b9e959baa373f917f28c",
+    "mutation_kind": "synthetic-add-change-delete",
+    "reused_records": 337
+  },
+  "limitations": [
+    "Frozen metadata, not current provider observations",
+    "Development cases and curated concepts are not blinded",
+    "Concept hints are author-supplied, not automatic intent understanding",
+    "JSON bytes are an analytical model, not host measurements",
+    "No full-corpus, optimality, user-research or execution-support claim"
+  ],
+  "model_requests": 0,
+  "provider_charge": 0,
+  "provider_requests": 0,
+  "schema_version": "web216.offline-experiment.v1",
+  "started_at_utc": "2026-09-14T15:28:13Z",
+  "view_version": "web216.discovery-view.v1"
+}

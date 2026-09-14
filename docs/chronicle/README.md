@@ -8,6 +8,10 @@ review findings are dated additions, not claims about what was known earlier.
 Work is tracked in [CHRON-213 #117](https://github.com/chris-page-gov/gis-ai-go/issues/117)
 and the [Claude retrospective #86](https://github.com/chris-page-gov/gis-ai-go/issues/86).
 
+Subsequent work is recorded in the [WEB-216 source-time journal](WEB-216_JOURNAL.md).
+It does not move this volume's product cut-off or claim that ongoing experiments
+have completed.
+
 The dated Claude recovery edition replaces the initial twelve-row minimum with
 a reviewed 31-outcome chronology, corrects timestamp semantics and separates
 recoverable evidence from the still-unprovable exhaustive-history claim. It does
