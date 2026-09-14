@@ -265,6 +265,7 @@ class Qual206LocalEvaluationReceiptTests(unittest.TestCase):
                 "packages/evidence/src/public-ledger.ts",
                 "packages/evidence/src/public-read-receipt.ts",
                 "packages/evidence/src/reconciliation-index.ts",
+                "packages/evidence/src/idempotency-constants.ts",
                 "packages/evidence/src/receipt.ts",
                 "packages/policy-client/src/evidence-inspect-v3.ts",
                 "packages/policy-client/src/public-evidence-inspect-v3.json",
@@ -293,6 +294,32 @@ class Qual206LocalEvaluationReceiptTests(unittest.TestCase):
                 "not persisted or attested."
             ),
         )
+
+    def test_extracted_logic_remains_bound_in_every_previously_covered_suite(self) -> None:
+        moved_material = {
+            "apps/mcp-gateway/src/http-app.ts": {
+                "apps/mcp-gateway/src/bounded-json.ts",
+            },
+            "apps/mcp-gateway/src/mcp-http.ts": {
+                "apps/mcp-gateway/src/mcp-http-core.ts",
+                "apps/mcp-gateway/src/mcp-wire-guards.ts",
+            },
+            "apps/mcp-gateway/src/mcp-server.ts": {
+                "apps/mcp-gateway/src/mcp-wire-guards.ts",
+            },
+            "packages/evidence/src/reconciliation-index.ts": {
+                "packages/evidence/src/idempotency-constants.ts",
+            },
+        }
+        observed: set[str] = set()
+        for suite in self.document["suites"]:
+            paths = {item["path"] for item in suite["materials"]}
+            for original, extracted in moved_material.items():
+                if original in paths:
+                    observed.add(original)
+                    with self.subTest(suite=suite["label"], original=original):
+                        self.assertTrue(extracted <= paths)
+        self.assertEqual(observed, set(moved_material))
 
     def test_schema_rejects_claim_inflation_drift_and_extra_cases(self) -> None:
         unknown = copy.deepcopy(self.document)

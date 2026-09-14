@@ -5,7 +5,7 @@ import {
   PUBLIC_IDEMPOTENCY_KEY,
   WEB216_CPIH_CAPTURE,
   type Web216CpihPeriod,
-} from "@gis-ai-go/evidence";
+} from "@gis-ai-go/evidence/web216-pure";
 
 const PLAN_DOMAIN = "gis-ai-go.web216-cpih-selection-plan.v1";
 

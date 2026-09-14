@@ -1,5 +1,5 @@
 /** Closed, non-executable inputs shared by the separate local and hosted faces. */
-import { canonicalJsonClone } from "@gis-ai-go/evidence";
+import { canonicalJsonClone } from "@gis-ai-go/evidence/web216-pure";
 
 type Schema = Readonly<Record<string, unknown>>;
 const closed = (properties: Record<string, Schema>): Schema => ({

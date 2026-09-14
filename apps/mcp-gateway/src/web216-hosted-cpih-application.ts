@@ -7,7 +7,7 @@ import {
   type EvidenceSoftwareIdentity, type Web216D1SnapshotStore,
   type Web216TransactionalMaterial, type Web216TransactionalRecord,
   type Web216TransactionalSnapshot,
-} from "@gis-ai-go/evidence";
+} from "@gis-ai-go/evidence/web216-pure";
 import {
   normaliseWeb216CpihQueryProposal, resolveWeb216CpihSelection, Web216CpihSelectionError,
   type Web216CpihSelectionPlan,

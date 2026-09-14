@@ -39,7 +39,7 @@ EXACT_RESOURCES = [
 # changes; it is not an immutable observed-host artefact. Current material bindings
 # are independently checked by test_qual_206_local_evaluation_receipts.
 REGENERABLE_LOCAL_RECEIPT_SHA256 = (
-    "fe0c0e61ab0253c550d17d8681dab4ec547498ba1fb50948b4d0817ee7a4a9d9"
+    "5baed8b6e7d8b47ef5977b74fe78129c5ea28677db01d16076206ba6c199e06e"
 )
 HISTORICAL_V1_SHA256 = {
     "evaluation/qual-206-local-protocol-evidence-matrix.v1.json": (
