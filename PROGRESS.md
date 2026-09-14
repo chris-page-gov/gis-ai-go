@@ -40,8 +40,9 @@ tree observation is not an accepted-build attestation or hosted capability claim
 See the [local walkthrough](docs/implementation/WEB-216_LOCAL_WORKBENCH_WALKTHROUGH.md).
 PR #131 is merged at `fd8106691bb5c3d63e5f11c21b16f1e7c26f4321`; required PR
 checks and protected-main source assurance passed. Both main image builds failed
-during packaging and their single unchanged-source retry is pending; full
-post-merge acceptance is not yet claimed. The separate inactive hosted-storage
+during packaging, including the single unchanged-source retry; full post-merge
+acceptance is not yet claimed. Packaging diagnostics are being isolated without
+repeating the failing run. The separate inactive hosted-storage
 foundation passes 35 focused tests and a real local Workers/D1 restart experiment.
 It adds no endpoint or deployment. See the
 [storage experiment](docs/implementation/WEB-216_HOSTED_STORAGE_EXPERIMENT.md).

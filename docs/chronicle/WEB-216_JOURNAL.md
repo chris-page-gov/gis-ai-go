@@ -482,3 +482,15 @@ canonical snapshot; zero outbound attempts were observed. The runner hash was
 `912aa0d677935b70d352c4caaf47a62a09c7c8d6bc9abd660d8d3561954a4f38`
 and fixture hash `c7a9d509d6828e377491f87bbec61997bf4f649aa72a63e65dd119cd69634650`.
 This is a separately observed portable run, not a rewrite of the original probe.
+
+After the new foundation was committed and rebased onto the unchanged PR #131
+merge tree, a clean build at `5ebe20d9723aa12d413ce88222daa47021679000` verified
+unchanged canonicalisation/digest bytes and the new additive export barrel. The
+historical compiler's exact barrel pin was advanced to that reviewed build;
+earlier observations, identity vectors and the seven deterministic local receipts
+were not regenerated. The affected contract run had caught this specific stale
+pin before CI submission. This remains a maintenance cost of the shared export
+surface, not a runtime behaviour change or relaxed evidence gate.
+
+The one unchanged-source image retry also failed. No further identical retry was
+started; diagnosis remained separate from the passing source and storage checks.
