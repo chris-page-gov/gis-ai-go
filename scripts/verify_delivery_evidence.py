@@ -12,6 +12,7 @@ import io
 import json
 import math
 import multiprocessing
+from multiprocessing import reduction as multiprocessing_reduction
 import os
 import queue
 import re
@@ -29,6 +30,7 @@ from capture_delivery_evidence import (
     CODEX_GENERATION_SCHEMA,
     CODEX_PROJECTION_SCHEMA,
     INTERMEDIATE_CODEX_PROJECTION_SCHEMA,
+    LEGACY_CODEX_GENERATION_SCHEMA,
     LEGACY_CODEX_PROJECTION_SCHEMA,
     EVENT_SCHEMA,
     FIXED_LENGTH_REDACTION_PATTERNS,
@@ -142,7 +144,9 @@ def _verify_codex_projection_worker(
     allowed_session_thread_ids: set[str] | frozenset[str],
     session_lineage_metadata: Mapping[str, tuple[str, str | None]],
     progress_byte_interval: int,
-) -> None:
+    read_descriptor_transfer: Any | None = None,
+    required_projection_schema: str | None = None,
+) -> bool:
     """Fully verify one projection in an isolated bounded-memory process."""
 
     pending_bytes = 0
@@ -160,16 +164,30 @@ def _verify_codex_projection_worker(
             pending_bytes = 0
             last_progress_at = current
 
-    _verify_codex_projection(
-        path,
-        manifest_item,
-        source_event,
-        allowed_session_thread_ids=allowed_session_thread_ids,
-        session_lineage_metadata=session_lineage_metadata,
-        progress_bytes_function=report_bytes,
-    )
-    if pending_bytes:
-        _CODEX_WORKER_PROGRESS_QUEUE.put(pending_bytes)
+    read_descriptor: int | None = None
+    compatible = True
+    try:
+        if read_descriptor_transfer is not None:
+            read_descriptor = read_descriptor_transfer.detach()
+        try:
+            _verify_codex_projection(
+                path,
+                manifest_item,
+                source_event,
+                allowed_session_thread_ids=allowed_session_thread_ids,
+                session_lineage_metadata=session_lineage_metadata,
+                required_projection_schema=required_projection_schema,
+                read_descriptor=read_descriptor,
+                progress_bytes_function=report_bytes,
+            )
+        except _CodexProjectionSchemaMismatch:
+            compatible = False
+        if pending_bytes:
+            _CODEX_WORKER_PROGRESS_QUEUE.put(pending_bytes)
+        return compatible
+    finally:
+        if read_descriptor is not None:
+            os.close(read_descriptor)
 
 
 def _verify_fixed_length_projection_redactions(raw: bytes) -> None:
@@ -3271,16 +3289,19 @@ def _verify_codex_projections_parallel(
     workers: int,
     progress_bytes_function: Callable[[int], None] | None,
     completed_function: Callable[[str], None],
-) -> None:
+    observed_descriptors: Mapping[str, int] | None = None,
+    required_projection_schema: str | None = None,
+) -> bool:
     """Verify independent projections concurrently and raise errors in input order."""
 
     if not tasks:
-        return
+        return True
     context = multiprocessing.get_context("spawn")
     progress_queue = context.Queue(maxsize=workers * 2)
-    futures: dict[concurrent.futures.Future[None], tuple[int, str]] = {}
+    futures: dict[concurrent.futures.Future[bool], tuple[int, str]] = {}
     errors: list[tuple[int, Exception]] = []
     callback_error: Exception | None = None
+    schema_compatible = True
 
     def drain_progress() -> None:
         nonlocal callback_error
@@ -3303,7 +3324,7 @@ def _verify_codex_projections_parallel(
             initargs=(progress_queue,),
         ) as executor:
             next_index = 0
-            pending: set[concurrent.futures.Future[None]] = set()
+            pending: set[concurrent.futures.Future[bool]] = set()
 
             def submit_available() -> None:
                 nonlocal next_index
@@ -3311,6 +3332,16 @@ def _verify_codex_projections_parallel(
                 while len(pending) < maximum_in_flight and next_index < len(tasks):
                     task = tasks[next_index]
                     identity, path, item, source_event, lineage, session_metadata = task
+                    descriptor_transfer = None
+                    if observed_descriptors is not None:
+                        object_digest = item["object_sha256"]
+                        _expect(
+                            object_digest in observed_descriptors,
+                            "Codex projection descriptor is missing",
+                        )
+                        descriptor_transfer = multiprocessing_reduction.DupFd(
+                            observed_descriptors[object_digest]
+                        )
                     future = executor.submit(
                         _verify_codex_projection_worker,
                         path,
@@ -3319,6 +3350,8 @@ def _verify_codex_projections_parallel(
                         lineage,
                         session_metadata,
                         CODEX_VERIFICATION_PROGRESS_BYTES,
+                        descriptor_transfer,
+                        required_projection_schema,
                     )
                     futures[future] = (next_index, identity)
                     pending.add(future)
@@ -3336,10 +3369,11 @@ def _verify_codex_projections_parallel(
                 for future in done:
                     index, identity = futures.pop(future)
                     try:
-                        future.result()
+                        compatible = future.result()
                     except Exception as error:  # re-raised deterministically below
                         errors.append((index, error))
                     else:
+                        schema_compatible = schema_compatible and compatible
                         if callback_error is not None:
                             continue
                         try:
@@ -3364,6 +3398,7 @@ def _verify_codex_projections_parallel(
         if isinstance(error, EvidenceVerificationError):
             raise error
         raise EvidenceVerificationError("Codex projection worker failed closed") from error
+    return schema_compatible
 
 
 def _verify_codex_generations(
@@ -3383,11 +3418,7 @@ def _verify_codex_generations(
         <= MAX_CODEX_VERIFICATION_WORKERS,
         "Codex verification worker count is invalid",
     )
-    parallel_projection_verification = bool(
-        workers > 1
-        and required_projection_schema is None
-        and observed_descriptors is None
-    )
+    parallel_projection_verification = workers > 1
     by_identity = {event["source"]["identity"]: event for event in events}
     projection_events = {
         identity: event
@@ -3401,7 +3432,6 @@ def _verify_codex_generations(
     ]
     referenced: set[str] = set()
     projection_schema_compatible = True
-    captured_projection_seen = False
     completed_projection_identities: set[str] = set()
     total_projections = len(projection_events)
 
@@ -3482,7 +3512,11 @@ def _verify_codex_generations(
         _expect(isinstance(manifest, dict), "Codex generation manifest is not an object")
         _expect(set(manifest) == CODEX_MANIFEST_KEYS, "Codex generation manifest is not closed")
         _expect(raw == canonical_json(manifest, pretty=True), "Codex generation manifest is not canonical")
-        _expect(manifest["schema"] == CODEX_GENERATION_SCHEMA, "Codex generation schema is invalid")
+        _expect(
+            manifest["schema"]
+            in {LEGACY_CODEX_GENERATION_SCHEMA, CODEX_GENERATION_SCHEMA},
+            "Codex generation schema is invalid",
+        )
         _expect(manifest["boundaries"] == BOUNDARIES, "Codex generation crosses its boundary")
         _expect(
             manifest["selection_rule"]
@@ -3567,7 +3601,7 @@ def _verify_codex_generations(
             "Codex aggregate skipped-record counts",
         )
         generation_material = {
-            "schema": CODEX_GENERATION_SCHEMA,
+            "schema": manifest["schema"],
             "thread_id": manifest["thread_id"],
             "selection_rule": manifest["selection_rule"],
             "files": files,
@@ -3633,7 +3667,6 @@ def _verify_codex_generations(
                 "Codex redaction metadata differs",
             )
             if item["disposition"] == "captured":
-                captured_projection_seen = True
                 _expect(len(source_event["objects"]) == 1, "captured Codex projection has no object")
                 source_object = source_event["objects"][0]
                 _expect(source_object["sha256"] == item["object_sha256"], "Codex object digest differs")
@@ -3700,11 +3733,18 @@ def _verify_codex_generations(
                 _expect(item["reason"].startswith(reason_prefix), "excluded Codex reason is invalid")
                 category = item["reason"][len(reason_prefix) :]
                 _expect(bool(category), "excluded Codex secret category is empty")
+                stat_binding = ""
+                if manifest["schema"] == CODEX_GENERATION_SCHEMA:
+                    stat_digest = hashlib.sha256(
+                        canonical_json(source["source_stat_before"])
+                    ).hexdigest()
+                    stat_binding = f"source-stat-sha256:{stat_digest}:"
                 expected_identity = (
                     f"codex-user-visible-projection:thread:{item['thread_id']}:"
                     f"session:{item['session_id']}:"
                     f"path-sha256:{item['source_path_sha256']}:"
-                    f"source-sha256:{item['raw_source_sha256']}:excluded:{category}"
+                    f"source-sha256:{item['raw_source_sha256']}:"
+                    f"{stat_binding}excluded:{category}"
                 )
                 _expect(source["identity"] == expected_identity, "excluded Codex identity differs")
             if not (parallel_projection_verification and item["disposition"] == "captured"):
@@ -3758,13 +3798,18 @@ def _verify_codex_generations(
         )
     if parallel_projection_verification:
         parallel_start_bytes = completed_projection_bytes
-        _verify_codex_projections_parallel(
-            parallel_tasks,
-            workers=workers,
-            progress_bytes_function=(
-                advance_projection_bytes if progress_function is not None else None
-            ),
-            completed_function=complete_projection,
+        projection_schema_compatible = (
+            _verify_codex_projections_parallel(
+                parallel_tasks,
+                workers=workers,
+                progress_bytes_function=(
+                    advance_projection_bytes if progress_function is not None else None
+                ),
+                completed_function=complete_projection,
+                observed_descriptors=observed_descriptors,
+                required_projection_schema=required_projection_schema,
+            )
+            and projection_schema_compatible
         )
         if progress_function is not None:
             expected_parallel_bytes = sum(
@@ -3784,8 +3829,6 @@ def _verify_codex_generations(
         set(projection_events) == referenced,
         "Codex projection set is partial or lacks a completion manifest",
     )
-    if required_projection_schema is not None and not captured_projection_seen:
-        projection_schema_compatible = False
     if progress_function is not None and total_projections:
         report_progress("codex-verification-complete")
     return projection_schema_compatible
@@ -3797,6 +3840,7 @@ def validate_reusable_codex_generation(
     manifest_identity: str,
     *,
     required_projection_schema: str | None = None,
+    workers: int = 1,
 ) -> Mapping[str, Any] | None:
     """Deep-validate one prior generation before the capture path reuses it."""
 
@@ -3941,6 +3985,7 @@ def validate_reusable_codex_generation(
             observed,
             required_projection_schema=required_projection_schema,
             observed_descriptors=descriptors,
+            workers=workers,
         )
         for digest, path in observed.items():
             after = os.fstat(descriptors[digest])

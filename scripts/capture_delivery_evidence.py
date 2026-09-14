@@ -114,7 +114,10 @@ INTERMEDIATE_CODEX_PROJECTION_SCHEMA = (
     "gis-ai-go.codex-user-visible-delivery-projection.v2"
 )
 CODEX_PROJECTION_SCHEMA = "gis-ai-go.codex-user-visible-delivery-projection.v3"
-CODEX_GENERATION_SCHEMA = "gis-ai-go.codex-thread-closure-generation.v1"
+LEGACY_CODEX_GENERATION_SCHEMA = "gis-ai-go.codex-thread-closure-generation.v1"
+CODEX_GENERATION_SCHEMA = "gis-ai-go.codex-thread-closure-generation.v2"
+MIN_CODEX_REUSE_WORKERS = 1
+MAX_CODEX_REUSE_WORKERS = 4
 CODEX_OUTSIDE_LINEAGE_STUB = "session_meta:outside-selected-lineage"
 CODEX_FORK_ID_DIGEST_DOMAIN = b"gis-ai-go.codex-forked-from-id.v1\0"
 CODEX_GENERATION_FILE_KEYS = {
@@ -5079,6 +5082,24 @@ def _codex_projection_identity(
     )
 
 
+def _codex_excluded_projection_identity(
+    record: CodexSessionRecord,
+    *,
+    path_digest: str,
+    raw_source_sha256: str,
+    source_stat_before: Mapping[str, int],
+    category: str,
+) -> str:
+    """Bind an excluded projection to the exact source observation."""
+
+    stat_digest = sha256_bytes(canonical_json(source_stat_before))
+    return (
+        f"codex-user-visible-projection:thread:{record.thread_id}:session:{record.session_id}:"
+        f"path-sha256:{path_digest}:source-sha256:{raw_source_sha256}:"
+        f"source-stat-sha256:{stat_digest}:excluded:{category}"
+    )
+
+
 def stage_codex_user_visible_projection(
     record: CodexSessionRecord,
     incoming: Path,
@@ -5427,10 +5448,12 @@ def stage_codex_user_visible_projection(
         projection_path.unlink(missing_ok=True)
         source_stat_after = provenance_stat_after or _recorded_source_stat(after_path)
         category = sorted(unredactable_categories)[0]
-        identity = (
-            f"codex-user-visible-projection:thread:{record.thread_id}:"
-            f"session:{record.session_id}:path-sha256:{path_digest}:"
-            f"source-sha256:{raw_digest.hexdigest()}:excluded:{category}"
+        identity = _codex_excluded_projection_identity(
+            record,
+            path_digest=path_digest,
+            raw_source_sha256=raw_digest.hexdigest(),
+            source_stat_before=source_stat_before,
+            category=category,
         )
         source = _source_value(
             kind="codex-user-visible-projection",
@@ -5758,9 +5781,18 @@ def _codex_manifest_lineage_context(
 def _reusable_codex_projections(
     store: EvidenceStore,
     records: Sequence[CodexSessionRecord],
+    *,
+    workers: int = MIN_CODEX_REUSE_WORKERS,
 ) -> dict[str, CodexProjection]:
     """Find completed projections matching an exact current path/stat snapshot."""
 
+    if (
+        not isinstance(workers, int)
+        or isinstance(workers, bool)
+        or workers < MIN_CODEX_REUSE_WORKERS
+        or workers > MAX_CODEX_REUSE_WORKERS
+    ):
+        raise EvidenceCaptureError("Codex reuse worker count is invalid")
     current_lineages = _codex_session_lineages(records)
     current_metadata = {
         record.thread_id: (record.session_id, record.parent_thread_id)
@@ -5791,6 +5823,7 @@ def _reusable_codex_projections(
                 store.events,
                 str(event["source"]["identity"]),
                 required_projection_schema=CODEX_PROJECTION_SCHEMA,
+                workers=workers,
             )
             if manifest is None:
                 continue
@@ -5879,6 +5912,13 @@ def _reusable_codex_projections(
             disposition = source_event["disposition"]["status"]
             if disposition not in {"captured", "excluded"}:
                 continue
+            if (
+                disposition == "excluded"
+                and manifest["schema"] == LEGACY_CODEX_GENERATION_SCHEMA
+            ):
+                # Legacy excluded identities were not source-stat-bound. Keep
+                # them immutable and verifiable, but re-project them into v2.
+                continue
             object_sha256 = item.get("object_sha256")
             object_bytes = item.get("object_bytes")
             if disposition == "captured":
@@ -5918,6 +5958,7 @@ def capture_codex_thread_closure(
     clone_function: Callable[[Path, Path], None] | None = None,
     filesystem_type_function: Callable[[Path], str] | None = None,
     progress_function: Callable[[Mapping[str, object]], None] | None = None,
+    reuse_workers: int = MIN_CODEX_REUSE_WORKERS,
 ) -> int:
     """Capture a user-visible projection for a target and its child agents.
 
@@ -5987,7 +6028,7 @@ def capture_codex_thread_closure(
         staged_projection_bytes=0,
         reused_files=0,
     )
-    reusable = _reusable_codex_projections(store, selected)
+    reusable = _reusable_codex_projections(store, selected, workers=reuse_workers)
     reusable_paths = set(reusable)
     reused_source_bytes = sum(
         record.metadata.st_size
@@ -7599,6 +7640,13 @@ def parser() -> argparse.ArgumentParser:
     value.add_argument("--redacted-local-jsonl", type=Path, action="append", default=[])
     value.add_argument("--codex-thread-id")
     value.add_argument("--codex-session-root", type=Path, action="append", default=[])
+    value.add_argument(
+        "--codex-reuse-workers",
+        type=int,
+        choices=range(MIN_CODEX_REUSE_WORKERS, MAX_CODEX_REUSE_WORKERS + 1),
+        default=MIN_CODEX_REUSE_WORKERS,
+        help="bounded semantic-validation workers for prior Codex projections",
+    )
     value.add_argument("--download-run-logs", action="store_true")
     value.add_argument("--discussion-number", type=int, action="append", default=[])
     value.add_argument(
@@ -7689,6 +7737,7 @@ def run(arguments: argparse.Namespace, *, client: GhClient | None = None) -> dic
                 session_roots=arguments.codex_session_root,
                 trigger=arguments.trigger,
                 progress_function=_print_codex_capture_progress,
+                reuse_workers=arguments.codex_reuse_workers,
             )
         return store.summary()
 
