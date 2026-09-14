@@ -576,7 +576,9 @@ The build-diagnostics repair merged through PR #133 at
 and CodeQL passed, including independent image derivation and provenance. The
 hosted transport increment then passed its canonical PR checks and merged through
 PR #134 at `1a89c73c7e8dec671cb3abd92c271d3d071c2830`; its protected-main
-acceptance is recorded separately when complete.
+assurance and CodeQL passed in runs
+[34888246252](https://github.com/chris-page-gov/gis-ai-go/actions/runs/34888246252)
+and [34888245935](https://github.com/chris-page-gov/gis-ai-go/actions/runs/34888245935).
 
 Three reused agents then divided the bounded extraction, pure evidence import
 boundary and actual Workers probe. Mechanical comparisons confirmed that the
@@ -598,3 +600,19 @@ MCP dispatch. None of these local tests establishes deployed authentication.
 One authorised non-live receipt regeneration bound the extracted source modules:
 17 suites, 87 selected tests and seven receipts, followed by 33 passing receipt
 contracts. The historical host observations were not rewritten or rerun.
+
+The additive v3 compatibility record binds the reviewed extraction at
+`e7f83624fab1958036c8431548eb68f350c0ca16`. Twelve contract tests passed;
+the original matrix and v1/v2 records remain unchanged. The offline packager's
+review then found a symlinked-destination escape, a gap between compiler input
+bytes and subsequent evidence reads, and a missing project licence copy. The
+root integrated canonical destination checks, compiler-time captured and Git-bound
+source buffers, and a retained, hashed licence. Seven focused regression tests
+passed. Installed dependency bytes remain explicitly observed, not attested.
+
+The separate private-Site candidate builds successfully. Its temporary operator
+endpoint defaults to disabled, requires a separate secret plus platform identity,
+and only initialises an absent store or reads a checkpoint. A further review found
+that separate request counters could admit eight simultaneous operations; MCP and
+operator requests now share one four-request limit. Nine admission tests passed.
+This is local source/build evidence, not a deployed identity or persistence claim.

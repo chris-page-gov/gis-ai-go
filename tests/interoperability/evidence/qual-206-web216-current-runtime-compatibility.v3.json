@@ -1,0 +1,141 @@
+{
+  "record_type": "gis-ai-go.qual-206-current-runtime-compatibility.v3",
+  "classification": "reviewed-source-compatibility-not-execution-evidence",
+  "predecessor": {
+    "path": "tests/interoperability/evidence/qual-206-web216-current-runtime-compatibility.v2.json",
+    "sha256": "b014eed6f24f221fd1fd4e5c60907d5b14e422207b6cc1c8120ec0e938fd4615"
+  },
+  "historical_matrix": {
+    "path": "evaluation/qual-206-local-protocol-evidence-matrix.v1.json",
+    "sha256": "91dc5a38125b5fd686d3028621f8452c0a3d77fe177dd67b110da6316bfc6039",
+    "runtime_base_commit": "f253605ab26628e821d4ebc3809cf13c883d57ed"
+  },
+  "reviewed_source_commit": "e7f83624fab1958036c8431548eb68f350c0ca16",
+  "current_runtime_materials": [
+    {
+      "path": "apps/mcp-gateway/src/mcp-http.ts",
+      "sha256": "bf9dbec9c2748ab2a862b7797d36011037472945230f8234b9551b75e6aa69c8",
+      "historical_sha256": "bcbebca4c5a0b86ee9c6a3c191cbc683b65e94fef2294835acbd792f869b0ad9"
+    },
+    {
+      "path": "apps/mcp-gateway/src/mcp-server.ts",
+      "sha256": "93cba7e3e77b9c2a76b8a1495f71f94849b4e590a320604409bd8da6ad4e9228",
+      "historical_sha256": "e2c5cec027f3049d0a501b885a0ab6336d7e6059690df54ac7b257945807b454"
+    },
+    {
+      "path": "apps/mcp-gateway/src/mcp-constants.ts",
+      "sha256": "a5b942cc3622da526ee07e4afc48f2c2a058d6ca418ba7abf83faf6aeafd372c",
+      "historical_sha256": null
+    }
+  ],
+  "extraction_materials": [
+    {
+      "path": "apps/mcp-gateway/src/http-app.ts",
+      "sha256": "2885b2a76a1c16721f19f4c4e1116516d7786faea4b612199e51c7a23965c1a8"
+    },
+    {
+      "path": "apps/mcp-gateway/src/bounded-json.ts",
+      "sha256": "03251fab6ba4a580232bfabdaa699b05f3080ccb41d7ee970d4d2a4d0670faad"
+    },
+    {
+      "path": "apps/mcp-gateway/src/mcp-http-core.ts",
+      "sha256": "89af2b541ac23b21f7defd4c5ef79f5b016d084cb871b29a202f3f525d6ac80d"
+    },
+    {
+      "path": "apps/mcp-gateway/src/mcp-wire-guards.ts",
+      "sha256": "416699c90aa3ff9678d407b7f294e0a9c96da23a74d0cbe067f0324bbd8e4513"
+    },
+    {
+      "path": "apps/mcp-gateway/src/web216-hosted-cpih-http.ts",
+      "sha256": "3de952a687e36288af011af2fe2657a8dc9bda8f4e32d0b6f46dd4f8e2344a4d"
+    },
+    {
+      "path": "packages/evidence/package.json",
+      "sha256": "acdb1f420da79c7bb2869b03f78ccf76bc1c502f37402b0f17899bac700823bf"
+    },
+    {
+      "path": "packages/evidence/src/idempotency-constants.ts",
+      "sha256": "952b41fad3a33df572003fccef074ba6c6aecf54a34399741f2a86db290302d3"
+    },
+    {
+      "path": "packages/evidence/src/web216-pure.ts",
+      "sha256": "557a081c163cfb76959c6fd66eca7ce17441fbd66304c78689884130082961b6"
+    },
+    {
+      "path": "packages/evidence/src/reconciliation-index.ts",
+      "sha256": "178f4bca7596345f0132989ed295d6afaa344ea1b9c7a35eb6406cfc9773e0e5"
+    },
+    {
+      "path": "apps/mcp-gateway/src/web216-cpih-input-schemas.ts",
+      "sha256": "a12a4642320e42c85f2ee7d39307775bfd17b13fc990afb4149bd412ea4c4b4f"
+    },
+    {
+      "path": "apps/mcp-gateway/src/web216-cpih-selection.ts",
+      "sha256": "fca9deb3b31478911afedea1a506241fceb03d8094a78ff25c97eddd7db9bf5d"
+    },
+    {
+      "path": "apps/mcp-gateway/src/web216-hosted-cpih-application.ts",
+      "sha256": "954887ea9e87f3f037efa0ace373a70ff087f0957eb829fa72acd056a4771444"
+    },
+    {
+      "path": "apps/mcp-gateway/src/web216-hosted-cpih-mcp.ts",
+      "sha256": "2b68e383c3f90edb396259ffc3e46df09b40c44208e47a055a64506a2b5d65a7"
+    }
+  ],
+  "change_scope": [
+    "Move the existing strict JSON parser, MCP text and URI guards, and bounded HTTP guard sequence into shared modules; original exports retain the same function and class objects.",
+    "Keep all three existing HTTP wrappers and their automatic response mode; add a separately named JSON-only hosted wrapper that discards parsed-body overrides and grants no ingress or deployment authority.",
+    "Retain the unchanged protocol and maximum tool-result constants; move the unchanged public idempotency grammar into one shared object without changing the legacy root evidence exports.",
+    "Use the explicit pure evidence subpath for the hosted application, MCP face and their selection/schema dependencies. The separate extraction-material list binds these reviewed source bytes but exempts no additional historical matrix material."
+  ],
+  "regression_sources": [
+    {
+      "path": "apps/mcp-gateway/test/web216-cpih-mcp.test.ts",
+      "sha256": "003a38b967d90921c0eb3297d0c09742fe260d20303f2599aec166fb724a8f69",
+      "source_test_names": [
+        "official SDK discovers exactly three closed experimental tools with truthful write effects",
+        "read-only missing lookup and pre-admission HTTP cancellation return bounded problems without writes",
+        "loopback authority, Origin, Host and route are closed before application calls",
+        "sensitive JSON-RPC control fields and oversized wire bodies are rejected without reflection or writes",
+        "the existing catalogue wrapper also refuses oversized streaming bodies without waiting for producer cleanup",
+        "the experimental wrapper parses wire bytes, not supplied parsed-body overrides, and retains protocol guards",
+        "input-only extraction preserves every original advertised schema byte"
+      ]
+    },
+    {
+      "path": "apps/mcp-gateway/test/mcp-http-core.test.ts",
+      "sha256": "1eed5cb7f09218d19591967f584696ef15af80d39e321ce23b65ff2790722fcf",
+      "source_test_names": [
+        "wire grammar and parser retain exact original export identities",
+        "extracted strict JSON preserves UTF-8, duplicate, scalar, numeric and depth bounds",
+        "automatic and JSON-only cores reject the same hostile bytes and controls before SDK construction",
+        "hosted wrapper parses actual bytes even when a fabricated parsedBody is supplied",
+        "official client discovers and calls the JSON-only hosted face with closed results and replay",
+        "hosted HTTP rejects sensitive notification fields silently and rejects a legacy protocol",
+        "HTTP query cancellation after a stalled read returns its envelope and never issues a write",
+        "HTTP query cancellation after write issuance remains uncertain and same-key retry recovers once"
+      ]
+    },
+    {
+      "path": "packages/evidence/test/web216-pure.test.ts",
+      "sha256": "ef302266faeab7edbd4296ca68f7a2e5fb7dcffb76c0257b6174648dcab1dbfd",
+      "source_test_names": [
+        "the explicit pure export preserves original function, class and regex identities",
+        "a fresh compiled pure import resolves no filesystem or legacy evidence module",
+        "hosted source closure follows the pure selection, schema and storage dependencies",
+        "the closure guard detects nested filesystem, root-barrel, registry and dynamic regressions"
+      ]
+    }
+  ],
+  "claims": {
+    "test_execution_recorded": false,
+    "historical_matrix_rerun": false,
+    "historical_attestation_extended": false,
+    "complete_dependency_closure_bound": false,
+    "live_host_session": false,
+    "live_provider_call": false,
+    "production_activation": false,
+    "release_ready": false
+  },
+  "boundary": "This additive source-review record admits only the three exact current-runtime paths and separately binds the named extraction and regression sources. The original matrix and both predecessor records remain historical and byte-identical. A source declaration, preserved export identity or named regression is not a test-runner result. This record makes no complete dependency-closure, Workers observation, live-host, live-provider, attestation, deployment, activation or release claim; those outcomes require separate evidence. The reviewed source commit identifies the source reviewed here, not a claim that an earlier working-tree probe was rerun from that commit."
+}

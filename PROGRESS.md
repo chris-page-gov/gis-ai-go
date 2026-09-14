@@ -49,8 +49,14 @@ passed, including both image derivations, attestation verification and provenanc
 This does not retrospectively explain the earlier failure. Bounded diagnostic
 improvements are isolated separately. The inactive storage foundation passes 35
 focused tests and a real local Workers/D1 restart experiment. It adds no endpoint
-or deployment. The next increment is validating the separate hosted MCP and
-browser mode in actual Workers before assembling any Site route. See the
+or deployment. PR #133's diagnostic repair and PR #134's hosted transport are now
+accepted at `67ab535ff4d16f54f777dd45787c2f4742a5150c` and
+`1a89c73c7e8dec671cb3abd92c271d3d071c2830`, with complete protected-main
+assurance and CodeQL passing. A subsequent guarded Workers experiment passed
+19 wire requests, five negative cases and exact receipt inspection after restart,
+with no provider egress. The reviewed HTTP/pure-evidence extraction is being
+packaged separately. The private-Site candidate builds locally; deployment and
+hosted persistence acceptance have not occurred. See the
 [storage experiment](docs/implementation/WEB-216_HOSTED_STORAGE_EXPERIMENT.md).
 The OS Open Names Warwick point is captured; ONS boundary metadata succeeded but
 three bounded point queries timed out (two GETs and one POST). A real MSOA join
