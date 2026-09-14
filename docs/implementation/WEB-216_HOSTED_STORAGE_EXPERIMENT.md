@@ -268,3 +268,34 @@ refuses existing output directories, legacy imports and unreviewed Node imports.
 Its manifest distinguishes tracked source from observed installed dependencies;
 neither is a substitute for build attestation or the separate Site assembly review.
 It installs nothing, provisions no database and deploys no service.
+
+## Private Site candidate checkpoint
+
+On 14 September 2026, PR #135 was accepted at
+`cbdda51d2753a668670ad3a4dd4cf2b019fdb883` with complete protected-main
+assurance, independent image verification, provenance and CodeQL passing.
+The separate private Site source is
+`8851f45efbd4dc7a5ee0d5bd3574b8156232ae51`; its vendored runtime is bound to
+that accepted GIS AI GO commit. Deployment succeeded at 20:26 UTC without
+changing the owner-only audience or configuring an operator secret.
+
+The assembled wrapper shares a four-operation capacity limit between MCP and
+operator requests, validates the exact origin and platform identity, limits
+request/result bytes and deadlines, and rejects streaming output. An abort-aware
+body bridge retains capacity until upstream cancellation settles. Twelve focused
+tests pass. The actual built-Site local Workers/D1 journey passed 19 requests,
+loaded both static demonstrations and retained the same receipt across restart
+with the operator disabled and zero outbound requests. Its identity context was
+synthetic; it is not evidence of hosted authentication.
+
+Read-only inspection of the deployed database confirms the schema exists and
+contains no stored snapshot. Hosted acceptance is paused at the owner's passkey
+challenge. The next steps are authenticated initialisation of the fixed reviewed
+store, manual and genuine WebMCP journeys, checkpoint comparison across deployment,
+and the bounded rollback/restore check. Temporary operator access must be disabled
+again after those checks. An identity-less API bypass token must not be treated as
+a signed-in user or substituted for that acceptance.
+
+The old Site demonstration, supported static Explorer, local candidate and
+production defaults are unchanged. No public MCP service, live provider query,
+cloud recovery guarantee or `v0.2.0` release is established by this checkpoint.

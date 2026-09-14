@@ -54,14 +54,20 @@ accepted at `67ab535ff4d16f54f777dd45787c2f4742a5150c` and
 `1a89c73c7e8dec671cb3abd92c271d3d071c2830`, with complete protected-main
 assurance and CodeQL passing. A subsequent guarded Workers experiment passed
 19 wire requests, five negative cases and exact receipt inspection after restart,
-with no provider egress. The reviewed HTTP/pure-evidence extraction is being
-packaged separately. The private-Site candidate builds locally; deployment and
-hosted persistence acceptance have not occurred. See the
+with no provider egress. The reviewed HTTP/pure-evidence extraction is accepted
+through PR #135 at `cbdda51d2753a668670ad3a4dd4cf2b019fdb883`, with complete
+protected-main assurance and CodeQL passing. The separately assembled private
+Site candidate was deployed on 14 September 2026 at 20:26 UTC. Its schema is
+present and its store is empty; operator access remains disabled. The final
+built-Site local test passed 19 requests and exact receipt inspection after restart,
+but used synthetic identity. Hosted sign-in is awaiting the owner's passkey;
+hosted initialisation, browser journeys and retention acceptance remain pending.
+The old Site demonstration and local workbench are unchanged. See the
 [storage experiment](docs/implementation/WEB-216_HOSTED_STORAGE_EXPERIMENT.md).
 The OS Open Names Warwick point is captured; ONS boundary metadata succeeded but
 three bounded point queries timed out (two GETs and one POST). A real MSOA join
-and hosted persistence acceptance remain open. No new Site deployment or supported
-release has occurred.
+and hosted persistence acceptance remain open. The private candidate deployment
+is not a public MCP service or a supported release.
 See the [retrieval experiment](docs/implementation/WEB-216_ONS_RETRIEVAL_EXPERIMENT.md), the
 [work package](docs/implementation/WEB-216_PUBLIC_DATA_WORKBENCH.md),
 [experiment protocol](docs/implementation/WEB-216_EXPERIMENTS.md) and
@@ -105,6 +111,13 @@ snapshot: 3,293 objects and 3,110 projections. Current store identity, inventory
 subsequent results are held in the private operating record. The predecessor remains
 unchanged with its recorded semantic failure. [Issue #116](https://github.com/chris-page-gov/gis-ai-go/issues/116)
 tracks future incremental-parallel optimisation; it does not block the chronicle.
+
+The 14 September WEB-216 milestone passed complete verification at 3,676 objects
+and 4,456 events. A separately verified, owner-only text-recovery supplement
+retains 191 objects across 198 events, including previously unsupported source
+representations and the private deployment checkpoint. Seven secret-pattern
+exclusions remain explicit; the existing stores and daily destination are unchanged.
+These are separate verification scopes, not a new whole-history completeness claim.
 
 ## Handoff and historical evidence
 

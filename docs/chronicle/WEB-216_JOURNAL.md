@@ -616,3 +616,67 @@ and only initialises an absent store or reads a checkpoint. A further review fou
 that separate request counters could admit eight simultaneous operations; MCP and
 operator requests now share one four-request limit. Nine admission tests passed.
 This is local source/build evidence, not a deployed identity or persistence claim.
+
+PR #135 merged at `cbdda51d2753a668670ad3a4dd4cf2b019fdb883` on
+14 September 2026 at 20:13 UTC. Its complete protected-main
+[assurance](https://github.com/chris-page-gov/gis-ai-go/actions/runs/34891556431)
+and [CodeQL](https://github.com/chris-page-gov/gis-ai-go/actions/runs/34891555999)
+passed, including independent image derivation, attestation verification and
+provenance. The package rebuilt from that exact commit has identical runtime
+bytes to the reviewed candidate; its manifest names the new accepted source.
+
+Integrated Site tests found that aborting a request signal alone did not unblock
+the MCP parser waiting on a partial body. The Site now owns a guarded upstream
+reader, errors the downstream stream on abort and retains its capacity slot until
+memoised upstream cleanup settles. Twelve focused tests pass, including real
+bundled MCP and operator parsing, slow cancellation and consumed/locked input.
+Independent read-only review found no remaining defect in that fix.
+
+The first full built-Site test required corrections to the test harness for the
+installed Workers emulator: explicit module lists, the user-worker asset route,
+the supported request interface, coherent local URL/Host rewriting and bounded
+same-origin HTML redirects. Failed attempts remain separate evidence. Neither
+the Site authority checks nor identity requirement were relaxed to pass the test.
+The provisional local journey passed at 20:12 UTC. After the accepted-source
+binding and unused store identity were fixed, the final local run passed at
+20:15 UTC: 19 requests, three MCP tools, July CPIH `142.7`, exact replay and
+receipt inspection after restart with the temporary operator disabled. Both
+static journeys loaded and zero outbound requests or runtime errors occurred.
+The identity was explicitly synthetic local test context, not hosted sign-in.
+
+The separate Site source and deployment archive were saved as a private candidate
+from source `8851f45efbd4dc7a5ee0d5bd3574b8156232ae51`. Publication was requested
+only after protected-main acceptance, with no operator secret configured. The
+platform reported successful deployment at `2026-09-14T20:26:35.080401Z`.
+A subsequent read-only database inspection found the expected schema and no rows.
+Browser acceptance reached the owner's passkey challenge and remains pending;
+no signed-in identity, hosted initialisation or hosted receipt is claimed.
+
+The milestone preservation store passed complete four-worker verification:
+3,676 objects, 4,456 journal events and no expiry warnings. Metadata review exposed
+a coverage limitation: 592 local source/wire files had unsupported formats,
+13 selected GitHub artefacts exceeded the 16 MiB limit, four GitHub archives failed
+validation and 14 selections matched a secret-scanner rule. All 568 extensionless
+probe source selections had object-free outcomes. Those classifications do not
+prove actual secrets or loss of the retained local originals. A bounded exact-byte
+text projection prepared 606 source observations as 193 distinct files: 11,397,815
+selected bytes reduced to 4,845,909 bytes by deduplication. Its first invocation
+refused out-of-scope metadata selectors before suffix filtering; correcting only
+that ordering allowed the intended source selection and completed in 0.926 seconds.
+This preparation neither changes the old events nor bypasses secret scanning.
+
+The unchanged ingester then captured those projections into a separate owner-only
+supplement: 198 events, 191 retained objects and 2,410,033 bytes. Complete offline
+verification passed against the same supplemental journal head. The 592 previously
+unsupported source observations map to 187 retained deduplicated text objects.
+The original 14 secret-pattern exclusions remain excluded as six distinct source
+projections; the preparation helper is a seventh exclusion. There were no
+unavailable selections. Capture took 2.555 seconds and verification 4.342 seconds
+(7.213 seconds for the complete wrapper). The private deployment checkpoint is
+also retained. This verifies the small supplement only; it neither re-verifies
+the whole history nor changes the existing stores or daily capture destination.
+
+The owner noted availability of Daybreak Blue for security testing. No model was
+switched or security test run on that basis. A future scoped review must identify
+its tested commit, findings and reproduced regressions; model availability does
+not establish assurance or alter existing gates.
