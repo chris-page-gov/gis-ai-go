@@ -59,6 +59,11 @@ and milestones are the source of truth for item-level status.
 
 ## Conditional integrations
 
+- `WEB-216` — develop the [public-data WebMCP workbench](WEB-216_PUBLIC_DATA_WORKBENCH.md)
+  through source-linked personas, OS/ONS dataset experiments, governed MCP
+  retrieval and a separately verified Sites demonstration. The competition entry
+  and other source repositories remain unchanged; existing release gates remain.
+
 - `PSGA-501` — protected OS pilot, conditional on rights, identity and isolated
   infrastructure.
 - `COMM-502` — commercial entitlement and tenant isolation, conditional on
