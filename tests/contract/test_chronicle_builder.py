@@ -9,6 +9,17 @@ from scripts import build_chronicle as build
 
 
 class ChronicleBuilderTests(unittest.TestCase):
+    def test_a4_chronology_reserves_width_for_outcome_prose(self):
+        for header in (("Ref", "August date", "Concise outcome", "Source"),
+                       ("Ref", "August date", "Classification", "Retained outcome")):
+            widths = build.pdf_table_widths(list(header), 500)
+            self.assertAlmostEqual(sum(widths), 500)
+            self.assertLess(widths[0], 50)
+            self.assertGreater(max(widths), 250)
+
+    def test_other_pdf_tables_keep_existing_equal_widths(self):
+        self.assertEqual(build.pdf_table_widths(['A', 'B', 'C'], 600), [200, 200, 200])
+
     def test_prose_and_link_labels_are_escaped(self):
         value = build.inline('<script> [<img>](https://example.org/)', 'README.md')
         self.assertNotIn('<script>', value)

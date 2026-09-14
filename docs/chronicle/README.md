@@ -8,6 +8,11 @@ review findings are dated additions, not claims about what was known earlier.
 Work is tracked in [CHRON-213 #117](https://github.com/chris-page-gov/gis-ai-go/issues/117)
 and the [Claude retrospective #86](https://github.com/chris-page-gov/gis-ai-go/issues/86).
 
+The dated Claude recovery edition replaces the initial twelve-row minimum with
+a reviewed 31-outcome chronology, corrects timestamp semantics and separates
+recoverable evidence from the still-unprovable exhaustive-history claim. It does
+not move the product baseline or disclose private transcripts or granular costs.
+
 GIS AI GO is a case study of model-led software implementation within authority
 set by a person. The owner chose the purpose, rights, priorities and acceptable
 external commitments. Codex decomposed work, created delegated assignments,

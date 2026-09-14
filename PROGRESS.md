@@ -29,13 +29,15 @@ private evidence remains local.
 
 The review edition contains 12 chapters, eight diagrams, a 14-part learning path,
 source-linked code findings and a pseudonymous census of 1,043 task threads.
-The Volume 1 Claude chronology supports at least 12 outcomes, not a complete
-attempt/cost ledger. Its retained generations excluded the original root projection.
-The owner has subsequently authorised selective private recovery and source-linked
-indexing. The technical repair preserves safe records, makes quarantine gaps
-explicit and does not authorise publication of the recovered private material.
-Issue #86 is currently closed; that UI state does not establish exhaustive
-attempt or billing coverage. [LOCAL-214 #118](https://github.com/chris-page-gov/gis-ai-go/issues/118)
+The recovery edition reconciles 23 public outcomes with additional permitted
+private evidence into a reviewed minimum of 31 outcomes. It corrects completion
+timestamps, joins the recovered asynchronous launches and keeps granular timing,
+costs and provenance private. Earlier archives are unchanged. The public revision
+contains reviewed paraphrases and aggregates, not private logs or identifiers.
+Issue #86 is open: a first-ever/exhaustive count cannot be certified across the
+remaining redaction/quarantine gaps. New follow-ons #122/#123 cover client-contract
+preflight and source-time attempt journalling without starting implementation.
+[LOCAL-214 #118](https://github.com/chris-page-gov/gis-ai-go/issues/118)
 defines the next local-edition stages; [IMPROVE-215 #119](https://github.com/chris-page-gov/gis-ai-go/issues/119)
 holds the separate implementation plan. Neither plan has changed runtime behaviour.
 
