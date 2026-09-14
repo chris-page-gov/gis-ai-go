@@ -1,0 +1,73 @@
+{
+  "capture_manifest_sha256": "571af13a50ca4d93b364bb4cf63d46af7655d56b16b8275bd4fe1b461d857a6b",
+  "data": {
+    "description": {
+      "cdid": "L522",
+      "datasetId": "MM23",
+      "date": "2026 JUL",
+      "nextRelease": "16 September 2026",
+      "number": "142.7",
+      "releaseDate": "2026-08-18T23:00:00.000Z",
+      "title": "CPIH INDEX 00: ALL ITEMS 2015=100",
+      "unit": "Index, base year = 100"
+    },
+    "months": [
+      {
+        "date": "2026 JAN",
+        "label": "2026 JAN",
+        "month": "January",
+        "quarter": "",
+        "sourceDataset": "MM23",
+        "updateDate": "2026-02-18T00:00:00.000Z",
+        "value": "139.4",
+        "year": "2026"
+      },
+      {
+        "date": "2026 JUL",
+        "label": "2026 JUL",
+        "month": "July",
+        "quarter": "",
+        "sourceDataset": "MM23",
+        "updateDate": "2026-08-18T23:00:00.000Z",
+        "value": "142.7",
+        "year": "2026"
+      }
+    ],
+    "type": "timeseries",
+    "uri": "/economy/inflationandpriceindices/timeseries/l522/mm23"
+  },
+  "full_captured_month_count": 463,
+  "full_captured_period_range": {
+    "first": "1988-01",
+    "last": "2026-07"
+  },
+  "mcp_executed": false,
+  "original_body_sha256": {
+    "data": "7f9af141727981a21d040febcb8a71db9299455e910583ed3eefad446a50a3b9",
+    "search": "802ced2b6077c4ab5f96d84415e53cb400b53ee81dffdf577c12daddb721db99"
+  },
+  "production_transport": false,
+  "projected_month_count": 2,
+  "projection_scope": "Two selected public monthly records, not a whole-response fixture; contacts and unrelated text removed",
+  "projection_sha256": "0e04a627e98d356ddf295a584e7a2d9e9c5a8110c509a6762561ff2b796ab667",
+  "retrieved_at": "2026-09-14T15:42:57.906633Z",
+  "schema_version": "web216.public-cpih-projection.v1",
+  "search": {
+    "count": 1,
+    "items": [
+      {
+        "cdid": "L522",
+        "dataset_id": "MM23",
+        "release_date": "2026-08-18T23:00:00.000Z",
+        "title": "CPIH INDEX 00: ALL ITEMS 2015=100",
+        "type": "timeseries",
+        "uri": "/economy/inflationandpriceindices/timeseries/l522/mm23"
+      }
+    ]
+  },
+  "source_urls": {
+    "data": "https://api.beta.ons.gov.uk/v1/data?uri=%2Feconomy%2Finflationandpriceindices%2Ftimeseries%2Fl522%2Fmm23",
+    "public_page": "https://www.ons.gov.uk/economy/inflationandpriceindices/timeseries/l522/mm23",
+    "search": "https://api.beta.ons.gov.uk/v1/search?content_type=timeseries&cdids=L522"
+  }
+}

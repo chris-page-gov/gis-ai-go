@@ -22,8 +22,13 @@ geography, consistent staff stories, reproducible experiments and a shared
 person/AI evidence interface. Continue until blocked and merge verified increments.
 The inception is merged through [PR #126](https://github.com/chris-page-gov/gis-ai-go/pull/126)
 at `87c5997eecc6b6ddf4487cc226d3905544f5595f`.
-The current increment builds metadata-only development experiments; no new live
-operation or Site deployment is claimed. See the
+The metadata foundation is merged through [PR #127](https://github.com/chris-page-gov/gis-ai-go/pull/127)
+at `52c46d9cd619d5c349472c250d2d03aebb3beb3c`, with complete protected-main CI,
+CodeQL and provenance passing. A bounded maintained-CPIH API observation returned
+two HTTP 200 responses; the full captured series passes the new offline validator.
+This is empirical API evidence, not a new live MCP operation or Site deployment.
+The retired `cpih01` source is explicitly distinguished from maintained L522/MM23.
+See the [retrieval experiment](docs/implementation/WEB-216_ONS_RETRIEVAL_EXPERIMENT.md), the
 [work package](docs/implementation/WEB-216_PUBLIC_DATA_WORKBENCH.md),
 [experiment protocol](docs/implementation/WEB-216_EXPERIMENTS.md) and
 [source-time journal](docs/chronicle/WEB-216_JOURNAL.md).

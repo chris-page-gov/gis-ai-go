@@ -1,0 +1,133 @@
+{
+  "schema_version": "web216.current-cpih-observation-summary.v1",
+  "recorded_at_utc": "2026-09-14 15:58:42 UTC",
+  "validation_outcome": "two complete captured responses validated; no further HTTP",
+  "capture": {
+    "started_at": "2026-09-14T15:42:57.497076Z",
+    "completed_at": "2026-09-14T15:42:57.906633Z",
+    "provider_requests": 2,
+    "model_calls": 0,
+    "search_bytes": 3070,
+    "data_bytes": 125682,
+    "search_elapsed_seconds": 0.171554916,
+    "data_elapsed_seconds": 0.237355959
+  },
+  "results": {
+    "latest": {
+      "base_year": 2015,
+      "base_year_basis": "Exact series title, not the generic unit string",
+      "capture_manifest_sha256": "571af13a50ca4d93b364bb4cf63d46af7655d56b16b8275bd4fe1b461d857a6b",
+      "cdid": "L522",
+      "currency": "As of this recorded retrieval, not a permanent current claim",
+      "dataset_id": "MM23",
+      "input_scope": "full-captured-response",
+      "mcp_executed": false,
+      "measure_kind": "index-not-percentage",
+      "next_release": "16 September 2026",
+      "next_release_validation": "unvalidated-provider-text",
+      "observation": {
+        "date": "2026 JUL",
+        "label": "2026 JUL",
+        "month": "July",
+        "quarter": "",
+        "sourceDataset": "MM23",
+        "updateDate": "2026-08-18T23:00:00.000Z",
+        "value": "142.7",
+        "year": "2026"
+      },
+      "original_body_sha256": {
+        "data": "7f9af141727981a21d040febcb8a71db9299455e910583ed3eefad446a50a3b9",
+        "search": "802ced2b6077c4ab5f96d84415e53cb400b53ee81dffdf577c12daddb721db99"
+      },
+      "production_transport": false,
+      "release_date": "2026-08-18T23:00:00.000Z",
+      "release_date_london": "2026-08-19",
+      "requested_period": "latest",
+      "result_sha256": "13f88dba3137aac64549d5febbde50af6832cb282d8f07d5bc3dd58cf51e4b2b",
+      "retained_observation_count": 1,
+      "retrieved_at": "2026-09-14T15:42:57.906633Z",
+      "schema_version": "web216.validated-current-cpih.v1",
+      "selected_period": "2026-07",
+      "selection_authorised": false,
+      "source_urls": {
+        "data": "https://api.beta.ons.gov.uk/v1/data?uri=%2Feconomy%2Finflationandpriceindices%2Ftimeseries%2Fl522%2Fmm23",
+        "public_page": "https://www.ons.gov.uk/economy/inflationandpriceindices/timeseries/l522/mm23",
+        "search": "https://api.beta.ons.gov.uk/v1/search?content_type=timeseries&cdids=L522"
+      },
+      "title": "CPIH INDEX 00: ALL ITEMS 2015=100",
+      "unit": "Index, base year = 100",
+      "uri": "/economy/inflationandpriceindices/timeseries/l522/mm23",
+      "validated_month_count": 463,
+      "validated_period_range": {
+        "first": "1988-01",
+        "last": "2026-07"
+      },
+      "validator_sha256": "3ef86dc9c1724eddc6c75e5130d1200f6e5f29c423591951b4198f1915a80c25",
+      "validator_source_sha256": {
+        "scripts/web216_corpus.py": "42dbeb81424308df5d398c28da11724b6266b8c983f77b86b877e3eded0fde10",
+        "scripts/web216_current_cpih.py": "3ef86dc9c1724eddc6c75e5130d1200f6e5f29c423591951b4198f1915a80c25"
+      }
+    },
+    "january": {
+      "base_year": 2015,
+      "base_year_basis": "Exact series title, not the generic unit string",
+      "capture_manifest_sha256": "571af13a50ca4d93b364bb4cf63d46af7655d56b16b8275bd4fe1b461d857a6b",
+      "cdid": "L522",
+      "currency": "As of this recorded retrieval, not a permanent current claim",
+      "dataset_id": "MM23",
+      "input_scope": "full-captured-response",
+      "mcp_executed": false,
+      "measure_kind": "index-not-percentage",
+      "next_release": "16 September 2026",
+      "next_release_validation": "unvalidated-provider-text",
+      "observation": {
+        "date": "2026 JAN",
+        "label": "2026 JAN",
+        "month": "January",
+        "quarter": "",
+        "sourceDataset": "MM23",
+        "updateDate": "2026-02-18T00:00:00.000Z",
+        "value": "139.4",
+        "year": "2026"
+      },
+      "original_body_sha256": {
+        "data": "7f9af141727981a21d040febcb8a71db9299455e910583ed3eefad446a50a3b9",
+        "search": "802ced2b6077c4ab5f96d84415e53cb400b53ee81dffdf577c12daddb721db99"
+      },
+      "production_transport": false,
+      "release_date": "2026-08-18T23:00:00.000Z",
+      "release_date_london": "2026-08-19",
+      "requested_period": "2026-01",
+      "result_sha256": "6d7fa40bd4bb5a235edef1b29b42bcdaf80fddfc69728475daf2a4ca26940d76",
+      "retained_observation_count": 1,
+      "retrieved_at": "2026-09-14T15:42:57.906633Z",
+      "schema_version": "web216.validated-current-cpih.v1",
+      "selected_period": "2026-01",
+      "selection_authorised": false,
+      "source_urls": {
+        "data": "https://api.beta.ons.gov.uk/v1/data?uri=%2Feconomy%2Finflationandpriceindices%2Ftimeseries%2Fl522%2Fmm23",
+        "public_page": "https://www.ons.gov.uk/economy/inflationandpriceindices/timeseries/l522/mm23",
+        "search": "https://api.beta.ons.gov.uk/v1/search?content_type=timeseries&cdids=L522"
+      },
+      "title": "CPIH INDEX 00: ALL ITEMS 2015=100",
+      "unit": "Index, base year = 100",
+      "uri": "/economy/inflationandpriceindices/timeseries/l522/mm23",
+      "validated_month_count": 463,
+      "validated_period_range": {
+        "first": "1988-01",
+        "last": "2026-07"
+      },
+      "validator_sha256": "3ef86dc9c1724eddc6c75e5130d1200f6e5f29c423591951b4198f1915a80c25",
+      "validator_source_sha256": {
+        "scripts/web216_corpus.py": "42dbeb81424308df5d398c28da11724b6266b8c983f77b86b877e3eded0fde10",
+        "scripts/web216_current_cpih.py": "3ef86dc9c1724eddc6c75e5130d1200f6e5f29c423591951b4198f1915a80c25"
+      }
+    }
+  },
+  "limits": [
+    "Index values, not inflation percentages",
+    "Full-response validation is separate from the two-month public fixture",
+    "This is a dated empirical API result, not an MCP call, durable gateway receipt or independent source attestation",
+    "Task-wide Codex cost remains unmeasured"
+  ]
+}

@@ -1,0 +1,1 @@
+- Add a hash-bound, offline validator and redacted CPIH fixture following a two-request maintained ONS API observation; preserve lifecycle corrections, rejected historical probe and review findings without changing gateway or page-tool activation.
