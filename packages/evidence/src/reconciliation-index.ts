@@ -26,6 +26,7 @@ import {
 import {
   PublicEvidenceLedger,
   type PublicEvidenceLedgerDescriptor,
+  type PublicEvidenceRecordV3,
   type StoredPublicEvidence,
 } from "./public-ledger.js";
 import {
@@ -33,6 +34,22 @@ import {
   type PublicReadEvidenceReceipt,
 } from "./public-read-receipt.js";
 import { evidenceReconciliationClaimAdmissionLimit } from "./reconciliation-index-capacity.js";
+import {
+  WEB216_CPIH_CAPTURE, WEB216_CPIH_DOMAINS,
+  verifyWeb216CpihReceiptStructure,
+  type Web216CpihPeriod, type Web216CpihReceipt,
+} from "./web216-cpih-receipt.js";
+
+const CPIH_DOMAINS = Object.freeze({
+  index: "gis-ai-go.web216-cpih-reconciliation-index.v1",
+  claim: "gis-ai-go.web216-cpih-reconciliation-claim.v1",
+  resolution: "gis-ai-go.web216-cpih-reconciliation-resolution.v1",
+  key: "gis-ai-go.web216-cpih-idempotency-key.v1",
+  fingerprint: "gis-ai-go.web216-cpih-idempotency-request-fingerprint.v1",
+} as const);
+const CPIH_OPERATION = "read-validated-cpih-capture" as const;
+const CPIH_INDEXES = new WeakSet<object>();
+type ReconciliationFamily = "public-read" | "web216-cpih";
 
 const INDEX_PREFIX = "gis-ai-go:evidence-reconciliation-index";
 const CLAIM_PREFIX = "gis-ai-go:evidence-reconciliation-claim";
@@ -165,6 +182,69 @@ export interface EvidenceReconciliationClaimInput {
   readonly normalisedParametersSha256: string;
 }
 
+export interface Web216CpihReconciliationDescriptor extends Omit<
+  EvidenceReconciliationIndexDescriptor, "schema" | "scope"
+> {
+  readonly schema: typeof CPIH_DOMAINS.index;
+  readonly scope: Omit<EvidenceReconciliationIndexDescriptor["scope"], "source_operations"> & {
+    readonly source_operations: readonly [typeof CPIH_OPERATION];
+    readonly capture_projection_sha256: typeof WEB216_CPIH_CAPTURE.projection_sha256;
+  };
+}
+
+export interface Web216CpihReconciliationClaim extends Omit<
+  EvidenceReconciliationClaim, "schema" | "operation" | "resource_id" | "normalised_parameters"
+> {
+  readonly schema: typeof CPIH_DOMAINS.claim;
+  readonly operation: typeof CPIH_OPERATION;
+  readonly period: Web216CpihPeriod;
+  readonly capture_projection_sha256: typeof WEB216_CPIH_CAPTURE.projection_sha256;
+  readonly normalised_parameters: { readonly domain: typeof WEB216_CPIH_DOMAINS.parameters; readonly sha256: string };
+}
+
+export interface Web216CpihReconciliationResolution extends Omit<EvidenceReconciliationResolution, "schema"> {
+  readonly schema: typeof CPIH_DOMAINS.resolution;
+}
+
+export interface Web216CpihReconciliationClaimInput {
+  readonly idempotencyKey: string;
+  readonly period: Web216CpihPeriod;
+  readonly requestId: string;
+  readonly traceId: string;
+}
+
+type AnyDescriptor = EvidenceReconciliationIndexDescriptor | Web216CpihReconciliationDescriptor;
+type AnyClaim = EvidenceReconciliationClaim | Web216CpihReconciliationClaim;
+type AnyClaimInput = EvidenceReconciliationClaimInput | Web216CpihReconciliationClaimInput;
+type AnyResolution = EvidenceReconciliationResolution | Web216CpihReconciliationResolution;
+type AnyReceipt = PublicReadEvidenceReceipt | Web216CpihReceipt;
+type AnyClaimOutcome =
+  | { readonly status: "claimed"; readonly claim: AnyClaim }
+  | { readonly status: "pending"; readonly claim?: AnyClaim; readonly resolution?: AnyResolution }
+  | { readonly status: "completed"; readonly claim: AnyClaim; readonly resolution: AnyResolution; readonly stored: StoredPublicEvidence };
+type AnyLookup = { readonly status: "not-found" } | Exclude<AnyClaimOutcome, { readonly status: "claimed" }>;
+export type Web216CpihReconciliationClaimOutcome =
+  | { readonly status: "claimed"; readonly claim: Web216CpihReconciliationClaim }
+  | { readonly status: "pending"; readonly claim?: Web216CpihReconciliationClaim; readonly resolution?: Web216CpihReconciliationResolution }
+  | { readonly status: "completed"; readonly claim: Web216CpihReconciliationClaim; readonly resolution: Web216CpihReconciliationResolution; readonly stored: StoredPublicEvidence<PublicEvidenceRecordV3> };
+export type Web216CpihReconciliationLookup = { readonly status: "not-found" }
+  | Exclude<Web216CpihReconciliationClaimOutcome, { readonly status: "claimed" }>;
+
+/** Immutable, separately branded capability; never a legacy index instance. */
+export interface Web216CpihReconciliationIndex {
+  readonly descriptor: Web216CpihReconciliationDescriptor;
+  readonly ledger: PublicEvidenceLedger;
+  readonly verify: () => EvidenceReconciliationIndexHealth;
+  readonly claimCapacity: () => EvidenceReconciliationClaimCapacity;
+  readonly claim: (input: Web216CpihReconciliationClaimInput) => Web216CpihReconciliationClaimOutcome;
+  readonly resolve: (claim: Web216CpihReconciliationClaim, receipt: Web216CpihReceipt) => Web216CpihReconciliationResolution;
+  readonly lookup: (idempotencyKey: string) => Web216CpihReconciliationLookup;
+}
+
+export function isWeb216CpihReconciliationIndex(value: unknown): value is Web216CpihReconciliationIndex {
+  return typeof value === "object" && value !== null && CPIH_INDEXES.has(value);
+}
+
 export interface OpenEvidenceReconciliationIndexOptions {
   readonly rootDirectory: string;
   readonly ledger: PublicEvidenceLedger;
@@ -230,8 +310,8 @@ export type EvidenceReconciliationLookup =
 
 interface IndexState {
   readonly ownershipKeys: ReadonlySet<string>;
-  readonly claimsByKey: ReadonlyMap<string, EvidenceReconciliationClaim>;
-  readonly resolutionsByKey: ReadonlyMap<string, EvidenceReconciliationResolution>;
+  readonly claimsByKey: ReadonlyMap<string, AnyClaim>;
+  readonly resolutionsByKey: ReadonlyMap<string, AnyResolution>;
 }
 
 interface VerifiedIndexState {
@@ -660,6 +740,86 @@ export function evidenceReconciliationRequestFingerprint(
   });
 }
 
+function cpihPeriod(value: unknown): Web216CpihPeriod {
+  if (value !== "2026-01" && value !== "2026-07") fail("invalid-input", "CPIH period is not admitted");
+  return value;
+}
+
+export function web216CpihIdempotencyKeySha256(idempotencyKey: string): string {
+  assertPublicIdempotencyKey(idempotencyKey);
+  return domainSeparatedSha256(CPIH_DOMAINS.key, { operation: CPIH_OPERATION, key: idempotencyKey });
+}
+
+function cpihParameters(selected: Web216CpihPeriod) {
+  return { domain: WEB216_CPIH_DOMAINS.parameters,
+    sha256: domainSeparatedSha256(WEB216_CPIH_DOMAINS.parameters, { period: cpihPeriod(selected) }) } as const;
+}
+
+export function web216CpihReconciliationRequestFingerprint(selected: Web216CpihPeriod): string {
+  return domainSeparatedSha256(CPIH_DOMAINS.fingerprint, {
+    schema: CPIH_DOMAINS.fingerprint, operation: CPIH_OPERATION,
+    capture_projection_sha256: WEB216_CPIH_CAPTURE.projection_sha256,
+    normalised_parameters: cpihParameters(selected),
+  });
+}
+
+function snapshotCpihClaimInput(value: unknown): Web216CpihReconciliationClaimInput {
+  const snapshot = snapshotDataObject(value, ["idempotencyKey", "period", "requestId", "traceId"],
+    "invalid-input", "CPIH reconciliation claim");
+  assertPublicIdempotencyKey(snapshot.idempotencyKey);
+  const selected = cpihPeriod(snapshot.period);
+  if (typeof snapshot.requestId !== "string" || !REQUEST_ID.test(snapshot.requestId)
+      || RAW_IDEMPOTENCY_KEY_TEXT.test(snapshot.requestId) || PRIVATE_TEXT.test(snapshot.requestId)
+      || typeof snapshot.traceId !== "string" || !TRACE_ID.test(snapshot.traceId)) {
+    fail("invalid-input", "CPIH claim request identifiers are invalid");
+  }
+  return Object.freeze({ idempotencyKey: snapshot.idempotencyKey, period: selected,
+    requestId: snapshot.requestId, traceId: snapshot.traceId });
+}
+
+function inputKey(input: AnyClaimInput): string {
+  return "period" in input ? web216CpihIdempotencyKeySha256(input.idempotencyKey)
+    : publicIdempotencyKeySha256(input.idempotencyKey, input.operation);
+}
+
+function inputFingerprint(input: AnyClaimInput): string {
+  return "period" in input ? web216CpihReconciliationRequestFingerprint(input.period)
+    : evidenceReconciliationRequestFingerprint({ operation: input.operation, resourceId: input.resourceId,
+        normalisedParametersSha256: input.normalisedParametersSha256 });
+}
+
+function assertCpihClaim(value: unknown, descriptor: Web216CpihReconciliationDescriptor): asserts value is Web216CpihReconciliationClaim {
+  const claim = asRecord(value, "CPIH reconciliation claim");
+  assertExactKeys(claim, ["schema", "claim_id", "index_id", "ledger_id", "claimed_at", "retain_until",
+    "operation", "period", "capture_projection_sha256", "idempotency_key_sha256", "request_fingerprint_sha256",
+    "request_id", "trace_id", "normalised_parameters", "privacy"], "CPIH reconciliation claim");
+  assertTimestamp(claim.claimed_at, "CPIH claim time");
+  assertTimestamp(claim.retain_until, "CPIH claim retention time");
+  if (claim.period !== "2026-01" && claim.period !== "2026-07") {
+    fail("corruption", "CPIH stored claim period is not admitted");
+  }
+  const selected = claim.period;
+  if (claim.schema !== CPIH_DOMAINS.claim || typeof claim.claim_id !== "string" || !CLAIM_ID.test(claim.claim_id)
+      || claim.index_id !== descriptor.index_id || claim.ledger_id !== descriptor.ledger_id
+      || claim.retain_until !== retainUntil(claim.claimed_at as string, descriptor.retention_days)
+      || claim.operation !== CPIH_OPERATION || claim.capture_projection_sha256 !== WEB216_CPIH_CAPTURE.projection_sha256
+      || typeof claim.idempotency_key_sha256 !== "string" || !SHA256.test(claim.idempotency_key_sha256)
+      || claim.request_fingerprint_sha256 !== web216CpihReconciliationRequestFingerprint(selected)
+      || typeof claim.request_id !== "string" || !REQUEST_ID.test(claim.request_id)
+      || typeof claim.trace_id !== "string" || !TRACE_ID.test(claim.trace_id)
+      || canonicalJson(claim.normalised_parameters) !== canonicalJson(cpihParameters(selected))) {
+    fail("corruption", "CPIH reconciliation claim constants are invalid");
+  }
+  const privacy = { raw_idempotency_key: false, raw_query: false, result_material: false,
+    credentials: false, personal_data: false, machine_path: false };
+  if (canonicalJson(claim.privacy) !== canonicalJson(privacy)) fail("corruption", "CPIH claim privacy is invalid");
+  assertPrivacy(claim);
+  const { claim_id: identity, ...core } = claim;
+  if (!verifyContentAddress(identity as string, CLAIM_PREFIX, CPIH_DOMAINS.claim, core)) {
+    fail("corruption", "CPIH reconciliation claim identity is invalid");
+  }
+}
+
 function descriptorCore(
   ledger: PublicEvidenceLedgerDescriptor,
   createdAt: string,
@@ -689,8 +849,15 @@ function descriptorCore(
 function buildDescriptor(
   ledger: PublicEvidenceLedgerDescriptor,
   createdAt: string,
-): EvidenceReconciliationIndexDescriptor {
+  family: ReconciliationFamily = "public-read",
+): AnyDescriptor {
   const core = descriptorCore(ledger, createdAt);
+  if (family === "web216-cpih") {
+    const cpih = { ...core, schema: CPIH_DOMAINS.index, scope: { ...core.scope,
+      source_operations: [CPIH_OPERATION] as const,
+      capture_projection_sha256: WEB216_CPIH_CAPTURE.projection_sha256 } };
+    return canonicalJsonClone({ ...cpih, index_id: contentAddress(INDEX_PREFIX, CPIH_DOMAINS.index, cpih) });
+  }
   return canonicalJsonClone({
     ...core,
     index_id: contentAddress(
@@ -704,7 +871,16 @@ function buildDescriptor(
 function assertDescriptor(
   value: unknown,
   ledger: PublicEvidenceLedgerDescriptor,
-): asserts value is EvidenceReconciliationIndexDescriptor {
+  family: ReconciliationFamily = "public-read",
+): asserts value is AnyDescriptor {
+  if (family === "web216-cpih") {
+    const supplied = asRecord(value, "CPIH reconciliation descriptor");
+    assertTimestamp(supplied.created_at, "CPIH index creation time");
+    if (canonicalJson(supplied) !== canonicalJson(buildDescriptor(ledger, supplied.created_at as string, family))) {
+      fail("corruption", "CPIH reconciliation descriptor or linked ledger is invalid");
+    }
+    return;
+  }
   const descriptor = asRecord(value, "Reconciliation index descriptor");
   assertExactKeys(
     descriptor,
@@ -796,10 +972,22 @@ function assertPrivacy(value: unknown): void {
 }
 
 function buildClaim(
-  descriptor: EvidenceReconciliationIndexDescriptor,
-  input: EvidenceReconciliationClaimInput,
+  descriptor: AnyDescriptor,
+  input: AnyClaimInput,
   claimedAt: string,
-): EvidenceReconciliationClaim {
+): AnyClaim {
+  if (descriptor.schema === CPIH_DOMAINS.index) {
+    if (!("period" in input)) fail("invalid-input", "CPIH index requires a CPIH claim");
+    const core = { schema: CPIH_DOMAINS.claim, index_id: descriptor.index_id, ledger_id: descriptor.ledger_id,
+      claimed_at: claimedAt, retain_until: retainUntil(claimedAt, descriptor.retention_days),
+      operation: CPIH_OPERATION, period: input.period, capture_projection_sha256: WEB216_CPIH_CAPTURE.projection_sha256,
+      idempotency_key_sha256: inputKey(input), request_fingerprint_sha256: inputFingerprint(input),
+      request_id: input.requestId, trace_id: input.traceId, normalised_parameters: cpihParameters(input.period),
+      privacy: { raw_idempotency_key: false, raw_query: false, result_material: false,
+        credentials: false, personal_data: false, machine_path: false } } as const;
+    return canonicalJsonClone({ ...core, claim_id: contentAddress(CLAIM_PREFIX, CPIH_DOMAINS.claim, core) });
+  }
+  if ("period" in input) fail("invalid-input", "Legacy index requires a public-read claim");
   const core: EvidenceReconciliationClaimCore = {
     schema: "gis-ai-go.evidence-reconciliation-claim.v1",
     index_id: descriptor.index_id,
@@ -841,8 +1029,9 @@ function buildClaim(
 
 function assertClaim(
   value: unknown,
-  descriptor: EvidenceReconciliationIndexDescriptor,
-): asserts value is EvidenceReconciliationClaim {
+  descriptor: AnyDescriptor,
+): asserts value is AnyClaim {
+  if (descriptor.schema === CPIH_DOMAINS.index) return assertCpihClaim(value, descriptor);
   const claim = asRecord(value, "Reconciliation claim");
   assertExactKeys(
     claim,
@@ -935,9 +1124,18 @@ function assertClaim(
 }
 
 function receiptMatchesClaim(
-  receipt: PublicReadEvidenceReceipt,
-  claim: EvidenceReconciliationClaim,
+  receipt: AnyReceipt,
+  claim: AnyClaim,
 ): boolean {
+  if (claim.schema === CPIH_DOMAINS.claim) {
+    return receipt.schema === "gis-ai-go.web216-cpih-receipt.v1"
+      && verifyWeb216CpihReceiptStructure(receipt)
+      && receipt.operation.name === CPIH_OPERATION && receipt.operation.period === claim.period
+      && receipt.capture.projection_sha256 === claim.capture_projection_sha256
+      && receipt.request_id === claim.request_id && receipt.trace_id === claim.trace_id
+      && canonicalJson(receipt.operation.normalised_parameters) === canonicalJson(claim.normalised_parameters);
+  }
+  if (receipt.schema !== "gis-ai-go.evidence-receipt.v2") return false;
   return (
     receipt.operation.name === claim.operation &&
     receipt.request_id === claim.request_id &&
@@ -948,14 +1146,24 @@ function receiptMatchesClaim(
   );
 }
 
+function storedMatchesClaim(stored: StoredPublicEvidence, claim: AnyClaim): boolean {
+  if (claim.schema === CPIH_DOMAINS.claim) {
+    return stored.record.schema === "gis-ai-go.public-evidence-record.v3"
+      && receiptMatchesClaim(stored.record.receipt, claim);
+  }
+  return stored.record.schema === "gis-ai-go.public-evidence-record.v2"
+    && receiptMatchesClaim(stored.record.receipt, claim);
+}
+
 function buildResolution(
-  descriptor: EvidenceReconciliationIndexDescriptor,
-  claim: EvidenceReconciliationClaim,
-  receipt: PublicReadEvidenceReceipt,
+  descriptor: AnyDescriptor,
+  claim: AnyClaim,
+  receipt: AnyReceipt,
   resolvedAt: string,
-): EvidenceReconciliationResolution {
-  const core: EvidenceReconciliationResolutionCore = {
-    schema: "gis-ai-go.evidence-reconciliation-resolution.v1",
+): AnyResolution {
+  const cpih = descriptor.schema === CPIH_DOMAINS.index;
+  const core = {
+    schema: cpih ? CPIH_DOMAINS.resolution : "gis-ai-go.evidence-reconciliation-resolution.v1" as const,
     index_id: descriptor.index_id,
     ledger_id: descriptor.ledger_id,
     resolved_at: resolvedAt,
@@ -969,7 +1177,7 @@ function buildResolution(
     ...core,
     resolution_id: contentAddress(
       RESOLUTION_PREFIX,
-      CANONICAL_DOMAINS.evidenceReconciliationResolution,
+      cpih ? CPIH_DOMAINS.resolution : CANONICAL_DOMAINS.evidenceReconciliationResolution,
       core,
     ),
   });
@@ -977,9 +1185,10 @@ function buildResolution(
 
 function assertResolution(
   value: unknown,
-  descriptor: EvidenceReconciliationIndexDescriptor,
-  claim: EvidenceReconciliationClaim,
-): asserts value is EvidenceReconciliationResolution {
+  descriptor: AnyDescriptor,
+  claim: AnyClaim,
+): asserts value is AnyResolution {
+  const cpih = descriptor.schema === CPIH_DOMAINS.index;
   const resolution = asRecord(value, "Reconciliation resolution");
   assertExactKeys(
     resolution,
@@ -1000,7 +1209,7 @@ function assertResolution(
   assertTimestamp(resolution.resolved_at, "Reconciliation resolution time");
   assertTimestamp(resolution.retain_until, "Reconciliation resolution retention time");
   if (
-    resolution.schema !== "gis-ai-go.evidence-reconciliation-resolution.v1" ||
+    resolution.schema !== (cpih ? CPIH_DOMAINS.resolution : "gis-ai-go.evidence-reconciliation-resolution.v1") ||
     typeof resolution.resolution_id !== "string" ||
     !RESOLUTION_ID.test(resolution.resolution_id) ||
     resolution.index_id !== descriptor.index_id ||
@@ -1020,7 +1229,7 @@ function assertResolution(
     !verifyContentAddress(
       identity as string,
       RESOLUTION_PREFIX,
-      CANONICAL_DOMAINS.evidenceReconciliationResolution,
+      cpih ? CPIH_DOMAINS.resolution : CANONICAL_DOMAINS.evidenceReconciliationResolution,
       core,
     )
   ) {
@@ -1072,6 +1281,8 @@ function normaliseOptions(value: unknown): OpenEvidenceReconciliationIndexOption
 
 export class PublicEvidenceReconciliationIndex {
   public readonly descriptor: EvidenceReconciliationIndexDescriptor;
+  readonly #descriptor: AnyDescriptor;
+  readonly #family: ReconciliationFamily;
   public readonly ledger: PublicEvidenceLedger;
   readonly #root: string;
   readonly #claimOwnershipDirectory: string;
@@ -1085,9 +1296,10 @@ export class PublicEvidenceReconciliationIndex {
   private constructor(
     root: string,
     ledger: PublicEvidenceLedger,
-    descriptor: EvidenceReconciliationIndexDescriptor,
+    descriptor: AnyDescriptor,
     now: () => Date,
     maximumClaims: number,
+    family: ReconciliationFamily,
   ) {
     this.#root = root;
     this.#claimOwnershipDirectory = join(root, "claim-ownership");
@@ -1096,12 +1308,40 @@ export class PublicEvidenceReconciliationIndex {
     this.#resolutionReadyDirectory = join(root, "resolution-ready");
     this.#resolutionsDirectory = join(root, "resolutions");
     this.ledger = ledger;
-    this.descriptor = descriptor;
+    this.#descriptor = descriptor;
+    this.#family = family;
+    // Preserve the legacy own-property surface. CPIH engines are private and only
+    // their separately typed, frozen facade escapes the fixed CPIH opener.
+    this.descriptor = descriptor as EvidenceReconciliationIndexDescriptor;
     this.#now = now;
     this.#maximumClaims = maximumClaims;
   }
 
+  #assertLegacy(): void {
+    if (this.#family !== "public-read") fail("invalid-input", "Legacy index interface cannot access CPIH state");
+  }
+
   public static open(value: OpenEvidenceReconciliationIndexOptions): PublicEvidenceReconciliationIndex {
+    return this.#openFamily(value, "public-read");
+  }
+
+  public static openWeb216Cpih(value: OpenEvidenceReconciliationIndexOptions): Web216CpihReconciliationIndex {
+    const index = this.#openFamily(value, "web216-cpih");
+    const facade: Web216CpihReconciliationIndex = Object.freeze({
+      descriptor: index.#descriptor as Web216CpihReconciliationDescriptor,
+      ledger: index.ledger,
+      verify: () => index.verify(),
+      claimCapacity: () => index.claimCapacity(),
+      claim: (input: Web216CpihReconciliationClaimInput) => index.#claim(input) as Web216CpihReconciliationClaimOutcome,
+      resolve: (claim: Web216CpihReconciliationClaim, receipt: Web216CpihReceipt) =>
+        index.#resolve(claim, receipt) as Web216CpihReconciliationResolution,
+      lookup: (key: string) => index.#lookup(key) as Web216CpihReconciliationLookup,
+    });
+    CPIH_INDEXES.add(facade);
+    return facade;
+  }
+
+  static #openFamily(value: OpenEvidenceReconciliationIndexOptions, family: ReconciliationFamily): PublicEvidenceReconciliationIndex {
     const maximumClaims = evidenceReconciliationClaimAdmissionLimit(value);
     const options = normaliseOptions(value);
     options.ledger.verify();
@@ -1152,20 +1392,21 @@ export class PublicEvidenceReconciliationIndex {
           regularDirectory(path);
         }
         syncDirectory(root);
-        const descriptor = buildDescriptor(options.ledger.descriptor, currentTimestamp(now));
+        const descriptor = buildDescriptor(options.ledger.descriptor, currentTimestamp(now), family);
         if (!writeExclusiveCanonical(descriptorPath, descriptor)) {
           fail("collision", "Reconciliation descriptor already exists");
         }
       }
       for (const name of directoryNames) regularDirectory(join(root, name));
       const descriptor = readCanonicalDocument(descriptorPath, MAX_DESCRIPTOR_BYTES);
-      assertDescriptor(descriptor, options.ledger.descriptor);
+      assertDescriptor(descriptor, options.ledger.descriptor, family);
       const index = new PublicEvidenceReconciliationIndex(
         root,
         options.ledger,
         canonicalJsonClone(descriptor),
         now,
         maximumClaims,
+        family,
       );
       index.verify();
       return index;
@@ -1216,8 +1457,8 @@ export class PublicEvidenceReconciliationIndex {
       fail("corruption", "Reconciliation storage root contains an unexpected entry");
     }
     const descriptor = readCanonicalDocument(join(this.#root, "index.json"), MAX_DESCRIPTOR_BYTES);
-    assertDescriptor(descriptor, this.ledger.descriptor);
-    if (canonicalJson(descriptor) !== canonicalJson(this.descriptor)) {
+    assertDescriptor(descriptor, this.ledger.descriptor, this.#family);
+    if (canonicalJson(descriptor) !== canonicalJson(this.#descriptor)) {
       fail("corruption", "Reconciliation descriptor changed after opening");
     }
     const state = this.#loadState();
@@ -1235,8 +1476,7 @@ export class PublicEvidenceReconciliationIndex {
       storedByKey.set(key, stored);
       if (stored !== null) {
         if (
-          stored.record.schema !== "gis-ai-go.public-evidence-record.v2" ||
-          !receiptMatchesClaim(stored.record.receipt, claim)
+          !storedMatchesClaim(stored, claim)
         ) {
           fail("corruption", "Reconciliation resolution does not match its durable receipt");
         }
@@ -1245,8 +1485,8 @@ export class PublicEvidenceReconciliationIndex {
     }
     const health: EvidenceReconciliationIndexHealth = Object.freeze({
       status: "verified",
-      index_id: this.descriptor.index_id,
-      ledger_id: this.descriptor.ledger_id,
+      index_id: this.#descriptor.index_id,
+      ledger_id: this.#descriptor.ledger_id,
       claim_count: state.ownershipKeys.size,
       resolution_count: state.resolutionsByKey.size,
       completed_count: completedCount,
@@ -1265,13 +1505,14 @@ export class PublicEvidenceReconciliationIndex {
   }
 
   public claim(value: EvidenceReconciliationClaimInput): EvidenceReconciliationClaimOutcome {
-    const input = snapshotClaimInput(value);
-    const key = publicIdempotencyKeySha256(input.idempotencyKey, input.operation);
-    const fingerprint = evidenceReconciliationRequestFingerprint({
-      operation: input.operation,
-      resourceId: input.resourceId,
-      normalisedParametersSha256: input.normalisedParametersSha256,
-    });
+    this.#assertLegacy();
+    return this.#claim(value) as EvidenceReconciliationClaimOutcome;
+  }
+
+  #claim(value: AnyClaimInput): AnyClaimOutcome {
+    const input = this.#family === "web216-cpih" ? snapshotCpihClaimInput(value) : snapshotClaimInput(value);
+    const key = inputKey(input);
+    const fingerprint = inputFingerprint(input);
     let verified = this.#verifyState();
     let state = verified.state;
     const existing = state.claimsByKey.get(key);
@@ -1283,7 +1524,7 @@ export class PublicEvidenceReconciliationIndex {
       fail("capacity", "Reconciliation index reached its fixed local claim limit");
     }
 
-    const claim = buildClaim(this.descriptor, input, currentTimestamp(this.#now));
+    const claim = buildClaim(this.#descriptor, input, currentTimestamp(this.#now));
     assertPrivacy(claim);
     const owns = writeExclusiveMarker(join(this.#claimOwnershipDirectory, key));
     if (!owns) {
@@ -1308,17 +1549,24 @@ export class PublicEvidenceReconciliationIndex {
     claimValue: EvidenceReconciliationClaim,
     receiptValue: PublicReadEvidenceReceipt,
   ): EvidenceReconciliationResolution {
+    this.#assertLegacy();
+    return this.#resolve(claimValue, receiptValue) as EvidenceReconciliationResolution;
+  }
+
+  #resolve(claimValue: AnyClaim, receiptValue: AnyReceipt): AnyResolution {
     const state = this.#verifyAndLoadState();
-    let claim: EvidenceReconciliationClaim;
-    let receipt: PublicReadEvidenceReceipt;
+    let claim: AnyClaim;
+    let receipt: AnyReceipt;
     try {
       claim = canonicalJsonClone(claimValue);
       receipt = canonicalJsonClone(receiptValue);
     } catch {
       return fail("invalid-input", "Reconciliation resolution input is unsafe");
     }
-    assertClaim(claim, this.descriptor);
-    if (!verifyPublicReadReceiptStructure(receipt) || !receiptMatchesClaim(receipt, claim)) {
+    assertClaim(claim, this.#descriptor);
+    const supportedReceipt = receipt?.schema === "gis-ai-go.web216-cpih-receipt.v1"
+      ? verifyWeb216CpihReceiptStructure(receipt) : verifyPublicReadReceiptStructure(receipt);
+    if (!supportedReceipt || !receiptMatchesClaim(receipt, claim)) {
       fail("invalid-input", "Reconciliation receipt does not match its claim");
     }
     const storedClaim = state.claimsByKey.get(claim.idempotency_key_sha256);
@@ -1339,7 +1587,7 @@ export class PublicEvidenceReconciliationIndex {
       );
     }
     const resolution = buildResolution(
-      this.descriptor,
+      this.#descriptor,
       claim,
       receipt,
       currentTimestamp(this.#now),
@@ -1375,7 +1623,13 @@ export class PublicEvidenceReconciliationIndex {
     idempotencyKey: string,
     operation: "data.query" = "data.query",
   ): EvidenceReconciliationLookup {
-    const key = publicIdempotencyKeySha256(idempotencyKey, operation);
+    this.#assertLegacy();
+    return this.#lookup(idempotencyKey, operation) as EvidenceReconciliationLookup;
+  }
+
+  #lookup(idempotencyKey: string, operation: "data.query" = "data.query"): AnyLookup {
+    const key = this.#family === "web216-cpih" ? web216CpihIdempotencyKeySha256(idempotencyKey)
+      : publicIdempotencyKeySha256(idempotencyKey, operation);
     const verified = this.#verifyState();
     const state = verified.state;
     if (!state.ownershipKeys.has(key)) return Object.freeze({ status: "not-found" });
@@ -1393,8 +1647,7 @@ export class PublicEvidenceReconciliationIndex {
       return canonicalJsonClone({ status: "pending", claim, resolution });
     }
     if (
-      stored.record.schema !== "gis-ai-go.public-evidence-record.v2" ||
-      !receiptMatchesClaim(stored.record.receipt, claim)
+      !storedMatchesClaim(stored, claim)
     ) {
       fail("corruption", "Reconciliation lookup does not match its durable receipt");
     }
@@ -1402,11 +1655,11 @@ export class PublicEvidenceReconciliationIndex {
   }
 
   #existingClaim(
-    claim: EvidenceReconciliationClaim,
+    claim: AnyClaim,
     fingerprint: string,
     state: IndexState,
     storedByKey: ReadonlyMap<string, StoredPublicEvidence | null>,
-  ): EvidenceReconciliationClaimOutcome {
+  ): AnyClaimOutcome {
     if (claim.request_fingerprint_sha256 !== fingerprint) {
       fail("conflict", "Idempotency key is bound to another semantic request");
     }
@@ -1422,8 +1675,7 @@ export class PublicEvidenceReconciliationIndex {
       return canonicalJsonClone({ status: "pending", claim, resolution });
     }
     if (
-      stored.record.schema !== "gis-ai-go.public-evidence-record.v2" ||
-      !receiptMatchesClaim(stored.record.receipt, claim)
+      !storedMatchesClaim(stored, claim)
     ) {
       fail("corruption", "Idempotency completion does not match its durable receipt");
     }
@@ -1517,17 +1769,17 @@ export class PublicEvidenceReconciliationIndex {
         fail("truncation", "Published reconciliation resolution is incomplete");
       }
     }
-    const claimsByKey = new Map<string, EvidenceReconciliationClaim>();
+    const claimsByKey = new Map<string, AnyClaim>();
     for (const key of claimReadyKeys) {
       const name = `${key}.json`;
       const value = readCanonicalDocument(join(this.#claimsDirectory, name), MAX_CLAIM_BYTES);
-      assertClaim(value, this.descriptor);
+      assertClaim(value, this.#descriptor);
       if (value.idempotency_key_sha256 !== key || claimsByKey.has(key)) {
         fail("collision", "Reconciliation claim is duplicated or misplaced");
       }
       claimsByKey.set(key, canonicalJsonClone(value));
     }
-    const resolutionsByKey = new Map<string, EvidenceReconciliationResolution>();
+    const resolutionsByKey = new Map<string, AnyResolution>();
     for (const key of resolutionReadyKeys) {
       const name = `${key}.json`;
       const claim = claimsByKey.get(key);
@@ -1536,7 +1788,7 @@ export class PublicEvidenceReconciliationIndex {
         join(this.#resolutionsDirectory, name),
         MAX_RESOLUTION_BYTES,
       );
-      assertResolution(value, this.descriptor, claim);
+      assertResolution(value, this.#descriptor, claim);
       if (value.idempotency_key_sha256 !== key || resolutionsByKey.has(key)) {
         fail("collision", "Reconciliation resolution is duplicated or misplaced");
       }
@@ -1550,4 +1802,10 @@ export function openEvidenceReconciliationIndex(
   options: OpenEvidenceReconciliationIndexOptions,
 ): PublicEvidenceReconciliationIndex {
   return PublicEvidenceReconciliationIndex.open(options);
+}
+
+export function openWeb216CpihReconciliationIndex(
+  options: OpenEvidenceReconciliationIndexOptions,
+): Web216CpihReconciliationIndex {
+  return PublicEvidenceReconciliationIndex.openWeb216Cpih(options);
 }

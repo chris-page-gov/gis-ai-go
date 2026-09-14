@@ -82,6 +82,7 @@ export interface EvidenceInspectionPolicyEvaluation {
 
 function isAnonymousOpenStoredEvidence(stored: StoredPublicEvidence): boolean {
   try {
+    if (stored.record.schema === "gis-ai-go.public-evidence-record.v3") return false;
     const authority = stored.record.receipt.authority_context;
     const decision = stored.record.receipt.policy_decision;
     return (

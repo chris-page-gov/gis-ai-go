@@ -40,6 +40,12 @@ import {
   PUBLIC_EVIDENCE_LEDGER_MAX_EVENTS,
   publicEvidenceLedgerEventLimit,
 } from "./public-ledger-capacity.js";
+import {
+  verifyWeb216CpihReceipt,
+  verifyWeb216CpihReceiptStructure,
+  type Web216CpihReceipt,
+  type Web216CpihReceiptVerificationMaterial,
+} from "./web216-cpih-receipt.js";
 
 const LEDGER_PREFIX = "gis-ai-go:public-evidence-ledger";
 const RECORD_PREFIX = "gis-ai-go:public-evidence-record";
@@ -129,10 +135,14 @@ export interface PublicEvidenceLedgerDescriptor extends PublicEvidenceLedgerDesc
   readonly ledger_id: string;
 }
 
-export type PublicEvidenceReceipt = InlineEvidenceReceipt | PublicReadEvidenceReceipt;
+export type PublicEvidenceReceipt =
+  | InlineEvidenceReceipt
+  | PublicReadEvidenceReceipt
+  | Web216CpihReceipt;
 export type PublicEvidenceReceiptVerificationMaterial =
   | InlineReceiptVerificationMaterial
-  | PublicReadReceiptVerificationMaterial;
+  | PublicReadReceiptVerificationMaterial
+  | Web216CpihReceiptVerificationMaterial;
 
 export interface PublicEvidenceRecordV1Core {
   readonly schema: "gis-ai-go.public-evidence-record.v1";
@@ -177,10 +187,33 @@ export interface PublicEvidenceRecordV2 extends PublicEvidenceRecordV2Core {
   readonly record_id: string;
 }
 
+/**
+ * Separate stored wrapper for WEB-216's pinned, provider-free CPIH receipt.
+ * Its inline receipt remains not-persisted/not-attested; only this verified,
+ * synchronised record/event wrapper supplies the durable storage reference.
+ */
+export interface PublicEvidenceRecordV3Core {
+  readonly schema: "gis-ai-go.public-evidence-record.v3";
+  readonly ledger_id: string;
+  readonly persisted_at: string;
+  readonly retain_until: string;
+  readonly receipt: Web216CpihReceipt;
+  readonly verification: PublicEvidenceRecordV1Core["verification"];
+  readonly privacy: PublicEvidenceRecordV1Core["privacy"];
+}
+
+export interface PublicEvidenceRecordV3 extends PublicEvidenceRecordV3Core {
+  readonly record_id: string;
+}
+
 export type PublicEvidenceRecordCore =
   | PublicEvidenceRecordV1Core
-  | PublicEvidenceRecordV2Core;
-export type PublicEvidenceRecord = PublicEvidenceRecordV1 | PublicEvidenceRecordV2;
+  | PublicEvidenceRecordV2Core
+  | PublicEvidenceRecordV3Core;
+export type PublicEvidenceRecord =
+  | PublicEvidenceRecordV1
+  | PublicEvidenceRecordV2
+  | PublicEvidenceRecordV3;
 
 export interface PublicEvidenceLedgerEventCore {
   readonly schema: "gis-ai-go.evidence-ledger-event.v1";
@@ -208,8 +241,8 @@ export interface PublicEvidenceStorageReference {
   readonly retain_until: string;
 }
 
-export interface StoredPublicEvidence {
-  readonly record: PublicEvidenceRecord;
+export interface StoredPublicEvidence<R extends PublicEvidenceRecord = PublicEvidenceRecord> {
+  readonly record: R;
   readonly event: PublicEvidenceLedgerEvent;
   readonly reference: PublicEvidenceStorageReference;
 }
@@ -231,6 +264,13 @@ export interface PublicEvidenceLedgerHealth {
     "retention",
     "privacy",
   ];
+}
+
+export interface PublicEvidenceLedgerAppendCapacity {
+  readonly status: "available" | "exhausted";
+  readonly maximum_events: number;
+  readonly event_count: number;
+  readonly remaining_events: number;
 }
 
 export interface OpenPublicEvidenceLedgerOptions {
@@ -711,6 +751,16 @@ function assertDescriptor(value: unknown): asserts value is PublicEvidenceLedger
 }
 
 function replayKey(receipt: PublicEvidenceReceipt): string {
+  if (receipt.schema === "gis-ai-go.web216-cpih-receipt.v1") {
+    return domainSeparatedSha256(CANONICAL_DOMAINS.evidenceReplayKey, {
+      receipt_schema: receipt.schema,
+      request_id: receipt.request_id,
+      trace_id: receipt.trace_id,
+      operation: receipt.operation.name,
+      normalised_parameters_sha256: receipt.operation.normalised_parameters.sha256,
+      result_sha256: receipt.result.sha256,
+    });
+  }
   return domainSeparatedSha256(CANONICAL_DOMAINS.evidenceReplayKey, {
     request_id: receipt.request_id,
     trace_id: receipt.trace_id,
@@ -743,6 +793,13 @@ function recordCore(
       machine_path: false,
     },
   } as const;
+  if (receipt.schema === "gis-ai-go.web216-cpih-receipt.v1") {
+    return {
+      ...shared,
+      schema: "gis-ai-go.public-evidence-record.v3",
+      receipt,
+    };
+  }
   return receipt.schema === "gis-ai-go.evidence-receipt.v1"
     ? {
         ...shared,
@@ -763,9 +820,11 @@ function buildRecord(
 ): PublicEvidenceRecord {
   const core = recordCore(descriptor, receipt, persistedAt);
   const domain =
-    core.schema === "gis-ai-go.public-evidence-record.v1"
-      ? CANONICAL_DOMAINS.publicEvidenceRecord
-      : CANONICAL_DOMAINS.publicEvidenceRecordV2;
+    core.schema === "gis-ai-go.public-evidence-record.v3"
+      ? CANONICAL_DOMAINS.publicEvidenceRecordV3
+      : core.schema === "gis-ai-go.public-evidence-record.v1"
+        ? CANONICAL_DOMAINS.publicEvidenceRecord
+        : CANONICAL_DOMAINS.publicEvidenceRecordV2;
   return canonicalJsonClone({
     ...core,
     record_id: contentAddress(RECORD_PREFIX, domain, core),
@@ -795,11 +854,13 @@ function assertRecord(
   assertTimestamp(record.retain_until, "Evidence retention time");
   const v1Record = record.schema === "gis-ai-go.public-evidence-record.v1";
   const v2Record = record.schema === "gis-ai-go.public-evidence-record.v2";
+  const v3Record = record.schema === "gis-ai-go.public-evidence-record.v3";
   const receiptBoundaryValid =
     (v1Record && verifyInlineReceiptStructure(record.receipt)) ||
-    (v2Record && verifyPublicReadReceiptStructure(record.receipt));
+    (v2Record && verifyPublicReadReceiptStructure(record.receipt)) ||
+    (v3Record && verifyWeb216CpihReceiptStructure(record.receipt));
   if (
-    (!v1Record && !v2Record) ||
+    (!v1Record && !v2Record && !v3Record) ||
     record.ledger_id !== descriptor.ledger_id ||
     typeof record.record_id !== "string" ||
     !RECORD_ID.test(record.record_id) ||
@@ -832,9 +893,11 @@ function assertRecord(
   }
   assertPrivacy(record.receipt);
   const { record_id: identity, ...core } = record;
-  const domain = v1Record
-    ? CANONICAL_DOMAINS.publicEvidenceRecord
-    : CANONICAL_DOMAINS.publicEvidenceRecordV2;
+  const domain = v3Record
+    ? CANONICAL_DOMAINS.publicEvidenceRecordV3
+    : v1Record
+      ? CANONICAL_DOMAINS.publicEvidenceRecord
+      : CANONICAL_DOMAINS.publicEvidenceRecordV2;
   if (
     !verifyContentAddress(
       identity as string,
@@ -1148,6 +1211,18 @@ export class PublicEvidenceLedger {
     return this.#verifyState().health;
   }
 
+  /** Verified headroom snapshot, not a reservation; persistence checks again. */
+  public appendCapacity(): PublicEvidenceLedgerAppendCapacity {
+    const eventCount = this.#verifyState().health.event_count;
+    const remainingEvents = Math.max(0, this.#maximumEvents - eventCount);
+    return Object.freeze({
+      status: remainingEvents === 0 ? "exhausted" : "available",
+      maximum_events: this.#maximumEvents,
+      event_count: eventCount,
+      remaining_events: remainingEvents,
+    });
+  }
+
   #verifyState(): VerifiedLedgerState {
     regularDirectory(this.#root);
     regularDirectory(this.#recordsDirectory);
@@ -1270,6 +1345,22 @@ export class PublicEvidenceLedger {
   }
 
   public persistReceipt(
+    receipt: InlineEvidenceReceipt,
+    material: InlineReceiptVerificationMaterial,
+  ): StoredPublicEvidence<PublicEvidenceRecordV1>;
+  public persistReceipt(
+    receipt: PublicReadEvidenceReceipt,
+    material: PublicReadReceiptVerificationMaterial,
+  ): StoredPublicEvidence<PublicEvidenceRecordV2>;
+  public persistReceipt(
+    receipt: Web216CpihReceipt,
+    material: Web216CpihReceiptVerificationMaterial,
+  ): StoredPublicEvidence<PublicEvidenceRecordV3>;
+  public persistReceipt(
+    receipt: PublicEvidenceReceipt,
+    material: PublicEvidenceReceiptVerificationMaterial,
+  ): StoredPublicEvidence;
+  public persistReceipt(
     receipt: PublicEvidenceReceipt,
     material: PublicEvidenceReceiptVerificationMaterial,
   ): StoredPublicEvidence {
@@ -1283,20 +1374,34 @@ export class PublicEvidenceLedger {
     } catch {
       return fail("invalid-receipt", "Evidence storage rejected unsafe receipt material");
     }
-    const v2Receipt = receiptSnapshot.schema === "gis-ai-go.evidence-receipt.v2";
-    const verification = v2Receipt
-      ? verifyPublicReadReceipt(
-          receiptSnapshot,
-          materialSnapshot as PublicReadReceiptVerificationMaterial,
-        )
-      : verifyInlineReceipt(
+    let verificationValid = false;
+    let structureValid = false;
+    switch (receiptSnapshot?.schema) {
+      case "gis-ai-go.evidence-receipt.v1":
+        verificationValid = verifyInlineReceipt(
           receiptSnapshot,
           materialSnapshot as InlineReceiptVerificationMaterial,
-        );
-    const structureValid = v2Receipt
-      ? verifyPublicReadReceiptStructure(receiptSnapshot)
-      : verifyInlineReceiptStructure(receiptSnapshot);
-    if (!verification.valid || !structureValid) {
+        ).valid;
+        structureValid = verifyInlineReceiptStructure(receiptSnapshot);
+        break;
+      case "gis-ai-go.evidence-receipt.v2":
+        verificationValid = verifyPublicReadReceipt(
+          receiptSnapshot,
+          materialSnapshot as PublicReadReceiptVerificationMaterial,
+        ).valid;
+        structureValid = verifyPublicReadReceiptStructure(receiptSnapshot);
+        break;
+      case "gis-ai-go.web216-cpih-receipt.v1":
+        verificationValid = verifyWeb216CpihReceipt(
+          receiptSnapshot,
+          materialSnapshot as Web216CpihReceiptVerificationMaterial,
+        ).valid;
+        structureValid = verifyWeb216CpihReceiptStructure(receiptSnapshot);
+        break;
+      default:
+        fail("invalid-receipt", "Evidence storage rejected an unsupported receipt schema");
+    }
+    if (!verificationValid || !structureValid) {
       fail("invalid-receipt", "Evidence storage rejected an unverifiable public receipt");
     }
     assertPrivacy(receiptSnapshot);

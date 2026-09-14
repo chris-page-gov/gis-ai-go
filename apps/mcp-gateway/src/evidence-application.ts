@@ -138,6 +138,10 @@ function normaliseRequest(request: unknown): EvidenceInspectOperationRequest {
 }
 
 function assertOpenRecord(record: PublicEvidenceRecord): void {
+  // The legacy inspection policy cannot authorise another receipt family.
+  if (record.schema === "gis-ai-go.public-evidence-record.v3") {
+    throw new EvidenceInspectError("evidence_unavailable");
+  }
   const authority = record.receipt.authority_context;
   const decision = record.receipt.policy_decision;
   const approvedReason =

@@ -231,9 +231,78 @@ expiry warnings. Its preceding capture had two declared exclusions and four
 unavailable sources. Those limits remain; “verified” is not “everything recovered”.
 
 The new milestone capture was started after PR #127's protected-main checks passed.
-It includes explicit WEB-216 GitHub discussions and
-available run logs, permitted user-visible root and transitive-agent projections,
-and selected public experiment artefacts. A new `commit-complete` capture and
-complete offline verification are required before claiming it is preserved. The
-existing verified checkpoint is not changed. Public material contains no private
-store paths, raw sessions, identity credentials or granular private cost records.
+It selected explicit WEB-216 GitHub discussions, available run logs, permitted
+user-visible root and transitive-agent projections, and public experiment artefacts.
+It failed after 34.56 minutes because the final selected source-path inventory
+differed from the initial one. The comparison covers resolved paths, not ordinary
+append growth. The permitted diagnostic evidence does not identify which file
+appeared, disappeared or moved; agent-count changes must not be inferred.
+
+The selected closure contained 1,052 source files. It reused 1,040 projections and
+regenerated twelve, but **no new Codex generation was committed**. GitHub and local
+artefacts are committed separately before the closure stage, so some may already
+have entered the store. The earlier successful verification cannot be extended to
+this later store state without another complete verifier run.
+
+Recovery separates source-only capture from the changing conversation closure.
+The full thread-path guard is retained; its retry needs a quiet window. Source-only
+capture does not claim conversation completeness. Failure sidecars and source-time
+originals remain retained. Public material contains no private store paths, raw
+sessions, identity credentials or granular private cost records.
+
+## Inactive CPIH application and independent review
+
+The main model composed a closed two-period selection and application, then reused
+two agents for separate ledger and reconciliation implementations and independent
+review. The evidence family remains distinct from the existing weekly-deaths
+operation; the older application and policy reject genuine CPIH records rather
+than treating missing legacy authority fields as permission.
+
+Review found two application issues before activation: closed options did not
+reject symbol/non-enumerable properties, and an exhausted ledger could still
+appear ready and consume a claim it could not complete. Both were corrected.
+Headroom now comes from the ledger's actual verified event limit; a new key checks
+it before claim acquisition, while completed retries and inspection still work.
+Regression tests reproduce the one-event capacity failure without filling a real
+store. Two initial application-test fixtures also needed authoring corrections:
+the internal helper must reference the compiled dependency, and changing a key's
+digest must not alter its fixed namespace prefix.
+
+The complete evidence package passed 122 tests in 13.877 seconds. The application
+and selection slice passed fourteen tests in 0.861 seconds, covering both months,
+restart, replay/conflict, pending publication, corruption, cancelled admission,
+closed options and full-store behaviour. These are local component results, not an
+MCP/provider execution observation. See the
+[contract explanation](../implementation/WEB-216_CPIH_CONTRACTS.md) for the next
+wire, browser and activation gates.
+
+All 27 selected existing readiness, governed-assembly and inspection regressions
+also passed: 25 in the sandbox and two real-loopback cases after a permission-only
+rerun of those cases. The initial two failures were `listen EPERM`, not failed
+assertions. Contract validation checked 100 existing schemas and 153 records;
+link, changelog and baseline secret/path checks also passed. The new finite result
+core export supports later static wire schemas; exporting those public constants
+does not establish execution.
+
+## PR #130 source-bound receipt refresh
+
+Repository assurance on the initial PR #130 head found a stale deterministic
+QUAL-206 receipt set. Six changed source-material files altered suite identities;
+the selected scenario outcomes did not fail. The set was regenerated in a
+detached checkout of `1f4b05178544d2cb2f8a82f7a9b9956bf60bddc8`, isolated from
+later MCP transport work. Seventeen suites and 87 selected tests passed, as did
+six receipt-contract tests and a repeat byte-identical check. Six suite IDs, four
+case receipt IDs and the set ID changed; outcomes, limits and test selection did
+not. Canonical CI on the corrected PR head remains the acceptance gate.
+
+The next canonical run exposed a second stale binding in the historical-evidence
+compiler: its exact compiled `digest.js` and `index.js` hashes predated the
+additive v3 domain and export. Those two pins were refreshed from clean
+`4e6a842e2793efde5f6a58807274ce2368e40cf6`; canonicalisation and the fixed
+historical identity vector were unchanged. A regenerable local receipt set was
+also separated from genuinely immutable historical observations, while retaining
+an exact reviewed baseline. Thirty-two targeted tests passed, including rejection
+of drift in every pinned runtime before child execution. No historical observed
+artefact, scenario outcome or release boundary was rewritten. These sequential
+failures document cross-suite source-binding maintenance costs, not failed Claude
+observations or a reason to remove the bindings.
