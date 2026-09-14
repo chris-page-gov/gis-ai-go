@@ -283,3 +283,13 @@ assertions. Contract validation checked 100 existing schemas and 153 records;
 link, changelog and baseline secret/path checks also passed. The new finite result
 core export supports later static wire schemas; exporting those public constants
 does not establish execution.
+# PR #130 source-bound receipt refresh
+
+Repository assurance on the initial PR #130 head found a stale deterministic
+QUAL-206 receipt set. Six changed source-material files altered suite identities;
+the selected scenario outcomes did not fail. The set was regenerated in a
+detached checkout of `1f4b05178544d2cb2f8a82f7a9b9956bf60bddc8`, isolated from
+later MCP transport work. Seventeen suites and 87 selected tests passed, as did
+six receipt-contract tests and a repeat byte-identical check. Six suite IDs, four
+case receipt IDs and the set ID changed; outcomes, limits and test selection did
+not. Canonical CI on the corrected PR head remains the acceptance gate.
