@@ -20,6 +20,7 @@ research recommendations remain unchanged in the preserved pack at
 - [ADR-0014: Bounded public ingress origin](ADR-0014-bounded-public-ingress-origin.md)
 - [ADR-0015: Provider-free loopback local candidate](ADR-0015-provider-free-loopback-local-candidate.md)
 - [ADR-0016: Experimental public-data workbench](ADR-0016-webmcp-public-data-workbench.md)
+- [ADR-0017: A separately identified local evaluation edition](ADR-0017-local-evaluation-edition.md)
 
 Research decisions D01–D19 are accepted as constraints for building and evaluating
 Stage 0, not as blanket authority for later production stages. Research decision D20

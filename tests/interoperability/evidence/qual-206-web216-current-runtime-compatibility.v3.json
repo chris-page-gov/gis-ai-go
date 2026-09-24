@@ -10,7 +10,7 @@
     "sha256": "91dc5a38125b5fd686d3028621f8452c0a3d77fe177dd67b110da6316bfc6039",
     "runtime_base_commit": "f253605ab26628e821d4ebc3809cf13c883d57ed"
   },
-  "reviewed_source_commit": "e7f83624fab1958036c8431548eb68f350c0ca16",
+  "reviewed_source_commit": "322b2082da347950431d80076c514e50bdeb4e94",
   "current_runtime_materials": [
     {
       "path": "apps/mcp-gateway/src/mcp-http.ts",
@@ -31,7 +31,7 @@
   "extraction_materials": [
     {
       "path": "apps/mcp-gateway/src/http-app.ts",
-      "sha256": "2885b2a76a1c16721f19f4c4e1116516d7786faea4b612199e51c7a23965c1a8"
+      "sha256": "3f71d0fd855cdb594e7b48dc93cc689c19dc9a6c5deeb814e9023f6f4999a0c3"
     },
     {
       "path": "apps/mcp-gateway/src/bounded-json.ts",
@@ -86,7 +86,8 @@
     "Move the existing strict JSON parser, MCP text and URI guards, and bounded HTTP guard sequence into shared modules; original exports retain the same function and class objects.",
     "Keep all three existing HTTP wrappers and their automatic response mode; add a separately named JSON-only hosted wrapper that discards parsed-body overrides and grants no ingress or deployment authority.",
     "Retain the unchanged protocol and maximum tool-result constants; move the unchanged public idempotency grammar into one shared object without changing the legacy root evidence exports.",
-    "Use the explicit pure evidence subpath for the hosted application, MCP face and their selection/schema dependencies. The separate extraction-material list binds these reviewed source bytes but exempts no additional historical matrix material."
+    "Use the explicit pure evidence subpath for the hosted application, MCP face and their selection/schema dependencies. The separate extraction-material list binds these reviewed source bytes but exempts no additional historical matrix material.",
+    "Refresh the current http-app.ts binding for LOCAL-214's separately registered local capability-health projection and matching local OpenAPI schema selection. Generic, default and non-local candidate health, readiness and OpenAPI behaviour remain unchanged; no historical matrix material is newly exempted."
   ],
   "regression_sources": [
     {

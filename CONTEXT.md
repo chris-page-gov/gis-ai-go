@@ -1,6 +1,6 @@
 # Current context
 
-Last updated: 14 September 2026
+Last updated: 24 September 2026
 
 ## Authority and reading order
 
@@ -23,8 +23,16 @@ is `6c76c92a18da779766f8d49acbbd7dbbd31abb97`; its private analysis remains loca
 The work includes a public draft learning path, agent history, code and guidance
 reviews, and a plan for completing a local product while public hosting is
 unavailable. See [issue 117](https://github.com/chris-page-gov/gis-ai-go/issues/117).
-Runtime optimisation is a separate planned stage. EVID-211 continues to preserve
-evidence independently of the now-authorised retrospective analysis.
+Runtime optimisation is a separate planned stage. EVID-211 is a separate lane;
+the owner paused its scheduled preservation on 24 September 2026.
+
+On 24 September 2026 the owner authorised implementing LOCAL-214 and correcting
+stale tracking. [ADR-0017](docs/decisions/ADR-0017-local-evaluation-edition.md)
+defines the additive local evaluation edition without relaxing the supported
+public `v0.2.0` gates. Browser authentication to the private Site already succeeded;
+direct-client MCP discovery/authentication remains a separate unresolved gate.
+Do not restart scheduled preservation or repeat an unchanged sign-in request as
+a condition of the local work.
 
 Later on 14 September 2026 the owner authorised
 [WEB-216](docs/implementation/WEB-216_PUBLIC_DATA_WORKBENCH.md): develop the

@@ -1,0 +1,31 @@
+{
+  "five-call-journey": {
+    "title": "One question, five explicit calls",
+    "description": "Read down: find the provider, describe it, resolve the exact selection, query the approved cache, then inspect the query receipt.",
+    "steps": [
+      ["1. catalogue.search", "Find the ONS provider record"],
+      ["2. catalogue.describe", "Read its catalogue description"],
+      ["3. selection.resolve", "Make every required dimension explicit"],
+      ["4. data.query", "Use the bounded approved-cache path"],
+      ["5. evidence.inspect", "Read the query's linked evidence receipt"]
+    ]
+  },
+  "receipt-linkage": {
+    "title": "Evidence that can be followed",
+    "description": "The query produces an observation and a query receipt. Inspection reads that same receipt and creates a separate inspection receipt.",
+    "steps": [
+      ["Query result + query receipt", "Names source, policy, warning and content identity"],
+      ["Inspect that exact receipt identifier", "Verify the returned record and content identity"],
+      ["Inspection result + its own receipt", "Separate record of the inspection operation"]
+    ]
+  },
+  "completion-boundaries": {
+    "title": "Do not combine these claims",
+    "description": "Local evaluation is disposable and provider-free. Durable rehearsal is a separate profile. A supported public service needs additional operational and deployment evidence.",
+    "steps": [
+      ["This edition: local evaluation", "Same computer; cached data; disposable receipts"],
+      ["Different profile: durable rehearsal", "Explicit persistence, restart and restore evidence"],
+      ["Different gate: public service", "Hosting, identity, operations and release acceptance"]
+    ]
+  }
+}

@@ -1,6 +1,6 @@
 # Current progress
 
-Last updated: 14 September 2026
+Last updated: 24 September 2026
 
 ## Current checkpoint
 
@@ -15,6 +15,34 @@ Last updated: 14 September 2026
   remain open in #23, #24 and #25.
 
 ## Authorised current work
+
+The owner selected [LOCAL-214 #118](https://github.com/chris-page-gov/gis-ai-go/issues/118)
+as the immediate delivery track: finish a dependable standalone local evaluation
+edition while keeping Sites support separate. The implementation adds visible
+cache-expiry capability health, source-only packaging, a separate MCP demonstration,
+an illustrated walkthrough and an additive prerelease policy in
+[ADR-0017](docs/decisions/ADR-0017-local-evaluation-edition.md). Required acceptance
+is recorded in the [local profile](evaluation/local-edition-profile.v1.json).
+Implementation, protected-main acceptance, an unaided colleague walkthrough and
+prerelease publication are distinct gates; none is implied by this status note.
+The version remains `0.1.0`, targeting `0.2.0`; `v0.2.0-local.1` is reserved for
+a separately accepted local prerelease, not an already published release.
+
+### WEB-216: retained progress and separate dependencies
+
+The aggregate #125 work item must remain open until its wider milestones pass.
+M1 inception and the bounded M3 local CPIH vertical slice are implemented;
+M2 is partial, M4 geospatial/story expansion is unfinished and M5 hosted
+acceptance remains partial. The source documents below retain the actual
+experiments, failures and scope rather than treating one merged increment as
+completion of the whole work package.
+
+Browser authentication to the private Site succeeded on 19 September. The
+remaining direct-client gate is the platform's supported MCP declaration and
+authentication discovery, not another request for the owner to sign in.
+An independent authenticated Claude connection has not been proved. No wider
+MCP port or audience change is justified by browser login alone. An OpenAI support
+receipt is retained privately; specialist resolution is not recorded.
 
 The owner authorised [WEB-216 #125](https://github.com/chris-page-gov/gis-ai-go/issues/125):
 advance WebMCP into OKF-led ONS discovery and governed retrieval, with OS/ONS
@@ -60,8 +88,10 @@ protected-main assurance and CodeQL passing. The separately assembled private
 Site candidate was deployed on 14 September 2026 at 20:26 UTC. Its schema is
 present and its store is empty; operator access remains disabled. The final
 built-Site local test passed 19 requests and exact receipt inspection after restart,
-but used synthetic identity. Hosted sign-in is awaiting the owner's passkey;
-hosted initialisation, browser journeys and retention acceptance remain pending.
+but used synthetic identity. At that 14 September checkpoint sign-in awaited the
+owner's passkey. That sign-in blocker is superseded by the 19 September update
+above; it is not evidence that hosted initialisation, retention and direct-client
+acceptance passed.
 The old Site demonstration and local workbench are unchanged. See the
 [storage experiment](docs/implementation/WEB-216_HOSTED_STORAGE_EXPERIMENT.md).
 The OS Open Names Warwick point is captured; ONS boundary metadata succeeded but
@@ -101,11 +131,13 @@ redaction/quarantine gaps. Follow-ons #122/#123 cover client-contract
 preflight and source-time attempt journalling without starting implementation.
 [LOCAL-214 #118](https://github.com/chris-page-gov/gis-ai-go/issues/118)
 defines the next local-edition stages; [IMPROVE-215 #119](https://github.com/chris-page-gov/gis-ai-go/issues/119)
-holds the separate implementation plan. Neither plan has changed runtime behaviour.
+holds the separate optimisation plan. LOCAL-214 implementation is now the active
+track; broad optimisation remains separate.
 
 ## Preservation
 
-EVID-211 continues daily and at material milestones. The post-#115 capture reached
+**Scheduled EVID-211 preservation is paused by the owner as of 24 September 2026.**
+It has not been restarted by LOCAL-214 work. The post-#115 capture reached
 `commit-complete` and complete four-worker offline verification passed for that
 snapshot: 3,293 objects and 3,110 projections. Current store identity, inventory and
 subsequent results are held in the private operating record. The predecessor remains
@@ -118,6 +150,8 @@ retains 191 objects across 198 events, including previously unsupported source
 representations and the private deployment checkpoint. Seven secret-pattern
 exclusions remain explicit; the existing stores and daily destination are unchanged.
 These are separate verification scopes, not a new whole-history completeness claim.
+Later scheduled attempts were blocked and do not supersede that verified
+checkpoint. No new complete-verification pass is claimed for those attempts.
 
 ## Handoff and historical evidence
 

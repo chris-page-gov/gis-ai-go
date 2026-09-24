@@ -5,7 +5,41 @@ set -eu
 repository_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd -P)
 cd "$repository_root"
 
+for local214_command in node pnpm uv; do
+    if ! command -v "$local214_command" >/dev/null 2>&1; then
+        printf '%s\n' "Missing $local214_command. Install the pinned prerequisites in docs/demonstrations/LOCAL-214_LOCAL_EDITION_WALKTHROUGH.md." >&2
+        exit 1
+    fi
+done
+if ! node -e 'const v=process.versions.node.split(".").map(Number); process.exit(v[0]>24 || (v[0]===24 && v[1]>=19) ? 0 : 1)'; then
+    printf '%s\n' 'Node.js 24.19.0 or later is required. Check node --version.' >&2
+    exit 1
+fi
+if [ "$(pnpm --version)" != '10.33.2' ]; then
+    printf '%s\n' 'Use pinned pnpm 10.33.2, then run pnpm install --frozen-lockfile.' >&2
+    exit 1
+fi
+case "$(uv --version)" in
+    'uv 0.12.2'|'uv 0.12.2 ('*')') ;;
+    *)
+    printf '%s\n' 'Use pinned uv 0.12.2, then run uv sync --locked --group dev --cache-dir .uv-cache.' >&2
+    exit 1
+    ;;
+esac
+if ! uv run --locked --no-sync --cache-dir .uv-cache python -c 'import sys; sys.exit(0 if sys.version_info >= (3, 12) else 1)'; then
+    printf '%s\n' 'Prepare Python 3.12 or later with uv sync --locked --group dev --cache-dir .uv-cache.' >&2
+    exit 1
+fi
+
+if [ -f local214-source-identity.json ]; then
+    # Source archives have no .git directory. Reconstruct and verify every source
+    # blob/tree/commit before using the named revision; never trust generated code.
+    local214_revision=$(uv run --locked --cache-dir .uv-cache python -m scripts.local214_package verify --revision-only)
+    uv run --locked --cache-dir .uv-cache python scripts/build_okf.py --output artifacts/okf --revision "$local214_revision"
+    pnpm --filter '@gis-ai-go/mcp-gateway^...' --recursive run build
+else
 pnpm --filter @gis-ai-go/mcp-gateway run prepare:test
+fi
 pnpm --filter @gis-ai-go/mcp-gateway run build
 
 # Replace the wrapper so the maintained runtime owns SIGINT and SIGTERM directly.

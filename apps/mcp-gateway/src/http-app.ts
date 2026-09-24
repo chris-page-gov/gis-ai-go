@@ -29,6 +29,7 @@ import {
   type GovernedCandidateAssembly,
 } from "./governed-assembly.js";
 import { gatewayMetadata } from "./metadata.js";
+import { localCandidateCapabilityHealth } from "./local-candidate-capability.js";
 import {
   createCatalogueOpenApiDocument,
   createGovernedCandidateOpenApiDocument,
@@ -464,6 +465,7 @@ export function createGatewayHttpHandler(
     : createGovernedCandidateOpenApiDocument(
         enabledApiOperations,
         openApiServerOrigin?.origin,
+        localCandidateCapabilityHealth(governedAssembly),
       );
   const applications = governedBindings === undefined
     ? operationApplications(options, enabledApiOperations)
@@ -618,7 +620,10 @@ export function createGatewayHttpHandler(
         );
       }
       switch (parsedUrl.pathname) {
-        case "/healthz":
+        case "/healthz": {
+          const localHealth = governedAssembly === undefined
+            ? undefined
+            : localCandidateCapabilityHealth(governedAssembly);
           return jsonResponse(
             {
               status: "ok",
@@ -628,12 +633,15 @@ export function createGatewayHttpHandler(
                 ? {}
                 : { production_registration: false }),
               catalogue: catalogueIdentity(snapshot),
+              ...(localHealth === undefined ? {} : { local_capability_health: localHealth }),
             },
             200,
           );
+        }
         case "/readyz":
           if (governedAssembly !== undefined) {
             const readiness = assessGovernedCandidateReadiness(governedAssembly);
+            const localHealth = localCandidateCapabilityHealth(governedAssembly);
             if (readiness.reason === "evidence-integrity-failed") {
               report(onerror, new Error(EVIDENCE_READINESS_INTEGRITY_FAILURE_MESSAGE));
             }
@@ -644,6 +652,7 @@ export function createGatewayHttpHandler(
                 production_registration: readiness.productionRegistration,
                 active_tools: readiness.activeTools,
                 active_api_operations: readiness.activeApiOperations,
+                ...(localHealth === undefined ? {} : { local_capability_health: localHealth }),
               },
               readiness.status === "ready" ? 200 : 503,
             );

@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import openApiTemplate from "../openapi/catalogue-api.openapi.json" with { type: "json" };
 
 import { parsePublicHttpsOrigin } from "./public-origin.js";
+import type { LocalCandidateCapabilityHealth } from "./local-candidate-capability.js";
 
 export const CATALOGUE_API_OPERATIONS = Object.freeze([
   "catalogue.describe",
@@ -725,6 +726,7 @@ export function createCatalogueOpenApiDocument(
 export function createGovernedCandidateOpenApiDocument(
   enabledApiOperations: readonly GatewayApiOperation[],
   publicHttpsOrigin?: string,
+  localCapabilityHealth?: LocalCandidateCapabilityHealth,
 ): OpenApiDocument {
   const selected = normaliseOperations(enabledApiOperations);
   const candidateOperations = Object.freeze([...enabledApiOperations]);
@@ -814,6 +816,33 @@ export function createGovernedCandidateOpenApiDocument(
       },
     },
   };
+  if (localCapabilityHealth !== undefined) {
+    const localHealthSchema = {
+      type: "object",
+      additionalProperties: false,
+      required: [
+        "schema", "checked_at", "data_query", "data_vintage", "approved_cache",
+        "evidence_retention", "expiry_effect",
+      ],
+      properties: {
+        schema: { const: "gis-ai-go.local-candidate-capability-health.v1" },
+        checked_at: { type: ["string", "null"], format: "date-time" },
+        data_query: { enum: ["available", "expired", "not-yet-approved", "clock-unavailable"] },
+        data_vintage: { const: cloneJson(localCapabilityHealth.data_vintage) },
+        approved_cache: { const: cloneJson(localCapabilityHealth.approved_cache) },
+        evidence_retention: { const: "current-session-only" },
+        expiry_effect: {
+          const: "data.query fails closed; evidence inspection remains available",
+        },
+      },
+    };
+    for (const name of ["Health", "Readiness"]) {
+      const schema = objectValue(schemas[name], `OpenAPI ${name} schema`);
+      schema.required = [...schema.required as string[], "local_capability_health"];
+      objectValue(schema.properties, `OpenAPI ${name} properties`)
+        .local_capability_health = cloneJson(localHealthSchema);
+    }
+  }
   return deepFreeze(document as OpenApiDocument);
 }
 
