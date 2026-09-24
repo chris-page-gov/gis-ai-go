@@ -129,6 +129,29 @@ jobs:
       - name: Run assurance
         run: pnpm run check
 
+      - name: Prove LOCAL-214 clean source archive journey
+        timeout-minutes: 5
+        run: |
+          set -euo pipefail
+          local214_root="$(mktemp -d "$RUNNER_TEMP/local214.XXXXXX")"
+          python3 -m scripts.local214_package package --output-dir "$local214_root/package"
+          (cd "$local214_root/package" && sha256sum -c SHA256SUMS)
+          tar -xzf "$local214_root/package/gis-ai-go-v0.2.0-local.1-source.tar.gz" -C "$local214_root"
+          local214_source="$local214_root/gis-ai-go-v0.2.0-local.1"
+          (
+            cd "$local214_source"
+            python3 -m scripts.local214_package verify
+            pnpm install --frozen-lockfile
+            uv sync --locked --group dev --cache-dir .uv-cache
+          )
+          mkdir -p artifacts/local214
+          GIS_AI_GO_LOCAL214_ARCHIVE_TEST_ROOT="$local214_source" \
+            node --test apps/mcp-gateway/dist/test/local-candidate-launcher.acceptance.js \
+            | tee artifacts/local214/linux-source-archive-journey.tap
+          cp "$local214_root/package/local214-package-manifest.json" artifacts/local214/
+          cp "$local214_root/package/SHA256SUMS" artifacts/local214/
+
+
       - name: Enforce release readiness on a version transition
         env:
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}

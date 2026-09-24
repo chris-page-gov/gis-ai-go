@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import test, { type TestContext } from "node:test";
+import { fromJsonSchema, type JsonSchemaType } from "@modelcontextprotocol/server";
 
 import {
   openEvidenceReconciliationIndex,
@@ -26,6 +27,15 @@ import {
 } from "../src/data-query-application.js";
 import { governedCandidateAssemblyBindings } from "../src/governed-assembly.js";
 import {
+  createGatewayHttpHandler,
+  createGovernedCandidateHttpHandler,
+} from "../src/http-app.js";
+import {
+  localCandidateCapabilityHealth,
+  type LocalCandidateCapabilityHealth,
+} from "../src/local-candidate-capability.js";
+import { createGovernedCandidateMcpHttpHandler } from "../src/mcp-http.js";
+import {
   LOCAL_CANDIDATE_HOST,
   LOCAL_CANDIDATE_DATA_QUERY_SOURCE,
   LOCAL_CANDIDATE_LIFECYCLE_SCHEMA,
@@ -34,10 +44,12 @@ import {
   LOCAL_CANDIDATE_STATE_ROOT_MODE,
   LOCAL_CANDIDATE_TARGET_RELEASE,
   assertFixedLocalCandidateArguments,
+  createIdempotentLocalCandidateStop,
   createProviderFreeLocalCandidateAssembly,
   createRetryableLocalCandidateStateCleanup,
   localCandidateLifecycleRecord,
   localCandidateProviderTransportAttemptCount,
+  localCandidateStartFailureRecord,
 } from "../src/local-candidate-main.js";
 import { gatewayMetadata } from "../src/metadata.js";
 
@@ -57,7 +69,10 @@ const LOCAL_CANDIDATE_WRAPPER = fileURLToPath(
   new URL("../../../../scripts/start-local-candidate", import.meta.url),
 );
 
-async function localAssembly(t: TestContext) {
+async function localAssembly(
+  t: TestContext,
+  now: () => Date = () => new Date("2026-09-01T12:00:00.000Z"),
+) {
   const root = mkdtempSync(join(tmpdir(), "gis-ai-go-local-candidate-unit-"));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const snapshot = await loadCatalogueSnapshot(SOURCE_CATALOGUE, {
@@ -77,7 +92,19 @@ async function localAssembly(t: TestContext) {
     ledger,
     reconciliationIndex,
     CACHE_RECORD,
+    now,
   );
+}
+
+function localRequest(path: string, body?: unknown): Request {
+  return new Request(`http://127.0.0.1:8787${path}`, {
+    method: body === undefined ? "GET" : "POST",
+    headers: {
+      accept: "application/json", "content-type": "application/json",
+      host: "127.0.0.1:8787",
+    },
+    ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+  });
 }
 
 test("fixes the provider-free local candidate identity and authority", async (t) => {
@@ -150,6 +177,21 @@ test("reports fixed path-free local provenance and retries failed state cleanup"
   assert.equal(attempts, 2);
 });
 
+test("explains port conflicts without disclosing raw startup errors", () => {
+  const occupied = Object.assign(new Error("private source and state details"), {
+    code: "EADDRINUSE",
+  });
+  const report = localCandidateStartFailureRecord(occupied);
+  assert.equal(report.event, "local_candidate_start_failed");
+  assert.equal(report.reason, "port-in-use");
+  assert.equal(report.message,
+    "Port 8787 is already in use. Stop the other local process and try again.");
+  assert.equal(JSON.stringify(report).includes(occupied.message), false);
+  const failure = localCandidateStartFailureRecord(new Error("private failure"));
+  assert.equal(failure.reason, "startup-check-failed");
+  assert.equal(JSON.stringify(failure).includes("private failure"), false);
+});
+
 test("labels the deterministic outage as exact approved-cache evidence", async (t) => {
   const assembly = await localAssembly(t);
   const result = await governedCandidateAssemblyBindings(
@@ -185,6 +227,213 @@ test("labels the deterministic outage as exact approved-cache evidence", async (
   assert.equal(localCandidateProviderTransportAttemptCount(assembly), 1);
 });
 
+test("publishes immutable cache approval and vintage for a fixed observation", async (t) => {
+  let now = new Date("2026-09-01T12:00:00.000Z");
+  const assembly = await localAssembly(t, () => now);
+  const health = localCandidateCapabilityHealth(assembly)!;
+  assert.equal(health.data_query, "available");
+  assert.equal(health.checked_at, now.toISOString());
+  assert.deepEqual(health.approved_cache, {
+    cache_id: CACHE_RECORD.cache_id,
+    approved_at: CACHE_RECORD.approval.approved_at,
+    stale_after: "2027-02-20T20:21:08.947Z",
+    stale_use: "forbidden",
+  });
+  assert.deepEqual(health.data_vintage, {
+    dataset: CACHE_RECORD.query.dataset,
+    selections: CACHE_RECORD.query.selections,
+    source_uri: CACHE_RECORD.source.source_uri,
+    retrieved_at: "2026-08-20T20:21:08.947Z",
+    current_statistics: false,
+  });
+  assert.equal(health.evidence_retention, "current-session-only");
+  for (const value of [
+    health, health.approved_cache, health.data_vintage, health.data_vintage.dataset,
+    health.data_vintage.selections, ...health.data_vintage.selections,
+  ]) assert.equal(Object.isFrozen(value), true);
+  assert.equal(localCandidateLifecycleRecord(
+    "local_candidate_started", "a".repeat(40), health,
+  ).local_capability_health, health);
+
+  now = new Date(Date.parse(CACHE_RECORD.approval.approved_at) - 1);
+  assert.equal(localCandidateCapabilityHealth(assembly)?.data_query, "not-yet-approved");
+  now = new Date(Number.NaN);
+  assert.equal(localCandidateCapabilityHealth(assembly)?.data_query, "clock-unavailable");
+  assert.equal(localCandidateCapabilityHealth(assembly)?.checked_at, null);
+  assert.equal(health.data_query, "available");
+});
+
+for (const transport of ["direct", "mcp"] as const) {
+  test(`${transport} rejects expired queries and preserves session evidence`, async (t) => {
+    const expiresAt = Date.parse(CACHE_RECORD.freshness.stale_after);
+    let now = expiresAt - 1;
+    const assembly = await localAssembly(t, () => new Date(now));
+    const direct = createGovernedCandidateHttpHandler(assembly);
+    const document = await (await direct(localRequest("/openapi.json"))).json() as {
+      components: { schemas: Record<string, Record<string, unknown>> };
+    };
+    const schemas = document.components.schemas;
+    const healthSchema = structuredClone(schemas.Health!);
+    (healthSchema.properties as Record<string, unknown>).catalogue = schemas.CatalogueIdentity;
+    const healthValidator = fromJsonSchema(healthSchema as JsonSchemaType);
+    const readinessValidator = fromJsonSchema(schemas.Readiness as JsonSchemaType);
+    const mcp = createGovernedCandidateMcpHttpHandler(assembly);
+    t.after(() => mcp.close());
+    let requestId = 0;
+    async function exchange(method: string, params: Record<string, unknown>) {
+      const response = await mcp.fetch(new Request("http://127.0.0.1:8787/mcp", {
+        method: "POST",
+        headers: {
+          accept: "application/json, text/event-stream",
+          "content-type": "application/json",
+          "mcp-method": method,
+          "mcp-protocol-version": "2026-07-28",
+          ...(typeof params.name === "string" ? { "mcp-name": params.name } : {}),
+          ...(typeof params.uri === "string" ? { "mcp-name": params.uri } : {}),
+        },
+        body: JSON.stringify({
+          jsonrpc: "2.0", id: ++requestId, method,
+          params: {
+            _meta: {
+              "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+              "io.modelcontextprotocol/clientCapabilities": {},
+              "io.modelcontextprotocol/clientInfo": {
+                name: "local-candidate-expiry-test", version: "1.0.0",
+              },
+            },
+            ...params,
+          },
+        }),
+      }));
+      assert.equal(response.status, 200);
+      const message = await response.json() as {
+        result: {
+          isError?: boolean;
+          structuredContent: Record<string, unknown>;
+          content: readonly unknown[];
+          tools: { name: string }[];
+          contents: { text: string }[];
+        };
+      };
+      assert.ok(message.result);
+      return message.result;
+    }
+    async function call(operation: "data.query" | "evidence.inspect", body: unknown) {
+      if (transport === "direct") {
+        const response = await direct(localRequest(
+          operation === "data.query" ? "/data/query" : "/evidence/inspect", body,
+        ));
+        return { status: response.status, body: await response.json() as Record<string, unknown> };
+      }
+      const result = await exchange("tools/call", { name: operation, arguments: body });
+      assert.deepEqual(result.content, [{
+        type: "text", text: JSON.stringify(result.structuredContent),
+      }]);
+      return {
+        status: result.isError === true ? result.structuredContent.status : 200,
+        body: result.structuredContent,
+      };
+    }
+    let successfulReceipt: unknown;
+    const successfulKey = `gis-ai-go:ik:v1:${"1".repeat(64)}`;
+    for (const [index, offset] of [-1, 0, 1].entries()) {
+      now = expiresAt + offset;
+      for (const path of ["/healthz", "/readyz"]) {
+        const response = await direct(localRequest(path));
+        assert.equal(response.status, 200);
+        const body = await response.json() as {
+          local_capability_health: LocalCandidateCapabilityHealth;
+        };
+        const validator = path === "/healthz" ? healthValidator : readinessValidator;
+        const validation = await validator["~standard"].validate(body);
+        assert.equal("issues" in validation, false, JSON.stringify(validation));
+        assert.equal(body.local_capability_health.checked_at, new Date(now).toISOString());
+        assert.equal(body.local_capability_health.data_query, offset < 0 ? "available" : "expired");
+        assert.equal(
+          body.local_capability_health.approved_cache.stale_after,
+          CACHE_RECORD.freshness.stale_after,
+        );
+      }
+      const queried = await call("data.query", {
+        schema: "gis-ai-go.data-query-request.v1",
+        idempotency_key: `gis-ai-go:ik:v1:${String(index + 1).repeat(64)}`,
+        parameters: PUBLIC_ONS_DATA_QUERY_PARAMETERS,
+      });
+      if (offset < 0) {
+        assert.equal(queried.status, 200, JSON.stringify(queried.body));
+        successfulReceipt = queried.body.evidence_receipt;
+      } else {
+        assert.equal(queried.status, 503);
+        assert.equal(queried.body.code, "provider_unavailable");
+        assert.equal(queried.body.evidence_receipt, undefined);
+        const inspected = await call("evidence.inspect", {
+          schema: "gis-ai-go.evidence-inspect-request.v2",
+          source_operation: "data.query", idempotency_key: successfulKey,
+        });
+        assert.equal(inspected.status, 200);
+        const data = inspected.body.data as { record: { receipt: unknown } };
+        assert.deepEqual(data.record.receipt, successfulReceipt);
+      }
+    }
+    assert.equal(localCandidateProviderTransportAttemptCount(assembly), 3);
+    assert.deepEqual(assembly.operations, V02_TARGET_ACTIVE_TOOL_NAMES);
+    assert.deepEqual(assembly.mcpResources, CANDIDATE_ACTIVATION_RESOURCES);
+    const tools = await exchange("tools/list", {});
+    assert.deepEqual(
+      tools.tools.map(({ name }) => name).sort(), [...V02_TARGET_ACTIVE_TOOL_NAMES].sort(),
+    );
+    const receiptId = (successfulReceipt as { receipt_id: string }).receipt_id;
+    const resource = await exchange("resources/read", {
+      uri: `gis-ai-go://evidence/receipts/${encodeURIComponent(receiptId)}`,
+    });
+    const resourceBody = JSON.parse(resource.contents[0]!.text) as {
+      data: { record: { receipt: unknown } };
+    };
+    assert.deepEqual(resourceBody.data.record.receipt, successfulReceipt);
+    const changedHealth = await (await direct(localRequest("/healthz"))).json() as {
+      local_capability_health: { approved_cache: { stale_after: string } };
+    };
+    changedHealth.local_capability_health.approved_cache.stale_after = "2028-02-20T20:21:08.947Z";
+    assert.equal("issues" in await healthValidator["~standard"].validate(changedHealth), true);
+  });
+}
+
+test("keeps default health and blocked readiness free of local capability claims", async (t) => {
+  const assembly = await localAssembly(t);
+  const { snapshot } = governedCandidateAssemblyBindings(assembly);
+  const handler = createGatewayHttpHandler({ snapshot });
+  for (const [path, status] of [["/healthz", 200], ["/readyz", 503]] as const) {
+    const response = await handler(localRequest(path));
+    assert.equal(response.status, status);
+    const body = await response.json() as Record<string, unknown>;
+    assert.equal(Object.hasOwn(body, "local_capability_health"), false);
+    if (path === "/readyz") {
+      assert.deepEqual(body.active_tools, []);
+      assert.deepEqual(body.active_api_operations, []);
+    }
+  }
+});
+
+test("coalesces repeated clean stops before and after completion", async () => {
+  let closes = 0;
+  let removals = 0;
+  const cleanup = createRetryableLocalCandidateStateCleanup("opaque-state-root", () => {
+    removals += 1;
+  });
+  const stop = createIdempotentLocalCandidateStop(async () => {
+    closes += 1;
+    await Promise.resolve();
+    cleanup();
+  });
+  const first = stop();
+  assert.equal(stop(), first);
+  await first;
+  assert.equal(stop(), first);
+  await stop();
+  assert.equal(closes, 1);
+  assert.equal(removals, 1);
+});
+
 test("rejects command-line widening and substituted approved cache material", async (t) => {
   assert.doesNotThrow(() => assertFixedLocalCandidateArguments(["node", "entry"]));
   assert.throws(
@@ -216,6 +465,18 @@ test("rejects command-line widening and substituted approved cache material", as
     ),
     /Approved ONS cache observation is invalid/u,
   );
+  for (const staleAfter of ["not-a-date", "2027-02-30T20:21:08.947Z"]) {
+    const malformed = {
+      ...CACHE_RECORD,
+      freshness: { ...CACHE_RECORD.freshness, stale_after: staleAfter },
+    };
+    assert.throws(
+      () => createProviderFreeLocalCandidateAssembly(
+        snapshot, ledger, reconciliationIndex, malformed,
+      ),
+      /Approved ONS cache stale-after time must be (?:a |a valid )canonical UTC timestamp/u,
+    );
+  }
   assert.throws(
     () => (
       createProviderFreeLocalCandidateAssembly as unknown as

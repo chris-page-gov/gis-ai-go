@@ -288,9 +288,13 @@ loaded both static demonstrations and retained the same receipt across restart
 with the operator disabled and zero outbound requests. Its identity context was
 synthetic; it is not evidence of hosted authentication.
 
-Read-only inspection of the deployed database confirms the schema exists and
-contains no stored snapshot. Hosted acceptance is paused at the owner's passkey
-challenge. The next steps are authenticated initialisation of the fixed reviewed
+Read-only inspection at the 14 September checkpoint confirmed the schema existed
+and contained no stored snapshot. At that time hosted acceptance paused at the
+owner's passkey challenge. **Update, 24 September:** browser authentication
+succeeded on 19 September; do not ask the owner to repeat that completed step.
+Direct-client MCP declaration and authentication discovery remain unproved,
+separately from browser sign-in (the support receipt is private). The remaining hosted
+acceptance steps are authenticated initialisation of the fixed reviewed
 store, manual and genuine WebMCP journeys, checkpoint comparison across deployment,
 and the bounded rollback/restore check. Temporary operator access must be disabled
 again after those checks. An identity-less API bypass token must not be treated as

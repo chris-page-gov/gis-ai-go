@@ -388,6 +388,15 @@ test(
     assert.equal(health.lifecycle, "candidate-unregistered");
     assert.equal(health.production_registration, false);
     assert.equal(typeof health.catalogue, "object");
+    const localHealth = health.local_capability_health as JsonObject;
+    assert.equal(localHealth.schema, "gis-ai-go.local-candidate-capability-health.v1");
+    assert.equal(localHealth.data_query, "available");
+    assert.equal((localHealth.approved_cache as JsonObject).stale_after,
+      "2027-02-20T20:21:08.947Z");
+    assert.equal((localHealth.data_vintage as JsonObject).retrieved_at,
+      "2026-08-20T20:21:08.947Z");
+    assert.equal((localHealth.data_vintage as JsonObject).current_statistics, false);
+    assert.equal(localHealth.evidence_retention, "current-session-only");
 
     const readiness = await getJson("/readyz");
     assert.equal(readiness.status, 200);
@@ -396,6 +405,8 @@ test(
     assert.equal(readiness.body.production_registration, false);
     assert.deepEqual(readiness.body.active_tools, EXACT_OPERATIONS);
     assert.deepEqual(readiness.body.active_api_operations, EXACT_OPERATIONS);
+    assert.equal((readiness.body.local_capability_health as JsonObject).data_query,
+      "available");
 
     const discovery = resultOf(await exchange(1, "server/discover"));
     assert.deepEqual(discovery.supportedVersions, [MCP_PROTOCOL_VERSION]);
@@ -582,6 +593,10 @@ test(
       assert.equal(typeof event.revision, "string");
       assert.match(event.revision as string, /^[0-9a-f]{40}$/u);
     }
+    const startupHealth = lifecycleEvents[0]?.local_capability_health as JsonObject;
+    assert.equal(startupHealth.data_query, "available");
+    assert.deepEqual(startupHealth.approved_cache, localHealth.approved_cache);
+    assert.deepEqual(startupHealth.data_vintage, localHealth.data_vintage);
 
     const egressEvents = parseJsonLines(
       egressOutput,
@@ -707,6 +722,9 @@ test(
     assert.equal(events[0]?.lifecycle, "candidate-unregistered");
     assert.equal(events[0]?.production_registration, false);
     assert.equal(events[0]?.target_release, "0.2.0");
+    assert.equal(events[0]?.reason, "port-in-use");
+    assert.equal(events[0]?.message,
+      "Port 8787 is already in use. Stop the other local process and try again.");
     assert.deepEqual(readdirSync(childHome), []);
     assert.deepEqual(readdirSync(childTmp), []);
     assert.equal(checkoutState(), checkoutBefore);

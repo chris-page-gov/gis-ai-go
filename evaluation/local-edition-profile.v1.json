@@ -1,0 +1,28 @@
+{
+  "schema": "gis-ai-go.local-edition-profile.v1",
+  "edition": "0.2.0-local.1",
+  "software_version": "0.1.0",
+  "target_release": "0.2.0",
+  "latest_supported_release": "0.1.0",
+  "publication": {"prerelease": true, "make_latest": false, "requires_all_gates": true},
+  "provider_egress": false,
+  "host": "127.0.0.1",
+  "port": 8787,
+  "evidence_retention": "current-session-only",
+  "approved_cache_expires_at": "2027-02-20T20:21:08.947Z",
+  "renewal_owner": "Chris Page",
+  "issue": "https://github.com/chris-page-gov/gis-ai-go/issues/118",
+  "required_gates": [
+    "local-process-acceptance",
+    "independent-five-tool-client",
+    "expiry-boundaries",
+    "source-archive-integrity",
+    "macos-clean-source-journey",
+    "linux-clean-source-journey",
+    "dependency-disposition",
+    "a4-print-review",
+    "independent-instruction-only-review",
+    "unaided-colleague-walkthrough",
+    "canonical-protected-main-assurance"
+  ]
+}

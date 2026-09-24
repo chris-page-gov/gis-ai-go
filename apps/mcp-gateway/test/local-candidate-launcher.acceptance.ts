@@ -3,13 +3,15 @@ import { execFileSync, spawn, type ChildProcess } from "node:child_process";
 import { once } from "node:events";
 import {
   chmodSync,
+  existsSync,
   mkdirSync,
   mkdtempSync,
   readdirSync,
+  realpathSync,
   rmSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { dirname, isAbsolute, join } from "node:path";
 import type { Readable } from "node:stream";
 import { setTimeout as delay } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
@@ -17,7 +19,14 @@ import test from "node:test";
 
 type JsonObject = Record<string, unknown>;
 
-const ROOT = fileURLToPath(new URL("../../../../", import.meta.url));
+const CHECKOUT_ROOT = fileURLToPath(new URL("../../../../", import.meta.url));
+const ARCHIVE_ROOT = process.env.GIS_AI_GO_LOCAL214_ARCHIVE_TEST_ROOT;
+if (ARCHIVE_ROOT !== undefined) {
+  assert(isAbsolute(ARCHIVE_ROOT), "Archive acceptance needs an absolute extracted source root");
+  assert(existsSync(join(ARCHIVE_ROOT, "local214-source-identity.json")));
+  assert(!existsSync(join(ARCHIVE_ROOT, ".git")), "Archive acceptance must exercise source without Git metadata");
+}
+const ROOT = ARCHIVE_ROOT === undefined ? CHECKOUT_ROOT : realpathSync(ARCHIVE_ROOT);
 const LOCAL_CANDIDATE_WRAPPER = join(ROOT, "scripts", "start-local-candidate");
 const ENDPOINT = new URL("http://127.0.0.1:8787/mcp");
 const MAX_CHILD_OUTPUT_BYTES = 1_048_576;
@@ -61,6 +70,13 @@ function collectBounded(
 }
 
 function checkoutState(): string {
+  if (ARCHIVE_ROOT !== undefined) {
+    // Use the independently retained checkout verifier, never a script from the
+    // unverified archive. Installed/generated outputs remain outside attestation.
+    return execFileSync("uv", ["run", "--locked", "--no-sync", "--cache-dir", ".uv-cache",
+      "python", join(CHECKOUT_ROOT, "scripts/local214_package.py"), "verify", "--root", ROOT],
+    { cwd: CHECKOUT_ROOT, encoding: "utf8", timeout: 30_000, maxBuffer: 1_048_576 });
+  }
   return execFileSync(
     "git",
     ["status", "--porcelain=v1", "--untracked-files=all"],
@@ -152,12 +168,13 @@ async function waitUntilListening(
 
 test(
   "runs the documented launcher and stops it without changing the checkout",
-  { skip: process.platform === "win32", timeout: 60_000 },
+  { skip: process.platform === "win32", timeout: 120_000 },
   async (t) => {
     const sandbox = mkdtempSync(join(tmpdir(), "gis-ai-go-launcher-acceptance-"));
     chmodSync(sandbox, 0o700);
     const { childHome, childTmp, environment } = isolatedChildEnvironment(sandbox);
     const checkoutBefore = checkoutState();
+    const startupStarted = performance.now();
     const child = spawn(LOCAL_CANDIDATE_WRAPPER, [], {
       cwd: ROOT,
       env: Object.freeze({ ...environment, PATH: launcherSearchPath() }),
@@ -184,6 +201,7 @@ test(
     });
 
     const health = await waitUntilListening(child);
+    const startupElapsed = performance.now() - startupStarted;
     assert.equal(health.status, "ok");
     assert.equal(
       readdirSync(childTmp).filter((name) =>
@@ -194,6 +212,27 @@ test(
     const readiness = await getJson("/readyz");
     assert.equal(readiness.status, 200);
     assert.equal(readiness.body.status, "ready");
+
+    if (ARCHIVE_ROOT !== undefined || checkoutBefore === "") {
+      const clientStarted = performance.now();
+      const demonstration = JSON.parse(execFileSync(process.execPath, [join(ROOT, "scripts/local214_demo.mjs")], {
+        cwd: ROOT, env: { ...environment, PATH: launcherSearchPath() },
+        encoding: "utf8", timeout: 30_000, maxBuffer: MAX_CHILD_OUTPUT_BYTES,
+      })) as JsonObject;
+      assert.equal(demonstration.schema, "gis-ai-go.local214-demo-observation.v1");
+      assert.equal(demonstration.outcome, "passed");
+      t.diagnostic(JSON.stringify({
+        schema: "gis-ai-go.local214-launcher-observation.v1",
+        source_kind: ARCHIVE_ROOT === undefined ? "git-checkout" : "verified-source-archive",
+        startup_elapsed_ms: startupElapsed,
+        client_elapsed_ms: performance.now() - clientStarted,
+        timing_boundary: "Observed install already complete; operating-system caches uncontrolled",
+        platform: process.platform, architecture: process.arch, node: process.versions.node,
+        demonstration,
+      }));
+    } else {
+      t.diagnostic("LOCAL-214 exact-source demo not run: dirty source. Launcher lifecycle coverage continues; this is not local-edition acceptance.");
+    }
 
     child.kill("SIGINT");
     const [code, signal] = await withTimeout(

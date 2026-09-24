@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  hono: 4.13.5
+
 importers:
 
   .:
@@ -43,7 +46,7 @@ importers:
         version: link:../../packages/tool-registry
       '@modelcontextprotocol/node':
         specifier: 2.0.0
-        version: 2.0.0(@modelcontextprotocol/server@2.0.0)(hono@4.13.3)
+        version: 2.0.0(@modelcontextprotocol/server@2.0.0)(hono@4.13.5)
       '@modelcontextprotocol/server':
         specifier: 2.0.0
         version: 2.0.0
@@ -216,7 +219,7 @@ packages:
     resolution: {integrity: sha512-dSneS5qhiauZWGDCeK4o695Xd9nUNjviSZCMQrj10eetr8Uln1ucn6bbphOM6UynAMMtNIzZNSpL9vnASJwrPQ==}
     engines: {node: '>=18.14.1'}
     peerDependencies:
-      hono: ^4
+      hono: 4.13.5
 
   '@jridgewell/sourcemap-codec@1.5.5':
     resolution: {integrity: sha512-cYQ9310grqxueWbl+WuIUIaiUaDcj7WOq5fVhEljNVgRfOUhY9fy2zTvfoqWsnebh8Sl70VScFbICvJnLKB0Og==}
@@ -234,7 +237,7 @@ packages:
     engines: {node: '>=20'}
     peerDependencies:
       '@modelcontextprotocol/server': ^2.0.0
-      hono: ^4.11.4
+      hono: 4.13.5
     peerDependenciesMeta:
       hono:
         optional: true
@@ -595,8 +598,8 @@ packages:
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
 
-  hono@4.13.3:
-    resolution: {integrity: sha512-r8AO2mYHoLxSHkgafNeC/BXyb2vWRxD3jem4Ts+ptav8oTG5FIRifAjuJEmZI4bSvvc2ns0GxmIYiZnHqN3mMw==}
+  hono@4.13.5:
+    resolution: {integrity: sha512-O6+/eCYRkzzzy0rPWwKLiGBR1nFuUPZynnwjxN1MBA62NNqbT0wQEzQyK2gSO5yDIDB336sXQleAhOHrzlYyKw==}
     engines: {node: '>=16.9.0'}
 
   html-encoding-sniffer@6.0.0:
@@ -1008,9 +1011,9 @@ snapshots:
 
   '@exodus/bytes@1.15.1': {}
 
-  '@hono/node-server@1.19.17(hono@4.13.3)':
+  '@hono/node-server@1.19.17(hono@4.13.5)':
     dependencies:
-      hono: 4.13.3
+      hono: 4.13.5
 
   '@jridgewell/sourcemap-codec@1.5.5': {}
 
@@ -1028,12 +1031,12 @@ snapshots:
     dependencies:
       zod: 4.4.3
 
-  '@modelcontextprotocol/node@2.0.0(@modelcontextprotocol/server@2.0.0)(hono@4.13.3)':
+  '@modelcontextprotocol/node@2.0.0(@modelcontextprotocol/server@2.0.0)(hono@4.13.5)':
     dependencies:
-      '@hono/node-server': 1.19.17(hono@4.13.3)
+      '@hono/node-server': 1.19.17(hono@4.13.5)
       '@modelcontextprotocol/server': 2.0.0
     optionalDependencies:
-      hono: 4.13.3
+      hono: 4.13.5
 
   '@modelcontextprotocol/server@2.0.0':
     dependencies:
@@ -1271,7 +1274,7 @@ snapshots:
   fsevents@2.3.3:
     optional: true
 
-  hono@4.13.3: {}
+  hono@4.13.5: {}
 
   html-encoding-sniffer@6.0.0:
     dependencies:

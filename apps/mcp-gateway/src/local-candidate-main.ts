@@ -46,6 +46,11 @@ import {
   type GatewayNodeServer,
 } from "./http-server.js";
 import { gatewayMetadata } from "./metadata.js";
+import {
+  localCandidateCapabilityHealth,
+  registerLocalCandidateCapability,
+  type LocalCandidateCapabilityHealth,
+} from "./local-candidate-capability.js";
 
 export const LOCAL_CANDIDATE_HOST = "127.0.0.1" as const;
 export const LOCAL_CANDIDATE_PORT = 8_787 as const;
@@ -91,6 +96,7 @@ export type LocalCandidateLifecycleEvent =
 export function localCandidateLifecycleRecord(
   event: LocalCandidateLifecycleEvent,
   revision?: string,
+  capabilityHealth?: LocalCandidateCapabilityHealth,
 ): Readonly<Record<string, unknown>> {
   return Object.freeze({
     schema: LOCAL_CANDIDATE_LIFECYCLE_SCHEMA,
@@ -104,15 +110,33 @@ export function localCandidateLifecycleRecord(
     provider_observation: LOCAL_CANDIDATE_PROVIDER_OBSERVATION,
     data_query_source: LOCAL_CANDIDATE_DATA_QUERY_SOURCE,
     ...(revision === undefined ? {} : { revision }),
+    ...(capabilityHealth === undefined ? {} : { local_capability_health: capabilityHealth }),
+  });
+}
+
+/** Describe a failed startup without returning raw errors or private state paths. */
+export function localCandidateStartFailureRecord(
+  error: unknown,
+): Readonly<Record<string, unknown>> {
+  const portInUse = error instanceof Error &&
+    "code" in error && error.code === "EADDRINUSE";
+  return Object.freeze({
+    ...localCandidateLifecycleRecord("local_candidate_start_failed"),
+    reason: portInUse ? "port-in-use" : "startup-check-failed",
+    message: portInUse
+      ? "Port 8787 is already in use. Stop the other local process and try again."
+      : "The local candidate could not start. Check the pinned prerequisites, " +
+        "rebuild from locked dependencies and verify the approved cache.",
   });
 }
 
 function writeLifecycleEvent(
   event: LocalCandidateLifecycleEvent,
   revision?: string,
+  capabilityHealth?: LocalCandidateCapabilityHealth,
 ): void {
   process.stdout.write(
-    `${JSON.stringify(localCandidateLifecycleRecord(event, revision))}\n`,
+    `${JSON.stringify(localCandidateLifecycleRecord(event, revision, capabilityHealth))}\n`,
   );
 }
 
@@ -185,8 +209,10 @@ export function createProviderFreeLocalCandidateAssembly(
   evidenceLedger: PublicEvidenceLedger,
   reconciliationIndex: PublicEvidenceReconciliationIndex,
   approvedCacheRecord: ApprovedOnsDataQueryCacheRecord,
+  /** Internal constructor seam for boundary tests; the launcher always uses real time. */
+  now: () => Date = () => new Date(),
 ): GovernedCandidateAssembly {
-  if (arguments.length !== 4) {
+  if (arguments.length < 4 || arguments.length > 5 || typeof now !== "function") {
     throw new TypeError(
       "Provider-free local candidate assembly requires the exact fixed input tuple",
     );
@@ -199,6 +225,7 @@ export function createProviderFreeLocalCandidateAssembly(
       invocation: "active",
       reason: LOCAL_CANDIDATE_PROVIDER_REASON,
     }),
+    now: () => Date.prototype.getTime.call(now()),
     sleep: async () => {
       throw new TypeError(
         "The provider-free local request attempted a provider retry",
@@ -224,12 +251,14 @@ export function createProviderFreeLocalCandidateAssembly(
     reconciliationIndex,
     adapter,
     approvedCache,
+    now,
   });
   assertCandidateContainerAuthority(assembly);
   LOCAL_CANDIDATE_PROVIDER_TRANSPORT_ATTEMPTS.set(
     assembly,
     () => providerTransportAttempts,
   );
+  registerLocalCandidateCapability(assembly, approvedCacheRecord, now);
   return assembly;
 }
 
@@ -271,6 +300,17 @@ export function createRetryableLocalCandidateStateCleanup(
     if (removed) return;
     removeStateRoot(stateRoot);
     removed = true;
+  };
+}
+
+/** Coalesce repeated stop requests, including signals received during cleanup. */
+export function createIdempotentLocalCandidateStop(
+  stop: () => Promise<void>,
+): () => Promise<void> {
+  let stopping: Promise<void> | undefined;
+  return () => {
+    stopping ??= Promise.resolve().then(stop);
+    return stopping;
   };
 }
 
@@ -340,13 +380,14 @@ export async function runProviderFreeLocalCandidateMain(): Promise<void> {
       ),
     });
     await listen(server);
-    writeLifecycleEvent("local_candidate_started", snapshot.revision);
+    writeLifecycleEvent(
+      "local_candidate_started",
+      snapshot.revision,
+      localCandidateCapabilityHealth(assembly),
+    );
 
-    let stopping = false;
-    const stop = (): void => {
-      if (stopping) return;
-      stopping = true;
-      void server?.closeGateway().then(
+    const stop = createIdempotentLocalCandidateStop(async () => {
+      await server?.closeGateway().then(
         () => {
           try {
             removeState();
@@ -364,9 +405,10 @@ export async function runProviderFreeLocalCandidateMain(): Promise<void> {
           process.exitCode = 1;
         },
       );
-    };
-    process.once("SIGINT", stop);
-    process.once("SIGTERM", stop);
+    });
+    // Keep both handlers installed while stopping so repeated signals coalesce.
+    process.on("SIGINT", stop);
+    process.on("SIGTERM", stop);
   } catch (error) {
     if (server !== undefined) await server.closeGateway().catch(() => undefined);
     try {
@@ -383,8 +425,8 @@ if (
   entryPath !== undefined &&
   pathToFileURL(resolve(entryPath)).href === import.meta.url
 ) {
-  await runProviderFreeLocalCandidateMain().catch(() => {
-    writeLifecycleEvent("local_candidate_start_failed");
+  await runProviderFreeLocalCandidateMain().catch((error: unknown) => {
+    process.stdout.write(`${JSON.stringify(localCandidateStartFailureRecord(error))}\n`);
     process.exitCode = 1;
   });
 }

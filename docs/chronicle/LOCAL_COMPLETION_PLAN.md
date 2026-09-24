@@ -5,8 +5,13 @@ Work item: [LOCAL-214 #118](https://github.com/chris-page-gov/gis-ai-go/issues/1
 Plan date: 14 September 2026. Baseline:
 `6c76c92a18da779766f8d49acbbd7dbbd31abb97`, containing the accepted LOCAL-212
 runtime from `57e49322e305b499fccfbb6c46bc15e2a0ff38f9`.
-Status: investigated and proposed for staged implementation; no release boundary
-is changed by this document.
+Status at the original plan date: investigated and proposed. On 24 September 2026
+the owner authorised implementation under
+[ADR-0017](../decisions/ADR-0017-local-evaluation-edition.md). Follow the
+[walkthrough](../demonstrations/LOCAL-214_LOCAL_EDITION_WALKTHROUGH.md) and
+[acceptance profile](../../evaluation/local-edition-profile.v1.json) for the new
+edition. The stages below remain acceptance requirements, not assertions that all
+gates have passed. No stable public-release boundary is changed.
 
 ## What can be completed now
 

@@ -7,6 +7,11 @@ ONS account or an API key.
 The important boundary is in the name: this is the **unreleased `v0.2.0` local
 candidate**. The latest supported public release remains `v0.1.0`.
 
+The [LOCAL-214 illustrated walkthrough](../demonstrations/LOCAL-214_LOCAL_EDITION_WALKTHROUGH.md)
+adds source-archive installation and an included independent MCP client. Its
+[acceptance record policy](LOCAL-214_ACCEPTANCE.md) is additive; it does not turn
+this disposable launcher into a durable or public service.
+
 ## What you will run
 
 The command starts one HTTP server on your own computer:
@@ -117,6 +122,13 @@ It also reports these fixed provenance fields:
 ```
 
 ## 3. Check health and readiness
+
+The local-only `local_capability_health` field also exposes dataset and selection,
+source capture date, cache identity, approval date and expiry. Its `data_query`
+value is separate from assembly readiness: `available`, `expired`,
+`not-yet-approved` or `clock-unavailable`. At or after the recorded expiry,
+`data.query` fails closed while existing session receipts remain inspectable.
+Do not infer current statistics from a `200` readiness response.
 
 Open a second terminal in the same checkout.
 

@@ -1,3 +1,8 @@
 packages:
   - apps/*
   - packages/*
+
+# SDK transitive dependency: all three September 2026 Hono advisories are
+# patched in 4.13.5. Keep the remediation explicit and reproducible.
+overrides:
+  hono: 4.13.5

@@ -23,6 +23,10 @@ service. Live status is in
 The unreleased `v0.2.0` exact-five local candidate can be cloned and run without a
 cloud account, hostname or provider credentials. It is a provider-free local
 evaluation path, not the supported `v0.2.0` release or a public MCP service.
+The [LOCAL-214 beginner walkthrough](docs/demonstrations/LOCAL-214_LOCAL_EDITION_WALKTHROUGH.md)
+adds a separate-client demonstration and printable vector diagrams. The proposed
+`v0.2.0-local.1` edition has [separate acceptance gates](docs/operations/LOCAL-214_ACCEPTANCE.md);
+this is not an announcement that its prerelease is already published.
 
 ## Identity
 
@@ -111,6 +115,12 @@ evidence state lasts for that process session and is then removed.
 
 To run the independent exact-five acceptance without configuring a client, use
 `pnpm run test:local-candidate`.
+
+While the server is running, open a second terminal in the same source directory
+and run `pnpm run demo:local-edition`. This deterministic MCP client runs all five
+tools, checks receipt linkage and tests three refusal cases. It does not need an
+AI subscription. The startup and health records show the cache's actual vintage
+and expiry; readiness alone does not assert that data is fresh.
 
 This entrypoint exposes exactly `catalogue.search`, `catalogue.describe`,
 `selection.resolve`, `data.query` and `evidence.inspect`, plus three governed

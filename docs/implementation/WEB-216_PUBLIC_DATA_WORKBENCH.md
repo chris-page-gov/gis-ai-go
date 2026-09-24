@@ -123,7 +123,12 @@ geography or vintage; do not fabricate a lookup or silently interpolate.
 ## Experiment programme
 
 Use the same pinned, rights-reviewed corpus and held-out story questions across
-variants. All experiments below are planned, not completed. Record unsuccessful
+variants. The table below is the original experiment protocol, not an assertion
+that none has since run. By 24 September, the bounded metadata/CPIH slice and
+local storage/transport work were implemented; the full comparative programme,
+OS/ONS join, wider stories and hosted acceptance remained incomplete. Follow the
+[source-time journal](../chronicle/WEB-216_JOURNAL.md) and
+[current checkpoint](../../PROGRESS.md) for observed outcomes. Record unsuccessful
 and unavailable cases. Prefer the simplest variant that meets correctness,
 governance and usability requirements; no design is labelled optimal in advance.
 The eight OKF-ONS smoke tasks and twelve gold questions are useful development
