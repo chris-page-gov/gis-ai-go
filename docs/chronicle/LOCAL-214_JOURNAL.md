@@ -84,6 +84,13 @@ was involved. The regression was changed to exercise the same scanner directly
 in memory, avoiding clear-text persistence without dismissing the alert or
 weakening production scanning. The changed commit requires fresh canonical checks.
 
+An independent instruction-only reviewer completed the documented journey from a
+fresh extraction of `9c1a1dfb1aa8ac350fc999490e935b16227bde10`, retaining the
+checked result and observing orderly stop. That is an agent engineering review,
+not the unaided colleague gate. It identified conflicting prerequisite wording
+between the new guide and the older runbook. Both now distinguish Node's minimum,
+the reproducible CI baseline and the actually observed newer macOS version.
+
 ## Tracking and remaining work
 
 #125 was reopened because its aggregate OS/ONS/workbench milestones were not all

@@ -31,8 +31,10 @@ The separate WebMCP workbench and Sites deployment are not part of these steps.
 
 ## 1. Obtain identified source and install
 
-The baseline prerequisites are Git, Node.js `24.19.0`, pnpm `10.33.2`,
-Python 3.12 or later and uv `0.12.2`. Check before installing:
+The prerequisites are Git, Node.js `24.19.0` or later, pinned pnpm `10.33.2`,
+Python 3.12 or later and pinned uv `0.12.2`. Node.js `24.19.0` is the
+reproducible CI baseline; a permitted newer version is not automatically tested.
+Check before installing:
 
 ```bash
 git --version

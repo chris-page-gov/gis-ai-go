@@ -38,7 +38,7 @@ client unless a separately governed tunnel or deployment is used.
 You need:
 
 - Git;
-- Node.js `24.19.0`;
+- Node.js `24.19.0` or later (the reproducible CI baseline is `24.19.0`);
 - pnpm `10.33.2`;
 - Python 3.12 or later;
 - uv `0.12.2`; and
@@ -57,8 +57,11 @@ python3 --version
 uv --version
 ```
 
-Use the repository baseline versions if Node.js, pnpm or uv differs. Python must
-satisfy the version declared in `pyproject.toml`.
+Use the pinned pnpm and uv versions. Node.js must meet the `24.19.0` minimum;
+use that exact baseline when reproducing CI. The LOCAL-214 macOS development
+observation uses `26.7.0`; accepting newer versions at startup does not claim
+that every newer release has been tested. Consult the edition's acceptance
+record for observed versions. Python must satisfy `pyproject.toml`.
 
 ## 1. Clone and install
 
