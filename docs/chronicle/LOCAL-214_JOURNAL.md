@@ -91,6 +91,14 @@ not the unaided colleague gate. It identified conflicting prerequisite wording
 between the new guide and the older runbook. Both now distinguish Node's minimum,
 the reproducible CI baseline and the actually observed newer macOS version.
 
+Canonical repository assurance then rejected stale deterministic QUAL-206
+material hashes after the package scripts, lockfile and HTTP health source changed.
+The maintained generator reran its selected suites and refreshed the seven
+non-live, unscored receipts. The diff changes only source hashes and derived
+identities; it does not change assertions, outcomes, approval dates or authority.
+This integration omission was caught by the required check, not a live client
+failure. Historical commits retain the preceding receipt bytes.
+
 ## Tracking and remaining work
 
 #125 was reopened because its aggregate OS/ONS/workbench milestones were not all
