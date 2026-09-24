@@ -99,6 +99,21 @@ identities; it does not change assertions, outcomes, approval dates or authority
 This integration omission was caught by the required check, not a live client
 failure. Historical commits retain the preceding receipt bytes.
 
+The broader Python integration run exposed two adjacent current-source pins and
+a missing explicit dependency-link admission for the already maintained
+`public-data-workbench` workspace. The current compatibility and regenerable
+receipt pins were refreshed without changing historical live evidence. Both
+dependency verifiers now admit only that exact workspace root; JavaScript and
+Python regressions still reject its descendants and similarly named directories.
+This repairs the verifier's fresh-install inventory, not an external AI capability.
+
+After that repair, the older macOS fake-Claude tests reached their separate
+sandbox-binary identity guard and refused this updated host. The historical
+accepted identity was not silently changed. This limits the full macOS assurance
+claim; it does not invalidate the separately observed provider-free local launcher
+journey. Canonical Linux checks and exact local-edition acceptance are recorded
+separately, and no new live Claude result is claimed.
+
 ## Tracking and remaining work
 
 #125 was reopened because its aggregate OS/ONS/workbench milestones were not all

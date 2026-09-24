@@ -374,6 +374,18 @@ test("dependency links stay inside measured dependencies or exact workspaces", (
     true,
   );
   assert.equal(
+    dependencyLinkTargetAllowed(root, join(root, "apps", "public-data-workbench")),
+    true,
+  );
+  assert.equal(
+    dependencyLinkTargetAllowed(root, join(root, "apps", "public-data-workbench", "ignored.js")),
+    false,
+  );
+  assert.equal(
+    dependencyLinkTargetAllowed(root, join(root, "apps", "public-data-workbench-extra")),
+    false,
+  );
+  assert.equal(
     dependencyLinkTargetAllowed(root, join(root, "packages", "evidence", "ignored.js")),
     false,
   );

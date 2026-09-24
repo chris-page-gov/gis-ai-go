@@ -537,6 +537,30 @@ def session_summary() -> dict[str, object]:
 
 
 class ClaudeCapabilityContractsTest(unittest.TestCase):
+    def test_workbench_dependency_link_admits_only_exact_workspace(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            for relative in verifier.INSTALLED_DEPENDENCY_ROOTS:
+                (root / relative).mkdir(parents=True, exist_ok=True)
+            workbench = root / "apps/public-data-workbench"
+            workbench.mkdir(parents=True)
+            descendant = workbench / "ignored.js"
+            descendant.write_text("// synthetic non-admitted target\n", encoding="utf-8")
+            link = root / "node_modules/workbench"
+            link.symlink_to("../apps/public-data-workbench")
+            with patch.object(verifier, "ROOT", root):
+                self.assertEqual(verifier.measure_installed_dependency_closure()["entry_count"], 1)
+                link.unlink()
+                link.symlink_to("../apps/public-data-workbench/ignored.js")
+                with self.assertRaisesRegex(verifier.CapabilityVerificationError, "unsafe link"):
+                    verifier.measure_installed_dependency_closure()
+                link.unlink()
+                sibling = root / "apps/public-data-workbench-extra"
+                sibling.mkdir()
+                link.symlink_to("../apps/public-data-workbench-extra")
+                with self.assertRaisesRegex(verifier.CapabilityVerificationError, "unsafe link"):
+                    verifier.measure_installed_dependency_closure()
+
     def test_node_harness_regressions_are_repository_gated(self) -> None:
         environment = os.environ.copy()
         for name in RECOGNISED_CREDENTIAL_VARIABLES:

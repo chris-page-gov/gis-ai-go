@@ -42,7 +42,7 @@ CURRENT_COMPATIBILITY_PATH = (
     / "qual-206-web216-current-runtime-compatibility.v3.json"
 )
 CURRENT_COMPATIBILITY_SHA256 = (
-    "832e3bc4af907188a0ed6d2497321f77a43fc5e3756ce089989619de34e05aa1"
+    "01a334323b549aa15991598156372226c6d49ae63a0dd5654f38c487f62cc6e4"
 )
 CURRENT_COMPATIBILITY_RUNTIME_PATHS = [
     "apps/mcp-gateway/src/mcp-http.ts",

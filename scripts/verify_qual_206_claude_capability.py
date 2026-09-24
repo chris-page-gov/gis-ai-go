@@ -170,6 +170,7 @@ INSTALLED_DEPENDENCY_ROOTS = (
 )
 WORKSPACE_DEPENDENCY_TARGETS = {
     "apps/mcp-gateway",
+    "apps/public-data-workbench",
     "apps/public-explorer",
     "apps/webmcp-explorer",
     "packages/authority-context",
