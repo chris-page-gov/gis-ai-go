@@ -11,7 +11,7 @@ import unittest
 from pathlib import Path
 
 from scripts.local214_package import (
-    ARCHIVE, EDITION, IDENTITY, capture_source, make_archive, package, verify,
+    ARCHIVE, EDITION, IDENTITY, capture_source, make_archive, package, scan_bytes, verify,
 )
 
 
@@ -136,10 +136,10 @@ class Local214PackageTests(unittest.TestCase):
 
     def test_baseline_secret_scan_rejects_without_echoing_secret(self) -> None:
         secret = "gh" + "p_" + "a" * 30
-        (self.root / "src/example.ts").write_text(f"export const fixture = '{secret}';\n")
-        self.commit()
+        # Exercise the package's exact scanner without persisting even a fabricated
+        # credential-shaped fixture in a test repository or temporary file.
         with self.assertRaisesRegex(ValueError, "possible GitHub token") as caught:
-            capture_source(self.root)
+            scan_bytes("src/example.ts", f"export const fixture = '{secret}';\n".encode())
         self.assertNotIn(secret, str(caught.exception))
 
 

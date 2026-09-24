@@ -78,6 +78,12 @@ attestation or prove that an external CI URL contains the claimed result. Those
 remain explicit release-review responsibilities rather than hidden automation
 claims.
 
+The first PR CodeQL gate additionally flagged a test that wrote a deliberately
+fabricated token-shaped string into a temporary repository. No real credential
+was involved. The regression was changed to exercise the same scanner directly
+in memory, avoiding clear-text persistence without dismissing the alert or
+weakening production scanning. The changed commit requires fresh canonical checks.
+
 ## Tracking and remaining work
 
 #125 was reopened because its aggregate OS/ONS/workbench milestones were not all
