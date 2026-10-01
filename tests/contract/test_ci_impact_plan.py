@@ -250,6 +250,35 @@ class CiImpactPlanTests(unittest.TestCase):
             plan["selected_lanes"], ["gateway_image", "repository_assurance"]
         )
 
+    def test_private_sites_pilot_retains_full_shadow_assurance(self) -> None:
+        for relative in (
+            "README.md", "app/pilot/mcp/route.ts", "app/pilot/page.tsx",
+            "drizzle/0001_sites_pilot.sql", "server/sites-pilot-runtime.mjs",
+            "future-config.json",
+        ):
+            path = f"sites/private-pilot/{relative}"
+            with self.subTest(path=path):
+                plan = self.plan(path)
+                self.assertEqual(plan["unmatched_paths"], [])
+                self.assertEqual(plan["matched_rule_ids"], ["private-sites-pilot"])
+                self.assertEqual(plan["force_full_rule_ids"], ["private-sites-pilot"])
+                self.assertTrue(plan["force_full"])
+                self.assertTrue(plan["gateway_image_required"])
+                self.assertEqual(
+                    plan["selected_lanes"], ["gateway_image", "repository_assurance"]
+                )
+                self.assertEqual(plan["mode"], "shadow")
+                self.assertIs(plan["enforced"], False)
+                main = plan_for_paths(
+                    self.impact_map, [path], base_commit=BASE,
+                    head_commit=HEAD, event="push_main",
+                )
+                self.assertEqual(main["reason"], "protected-main-exact-commit")
+                self.assertEqual(main["selected_lanes"], list(self.impact_map.full_lanes))
+        sibling = self.plan("sites/private-pilot-next/app/pilot/mcp/route.ts")
+        self.assertEqual(sibling["reason"], "unmatched-path")
+        self.assertTrue(sibling["force_full"])
+
     def test_each_frontend_has_an_explicit_source_and_configuration_route(self) -> None:
         for app, rule in (
             ("public-explorer", "public-explorer-publication"),

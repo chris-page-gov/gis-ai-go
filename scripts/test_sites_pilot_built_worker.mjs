@@ -82,6 +82,7 @@ const started = performance.now();
 const finishBy = Date.now() + 120_000;
 let phase = 'source-inventory', worker, legacyClient, modules, sequence = 0, rpcId = 0, outboundAttempts = 0, unexpectedOutbound = 0;
 const observations = [], providerObservations = [], runtimeErrors = [], sources = [];
+const problems = [];
 let sourceBytes = 0;
 async function bounded(operation) {
   const duration = Math.min(20_000, finishBy - Date.now()); assert(duration > 0, 'Probe duration bound');
@@ -162,6 +163,9 @@ async function callTool(name, parameters, expectedError) {
   const result = await rpc('tools/call', { name, arguments: parameters });
   assert.equal(result.content.length, 1); assert.equal(result.content[0].type, 'text');
   assert.deepEqual(JSON.parse(result.content[0].text), result.structuredContent);
+  if (result.isError === true) problems.push({ tool: tools.includes(name) ? name : 'unknown',
+    code: typeof result.structuredContent?.code === 'string' && /^[a-z][a-z-]{1,40}$/u.test(result.structuredContent.code)
+      ? result.structuredContent.code : 'unrecognised' });
   if (expectedError) { assert.equal(result.isError, true); assert.equal(result.structuredContent.code, expectedError); }
   else assert.notEqual(result.isError, true);
   return result.structuredContent;
@@ -296,7 +300,7 @@ try {
   console.error(JSON.stringify({ schema: 'gis-ai-go.sites-pilot-built-worker-probe.v1', outcome: 'fail', phase,
     error_name: error?.name ?? 'Error', error_sha256: hash(String(error)), requests: sequence,
     mocked_provider_requests: outboundAttempts, unexpected_outbound_requests: unexpectedOutbound,
-    elapsed_ms: Number((performance.now() - started).toFixed(3)), observations, runtime_error_hashes: runtimeErrors }));
+    elapsed_ms: Number((performance.now() - started).toFixed(3)), problems, observations, runtime_error_hashes: runtimeErrors }));
   process.exitCode = 1;
 } finally {
   if (legacyClient) await bounded(() => legacyClient.close()).catch(() => {});

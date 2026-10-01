@@ -181,7 +181,8 @@ export function createSitesPilotProviders(options: SitesPilotProviderOptions): S
     try {
       const headers = new Headers({ Accept: "application/json", "User-Agent": "GIS-AI-GO-Sites-Pilot/0.1 (+https://github.com/chris-page-gov/gis-ai-go)" });
       if (provider === "os-names") headers.set("key", key!);
-      const pending = fetcher(url.toString(), { method: "GET", headers, redirect: "error", credentials: "omit", cache: "no-store", signal: controller.signal });
+      // Workers supports manual/follow; manual exposes redirects for the refusal below without following them.
+      const pending = fetcher(url.toString(), { method: "GET", headers, redirect: "manual", credentials: "omit", cache: "no-store", signal: controller.signal });
       // Even a misbehaving injected transport cannot leave a late body intentionally unread.
       void pending.then((response) => { if (controller.signal.aborted) void response.body?.cancel().catch(() => undefined); }, () => undefined);
       const response = await Promise.race([pending, aborted]);

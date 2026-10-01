@@ -57,7 +57,7 @@ test("OS Names admits before fetch, sends server-side key and returns bounded na
   const order: string[] = [];
   const api = createSitesPilotProviders(options(async (url, init) => {
     order.push("fetch"); assert.equal(String(url), "https://api.os.uk/search/names/v1/find?query=Warwick&maxresults=5&format=JSON&fq=LOCAL_TYPE%3ATown");
-    assert.equal(new Headers(init?.headers).get("key"), KEY); assert.equal(init?.redirect, "error"); assert.equal(init?.credentials, "omit");
+    assert.equal(new Headers(init?.headers).get("key"), KEY); assert.equal(init?.redirect, "manual"); assert.equal(init?.credentials, "omit");
     return json(names());
   }, { osApiKey: KEY, admit: async (request) => { await Promise.resolve(); order.push("admit"); assert.deepEqual(request, { provider: "os-names", endpoint: "https://api.os.uk/search/names/v1/find" }); } }));
   const output = await api.fetchOsNames({ query: "Warwick", localType: "Town" });
