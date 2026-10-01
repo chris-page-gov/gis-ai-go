@@ -18,6 +18,11 @@ CPIH store or supported GIS AI GO release.
    reviewed migration mechanism. The SQL adds only the two pilot tables. It seeds
    four enabled provider rows at 120 attempts each and never refills or re-enables
    an existing row. Do not run schema or allowance SQL from a request handler.
+   Copy `db/sites-pilot-schema.ts`, export its two tables from the existing
+   `db/schema.ts`, and install the generated `drizzle/meta/0001_snapshot.json`.
+   Preserve the legacy schema and journal entry; add the matching pilot entry.
+   The snapshot is generated using the pinned Drizzle tooling and is checked
+   against the published DDL, including SQLite primary-key nullability.
 4. Set the trusted bindings below. The wrapper requires the configured source
    revision to equal the packaged manifest's `source_revision`. The declaration
    is a source binding, not independent build attestation.
@@ -43,6 +48,38 @@ Its output explicitly excludes hosted authentication and database-recovery claim
 The overlay alone cannot typecheck or build as a standalone application: it uses
 the host Site's pinned React, Vinext and Workers types and the generated vendor
 runtime. Do not replace that runtime with test fixtures to make a build pass.
+
+## Deployment archive layout
+
+Preserve the build plugin's `dist/.openai/drizzle/**` tree alongside
+`dist/server/**` and `dist/client/**`. Include the source `.openai/hosting.json`
+at the archive root as required by Sites. Do not flatten `dist/server` to `server`
+or relocate the generated migration tree. From the clean, committed Site source:
+
+```sh
+COPYFILE_DISABLE=1 tar -cf /private/path/pilot-build.tar .openai/hosting.json dist
+```
+
+Inspect the archive before publication: it must contain the supported
+`dist/server/index.js` entrypoint, both matching hosting manifests and the exact
+generated migration tree, without source maps, secrets or macOS `._` metadata.
+The public runtime package and private Site source have separate revisions.
+Record both, plus local archive and returned platform archive digests; the
+platform may normalise the archive, so its digest is a separate observation.
+
+Preserve published migration SQL and journal entries byte-for-byte. The pilot's
+four initial allowance rows are fixed operational configuration, with no provider
+payload; replay cannot refill or re-enable them. This is a deliberate reviewed
+initial-provisioning choice, distinct from general data seeding or backfill.
+Keep typed schema and generated snapshot metadata consistent with the published
+DDL. Never repair a missing migration by allowing ordinary requests to create
+tables or reset allowances. Verify the actual tables after publication before
+any live-provider evaluation; a successful deployment status is insufficient.
+
+A repeated save for the same source revision may return the previous saved
+version. Check its returned archive metadata before assuming a corrected archive
+was accepted. Use an actual corrected source revision for a new candidate; do
+not mutate or overwrite historical deployment evidence.
 
 ## Trusted worker bindings
 
