@@ -1,0 +1,592 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:schema:sites-mcp-evaluation-run:v1",
+  "title": "GIS AI GO private Sites MCP exploratory evaluation",
+  "description": "Minimised observations from a bounded run. A declared source or deployment identity is not an independent deployment attestation. No provider payloads or credentials are retained.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "classification",
+    "started_at",
+    "completed_at",
+    "manifest",
+    "manifest_sha256",
+    "corpus_sha256",
+    "harness_sha256",
+    "client_version",
+    "results",
+    "wire",
+    "preflight",
+    "completion",
+    "error_code",
+    "latency",
+    "latency_by_case",
+    "claims"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gis-ai-go.sites-mcp-evaluation-run.v1"
+    },
+    "classification": {
+      "enum": [
+        "injected-transport-test",
+        "bounded-live-observation"
+      ]
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "manifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "origin",
+        "path",
+        "deployment_id",
+        "source_revision",
+        "protocol",
+        "credential_kind",
+        "enabled_case_ids",
+        "maximum_requests",
+        "repeats",
+        "concurrency",
+        "deadline_ms",
+        "allow_live"
+      ],
+      "properties": {
+        "schema": {
+          "const": "gis-ai-go.sites-mcp-evaluation-manifest.v1"
+        },
+        "origin": {
+          "type": "string",
+          "pattern": "^https://[a-z0-9][a-z0-9.-]*\\.chatgpt\\.site$"
+        },
+        "path": {
+          "enum": [
+            "/pilot/mcp"
+          ]
+        },
+        "deployment_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{1,128}$"
+        },
+        "source_revision": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "protocol": {
+          "enum": [
+            "2025-06-18",
+            "2025-11-25",
+            "2026-07-28"
+          ]
+        },
+        "credential_kind": {
+          "enum": [
+            "oauth-access-token",
+            "sites-api-bypass-token"
+          ]
+        },
+        "enabled_case_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^Q(?:0[1-9]|1[0-3])$"
+          },
+          "maxItems": 13,
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "maximum_requests": {
+          "type": "integer",
+          "minimum": 3,
+          "maximum": 100
+        },
+        "repeats": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20
+        },
+        "concurrency": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2
+        },
+        "deadline_ms": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 30000
+        },
+        "allow_live": {
+          "type": "boolean"
+        }
+      }
+    },
+    "manifest_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "corpus_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "harness_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "client_version": {
+      "const": "2.0.0"
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "case_id",
+          "repetition",
+          "stage",
+          "outcome",
+          "elapsed_ms",
+          "assertions",
+          "receipt_id",
+          "error_code",
+          "reported_upstream_request_count",
+          "reported_provider_elapsed_ms",
+          "reported_provider_response_bytes"
+        ],
+        "properties": {
+          "case_id": {
+            "type": "string",
+            "pattern": "^Q(?:0[1-9]|1[0-3])$"
+          },
+          "repetition": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20
+          },
+          "stage": {
+            "enum": [
+              "initial",
+              "conditional",
+              "negative"
+            ]
+          },
+          "outcome": {
+            "enum": [
+              "passed",
+              "failed",
+              "not-admitted",
+              "missing-prerequisite"
+            ]
+          },
+          "elapsed_ms": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "assertions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "passed"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-z-]{1,80}$"
+                },
+                "passed": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "maxItems": 20
+          },
+          "receipt_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^sites-pilot:sha256:[0-9a-f]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "error_code": {
+            "enum": [
+              null,
+              "target-rejected",
+              "manifest-rejected",
+              "live-not-authorised",
+              "token-rejected",
+              "request-budget-exhausted",
+              "request-too-large",
+              "response-too-large",
+              "redirect-rejected",
+              "deadline",
+              "streaming-not-admitted",
+              "protocol-mismatch",
+              "tool-list-mismatch",
+              "provider-access-required",
+              "rpc-failure",
+              "http-failure",
+              "invalid-json",
+              "connection-failed"
+            ]
+          },
+          "reported_upstream_request_count": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 2
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reported_provider_elapsed_ms": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reported_provider_response_bytes": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2097152
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "maxItems": 260
+    },
+    "wire": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "sequence",
+          "method",
+          "status",
+          "elapsed_ms",
+          "response_bytes",
+          "response_sha256",
+          "error_code",
+          "server_timing_mcp_ms"
+        ],
+        "properties": {
+          "sequence": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "method": {
+            "enum": [
+              "GET",
+              "POST",
+              "DELETE"
+            ]
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 100,
+                "maximum": 599
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "elapsed_ms": {
+            "type": "number",
+            "minimum": 0
+          },
+          "response_bytes": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1048576
+          },
+          "response_sha256": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "error_code": {
+            "enum": [
+              null,
+              "target-rejected",
+              "manifest-rejected",
+              "live-not-authorised",
+              "token-rejected",
+              "request-budget-exhausted",
+              "request-too-large",
+              "response-too-large",
+              "redirect-rejected",
+              "deadline",
+              "streaming-not-admitted",
+              "protocol-mismatch",
+              "tool-list-mismatch",
+              "provider-access-required",
+              "rpc-failure",
+              "http-failure",
+              "invalid-json",
+              "connection-failed"
+            ]
+          },
+          "server_timing_mcp_ms": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "maxItems": 100
+    },
+    "preflight": {
+      "enum": [
+        "not-run",
+        "passed",
+        "failed"
+      ]
+    },
+    "completion": {
+      "enum": [
+        "complete",
+        "partial"
+      ]
+    },
+    "error_code": {
+      "enum": [
+        null,
+        "target-rejected",
+        "manifest-rejected",
+        "live-not-authorised",
+        "token-rejected",
+        "request-budget-exhausted",
+        "request-too-large",
+        "response-too-large",
+        "redirect-rejected",
+        "deadline",
+        "streaming-not-admitted",
+        "protocol-mismatch",
+        "tool-list-mismatch",
+        "provider-access-required",
+        "rpc-failure",
+        "http-failure",
+        "invalid-json",
+        "connection-failed"
+      ]
+    },
+    "latency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "count",
+        "minimum_ms",
+        "maximum_ms",
+        "median_ms",
+        "p95_ms"
+      ],
+      "properties": {
+        "count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 260
+        },
+        "minimum_ms": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "maximum_ms": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "median_ms": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "p95_ms": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "latency_by_case": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "case_id",
+          "count",
+          "minimum_ms",
+          "maximum_ms",
+          "median_ms",
+          "p95_ms"
+        ],
+        "properties": {
+          "case_id": {
+            "type": "string",
+            "pattern": "^Q(?:0[1-9]|1[0-3])$"
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 260
+          },
+          "minimum_ms": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "maximum_ms": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "median_ms": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "p95_ms": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "maxItems": 13
+    },
+    "claims": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "independent_host_acceptance",
+        "oauth_flow_verified",
+        "public_release_acceptance",
+        "protected_data_authority",
+        "provider_payloads_retained",
+        "cost_established"
+      ],
+      "properties": {
+        "independent_host_acceptance": {
+          "const": false
+        },
+        "oauth_flow_verified": {
+          "const": false
+        },
+        "public_release_acceptance": {
+          "const": false
+        },
+        "protected_data_authority": {
+          "const": false
+        },
+        "provider_payloads_retained": {
+          "const": false
+        },
+        "cost_established": {
+          "const": false
+        }
+      }
+    }
+  }
+}

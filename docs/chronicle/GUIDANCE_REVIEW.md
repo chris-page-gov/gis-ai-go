@@ -1,5 +1,38 @@
 # Guidance review and model transitions
 
+## 1 October 2026: Sites pilot capability and method review
+
+The owner authorised a fresh assessment of Sites and the current Codex-assisted
+workflow for [SITES-218](../implementation/SITES-218_PRIVATE_MCP_PILOT.md).
+This is an additive methodological checkpoint. The active host's exact model
+slug is not established by the task evidence; do not infer it from availability
+lists or rewrite the earlier GPT-6 Astra baseline below.
+
+Current callable tools, official Sites documentation, the pinned Sites build
+package and the deployed source were checked independently. A connector's MCP
+connection schema does not prove a particular Site is MCP-ready. The missing
+native declaration contract remains explicit; a guarded private test-token
+experiment is a separate observation from OAuth and native client installation.
+
+A focused review covered the assembled runtime, provider boundaries, evidence,
+distributed admission and the evaluation harness. It identified incorrect
+captured-data reuse, per-process quota assumptions, receipt-field validation,
+HTTP guards and packaging notices as matters requiring concrete treatment.
+The new profile preserves the earlier contracts and addresses these through
+bounded independent implementation and review. No unrelated repository-wide
+rewrite or change to mandatory assurance was justified by those findings.
+
+Parallel work has distinct file ownership; the lead reviews and integrates it.
+Synthetic tests, direct upstream observations, local Workers tests and deployed
+MCP measurements remain separate evidence classes. Developer-authored questions
+are not an independent benchmark. Codex account usage is recorded privately and
+cannot establish task-specific cost or productivity improvement. No application
+LLM or deterministic calculation was migrated to a model.
+
+See the [capability matrix](../operations/SITES_MCP_CAPABILITY_MATRIX.md),
+[rights assessment](../operations/SITES_MCP_RIGHTS_ASSESSMENT.md) and
+[evaluation runbook](../operations/SITES_MCP_PILOT_EVALUATION.md).
+
 Reviewed on 14 September 2026. Historical baseline:
 `6c76c92a18da779766f8d49acbbd7dbbd31abb97`. The owner reported the move to
 GPT-6 Astra with the Codex host's Ultra setting. This records the selected host

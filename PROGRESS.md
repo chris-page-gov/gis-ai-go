@@ -1,6 +1,6 @@
 # Current progress
 
-Last updated: 24 September 2026
+Last updated: 2 October 2026
 
 ## Current checkpoint
 
@@ -15,6 +15,27 @@ Last updated: 24 September 2026
   remain open in #23, #24 and #25.
 
 ## Authorised current work
+
+On 1 October the owner authorised an unattended, owner-private Sites MCP pilot
+with live OS/ONS APIs, a PSGA suitability assessment with an open-data fallback,
+common-question evaluations and performance observations. This is the current
+active task; the retained LOCAL-214 and WEB-216 checkpoints below remain evidence.
+Work is tracked in [SITES-218](docs/implementation/SITES-218_PRIVATE_MCP_PILOT.md).
+The baseline is `7496595a1c09f3cac7ca9da2bef69a25443516a9` on branch
+`codex/sites-mcp-pilot`. No new deployment has yet been made. The existing Site's
+version 5 is owner-private and reports `has_mcp: false`; the exact supported
+native MCP declaration is unavailable in the exposed guidance. The separate
+guarded `/pilot/mcp` route is implemented for the authorised private test-token
+mode. Focused provider, transport, accounting, receipt and evaluation tests pass;
+the full repository check and actual built-Workers probe are in progress.
+Deployment, native OAuth and independent-client acceptance remain distinct gates.
+
+The owner authorised existing OS credentials; the entitlement assessment is
+recorded privately. PSGA hosting/AI-use suitability remains to be established.
+Spending authority is existing included allowances only, with no new paid
+services or chargeable overage. Open-data work proceeds independently of PSGA.
+The owner also authorised replacement of the private Sites API test token only
+if needed; such a token does not establish signed-in end-user identity.
 
 The owner selected [LOCAL-214 #118](https://github.com/chris-page-gov/gis-ai-go/issues/118)
 as the immediate delivery track: finish a dependable standalone local evaluation

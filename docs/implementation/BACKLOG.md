@@ -59,6 +59,10 @@ and milestones are the source of truth for item-level status.
 
 ## Conditional integrations
 
+- `SITES-218` — implement and assess the [private Sites MCP pilot](SITES-218_PRIVATE_MCP_PILOT.md),
+  including live open OS/ONS APIs, conditional PSGA suitability and a repeatable
+  evaluation harness. Keep full public DEPLOY-207 acceptance separate.
+
 - `WEB-216` — develop the [public-data WebMCP workbench](WEB-216_PUBLIC_DATA_WORKBENCH.md)
   through source-linked personas, OS/ONS dataset experiments, governed MCP
   retrieval and a separately verified Sites demonstration. The competition entry

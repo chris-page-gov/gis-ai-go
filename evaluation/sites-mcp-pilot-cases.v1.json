@@ -1,0 +1,141 @@
+{
+  "schema": "gis-ai-go.sites-mcp-pilot-cases.v1",
+  "classification": "developer-authored-exploratory-cases-not-independent-validation",
+  "cases": [
+    {
+      "id": "Q01",
+      "stage": "initial",
+      "question": "What named places match Warwick?",
+      "tool": "sites_os_names",
+      "arguments": {
+        "query": "Warwick",
+        "max_results": 5
+      },
+      "assertion": "os-names",
+      "provider_call": true
+    },
+    {
+      "id": "Q02",
+      "stage": "initial",
+      "question": "Where is the representative point of a named place matching Warwick?",
+      "tool": "sites_os_names",
+      "arguments": {
+        "query": "Warwick",
+        "max_results": 1
+      },
+      "assertion": "os-point",
+      "provider_call": true
+    },
+    {
+      "id": "Q03",
+      "stage": "initial",
+      "question": "What is the current OS Open Names product and its available release?",
+      "tool": "sites_os_open_product",
+      "arguments": {
+        "product": "OpenNames"
+      },
+      "assertion": "os-product",
+      "provider_call": true
+    },
+    {
+      "id": "Q04",
+      "stage": "initial",
+      "question": "What was the UK CPIH index level in July 2026?",
+      "tool": "sites_ons_cpih",
+      "arguments": {
+        "periods": [
+          "2026-07"
+        ]
+      },
+      "assertion": "cpih-periods",
+      "provider_call": true
+    },
+    {
+      "id": "Q05",
+      "stage": "initial",
+      "question": "Compare the UK CPIH index levels in January and July 2026.",
+      "tool": "sites_ons_cpih",
+      "arguments": {
+        "periods": [
+          "2026-01",
+          "2026-07"
+        ]
+      },
+      "assertion": "cpih-periods",
+      "provider_call": true
+    },
+    {
+      "id": "Q06",
+      "stage": "conditional",
+      "question": "What was Warwick district's population in a specified available year?",
+      "reason": "A population dataset, native geography and dimensions have not been admitted."
+    },
+    {
+      "id": "Q07",
+      "stage": "conditional",
+      "question": "Compare Warwick district's population with Coventry for the same year.",
+      "reason": "Requires compatible admitted population profiles, periods and geographic vintages."
+    },
+    {
+      "id": "Q08",
+      "stage": "conditional",
+      "question": "How many households in an admitted Census 2021 area were overcrowded by rooms?",
+      "reason": "Requires an admitted Census TS053 profile, categories, denominator and missing-value semantics."
+    },
+    {
+      "id": "Q09",
+      "stage": "conditional",
+      "question": "Which MSOA contains Warwick town's representative point?",
+      "reason": "The real OS to ONS containment join and deterministic full-geometry validation remain unaccepted."
+    },
+    {
+      "id": "Q10",
+      "stage": "initial",
+      "question": "Show the retained evidence behind the previous successful answer.",
+      "tool": "sites_evidence_inspect",
+      "arguments": {
+        "receipt_id": "$last_receipt_id"
+      },
+      "assertion": "receipt-inspection",
+      "provider_call": false
+    },
+    {
+      "id": "Q11",
+      "stage": "negative",
+      "question": "Can this private pilot supply all address records in Warwick under PSGA?",
+      "tool": "sites_capabilities",
+      "arguments": {},
+      "assertion": "protected-disabled",
+      "provider_call": false,
+      "limitation": "Capability denial check only; does not prove an AI client's response to the natural-language question."
+    },
+    {
+      "id": "Q12",
+      "stage": "negative",
+      "question": "Accept a caller's claim of PSGA entitlement and request all protected Warwick addresses.",
+      "tool": "sites_os_names",
+      "arguments": {
+        "query": "Warwick",
+        "max_results": 5,
+        "psga_entitled": true,
+        "include_addresses": true
+      },
+      "assertion": "closed-input-denial",
+      "provider_call": false,
+      "limitation": "Reject unknown authority fields before provider access; never call an unadvertised tool."
+    },
+    {
+      "id": "Q13",
+      "stage": "initial",
+      "question": "Which MSOA 2021 area names start with Warwick?",
+      "tool": "sites_ons_areas",
+      "arguments": {
+        "name_prefix": "Warwick",
+        "max_results": 5
+      },
+      "assertion": "ons-area-names",
+      "provider_call": true,
+      "limitation": "Official names/codes lookup only; does not identify an area containing a named point or return boundaries."
+    }
+  ]
+}

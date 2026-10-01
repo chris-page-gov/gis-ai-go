@@ -9,6 +9,10 @@
     "dist"
   ],
   "exports": {
+    "./sites-pilot": {
+      "types": "./src/sites-pilot-providers.ts",
+      "import": "./dist/src/sites-pilot-providers.js"
+    },
     ".": {
       "types": "./src/index.ts",
       "import": "./dist/src/index.js"
