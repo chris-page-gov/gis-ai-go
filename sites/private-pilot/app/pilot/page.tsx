@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type SubmitEvent } from 'react';
 
 type Operation = 'sites_os_names' | 'sites_os_open_product' | 'sites_ons_areas' | 'sites_ons_cpih' | 'sites_capabilities' | 'sites_evidence_inspect';
 type JsonObject = Record<string, unknown>;
@@ -113,7 +113,7 @@ export default function SitesPilotPage() {
   const [failure, setFailure] = useState(''), [result, setResult] = useState<JsonObject | null>(null);
   const active = useRef<AbortController | null>(null);
   useEffect(() => () => { active.current?.abort(); }, []);
-  async function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault(); if (active.current) return;
     const parameters: JsonObject = operation === 'sites_os_names' ? { query: place.trim(), max_results: 5 }
       : operation === 'sites_ons_areas' ? { name_prefix: place.trim(), max_results: 5 }
@@ -170,7 +170,7 @@ export default function SitesPilotPage() {
       {operation === 'sites_capabilities' && <p className="pilot-help">Checks the advertised tools and boundaries without making a provider request.</p>}
       <div className="pilot-actions"><button type="submit" disabled={busy}>{busy ? 'Requesting…' : 'Run question'}</button>
         {busy && <button type="button" className="secondary" onClick={() => active.current?.abort()}>Cancel request</button>}</div>
-      <p role="status" aria-live="polite">{status}</p>{failure && <p role="alert" className="pilot-error">{failure}</p>}
+      <output aria-live="polite">{status}</output>{failure && <p role="alert" className="pilot-error">{failure}</p>}
     </form><aside className="pilot-limits" aria-labelledby="pilot-limits-heading"><h2 id="pilot-limits-heading">What this can establish</h2>
       <ul><li>OS named-place candidates for Great Britain, preserving ambiguity.</li><li>ONS MSOA names and codes for England and Wales.</li><li>Published CPIH index levels, with deterministic comparison.</li><li>Source metadata, retrieval details and saved receipts.</li></ul>
       <p>It cannot identify occupants, infer property values, retrieve detailed addresses, calculate population or determine which MSOA contains a point.</p>
