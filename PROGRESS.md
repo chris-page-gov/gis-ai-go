@@ -1,6 +1,6 @@
 # Current progress
 
-Last updated: 24 September 2026
+Last updated: 2 October 2026
 
 ## Current checkpoint
 
@@ -15,6 +15,37 @@ Last updated: 24 September 2026
   remain open in #23, #24 and #25.
 
 ## Authorised current work
+
+On 1 October the owner authorised an unattended, owner-private Sites MCP pilot
+with live OS/ONS APIs, a PSGA suitability assessment with an open-data fallback,
+common-question evaluations and performance observations. This is the current
+active task; the retained LOCAL-214 and WEB-216 checkpoints below remain evidence.
+Work is tracked in [SITES-218](docs/implementation/SITES-218_PRIVATE_MCP_PILOT.md).
+The baseline is `7496595a1c09f3cac7ca9da2bef69a25443516a9` on branch
+`codex/sites-mcp-pilot`. Private Site version 7 is deployed from runtime revision
+`8ab0f592ce949f136501122f93bb81becbeb1af1`. Its guarded `/pilot/mcp` route passed
+nine live correctness/refusal cases and 25 repeated performance checks. The
+signed-in owner browser retrieved ONS area codes. All three tested protocol
+versions passed their bounded discovery/refusal checks. A complete private
+checkpoint contains 33 independently hash-checked receipts; stopping and
+reinstating the application preserved the checked receipts and allowance counts.
+See the [hosted observation](docs/implementation/SITES-218_HOSTED_OBSERVATION.md)
+for timings, rollback evidence and precise limits. Native Sites registration
+still reports `has_mcp: false`; the exact supported declaration remains unavailable.
+Native OAuth, independent AI-client acceptance and full public release remain
+separate gates. Required PR assurance for the runtime revision passed. Integration
+and exact-head canonical acceptance are tracked in [PR #139](https://github.com/chris-page-gov/gis-ai-go/pull/139);
+this deployment observation does not establish protected-main acceptance.
+
+The owner authorised existing OS credentials and, on 2 October, explicitly
+authorised PSGA/NGD validation. Bounded local Building v4 and Road Link v5 samples
+both returned successfully and passed structural checks; no licensed feature
+contents were retained. Account evidence and hosted recipient arrangements remain
+separate from this demonstrated access. The entitlement assessment is private.
+Spending authority is existing included allowances only, with no new paid
+services or chargeable overage. Open-data work proceeds independently of PSGA.
+The owner also authorised replacement of the private Sites API test token only
+if needed; such a token does not establish signed-in end-user identity.
 
 The owner selected [LOCAL-214 #118](https://github.com/chris-page-gov/gis-ai-go/issues/118)
 as the immediate delivery track: finish a dependable standalone local evaluation

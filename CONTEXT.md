@@ -1,6 +1,6 @@
 # Current context
 
-Last updated: 24 September 2026
+Last updated: 2 October 2026
 
 ## Authority and reading order
 
@@ -16,6 +16,20 @@ Use a short current-state read before following historical evidence:
 3. the affected section of [`docs/implementation/ROADMAP.md`](docs/implementation/ROADMAP.md);
 4. the relevant ADRs under [`docs/decisions/`](docs/decisions/README.md);
 5. component guidance in the area being changed.
+
+On 1 October 2026 the owner authorised the unattended
+[SITES-218 private MCP pilot](docs/implementation/SITES-218_PRIVATE_MCP_PILOT.md),
+including bounded OS/ONS API testing, a PSGA suitability assessment with open-data
+fallback, common-question evaluations and performance observations. Existing
+included allowances only are authorised: no new paid service or chargeable
+overage. The owner authorised existing credentials and, if necessary, replacement
+of the private Sites API test token. On 2 October the owner explicitly authorised
+bounded PSGA validation, including OS NGD. Direct Building v4 and Road Link v5
+samples succeeded; this does not itself admit protected data to the hosted route.
+Entitlement and credential details remain in the private operating record.
+Owner-only access does not establish PSGA hosting
+or AI-recipient rights. This separate experimental profile does not activate the
+supported public gateway or relax DEPLOY-207 and release acceptance.
 
 On 14 September 2026 the owner authorised RETRO-208 and CHRON-213 at the natural
 break following LOCAL-212 and preservation repairs #114/#115. The chronicle cut-off

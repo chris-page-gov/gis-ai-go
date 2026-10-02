@@ -10,6 +10,7 @@
     "node": ">=24.19.0"
   },
   "scripts": {
+    "test:sites-pilot-evaluation": "node --test tests/interoperability/test_sites_mcp_evaluate.mjs",
     "build": "pnpm run build:okf && pnpm --recursive --if-present run build",
     "typecheck": "pnpm --recursive --if-present run typecheck",
     "test:typescript": "pnpm --filter @gis-ai-go/contracts run test && pnpm --filter @gis-ai-go/evidence run test && pnpm --filter @gis-ai-go/authority-context run test && pnpm --filter @gis-ai-go/policy-client run test && pnpm --filter @gis-ai-go/provider-adapter-sdk run test && pnpm --filter @gis-ai-go/tool-registry run test && pnpm --filter @gis-ai-go/mcp-gateway run test",
@@ -39,7 +40,7 @@
     "test:gateway-container": "uv run --locked --cache-dir .uv-cache python scripts/check_gateway_container.py --archive artifacts/gateway/gateway-image.oci.tar --receipt artifacts/gateway/image-receipt.json",
     "verify:gateway-image-evidence": "uv run --locked --cache-dir .uv-cache python scripts/verify_gateway_image_evidence.py --directory artifacts/gateway --require-clean",
     "check:gateway-image": "uv run --locked --cache-dir .uv-cache python scripts/run_gateway_image_assurance.py --output-dir artifacts/gateway --platform linux/amd64",
-    "test": "pnpm run test:typescript && pnpm run test:interoperability && pnpm run test:explorer && pnpm run test:python && pnpm run test:local-edition-client && pnpm run test:execution-container",
+    "test": "pnpm run test:typescript && pnpm run test:interoperability && pnpm run test:sites-pilot-evaluation && pnpm run test:explorer && pnpm run test:python && pnpm run test:local-edition-client && pnpm run test:execution-container",
     "build:okf": "uv run --locked --cache-dir .uv-cache python scripts/build_okf.py --output artifacts/okf",
     "build:explorer": "pnpm run build:okf && pnpm --filter @gis-ai-go/public-explorer run build",
     "build:webmcp-explorer": "pnpm run build:okf && pnpm --filter @gis-ai-go/webmcp-explorer run build",

@@ -1,0 +1,181 @@
+{
+  "version": "6",
+  "dialect": "sqlite",
+  "id": "09730184-c94b-4bfa-b7e2-b13180a898d2",
+  "prevId": "18a008ec-8ea8-4334-be55-281125f3a11f",
+  "tables": {
+    "web216_cpih_snapshot": {
+      "name": "web216_cpih_snapshot",
+      "columns": {
+        "singleton": {
+          "name": "singleton",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "store_id": {
+          "name": "store_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "checkpoint_id": {
+          "name": "checkpoint_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "sequence": {
+          "name": "sequence",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "snapshot_json": {
+          "name": "snapshot_json",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "web216_singleton": {
+          "name": "web216_singleton",
+          "value": "\"web216_cpih_snapshot\".\"singleton\" = 1"
+        },
+        "web216_sequence": {
+          "name": "web216_sequence",
+          "value": "\"web216_cpih_snapshot\".\"sequence\" >= 0 AND \"web216_cpih_snapshot\".\"sequence\" <= 128"
+        },
+        "web216_snapshot_bytes": {
+          "name": "web216_snapshot_bytes",
+          "value": "length(CAST(\"web216_cpih_snapshot\".\"snapshot_json\" AS BLOB)) <= 1048576"
+        }
+      }
+    },
+    "sites_pilot_allowance_v1": {
+      "name": "sites_pilot_allowance_v1",
+      "columns": {
+        "provider": {
+          "name": "provider",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "enabled": {
+          "name": "enabled",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "used": {
+          "name": "used",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "maximum": {
+          "name": "maximum",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "window_start": {
+          "name": "window_start",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "window_used": {
+          "name": "window_used",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "sites_pilot_enabled": {
+          "name": "sites_pilot_enabled",
+          "value": "\"sites_pilot_allowance_v1\".\"enabled\" IN (0,1)"
+        },
+        "sites_pilot_used": {
+          "name": "sites_pilot_used",
+          "value": "\"sites_pilot_allowance_v1\".\"used\" >= 0"
+        },
+        "sites_pilot_maximum": {
+          "name": "sites_pilot_maximum",
+          "value": "\"sites_pilot_allowance_v1\".\"maximum\" BETWEEN 1 AND 200"
+        },
+        "sites_pilot_window_used": {
+          "name": "sites_pilot_window_used",
+          "value": "\"sites_pilot_allowance_v1\".\"window_used\" >= 0"
+        }
+      }
+    },
+    "sites_pilot_receipts_v1": {
+      "name": "sites_pilot_receipts_v1",
+      "columns": {
+        "receipt_id": {
+          "name": "receipt_id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "result_json": {
+          "name": "result_json",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "sites_pilot_result_bytes": {
+          "name": "sites_pilot_result_bytes",
+          "value": "length(CAST(\"sites_pilot_receipts_v1\".\"result_json\" AS BLOB)) <= 65536"
+        }
+      }
+    }
+  },
+  "views": {},
+  "enums": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
+    "indexes": {}
+  }
+}

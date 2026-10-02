@@ -204,6 +204,22 @@
       "force_full": false
     },
     {
+      "id": "private-sites-pilot",
+      "description": "The experimental private Sites deployment, access controls and persistent storage retain every applicable assurance lane.",
+      "patterns": [
+        "sites/private-pilot/**"
+      ],
+      "lanes": [
+        "gateway-provenance",
+        "gateway_attestation_verification",
+        "gateway_image",
+        "gateway_independent_image",
+        "provenance",
+        "repository_assurance"
+      ],
+      "force_full": true
+    },
+    {
       "id": "qual-206-evidence",
       "description": "QUAL-206 harness, fixture and evidence changes require repository assurance.",
       "patterns": [
