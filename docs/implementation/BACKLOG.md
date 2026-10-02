@@ -62,6 +62,11 @@ and milestones are the source of truth for item-level status.
 - `SITES-218` — implement and assess the [private Sites MCP pilot](SITES-218_PRIVATE_MCP_PILOT.md),
   including live open OS/ONS APIs, conditional PSGA suitability and a repeatable
   evaluation harness. Keep full public DEPLOY-207 acceptance separate.
+  The [hosted observation](SITES-218_HOSTED_OBSERVATION.md) and
+  [NGD validation](SITES-218_NGD_VALIDATION.md) record the implemented increment.
+  Remaining work includes native Sites declaration/OAuth, protected recipient
+  arrangements, reviewed NGD schema compatibility, database restore/deletion,
+  dependency maintenance and the separate macOS capture identity review.
 
 - `WEB-216` — develop the [public-data WebMCP workbench](WEB-216_PUBLIC_DATA_WORKBENCH.md)
   through source-linked personas, OS/ONS dataset experiments, governed MCP

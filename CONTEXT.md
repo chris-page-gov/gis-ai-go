@@ -23,8 +23,11 @@ including bounded OS/ONS API testing, a PSGA suitability assessment with open-da
 fallback, common-question evaluations and performance observations. Existing
 included allowances only are authorised: no new paid service or chargeable
 overage. The owner authorised existing credentials and, if necessary, replacement
-of the private Sites API test token. Entitlement and credential details remain in
-the private operating record. Owner-only access does not establish PSGA hosting
+of the private Sites API test token. On 2 October the owner explicitly authorised
+bounded PSGA validation, including OS NGD. Direct Building v4 and Road Link v5
+samples succeeded; this does not itself admit protected data to the hosted route.
+Entitlement and credential details remain in the private operating record.
+Owner-only access does not establish PSGA hosting
 or AI-recipient rights. This separate experimental profile does not activate the
 supported public gateway or relax DEPLOY-207 and release acceptance.
 
