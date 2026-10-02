@@ -9,9 +9,11 @@ import tarfile
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
+from scripts import local214_package as packager
 from scripts.local214_package import (
-    ARCHIVE, EDITION, IDENTITY, capture_source, make_archive, package, scan_bytes, verify,
+    ARCHIVE, EDITION, IDENTITY, capture_source, make_archive, package, scan_bytes, serialise, verify,
 )
 
 
@@ -141,6 +143,45 @@ class Local214PackageTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "possible GitHub token") as caught:
             scan_bytes("src/example.ts", f"export const fixture = '{secret}';\n".encode())
         self.assertNotIn(secret, str(caught.exception))
+
+    def test_capture_and_verifier_accept_exact_bounds_and_reject_one_over(self) -> None:
+        identity, extracted = self.extract()
+        bounds = {
+            "MAX_FILES": len(identity["materials"]),
+            "MAX_FILE_BYTES": max(row["bytes"] for row in identity["materials"]),
+            "MAX_TOTAL_BYTES": sum(row["bytes"] for row in identity["materials"]),
+            "MAX_IDENTITY_BYTES": len(serialise(identity)),
+        }
+        # Exercise the real Git capture and extracted verifier with small limits;
+        # no large allocation is needed to prove each independent rejection gate.
+        with patch.multiple(packager, **bounds):
+            self.assertEqual(capture_source(self.root)[0], identity)
+            self.assertEqual(verify(extracted), identity)
+        for name, maximum in bounds.items():
+            with self.subTest(bound=name), patch.object(packager, name, maximum - 1):
+                with self.assertRaisesRegex(ValueError, "packaging bound"):
+                    capture_source(self.root)
+                with self.assertRaisesRegex(ValueError, "bounded regular|Invalid source inventory|Source byte inventory"):
+                    verify(extracted)
+
+    def test_large_source_tree_and_identity_round_trip_without_omissions(self) -> None:
+        # Cross both former limits (4,096 files and a 4 MiB identity) using tiny
+        # synthetic files and long but valid paths, not hundreds of MiB of data.
+        directory = self.root / "okf-plus" / "records"
+        for index in range(4):
+            directory /= f"part-{index}-" + "a" * 150
+        directory.mkdir(parents=True)
+        for index in range(4_100):
+            (directory / (f"source-{index:05d}-" + "b" * 155 + ".md")).write_text("Synthetic public metadata.\n")
+        self.commit()
+        identity, extracted = self.extract()
+        self.assertEqual(len(identity["materials"]), 4_105)
+        self.assertGreater(len(serialise(identity)), 4 * 1024 * 1024)
+        self.assertLess(len(serialise(identity)), packager.MAX_IDENTITY_BYTES)
+        self.assertEqual(verify(extracted), identity)
+        self.assertEqual(identity["source_tree"], self.git("rev-parse", "HEAD^{tree}").strip())
+        tracked = set(self.git("ls-files").splitlines())
+        self.assertEqual({row["path"] for row in identity["materials"]}, tracked)
 
 
 if __name__ == "__main__":

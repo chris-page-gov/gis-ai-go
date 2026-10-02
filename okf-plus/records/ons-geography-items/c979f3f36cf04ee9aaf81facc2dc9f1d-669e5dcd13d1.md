@@ -1,0 +1,165 @@
+---
+{
+  "@context": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/context.jsonld",
+  "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-geography-items/c979f3f36cf04ee9aaf81facc2dc9f1d",
+  "@type": [
+    "dcat:Dataset",
+    "okfp:MetadataRecord"
+  ],
+  "type": "Dataset",
+  "title": "Parishes and Non Civil Parished Areas (December 2024) Boundaries EW BGC",
+  "description": "This file contains the digital vector boundaries for Parishes and Non Civil Parished Areas, in England and Wales, as at December 2024. The boundaries available are: (BGC) Generalised (20m) - clipped to the coastline (Mean High Water mark). Contains both Ordnance Survey and ONS Intellectual Property Rights. REST URL of Feature Access Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Parishes_and_Non_Civil_Parished_Areas_December_2024_Boundaries_EW_BGC/FeatureServer REST URL of WFS Server – https://dservices1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/services/Parishes_and_Non_Civil_Parished_Areas_December_2024_Boundaries_EW_BGC/WFSServer?service=wfs&request=getcapabilities REST URL of Map Server – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Parishes_and_Non_Civil_Parished_Areas_December_2024_Boundaries_EW_BGC/MapServer",
+  "nativeIdentifier": "c979f3f36cf04ee9aaf81facc2dc9f1d",
+  "sourceFamily": "ons-geography-items",
+  "resource": "https://geoportal.statistics.gov.uk/items/c979f3f36cf04ee9aaf81facc2dc9f1d",
+  "status": "draft",
+  "generated": {
+    "by": "gis-ai-go OKF+ source producer"
+  },
+  "okfp:machineImported": true,
+  "assertionStatus": "normalised",
+  "reviewStatus": "not-human-reviewed",
+  "tags": [
+    "Boundaries",
+    "Administrative Boundaries",
+    "BDY_ADM",
+    "Parish and Non Civil Parished Areas",
+    "BDY_PARNCP",
+    "PARNCP",
+    "England and Wales",
+    "EW",
+    "2024",
+    "Dec_2024",
+    "Feature Service"
+  ],
+  "sources": [
+    {
+      "resource": "https://www.arcgis.com/sharing/rest/search?f=json&q=orgid%3AESMARspQHYMw9BZ9&num=100&start=5701&sortField=created&sortOrder=asc",
+      "retrievedAt": "2026-10-02T01:28:38.408019Z",
+      "responseSha256": "f0ff1fe11d53cd6ecbb099548e51e87977b5f9c40eb533a347d71d1561d957b7",
+      "sourcePointer": "/results/86",
+      "normalisedSource": "okf-plus/source/ons-geography-items.json",
+      "normalisedPointer": "/records/5786",
+      "normalisedRecordSha256": "8c420067d831de081e4369df5e124d829656f3220ad5cfac5e200b2612d1b565",
+      "evidenceKind": "captured-public-metadata",
+      "sourcePointerStatus": "exact-native-id-match"
+    }
+  ],
+  "prov:wasDerivedFrom": {
+    "@id": "https://geoportal.statistics.gov.uk/items/c979f3f36cf04ee9aaf81facc2dc9f1d"
+  },
+  "dcterms:conformsTo": {
+    "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/profile/v1"
+  },
+  "temporal": {
+    "status": "not-evidenced",
+    "kind": "dataset-reference-period",
+    "start": null,
+    "end": null,
+    "sourceField": null,
+    "note": "No supported reference-period extent in captured metadata; release and catalogue dates are separate."
+  },
+  "update": {
+    "frequency": {
+      "status": "not-evidenced",
+      "label": null,
+      "iri": null,
+      "sourceField": null
+    },
+    "releaseCatalogue": [
+      "https://geoportal.statistics.gov.uk/"
+    ],
+    "releaseFeed": [],
+    "nextRelease": null,
+    "metadataModified": "2025-08-11T08:23:13Z",
+    "releaseVersion": null
+  },
+  "rights": {
+    "metadata": "Public metadata citation and factual normalisation; source rights retained.",
+    "describedData": "https://www.ons.gov.uk/methodology/geography/licences",
+    "retrievalAuthority": "metadata-only",
+    "executionAdmitted": false
+  },
+  "limitations": [
+    "A date in an item title is not automatically the observation/reference range.",
+    "Portal items can be different representations or vintages of one product."
+  ],
+  "details": {
+    "access": "public",
+    "categories": [
+      "/Categories/ONS Geography Open Data",
+      "/Categories/Boundaries - Administrative/2024"
+    ],
+    "created": 1733836816000,
+    "culture": "en-gb",
+    "description": "This file contains the digital vector boundaries for Parishes and Non Civil Parished Areas, in England and Wales, as at December 2024. The boundaries available are: (BGC) Generalised (20m) - clipped to the coastline (Mean High Water mark). Contains both Ordnance Survey and ONS Intellectual Property Rights. REST URL of Feature Access Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Parishes_and_Non_Civil_Parished_Areas_December_2024_Boundaries_EW_BGC/FeatureServer REST URL of WFS Server – https://dservices1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/services/Parishes_and_Non_Civil_Parished_Areas_December_2024_Boundaries_EW_BGC/WFSServer?service=wfs&request=getcapabilities REST URL of Map Server – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Parishes_and_Non_Civil_Parished_Areas_December_2024_Boundaries_EW_BGC/MapServer",
+    "extent": [
+      [
+        -7.052829589710413,
+        49.864147119737304
+      ],
+      [
+        2.073863793138681,
+        55.811119714676785
+      ]
+    ],
+    "id": "c979f3f36cf04ee9aaf81facc2dc9f1d",
+    "licenseInfo": "<a href='https://www.ons.gov.uk/methodology/geography/licences' target='_blank' rel='nofollow ugc noopener noreferrer'>https://www.ons.gov.uk/methodology/geography/licences</a>",
+    "modified": 1754900593000,
+    "organisationId": "ESMARspQHYMw9BZ9",
+    "snippet": "Boundaries",
+    "spatialReference": "27700",
+    "tags": [
+      "Boundaries",
+      "Administrative Boundaries",
+      "BDY_ADM",
+      "Parish and Non Civil Parished Areas",
+      "BDY_PARNCP",
+      "PARNCP",
+      "England and Wales",
+      "EW",
+      "2024",
+      "Dec_2024"
+    ],
+    "title": "Parishes and Non Civil Parished Areas (December 2024) Boundaries EW BGC",
+    "type": "Feature Service",
+    "typeKeywords": [
+      "ArcGIS Server",
+      "Data",
+      "Feature Access",
+      "Feature Service",
+      "Metadata",
+      "Service",
+      "Singlelayer",
+      "Hosted Service"
+    ],
+    "url": "https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Parishes_and_Non_Civil_Parished_Areas_December_2024_Boundaries_EW_BGC/FeatureServer"
+  },
+  "dcterms:publisher": {
+    "@id": "https://www.ons.gov.uk/"
+  }
+}
+---
+
+# Parishes and Non Civil Parished Areas (December 2024) Boundaries EW BGC
+
+This file contains the digital vector boundaries for Parishes and Non Civil Parished Areas, in England and Wales, as at December 2024. The boundaries available are: (BGC) Generalised (20m) - clipped to the coastline (Mean High Water mark). Contains both Ordnance Survey and ONS Intellectual Property Rights. REST URL of Feature Access Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Parishes_and_Non_Civil_Parished_Areas_December_2024_Boundaries_EW_BGC/FeatureServer REST URL of WFS Server – https://dservices1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/services/Parishes_and_Non_Civil_Parished_Areas_December_2024_Boundaries_EW_BGC/WFSServer?service=wfs&request=getcapabilities REST URL of Map Server – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Parishes_and_Non_Civil_Parished_Areas_December_2024_Boundaries_EW_BGC/MapServer
+
+Native identifier: `c979f3f36cf04ee9aaf81facc2dc9f1d`.
+
+Source family: `ons-geography-items`. Assertion: normalised metadata; independent human review is not recorded.
+
+[Official source](https://geoportal.statistics.gov.uk/items/c979f3f36cf04ee9aaf81facc2dc9f1d)
+
+Update cadence: not evidenced in captured metadata.
+Temporal evidence: not-evidenced (dataset-reference-period); start not stated, end not stated.
+No supported reference-period extent in captured metadata; release and catalogue dates are separate.
+
+[Release catalogue or change-discovery route](https://geoportal.statistics.gov.uk/)
+
+## Evidence limits
+
+- A date in an item title is not automatically the observation/reference range.
+- Portal items can be different representations or vintages of one product.
+
+The front matter retains source receipts, rights, native metadata and schema facts. Discovery does not authorise data access.

@@ -1,0 +1,161 @@
+---
+{
+  "@context": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/context.jsonld",
+  "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-geography-items/08a2c6859ab84f1da4b7f20debdbee39",
+  "@type": [
+    "dcat:Dataset",
+    "okfp:MetadataRecord"
+  ],
+  "type": "Dataset",
+  "title": "Standard Area Measurements for Administrative Areas (December 2020) in the UK",
+  "description": "This zip file contains the Standard Area Measurements (SAM) for the administrative areas in the United Kingdom as at 31 December 2020. This includes the wards, local authority districts, counties and regions in England and the countries . All measurements provided are ‘flat’ as they do not take into account variations in relief e.g. mountains and valleys. Measurements are given in hectares (10,000 square metres) to 2 decimal places. Four types of measurements are included: total extent (AREAEHECT), area to mean high water (coastline) (AREACHECT), area of inland water (AREAIHECT) and area to mean high water excluding area of inland water (land area) (AREALHECT). The Eurostat-recommended approach is to use the ‘land area’ measurement to compile population density figures. Couple of wards have updated ward codes - E05013830 Garforth & Swillington and E05013831 Temple Newsam. No changes in the Standard Area Measurements. Click the Download button to download the files",
+  "nativeIdentifier": "08a2c6859ab84f1da4b7f20debdbee39",
+  "sourceFamily": "ons-geography-items",
+  "resource": "https://geoportal.statistics.gov.uk/items/08a2c6859ab84f1da4b7f20debdbee39",
+  "status": "draft",
+  "generated": {
+    "by": "gis-ai-go OKF+ source producer"
+  },
+  "okfp:machineImported": true,
+  "assertionStatus": "normalised",
+  "reviewStatus": "not-human-reviewed",
+  "tags": [
+    "SAM",
+    "Standard Area Measurement",
+    "Standard Area Measurements",
+    "Other Products",
+    "United Kingdom",
+    "Wards",
+    "Local Authority District",
+    "Counties",
+    "Regions",
+    "Countries",
+    "ZIP File",
+    "PRD_SAM",
+    "PRD_SAM_ADM",
+    "2020",
+    "DEC_2020",
+    "CSV Collection"
+  ],
+  "sources": [
+    {
+      "resource": "https://www.arcgis.com/sharing/rest/search?f=json&q=orgid%3AESMARspQHYMw9BZ9&num=100&start=701&sortField=created&sortOrder=asc",
+      "retrievedAt": "2026-10-02T01:27:39.181015Z",
+      "responseSha256": "af6f8c6fb42d1e7cd8d15fe61bb5d493d386b33394e3aa4350f5ee125d00860f",
+      "sourcePointer": "/results/35",
+      "normalisedSource": "okf-plus/source/ons-geography-items.json",
+      "normalisedPointer": "/records/735",
+      "normalisedRecordSha256": "83323844b7cb918a9c1bd1e0dc41dd14cb279c7cddb792ae1768a496045f0f89",
+      "evidenceKind": "captured-public-metadata",
+      "sourcePointerStatus": "exact-native-id-match"
+    }
+  ],
+  "prov:wasDerivedFrom": {
+    "@id": "https://geoportal.statistics.gov.uk/items/08a2c6859ab84f1da4b7f20debdbee39"
+  },
+  "dcterms:conformsTo": {
+    "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/profile/v1"
+  },
+  "temporal": {
+    "status": "not-evidenced",
+    "kind": "dataset-reference-period",
+    "start": null,
+    "end": null,
+    "sourceField": null,
+    "note": "No supported reference-period extent in captured metadata; release and catalogue dates are separate."
+  },
+  "update": {
+    "frequency": {
+      "status": "not-evidenced",
+      "label": null,
+      "iri": null,
+      "sourceField": null
+    },
+    "releaseCatalogue": [
+      "https://geoportal.statistics.gov.uk/"
+    ],
+    "releaseFeed": [],
+    "nextRelease": null,
+    "metadataModified": "2025-08-11T07:50:45Z",
+    "releaseVersion": null
+  },
+  "rights": {
+    "metadata": "Public metadata citation and factual normalisation; source rights retained.",
+    "describedData": "https://www.ons.gov.uk/methodology/geography/licences",
+    "retrievalAuthority": "metadata-only",
+    "executionAdmitted": false
+  },
+  "limitations": [
+    "A date in an item title is not automatically the observation/reference range.",
+    "Portal items can be different representations or vintages of one product."
+  ],
+  "details": {
+    "access": "public",
+    "categories": [
+      "/Categories/Products/Standard Area Measurements",
+      "/Categories/ONS Geography Open Data"
+    ],
+    "created": 1658311971000,
+    "culture": "en-gb",
+    "description": "This zip file contains the Standard Area Measurements (SAM) for the administrative areas in the United Kingdom as at 31 December 2020. This includes the wards, local authority districts, counties and regions in England and the countries . All measurements provided are ‘flat’ as they do not take into account variations in relief e.g. mountains and valleys. Measurements are given in hectares (10,000 square metres) to 2 decimal places. Four types of measurements are included: total extent (AREAEHECT), area to mean high water (coastline) (AREACHECT), area of inland water (AREAIHECT) and area to mean high water excluding area of inland water (land area) (AREALHECT). The Eurostat-recommended approach is to use the ‘land area’ measurement to compile population density figures. Couple of wards have updated ward codes - E05013830 Garforth & Swillington and E05013831 Temple Newsam. No changes in the Standard Area Measurements. Click the Download button to download the files",
+    "extent": [],
+    "id": "08a2c6859ab84f1da4b7f20debdbee39",
+    "licenseInfo": "<a href='https://www.ons.gov.uk/methodology/geography/licences' target='_blank' rel='nofollow ugc noopener noreferrer'>https://www.ons.gov.uk/methodology/geography/licences</a>",
+    "modified": 1754898645000,
+    "organisationId": "ESMARspQHYMw9BZ9",
+    "snippet": "Standard Area Measurements",
+    "spatialReference": null,
+    "tags": [
+      "SAM",
+      "Standard Area Measurement",
+      "Standard Area Measurements",
+      "Other Products",
+      "United Kingdom",
+      "Wards",
+      "Local Authority District",
+      "Counties",
+      "Regions",
+      "Countries",
+      "ZIP File",
+      "PRD_SAM",
+      "PRD_SAM_ADM",
+      "2020",
+      "DEC_2020"
+    ],
+    "title": "Standard Area Measurements for Administrative Areas (December 2020) in the UK",
+    "type": "CSV Collection",
+    "typeKeywords": [
+      "Copy Item",
+      "CSV Collection",
+      "Metadata"
+    ],
+    "url": null
+  },
+  "dcterms:publisher": {
+    "@id": "https://www.ons.gov.uk/"
+  }
+}
+---
+
+# Standard Area Measurements for Administrative Areas (December 2020) in the UK
+
+This zip file contains the Standard Area Measurements (SAM) for the administrative areas in the United Kingdom as at 31 December 2020. This includes the wards, local authority districts, counties and regions in England and the countries . All measurements provided are ‘flat’ as they do not take into account variations in relief e.g. mountains and valleys. Measurements are given in hectares (10,000 square metres) to 2 decimal places. Four types of measurements are included: total extent (AREAEHECT), area to mean high water (coastline) (AREACHECT), area of inland water (AREAIHECT) and area to mean high water excluding area of inland water (land area) (AREALHECT). The Eurostat-recommended approach is to use the ‘land area’ measurement to compile population density figures. Couple of wards have updated ward codes - E05013830 Garforth & Swillington and E05013831 Temple Newsam. No changes in the Standard Area Measurements. Click the Download button to download the files
+
+Native identifier: `08a2c6859ab84f1da4b7f20debdbee39`.
+
+Source family: `ons-geography-items`. Assertion: normalised metadata; independent human review is not recorded.
+
+[Official source](https://geoportal.statistics.gov.uk/items/08a2c6859ab84f1da4b7f20debdbee39)
+
+Update cadence: not evidenced in captured metadata.
+Temporal evidence: not-evidenced (dataset-reference-period); start not stated, end not stated.
+No supported reference-period extent in captured metadata; release and catalogue dates are separate.
+
+[Release catalogue or change-discovery route](https://geoportal.statistics.gov.uk/)
+
+## Evidence limits
+
+- A date in an item title is not automatically the observation/reference range.
+- Portal items can be different representations or vintages of one product.
+
+The front matter retains source receipts, rights, native metadata and schema facts. Discovery does not authorise data access.

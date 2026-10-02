@@ -1,0 +1,14 @@
+{
+  "method": "browserDOM",
+  "sourceUrl": "https://www.ordnancesurvey.co.uk/products/search-for-os-products",
+  "observedOn": "2026-10-02",
+  "observedTotal": 65,
+  "completionText": "You have viewed 65 of 65",
+  "products": [
+    {"url": "https://www.ordnancesurvey.co.uk/products/os-water-network", "title": "OS Water Network"},
+    {"url": "https://www.ordnancesurvey.co.uk/products/os-vectormap-district", "title": "OS VectorMap District"},
+    {"url": "https://www.ordnancesurvey.co.uk/products/os-water-features", "title": "OS Water Features"},
+    {"url": "https://www.ordnancesurvey.co.uk/products/os-vector-tile-api", "title": "OS Vector Tile API"},
+    {"url": "https://www.ordnancesurvey.co.uk/products/os-vectormap-local", "title": "OS VectorMap Local"}
+  ]
+}

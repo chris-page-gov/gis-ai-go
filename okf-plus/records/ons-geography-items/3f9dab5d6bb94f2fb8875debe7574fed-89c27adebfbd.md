@@ -1,0 +1,167 @@
+---
+{
+  "@context": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/context.jsonld",
+  "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-geography-items/3f9dab5d6bb94f2fb8875debe7574fed",
+  "@type": [
+    "dcat:Dataset",
+    "okfp:MetadataRecord"
+  ],
+  "type": "Dataset",
+  "title": "Counties and Unitary Authorities (April 2019) Boundaries GB BGC",
+  "description": "This file contains the digital vector boundaries for Counties and Unitary Authorities in Great Britain, as at April 2019. The BGC boundaries are generalised (20m) - clipped to the coastline (Mean High Water mark). Contains both Ordnance Survey and ONS Intellectual Property Rights. REST URL of ArcGIS for INSPIRE View Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Counties_and_Unitary_Authorities_(April_2019)_GCB_GB/MapServer REST URL of ArcGIS for INSPIRE Feature DownloadService – https://dservices1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/services/Counties_and_Unitary_Authorities_April_2019_Generalised_Clipped_Boundaries_GB/WFSServer?service=wfs&request=getcapabilities REST URL of Feature Access Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Counties_and_Unitary_Authorities_April_2019_GCB_GB_2022/FeatureServer",
+  "nativeIdentifier": "3f9dab5d6bb94f2fb8875debe7574fed",
+  "sourceFamily": "ons-geography-items",
+  "resource": "https://geoportal.statistics.gov.uk/items/3f9dab5d6bb94f2fb8875debe7574fed",
+  "status": "draft",
+  "generated": {
+    "by": "gis-ai-go OKF+ source producer"
+  },
+  "okfp:machineImported": true,
+  "assertionStatus": "normalised",
+  "reviewStatus": "not-human-reviewed",
+  "tags": [
+    "Boundaries",
+    "Administrative Boundaries",
+    "WFS",
+    "WMS",
+    "Counties and Unitary Authorities",
+    "CTYUA",
+    "2019",
+    "Great Britain",
+    "BDY_ADM",
+    "BDY_CTYUA",
+    "APR_2019",
+    "Feature Service"
+  ],
+  "sources": [
+    {
+      "resource": "https://www.arcgis.com/sharing/rest/search?f=json&q=orgid%3AESMARspQHYMw9BZ9&num=100&start=1501&sortField=created&sortOrder=asc",
+      "retrievedAt": "2026-10-02T01:27:49.188935Z",
+      "responseSha256": "b83c57d29df20563a2d9091c84e141f8bb4afe260e93fec3ce96a219df3242ff",
+      "sourcePointer": "/results/89",
+      "normalisedSource": "okf-plus/source/ons-geography-items.json",
+      "normalisedPointer": "/records/1589",
+      "normalisedRecordSha256": "3c8ce40397cd85791748d0cf949cb4a2d439e724ca507129fded07a6c16af044",
+      "evidenceKind": "captured-public-metadata",
+      "sourcePointerStatus": "exact-native-id-match"
+    }
+  ],
+  "prov:wasDerivedFrom": {
+    "@id": "https://geoportal.statistics.gov.uk/items/3f9dab5d6bb94f2fb8875debe7574fed"
+  },
+  "dcterms:conformsTo": {
+    "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/profile/v1"
+  },
+  "temporal": {
+    "status": "not-evidenced",
+    "kind": "dataset-reference-period",
+    "start": null,
+    "end": null,
+    "sourceField": null,
+    "note": "No supported reference-period extent in captured metadata; release and catalogue dates are separate."
+  },
+  "update": {
+    "frequency": {
+      "status": "not-evidenced",
+      "label": null,
+      "iri": null,
+      "sourceField": null
+    },
+    "releaseCatalogue": [
+      "https://geoportal.statistics.gov.uk/"
+    ],
+    "releaseFeed": [],
+    "nextRelease": null,
+    "metadataModified": "2025-08-11T07:56:12Z",
+    "releaseVersion": null
+  },
+  "rights": {
+    "metadata": "Public metadata citation and factual normalisation; source rights retained.",
+    "describedData": "https://www.ons.gov.uk/methodology/geography/licences",
+    "retrievalAuthority": "metadata-only",
+    "executionAdmitted": false
+  },
+  "limitations": [
+    "A date in an item title is not automatically the observation/reference range.",
+    "Portal items can be different representations or vintages of one product."
+  ],
+  "details": {
+    "access": "public",
+    "categories": [
+      "/Categories/Boundaries - Administrative/2019",
+      "/Categories/ONS Geography Open Data"
+    ],
+    "created": 1662651340000,
+    "culture": "en-gb",
+    "description": "This file contains the digital vector boundaries for Counties and Unitary Authorities in Great Britain, as at April 2019. The BGC boundaries are generalised (20m) - clipped to the coastline (Mean High Water mark). Contains both Ordnance Survey and ONS Intellectual Property Rights. REST URL of ArcGIS for INSPIRE View Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Counties_and_Unitary_Authorities_(April_2019)_GCB_GB/MapServer REST URL of ArcGIS for INSPIRE Feature DownloadService – https://dservices1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/services/Counties_and_Unitary_Authorities_April_2019_Generalised_Clipped_Boundaries_GB/WFSServer?service=wfs&request=getcapabilities REST URL of Feature Access Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Counties_and_Unitary_Authorities_April_2019_GCB_GB_2022/FeatureServer",
+    "extent": [
+      [
+        -9.22986759860235,
+        49.817733348410336
+      ],
+      [
+        2.698008105229328,
+        60.86611134471056
+      ]
+    ],
+    "id": "3f9dab5d6bb94f2fb8875debe7574fed",
+    "licenseInfo": "<a href='https://www.ons.gov.uk/methodology/geography/licences' target='_blank' rel='nofollow ugc noopener noreferrer'>https://www.ons.gov.uk/methodology/geography/licences</a>",
+    "modified": 1754898972000,
+    "organisationId": "ESMARspQHYMw9BZ9",
+    "snippet": "Administrative Boundaries",
+    "spatialReference": "27700",
+    "tags": [
+      "Boundaries",
+      "Administrative Boundaries",
+      "WFS",
+      "WMS",
+      "Counties and Unitary Authorities",
+      "CTYUA",
+      "2019",
+      "Great Britain",
+      "BDY_ADM",
+      "BDY_CTYUA",
+      "APR_2019"
+    ],
+    "title": "Counties and Unitary Authorities (April 2019) Boundaries GB BGC",
+    "type": "Feature Service",
+    "typeKeywords": [
+      "ArcGIS Server",
+      "Data",
+      "Feature Access",
+      "Feature Service",
+      "Metadata",
+      "Service",
+      "Singlelayer",
+      "Hosted Service"
+    ],
+    "url": "https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Counties_and_Unitary_Authorities_April_2019_GCB_GB_2022/FeatureServer"
+  },
+  "dcterms:publisher": {
+    "@id": "https://www.ons.gov.uk/"
+  }
+}
+---
+
+# Counties and Unitary Authorities (April 2019) Boundaries GB BGC
+
+This file contains the digital vector boundaries for Counties and Unitary Authorities in Great Britain, as at April 2019. The BGC boundaries are generalised (20m) - clipped to the coastline (Mean High Water mark). Contains both Ordnance Survey and ONS Intellectual Property Rights. REST URL of ArcGIS for INSPIRE View Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Counties_and_Unitary_Authorities_(April_2019)_GCB_GB/MapServer REST URL of ArcGIS for INSPIRE Feature DownloadService – https://dservices1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/services/Counties_and_Unitary_Authorities_April_2019_Generalised_Clipped_Boundaries_GB/WFSServer?service=wfs&request=getcapabilities REST URL of Feature Access Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Counties_and_Unitary_Authorities_April_2019_GCB_GB_2022/FeatureServer
+
+Native identifier: `3f9dab5d6bb94f2fb8875debe7574fed`.
+
+Source family: `ons-geography-items`. Assertion: normalised metadata; independent human review is not recorded.
+
+[Official source](https://geoportal.statistics.gov.uk/items/3f9dab5d6bb94f2fb8875debe7574fed)
+
+Update cadence: not evidenced in captured metadata.
+Temporal evidence: not-evidenced (dataset-reference-period); start not stated, end not stated.
+No supported reference-period extent in captured metadata; release and catalogue dates are separate.
+
+[Release catalogue or change-discovery route](https://geoportal.statistics.gov.uk/)
+
+## Evidence limits
+
+- A date in an item title is not automatically the observation/reference range.
+- Portal items can be different representations or vintages of one product.
+
+The front matter retains source receipts, rights, native metadata and schema facts. Discovery does not authorise data access.

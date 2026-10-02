@@ -1,0 +1,149 @@
+---
+{
+  "@context": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/context.jsonld",
+  "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-nomis-time-options/NM_63_1",
+  "@type": [
+    "dcat:Dataset",
+    "okfp:MetadataRecord"
+  ],
+  "type": "Dataset",
+  "title": "Nomis time options: NM_63_1",
+  "description": "Native time code list and selected revision metadata; no observations.",
+  "nativeIdentifier": "NM_63_1",
+  "sourceFamily": "ons-nomis-time-options",
+  "resource": "https://www.nomisweb.co.uk/api/v01/dataset/NM_63_1/time.def.sdmx.json",
+  "status": "draft",
+  "generated": {
+    "by": "gis-ai-go OKF+ source producer"
+  },
+  "okfp:machineImported": true,
+  "assertionStatus": "normalised",
+  "reviewStatus": "not-human-reviewed",
+  "tags": [],
+  "sources": [
+    {
+      "resource": "https://www.nomisweb.co.uk/api/v01/dataset/NM_63_1/time.def.sdmx.json",
+      "retrievedAt": "2026-10-02T07:32:57.752471Z",
+      "responseSha256": "b9d7a88e6d9b8e4485d6b9639f0a0d77d7b5a9d87ca85a97264dbdc17705854a",
+      "sourcePointer": null,
+      "normalisedSource": "okf-plus/source/ons-nomis-time-options.json",
+      "normalisedPointer": "/records/41",
+      "normalisedRecordSha256": "5d2e0b38c257e192adf4820a72cbf22f31b110997500495d77375d4096895f30",
+      "evidenceKind": "captured-public-metadata",
+      "sourcePointerStatus": "catalogue-document"
+    }
+  ],
+  "prov:wasDerivedFrom": {
+    "@id": "https://www.nomisweb.co.uk/api/v01/dataset/NM_63_1/time.def.sdmx.json"
+  },
+  "dcterms:conformsTo": {
+    "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/profile/v1"
+  },
+  "temporal": {
+    "status": "normalised-source-options",
+    "kind": "available-native-period-options",
+    "start": 1991,
+    "end": 1991,
+    "sourceField": "codes",
+    "note": "Extrema of the complete published native period-code list; no continuity or populated observation cells are inferred.",
+    "precision": "year",
+    "derivation": "Nomis-native-integer-year.v1"
+  },
+  "update": {
+    "frequency": {
+      "status": "not-evidenced",
+      "label": null,
+      "iri": null,
+      "sourceField": null
+    },
+    "releaseCatalogue": [
+      "https://www.nomisweb.co.uk/releasecalendar.asp"
+    ],
+    "releaseFeed": [],
+    "nextRelease": null,
+    "metadataModified": null,
+    "releaseVersion": null
+  },
+  "rights": {
+    "metadata": "Public metadata citation and factual normalisation; source rights retained.",
+    "describedData": "Not established by metadata discovery; consult source-specific terms.",
+    "retrievalAuthority": "metadata-only",
+    "executionAdmitted": false
+  },
+  "limitations": [],
+  "details": {
+    "bounds": {
+      "basis": "Nomis returned TIME codelist native codes; no observations",
+      "comparisonRule": "Nomis-native-integer-year.v1",
+      "continuityEstablished": false,
+      "granularity": "year",
+      "maximumNative": 1991,
+      "minimumNative": 1991,
+      "status": "known-option-extrema"
+    },
+    "codeListId": "CL_63_1_TIME",
+    "id": "NM_63_1",
+    "metadataEvidence": {
+      "retrievedAt": "2026-10-02T07:32:57.752471Z",
+      "sha256": "b9d7a88e6d9b8e4485d6b9639f0a0d77d7b5a9d87ca85a97264dbdc17705854a",
+      "status": 200,
+      "url": "https://www.nomisweb.co.uk/api/v01/dataset/NM_63_1/time.def.sdmx.json"
+    },
+    "metadataStatus": "captured",
+    "returnedCodeCount": 1,
+    "timeOptionsTable": {
+      "encoding": "gis-ai-go.native-time-table.v1",
+      "columns": [
+        "value",
+        "description",
+        "revisionMetadata"
+      ],
+      "revisionColumns": [
+        "title",
+        "value"
+      ],
+      "absentDescription": null,
+      "rows": [
+        [
+          1991,
+          {
+            "lang": "en",
+            "value": 1991
+          },
+          []
+        ]
+      ]
+    }
+  },
+  "okfp:nativeTemporalBounds": {
+    "@value": {
+      "basis": "Nomis returned TIME codelist native codes; no observations",
+      "comparisonRule": "Nomis-native-integer-year.v1",
+      "continuityEstablished": false,
+      "granularity": "year",
+      "maximumNative": 1991,
+      "minimumNative": 1991,
+      "status": "known-option-extrema"
+    },
+    "@type": "@json"
+  }
+}
+---
+
+# Nomis time options: NM_63_1
+
+Native time code list and selected revision metadata; no observations.
+
+Native identifier: `NM_63_1`.
+
+Source family: `ons-nomis-time-options`. Assertion: normalised metadata; independent human review is not recorded.
+
+[Official source](https://www.nomisweb.co.uk/api/v01/dataset/NM_63_1/time.def.sdmx.json)
+
+Update cadence: not evidenced in captured metadata.
+Temporal evidence: normalised-source-options (available-native-period-options); start 1991, end 1991.
+Extrema of the complete published native period-code list; no continuity or populated observation cells are inferred.
+
+[Release catalogue or change-discovery route](https://www.nomisweb.co.uk/releasecalendar.asp)
+
+The front matter retains source receipts, rights, native metadata and schema facts. Discovery does not authorise data access.

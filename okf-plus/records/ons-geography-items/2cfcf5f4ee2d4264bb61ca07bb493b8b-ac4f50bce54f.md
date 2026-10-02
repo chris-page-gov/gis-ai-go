@@ -1,0 +1,146 @@
+---
+{
+  "@context": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/context.jsonld",
+  "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-geography-items/2cfcf5f4ee2d4264bb61ca07bb493b8b",
+  "@type": [
+    "dcat:Dataset",
+    "okfp:MetadataRecord"
+  ],
+  "type": "Dataset",
+  "title": "Local Authority Districts (1991) Boundaries EW",
+  "description": "This file contains the digital vector boundaries for the Districts in England and Wales as at 1981. Contains both Ordnance Survey and ONS Intellectual Property Rights.",
+  "nativeIdentifier": "2cfcf5f4ee2d4264bb61ca07bb493b8b",
+  "sourceFamily": "ons-geography-items",
+  "resource": "https://geoportal.statistics.gov.uk/items/2cfcf5f4ee2d4264bb61ca07bb493b8b",
+  "status": "draft",
+  "generated": {
+    "by": "gis-ai-go OKF+ source producer"
+  },
+  "okfp:machineImported": true,
+  "assertionStatus": "normalised",
+  "reviewStatus": "not-human-reviewed",
+  "tags": [
+    "1991",
+    "WFS"
+  ],
+  "sources": [
+    {
+      "resource": "https://www.arcgis.com/sharing/rest/search?f=json&q=orgid%3AESMARspQHYMw9BZ9&num=100&start=6601&sortField=created&sortOrder=asc",
+      "retrievedAt": "2026-10-02T01:28:48.969310Z",
+      "responseSha256": "2134f75b84aaec7eff71c95e6fb2516a712659390ea9de7f844693755e61f44d",
+      "sourcePointer": "/results/7",
+      "normalisedSource": "okf-plus/source/ons-geography-items.json",
+      "normalisedPointer": "/records/6607",
+      "normalisedRecordSha256": "d029b869d19d390c99467b8ad3d2abb5910812c8e9f9bded4a7346b3ec925292",
+      "evidenceKind": "captured-public-metadata",
+      "sourcePointerStatus": "exact-native-id-match"
+    }
+  ],
+  "prov:wasDerivedFrom": {
+    "@id": "https://geoportal.statistics.gov.uk/items/2cfcf5f4ee2d4264bb61ca07bb493b8b"
+  },
+  "dcterms:conformsTo": {
+    "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/profile/v1"
+  },
+  "temporal": {
+    "status": "not-evidenced",
+    "kind": "dataset-reference-period",
+    "start": null,
+    "end": null,
+    "sourceField": null,
+    "note": "No supported reference-period extent in captured metadata; release and catalogue dates are separate."
+  },
+  "update": {
+    "frequency": {
+      "status": "not-evidenced",
+      "label": null,
+      "iri": null,
+      "sourceField": null
+    },
+    "releaseCatalogue": [
+      "https://geoportal.statistics.gov.uk/"
+    ],
+    "releaseFeed": [],
+    "nextRelease": null,
+    "metadataModified": "2026-07-15T09:33:54Z",
+    "releaseVersion": null
+  },
+  "rights": {
+    "metadata": "Public metadata citation and factual normalisation; source rights retained.",
+    "describedData": "https://www.ons.gov.uk/methodology/geography/licences",
+    "retrievalAuthority": "metadata-only",
+    "executionAdmitted": false
+  },
+  "limitations": [
+    "A date in an item title is not automatically the observation/reference range.",
+    "Portal items can be different representations or vintages of one product."
+  ],
+  "details": {
+    "access": "public",
+    "categories": [
+      "/Categories/Boundaries - Census"
+    ],
+    "created": 1784106210000,
+    "culture": "en-gb",
+    "description": "This file contains the digital vector boundaries for the Districts in England and Wales as at 1981. Contains both Ordnance Survey and ONS Intellectual Property Rights.",
+    "extent": [
+      [
+        -7.005874053077235,
+        49.88085939963592
+      ],
+      [
+        2.0730666944525202,
+        55.811071512951315
+      ]
+    ],
+    "id": "2cfcf5f4ee2d4264bb61ca07bb493b8b",
+    "licenseInfo": "<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.ons.gov.uk/methodology/geography/licences\">https://www.ons.gov.uk/methodology/geography/licences</a></p>",
+    "modified": 1784108034000,
+    "organisationId": "ESMARspQHYMw9BZ9",
+    "snippet": "Boundaries",
+    "spatialReference": "27700",
+    "tags": [
+      "1991"
+    ],
+    "title": "Local Authority Districts (1991) Boundaries EW",
+    "type": "WFS",
+    "typeKeywords": [
+      "Data",
+      "Metadata",
+      "Multilayer",
+      "OGC",
+      "Service",
+      "Web Feature Service",
+      "WFS",
+      "Hosted Service"
+    ],
+    "url": "https://dservices1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/services/LAD_1991_EW/WFSServer"
+  },
+  "dcterms:publisher": {
+    "@id": "https://www.ons.gov.uk/"
+  }
+}
+---
+
+# Local Authority Districts (1991) Boundaries EW
+
+This file contains the digital vector boundaries for the Districts in England and Wales as at 1981. Contains both Ordnance Survey and ONS Intellectual Property Rights.
+
+Native identifier: `2cfcf5f4ee2d4264bb61ca07bb493b8b`.
+
+Source family: `ons-geography-items`. Assertion: normalised metadata; independent human review is not recorded.
+
+[Official source](https://geoportal.statistics.gov.uk/items/2cfcf5f4ee2d4264bb61ca07bb493b8b)
+
+Update cadence: not evidenced in captured metadata.
+Temporal evidence: not-evidenced (dataset-reference-period); start not stated, end not stated.
+No supported reference-period extent in captured metadata; release and catalogue dates are separate.
+
+[Release catalogue or change-discovery route](https://geoportal.statistics.gov.uk/)
+
+## Evidence limits
+
+- A date in an item title is not automatically the observation/reference range.
+- Portal items can be different representations or vintages of one product.
+
+The front matter retains source receipts, rights, native metadata and schema facts. Discovery does not authorise data access.

@@ -26,7 +26,7 @@ BANNED_NAMES = {".env", "id_rsa", "id_ed25519", "credentials.json"}
 PATTERNS = {
     "private key": re.compile("-----BEGIN " + r"(?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
     "GitHub token": re.compile(r"gh" + r"[pousr]_[A-Za-z0-9]{20,}"),
-    "OpenAI-style token": re.compile(r"sk" + r"-(?:proj-)?[A-Za-z0-9_-]{20,}"),
+    "OpenAI-style token": re.compile(r"(?<![A-Za-z0-9])sk" + r"-(?:proj-)?[A-Za-z0-9_-]{20,}"),
     "AWS access key": re.compile(r"AK" + r"IA[0-9A-Z]{16}"),
     "Slack token": re.compile(r"xox" + r"[baprs]-[A-Za-z0-9-]{20,}"),
     "assigned secret": re.compile(

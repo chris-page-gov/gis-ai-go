@@ -1,0 +1,147 @@
+---
+{
+  "@context": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/context.jsonld",
+  "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-geography-items/c307b46bdbcb4baeaaabc0ee9e291e1d",
+  "@type": [
+    "dcat:Dataset",
+    "okfp:MetadataRecord"
+  ],
+  "type": "Dataset",
+  "title": "Counties (December 2024) Boundaries EN BSC",
+  "description": "This file contains the digital vector boundaries for Counties, in England, as at December 2024. The boundaries available are: (BSC) Super Generalised (200m) - clipped to the coastline (Mean High Water mark). Contains both Ordnance Survey and ONS Intellectual Property Rights. REST URL of Map Server – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Counties_December_2024_Boundaries_EN_BSC/MapServer",
+  "nativeIdentifier": "c307b46bdbcb4baeaaabc0ee9e291e1d",
+  "sourceFamily": "ons-geography-items",
+  "resource": "https://geoportal.statistics.gov.uk/items/c307b46bdbcb4baeaaabc0ee9e291e1d",
+  "status": "draft",
+  "generated": {
+    "by": "gis-ai-go OKF+ source producer"
+  },
+  "okfp:machineImported": true,
+  "assertionStatus": "normalised",
+  "reviewStatus": "not-human-reviewed",
+  "tags": [
+    "Boundaries",
+    "Map Service"
+  ],
+  "sources": [
+    {
+      "resource": "https://www.arcgis.com/sharing/rest/search?f=json&q=orgid%3AESMARspQHYMw9BZ9&num=100&start=5801&sortField=created&sortOrder=asc",
+      "retrievedAt": "2026-10-02T01:28:39.807271Z",
+      "responseSha256": "1b82bd96ca2befa9250a6a22fe452ec7476affa1822693d3f402840269724045",
+      "sourcePointer": "/results/98",
+      "normalisedSource": "okf-plus/source/ons-geography-items.json",
+      "normalisedPointer": "/records/5898",
+      "normalisedRecordSha256": "7e24aa8069f9a42484e4c74b88bfcde16d000b4aa9456348ccd8a8a42390c462",
+      "evidenceKind": "captured-public-metadata",
+      "sourcePointerStatus": "exact-native-id-match"
+    }
+  ],
+  "prov:wasDerivedFrom": {
+    "@id": "https://geoportal.statistics.gov.uk/items/c307b46bdbcb4baeaaabc0ee9e291e1d"
+  },
+  "dcterms:conformsTo": {
+    "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/profile/v1"
+  },
+  "temporal": {
+    "status": "not-evidenced",
+    "kind": "dataset-reference-period",
+    "start": null,
+    "end": null,
+    "sourceField": null,
+    "note": "No supported reference-period extent in captured metadata; release and catalogue dates are separate."
+  },
+  "update": {
+    "frequency": {
+      "status": "not-evidenced",
+      "label": null,
+      "iri": null,
+      "sourceField": null
+    },
+    "releaseCatalogue": [
+      "https://geoportal.statistics.gov.uk/"
+    ],
+    "releaseFeed": [],
+    "nextRelease": null,
+    "metadataModified": "2025-08-11T08:23:56Z",
+    "releaseVersion": null
+  },
+  "rights": {
+    "metadata": "Public metadata citation and factual normalisation; source rights retained.",
+    "describedData": "https://www.ons.gov.uk/methodology/geography/licences",
+    "retrievalAuthority": "metadata-only",
+    "executionAdmitted": false
+  },
+  "limitations": [
+    "A date in an item title is not automatically the observation/reference range.",
+    "Portal items can be different representations or vintages of one product."
+  ],
+  "details": {
+    "access": "public",
+    "categories": [
+      "/Categories/Boundaries - Administrative",
+      "/Categories/ONS Geography Open Data"
+    ],
+    "created": 1739186399000,
+    "culture": "en-gb",
+    "description": "This file contains the digital vector boundaries for Counties, in England, as at December 2024. The boundaries available are: (BSC) Super Generalised (200m) - clipped to the coastline (Mean High Water mark). Contains both Ordnance Survey and ONS Intellectual Property Rights. REST URL of Map Server – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Counties_December_2024_Boundaries_EN_BSC/MapServer",
+    "extent": [
+      [
+        -4.872064188668279,
+        50.159852332390884
+      ],
+      [
+        1.9179525192624542,
+        54.240446069502816
+      ]
+    ],
+    "id": "c307b46bdbcb4baeaaabc0ee9e291e1d",
+    "licenseInfo": "<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.ons.gov.uk/methodology/geography/licences\">https://www.ons.gov.uk/methodology/geography/licences</a></p>",
+    "modified": 1754900636000,
+    "organisationId": "ESMARspQHYMw9BZ9",
+    "snippet": "Boundaries",
+    "spatialReference": "27700",
+    "tags": [
+      "Boundaries"
+    ],
+    "title": "Counties (December 2024) Boundaries EN BSC",
+    "type": "Map Service",
+    "typeKeywords": [
+      "ArcGIS Server",
+      "Data",
+      "Map Service",
+      "Metadata",
+      "Service",
+      "Singlelayer",
+      "WMTS",
+      "Hosted Service"
+    ],
+    "url": "https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Counties_December_2024_Boundaries_EN_BSC/MapServer"
+  },
+  "dcterms:publisher": {
+    "@id": "https://www.ons.gov.uk/"
+  }
+}
+---
+
+# Counties (December 2024) Boundaries EN BSC
+
+This file contains the digital vector boundaries for Counties, in England, as at December 2024. The boundaries available are: (BSC) Super Generalised (200m) - clipped to the coastline (Mean High Water mark). Contains both Ordnance Survey and ONS Intellectual Property Rights. REST URL of Map Server – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Counties_December_2024_Boundaries_EN_BSC/MapServer
+
+Native identifier: `c307b46bdbcb4baeaaabc0ee9e291e1d`.
+
+Source family: `ons-geography-items`. Assertion: normalised metadata; independent human review is not recorded.
+
+[Official source](https://geoportal.statistics.gov.uk/items/c307b46bdbcb4baeaaabc0ee9e291e1d)
+
+Update cadence: not evidenced in captured metadata.
+Temporal evidence: not-evidenced (dataset-reference-period); start not stated, end not stated.
+No supported reference-period extent in captured metadata; release and catalogue dates are separate.
+
+[Release catalogue or change-discovery route](https://geoportal.statistics.gov.uk/)
+
+## Evidence limits
+
+- A date in an item title is not automatically the observation/reference range.
+- Portal items can be different representations or vintages of one product.
+
+The front matter retains source receipts, rights, native metadata and schema facts. Discovery does not authorise data access.

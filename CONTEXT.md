@@ -4,6 +4,15 @@ Last updated: 2 October 2026
 
 ## Authority and reading order
 
+On 2 October 2026 the owner authorised [OKF-220](docs/implementation/OKF-220_METADATA_KNOWLEDGE_FRAMEWORK.md):
+export the necessary OS/ONS metadata, specifications, documentation and guides;
+build a broad provenance-backed OKF+ inventory with Markdown/YAML-LD, search,
+coverage, release/update discovery, temporal coverage and geospatial concepts.
+Review `okf-ons` and reuse the lessons of DWP and other OKF projects. Existing
+included allowances only remain the spending boundary. This is the current task;
+catalogue completeness, semantic coverage and live Ask OKF acceptance must each
+have their own evidence.
+
 Chris Page is the repository owner and decision maker. Current owner instructions,
 accepted live ADRs and the live repository documents listed below are authoritative.
 Files under `docs/research/2026-08-19/` are immutable evidence: their embedded

@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/schemas/source-snapshot.schema.json",
+  "type": "object",
+  "required": [
+    "schema",
+    "family",
+    "records",
+    "receipts",
+    "coverage"
+  ],
+  "properties": {
+    "schema": {
+      "const": "okf-plus-source-snapshot.v1"
+    },
+    "family": {
+      "type": "string"
+    },
+    "records": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "receipts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "url",
+          "status"
+        ],
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "status": {
+            "type": [
+              "integer",
+              "string"
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "required": [
+        "unit",
+        "retrievedUnique",
+        "catalogueComplete"
+      ],
+      "properties": {
+        "unit": {
+          "type": "string"
+        },
+        "retrievedUnique": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "catalogueComplete": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

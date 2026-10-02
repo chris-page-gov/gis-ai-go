@@ -16,10 +16,40 @@ Last updated: 2 October 2026
 
 ## Authorised current work
 
+The current task is [OKF-220](docs/implementation/OKF-220_METADATA_KNOWLEDGE_FRAMEWORK.md),
+authorised on 2 October: build the OS/ONS metadata and schema OKF+ inventory,
+provenance, Markdown/YAML-LD, search, update/release discovery, temporal coverage
+and an extensible geospatial concept scheme. Baseline:
+`357aa6c85c787f29710ff208c938eb54af02a488`; branch `codex/okf-plus-inventory`.
+Source and pinned reuse reviews are complete. The final capture includes all
+478 indexed NGD documentation pages and two selected download guides. The
+current import holds 30,833 Markdown/YAML-LD records, 6,067 native NGD labels and
+2,915 NGD schema field nodes; twelve source schemas have required-field
+inconsistencies. The complete 30,833-record build at `e28b0da1` passed the
+record/card/semantic-field audit with zero omissions, 36 automated retrieval cases
+and four pinned-engine cases. Four interpretation cases remain explicitly
+unassessed. The full source-package identity round trip also passed. Integration
+repairs address the explicit CI path map and a regenerable receipt digest. The
+local full Python run exposed unchanged macOS harnesses rejecting the current
+host's sandbox executable identity; those checks remain intact. Canonical CI and
+verified export are pending in [PR #141](https://github.com/chris-page-gov/gis-ai-go/pull/141).
+Initial account usage was 41% weekly used (59% remaining); the latest checkpoint
+is 55% used (45% remaining). This is account-wide, not task usage.
+See the implementation record for coverage boundaries and checkpoints.
+
+Unattended execution correction (2 October): an optional browser/CDP permission
+prompt held the coordinating task overnight. Remaining work uses non-interactive
+capture and offline checks; optional UI acceptance is separate. The preflight and
+continuation rule is now recorded in `AGENTS.md` and the OKF-220 operating record.
+
+The preceding Sites increment was merged through PR #139. Protected-main CI
+`36945982145` and CodeQL `36945982033` passed. Its remaining hosting/registration
+conditions below stay open and do not block the metadata work.
+
 On 1 October the owner authorised an unattended, owner-private Sites MCP pilot
 with live OS/ONS APIs, a PSGA suitability assessment with an open-data fallback,
 common-question evaluations and performance observations. This is the current
-active task; the retained LOCAL-214 and WEB-216 checkpoints below remain evidence.
+preceding task; the retained LOCAL-214 and WEB-216 checkpoints below remain evidence.
 Work is tracked in [SITES-218](docs/implementation/SITES-218_PRIVATE_MCP_PILOT.md).
 The baseline is `7496595a1c09f3cac7ca9da2bef69a25443516a9` on branch
 `codex/sites-mcp-pilot`. Private Site version 7 is deployed from runtime revision

@@ -1,0 +1,2517 @@
+---
+{
+  "@context": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/context.jsonld",
+  "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-datasets/retail-sales-index",
+  "@type": [
+    "dcat:Dataset",
+    "okfp:MetadataRecord"
+  ],
+  "type": "Dataset",
+  "title": "Retail sales index",
+  "description": "Retail sales data for Great Britain in value and volume terms, seasonally and non-seasonally adjusted.",
+  "nativeIdentifier": "retail-sales-index",
+  "sourceFamily": "ons-datasets",
+  "resource": "https://api.beta.ons.gov.uk/v1/datasets/retail-sales-index",
+  "status": "draft",
+  "generated": {
+    "by": "gis-ai-go OKF+ source producer"
+  },
+  "okfp:machineImported": true,
+  "assertionStatus": "normalised",
+  "reviewStatus": "not-human-reviewed",
+  "tags": [
+    "RSI",
+    "internet sales,goods bought,buying,spending"
+  ],
+  "sources": [
+    {
+      "resource": "https://api.beta.ons.gov.uk/v1/datasets?limit=100&offset=0",
+      "retrievedAt": "2026-10-02T01:18:02.763023Z",
+      "responseSha256": "569b4c5ce256d4d8fa3ab4f9592a32655c63cdb045ad28fdcda658680b15fccf",
+      "sourcePointer": "/items/17",
+      "normalisedSource": "okf-plus/source/ons-datasets.json",
+      "normalisedPointer": "/records/17",
+      "normalisedRecordSha256": "6cb3c1909023d4e619ffdcdf70e56c1ea5171fff53daca04a34b11e93b582595",
+      "evidenceKind": "captured-public-metadata",
+      "sourcePointerStatus": "exact-native-id-match"
+    },
+    {
+      "resource": "https://api.beta.ons.gov.uk/v1/datasets/retail-sales-index/editions/time-series/versions/45/metadata",
+      "retrievedAt": "2026-10-02T01:30:45.946330Z",
+      "responseSha256": "06ec59a1c5c0e6142b25f02c8e35b0c04a24ae71a9fcbd3cfd4f8cb72418e50b",
+      "sourcePointer": null,
+      "normalisedSource": "okf-plus/source/ons-latest-versions.json",
+      "normalisedPointer": "/records/17",
+      "normalisedRecordSha256": "2a4484fde88df9afa74041a5e99a7a146edae4151e5435b18750c94d1bc1bd3d",
+      "evidenceKind": "captured-public-metadata",
+      "sourcePointerStatus": "catalogue-document"
+    }
+  ],
+  "prov:wasDerivedFrom": {
+    "@id": "https://api.beta.ons.gov.uk/v1/datasets/retail-sales-index"
+  },
+  "dcterms:conformsTo": {
+    "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/profile/v1"
+  },
+  "temporal": {
+    "status": "not-evidenced",
+    "kind": "dataset-reference-period",
+    "start": null,
+    "end": null,
+    "sourceField": null,
+    "note": "No supported reference-period extent in captured metadata; release and catalogue dates are separate."
+  },
+  "update": {
+    "frequency": {
+      "status": "source-stated",
+      "label": "Monthly",
+      "iri": "http://purl.org/linked-data/sdmx/2009/code#freq-M",
+      "sourceField": "release_frequency"
+    },
+    "releaseCatalogue": [
+      "https://www.ons.gov.uk/releasecalendar"
+    ],
+    "releaseFeed": [
+      "https://www.ons.gov.uk/releasecalendar?rss&highlight=true&limit=10&page=1&release-type=type-published&sort=date-newest"
+    ],
+    "nextRelease": "27 March 2026",
+    "metadataModified": "2026-02-20T10:14:37.553Z",
+    "releaseVersion": null
+  },
+  "rights": {
+    "metadata": "Public metadata citation and factual normalisation; source rights retained.",
+    "describedData": "ONS published-data terms apply; dataset-specific notices and third-party rights must be checked.",
+    "retrievalAuthority": "metadata-only",
+    "executionAdmitted": false
+  },
+  "limitations": [
+    "Time-option extrema describe available native codes; continuity and populated observation cells have not been established."
+  ],
+  "details": {
+    "description": "Retail sales data for Great Britain in value and volume terms, seasonally and non-seasonally adjusted.",
+    "id": "retail-sales-index",
+    "keywords": [
+      "RSI",
+      "internet sales,goods bought,buying,spending"
+    ],
+    "last_updated": "2026-02-20T10:14:37.553Z",
+    "links": {
+      "editions": {
+        "href": "https://api.beta.ons.gov.uk/v1/datasets/retail-sales-index/editions"
+      },
+      "latest_version": {
+        "href": "https://api.beta.ons.gov.uk/v1/datasets/retail-sales-index/editions/time-series/versions/45",
+        "id": "45"
+      },
+      "self": {
+        "href": "https://api.beta.ons.gov.uk/v1/datasets/retail-sales-index"
+      },
+      "taxonomy": {
+        "href": "https://api.beta.ons.gov.uk/v1/businessindustryandtrade/retailindustry"
+      }
+    },
+    "national_statistic": false,
+    "next_release": "27 March 2026",
+    "qmi": {
+      "href": "https://www.ons.gov.uk/businessindustryandtrade/retailindustry/methodologies/retailsalesindexrsiqmi"
+    },
+    "release_frequency": "Monthly",
+    "state": "published",
+    "title": "Retail sales index",
+    "type": "filterable",
+    "unit_of_measure": "2019=100",
+    "timeMetadata": {
+      "dimensions": [
+        {
+          "id": "mmm-yy",
+          "label": "Time",
+          "name": "time"
+        },
+        {
+          "id": "countries",
+          "label": "Geography",
+          "name": "geography"
+        },
+        {
+          "id": "sic-unofficial",
+          "label": "Standard industrial classification",
+          "name": "unofficialstandardindustrialclassification"
+        },
+        {
+          "id": "type-of-prices",
+          "label": "Prices",
+          "name": "prices"
+        },
+        {
+          "id": "seasonal-adjustment",
+          "label": "Seasonal adjustment",
+          "name": "seasonaladjustment"
+        }
+      ],
+      "edition": "time-series",
+      "id": "retail-sales-index",
+      "metadata": {
+        "description": "Retail sales data for Great Britain in value and volume terms, seasonally and non-seasonally adjusted.",
+        "last_updated": "2026-02-20T10:14:37.553Z",
+        "next_release": "27 March 2026",
+        "release_date": "2026-02-20T00:00:00.000Z",
+        "release_frequency": "Monthly",
+        "state": "published",
+        "title": "Retail sales index",
+        "type": "filterable",
+        "unit_of_measure": "2019=100"
+      },
+      "metadataContract": {
+        "catalogueType": "filterable",
+        "dimensionListPresent": true,
+        "identityEvidence": {
+          "edition": "time-series",
+          "id": "retail-sales-index",
+          "version": 45
+        },
+        "variant": "filterable-scalar-identity"
+      },
+      "metadataEvidence": {
+        "retrievedAt": "2026-10-02T01:30:45.946330Z",
+        "sha256": "06ec59a1c5c0e6142b25f02c8e35b0c04a24ae71a9fcbd3cfd4f8cb72418e50b",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/datasets/retail-sales-index/editions/time-series/versions/45/metadata"
+      },
+      "metadataStatus": "captured",
+      "temporal": {
+        "bounds": {
+          "basis": "published time-dimension option codes; no observations",
+          "continuityEstablished": false,
+          "maximumNative": null,
+          "minimumNative": null,
+          "status": "unknown-unrecognised-or-mixed-period-codes"
+        },
+        "complete": true,
+        "duplicateCount": 0,
+        "options": [
+          {
+            "dimension": "time",
+            "label": "Jan-26",
+            "option": "Jan-26"
+          },
+          {
+            "dimension": "time",
+            "label": "Dec-25",
+            "option": "Dec-25"
+          },
+          {
+            "dimension": "time",
+            "label": "Nov-25",
+            "option": "Nov-25"
+          },
+          {
+            "dimension": "time",
+            "label": "Oct-25",
+            "option": "Oct-25"
+          },
+          {
+            "dimension": "time",
+            "label": "Sep-25",
+            "option": "Sep-25"
+          },
+          {
+            "dimension": "time",
+            "label": "Aug-25",
+            "option": "Aug-25"
+          },
+          {
+            "dimension": "time",
+            "label": "Jul-25",
+            "option": "Jul-25"
+          },
+          {
+            "dimension": "time",
+            "label": "Jun-25",
+            "option": "Jun-25"
+          },
+          {
+            "dimension": "time",
+            "label": "May-25",
+            "option": "May-25"
+          },
+          {
+            "dimension": "time",
+            "label": "Apr-25",
+            "option": "Apr-25"
+          },
+          {
+            "dimension": "time",
+            "label": "Mar-25",
+            "option": "Mar-25"
+          },
+          {
+            "dimension": "time",
+            "label": "Feb-25",
+            "option": "Feb-25"
+          },
+          {
+            "dimension": "time",
+            "label": "Jan-25",
+            "option": "Jan-25"
+          },
+          {
+            "dimension": "time",
+            "label": "Dec-24",
+            "option": "Dec-24"
+          },
+          {
+            "dimension": "time",
+            "label": "Nov-24",
+            "option": "Nov-24"
+          },
+          {
+            "dimension": "time",
+            "label": "Oct-24",
+            "option": "Oct-24"
+          },
+          {
+            "dimension": "time",
+            "label": "Sep-24",
+            "option": "Sep-24"
+          },
+          {
+            "dimension": "time",
+            "label": "Aug-24",
+            "option": "Aug-24"
+          },
+          {
+            "dimension": "time",
+            "label": "Jul-24",
+            "option": "Jul-24"
+          },
+          {
+            "dimension": "time",
+            "label": "Jun-24",
+            "option": "Jun-24"
+          },
+          {
+            "dimension": "time",
+            "label": "May-24",
+            "option": "May-24"
+          },
+          {
+            "dimension": "time",
+            "label": "Apr-24",
+            "option": "Apr-24"
+          },
+          {
+            "dimension": "time",
+            "label": "Mar-24",
+            "option": "Mar-24"
+          },
+          {
+            "dimension": "time",
+            "label": "Feb-24",
+            "option": "Feb-24"
+          },
+          {
+            "dimension": "time",
+            "label": "Jan-24",
+            "option": "Jan-24"
+          },
+          {
+            "dimension": "time",
+            "label": "Dec-23",
+            "option": "Dec-23"
+          },
+          {
+            "dimension": "time",
+            "label": "Nov-23",
+            "option": "Nov-23"
+          },
+          {
+            "dimension": "time",
+            "label": "Oct-23",
+            "option": "Oct-23"
+          },
+          {
+            "dimension": "time",
+            "label": "Sep-23",
+            "option": "Sep-23"
+          },
+          {
+            "dimension": "time",
+            "label": "Aug-23",
+            "option": "Aug-23"
+          },
+          {
+            "dimension": "time",
+            "label": "Jul-23",
+            "option": "Jul-23"
+          },
+          {
+            "dimension": "time",
+            "label": "Jun-23",
+            "option": "Jun-23"
+          },
+          {
+            "dimension": "time",
+            "label": "May-23",
+            "option": "May-23"
+          },
+          {
+            "dimension": "time",
+            "label": "Apr-23",
+            "option": "Apr-23"
+          },
+          {
+            "dimension": "time",
+            "label": "Mar-23",
+            "option": "Mar-23"
+          },
+          {
+            "dimension": "time",
+            "label": "Feb-23",
+            "option": "Feb-23"
+          },
+          {
+            "dimension": "time",
+            "label": "Jan-23",
+            "option": "Jan-23"
+          },
+          {
+            "dimension": "time",
+            "label": "Dec-22",
+            "option": "Dec-22"
+          },
+          {
+            "dimension": "time",
+            "label": "Nov-22",
+            "option": "Nov-22"
+          },
+          {
+            "dimension": "time",
+            "label": "Oct-22",
+            "option": "Oct-22"
+          },
+          {
+            "dimension": "time",
+            "label": "Sep-22",
+            "option": "Sep-22"
+          },
+          {
+            "dimension": "time",
+            "label": "Aug-22",
+            "option": "Aug-22"
+          },
+          {
+            "dimension": "time",
+            "label": "Jul-22",
+            "option": "Jul-22"
+          },
+          {
+            "dimension": "time",
+            "label": "Jun-22",
+            "option": "Jun-22"
+          },
+          {
+            "dimension": "time",
+            "label": "May-22",
+            "option": "May-22"
+          },
+          {
+            "dimension": "time",
+            "label": "Apr-22",
+            "option": "Apr-22"
+          },
+          {
+            "dimension": "time",
+            "label": "Mar-22",
+            "option": "Mar-22"
+          },
+          {
+            "dimension": "time",
+            "label": "Feb-22",
+            "option": "Feb-22"
+          },
+          {
+            "dimension": "time",
+            "label": "Jan-22",
+            "option": "Jan-22"
+          },
+          {
+            "dimension": "time",
+            "label": "Dec-21",
+            "option": "Dec-21"
+          },
+          {
+            "dimension": "time",
+            "label": "Nov-21",
+            "option": "Nov-21"
+          },
+          {
+            "dimension": "time",
+            "label": "Oct-21",
+            "option": "Oct-21"
+          },
+          {
+            "dimension": "time",
+            "label": "Sep-21",
+            "option": "Sep-21"
+          },
+          {
+            "dimension": "time",
+            "label": "Aug-21",
+            "option": "Aug-21"
+          },
+          {
+            "dimension": "time",
+            "label": "Jul-21",
+            "option": "Jul-21"
+          },
+          {
+            "dimension": "time",
+            "label": "Jun-21",
+            "option": "Jun-21"
+          },
+          {
+            "dimension": "time",
+            "label": "May-21",
+            "option": "May-21"
+          },
+          {
+            "dimension": "time",
+            "label": "Apr-21",
+            "option": "Apr-21"
+          },
+          {
+            "dimension": "time",
+            "label": "Mar-21",
+            "option": "Mar-21"
+          },
+          {
+            "dimension": "time",
+            "label": "Feb-21",
+            "option": "Feb-21"
+          },
+          {
+            "dimension": "time",
+            "label": "Jan-21",
+            "option": "Jan-21"
+          },
+          {
+            "dimension": "time",
+            "label": "Dec-20",
+            "option": "Dec-20"
+          },
+          {
+            "dimension": "time",
+            "label": "Nov-20",
+            "option": "Nov-20"
+          },
+          {
+            "dimension": "time",
+            "label": "Oct-20",
+            "option": "Oct-20"
+          },
+          {
+            "dimension": "time",
+            "label": "Sep-20",
+            "option": "Sep-20"
+          },
+          {
+            "dimension": "time",
+            "label": "Aug-20",
+            "option": "Aug-20"
+          },
+          {
+            "dimension": "time",
+            "label": "Jul-20",
+            "option": "Jul-20"
+          },
+          {
+            "dimension": "time",
+            "label": "Jun-20",
+            "option": "Jun-20"
+          },
+          {
+            "dimension": "time",
+            "label": "May-20",
+            "option": "May-20"
+          },
+          {
+            "dimension": "time",
+            "label": "Apr-20",
+            "option": "Apr-20"
+          },
+          {
+            "dimension": "time",
+            "label": "Mar-20",
+            "option": "Mar-20"
+          },
+          {
+            "dimension": "time",
+            "label": "Feb-20",
+            "option": "Feb-20"
+          },
+          {
+            "dimension": "time",
+            "label": "Jan-20",
+            "option": "Jan-20"
+          },
+          {
+            "dimension": "time",
+            "label": "Dec-19",
+            "option": "Dec-19"
+          },
+          {
+            "dimension": "time",
+            "label": "Nov-19",
+            "option": "Nov-19"
+          },
+          {
+            "dimension": "time",
+            "label": "Oct-19",
+            "option": "Oct-19"
+          },
+          {
+            "dimension": "time",
+            "label": "Sep-19",
+            "option": "Sep-19"
+          },
+          {
+            "dimension": "time",
+            "label": "Aug-19",
+            "option": "Aug-19"
+          },
+          {
+            "dimension": "time",
+            "label": "Jul-19",
+            "option": "Jul-19"
+          },
+          {
+            "dimension": "time",
+            "label": "Jun-19",
+            "option": "Jun-19"
+          },
+          {
+            "dimension": "time",
+            "label": "May-19",
+            "option": "May-19"
+          },
+          {
+            "dimension": "time",
+            "label": "Apr-19",
+            "option": "Apr-19"
+          },
+          {
+            "dimension": "time",
+            "label": "Mar-19",
+            "option": "Mar-19"
+          },
+          {
+            "dimension": "time",
+            "label": "Feb-19",
+            "option": "Feb-19"
+          },
+          {
+            "dimension": "time",
+            "label": "Jan-19",
+            "option": "Jan-19"
+          },
+          {
+            "dimension": "time",
+            "label": "Dec-18",
+            "option": "Dec-18"
+          },
+          {
+            "dimension": "time",
+            "label": "Nov-18",
+            "option": "Nov-18"
+          },
+          {
+            "dimension": "time",
+            "label": "Oct-18",
+            "option": "Oct-18"
+          },
+          {
+            "dimension": "time",
+            "label": "Sep-18",
+            "option": "Sep-18"
+          },
+          {
+            "dimension": "time",
+            "label": "Aug-18",
+            "option": "Aug-18"
+          },
+          {
+            "dimension": "time",
+            "label": "Jul-18",
+            "option": "Jul-18"
+          },
+          {
+            "dimension": "time",
+            "label": "Jun-18",
+            "option": "Jun-18"
+          },
+          {
+            "dimension": "time",
+            "label": "May-18",
+            "option": "May-18"
+          },
+          {
+            "dimension": "time",
+            "label": "Apr-18",
+            "option": "Apr-18"
+          },
+          {
+            "dimension": "time",
+            "label": "Mar-18",
+            "option": "Mar-18"
+          },
+          {
+            "dimension": "time",
+            "label": "Feb-18",
+            "option": "Feb-18"
+          },
+          {
+            "dimension": "time",
+            "label": "Jan-18",
+            "option": "Jan-18"
+          },
+          {
+            "dimension": "time",
+            "label": "Dec-17",
+            "option": "Dec-17"
+          },
+          {
+            "dimension": "time",
+            "label": "Nov-17",
+            "option": "Nov-17"
+          },
+          {
+            "dimension": "time",
+            "label": "Oct-17",
+            "option": "Oct-17"
+          },
+          {
+            "dimension": "time",
+            "label": "Sep-17",
+            "option": "Sep-17"
+          },
+          {
+            "dimension": "time",
+            "label": "Aug-17",
+            "option": "Aug-17"
+          },
+          {
+            "dimension": "time",
+            "label": "Jul-17",
+            "option": "Jul-17"
+          },
+          {
+            "dimension": "time",
+            "label": "Jun-17",
+            "option": "Jun-17"
+          },
+          {
+            "dimension": "time",
+            "label": "May-17",
+            "option": "May-17"
+          },
+          {
+            "dimension": "time",
+            "label": "Apr-17",
+            "option": "Apr-17"
+          },
+          {
+            "dimension": "time",
+            "label": "Mar-17",
+            "option": "Mar-17"
+          },
+          {
+            "dimension": "time",
+            "label": "Feb-17",
+            "option": "Feb-17"
+          },
+          {
+            "dimension": "time",
+            "label": "Jan-17",
+            "option": "Jan-17"
+          },
+          {
+            "dimension": "time",
+            "label": "Dec-16",
+            "option": "Dec-16"
+          },
+          {
+            "dimension": "time",
+            "label": "Nov-16",
+            "option": "Nov-16"
+          },
+          {
+            "dimension": "time",
+            "label": "Oct-16",
+            "option": "Oct-16"
+          },
+          {
+            "dimension": "time",
+            "label": "Sep-16",
+            "option": "Sep-16"
+          },
+          {
+            "dimension": "time",
+            "label": "Aug-16",
+            "option": "Aug-16"
+          },
+          {
+            "dimension": "time",
+            "label": "Jul-16",
+            "option": "Jul-16"
+          },
+          {
+            "dimension": "time",
+            "label": "Jun-16",
+            "option": "Jun-16"
+          },
+          {
+            "dimension": "time",
+            "label": "May-16",
+            "option": "May-16"
+          },
+          {
+            "dimension": "time",
+            "label": "Apr-16",
+            "option": "Apr-16"
+          },
+          {
+            "dimension": "time",
+            "label": "Mar-16",
+            "option": "Mar-16"
+          },
+          {
+            "dimension": "time",
+            "label": "Feb-16",
+            "option": "Feb-16"
+          },
+          {
+            "dimension": "time",
+            "label": "Jan-16",
+            "option": "Jan-16"
+          },
+          {
+            "dimension": "time",
+            "label": "Dec-15",
+            "option": "Dec-15"
+          },
+          {
+            "dimension": "time",
+            "label": "Nov-15",
+            "option": "Nov-15"
+          },
+          {
+            "dimension": "time",
+            "label": "Oct-15",
+            "option": "Oct-15"
+          },
+          {
+            "dimension": "time",
+            "label": "Sep-15",
+            "option": "Sep-15"
+          },
+          {
+            "dimension": "time",
+            "label": "Aug-15",
+            "option": "Aug-15"
+          },
+          {
+            "dimension": "time",
+            "label": "Jul-15",
+            "option": "Jul-15"
+          },
+          {
+            "dimension": "time",
+            "label": "Jun-15",
+            "option": "Jun-15"
+          },
+          {
+            "dimension": "time",
+            "label": "May-15",
+            "option": "May-15"
+          },
+          {
+            "dimension": "time",
+            "label": "Apr-15",
+            "option": "Apr-15"
+          },
+          {
+            "dimension": "time",
+            "label": "Mar-15",
+            "option": "Mar-15"
+          },
+          {
+            "dimension": "time",
+            "label": "Feb-15",
+            "option": "Feb-15"
+          },
+          {
+            "dimension": "time",
+            "label": "Jan-15",
+            "option": "Jan-15"
+          },
+          {
+            "dimension": "time",
+            "label": "Dec-14",
+            "option": "Dec-14"
+          },
+          {
+            "dimension": "time",
+            "label": "Nov-14",
+            "option": "Nov-14"
+          },
+          {
+            "dimension": "time",
+            "label": "Oct-14",
+            "option": "Oct-14"
+          },
+          {
+            "dimension": "time",
+            "label": "Sep-14",
+            "option": "Sep-14"
+          },
+          {
+            "dimension": "time",
+            "label": "Aug-14",
+            "option": "Aug-14"
+          },
+          {
+            "dimension": "time",
+            "label": "Jul-14",
+            "option": "Jul-14"
+          },
+          {
+            "dimension": "time",
+            "label": "Jun-14",
+            "option": "Jun-14"
+          },
+          {
+            "dimension": "time",
+            "label": "May-14",
+            "option": "May-14"
+          },
+          {
+            "dimension": "time",
+            "label": "Apr-14",
+            "option": "Apr-14"
+          },
+          {
+            "dimension": "time",
+            "label": "Mar-14",
+            "option": "Mar-14"
+          },
+          {
+            "dimension": "time",
+            "label": "Feb-14",
+            "option": "Feb-14"
+          },
+          {
+            "dimension": "time",
+            "label": "Jan-14",
+            "option": "Jan-14"
+          },
+          {
+            "dimension": "time",
+            "label": "Dec-13",
+            "option": "Dec-13"
+          },
+          {
+            "dimension": "time",
+            "label": "Nov-13",
+            "option": "Nov-13"
+          },
+          {
+            "dimension": "time",
+            "label": "Oct-13",
+            "option": "Oct-13"
+          },
+          {
+            "dimension": "time",
+            "label": "Sep-13",
+            "option": "Sep-13"
+          },
+          {
+            "dimension": "time",
+            "label": "Aug-13",
+            "option": "Aug-13"
+          },
+          {
+            "dimension": "time",
+            "label": "Jul-13",
+            "option": "Jul-13"
+          },
+          {
+            "dimension": "time",
+            "label": "Jun-13",
+            "option": "Jun-13"
+          },
+          {
+            "dimension": "time",
+            "label": "May-13",
+            "option": "May-13"
+          },
+          {
+            "dimension": "time",
+            "label": "Apr-13",
+            "option": "Apr-13"
+          },
+          {
+            "dimension": "time",
+            "label": "Mar-13",
+            "option": "Mar-13"
+          },
+          {
+            "dimension": "time",
+            "label": "Feb-13",
+            "option": "Feb-13"
+          },
+          {
+            "dimension": "time",
+            "label": "Jan-13",
+            "option": "Jan-13"
+          },
+          {
+            "dimension": "time",
+            "label": "Dec-12",
+            "option": "Dec-12"
+          },
+          {
+            "dimension": "time",
+            "label": "Nov-12",
+            "option": "Nov-12"
+          },
+          {
+            "dimension": "time",
+            "label": "Oct-12",
+            "option": "Oct-12"
+          },
+          {
+            "dimension": "time",
+            "label": "Sep-12",
+            "option": "Sep-12"
+          },
+          {
+            "dimension": "time",
+            "label": "Aug-12",
+            "option": "Aug-12"
+          },
+          {
+            "dimension": "time",
+            "label": "Jul-12",
+            "option": "Jul-12"
+          },
+          {
+            "dimension": "time",
+            "label": "Jun-12",
+            "option": "Jun-12"
+          },
+          {
+            "dimension": "time",
+            "label": "May-12",
+            "option": "May-12"
+          },
+          {
+            "dimension": "time",
+            "label": "Apr-12",
+            "option": "Apr-12"
+          },
+          {
+            "dimension": "time",
+            "label": "Mar-12",
+            "option": "Mar-12"
+          },
+          {
+            "dimension": "time",
+            "label": "Feb-12",
+            "option": "Feb-12"
+          },
+          {
+            "dimension": "time",
+            "label": "Jan-12",
+            "option": "Jan-12"
+          },
+          {
+            "dimension": "time",
+            "label": "Dec-11",
+            "option": "Dec-11"
+          },
+          {
+            "dimension": "time",
+            "label": "Nov-11",
+            "option": "Nov-11"
+          },
+          {
+            "dimension": "time",
+            "label": "Oct-11",
+            "option": "Oct-11"
+          },
+          {
+            "dimension": "time",
+            "label": "Sep-11",
+            "option": "Sep-11"
+          },
+          {
+            "dimension": "time",
+            "label": "Aug-11",
+            "option": "Aug-11"
+          },
+          {
+            "dimension": "time",
+            "label": "Jul-11",
+            "option": "Jul-11"
+          },
+          {
+            "dimension": "time",
+            "label": "Jun-11",
+            "option": "Jun-11"
+          },
+          {
+            "dimension": "time",
+            "label": "May-11",
+            "option": "May-11"
+          },
+          {
+            "dimension": "time",
+            "label": "Apr-11",
+            "option": "Apr-11"
+          },
+          {
+            "dimension": "time",
+            "label": "Mar-11",
+            "option": "Mar-11"
+          },
+          {
+            "dimension": "time",
+            "label": "Feb-11",
+            "option": "Feb-11"
+          },
+          {
+            "dimension": "time",
+            "label": "Jan-11",
+            "option": "Jan-11"
+          },
+          {
+            "dimension": "time",
+            "label": "Dec-10",
+            "option": "Dec-10"
+          },
+          {
+            "dimension": "time",
+            "label": "Nov-10",
+            "option": "Nov-10"
+          },
+          {
+            "dimension": "time",
+            "label": "Oct-10",
+            "option": "Oct-10"
+          },
+          {
+            "dimension": "time",
+            "label": "Sep-10",
+            "option": "Sep-10"
+          },
+          {
+            "dimension": "time",
+            "label": "Aug-10",
+            "option": "Aug-10"
+          },
+          {
+            "dimension": "time",
+            "label": "Jul-10",
+            "option": "Jul-10"
+          },
+          {
+            "dimension": "time",
+            "label": "Jun-10",
+            "option": "Jun-10"
+          },
+          {
+            "dimension": "time",
+            "label": "May-10",
+            "option": "May-10"
+          },
+          {
+            "dimension": "time",
+            "label": "Apr-10",
+            "option": "Apr-10"
+          },
+          {
+            "dimension": "time",
+            "label": "Mar-10",
+            "option": "Mar-10"
+          },
+          {
+            "dimension": "time",
+            "label": "Feb-10",
+            "option": "Feb-10"
+          },
+          {
+            "dimension": "time",
+            "label": "Jan-10",
+            "option": "Jan-10"
+          },
+          {
+            "dimension": "time",
+            "label": "Dec-09",
+            "option": "Dec-09"
+          },
+          {
+            "dimension": "time",
+            "label": "Nov-09",
+            "option": "Nov-09"
+          },
+          {
+            "dimension": "time",
+            "label": "Oct-09",
+            "option": "Oct-09"
+          },
+          {
+            "dimension": "time",
+            "label": "Sep-09",
+            "option": "Sep-09"
+          },
+          {
+            "dimension": "time",
+            "label": "Aug-09",
+            "option": "Aug-09"
+          },
+          {
+            "dimension": "time",
+            "label": "Jul-09",
+            "option": "Jul-09"
+          },
+          {
+            "dimension": "time",
+            "label": "Jun-09",
+            "option": "Jun-09"
+          },
+          {
+            "dimension": "time",
+            "label": "May-09",
+            "option": "May-09"
+          },
+          {
+            "dimension": "time",
+            "label": "Apr-09",
+            "option": "Apr-09"
+          },
+          {
+            "dimension": "time",
+            "label": "Mar-09",
+            "option": "Mar-09"
+          },
+          {
+            "dimension": "time",
+            "label": "Feb-09",
+            "option": "Feb-09"
+          },
+          {
+            "dimension": "time",
+            "label": "Jan-09",
+            "option": "Jan-09"
+          },
+          {
+            "dimension": "time",
+            "label": "Dec-08",
+            "option": "Dec-08"
+          },
+          {
+            "dimension": "time",
+            "label": "Nov-08",
+            "option": "Nov-08"
+          },
+          {
+            "dimension": "time",
+            "label": "Oct-08",
+            "option": "Oct-08"
+          },
+          {
+            "dimension": "time",
+            "label": "Sep-08",
+            "option": "Sep-08"
+          },
+          {
+            "dimension": "time",
+            "label": "Aug-08",
+            "option": "Aug-08"
+          },
+          {
+            "dimension": "time",
+            "label": "Jul-08",
+            "option": "Jul-08"
+          },
+          {
+            "dimension": "time",
+            "label": "Jun-08",
+            "option": "Jun-08"
+          },
+          {
+            "dimension": "time",
+            "label": "May-08",
+            "option": "May-08"
+          },
+          {
+            "dimension": "time",
+            "label": "Apr-08",
+            "option": "Apr-08"
+          },
+          {
+            "dimension": "time",
+            "label": "Mar-08",
+            "option": "Mar-08"
+          },
+          {
+            "dimension": "time",
+            "label": "Feb-08",
+            "option": "Feb-08"
+          },
+          {
+            "dimension": "time",
+            "label": "Jan-08",
+            "option": "Jan-08"
+          },
+          {
+            "dimension": "time",
+            "label": "Dec-07",
+            "option": "Dec-07"
+          },
+          {
+            "dimension": "time",
+            "label": "Nov-07",
+            "option": "Nov-07"
+          },
+          {
+            "dimension": "time",
+            "label": "Oct-07",
+            "option": "Oct-07"
+          },
+          {
+            "dimension": "time",
+            "label": "Sep-07",
+            "option": "Sep-07"
+          },
+          {
+            "dimension": "time",
+            "label": "Aug-07",
+            "option": "Aug-07"
+          },
+          {
+            "dimension": "time",
+            "label": "Jul-07",
+            "option": "Jul-07"
+          },
+          {
+            "dimension": "time",
+            "label": "Jun-07",
+            "option": "Jun-07"
+          },
+          {
+            "dimension": "time",
+            "label": "May-07",
+            "option": "May-07"
+          },
+          {
+            "dimension": "time",
+            "label": "Apr-07",
+            "option": "Apr-07"
+          },
+          {
+            "dimension": "time",
+            "label": "Mar-07",
+            "option": "Mar-07"
+          },
+          {
+            "dimension": "time",
+            "label": "Feb-07",
+            "option": "Feb-07"
+          },
+          {
+            "dimension": "time",
+            "label": "Jan-07",
+            "option": "Jan-07"
+          },
+          {
+            "dimension": "time",
+            "label": "Dec-06",
+            "option": "Dec-06"
+          },
+          {
+            "dimension": "time",
+            "label": "Nov-06",
+            "option": "Nov-06"
+          },
+          {
+            "dimension": "time",
+            "label": "Oct-06",
+            "option": "Oct-06"
+          },
+          {
+            "dimension": "time",
+            "label": "Sep-06",
+            "option": "Sep-06"
+          },
+          {
+            "dimension": "time",
+            "label": "Aug-06",
+            "option": "Aug-06"
+          },
+          {
+            "dimension": "time",
+            "label": "Jul-06",
+            "option": "Jul-06"
+          },
+          {
+            "dimension": "time",
+            "label": "Jun-06",
+            "option": "Jun-06"
+          },
+          {
+            "dimension": "time",
+            "label": "May-06",
+            "option": "May-06"
+          },
+          {
+            "dimension": "time",
+            "label": "Apr-06",
+            "option": "Apr-06"
+          },
+          {
+            "dimension": "time",
+            "label": "Mar-06",
+            "option": "Mar-06"
+          },
+          {
+            "dimension": "time",
+            "label": "Feb-06",
+            "option": "Feb-06"
+          },
+          {
+            "dimension": "time",
+            "label": "Jan-06",
+            "option": "Jan-06"
+          },
+          {
+            "dimension": "time",
+            "label": "Dec-05",
+            "option": "Dec-05"
+          },
+          {
+            "dimension": "time",
+            "label": "Nov-05",
+            "option": "Nov-05"
+          },
+          {
+            "dimension": "time",
+            "label": "Oct-05",
+            "option": "Oct-05"
+          },
+          {
+            "dimension": "time",
+            "label": "Sep-05",
+            "option": "Sep-05"
+          },
+          {
+            "dimension": "time",
+            "label": "Aug-05",
+            "option": "Aug-05"
+          },
+          {
+            "dimension": "time",
+            "label": "Jul-05",
+            "option": "Jul-05"
+          },
+          {
+            "dimension": "time",
+            "label": "Jun-05",
+            "option": "Jun-05"
+          },
+          {
+            "dimension": "time",
+            "label": "May-05",
+            "option": "May-05"
+          },
+          {
+            "dimension": "time",
+            "label": "Apr-05",
+            "option": "Apr-05"
+          },
+          {
+            "dimension": "time",
+            "label": "Mar-05",
+            "option": "Mar-05"
+          },
+          {
+            "dimension": "time",
+            "label": "Feb-05",
+            "option": "Feb-05"
+          },
+          {
+            "dimension": "time",
+            "label": "Jan-05",
+            "option": "Jan-05"
+          },
+          {
+            "dimension": "time",
+            "label": "Dec-04",
+            "option": "Dec-04"
+          },
+          {
+            "dimension": "time",
+            "label": "Nov-04",
+            "option": "Nov-04"
+          },
+          {
+            "dimension": "time",
+            "label": "Oct-04",
+            "option": "Oct-04"
+          },
+          {
+            "dimension": "time",
+            "label": "Sep-04",
+            "option": "Sep-04"
+          },
+          {
+            "dimension": "time",
+            "label": "Aug-04",
+            "option": "Aug-04"
+          },
+          {
+            "dimension": "time",
+            "label": "Jul-04",
+            "option": "Jul-04"
+          },
+          {
+            "dimension": "time",
+            "label": "Jun-04",
+            "option": "Jun-04"
+          },
+          {
+            "dimension": "time",
+            "label": "May-04",
+            "option": "May-04"
+          },
+          {
+            "dimension": "time",
+            "label": "Apr-04",
+            "option": "Apr-04"
+          },
+          {
+            "dimension": "time",
+            "label": "Mar-04",
+            "option": "Mar-04"
+          },
+          {
+            "dimension": "time",
+            "label": "Feb-04",
+            "option": "Feb-04"
+          },
+          {
+            "dimension": "time",
+            "label": "Jan-04",
+            "option": "Jan-04"
+          },
+          {
+            "dimension": "time",
+            "label": "Dec-03",
+            "option": "Dec-03"
+          },
+          {
+            "dimension": "time",
+            "label": "Nov-03",
+            "option": "Nov-03"
+          },
+          {
+            "dimension": "time",
+            "label": "Oct-03",
+            "option": "Oct-03"
+          },
+          {
+            "dimension": "time",
+            "label": "Sep-03",
+            "option": "Sep-03"
+          },
+          {
+            "dimension": "time",
+            "label": "Aug-03",
+            "option": "Aug-03"
+          },
+          {
+            "dimension": "time",
+            "label": "Jul-03",
+            "option": "Jul-03"
+          },
+          {
+            "dimension": "time",
+            "label": "Jun-03",
+            "option": "Jun-03"
+          },
+          {
+            "dimension": "time",
+            "label": "May-03",
+            "option": "May-03"
+          },
+          {
+            "dimension": "time",
+            "label": "Apr-03",
+            "option": "Apr-03"
+          },
+          {
+            "dimension": "time",
+            "label": "Mar-03",
+            "option": "Mar-03"
+          },
+          {
+            "dimension": "time",
+            "label": "Feb-03",
+            "option": "Feb-03"
+          },
+          {
+            "dimension": "time",
+            "label": "Jan-03",
+            "option": "Jan-03"
+          },
+          {
+            "dimension": "time",
+            "label": "Dec-02",
+            "option": "Dec-02"
+          },
+          {
+            "dimension": "time",
+            "label": "Nov-02",
+            "option": "Nov-02"
+          },
+          {
+            "dimension": "time",
+            "label": "Oct-02",
+            "option": "Oct-02"
+          },
+          {
+            "dimension": "time",
+            "label": "Sep-02",
+            "option": "Sep-02"
+          },
+          {
+            "dimension": "time",
+            "label": "Aug-02",
+            "option": "Aug-02"
+          },
+          {
+            "dimension": "time",
+            "label": "Jul-02",
+            "option": "Jul-02"
+          },
+          {
+            "dimension": "time",
+            "label": "Jun-02",
+            "option": "Jun-02"
+          },
+          {
+            "dimension": "time",
+            "label": "May-02",
+            "option": "May-02"
+          },
+          {
+            "dimension": "time",
+            "label": "Apr-02",
+            "option": "Apr-02"
+          },
+          {
+            "dimension": "time",
+            "label": "Mar-02",
+            "option": "Mar-02"
+          },
+          {
+            "dimension": "time",
+            "label": "Feb-02",
+            "option": "Feb-02"
+          },
+          {
+            "dimension": "time",
+            "label": "Jan-02",
+            "option": "Jan-02"
+          },
+          {
+            "dimension": "time",
+            "label": "Dec-01",
+            "option": "Dec-01"
+          },
+          {
+            "dimension": "time",
+            "label": "Nov-01",
+            "option": "Nov-01"
+          },
+          {
+            "dimension": "time",
+            "label": "Oct-01",
+            "option": "Oct-01"
+          },
+          {
+            "dimension": "time",
+            "label": "Sep-01",
+            "option": "Sep-01"
+          },
+          {
+            "dimension": "time",
+            "label": "Aug-01",
+            "option": "Aug-01"
+          },
+          {
+            "dimension": "time",
+            "label": "Jul-01",
+            "option": "Jul-01"
+          },
+          {
+            "dimension": "time",
+            "label": "Jun-01",
+            "option": "Jun-01"
+          },
+          {
+            "dimension": "time",
+            "label": "May-01",
+            "option": "May-01"
+          },
+          {
+            "dimension": "time",
+            "label": "Apr-01",
+            "option": "Apr-01"
+          },
+          {
+            "dimension": "time",
+            "label": "Mar-01",
+            "option": "Mar-01"
+          },
+          {
+            "dimension": "time",
+            "label": "Feb-01",
+            "option": "Feb-01"
+          },
+          {
+            "dimension": "time",
+            "label": "Jan-01",
+            "option": "Jan-01"
+          },
+          {
+            "dimension": "time",
+            "label": "Dec-00",
+            "option": "Dec-00"
+          },
+          {
+            "dimension": "time",
+            "label": "Nov-00",
+            "option": "Nov-00"
+          },
+          {
+            "dimension": "time",
+            "label": "Oct-00",
+            "option": "Oct-00"
+          },
+          {
+            "dimension": "time",
+            "label": "Sep-00",
+            "option": "Sep-00"
+          },
+          {
+            "dimension": "time",
+            "label": "Aug-00",
+            "option": "Aug-00"
+          },
+          {
+            "dimension": "time",
+            "label": "Jul-00",
+            "option": "Jul-00"
+          },
+          {
+            "dimension": "time",
+            "label": "Jun-00",
+            "option": "Jun-00"
+          },
+          {
+            "dimension": "time",
+            "label": "May-00",
+            "option": "May-00"
+          },
+          {
+            "dimension": "time",
+            "label": "Apr-00",
+            "option": "Apr-00"
+          },
+          {
+            "dimension": "time",
+            "label": "Mar-00",
+            "option": "Mar-00"
+          },
+          {
+            "dimension": "time",
+            "label": "Feb-00",
+            "option": "Feb-00"
+          },
+          {
+            "dimension": "time",
+            "label": "Jan-00",
+            "option": "Jan-00"
+          },
+          {
+            "dimension": "time",
+            "label": "Dec-99",
+            "option": "Dec-99"
+          },
+          {
+            "dimension": "time",
+            "label": "Nov-99",
+            "option": "Nov-99"
+          },
+          {
+            "dimension": "time",
+            "label": "Oct-99",
+            "option": "Oct-99"
+          },
+          {
+            "dimension": "time",
+            "label": "Sep-99",
+            "option": "Sep-99"
+          },
+          {
+            "dimension": "time",
+            "label": "Aug-99",
+            "option": "Aug-99"
+          },
+          {
+            "dimension": "time",
+            "label": "Jul-99",
+            "option": "Jul-99"
+          },
+          {
+            "dimension": "time",
+            "label": "Jun-99",
+            "option": "Jun-99"
+          },
+          {
+            "dimension": "time",
+            "label": "May-99",
+            "option": "May-99"
+          },
+          {
+            "dimension": "time",
+            "label": "Apr-99",
+            "option": "Apr-99"
+          },
+          {
+            "dimension": "time",
+            "label": "Mar-99",
+            "option": "Mar-99"
+          },
+          {
+            "dimension": "time",
+            "label": "Feb-99",
+            "option": "Feb-99"
+          },
+          {
+            "dimension": "time",
+            "label": "Jan-99",
+            "option": "Jan-99"
+          },
+          {
+            "dimension": "time",
+            "label": "Dec-98",
+            "option": "Dec-98"
+          },
+          {
+            "dimension": "time",
+            "label": "Nov-98",
+            "option": "Nov-98"
+          },
+          {
+            "dimension": "time",
+            "label": "Oct-98",
+            "option": "Oct-98"
+          },
+          {
+            "dimension": "time",
+            "label": "Sep-98",
+            "option": "Sep-98"
+          },
+          {
+            "dimension": "time",
+            "label": "Aug-98",
+            "option": "Aug-98"
+          },
+          {
+            "dimension": "time",
+            "label": "Jul-98",
+            "option": "Jul-98"
+          },
+          {
+            "dimension": "time",
+            "label": "Jun-98",
+            "option": "Jun-98"
+          },
+          {
+            "dimension": "time",
+            "label": "May-98",
+            "option": "May-98"
+          },
+          {
+            "dimension": "time",
+            "label": "Apr-98",
+            "option": "Apr-98"
+          },
+          {
+            "dimension": "time",
+            "label": "Mar-98",
+            "option": "Mar-98"
+          },
+          {
+            "dimension": "time",
+            "label": "Feb-98",
+            "option": "Feb-98"
+          },
+          {
+            "dimension": "time",
+            "label": "Jan-98",
+            "option": "Jan-98"
+          },
+          {
+            "dimension": "time",
+            "label": "Dec-97",
+            "option": "Dec-97"
+          },
+          {
+            "dimension": "time",
+            "label": "Nov-97",
+            "option": "Nov-97"
+          },
+          {
+            "dimension": "time",
+            "label": "Oct-97",
+            "option": "Oct-97"
+          },
+          {
+            "dimension": "time",
+            "label": "Sep-97",
+            "option": "Sep-97"
+          },
+          {
+            "dimension": "time",
+            "label": "Aug-97",
+            "option": "Aug-97"
+          },
+          {
+            "dimension": "time",
+            "label": "Jul-97",
+            "option": "Jul-97"
+          },
+          {
+            "dimension": "time",
+            "label": "Jun-97",
+            "option": "Jun-97"
+          },
+          {
+            "dimension": "time",
+            "label": "May-97",
+            "option": "May-97"
+          },
+          {
+            "dimension": "time",
+            "label": "Apr-97",
+            "option": "Apr-97"
+          },
+          {
+            "dimension": "time",
+            "label": "Mar-97",
+            "option": "Mar-97"
+          },
+          {
+            "dimension": "time",
+            "label": "Feb-97",
+            "option": "Feb-97"
+          },
+          {
+            "dimension": "time",
+            "label": "Jan-97",
+            "option": "Jan-97"
+          },
+          {
+            "dimension": "time",
+            "label": "Dec-96",
+            "option": "Dec-96"
+          },
+          {
+            "dimension": "time",
+            "label": "Nov-96",
+            "option": "Nov-96"
+          },
+          {
+            "dimension": "time",
+            "label": "Oct-96",
+            "option": "Oct-96"
+          },
+          {
+            "dimension": "time",
+            "label": "Sep-96",
+            "option": "Sep-96"
+          },
+          {
+            "dimension": "time",
+            "label": "Aug-96",
+            "option": "Aug-96"
+          },
+          {
+            "dimension": "time",
+            "label": "Jul-96",
+            "option": "Jul-96"
+          },
+          {
+            "dimension": "time",
+            "label": "Jun-96",
+            "option": "Jun-96"
+          },
+          {
+            "dimension": "time",
+            "label": "May-96",
+            "option": "May-96"
+          },
+          {
+            "dimension": "time",
+            "label": "Apr-96",
+            "option": "Apr-96"
+          },
+          {
+            "dimension": "time",
+            "label": "Mar-96",
+            "option": "Mar-96"
+          },
+          {
+            "dimension": "time",
+            "label": "Feb-96",
+            "option": "Feb-96"
+          },
+          {
+            "dimension": "time",
+            "label": "Jan-96",
+            "option": "Jan-96"
+          },
+          {
+            "dimension": "time",
+            "label": "Dec-95",
+            "option": "Dec-95"
+          },
+          {
+            "dimension": "time",
+            "label": "Nov-95",
+            "option": "Nov-95"
+          },
+          {
+            "dimension": "time",
+            "label": "Oct-95",
+            "option": "Oct-95"
+          },
+          {
+            "dimension": "time",
+            "label": "Sep-95",
+            "option": "Sep-95"
+          },
+          {
+            "dimension": "time",
+            "label": "Aug-95",
+            "option": "Aug-95"
+          },
+          {
+            "dimension": "time",
+            "label": "Jul-95",
+            "option": "Jul-95"
+          },
+          {
+            "dimension": "time",
+            "label": "Jun-95",
+            "option": "Jun-95"
+          },
+          {
+            "dimension": "time",
+            "label": "May-95",
+            "option": "May-95"
+          },
+          {
+            "dimension": "time",
+            "label": "Apr-95",
+            "option": "Apr-95"
+          },
+          {
+            "dimension": "time",
+            "label": "Mar-95",
+            "option": "Mar-95"
+          },
+          {
+            "dimension": "time",
+            "label": "Feb-95",
+            "option": "Feb-95"
+          },
+          {
+            "dimension": "time",
+            "label": "Jan-95",
+            "option": "Jan-95"
+          },
+          {
+            "dimension": "time",
+            "label": "Dec-94",
+            "option": "Dec-94"
+          },
+          {
+            "dimension": "time",
+            "label": "Nov-94",
+            "option": "Nov-94"
+          },
+          {
+            "dimension": "time",
+            "label": "Oct-94",
+            "option": "Oct-94"
+          },
+          {
+            "dimension": "time",
+            "label": "Sep-94",
+            "option": "Sep-94"
+          },
+          {
+            "dimension": "time",
+            "label": "Aug-94",
+            "option": "Aug-94"
+          },
+          {
+            "dimension": "time",
+            "label": "Jul-94",
+            "option": "Jul-94"
+          },
+          {
+            "dimension": "time",
+            "label": "Jun-94",
+            "option": "Jun-94"
+          },
+          {
+            "dimension": "time",
+            "label": "May-94",
+            "option": "May-94"
+          },
+          {
+            "dimension": "time",
+            "label": "Apr-94",
+            "option": "Apr-94"
+          },
+          {
+            "dimension": "time",
+            "label": "Mar-94",
+            "option": "Mar-94"
+          },
+          {
+            "dimension": "time",
+            "label": "Feb-94",
+            "option": "Feb-94"
+          },
+          {
+            "dimension": "time",
+            "label": "Jan-94",
+            "option": "Jan-94"
+          },
+          {
+            "dimension": "time",
+            "label": "Dec-93",
+            "option": "Dec-93"
+          },
+          {
+            "dimension": "time",
+            "label": "Nov-93",
+            "option": "Nov-93"
+          },
+          {
+            "dimension": "time",
+            "label": "Oct-93",
+            "option": "Oct-93"
+          },
+          {
+            "dimension": "time",
+            "label": "Sep-93",
+            "option": "Sep-93"
+          },
+          {
+            "dimension": "time",
+            "label": "Aug-93",
+            "option": "Aug-93"
+          },
+          {
+            "dimension": "time",
+            "label": "Jul-93",
+            "option": "Jul-93"
+          },
+          {
+            "dimension": "time",
+            "label": "Jun-93",
+            "option": "Jun-93"
+          },
+          {
+            "dimension": "time",
+            "label": "May-93",
+            "option": "May-93"
+          },
+          {
+            "dimension": "time",
+            "label": "Apr-93",
+            "option": "Apr-93"
+          },
+          {
+            "dimension": "time",
+            "label": "Mar-93",
+            "option": "Mar-93"
+          },
+          {
+            "dimension": "time",
+            "label": "Feb-93",
+            "option": "Feb-93"
+          },
+          {
+            "dimension": "time",
+            "label": "Jan-93",
+            "option": "Jan-93"
+          },
+          {
+            "dimension": "time",
+            "label": "Dec-92",
+            "option": "Dec-92"
+          },
+          {
+            "dimension": "time",
+            "label": "Nov-92",
+            "option": "Nov-92"
+          },
+          {
+            "dimension": "time",
+            "label": "Oct-92",
+            "option": "Oct-92"
+          },
+          {
+            "dimension": "time",
+            "label": "Sep-92",
+            "option": "Sep-92"
+          },
+          {
+            "dimension": "time",
+            "label": "Aug-92",
+            "option": "Aug-92"
+          },
+          {
+            "dimension": "time",
+            "label": "Jul-92",
+            "option": "Jul-92"
+          },
+          {
+            "dimension": "time",
+            "label": "Jun-92",
+            "option": "Jun-92"
+          },
+          {
+            "dimension": "time",
+            "label": "May-92",
+            "option": "May-92"
+          },
+          {
+            "dimension": "time",
+            "label": "Apr-92",
+            "option": "Apr-92"
+          },
+          {
+            "dimension": "time",
+            "label": "Mar-92",
+            "option": "Mar-92"
+          },
+          {
+            "dimension": "time",
+            "label": "Feb-92",
+            "option": "Feb-92"
+          },
+          {
+            "dimension": "time",
+            "label": "Jan-92",
+            "option": "Jan-92"
+          },
+          {
+            "dimension": "time",
+            "label": "Dec-91",
+            "option": "Dec-91"
+          },
+          {
+            "dimension": "time",
+            "label": "Nov-91",
+            "option": "Nov-91"
+          },
+          {
+            "dimension": "time",
+            "label": "Oct-91",
+            "option": "Oct-91"
+          },
+          {
+            "dimension": "time",
+            "label": "Sep-91",
+            "option": "Sep-91"
+          },
+          {
+            "dimension": "time",
+            "label": "Aug-91",
+            "option": "Aug-91"
+          },
+          {
+            "dimension": "time",
+            "label": "Jul-91",
+            "option": "Jul-91"
+          },
+          {
+            "dimension": "time",
+            "label": "Jun-91",
+            "option": "Jun-91"
+          },
+          {
+            "dimension": "time",
+            "label": "May-91",
+            "option": "May-91"
+          },
+          {
+            "dimension": "time",
+            "label": "Apr-91",
+            "option": "Apr-91"
+          },
+          {
+            "dimension": "time",
+            "label": "Mar-91",
+            "option": "Mar-91"
+          },
+          {
+            "dimension": "time",
+            "label": "Feb-91",
+            "option": "Feb-91"
+          },
+          {
+            "dimension": "time",
+            "label": "Jan-91",
+            "option": "Jan-91"
+          },
+          {
+            "dimension": "time",
+            "label": "Dec-90",
+            "option": "Dec-90"
+          },
+          {
+            "dimension": "time",
+            "label": "Nov-90",
+            "option": "Nov-90"
+          },
+          {
+            "dimension": "time",
+            "label": "Oct-90",
+            "option": "Oct-90"
+          },
+          {
+            "dimension": "time",
+            "label": "Sep-90",
+            "option": "Sep-90"
+          },
+          {
+            "dimension": "time",
+            "label": "Aug-90",
+            "option": "Aug-90"
+          },
+          {
+            "dimension": "time",
+            "label": "Jul-90",
+            "option": "Jul-90"
+          },
+          {
+            "dimension": "time",
+            "label": "Jun-90",
+            "option": "Jun-90"
+          },
+          {
+            "dimension": "time",
+            "label": "May-90",
+            "option": "May-90"
+          },
+          {
+            "dimension": "time",
+            "label": "Apr-90",
+            "option": "Apr-90"
+          },
+          {
+            "dimension": "time",
+            "label": "Mar-90",
+            "option": "Mar-90"
+          },
+          {
+            "dimension": "time",
+            "label": "Feb-90",
+            "option": "Feb-90"
+          },
+          {
+            "dimension": "time",
+            "label": "Jan-90",
+            "option": "Jan-90"
+          },
+          {
+            "dimension": "time",
+            "label": "Dec-89",
+            "option": "Dec-89"
+          },
+          {
+            "dimension": "time",
+            "label": "Nov-89",
+            "option": "Nov-89"
+          },
+          {
+            "dimension": "time",
+            "label": "Oct-89",
+            "option": "Oct-89"
+          },
+          {
+            "dimension": "time",
+            "label": "Sep-89",
+            "option": "Sep-89"
+          },
+          {
+            "dimension": "time",
+            "label": "Aug-89",
+            "option": "Aug-89"
+          },
+          {
+            "dimension": "time",
+            "label": "Jul-89",
+            "option": "Jul-89"
+          },
+          {
+            "dimension": "time",
+            "label": "Jun-89",
+            "option": "Jun-89"
+          },
+          {
+            "dimension": "time",
+            "label": "May-89",
+            "option": "May-89"
+          },
+          {
+            "dimension": "time",
+            "label": "Apr-89",
+            "option": "Apr-89"
+          },
+          {
+            "dimension": "time",
+            "label": "Mar-89",
+            "option": "Mar-89"
+          },
+          {
+            "dimension": "time",
+            "label": "Feb-89",
+            "option": "Feb-89"
+          },
+          {
+            "dimension": "time",
+            "label": "Jan-89",
+            "option": "Jan-89"
+          },
+          {
+            "dimension": "time",
+            "label": "Dec-88",
+            "option": "Dec-88"
+          },
+          {
+            "dimension": "time",
+            "label": "Nov-88",
+            "option": "Nov-88"
+          },
+          {
+            "dimension": "time",
+            "label": "Oct-88",
+            "option": "Oct-88"
+          },
+          {
+            "dimension": "time",
+            "label": "Sep-88",
+            "option": "Sep-88"
+          },
+          {
+            "dimension": "time",
+            "label": "Aug-88",
+            "option": "Aug-88"
+          },
+          {
+            "dimension": "time",
+            "label": "Jul-88",
+            "option": "Jul-88"
+          },
+          {
+            "dimension": "time",
+            "label": "Jun-88",
+            "option": "Jun-88"
+          },
+          {
+            "dimension": "time",
+            "label": "May-88",
+            "option": "May-88"
+          },
+          {
+            "dimension": "time",
+            "label": "Apr-88",
+            "option": "Apr-88"
+          },
+          {
+            "dimension": "time",
+            "label": "Mar-88",
+            "option": "Mar-88"
+          },
+          {
+            "dimension": "time",
+            "label": "Feb-88",
+            "option": "Feb-88"
+          },
+          {
+            "dimension": "time",
+            "label": "Jan-88",
+            "option": "Jan-88"
+          }
+        ],
+        "reportedTotal": 457,
+        "retrievedUnique": 457,
+        "stableReportedTotal": true,
+        "stopReason": "exhausted"
+      },
+      "version": "45",
+      "versionUrl": "https://api.beta.ons.gov.uk/v1/datasets/retail-sales-index/editions/time-series/versions/45"
+    }
+  },
+  "dcterms:accrualPeriodicity": {
+    "@id": "http://purl.org/linked-data/sdmx/2009/code#freq-M"
+  },
+  "qb:structure": {
+    "@id": "https://api.beta.ons.gov.uk/v1/datasets/retail-sales-index/editions"
+  }
+}
+---
+
+# Retail sales index
+
+Retail sales data for Great Britain in value and volume terms, seasonally and non-seasonally adjusted.
+
+Native identifier: `retail-sales-index`.
+
+Source family: `ons-datasets`. Assertion: normalised metadata; independent human review is not recorded.
+
+[Official source](https://api.beta.ons.gov.uk/v1/datasets/retail-sales-index)
+
+Update cadence: Monthly.
+Temporal evidence: not-evidenced (dataset-reference-period); start not stated, end not stated.
+No supported reference-period extent in captured metadata; release and catalogue dates are separate.
+
+[Release catalogue or change-discovery route](https://www.ons.gov.uk/releasecalendar)
+[Recent release feed](https://www.ons.gov.uk/releasecalendar?rss&highlight=true&limit=10&page=1&release-type=type-published&sort=date-newest)
+
+## Evidence limits
+
+- Time-option extrema describe available native codes; continuity and populated observation cells have not been established.
+
+The front matter retains source receipts, rights, native metadata and schema facts. Discovery does not authorise data access.

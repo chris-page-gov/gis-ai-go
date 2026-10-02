@@ -1,0 +1,143 @@
+---
+{
+  "@context": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/context.jsonld",
+  "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-website-dataset-landing-page/%2Fpeoplepopulationandcommunity%2Fbirthsdeathsandmarriages%2Fdeaths%2Fdatasets%2Finfantmortalitybirthcohorttablesinenglandandwales",
+  "@type": [
+    "dcat:Dataset",
+    "okfp:MetadataRecord"
+  ],
+  "type": "Dataset",
+  "title": "Infant mortality before their first birthday (by year of birth), England and Wales",
+  "description": "Annual statistics on births and infant deaths based on babies born in a calendar year that died before their first birthday linked to their corresponding birth notification and their corresponding death registration.",
+  "nativeIdentifier": "/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/datasets/infantmortalitybirthcohorttablesinenglandandwales",
+  "sourceFamily": "ons-website-dataset-landing-page",
+  "resource": "https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/datasets/infantmortalitybirthcohorttablesinenglandandwales",
+  "status": "draft",
+  "generated": {
+    "by": "gis-ai-go OKF+ source producer"
+  },
+  "okfp:machineImported": true,
+  "assertionStatus": "normalised",
+  "reviewStatus": "not-human-reviewed",
+  "tags": [
+    "neonatal",
+    "postneonatal",
+    "deaths under one year",
+    "mortality rate",
+    "death rate",
+    "dataset_landing_page"
+  ],
+  "sources": [
+    {
+      "resource": "https://api.beta.ons.gov.uk/v1/search?q=&content_type=dataset_landing_page&sort=title&highlight=false&limit=1000&offset=1000",
+      "retrievedAt": "2026-10-02T07:58:51.109895Z",
+      "responseSha256": "096d4f3d6adcd37b38f0bbf15c984de9130344bd7a7c6666b1bf88819b2d9767",
+      "sourcePointer": "/items/877",
+      "normalisedSource": "okf-plus/source/ons-website-dataset-landing-page.json",
+      "normalisedPointer": "/records/1877",
+      "normalisedRecordSha256": "41467f90c1739d2d1239bbfacaa9e2a531b9cc80e8c7cc14e53555da9f945db8",
+      "evidenceKind": "captured-public-metadata",
+      "sourcePointerStatus": "exact-native-id-match"
+    }
+  ],
+  "prov:wasDerivedFrom": {
+    "@id": "https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/datasets/infantmortalitybirthcohorttablesinenglandandwales"
+  },
+  "dcterms:conformsTo": {
+    "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/profile/v1"
+  },
+  "temporal": {
+    "status": "not-evidenced",
+    "kind": "dataset-reference-period",
+    "start": null,
+    "end": null,
+    "sourceField": null,
+    "note": "No supported reference-period extent in captured metadata; release and catalogue dates are separate."
+  },
+  "update": {
+    "frequency": {
+      "status": "not-evidenced",
+      "label": null,
+      "iri": null,
+      "sourceField": null
+    },
+    "releaseCatalogue": [
+      "https://www.ons.gov.uk/releasecalendar"
+    ],
+    "releaseFeed": [
+      "https://www.ons.gov.uk/releasecalendar?rss&highlight=true&limit=10&page=1&release-type=type-published&sort=date-newest"
+    ],
+    "nextRelease": null,
+    "metadataModified": null,
+    "releaseVersion": ""
+  },
+  "rights": {
+    "metadata": "Public metadata citation and factual normalisation; source rights retained.",
+    "describedData": "Not established by metadata discovery; consult source-specific terms.",
+    "retrievalAuthority": "metadata-only",
+    "executionAdmitted": false
+  },
+  "limitations": [
+    "Website and API representations are retained separately; matching titles do not prove equivalence.",
+    "Release dates do not establish the period covered by statistical observations."
+  ],
+  "details": {
+    "canonical_topic": "",
+    "cdid": "",
+    "dataset_id": "",
+    "edition": "",
+    "id": "/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/datasets/infantmortalitybirthcohorttablesinenglandandwales",
+    "keywords": [
+      "neonatal",
+      "postneonatal",
+      "deaths under one year",
+      "mortality rate",
+      "death rate"
+    ],
+    "meta_description": "Annual statistics on births and infant deaths based on babies born in a calendar year that died before their first birthday linked to their corresponding birth notification and their corresponding death registration.",
+    "nativeIdentityField": "uri",
+    "release_date": "2026-05-10T23:00:00.000Z",
+    "resource": "https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/datasets/infantmortalitybirthcohorttablesinenglandandwales",
+    "sourceEvidence": {
+      "pointer": "/items/877",
+      "retrievedAt": "2026-10-02T07:58:51.109895Z",
+      "sha256": "096d4f3d6adcd37b38f0bbf15c984de9130344bd7a7c6666b1bf88819b2d9767",
+      "status": 200,
+      "url": "https://api.beta.ons.gov.uk/v1/search?q=&content_type=dataset_landing_page&sort=title&highlight=false&limit=1000&offset=1000"
+    },
+    "summary": "Annual statistics on births and infant deaths based on babies born in a calendar year that died before their first birthday linked to their corresponding birth notification and their corresponding death registration.",
+    "title": "Infant mortality before their first birthday (by year of birth), England and Wales",
+    "topics": [
+      "9581",
+      "7131",
+      "2998"
+    ],
+    "type": "dataset_landing_page",
+    "uri": "/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/datasets/infantmortalitybirthcohorttablesinenglandandwales"
+  }
+}
+---
+
+# Infant mortality before their first birthday (by year of birth), England and Wales
+
+Annual statistics on births and infant deaths based on babies born in a calendar year that died before their first birthday linked to their corresponding birth notification and their corresponding death registration.
+
+Native identifier: `/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/datasets/infantmortalitybirthcohorttablesinenglandandwales`.
+
+Source family: `ons-website-dataset-landing-page`. Assertion: normalised metadata; independent human review is not recorded.
+
+[Official source](https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/datasets/infantmortalitybirthcohorttablesinenglandandwales)
+
+Update cadence: not evidenced in captured metadata.
+Temporal evidence: not-evidenced (dataset-reference-period); start not stated, end not stated.
+No supported reference-period extent in captured metadata; release and catalogue dates are separate.
+
+[Release catalogue or change-discovery route](https://www.ons.gov.uk/releasecalendar)
+[Recent release feed](https://www.ons.gov.uk/releasecalendar?rss&highlight=true&limit=10&page=1&release-type=type-published&sort=date-newest)
+
+## Evidence limits
+
+- Website and API representations are retained separately; matching titles do not prove equivalence.
+- Release dates do not establish the period covered by statistical observations.
+
+The front matter retains source receipts, rights, native metadata and schema facts. Discovery does not authorise data access.

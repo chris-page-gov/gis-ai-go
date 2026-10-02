@@ -220,6 +220,14 @@ jobs:
           path: |
             artifacts/
             !artifacts/pages/**
+            !artifacts/okf-plus/capture/**
+            !artifacts/okf-plus/specifications/**
+            !artifacts/okf-plus/*-probes/**
+            !artifacts/okf-plus/raw/**
+            !artifacts/okf-plus/private/**
+            !artifacts/okf-plus/private-diagnostics/**
+            !artifacts/okf-plus/export/**/PRIVATE*
+            !artifacts/okf-plus/export/PRIVATE*
             apps/public-explorer/test-results/
           if-no-files-found: warn
 

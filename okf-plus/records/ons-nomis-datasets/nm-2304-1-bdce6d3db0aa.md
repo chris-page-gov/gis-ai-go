@@ -1,0 +1,307 @@
+---
+{
+  "@context": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/context.jsonld",
+  "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-nomis-datasets/NM_2304_1",
+  "@type": [
+    "dcat:Dataset",
+    "okfp:MetadataRecord"
+  ],
+  "type": "Dataset",
+  "title": "RM204 - Number of Dwellings",
+  "description": "Nomis dataset definition with native SDMX components.",
+  "nativeIdentifier": "NM_2304_1",
+  "sourceFamily": "ons-nomis-datasets",
+  "resource": "https://www.nomisweb.co.uk/api/v01/dataset/NM_2304_1/def.sdmx.json",
+  "status": "draft",
+  "generated": {
+    "by": "gis-ai-go OKF+ source producer"
+  },
+  "okfp:machineImported": true,
+  "assertionStatus": "normalised",
+  "reviewStatus": "not-human-reviewed",
+  "tags": [],
+  "sources": [
+    {
+      "resource": "https://www.nomisweb.co.uk/api/v01/dataset/def.sdmx.json",
+      "retrievedAt": "2026-10-02T01:18:03.834666Z",
+      "responseSha256": "e782c84721db296c396660a4df4b65fa967b9cbab0b52768e1262659e37e9a54",
+      "sourcePointer": "/structure/keyfamilies/keyfamily/1567",
+      "normalisedSource": "okf-plus/source/ons-nomis-datasets.json",
+      "normalisedPointer": "/records/1567",
+      "normalisedRecordSha256": "c7954362116ddb86a05ea31cfc12ac70775b78342ca2f0d27e8e7a47bbc1a0c6",
+      "evidenceKind": "captured-public-metadata",
+      "sourcePointerStatus": "exact-native-id-match"
+    },
+    {
+      "resource": "https://www.nomisweb.co.uk/api/v01/dataset/NM_2304_1/time.def.sdmx.json",
+      "retrievedAt": "2026-10-02T07:56:56.860164Z",
+      "responseSha256": "515eca35a69cc981976725902f01c961d0815da5380acb18cd57d65c1c098a3f",
+      "sourcePointer": null,
+      "normalisedSource": "okf-plus/source/ons-nomis-time-options.json",
+      "normalisedPointer": "/records/1567",
+      "normalisedRecordSha256": "f0d756e3ca43372988d8f99f89d94cb68293be3f900ee30086fb38aeaf8a6a42",
+      "evidenceKind": "captured-public-metadata",
+      "sourcePointerStatus": "catalogue-document"
+    }
+  ],
+  "prov:wasDerivedFrom": {
+    "@id": "https://www.nomisweb.co.uk/api/v01/dataset/NM_2304_1/def.sdmx.json"
+  },
+  "dcterms:conformsTo": {
+    "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/profile/v1"
+  },
+  "temporal": {
+    "status": "normalised-source-options",
+    "kind": "available-native-period-options",
+    "start": 2021,
+    "end": 2021,
+    "sourceField": "timeMetadata.codes",
+    "note": "Extrema of the complete published native period-code list; no continuity or populated observation cells are inferred.",
+    "precision": "year",
+    "derivation": "Nomis-native-integer-year.v1"
+  },
+  "update": {
+    "frequency": {
+      "status": "not-evidenced",
+      "label": null,
+      "iri": null,
+      "sourceField": null
+    },
+    "releaseCatalogue": [
+      "https://www.nomisweb.co.uk/releasecalendar.asp"
+    ],
+    "releaseFeed": [],
+    "nextRelease": null,
+    "metadataModified": null,
+    "releaseVersion": null
+  },
+  "rights": {
+    "metadata": "Public metadata citation and factual normalisation; source rights retained.",
+    "describedData": "Not established by metadata discovery; consult source-specific terms.",
+    "retrievalAuthority": "metadata-only",
+    "executionAdmitted": false
+  },
+  "limitations": [
+    "FREQ denotes statistical observation frequency; it does not establish release cadence.",
+    "FirstReleased and LastUpdated describe publication history, not the observation date range.",
+    "Time-option extrema describe available native codes; continuity and populated observation cells have not been established."
+  ],
+  "details": {
+    "agencyid": "NOMIS",
+    "annotations": {
+      "Mnemonic": "c2021rm204",
+      "Status": "Current (being actively updated)",
+      "SubDescription": "Dwellings",
+      "Units": "Dwellings"
+    },
+    "components": {
+      "attribute": [
+        {
+          "assignmentstatus": "Mandatory",
+          "attachmentlevel": "Observation",
+          "codelist": "CL_OBS_STATUS",
+          "conceptref": "OBS_STATUS"
+        },
+        {
+          "assignmentstatus": "Conditional",
+          "attachmentlevel": "Observation",
+          "codelist": "CL_OBS_CONF",
+          "conceptref": "OBS_CONF"
+        },
+        {
+          "assignmentstatus": "Conditional",
+          "attachmentlevel": "Observation",
+          "codelist": "CL_OBS_ROUND",
+          "conceptref": "OBS_ROUND"
+        },
+        {
+          "assignmentstatus": "Conditional",
+          "attachmentlevel": "Series",
+          "codelist": "CL_UNIT_MULT",
+          "conceptref": "UNIT_MULTIPLIER"
+        },
+        {
+          "assignmentstatus": "Mandatory",
+          "attachmentlevel": "Series",
+          "codelist": "CL_TIME_FORMAT",
+          "conceptref": "TIME_FORMAT"
+        },
+        {
+          "assignmentstatus": "Mandatory",
+          "attachmentlevel": "Series",
+          "codelist": "CL_UNIT",
+          "conceptref": "UNIT"
+        },
+        {
+          "assignmentstatus": "Mandatory",
+          "attachmentlevel": "Series",
+          "conceptref": "TITLE_COMPL"
+        }
+      ],
+      "dimension": [
+        {
+          "codelist": "CL_2304_1_GEOGRAPHY",
+          "conceptref": "GEOGRAPHY"
+        },
+        {
+          "codelist": "CL_2304_1_C2021_DWELL_1",
+          "conceptref": "C2021_DWELL_1"
+        },
+        {
+          "codelist": "CL_2304_1_MEASURES",
+          "conceptref": "MEASURES"
+        },
+        {
+          "codelist": "CL_2304_1_FREQ",
+          "conceptref": "FREQ",
+          "isfrequencydimension": "true"
+        }
+      ],
+      "primarymeasure": {
+        "conceptref": "OBS_VALUE"
+      },
+      "timedimension": {
+        "codelist": "CL_2304_1_TIME",
+        "conceptref": "TIME"
+      }
+    },
+    "id": "NM_2304_1",
+    "name": {
+      "lang": "en",
+      "value": "RM204 - Number of Dwellings"
+    },
+    "uri": "Nm-2304d1",
+    "version": 1.0,
+    "timeMetadata": {
+      "bounds": {
+        "basis": "Nomis returned TIME codelist native codes; no observations",
+        "comparisonRule": "Nomis-native-integer-year.v1",
+        "continuityEstablished": false,
+        "granularity": "year",
+        "maximumNative": 2021,
+        "minimumNative": 2021,
+        "status": "known-option-extrema"
+      },
+      "codeListId": "CL_2304_1_TIME",
+      "id": "NM_2304_1",
+      "metadataEvidence": {
+        "retrievedAt": "2026-10-02T07:56:56.860164Z",
+        "sha256": "515eca35a69cc981976725902f01c961d0815da5380acb18cd57d65c1c098a3f",
+        "status": 200,
+        "url": "https://www.nomisweb.co.uk/api/v01/dataset/NM_2304_1/time.def.sdmx.json"
+      },
+      "metadataStatus": "captured",
+      "returnedCodeCount": 1,
+      "timeOptionsTable": {
+        "encoding": "gis-ai-go.native-time-table.v1",
+        "columns": [
+          "value",
+          "description",
+          "revisionMetadata"
+        ],
+        "revisionColumns": [
+          "title",
+          "value"
+        ],
+        "absentDescription": null,
+        "rows": [
+          [
+            2021,
+            {
+              "lang": "en",
+              "value": 2021
+            },
+            []
+          ]
+        ]
+      }
+    }
+  },
+  "qb:structure": {
+    "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-nomis-datasets/NM_2304_1/structure",
+    "@type": "qb:DataStructureDefinition",
+    "qb:component": [
+      {
+        "@type": "qb:ComponentSpecification",
+        "qb:dimension": {
+          "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-nomis-datasets/NM_2304_1/dimension/GEOGRAPHY",
+          "@type": "qb:DimensionProperty",
+          "rdfs:label": "GEOGRAPHY",
+          "qb:codeList": {
+            "@id": "https://www.nomisweb.co.uk/api/v01/codelist/CL_2304_1_GEOGRAPHY/def.sdmx.json"
+          }
+        }
+      },
+      {
+        "@type": "qb:ComponentSpecification",
+        "qb:dimension": {
+          "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-nomis-datasets/NM_2304_1/dimension/C2021_DWELL_1",
+          "@type": "qb:DimensionProperty",
+          "rdfs:label": "C2021_DWELL_1",
+          "qb:codeList": {
+            "@id": "https://www.nomisweb.co.uk/api/v01/codelist/CL_2304_1_C2021_DWELL_1/def.sdmx.json"
+          }
+        }
+      },
+      {
+        "@type": "qb:ComponentSpecification",
+        "qb:dimension": {
+          "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-nomis-datasets/NM_2304_1/dimension/MEASURES",
+          "@type": "qb:DimensionProperty",
+          "rdfs:label": "MEASURES",
+          "qb:codeList": {
+            "@id": "https://www.nomisweb.co.uk/api/v01/codelist/CL_2304_1_MEASURES/def.sdmx.json"
+          }
+        }
+      },
+      {
+        "@type": "qb:ComponentSpecification",
+        "qb:dimension": {
+          "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-nomis-datasets/NM_2304_1/dimension/FREQ",
+          "@type": "qb:DimensionProperty",
+          "rdfs:label": "FREQ",
+          "qb:codeList": {
+            "@id": "https://www.nomisweb.co.uk/api/v01/codelist/CL_2304_1_FREQ/def.sdmx.json"
+          }
+        }
+      }
+    ]
+  },
+  "okfp:nativeTemporalBounds": {
+    "@value": {
+      "basis": "Nomis returned TIME codelist native codes; no observations",
+      "comparisonRule": "Nomis-native-integer-year.v1",
+      "continuityEstablished": false,
+      "granularity": "year",
+      "maximumNative": 2021,
+      "minimumNative": 2021,
+      "status": "known-option-extrema"
+    },
+    "@type": "@json"
+  }
+}
+---
+
+# RM204 - Number of Dwellings
+
+Nomis dataset definition with native SDMX components.
+
+Native identifier: `NM_2304_1`.
+
+Source family: `ons-nomis-datasets`. Assertion: normalised metadata; independent human review is not recorded.
+
+[Official source](https://www.nomisweb.co.uk/api/v01/dataset/NM_2304_1/def.sdmx.json)
+
+Update cadence: not evidenced in captured metadata.
+Temporal evidence: normalised-source-options (available-native-period-options); start 2021, end 2021.
+Extrema of the complete published native period-code list; no continuity or populated observation cells are inferred.
+
+[Release catalogue or change-discovery route](https://www.nomisweb.co.uk/releasecalendar.asp)
+
+## Evidence limits
+
+- FREQ denotes statistical observation frequency; it does not establish release cadence.
+- FirstReleased and LastUpdated describe publication history, not the observation date range.
+- Time-option extrema describe available native codes; continuity and populated observation cells have not been established.
+
+The front matter retains source receipts, rights, native metadata and schema facts. Discovery does not authorise data access.

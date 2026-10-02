@@ -1,0 +1,155 @@
+---
+{
+  "@context": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/context.jsonld",
+  "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-geography-items/2db50ddef6274335bbaadc6dfdaa52fe",
+  "@type": [
+    "dcat:Dataset",
+    "okfp:MetadataRecord"
+  ],
+  "type": "Dataset",
+  "title": "Local Enterprise Partnership Overlapping Parts (April 2020) Names and Codes in EN",
+  "description": "This file contains names and codes for Local Enterprise Partnerships (overlapping parts) (LEP) in England as at 1 April 2020. (File Size - 16 KB). Field Names – LEPOP20CD, LEPOP20NM, FID Field Types – Text, Text Field Lengths – 9, 74 FID = The FID, or Feature ID is created by the publication process when the names and codes / lookup products are published to the Open Geography portal. REST URL of Feature Access Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/LEP_overlapping_parts_April_2020_Names_and_Codes_in_England_2022/FeatureServer",
+  "nativeIdentifier": "2db50ddef6274335bbaadc6dfdaa52fe",
+  "sourceFamily": "ons-geography-items",
+  "resource": "https://geoportal.statistics.gov.uk/items/2db50ddef6274335bbaadc6dfdaa52fe",
+  "status": "draft",
+  "generated": {
+    "by": "gis-ai-go OKF+ source producer"
+  },
+  "okfp:machineImported": true,
+  "assertionStatus": "normalised",
+  "reviewStatus": "not-human-reviewed",
+  "tags": [
+    "Names and Codes",
+    "LEPOP",
+    "England",
+    "LEPOP NC",
+    "Latest_Names_and_Codes",
+    "NAC_OTH",
+    "NAC_LEPOP",
+    "2020",
+    "APR_2020",
+    "Feature Service"
+  ],
+  "sources": [
+    {
+      "resource": "https://www.arcgis.com/sharing/rest/search?f=json&q=orgid%3AESMARspQHYMw9BZ9&num=100&start=3901&sortField=created&sortOrder=asc",
+      "retrievedAt": "2026-10-02T01:28:17.255889Z",
+      "responseSha256": "1e103fa583bf1dd0ac21a8acdf43116df0c33506b92c8feca09484382c05c8e0",
+      "sourcePointer": "/results/66",
+      "normalisedSource": "okf-plus/source/ons-geography-items.json",
+      "normalisedPointer": "/records/3966",
+      "normalisedRecordSha256": "3545f1fbcd7c04243a709ca6999570af5ffd0ad54cadb957f05addfdd6761caa",
+      "evidenceKind": "captured-public-metadata",
+      "sourcePointerStatus": "exact-native-id-match"
+    }
+  ],
+  "prov:wasDerivedFrom": {
+    "@id": "https://geoportal.statistics.gov.uk/items/2db50ddef6274335bbaadc6dfdaa52fe"
+  },
+  "dcterms:conformsTo": {
+    "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/profile/v1"
+  },
+  "temporal": {
+    "status": "not-evidenced",
+    "kind": "dataset-reference-period",
+    "start": null,
+    "end": null,
+    "sourceField": null,
+    "note": "No supported reference-period extent in captured metadata; release and catalogue dates are separate."
+  },
+  "update": {
+    "frequency": {
+      "status": "not-evidenced",
+      "label": null,
+      "iri": null,
+      "sourceField": null
+    },
+    "releaseCatalogue": [
+      "https://geoportal.statistics.gov.uk/"
+    ],
+    "releaseFeed": [],
+    "nextRelease": null,
+    "metadataModified": "2025-08-11T08:11:25Z",
+    "releaseVersion": null
+  },
+  "rights": {
+    "metadata": "Public metadata citation and factual normalisation; source rights retained.",
+    "describedData": "https://www.ons.gov.uk/methodology/geography/licences",
+    "retrievalAuthority": "metadata-only",
+    "executionAdmitted": false
+  },
+  "limitations": [
+    "A date in an item title is not automatically the observation/reference range.",
+    "Portal items can be different representations or vintages of one product."
+  ],
+  "details": {
+    "access": "public",
+    "categories": [
+      "/Categories/Names and Codes/Other",
+      "/Categories/ONS Geography Open Data"
+    ],
+    "created": 1666194925000,
+    "culture": "en-us",
+    "description": "This file contains names and codes for Local Enterprise Partnerships (overlapping parts) (LEP) in England as at 1 April 2020. (File Size - 16 KB). Field Names – LEPOP20CD, LEPOP20NM, FID Field Types – Text, Text Field Lengths – 9, 74 FID = The FID, or Feature ID is created by the publication process when the names and codes / lookup products are published to the Open Geography portal. REST URL of Feature Access Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/LEP_overlapping_parts_April_2020_Names_and_Codes_in_England_2022/FeatureServer",
+    "extent": [],
+    "id": "2db50ddef6274335bbaadc6dfdaa52fe",
+    "licenseInfo": "<a href='https://www.ons.gov.uk/methodology/geography/licences' target='_blank' rel='nofollow ugc noopener noreferrer'>https://www.ons.gov.uk/methodology/geography/licences</a>",
+    "modified": 1754899885000,
+    "organisationId": "ESMARspQHYMw9BZ9",
+    "snippet": "Other Geography Names and Codes",
+    "spatialReference": "WGS_1984_Web_Mercator_Auxiliary_Sphere",
+    "tags": [
+      "Names and Codes",
+      "LEPOP",
+      "England",
+      "LEPOP NC",
+      "Latest_Names_and_Codes",
+      "NAC_OTH",
+      "NAC_LEPOP",
+      "2020",
+      "APR_2020"
+    ],
+    "title": "Local Enterprise Partnership Overlapping Parts (April 2020) Names and Codes in EN",
+    "type": "Feature Service",
+    "typeKeywords": [
+      "ArcGIS Server",
+      "Data",
+      "Feature Access",
+      "Feature Service",
+      "Metadata",
+      "Service",
+      "Singlelayer",
+      "Table",
+      "Hosted Service"
+    ],
+    "url": "https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/LEP_overlapping_parts_April_2020_Names_and_Codes_in_England_2022/FeatureServer"
+  },
+  "dcterms:publisher": {
+    "@id": "https://www.ons.gov.uk/"
+  }
+}
+---
+
+# Local Enterprise Partnership Overlapping Parts (April 2020) Names and Codes in EN
+
+This file contains names and codes for Local Enterprise Partnerships (overlapping parts) (LEP) in England as at 1 April 2020. (File Size - 16 KB). Field Names – LEPOP20CD, LEPOP20NM, FID Field Types – Text, Text Field Lengths – 9, 74 FID = The FID, or Feature ID is created by the publication process when the names and codes / lookup products are published to the Open Geography portal. REST URL of Feature Access Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/LEP_overlapping_parts_April_2020_Names_and_Codes_in_England_2022/FeatureServer
+
+Native identifier: `2db50ddef6274335bbaadc6dfdaa52fe`.
+
+Source family: `ons-geography-items`. Assertion: normalised metadata; independent human review is not recorded.
+
+[Official source](https://geoportal.statistics.gov.uk/items/2db50ddef6274335bbaadc6dfdaa52fe)
+
+Update cadence: not evidenced in captured metadata.
+Temporal evidence: not-evidenced (dataset-reference-period); start not stated, end not stated.
+No supported reference-period extent in captured metadata; release and catalogue dates are separate.
+
+[Release catalogue or change-discovery route](https://geoportal.statistics.gov.uk/)
+
+## Evidence limits
+
+- A date in an item title is not automatically the observation/reference range.
+- Portal items can be different representations or vintages of one product.
+
+The front matter retains source receipts, rights, native metadata and schema facts. Discovery does not authorise data access.

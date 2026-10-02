@@ -1,0 +1,87 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "adms": "http://www.w3.org/ns/adms#",
+    "assertionStatus": "okfp:assertionStatus",
+    "assertions": {
+      "@id": "okfp:assertions",
+      "@type": "@json"
+    },
+    "coverage": {
+      "@id": "okfp:coverage",
+      "@type": "@json"
+    },
+    "csvw": "http://www.w3.org/ns/csvw#",
+    "dcat": "http://www.w3.org/ns/dcat#",
+    "dcterms": "http://purl.org/dc/terms/",
+    "description": "dcterms:description",
+    "details": {
+      "@id": "okfp:details",
+      "@type": "@json"
+    },
+    "dqv": "http://www.w3.org/ns/dqv#",
+    "generated": {
+      "@id": "okfp:generated",
+      "@type": "@json"
+    },
+    "geo": "http://www.opengis.net/ont/geosparql#",
+    "limitations": {
+      "@id": "okfp:limitations",
+      "@type": "@json"
+    },
+    "nativeIdentifier": "dcterms:identifier",
+    "odrl": "http://www.w3.org/ns/odrl/2/",
+    "okf": "https://w3id.org/okf/",
+    "okf_version": "okfp:coreVersion",
+    "okfp": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/vocab/",
+    "owl": "http://www.w3.org/2002/07/owl#",
+    "prov": "http://www.w3.org/ns/prov#",
+    "provenance": {
+      "@id": "okfp:provenance",
+      "@type": "@json"
+    },
+    "qb": "http://purl.org/linked-data/cube#",
+    "qudt": "http://qudt.org/schema/qudt/",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "resource": {
+      "@id": "dcat:landingPage",
+      "@type": "@id"
+    },
+    "reviewStatus": "okfp:reviewStatus",
+    "rights": {
+      "@id": "okfp:rights",
+      "@type": "@json"
+    },
+    "schema": "https://schema.org/",
+    "schemaEvidence": {
+      "@id": "okfp:schemaEvidence",
+      "@type": "@json"
+    },
+    "sdmx": "http://purl.org/linked-data/sdmx#",
+    "sdmx-code": "http://purl.org/linked-data/sdmx/2009/code#",
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "sosa": "http://www.w3.org/ns/sosa/",
+    "sourceFamily": "okfp:sourceFamily",
+    "sources": {
+      "@id": "okfp:sources",
+      "@type": "@json"
+    },
+    "spdx": "http://spdx.org/rdf/terms#",
+    "ssn": "http://www.w3.org/ns/ssn/",
+    "status": "okfp:lifecycleStatus",
+    "tags": "dcat:keyword",
+    "temporal": {
+      "@id": "okfp:temporal",
+      "@type": "@json"
+    },
+    "time": "http://www.w3.org/2006/time#",
+    "title": "dcterms:title",
+    "type": "okfp:recordType",
+    "update": {
+      "@id": "okfp:update",
+      "@type": "@json"
+    },
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  }
+}

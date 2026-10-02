@@ -1,0 +1,166 @@
+---
+{
+  "@context": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/context.jsonld",
+  "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-geography-items/5acaba8cdc8148a4b5da8ab9e627a56a",
+  "@type": [
+    "dcat:Dataset",
+    "okfp:MetadataRecord"
+  ],
+  "type": "Dataset",
+  "title": "Clinical Commissioning Groups (July 2015) Boundaries EN BFE",
+  "description": "This file contains the digital vector boundaries for clinical commissioning groups (CCGs) in England as at July 2015. CCGs have boundaries that are coterminous with those of Lower Layer Super Output Areas (LSOAs). The boundaries are full resolution and extent of the realm (usually this is the Mean Low Water mark but in some cases boundaries extend beyond this to include off shore islands). Contains both Ordnance Survey and ONS Intellectual Property Rights. REST URL of ArcGIS for INSPIRE View Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Clinical_Commissioning_Groups_(July_2015)_FEB_in_England/MapServer REST URL of ArcGIS for INSPIRE Feature DownloadService – https://dservices1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/services/Clinical_Commissioning_Groups_July_2015_Full_Extent_Boundaries_in_England/WFSServer?service=wfs&request=getcapabilities REST URL of Feature Access Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Clinical_Commissioning_Groups_July_2015_FEB_in_England_2022/FeatureServer",
+  "nativeIdentifier": "5acaba8cdc8148a4b5da8ab9e627a56a",
+  "sourceFamily": "ons-geography-items",
+  "resource": "https://geoportal.statistics.gov.uk/items/5acaba8cdc8148a4b5da8ab9e627a56a",
+  "status": "draft",
+  "generated": {
+    "by": "gis-ai-go OKF+ source producer"
+  },
+  "okfp:machineImported": true,
+  "assertionStatus": "normalised",
+  "reviewStatus": "not-human-reviewed",
+  "tags": [
+    "Boundaries",
+    "Clinical Commissioning Groups",
+    "CCG",
+    "2015",
+    "England",
+    "Health Boundaries",
+    "WFS",
+    "WMS",
+    "boundaries",
+    "BDY_HLT",
+    "BDY_CCG",
+    "JUL_2015",
+    "WFS"
+  ],
+  "sources": [
+    {
+      "resource": "https://www.arcgis.com/sharing/rest/search?f=json&q=orgid%3AESMARspQHYMw9BZ9&num=100&start=2301&sortField=created&sortOrder=asc",
+      "retrievedAt": "2026-10-02T01:27:58.300760Z",
+      "responseSha256": "8e910251c93459359ef89d3b87c74fbfb61372ce1efc9aa1b268978f01946b43",
+      "sourcePointer": "/results/14",
+      "normalisedSource": "okf-plus/source/ons-geography-items.json",
+      "normalisedPointer": "/records/2314",
+      "normalisedRecordSha256": "3cb14dcff2b68f91e3ba49bde7b9087e2a14c0c33f0e472fb061bf143342127d",
+      "evidenceKind": "captured-public-metadata",
+      "sourcePointerStatus": "exact-native-id-match"
+    }
+  ],
+  "prov:wasDerivedFrom": {
+    "@id": "https://geoportal.statistics.gov.uk/items/5acaba8cdc8148a4b5da8ab9e627a56a"
+  },
+  "dcterms:conformsTo": {
+    "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/profile/v1"
+  },
+  "temporal": {
+    "status": "not-evidenced",
+    "kind": "dataset-reference-period",
+    "start": null,
+    "end": null,
+    "sourceField": null,
+    "note": "No supported reference-period extent in captured metadata; release and catalogue dates are separate."
+  },
+  "update": {
+    "frequency": {
+      "status": "not-evidenced",
+      "label": null,
+      "iri": null,
+      "sourceField": null
+    },
+    "releaseCatalogue": [
+      "https://geoportal.statistics.gov.uk/"
+    ],
+    "releaseFeed": [],
+    "nextRelease": null,
+    "metadataModified": "2025-08-11T08:00:45Z",
+    "releaseVersion": null
+  },
+  "rights": {
+    "metadata": "Public metadata citation and factual normalisation; source rights retained.",
+    "describedData": "https://www.ons.gov.uk/methodology/geography/licences",
+    "retrievalAuthority": "metadata-only",
+    "executionAdmitted": false
+  },
+  "limitations": [
+    "A date in an item title is not automatically the observation/reference range.",
+    "Portal items can be different representations or vintages of one product."
+  ],
+  "details": {
+    "access": "public",
+    "categories": [],
+    "created": 1664384747000,
+    "culture": "en-us",
+    "description": "This file contains the digital vector boundaries for clinical commissioning groups (CCGs) in England as at July 2015. CCGs have boundaries that are coterminous with those of Lower Layer Super Output Areas (LSOAs). The boundaries are full resolution and extent of the realm (usually this is the Mean Low Water mark but in some cases boundaries extend beyond this to include off shore islands). Contains both Ordnance Survey and ONS Intellectual Property Rights. REST URL of ArcGIS for INSPIRE View Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Clinical_Commissioning_Groups_(July_2015)_FEB_in_England/MapServer REST URL of ArcGIS for INSPIRE Feature DownloadService – https://dservices1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/services/Clinical_Commissioning_Groups_July_2015_Full_Extent_Boundaries_in_England/WFSServer?service=wfs&request=getcapabilities REST URL of Feature Access Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Clinical_Commissioning_Groups_July_2015_FEB_in_England_2022/FeatureServer",
+    "extent": [
+      [
+        -7.053294390437561,
+        49.86396356208084
+      ],
+      [
+        2.0792456376412547,
+        55.811660713083334
+      ]
+    ],
+    "id": "5acaba8cdc8148a4b5da8ab9e627a56a",
+    "licenseInfo": "<a href='https://www.ons.gov.uk/methodology/geography/licences' target='_blank' rel='nofollow ugc noopener noreferrer'>https://www.ons.gov.uk/methodology/geography/licences</a>",
+    "modified": 1754899245000,
+    "organisationId": "ESMARspQHYMw9BZ9",
+    "snippet": "Boundaries",
+    "spatialReference": "27700",
+    "tags": [
+      "Boundaries",
+      "Clinical Commissioning Groups",
+      "CCG",
+      "2015",
+      "England",
+      "Health Boundaries",
+      "WFS",
+      "WMS",
+      "boundaries",
+      "BDY_HLT",
+      "BDY_CCG",
+      "JUL_2015"
+    ],
+    "title": "Clinical Commissioning Groups (July 2015) Boundaries EN BFE",
+    "type": "WFS",
+    "typeKeywords": [
+      "Data",
+      "Metadata",
+      "Multilayer",
+      "OGC",
+      "Service",
+      "Web Feature Service",
+      "WFS",
+      "Hosted Service"
+    ],
+    "url": "https://dservices1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/services/Clinical_Commissioning_Groups_July_2015_Full_Extent_Boundaries_in_England/WFSServer"
+  },
+  "dcterms:publisher": {
+    "@id": "https://www.ons.gov.uk/"
+  }
+}
+---
+
+# Clinical Commissioning Groups (July 2015) Boundaries EN BFE
+
+This file contains the digital vector boundaries for clinical commissioning groups (CCGs) in England as at July 2015. CCGs have boundaries that are coterminous with those of Lower Layer Super Output Areas (LSOAs). The boundaries are full resolution and extent of the realm (usually this is the Mean Low Water mark but in some cases boundaries extend beyond this to include off shore islands). Contains both Ordnance Survey and ONS Intellectual Property Rights. REST URL of ArcGIS for INSPIRE View Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Clinical_Commissioning_Groups_(July_2015)_FEB_in_England/MapServer REST URL of ArcGIS for INSPIRE Feature DownloadService – https://dservices1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/services/Clinical_Commissioning_Groups_July_2015_Full_Extent_Boundaries_in_England/WFSServer?service=wfs&request=getcapabilities REST URL of Feature Access Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Clinical_Commissioning_Groups_July_2015_FEB_in_England_2022/FeatureServer
+
+Native identifier: `5acaba8cdc8148a4b5da8ab9e627a56a`.
+
+Source family: `ons-geography-items`. Assertion: normalised metadata; independent human review is not recorded.
+
+[Official source](https://geoportal.statistics.gov.uk/items/5acaba8cdc8148a4b5da8ab9e627a56a)
+
+Update cadence: not evidenced in captured metadata.
+Temporal evidence: not-evidenced (dataset-reference-period); start not stated, end not stated.
+No supported reference-period extent in captured metadata; release and catalogue dates are separate.
+
+[Release catalogue or change-discovery route](https://geoportal.statistics.gov.uk/)
+
+## Evidence limits
+
+- A date in an item title is not automatically the observation/reference range.
+- Portal items can be different representations or vintages of one product.
+
+The front matter retains source receipts, rights, native metadata and schema facts. Discovery does not authorise data access.

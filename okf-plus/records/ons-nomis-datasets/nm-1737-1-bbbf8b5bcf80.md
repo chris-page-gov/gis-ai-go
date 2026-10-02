@@ -1,0 +1,359 @@
+---
+{
+  "@context": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/context.jsonld",
+  "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-nomis-datasets/NM_1737_1",
+  "@type": [
+    "dcat:Dataset",
+    "okfp:MetadataRecord"
+  ],
+  "type": "Dataset",
+  "title": "CS037 - Former industry by age",
+  "description": "Nomis dataset definition with native SDMX components.",
+  "nativeIdentifier": "NM_1737_1",
+  "sourceFamily": "ons-nomis-datasets",
+  "resource": "https://www.nomisweb.co.uk/api/v01/dataset/NM_1737_1/def.sdmx.json",
+  "status": "draft",
+  "generated": {
+    "by": "gis-ai-go OKF+ source producer"
+  },
+  "okfp:machineImported": true,
+  "assertionStatus": "normalised",
+  "reviewStatus": "not-human-reviewed",
+  "tags": [
+    "Sex",
+    "Industry",
+    "Age",
+    "Economically Inactive",
+    "Unemployed"
+  ],
+  "sources": [
+    {
+      "resource": "https://www.nomisweb.co.uk/api/v01/dataset/def.sdmx.json",
+      "retrievedAt": "2026-10-02T01:18:03.834666Z",
+      "responseSha256": "e782c84721db296c396660a4df4b65fa967b9cbab0b52768e1262659e37e9a54",
+      "sourcePointer": "/structure/keyfamilies/keyfamily/1082",
+      "normalisedSource": "okf-plus/source/ons-nomis-datasets.json",
+      "normalisedPointer": "/records/1082",
+      "normalisedRecordSha256": "18ffefbb407300d7b15395d9d463dabdd40c52a30267706206d0ecda3eef85cf",
+      "evidenceKind": "captured-public-metadata",
+      "sourcePointerStatus": "exact-native-id-match"
+    },
+    {
+      "resource": "https://www.nomisweb.co.uk/api/v01/dataset/NM_1737_1/time.def.sdmx.json",
+      "retrievedAt": "2026-10-02T07:49:24.396941Z",
+      "responseSha256": "85ffa9d143ae00fc8943cfaa1939b98c25263a38c551e823f7b809a5586a9c03",
+      "sourcePointer": null,
+      "normalisedSource": "okf-plus/source/ons-nomis-time-options.json",
+      "normalisedPointer": "/records/1082",
+      "normalisedRecordSha256": "f6eed9ec514f5f2632b2479e4fbeaa561b6e38b3fd0a8033347de07ad459aaba",
+      "evidenceKind": "captured-public-metadata",
+      "sourcePointerStatus": "catalogue-document"
+    }
+  ],
+  "prov:wasDerivedFrom": {
+    "@id": "https://www.nomisweb.co.uk/api/v01/dataset/NM_1737_1/def.sdmx.json"
+  },
+  "dcterms:conformsTo": {
+    "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/profile/v1"
+  },
+  "temporal": {
+    "status": "normalised-source-options",
+    "kind": "available-native-period-options",
+    "start": 2001,
+    "end": 2001,
+    "sourceField": "timeMetadata.codes",
+    "note": "Extrema of the complete published native period-code list; no continuity or populated observation cells are inferred.",
+    "precision": "year",
+    "derivation": "Nomis-native-integer-year.v1"
+  },
+  "update": {
+    "frequency": {
+      "status": "not-evidenced",
+      "label": null,
+      "iri": null,
+      "sourceField": null
+    },
+    "releaseCatalogue": [
+      "https://www.nomisweb.co.uk/releasecalendar.asp"
+    ],
+    "releaseFeed": [],
+    "nextRelease": null,
+    "metadataModified": "2003-08-30 09:30:00",
+    "releaseVersion": null
+  },
+  "rights": {
+    "metadata": "Public metadata citation and factual normalisation; source rights retained.",
+    "describedData": "Not established by metadata discovery; consult source-specific terms.",
+    "retrievalAuthority": "metadata-only",
+    "executionAdmitted": false
+  },
+  "limitations": [
+    "FREQ denotes statistical observation frequency; it does not establish release cadence.",
+    "FirstReleased and LastUpdated describe publication history, not the observation date range.",
+    "Time-option extrema describe available native codes; continuity and populated observation cells have not been established."
+  ],
+  "details": {
+    "agencyid": "NOMIS",
+    "annotations": {
+      "FirstReleased": "2003-08-30 09:30:00",
+      "Keywords": "Sex,Industry,Age,Economically Inactive,Unemployed",
+      "LastUpdated": "2003-08-30 09:30:00",
+      "Mnemonic": "cs037",
+      "Status": "Historical (not actively being updated)",
+      "SubDescription": "All people aged 16 to 64 not in employment the week before the Census (29 April 2001)",
+      "Units": "Persons"
+    },
+    "components": {
+      "attribute": [
+        {
+          "assignmentstatus": "Mandatory",
+          "attachmentlevel": "Observation",
+          "codelist": "CL_OBS_STATUS",
+          "conceptref": "OBS_STATUS"
+        },
+        {
+          "assignmentstatus": "Conditional",
+          "attachmentlevel": "Observation",
+          "codelist": "CL_OBS_CONF",
+          "conceptref": "OBS_CONF"
+        },
+        {
+          "assignmentstatus": "Conditional",
+          "attachmentlevel": "Observation",
+          "codelist": "CL_OBS_ROUND",
+          "conceptref": "OBS_ROUND"
+        },
+        {
+          "assignmentstatus": "Conditional",
+          "attachmentlevel": "Series",
+          "codelist": "CL_UNIT_MULT",
+          "conceptref": "UNIT_MULTIPLIER"
+        },
+        {
+          "assignmentstatus": "Mandatory",
+          "attachmentlevel": "Series",
+          "codelist": "CL_TIME_FORMAT",
+          "conceptref": "TIME_FORMAT"
+        },
+        {
+          "assignmentstatus": "Mandatory",
+          "attachmentlevel": "Series",
+          "codelist": "CL_UNIT",
+          "conceptref": "UNIT"
+        },
+        {
+          "assignmentstatus": "Mandatory",
+          "attachmentlevel": "Series",
+          "conceptref": "TITLE_COMPL"
+        }
+      ],
+      "dimension": [
+        {
+          "codelist": "CL_1737_1_GEOGRAPHY",
+          "conceptref": "GEOGRAPHY"
+        },
+        {
+          "codelist": "CL_1737_1_C_EA",
+          "conceptref": "C_EA"
+        },
+        {
+          "codelist": "CL_1737_1_C_INDGPUK11",
+          "conceptref": "C_INDGPUK11"
+        },
+        {
+          "codelist": "CL_1737_1_C_AGE",
+          "conceptref": "C_AGE"
+        },
+        {
+          "codelist": "CL_1737_1_MEASURES",
+          "conceptref": "MEASURES"
+        },
+        {
+          "codelist": "CL_1737_1_FREQ",
+          "conceptref": "FREQ",
+          "isfrequencydimension": "true"
+        }
+      ],
+      "primarymeasure": {
+        "conceptref": "OBS_VALUE"
+      },
+      "timedimension": {
+        "codelist": "CL_1737_1_TIME",
+        "conceptref": "TIME"
+      }
+    },
+    "id": "NM_1737_1",
+    "name": {
+      "lang": "en",
+      "value": "CS037 - Former industry by age"
+    },
+    "uri": "Nm-1737d1",
+    "version": 1.0,
+    "timeMetadata": {
+      "bounds": {
+        "basis": "Nomis returned TIME codelist native codes; no observations",
+        "comparisonRule": "Nomis-native-integer-year.v1",
+        "continuityEstablished": false,
+        "granularity": "year",
+        "maximumNative": 2001,
+        "minimumNative": 2001,
+        "status": "known-option-extrema"
+      },
+      "codeListId": "CL_1737_1_TIME",
+      "id": "NM_1737_1",
+      "metadataEvidence": {
+        "retrievedAt": "2026-10-02T07:49:24.396941Z",
+        "sha256": "85ffa9d143ae00fc8943cfaa1939b98c25263a38c551e823f7b809a5586a9c03",
+        "status": 200,
+        "url": "https://www.nomisweb.co.uk/api/v01/dataset/NM_1737_1/time.def.sdmx.json"
+      },
+      "metadataStatus": "captured",
+      "returnedCodeCount": 1,
+      "timeOptionsTable": {
+        "encoding": "gis-ai-go.native-time-table.v1",
+        "columns": [
+          "value",
+          "description",
+          "revisionMetadata"
+        ],
+        "revisionColumns": [
+          "title",
+          "value"
+        ],
+        "absentDescription": null,
+        "rows": [
+          [
+            2001,
+            {
+              "lang": "en",
+              "value": 2001
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2003-08-30 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ]
+        ]
+      }
+    }
+  },
+  "qb:structure": {
+    "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-nomis-datasets/NM_1737_1/structure",
+    "@type": "qb:DataStructureDefinition",
+    "qb:component": [
+      {
+        "@type": "qb:ComponentSpecification",
+        "qb:dimension": {
+          "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-nomis-datasets/NM_1737_1/dimension/GEOGRAPHY",
+          "@type": "qb:DimensionProperty",
+          "rdfs:label": "GEOGRAPHY",
+          "qb:codeList": {
+            "@id": "https://www.nomisweb.co.uk/api/v01/codelist/CL_1737_1_GEOGRAPHY/def.sdmx.json"
+          }
+        }
+      },
+      {
+        "@type": "qb:ComponentSpecification",
+        "qb:dimension": {
+          "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-nomis-datasets/NM_1737_1/dimension/C_EA",
+          "@type": "qb:DimensionProperty",
+          "rdfs:label": "C_EA",
+          "qb:codeList": {
+            "@id": "https://www.nomisweb.co.uk/api/v01/codelist/CL_1737_1_C_EA/def.sdmx.json"
+          }
+        }
+      },
+      {
+        "@type": "qb:ComponentSpecification",
+        "qb:dimension": {
+          "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-nomis-datasets/NM_1737_1/dimension/C_INDGPUK11",
+          "@type": "qb:DimensionProperty",
+          "rdfs:label": "C_INDGPUK11",
+          "qb:codeList": {
+            "@id": "https://www.nomisweb.co.uk/api/v01/codelist/CL_1737_1_C_INDGPUK11/def.sdmx.json"
+          }
+        }
+      },
+      {
+        "@type": "qb:ComponentSpecification",
+        "qb:dimension": {
+          "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-nomis-datasets/NM_1737_1/dimension/C_AGE",
+          "@type": "qb:DimensionProperty",
+          "rdfs:label": "C_AGE",
+          "qb:codeList": {
+            "@id": "https://www.nomisweb.co.uk/api/v01/codelist/CL_1737_1_C_AGE/def.sdmx.json"
+          }
+        }
+      },
+      {
+        "@type": "qb:ComponentSpecification",
+        "qb:dimension": {
+          "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-nomis-datasets/NM_1737_1/dimension/MEASURES",
+          "@type": "qb:DimensionProperty",
+          "rdfs:label": "MEASURES",
+          "qb:codeList": {
+            "@id": "https://www.nomisweb.co.uk/api/v01/codelist/CL_1737_1_MEASURES/def.sdmx.json"
+          }
+        }
+      },
+      {
+        "@type": "qb:ComponentSpecification",
+        "qb:dimension": {
+          "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-nomis-datasets/NM_1737_1/dimension/FREQ",
+          "@type": "qb:DimensionProperty",
+          "rdfs:label": "FREQ",
+          "qb:codeList": {
+            "@id": "https://www.nomisweb.co.uk/api/v01/codelist/CL_1737_1_FREQ/def.sdmx.json"
+          }
+        }
+      }
+    ]
+  },
+  "okfp:nativeTemporalBounds": {
+    "@value": {
+      "basis": "Nomis returned TIME codelist native codes; no observations",
+      "comparisonRule": "Nomis-native-integer-year.v1",
+      "continuityEstablished": false,
+      "granularity": "year",
+      "maximumNative": 2001,
+      "minimumNative": 2001,
+      "status": "known-option-extrema"
+    },
+    "@type": "@json"
+  }
+}
+---
+
+# CS037 - Former industry by age
+
+Nomis dataset definition with native SDMX components.
+
+Native identifier: `NM_1737_1`.
+
+Source family: `ons-nomis-datasets`. Assertion: normalised metadata; independent human review is not recorded.
+
+[Official source](https://www.nomisweb.co.uk/api/v01/dataset/NM_1737_1/def.sdmx.json)
+
+Update cadence: not evidenced in captured metadata.
+Temporal evidence: normalised-source-options (available-native-period-options); start 2001, end 2001.
+Extrema of the complete published native period-code list; no continuity or populated observation cells are inferred.
+
+[Release catalogue or change-discovery route](https://www.nomisweb.co.uk/releasecalendar.asp)
+
+## Evidence limits
+
+- FREQ denotes statistical observation frequency; it does not establish release cadence.
+- FirstReleased and LastUpdated describe publication history, not the observation date range.
+- Time-option extrema describe available native codes; continuity and populated observation cells have not been established.
+
+The front matter retains source receipts, rights, native metadata and schema facts. Discovery does not authorise data access.

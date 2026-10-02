@@ -1,0 +1,179 @@
+---
+{
+  "@context": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/context.jsonld",
+  "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-geography-items/d1aeedd2893c4dfab4516ad1cd8405ab",
+  "@type": [
+    "dcat:Dataset",
+    "okfp:MetadataRecord"
+  ],
+  "type": "Dataset",
+  "title": "LSOA (2011) to Clinical Commissioning Group to STP to CAL (April 2020) Lookup in EN",
+  "description": "A lookup file between 2011 lower layer super output areas (LSOAs) clinical commissioning groups (CCGs), sustainability and transformation partnerships (STP) and Cancer Alliances (CAL) in England as at 1 April 2020. (File size - 14MB). Field Names - LSOA11CD, LSOA11NM, CCG20CD, CCG20CDH, CCG20NM, STP20CD, STP20NM, CAL20CD, CAL20NM, FID Field Types - Text, Text, Text, Text, Text, Text, Text, Text, Text Field Lengths - 9, 33, 9, 3, 59, 9, 67, 9, 67 FID = The FID, or Feature ID is created by the publication process when the names and codes / lookup products are published to the Open Geography portal. REST URL of Feature Access Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/LSOA11_CCG20_STP20_CAL20_LAD20_EN_LU_f1e17ac2abc84efca8ae1f4846fa951c/FeatureServer",
+  "nativeIdentifier": "d1aeedd2893c4dfab4516ad1cd8405ab",
+  "sourceFamily": "ons-geography-items",
+  "resource": "https://geoportal.statistics.gov.uk/items/d1aeedd2893c4dfab4516ad1cd8405ab",
+  "status": "draft",
+  "generated": {
+    "by": "gis-ai-go OKF+ source producer"
+  },
+  "okfp:machineImported": true,
+  "assertionStatus": "normalised",
+  "reviewStatus": "not-human-reviewed",
+  "tags": [
+    "LUP_HLT",
+    "APR_2020",
+    "LUP_LSOA_CCG_STP_CAL",
+    "Lookup",
+    "LSOA_CCG_STP_LU",
+    "LSOA",
+    "CCG",
+    "STP",
+    "CAL",
+    "CALNCV",
+    "Lower Layer Super Output Areas",
+    "Clinical Commissioning Groups",
+    "Sustainability and Transformation Partnerships",
+    "Cancer Alliances and National Cancer Vanguards",
+    "Cancer Alliances",
+    "2020",
+    "Feature Service"
+  ],
+  "sources": [
+    {
+      "resource": "https://www.arcgis.com/sharing/rest/search?f=json&q=orgid%3AESMARspQHYMw9BZ9&num=100&start=1101&sortField=created&sortOrder=asc",
+      "retrievedAt": "2026-10-02T01:27:44.236548Z",
+      "responseSha256": "508c68b7523d50e1cd043fec68a7e3b66cae3eaeb8d58e729423f5277149fbd8",
+      "sourcePointer": "/results/53",
+      "normalisedSource": "okf-plus/source/ons-geography-items.json",
+      "normalisedPointer": "/records/1153",
+      "normalisedRecordSha256": "91c0493e99d537be44d5d5b929b289872ce8968d4a67baa2c657c0e21f233d31",
+      "evidenceKind": "captured-public-metadata",
+      "sourcePointerStatus": "exact-native-id-match"
+    }
+  ],
+  "prov:wasDerivedFrom": {
+    "@id": "https://geoportal.statistics.gov.uk/items/d1aeedd2893c4dfab4516ad1cd8405ab"
+  },
+  "dcterms:conformsTo": {
+    "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/profile/v1"
+  },
+  "temporal": {
+    "status": "not-evidenced",
+    "kind": "dataset-reference-period",
+    "start": null,
+    "end": null,
+    "sourceField": null,
+    "note": "No supported reference-period extent in captured metadata; release and catalogue dates are separate."
+  },
+  "update": {
+    "frequency": {
+      "status": "not-evidenced",
+      "label": null,
+      "iri": null,
+      "sourceField": null
+    },
+    "releaseCatalogue": [
+      "https://geoportal.statistics.gov.uk/"
+    ],
+    "releaseFeed": [],
+    "nextRelease": null,
+    "metadataModified": "2025-08-11T07:53:30Z",
+    "releaseVersion": null
+  },
+  "rights": {
+    "metadata": "Public metadata citation and factual normalisation; source rights retained.",
+    "describedData": "https://www.ons.gov.uk/methodology/geography/licences",
+    "retrievalAuthority": "metadata-only",
+    "executionAdmitted": false
+  },
+  "limitations": [
+    "A date in an item title is not automatically the observation/reference range.",
+    "Portal items can be different representations or vintages of one product."
+  ],
+  "details": {
+    "access": "public",
+    "categories": [
+      "/Categories/ONS Geography Open Data",
+      "/Categories/Lookups/Health"
+    ],
+    "created": 1659174167000,
+    "culture": "en-us",
+    "description": "A lookup file between 2011 lower layer super output areas (LSOAs) clinical commissioning groups (CCGs), sustainability and transformation partnerships (STP) and Cancer Alliances (CAL) in England as at 1 April 2020. (File size - 14MB). Field Names - LSOA11CD, LSOA11NM, CCG20CD, CCG20CDH, CCG20NM, STP20CD, STP20NM, CAL20CD, CAL20NM, FID Field Types - Text, Text, Text, Text, Text, Text, Text, Text, Text Field Lengths - 9, 33, 9, 3, 59, 9, 67, 9, 67 FID = The FID, or Feature ID is created by the publication process when the names and codes / lookup products are published to the Open Geography portal. REST URL of Feature Access Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/LSOA11_CCG20_STP20_CAL20_LAD20_EN_LU_f1e17ac2abc84efca8ae1f4846fa951c/FeatureServer",
+    "extent": [
+      [
+        -6,
+        49.9
+      ],
+      [
+        2,
+        56
+      ]
+    ],
+    "id": "d1aeedd2893c4dfab4516ad1cd8405ab",
+    "licenseInfo": "<a href='https://www.ons.gov.uk/methodology/geography/licences' target='_blank' rel='nofollow ugc noopener noreferrer'>https://www.ons.gov.uk/methodology/geography/licences</a>",
+    "modified": 1754898810000,
+    "organisationId": "ESMARspQHYMw9BZ9",
+    "snippet": "Health Lookup",
+    "spatialReference": null,
+    "tags": [
+      "LUP_HLT",
+      "APR_2020",
+      "LUP_LSOA_CCG_STP_CAL",
+      "Lookup",
+      "LSOA_CCG_STP_LU",
+      "LSOA",
+      "CCG",
+      "STP",
+      "CAL",
+      "CALNCV",
+      "Lower Layer Super Output Areas",
+      "Clinical Commissioning Groups",
+      "Sustainability and Transformation Partnerships",
+      "Cancer Alliances and National Cancer Vanguards",
+      "Cancer Alliances",
+      "2020"
+    ],
+    "title": "LSOA (2011) to Clinical Commissioning Group to STP to CAL (April 2020) Lookup in EN",
+    "type": "Feature Service",
+    "typeKeywords": [
+      "ArcGIS Server",
+      "Data",
+      "Feature Access",
+      "Feature Service",
+      "Metadata",
+      "Service",
+      "Singlelayer",
+      "source-d30531b5888a4e34be4746399d696409",
+      "Table",
+      "Hosted Service"
+    ],
+    "url": "https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/LSOA11_CCG20_STP20_CAL20_LAD20_EN_LU_f1e17ac2abc84efca8ae1f4846fa951c/FeatureServer"
+  },
+  "dcterms:publisher": {
+    "@id": "https://www.ons.gov.uk/"
+  }
+}
+---
+
+# LSOA (2011) to Clinical Commissioning Group to STP to CAL (April 2020) Lookup in EN
+
+A lookup file between 2011 lower layer super output areas (LSOAs) clinical commissioning groups (CCGs), sustainability and transformation partnerships (STP) and Cancer Alliances (CAL) in England as at 1 April 2020. (File size - 14MB). Field Names - LSOA11CD, LSOA11NM, CCG20CD, CCG20CDH, CCG20NM, STP20CD, STP20NM, CAL20CD, CAL20NM, FID Field Types - Text, Text, Text, Text, Text, Text, Text, Text, Text Field Lengths - 9, 33, 9, 3, 59, 9, 67, 9, 67 FID = The FID, or Feature ID is created by the publication process when the names and codes / lookup products are published to the Open Geography portal. REST URL of Feature Access Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/LSOA11_CCG20_STP20_CAL20_LAD20_EN_LU_f1e17ac2abc84efca8ae1f4846fa951c/FeatureServer
+
+Native identifier: `d1aeedd2893c4dfab4516ad1cd8405ab`.
+
+Source family: `ons-geography-items`. Assertion: normalised metadata; independent human review is not recorded.
+
+[Official source](https://geoportal.statistics.gov.uk/items/d1aeedd2893c4dfab4516ad1cd8405ab)
+
+Update cadence: not evidenced in captured metadata.
+Temporal evidence: not-evidenced (dataset-reference-period); start not stated, end not stated.
+No supported reference-period extent in captured metadata; release and catalogue dates are separate.
+
+[Release catalogue or change-discovery route](https://geoportal.statistics.gov.uk/)
+
+## Evidence limits
+
+- A date in an item title is not automatically the observation/reference range.
+- Portal items can be different representations or vintages of one product.
+
+The front matter retains source receipts, rights, native metadata and schema facts. Discovery does not authorise data access.

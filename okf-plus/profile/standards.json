@@ -1,0 +1,246 @@
+{
+  "schema": "gis-ai-go.okf-plus-standards.v1",
+  "status": "applicability-register-not-certification",
+  "standards": [
+    {
+      "prefix": "dcat",
+      "title": "DCAT 3",
+      "source": "https://www.w3.org/TR/2024/REC-vocab-dcat-3-20240822/",
+      "terms": [
+        "Dataset",
+        "Catalog",
+        "DataService",
+        "landingPage",
+        "startDate",
+        "endDate",
+        "keyword"
+      ],
+      "application": "catalogues, services, explicit time extents",
+      "mappingReview": "usage-reported-at-build-not-semantic-certification"
+    },
+    {
+      "prefix": "dcterms",
+      "title": "DCMI Metadata Terms",
+      "source": "https://www.dublincore.org/specifications/dublin-core/dcmi-terms/",
+      "terms": [
+        "title",
+        "description",
+        "identifier",
+        "publisher",
+        "accrualPeriodicity",
+        "temporal",
+        "conformsTo",
+        "Frequency"
+      ],
+      "application": "identity, attribution, cadence and time",
+      "mappingReview": "usage-reported-at-build-not-semantic-certification"
+    },
+    {
+      "prefix": "prov",
+      "title": "PROV-O",
+      "source": "https://www.w3.org/TR/2013/REC-prov-o-20130430/",
+      "terms": [
+        "wasDerivedFrom"
+      ],
+      "application": "source provenance; receipts also retain content hashes",
+      "mappingReview": "usage-reported-at-build-not-semantic-certification"
+    },
+    {
+      "prefix": "skos",
+      "title": "SKOS",
+      "source": "https://www.w3.org/TR/2009/REC-skos-reference-20090818/",
+      "terms": [
+        "Concept",
+        "relatedMatch",
+        "broader",
+        "inScheme"
+      ],
+      "application": "concepts and explicit controlled-vocabulary mapping",
+      "mappingReview": "usage-reported-at-build-not-semantic-certification"
+    },
+    {
+      "prefix": "geo",
+      "title": "GeoSPARQL 1.1",
+      "source": "https://docs.ogc.org/is/22-047r1/22-047r1.html",
+      "terms": [
+        "Feature",
+        "Geometry",
+        "SpatialObject"
+      ],
+      "application": "concept mappings; no materialised feature geometry",
+      "mappingReview": "usage-reported-at-build-not-semantic-certification"
+    },
+    {
+      "prefix": "qb",
+      "title": "RDF Data Cube",
+      "source": "https://www.w3.org/TR/2014/REC-vocab-data-cube-20140116/",
+      "terms": [
+        "DataStructureDefinition",
+        "ComponentSpecification",
+        "DimensionProperty",
+        "structure",
+        "component",
+        "dimension",
+        "codeList"
+      ],
+      "application": "Nomis source-native dimension structures",
+      "mappingReview": "usage-reported-at-build-not-semantic-certification"
+    },
+    {
+      "prefix": "sdmx-code",
+      "title": "SDMX frequency codes",
+      "source": "https://www.w3.org/TR/vocab-data-cube/",
+      "terms": [
+        "freq-A",
+        "freq-Q",
+        "freq-M",
+        "freq-W",
+        "freq-D"
+      ],
+      "application": "normalised explicitly stated release frequency; statistical frequency remains separate",
+      "mappingReview": "usage-reported-at-build-not-semantic-certification"
+    },
+    {
+      "prefix": "time",
+      "title": "OWL-Time",
+      "source": "https://www.w3.org/TR/owl-time/",
+      "terms": [
+        "Instant",
+        "Interval"
+      ],
+      "application": "temporal concept mappings; no invented instants",
+      "mappingReview": "usage-reported-at-build-not-semantic-certification"
+    },
+    {
+      "prefix": "dqv",
+      "title": "Data Quality Vocabulary",
+      "source": "https://www.w3.org/TR/vocab-dqv/",
+      "terms": [
+        "QualityMeasurement",
+        "QualityAnnotation"
+      ],
+      "application": "quality concepts; findings do not certify provider quality",
+      "mappingReview": "usage-reported-at-build-not-semantic-certification"
+    },
+    {
+      "prefix": "odrl",
+      "title": "ODRL 2.2",
+      "source": "https://www.w3.org/TR/odrl-model/",
+      "terms": [
+        "Policy",
+        "Permission",
+        "Prohibition"
+      ],
+      "application": "rights concepts; catalogue status is not an enforceable permission",
+      "mappingReview": "usage-reported-at-build-not-semantic-certification"
+    },
+    {
+      "prefix": "csvw",
+      "title": "CSV on the Web",
+      "source": "https://www.w3.org/TR/tabular-metadata/",
+      "terms": [
+        "Table",
+        "Column"
+      ],
+      "application": "tabular schema concepts",
+      "mappingReview": "usage-reported-at-build-not-semantic-certification"
+    },
+    {
+      "prefix": "sosa",
+      "title": "SOSA/SSN",
+      "source": "https://www.w3.org/TR/vocab-ssn/",
+      "terms": [
+        "Observation",
+        "Sensor",
+        "FeatureOfInterest"
+      ],
+      "application": "observation and sensor concepts",
+      "mappingReview": "usage-reported-at-build-not-semantic-certification"
+    },
+    {
+      "prefix": "qudt",
+      "title": "QUDT",
+      "source": "https://www.qudt.org/",
+      "terms": [
+        "Unit",
+        "QuantityKind"
+      ],
+      "application": "units concepts; native unit values retained",
+      "mappingReview": "usage-reported-at-build-not-semantic-certification"
+    },
+    {
+      "prefix": "spdx",
+      "title": "SPDX RDF",
+      "source": "https://spdx.org/rdf/terms/",
+      "terms": [
+        "Checksum"
+      ],
+      "application": "checksum concepts; exact SHA-256 evidence in receipts",
+      "mappingReview": "usage-reported-at-build-not-semantic-certification"
+    },
+    {
+      "prefix": "adms",
+      "title": "Asset Description Metadata Schema",
+      "source": "https://www.w3.org/TR/vocab-adms/",
+      "terms": [
+        "status"
+      ],
+      "application": "Candidate only: adms:status requires a SKOS concept resource. Local literal lifecycle labels use okfp:lifecycleStatus; no external status concept is invented.",
+      "mappingReview": "controlled-status-mapping-not-admitted",
+      "sourceStatus": "Legacy W3C Note, retired; this register does not claim the current SEMIC specification."
+    },
+    {
+      "prefix": "rdfs",
+      "title": "RDF Schema",
+      "source": "https://www.w3.org/TR/rdf-schema/",
+      "terms": [
+        "label"
+      ],
+      "application": "field labels",
+      "mappingReview": "usage-reported-at-build-not-semantic-certification"
+    },
+    {
+      "prefix": "rdf",
+      "title": "RDF 1.1",
+      "source": "https://www.w3.org/TR/rdf11-concepts/",
+      "terms": [
+        "Property"
+      ],
+      "application": "addressable schema field definitions",
+      "mappingReview": "usage-reported-at-build-not-semantic-certification"
+    },
+    {
+      "prefix": "xsd",
+      "title": "XML Schema datatypes",
+      "source": "https://www.w3.org/TR/xmlschema11-2/",
+      "terms": [
+        "date",
+        "dateTime"
+      ],
+      "application": "typed source-stated temporal bounds",
+      "mappingReview": "usage-reported-at-build-not-semantic-certification"
+    }
+  ],
+  "additionalStandards": [
+    {
+      "title": "ISO 19115 / UK GEMINI",
+      "role": "Source metadata profile; preserve declared conformance, not an RDF namespace or blanket conformance claim.",
+      "source": "https://www.agi.org.uk/uk-gemini/"
+    },
+    {
+      "title": "OGC API Features / Tiles / Records, WFS, WMS, WMTS, GeoJSON, GML, GeoPackage",
+      "role": "Access/format concepts and captured contracts, not automatically callable tools.",
+      "source": "https://www.ogc.org/standards/"
+    },
+    {
+      "title": "INSPIRE, SDMX, DDI, SIC, SOC, GSS geography codes",
+      "role": "Source-specific classifications and metadata mappings; versions and adoption dates remain distinct.",
+      "source": "https://www.ons.gov.uk/methodology/classificationsandstandards"
+    }
+  ],
+  "usageReport": {
+    "path": "vocabulary-usage.json",
+    "scope": "Actual semantic positions in the built record graph; namespace declarations and opaque JSON contents are excluded.",
+    "assurance": "Syntactic usage evidence, not ontology conformance, mapping correctness or semantic certification."
+  }
+}

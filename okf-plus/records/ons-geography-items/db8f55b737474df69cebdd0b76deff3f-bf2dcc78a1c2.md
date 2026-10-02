@@ -1,0 +1,164 @@
+---
+{
+  "@context": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/context.jsonld",
+  "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-geography-items/db8f55b737474df69cebdd0b76deff3f",
+  "@type": [
+    "dcat:Dataset",
+    "okfp:MetadataRecord"
+  ],
+  "type": "Dataset",
+  "title": "Wards (December 2019) Boundaries UK BGC",
+  "description": "This file contains the digital vector boundaries for Wards in the United Kingdom, as at 31 December 2019. The boundaries available are: (BGC) Generalised (20m) - clipped to the coastline (Mean High Water mark). Contains both Ordnance Survey and ONS Intellectual Property Rights. Download File Sizes Generalised (20m) - clipped to the coastline (10 MB) Units for the following fields: st_length = metres st_area = metres 2 REST URL of ArcGIS for INSPIRE View Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Wards_(December_2019)_Boundaries_UK_BGC/MapServer REST URL of ArcGIS for INSPIRE Feature DownloadService – https://dservices1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/services/Wards_December_2019_Boundaries_UK_BGC/WFSServer?service=wfs&request=getcapabilities REST URL of Feature Access Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Wards_December_2019_Boundaries_UK_BGC_2022/FeatureServer",
+  "nativeIdentifier": "db8f55b737474df69cebdd0b76deff3f",
+  "sourceFamily": "ons-geography-items",
+  "resource": "https://geoportal.statistics.gov.uk/items/db8f55b737474df69cebdd0b76deff3f",
+  "status": "draft",
+  "generated": {
+    "by": "gis-ai-go OKF+ source producer"
+  },
+  "okfp:machineImported": true,
+  "assertionStatus": "normalised",
+  "reviewStatus": "not-human-reviewed",
+  "tags": [
+    "Boundaries",
+    "Wards",
+    "WD",
+    "2019",
+    "Administrative Boundaries",
+    "United Kingdom",
+    "WFS",
+    "WMS",
+    "BDY_ADM",
+    "BDY_WD",
+    "DEC_2019",
+    "Feature Service"
+  ],
+  "sources": [
+    {
+      "resource": "https://www.arcgis.com/sharing/rest/search?f=json&q=orgid%3AESMARspQHYMw9BZ9&num=100&start=1801&sortField=created&sortOrder=asc",
+      "retrievedAt": "2026-10-02T01:27:52.698003Z",
+      "responseSha256": "6dd833eb8661ef64b7bd37798926a4ac099a2a58630cd90c9ec05ae3aa33a5fe",
+      "sourcePointer": "/results/11",
+      "normalisedSource": "okf-plus/source/ons-geography-items.json",
+      "normalisedPointer": "/records/1811",
+      "normalisedRecordSha256": "a5c4027731d8cebe28ea99357e24dc72c27e247bcb35ecc96b1a8b21a1cc66b9",
+      "evidenceKind": "captured-public-metadata",
+      "sourcePointerStatus": "exact-native-id-match"
+    }
+  ],
+  "prov:wasDerivedFrom": {
+    "@id": "https://geoportal.statistics.gov.uk/items/db8f55b737474df69cebdd0b76deff3f"
+  },
+  "dcterms:conformsTo": {
+    "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/profile/v1"
+  },
+  "temporal": {
+    "status": "not-evidenced",
+    "kind": "dataset-reference-period",
+    "start": null,
+    "end": null,
+    "sourceField": null,
+    "note": "No supported reference-period extent in captured metadata; release and catalogue dates are separate."
+  },
+  "update": {
+    "frequency": {
+      "status": "not-evidenced",
+      "label": null,
+      "iri": null,
+      "sourceField": null
+    },
+    "releaseCatalogue": [
+      "https://geoportal.statistics.gov.uk/"
+    ],
+    "releaseFeed": [],
+    "nextRelease": null,
+    "metadataModified": "2025-08-11T07:57:33Z",
+    "releaseVersion": null
+  },
+  "rights": {
+    "metadata": "Public metadata citation and factual normalisation; source rights retained.",
+    "describedData": "https://www.ons.gov.uk/methodology/geography/licences",
+    "retrievalAuthority": "metadata-only",
+    "executionAdmitted": false
+  },
+  "limitations": [
+    "A date in an item title is not automatically the observation/reference range.",
+    "Portal items can be different representations or vintages of one product."
+  ],
+  "details": {
+    "access": "public",
+    "categories": [],
+    "created": 1662674576000,
+    "culture": "en-gb",
+    "description": "This file contains the digital vector boundaries for Wards in the United Kingdom, as at 31 December 2019. The boundaries available are: (BGC) Generalised (20m) - clipped to the coastline (Mean High Water mark). Contains both Ordnance Survey and ONS Intellectual Property Rights. Download File Sizes Generalised (20m) - clipped to the coastline (10 MB) Units for the following fields: st_length = metres st_area = metres 2 REST URL of ArcGIS for INSPIRE View Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Wards_(December_2019)_Boundaries_UK_BGC/MapServer REST URL of ArcGIS for INSPIRE Feature DownloadService – https://dservices1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/services/Wards_December_2019_Boundaries_UK_BGC/WFSServer?service=wfs&request=getcapabilities REST URL of Feature Access Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Wards_December_2019_Boundaries_UK_BGC_2022/FeatureServer",
+    "extent": [
+      [
+        -9.332052555387207,
+        49.81394050510463
+      ],
+      [
+        2.698173798193357,
+        60.86611138906683
+      ]
+    ],
+    "id": "db8f55b737474df69cebdd0b76deff3f",
+    "licenseInfo": "<a href='https://www.ons.gov.uk/methodology/geography/licences' target='_blank' rel='nofollow ugc noopener noreferrer'>https://www.ons.gov.uk/methodology/geography/licences</a>",
+    "modified": 1754899053000,
+    "organisationId": "ESMARspQHYMw9BZ9",
+    "snippet": "Administrative Boundaries",
+    "spatialReference": "27700",
+    "tags": [
+      "Boundaries",
+      "Wards",
+      "WD",
+      "2019",
+      "Administrative Boundaries",
+      "United Kingdom",
+      "WFS",
+      "WMS",
+      "BDY_ADM",
+      "BDY_WD",
+      "DEC_2019"
+    ],
+    "title": "Wards (December 2019) Boundaries UK BGC",
+    "type": "Feature Service",
+    "typeKeywords": [
+      "ArcGIS Server",
+      "Data",
+      "Feature Access",
+      "Feature Service",
+      "Metadata",
+      "Service",
+      "Singlelayer",
+      "Hosted Service"
+    ],
+    "url": "https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Wards_December_2019_Boundaries_UK_BGC_2022/FeatureServer"
+  },
+  "dcterms:publisher": {
+    "@id": "https://www.ons.gov.uk/"
+  }
+}
+---
+
+# Wards (December 2019) Boundaries UK BGC
+
+This file contains the digital vector boundaries for Wards in the United Kingdom, as at 31 December 2019. The boundaries available are: (BGC) Generalised (20m) - clipped to the coastline (Mean High Water mark). Contains both Ordnance Survey and ONS Intellectual Property Rights. Download File Sizes Generalised (20m) - clipped to the coastline (10 MB) Units for the following fields: st_length = metres st_area = metres 2 REST URL of ArcGIS for INSPIRE View Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Wards_(December_2019)_Boundaries_UK_BGC/MapServer REST URL of ArcGIS for INSPIRE Feature DownloadService – https://dservices1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/services/Wards_December_2019_Boundaries_UK_BGC/WFSServer?service=wfs&request=getcapabilities REST URL of Feature Access Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Wards_December_2019_Boundaries_UK_BGC_2022/FeatureServer
+
+Native identifier: `db8f55b737474df69cebdd0b76deff3f`.
+
+Source family: `ons-geography-items`. Assertion: normalised metadata; independent human review is not recorded.
+
+[Official source](https://geoportal.statistics.gov.uk/items/db8f55b737474df69cebdd0b76deff3f)
+
+Update cadence: not evidenced in captured metadata.
+Temporal evidence: not-evidenced (dataset-reference-period); start not stated, end not stated.
+No supported reference-period extent in captured metadata; release and catalogue dates are separate.
+
+[Release catalogue or change-discovery route](https://geoportal.statistics.gov.uk/)
+
+## Evidence limits
+
+- A date in an item title is not automatically the observation/reference range.
+- Portal items can be different representations or vintages of one product.
+
+The front matter retains source receipts, rights, native metadata and schema facts. Discovery does not authorise data access.

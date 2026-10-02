@@ -1,0 +1,139 @@
+---
+{
+  "@context": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/context.jsonld",
+  "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-website-dataset-landing-page/%2Fpeoplepopulationandcommunity%2Fpopulationandmigration%2Fpopulationestimates%2Fdatasets%2Fmeasuresofuncertaintyinonslocalauthoritymidyearpopulationestimatesallconfidenceintervals",
+  "@type": [
+    "dcat:Dataset",
+    "okfp:MetadataRecord"
+  ],
+  "type": "Dataset",
+  "title": "Measures of uncertainty in ONS local authority mid-year population estimates - all confidence intervals",
+  "description": "Confidence intervals for local authority mid-year population estimates (MYEs) in England and Wales, 2011 to 2020.",
+  "nativeIdentifier": "/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/measuresofuncertaintyinonslocalauthoritymidyearpopulationestimatesallconfidenceintervals",
+  "sourceFamily": "ons-website-dataset-landing-page",
+  "resource": "https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/measuresofuncertaintyinonslocalauthoritymidyearpopulationestimatesallconfidenceintervals",
+  "status": "draft",
+  "generated": {
+    "by": "gis-ai-go OKF+ source producer"
+  },
+  "okfp:machineImported": true,
+  "assertionStatus": "normalised",
+  "reviewStatus": "not-human-reviewed",
+  "tags": [
+    "published MYE",
+    "empirical",
+    "uncertainty",
+    "dataset_landing_page"
+  ],
+  "sources": [
+    {
+      "resource": "https://api.beta.ons.gov.uk/v1/search?q=&content_type=dataset_landing_page&sort=title&highlight=false&limit=1000&offset=2000",
+      "retrievedAt": "2026-10-02T07:58:52.295433Z",
+      "responseSha256": "0d79e07b78fab471f1f359097e30515b2bedce7bbd543e7f239a0a7c6f3440c2",
+      "sourcePointer": "/items/262",
+      "normalisedSource": "okf-plus/source/ons-website-dataset-landing-page.json",
+      "normalisedPointer": "/records/2262",
+      "normalisedRecordSha256": "0a109f5e1c8cd710ea33503d2eac7e55f15c2188f1d5e58520e09f14d1e61941",
+      "evidenceKind": "captured-public-metadata",
+      "sourcePointerStatus": "exact-native-id-match"
+    }
+  ],
+  "prov:wasDerivedFrom": {
+    "@id": "https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/measuresofuncertaintyinonslocalauthoritymidyearpopulationestimatesallconfidenceintervals"
+  },
+  "dcterms:conformsTo": {
+    "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/profile/v1"
+  },
+  "temporal": {
+    "status": "not-evidenced",
+    "kind": "dataset-reference-period",
+    "start": null,
+    "end": null,
+    "sourceField": null,
+    "note": "No supported reference-period extent in captured metadata; release and catalogue dates are separate."
+  },
+  "update": {
+    "frequency": {
+      "status": "not-evidenced",
+      "label": null,
+      "iri": null,
+      "sourceField": null
+    },
+    "releaseCatalogue": [
+      "https://www.ons.gov.uk/releasecalendar"
+    ],
+    "releaseFeed": [
+      "https://www.ons.gov.uk/releasecalendar?rss&highlight=true&limit=10&page=1&release-type=type-published&sort=date-newest"
+    ],
+    "nextRelease": null,
+    "metadataModified": null,
+    "releaseVersion": ""
+  },
+  "rights": {
+    "metadata": "Public metadata citation and factual normalisation; source rights retained.",
+    "describedData": "Not established by metadata discovery; consult source-specific terms.",
+    "retrievalAuthority": "metadata-only",
+    "executionAdmitted": false
+  },
+  "limitations": [
+    "Website and API representations are retained separately; matching titles do not prove equivalence.",
+    "Release dates do not establish the period covered by statistical observations."
+  ],
+  "details": {
+    "canonical_topic": "",
+    "cdid": "",
+    "dataset_id": "",
+    "edition": "",
+    "id": "/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/measuresofuncertaintyinonslocalauthoritymidyearpopulationestimatesallconfidenceintervals",
+    "keywords": [
+      "published MYE",
+      "empirical",
+      "uncertainty"
+    ],
+    "meta_description": "Confidence intervals for local authority mid-year population estimates (MYEs) in England and Wales, 2011 to 2020.",
+    "nativeIdentityField": "uri",
+    "release_date": "2022-01-28T00:00:00.000Z",
+    "resource": "https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/measuresofuncertaintyinonslocalauthoritymidyearpopulationestimatesallconfidenceintervals",
+    "sourceEvidence": {
+      "pointer": "/items/262",
+      "retrievedAt": "2026-10-02T07:58:52.295433Z",
+      "sha256": "0d79e07b78fab471f1f359097e30515b2bedce7bbd543e7f239a0a7c6f3440c2",
+      "status": 200,
+      "url": "https://api.beta.ons.gov.uk/v1/search?q=&content_type=dataset_landing_page&sort=title&highlight=false&limit=1000&offset=2000"
+    },
+    "summary": "Confidence intervals for local authority mid-year population estimates (MYEs) in England and Wales, 2011 to 2020.",
+    "title": "Measures of uncertainty in ONS local authority mid-year population estimates - all confidence intervals",
+    "topics": [
+      "9581",
+      "2425",
+      "5457"
+    ],
+    "type": "dataset_landing_page",
+    "uri": "/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/measuresofuncertaintyinonslocalauthoritymidyearpopulationestimatesallconfidenceintervals"
+  }
+}
+---
+
+# Measures of uncertainty in ONS local authority mid-year population estimates - all confidence intervals
+
+Confidence intervals for local authority mid-year population estimates (MYEs) in England and Wales, 2011 to 2020.
+
+Native identifier: `/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/measuresofuncertaintyinonslocalauthoritymidyearpopulationestimatesallconfidenceintervals`.
+
+Source family: `ons-website-dataset-landing-page`. Assertion: normalised metadata; independent human review is not recorded.
+
+[Official source](https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/measuresofuncertaintyinonslocalauthoritymidyearpopulationestimatesallconfidenceintervals)
+
+Update cadence: not evidenced in captured metadata.
+Temporal evidence: not-evidenced (dataset-reference-period); start not stated, end not stated.
+No supported reference-period extent in captured metadata; release and catalogue dates are separate.
+
+[Release catalogue or change-discovery route](https://www.ons.gov.uk/releasecalendar)
+[Recent release feed](https://www.ons.gov.uk/releasecalendar?rss&highlight=true&limit=10&page=1&release-type=type-published&sort=date-newest)
+
+## Evidence limits
+
+- Website and API representations are retained separately; matching titles do not prove equivalence.
+- Release dates do not establish the period covered by statistical observations.
+
+The front matter retains source receipts, rights, native metadata and schema facts. Discovery does not authorise data access.

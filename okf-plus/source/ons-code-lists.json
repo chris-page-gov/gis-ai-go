@@ -1,0 +1,1875 @@
+{
+  "coverage": {
+    "catalogueComplete": false,
+    "duplicateCount": 1,
+    "lastReportedTotal": 84,
+    "limitations": [
+      "Listing route is published in the official code-list documentation.",
+      "Advertised HTTP link strings are retained as inert metadata, not upgraded or requested.",
+      "Code-list editions, codes, labels and dataset links are separate untraversed child catalogues.",
+      "Completeness is confined to the returned filtered catalogue; not all ONS data or website content.",
+      "The live index is not transactionally frozen; stable counts cannot exclude equal-count substitutions.",
+      "Only selected metadata is retained; no observations or download payloads are requested.",
+      "Contact fields and unreviewed nested content are excluded from the public projection.",
+      "Release dates do not establish statistical observation periods; native representations are not merged."
+    ],
+    "pageCounts": [
+      {
+        "offset": 0,
+        "reportedTotal": 84
+      }
+    ],
+    "parameters": {},
+    "reportedTotal": 84,
+    "requestStatuses": [
+      200
+    ],
+    "retrievedUnique": 83,
+    "rowsReceived": 84,
+    "stableReportedTotal": true,
+    "stopReason": "count-mismatch-or-mutation",
+    "unit": "ONS published code-list identifier"
+  },
+  "family": "ons-code-lists",
+  "receipts": [
+    {
+      "bytes": 16875,
+      "etag": null,
+      "finalUrl": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0",
+      "lastModified": null,
+      "retrievedAt": "2026-10-02T07:59:13.223015Z",
+      "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+      "status": 200,
+      "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+    }
+  ],
+  "records": [
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/administrative-geography/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/administrative-geography",
+          "id": "administrative-geography"
+        }
+      },
+      "id": "administrative-geography",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/0",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/adzuna-jobs-category/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/adzuna-jobs-category",
+          "id": "adzuna-jobs-category"
+        }
+      },
+      "id": "adzuna-jobs-category",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/1",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/age-groups/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/age-groups",
+          "id": "age-groups"
+        }
+      },
+      "id": "age-groups",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/2",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/averages-and-percentiles/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/averages-and-percentiles",
+          "id": "averages-and-percentiles"
+        }
+      },
+      "id": "averages-and-percentiles",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/3",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/build-status/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/build-status",
+          "id": "build-status"
+        }
+      },
+      "id": "build-status",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/4",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/calendar-month/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/calendar-month",
+          "id": "calendar-month"
+        }
+      },
+      "id": "calendar-month",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/5",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/calendar-years/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/calendar-years",
+          "id": "calendar-years"
+        }
+      },
+      "id": "calendar-years",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/6",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/cause-of-death/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/cause-of-death",
+          "id": "cause-of-death"
+        }
+      },
+      "id": "cause-of-death",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/7",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/cdid/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/cdid",
+          "id": "cdid"
+        }
+      },
+      "id": "cdid",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/8",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/city-regions/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/city-regions",
+          "id": "city-regions"
+        }
+      },
+      "id": "city-regions",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/9",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/construction-classifications/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/construction-classifications",
+          "id": "construction-classifications"
+        }
+      },
+      "id": "construction-classifications",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/10",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/construction-series-type/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/construction-series-type",
+          "id": "construction-series-type"
+        }
+      },
+      "id": "construction-series-type",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/11",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/countries/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/countries",
+          "id": "countries"
+        }
+      },
+      "id": "countries",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/12",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/countries-and-territories/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/countries-and-territories",
+          "id": "countries-and-territories"
+        }
+      },
+      "id": "countries-and-territories",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/13",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/cpih1dim1aggid/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/cpih1dim1aggid",
+          "id": "cpih1dim1aggid"
+        }
+      },
+      "id": "cpih1dim1aggid",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/14",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/dd-mm/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/dd-mm",
+          "id": "dd-mm"
+        }
+      },
+      "id": "dd-mm",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/15",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/decade/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/decade",
+          "id": "decade"
+        }
+      },
+      "id": "decade",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/16",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/economic-activity/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/economic-activity",
+          "id": "economic-activity"
+        }
+      },
+      "id": "economic-activity",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/17",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/england-regions/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/england-regions",
+          "id": "england-regions"
+        }
+      },
+      "id": "england-regions",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/18",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/enterprise-regions/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/enterprise-regions",
+          "id": "enterprise-regions"
+        }
+      },
+      "id": "enterprise-regions",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/19",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/enterprises-and-local-units/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/enterprises-and-local-units",
+          "id": "enterprises-and-local-units"
+        }
+      },
+      "id": "enterprises-and-local-units",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/20",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/financial-and-calendar-years/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/financial-and-calendar-years",
+          "id": "financial-and-calendar-years"
+        }
+      },
+      "id": "financial-and-calendar-years",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/21",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/healthcare-financing-scheme/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/healthcare-financing-scheme",
+          "id": "healthcare-financing-scheme"
+        }
+      },
+      "id": "healthcare-financing-scheme",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/22",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/healthcare-function/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/healthcare-function",
+          "id": "healthcare-function"
+        }
+      },
+      "id": "healthcare-function",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/23",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/healthcare-provider/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/healthcare-provider",
+          "id": "healthcare-provider"
+        }
+      },
+      "id": "healthcare-provider",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/24",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/hours-and-earnings/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/hours-and-earnings",
+          "id": "hours-and-earnings"
+        }
+      },
+      "id": "hours-and-earnings",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/25",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/house-sales-and-prices/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/house-sales-and-prices",
+          "id": "house-sales-and-prices"
+        }
+      },
+      "id": "house-sales-and-prices",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/26",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/household-reference-person/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/household-reference-person",
+          "id": "household-reference-person"
+        }
+      },
+      "id": "household-reference-person",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/27",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/income-type/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/income-type",
+          "id": "income-type"
+        }
+      },
+      "id": "income-type",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/28",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/index-and-year-change/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/index-and-year-change",
+          "id": "index-and-year-change"
+        }
+      },
+      "id": "index-and-year-change",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/29",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/life-expectancy-cohort/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/life-expectancy-cohort",
+          "id": "life-expectancy-cohort"
+        }
+      },
+      "id": "life-expectancy-cohort",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/30",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/life-expectancy-type/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/life-expectancy-type",
+          "id": "life-expectancy-type"
+        }
+      },
+      "id": "life-expectancy-type",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/31",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/local-enterprise-partnership/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/local-enterprise-partnership",
+          "id": "local-enterprise-partnership"
+        }
+      },
+      "id": "local-enterprise-partnership",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/32",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/local-health-board/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/local-health-board",
+          "id": "local-health-board"
+        }
+      },
+      "id": "local-health-board",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/33",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/measure-of-wellbeing/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/measure-of-wellbeing",
+          "id": "measure-of-wellbeing"
+        }
+      },
+      "id": "measure-of-wellbeing",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/34",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/middle-layer-super-output-area/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/middle-layer-super-output-area",
+          "id": "middle-layer-super-output-area"
+        }
+      },
+      "id": "middle-layer-super-output-area",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/35",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/mmm/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/mmm",
+          "id": "mmm"
+        }
+      },
+      "id": "mmm",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/36",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/mmm-mmm-yyyy/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/mmm-mmm-yyyy",
+          "id": "mmm-mmm-yyyy"
+        }
+      },
+      "id": "mmm-mmm-yyyy",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/37",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/mmm-yy/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/mmm-yy",
+          "id": "mmm-yy"
+        }
+      },
+      "id": "mmm-yy",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/38",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/nuts/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/nuts",
+          "id": "nuts"
+        }
+      },
+      "id": "nuts",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/39",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/parliamentary-constituencies/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/parliamentary-constituencies",
+          "id": "parliamentary-constituencies"
+        }
+      },
+      "id": "parliamentary-constituencies",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/40",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/pedestrians-and-vehicles/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/pedestrians-and-vehicles",
+          "id": "pedestrians-and-vehicles"
+        }
+      },
+      "id": "pedestrians-and-vehicles",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/41",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/place-of-death/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/place-of-death",
+          "id": "place-of-death"
+        }
+      },
+      "id": "place-of-death",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/42",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/property-type/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/property-type",
+          "id": "property-type"
+        }
+      },
+      "id": "property-type",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/43",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/quarter/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/quarter",
+          "id": "quarter"
+        }
+      },
+      "id": "quarter",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/44",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/quarterly-index-and-growth-rate/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/quarterly-index-and-growth-rate",
+          "id": "quarterly-index-and-growth-rate"
+        }
+      },
+      "id": "quarterly-index-and-growth-rate",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/45",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/quarters-months/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/quarters-months",
+          "id": "quarters-months"
+        }
+      },
+      "id": "quarters-months",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/46",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/quintile/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/quintile",
+          "id": "quintile"
+        }
+      },
+      "id": "quintile",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/47",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/recorded-deaths/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/recorded-deaths",
+          "id": "recorded-deaths"
+        }
+      },
+      "id": "recorded-deaths",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/48",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/registration-or-occurrence/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/registration-or-occurrence",
+          "id": "registration-or-occurrence"
+        }
+      },
+      "id": "registration-or-occurrence",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/49",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/seasonal-adjustment/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/seasonal-adjustment",
+          "id": "seasonal-adjustment"
+        }
+      },
+      "id": "seasonal-adjustment",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/50",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/sector/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/sector",
+          "id": "sector"
+        }
+      },
+      "id": "sector",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/51",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/sex/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/sex",
+          "id": "sex"
+        }
+      },
+      "id": "sex",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/52",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/sexual-orientation/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/sexual-orientation",
+          "id": "sexual-orientation"
+        }
+      },
+      "id": "sexual-orientation",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/53",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/ship-and-visit-type/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/ship-and-visit-type",
+          "id": "ship-and-visit-type"
+        }
+      },
+      "id": "ship-and-visit-type",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/54",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/shipping-port/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/shipping-port",
+          "id": "shipping-port"
+        }
+      },
+      "id": "shipping-port",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/55",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/sic/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/sic",
+          "id": "sic"
+        }
+      },
+      "id": "sic",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/56",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/sic-unofficial/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/sic-unofficial",
+          "id": "sic-unofficial"
+        }
+      },
+      "id": "sic-unofficial",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/57",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/single-year-of-age/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/single-year-of-age",
+          "id": "single-year-of-age"
+        }
+      },
+      "id": "single-year-of-age",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/58",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/sitc/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/sitc",
+          "id": "sitc"
+        }
+      },
+      "id": "sitc",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/59",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/soc/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/soc",
+          "id": "soc"
+        }
+      },
+      "id": "soc",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/60",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/speak-welsh/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/speak-welsh",
+          "id": "speak-welsh"
+        }
+      },
+      "id": "speak-welsh",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/62",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/spend-category/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/spend-category",
+          "id": "spend-category"
+        }
+      },
+      "id": "spend-category",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/63",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/tax-benefit-type/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/tax-benefit-type",
+          "id": "tax-benefit-type"
+        }
+      },
+      "id": "tax-benefit-type",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/64",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/trade-direction/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/trade-direction",
+          "id": "trade-direction"
+        }
+      },
+      "id": "trade-direction",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/65",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/traffic-camera-area/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/traffic-camera-area",
+          "id": "traffic-camera-area"
+        }
+      },
+      "id": "traffic-camera-area",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/66",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/travel-to-work-area/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/travel-to-work-area",
+          "id": "travel-to-work-area"
+        }
+      },
+      "id": "travel-to-work-area",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/67",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/two-year-intervals/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/two-year-intervals",
+          "id": "two-year-intervals"
+        }
+      },
+      "id": "two-year-intervals",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/68",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/type-of-prices/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/type-of-prices",
+          "id": "type-of-prices"
+        }
+      },
+      "id": "type-of-prices",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/69",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/uk-business-unit/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/uk-business-unit",
+          "id": "uk-business-unit"
+        }
+      },
+      "id": "uk-business-unit",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/70",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/uk-only/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/uk-only",
+          "id": "uk-only"
+        }
+      },
+      "id": "uk-only",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/71",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/unit-of-measure/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/unit-of-measure",
+          "id": "unit-of-measure"
+        }
+      },
+      "id": "unit-of-measure",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/72",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/value-deflation/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/value-deflation",
+          "id": "value-deflation"
+        }
+      },
+      "id": "value-deflation",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/73",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/week-number/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/week-number",
+          "id": "week-number"
+        }
+      },
+      "id": "week-number",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/74",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/wellbeing-estimate/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/wellbeing-estimate",
+          "id": "wellbeing-estimate"
+        }
+      },
+      "id": "wellbeing-estimate",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/75",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/welsh-household-composition/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/welsh-household-composition",
+          "id": "welsh-household-composition"
+        }
+      },
+      "id": "welsh-household-composition",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/76",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/working-pattern/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/working-pattern",
+          "id": "working-pattern"
+        }
+      },
+      "id": "working-pattern",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/77",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/workplace-or-residence/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/workplace-or-residence",
+          "id": "workplace-or-residence"
+        }
+      },
+      "id": "workplace-or-residence",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/78",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/years-quarters-months/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/years-quarters-months",
+          "id": "years-quarters-months"
+        }
+      },
+      "id": "years-quarters-months",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/79",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/yyyy/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/yyyy",
+          "id": "yyyy"
+        }
+      },
+      "id": "yyyy",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/80",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/yyyy-qq/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/yyyy-qq",
+          "id": "yyyy-qq"
+        }
+      },
+      "id": "yyyy-qq",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/81",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/yyyy-to-yyyy-yy/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/yyyy-to-yyyy-yy",
+          "id": "yyyy-to-yyyy-yy"
+        }
+      },
+      "id": "yyyy-to-yyyy-yy",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/82",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    },
+    {
+      "advertisedLinks": {
+        "editions": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/yyyy-yy/editions"
+        },
+        "self": {
+          "href": "http://api.beta.ons.gov.uk/v1/code-lists/yyyy-yy",
+          "id": "yyyy-yy"
+        }
+      },
+      "id": "yyyy-yy",
+      "linkTraversal": "not-requested",
+      "nativeIdentityField": "/links/self/id",
+      "resource": "https://api.beta.ons.gov.uk/v1/code-lists",
+      "sourceEvidence": {
+        "pointer": "/items/83",
+        "retrievedAt": "2026-10-02T07:59:13.223015Z",
+        "sha256": "eda7f22021a40798da744e4876db16a089579f401feab43d6270992a99e1a5f4",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/code-lists?limit=1000&offset=0"
+      }
+    }
+  ],
+  "schema": "okf-plus-source-snapshot.v1"
+}

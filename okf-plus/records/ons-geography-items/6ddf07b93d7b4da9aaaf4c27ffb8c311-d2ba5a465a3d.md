@@ -1,0 +1,162 @@
+---
+{
+  "@context": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/context.jsonld",
+  "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-geography-items/6ddf07b93d7b4da9aaaf4c27ffb8c311",
+  "@type": [
+    "dcat:Dataset",
+    "okfp:MetadataRecord"
+  ],
+  "type": "Dataset",
+  "title": "Scottish Parliamentary Constituencies (December 2023) Names and Codes in SC",
+  "description": "This file contains the names and codes for the Scottish Parliamentary Constituencies in Scotland as at 31st December 2023. (File Size - 16 KB) Field Names - SPC23CD, SPC23NM Field Types - Text, Text Field Lengths - 9, 42",
+  "nativeIdentifier": "6ddf07b93d7b4da9aaaf4c27ffb8c311",
+  "sourceFamily": "ons-geography-items",
+  "resource": "https://geoportal.statistics.gov.uk/items/6ddf07b93d7b4da9aaaf4c27ffb8c311",
+  "status": "draft",
+  "generated": {
+    "by": "gis-ai-go OKF+ source producer"
+  },
+  "okfp:machineImported": true,
+  "assertionStatus": "normalised",
+  "reviewStatus": "not-human-reviewed",
+  "tags": [
+    "NAC_ELE",
+    "NAC_SPC",
+    "SPC",
+    "Scotland",
+    "Scottish Parliamentary Constituencies",
+    "Names and Codes",
+    "2023",
+    "DEC_2023",
+    "Feature Service"
+  ],
+  "sources": [
+    {
+      "resource": "https://www.arcgis.com/sharing/rest/search?f=json&q=orgid%3AESMARspQHYMw9BZ9&num=100&start=5101&sortField=created&sortOrder=asc",
+      "retrievedAt": "2026-10-02T01:28:31.540914Z",
+      "responseSha256": "ce3404a2c1881d92775a0b030f4cf581fa0e7929dca3badf82b51a10d07b87b9",
+      "sourcePointer": "/results/62",
+      "normalisedSource": "okf-plus/source/ons-geography-items.json",
+      "normalisedPointer": "/records/5162",
+      "normalisedRecordSha256": "8cccd888bcbba4e21a71ce4b80042d29fc75451d907f99897dd0159d9767d08b",
+      "evidenceKind": "captured-public-metadata",
+      "sourcePointerStatus": "exact-native-id-match"
+    }
+  ],
+  "prov:wasDerivedFrom": {
+    "@id": "https://geoportal.statistics.gov.uk/items/6ddf07b93d7b4da9aaaf4c27ffb8c311"
+  },
+  "dcterms:conformsTo": {
+    "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/profile/v1"
+  },
+  "temporal": {
+    "status": "not-evidenced",
+    "kind": "dataset-reference-period",
+    "start": null,
+    "end": null,
+    "sourceField": null,
+    "note": "No supported reference-period extent in captured metadata; release and catalogue dates are separate."
+  },
+  "update": {
+    "frequency": {
+      "status": "not-evidenced",
+      "label": null,
+      "iri": null,
+      "sourceField": null
+    },
+    "releaseCatalogue": [
+      "https://geoportal.statistics.gov.uk/"
+    ],
+    "releaseFeed": [],
+    "nextRelease": null,
+    "metadataModified": "2025-08-11T08:19:17Z",
+    "releaseVersion": null
+  },
+  "rights": {
+    "metadata": "Public metadata citation and factual normalisation; source rights retained.",
+    "describedData": "https://www.ons.gov.uk/methodology/geography/licences",
+    "retrievalAuthority": "metadata-only",
+    "executionAdmitted": false
+  },
+  "limitations": [
+    "A date in an item title is not automatically the observation/reference range.",
+    "Portal items can be different representations or vintages of one product."
+  ],
+  "details": {
+    "access": "public",
+    "categories": [
+      "/Categories/Names and Codes/Electoral",
+      "/Categories/ONS Geography Open Data"
+    ],
+    "created": 1700572407000,
+    "culture": "en-gb",
+    "description": "This file contains the names and codes for the Scottish Parliamentary Constituencies in Scotland as at 31st December 2023. (File Size - 16 KB) Field Names - SPC23CD, SPC23NM Field Types - Text, Text Field Lengths - 9, 42",
+    "extent": [
+      [
+        -7.9,
+        54.4
+      ],
+      [
+        -0.4,
+        60.9
+      ]
+    ],
+    "id": "6ddf07b93d7b4da9aaaf4c27ffb8c311",
+    "licenseInfo": "<a href='https://www.ons.gov.uk/methodology/geography/licences' target='_blank' rel='nofollow ugc noopener noreferrer'>https://www.ons.gov.uk/methodology/geography/licences</a>",
+    "modified": 1754900357000,
+    "organisationId": "ESMARspQHYMw9BZ9",
+    "snippet": "Electoral Names and Codes",
+    "spatialReference": null,
+    "tags": [
+      "NAC_ELE",
+      "NAC_SPC",
+      "SPC",
+      "Scotland",
+      "Scottish Parliamentary Constituencies",
+      "Names and Codes",
+      "2023",
+      "DEC_2023"
+    ],
+    "title": "Scottish Parliamentary Constituencies (December 2023) Names and Codes in SC",
+    "type": "Feature Service",
+    "typeKeywords": [
+      "ArcGIS Server",
+      "Data",
+      "Feature Access",
+      "Feature Service",
+      "Metadata",
+      "Service",
+      "Singlelayer",
+      "Table",
+      "Hosted Service"
+    ],
+    "url": "https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/SPC_DEC_2023_SC_NC/FeatureServer"
+  },
+  "dcterms:publisher": {
+    "@id": "https://www.ons.gov.uk/"
+  }
+}
+---
+
+# Scottish Parliamentary Constituencies (December 2023) Names and Codes in SC
+
+This file contains the names and codes for the Scottish Parliamentary Constituencies in Scotland as at 31st December 2023. (File Size - 16 KB) Field Names - SPC23CD, SPC23NM Field Types - Text, Text Field Lengths - 9, 42
+
+Native identifier: `6ddf07b93d7b4da9aaaf4c27ffb8c311`.
+
+Source family: `ons-geography-items`. Assertion: normalised metadata; independent human review is not recorded.
+
+[Official source](https://geoportal.statistics.gov.uk/items/6ddf07b93d7b4da9aaaf4c27ffb8c311)
+
+Update cadence: not evidenced in captured metadata.
+Temporal evidence: not-evidenced (dataset-reference-period); start not stated, end not stated.
+No supported reference-period extent in captured metadata; release and catalogue dates are separate.
+
+[Release catalogue or change-discovery route](https://geoportal.statistics.gov.uk/)
+
+## Evidence limits
+
+- A date in an item title is not automatically the observation/reference range.
+- Portal items can be different representations or vintages of one product.
+
+The front matter retains source receipts, rights, native metadata and schema facts. Discovery does not authorise data access.

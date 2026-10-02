@@ -1,0 +1,168 @@
+---
+{
+  "@context": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/context.jsonld",
+  "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-geography-items/e12b1f5bdc6f440498bc99aa7daaa7f4",
+  "@type": [
+    "dcat:Dataset",
+    "okfp:MetadataRecord"
+  ],
+  "type": "Dataset",
+  "title": "Counties and Unitary Authorities (December 2017) Boundaries EW BFE",
+  "description": "This file contains the digital vector boundaries for Counties and Unitary Authorities (also known as Upper Tier Local Authorities) in England and Wales, as at 31 December 2017. The boundaries available are: Full resolution - extent of the realm (usually this is the Mean Low Water mark but in some cases boundaries extend beyond this to include off shore islands); Contains both Ordnance Survey and ONS Intellectual Property Rights. REST URL of ArcGIS for INSPIRE View Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Counties_and_Unitary_Authorities_(December_2017)_EW_BFE/MapServer REST URL of ArcGIS for INSPIRE Feature DownloadService – https://dservices1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/services/Counties_and_Unitary_Authorities_December_2017_EW_BFE/WFSServer?service=wfs&request=getcapabilities REST URL of Feature Access Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Counties_and_Unitary_Authorities_December_2017_EW_BFE_2022/FeatureServer",
+  "nativeIdentifier": "e12b1f5bdc6f440498bc99aa7daaa7f4",
+  "sourceFamily": "ons-geography-items",
+  "resource": "https://geoportal.statistics.gov.uk/items/e12b1f5bdc6f440498bc99aa7daaa7f4",
+  "status": "draft",
+  "generated": {
+    "by": "gis-ai-go OKF+ source producer"
+  },
+  "okfp:machineImported": true,
+  "assertionStatus": "normalised",
+  "reviewStatus": "not-human-reviewed",
+  "tags": [
+    "Boundaries",
+    "Counties and Unitary Authorities",
+    "CTYUA",
+    "Administrative Boundaries",
+    "England and Wales",
+    "WFS",
+    "WMS",
+    "2017",
+    "boundaries",
+    "Latest_Boundaries",
+    "BDY_ADM",
+    "BDY_CTYUA",
+    "DEC_2017",
+    "WFS"
+  ],
+  "sources": [
+    {
+      "resource": "https://www.arcgis.com/sharing/rest/search?f=json&q=orgid%3AESMARspQHYMw9BZ9&num=100&start=1801&sortField=created&sortOrder=asc",
+      "retrievedAt": "2026-10-02T01:27:52.698003Z",
+      "responseSha256": "6dd833eb8661ef64b7bd37798926a4ac099a2a58630cd90c9ec05ae3aa33a5fe",
+      "sourcePointer": "/results/39",
+      "normalisedSource": "okf-plus/source/ons-geography-items.json",
+      "normalisedPointer": "/records/1839",
+      "normalisedRecordSha256": "fea860eeda86fa891c966d73c002ce978c45398a408ec866f078847a6cf8e4a3",
+      "evidenceKind": "captured-public-metadata",
+      "sourcePointerStatus": "exact-native-id-match"
+    }
+  ],
+  "prov:wasDerivedFrom": {
+    "@id": "https://geoportal.statistics.gov.uk/items/e12b1f5bdc6f440498bc99aa7daaa7f4"
+  },
+  "dcterms:conformsTo": {
+    "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/profile/v1"
+  },
+  "temporal": {
+    "status": "not-evidenced",
+    "kind": "dataset-reference-period",
+    "start": null,
+    "end": null,
+    "sourceField": null,
+    "note": "No supported reference-period extent in captured metadata; release and catalogue dates are separate."
+  },
+  "update": {
+    "frequency": {
+      "status": "not-evidenced",
+      "label": null,
+      "iri": null,
+      "sourceField": null
+    },
+    "releaseCatalogue": [
+      "https://geoportal.statistics.gov.uk/"
+    ],
+    "releaseFeed": [],
+    "nextRelease": null,
+    "metadataModified": "2025-08-11T07:57:43Z",
+    "releaseVersion": null
+  },
+  "rights": {
+    "metadata": "Public metadata citation and factual normalisation; source rights retained.",
+    "describedData": "https://www.ons.gov.uk/methodology/geography/licences",
+    "retrievalAuthority": "metadata-only",
+    "executionAdmitted": false
+  },
+  "limitations": [
+    "A date in an item title is not automatically the observation/reference range.",
+    "Portal items can be different representations or vintages of one product."
+  ],
+  "details": {
+    "access": "public",
+    "categories": [],
+    "created": 1662680748000,
+    "culture": "en-gb",
+    "description": "This file contains the digital vector boundaries for Counties and Unitary Authorities (also known as Upper Tier Local Authorities) in England and Wales, as at 31 December 2017. The boundaries available are: Full resolution - extent of the realm (usually this is the Mean Low Water mark but in some cases boundaries extend beyond this to include off shore islands); Contains both Ordnance Survey and ONS Intellectual Property Rights. REST URL of ArcGIS for INSPIRE View Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Counties_and_Unitary_Authorities_(December_2017)_EW_BFE/MapServer REST URL of ArcGIS for INSPIRE Feature DownloadService – https://dservices1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/services/Counties_and_Unitary_Authorities_December_2017_EW_BFE/WFSServer?service=wfs&request=getcapabilities REST URL of Feature Access Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Counties_and_Unitary_Authorities_December_2017_EW_BFE_2022/FeatureServer",
+    "extent": [
+      [
+        -7.053294421621729,
+        49.8639635667763
+      ],
+      [
+        2.079245609195768,
+        55.811661004194136
+      ]
+    ],
+    "id": "e12b1f5bdc6f440498bc99aa7daaa7f4",
+    "licenseInfo": "<a href='https://www.ons.gov.uk/methodology/geography/licences' target='_blank' rel='nofollow ugc noopener noreferrer'>https://www.ons.gov.uk/methodology/geography/licences</a>",
+    "modified": 1754899063000,
+    "organisationId": "ESMARspQHYMw9BZ9",
+    "snippet": "Boundaries",
+    "spatialReference": "27700",
+    "tags": [
+      "Boundaries",
+      "Counties and Unitary Authorities",
+      "CTYUA",
+      "Administrative Boundaries",
+      "England and Wales",
+      "WFS",
+      "WMS",
+      "2017",
+      "boundaries",
+      "Latest_Boundaries",
+      "BDY_ADM",
+      "BDY_CTYUA",
+      "DEC_2017"
+    ],
+    "title": "Counties and Unitary Authorities (December 2017) Boundaries EW BFE",
+    "type": "WFS",
+    "typeKeywords": [
+      "Data",
+      "Metadata",
+      "Multilayer",
+      "OGC",
+      "Service",
+      "Web Feature Service",
+      "WFS",
+      "Hosted Service"
+    ],
+    "url": "https://dservices1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/services/Counties_and_Unitary_Authorities_December_2017_EW_BFE/WFSServer"
+  },
+  "dcterms:publisher": {
+    "@id": "https://www.ons.gov.uk/"
+  }
+}
+---
+
+# Counties and Unitary Authorities (December 2017) Boundaries EW BFE
+
+This file contains the digital vector boundaries for Counties and Unitary Authorities (also known as Upper Tier Local Authorities) in England and Wales, as at 31 December 2017. The boundaries available are: Full resolution - extent of the realm (usually this is the Mean Low Water mark but in some cases boundaries extend beyond this to include off shore islands); Contains both Ordnance Survey and ONS Intellectual Property Rights. REST URL of ArcGIS for INSPIRE View Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Counties_and_Unitary_Authorities_(December_2017)_EW_BFE/MapServer REST URL of ArcGIS for INSPIRE Feature DownloadService – https://dservices1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/services/Counties_and_Unitary_Authorities_December_2017_EW_BFE/WFSServer?service=wfs&request=getcapabilities REST URL of Feature Access Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Counties_and_Unitary_Authorities_December_2017_EW_BFE_2022/FeatureServer
+
+Native identifier: `e12b1f5bdc6f440498bc99aa7daaa7f4`.
+
+Source family: `ons-geography-items`. Assertion: normalised metadata; independent human review is not recorded.
+
+[Official source](https://geoportal.statistics.gov.uk/items/e12b1f5bdc6f440498bc99aa7daaa7f4)
+
+Update cadence: not evidenced in captured metadata.
+Temporal evidence: not-evidenced (dataset-reference-period); start not stated, end not stated.
+No supported reference-period extent in captured metadata; release and catalogue dates are separate.
+
+[Release catalogue or change-discovery route](https://geoportal.statistics.gov.uk/)
+
+## Evidence limits
+
+- A date in an item title is not automatically the observation/reference range.
+- Portal items can be different representations or vintages of one product.
+
+The front matter retains source receipts, rights, native metadata and schema facts. Discovery does not authorise data access.

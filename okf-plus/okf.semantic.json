@@ -1,0 +1,25 @@
+{
+  "schema": "gis-ai-go.okf-plus-semantic.v1",
+  "okfVersion": "0.2",
+  "profile": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/profile/v1",
+  "profileStatus": "candidate",
+  "authoredInputs": [
+    "records/**/*.md",
+    "context.jsonld",
+    "profile/*.json"
+  ],
+  "capturedInputs": [
+    "source/*.json"
+  ],
+  "generatedOutputs": [
+    "artifacts/okf-plus/bundle"
+  ],
+  "buildCommand": "python3 scripts/okf_plus/build.py",
+  "importCommand": "python3 scripts/okf_plus/import_sources.py",
+  "sourceBoundary": "Capture snapshots retain factual public metadata; the explicit importer produces reviewable Markdown/YAML-LD. The offline builder consumes that Markdown. Changes to imported records must be made in the mapping or a separately authored concept, not silently overwritten by a refresh.",
+  "consumerBoundary": "Additive GIS profile; canonical Bundle Wiki and installed Ask OKF conformance are not claimed.",
+  "limitations": [
+    "Metadata discovery does not authorise provider invocation.",
+    "Coverage and temporal evidence remain source-specific."
+  ]
+}

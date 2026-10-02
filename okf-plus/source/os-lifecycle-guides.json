@@ -1,0 +1,158 @@
+{
+  "coverage": {
+    "catalogueComplete": true,
+    "limitations": [
+      "Selected guide coverage only, not all release histories or code-list values.",
+      "Guide text is retained privately; semantic claims require source review."
+    ],
+    "reportedTotal": 7,
+    "retrievedUnique": 7,
+    "unit": "selected official lifecycle guide"
+  },
+  "family": "os-lifecycle-guides",
+  "receipts": [
+    {
+      "bytes": 18868,
+      "etag": null,
+      "finalUrl": "https://docs.os.uk/os-downloads/resources/product-resources/product-refresh-dates.md",
+      "lastModified": null,
+      "retrievedAt": "2026-10-02T07:29:11.115484Z",
+      "sha256": "ef690fcea4a175b0bc5555f079d5797e223a757d7b357682669af13c0b41ca66",
+      "status": 200,
+      "url": "https://docs.os.uk/os-downloads/resources/product-resources/product-refresh-dates.md"
+    },
+    {
+      "bytes": 9401,
+      "etag": null,
+      "finalUrl": "https://docs.os.uk/os-downloads/resources/product-resources/end-of-life-product-notices.md",
+      "lastModified": null,
+      "retrievedAt": "2026-10-02T07:29:12.316269Z",
+      "sha256": "f27530aa50d803e12dd2fdc82230f711c74f6858e8c675a53cfe11e03ddc652b",
+      "status": 200,
+      "url": "https://docs.os.uk/os-downloads/resources/product-resources/end-of-life-product-notices.md"
+    },
+    {
+      "bytes": 16768,
+      "etag": null,
+      "finalUrl": "https://docs.os.uk/osngd/getting-started/os-ngd-fundamentals/os-ngd-data-ordering-and-currency.md",
+      "lastModified": null,
+      "retrievedAt": "2026-10-02T07:29:13.482973Z",
+      "sha256": "eb2a4d5dbb4bcea0bcc5fa6b96abcce1f9654b1707d2cad71c5ceae852b94412",
+      "status": 200,
+      "url": "https://docs.os.uk/osngd/getting-started/os-ngd-fundamentals/os-ngd-data-ordering-and-currency.md"
+    },
+    {
+      "bytes": 10761,
+      "etag": null,
+      "finalUrl": "https://docs.os.uk/osngd/getting-started/os-ngd-fundamentals/data-schema-versioning.md",
+      "lastModified": null,
+      "retrievedAt": "2026-10-02T07:29:14.514731Z",
+      "sha256": "a387fdf327375112c376396845c597b709a69d648b3fd0c991247d591e48b3e0",
+      "status": 200,
+      "url": "https://docs.os.uk/osngd/getting-started/os-ngd-fundamentals/data-schema-versioning.md"
+    },
+    {
+      "bytes": 8463,
+      "etag": null,
+      "finalUrl": "https://docs.os.uk/osngd/getting-started/downloading-with-os-select+build/getting-started-with-data-packages/getting-started-with-temporal-filtering.md",
+      "lastModified": null,
+      "retrievedAt": "2026-10-02T07:29:15.831893Z",
+      "sha256": "d7e233e1e37e38dd029faebf23898cd2f406be9798a0c7db3eae808fae734a4e",
+      "status": 200,
+      "url": "https://docs.os.uk/osngd/getting-started/downloading-with-os-select+build/getting-started-with-data-packages/getting-started-with-temporal-filtering.md"
+    },
+    {
+      "bytes": 92616,
+      "etag": null,
+      "finalUrl": "https://docs.os.uk/osngd/os-ngd-news/change-log.md",
+      "lastModified": null,
+      "retrievedAt": "2026-10-02T07:29:17.032807Z",
+      "sha256": "f35bd550537532c0efdbd5e048313186428df1e64c28bba9e4d203987cb265b1",
+      "status": 200,
+      "url": "https://docs.os.uk/osngd/os-ngd-news/change-log.md"
+    },
+    {
+      "bytes": 4812,
+      "etag": null,
+      "finalUrl": "https://docs.os.uk/osngd/code-lists/code-lists-overview.md",
+      "lastModified": null,
+      "retrievedAt": "2026-10-02T07:29:18.209769Z",
+      "sha256": "4777694fc1b5133249657bb69101ecec9303d278cd886c2815e6ed19fbae3743",
+      "status": 200,
+      "url": "https://docs.os.uk/osngd/code-lists/code-lists-overview.md"
+    }
+  ],
+  "records": [
+    {
+      "callable": false,
+      "contentCaptured": true,
+      "id": "https://docs.os.uk/os-downloads/resources/product-resources/product-refresh-dates.md",
+      "kind": "product-refresh-guidance",
+      "semanticReview": "See docs/implementation/OKF-220_OS_SOURCE_REVIEW.md",
+      "sourceSha256": "ef690fcea4a175b0bc5555f079d5797e223a757d7b357682669af13c0b41ca66",
+      "title": "Product Refresh Dates",
+      "url": "https://docs.os.uk/os-downloads/resources/product-resources/product-refresh-dates.md"
+    },
+    {
+      "callable": false,
+      "contentCaptured": true,
+      "id": "https://docs.os.uk/os-downloads/resources/product-resources/end-of-life-product-notices.md",
+      "kind": "withdrawal-index",
+      "semanticReview": "See docs/implementation/OKF-220_OS_SOURCE_REVIEW.md",
+      "sourceSha256": "f27530aa50d803e12dd2fdc82230f711c74f6858e8c675a53cfe11e03ddc652b",
+      "title": "End of Life Product Notices",
+      "url": "https://docs.os.uk/os-downloads/resources/product-resources/end-of-life-product-notices.md"
+    },
+    {
+      "callable": false,
+      "contentCaptured": true,
+      "id": "https://docs.os.uk/osngd/getting-started/os-ngd-fundamentals/os-ngd-data-ordering-and-currency.md",
+      "kind": "delivery-currency-guidance",
+      "semanticReview": "See docs/implementation/OKF-220_OS_SOURCE_REVIEW.md",
+      "sourceSha256": "eb2a4d5dbb4bcea0bcc5fa6b96abcce1f9654b1707d2cad71c5ceae852b94412",
+      "title": "Data ordering and currency",
+      "url": "https://docs.os.uk/osngd/getting-started/os-ngd-fundamentals/os-ngd-data-ordering-and-currency.md"
+    },
+    {
+      "callable": false,
+      "contentCaptured": true,
+      "id": "https://docs.os.uk/osngd/getting-started/os-ngd-fundamentals/data-schema-versioning.md",
+      "kind": "schema-versioning-guidance",
+      "semanticReview": "See docs/implementation/OKF-220_OS_SOURCE_REVIEW.md",
+      "sourceSha256": "a387fdf327375112c376396845c597b709a69d648b3fd0c991247d591e48b3e0",
+      "title": "Data schema versioning",
+      "url": "https://docs.os.uk/osngd/getting-started/os-ngd-fundamentals/data-schema-versioning.md"
+    },
+    {
+      "callable": false,
+      "contentCaptured": true,
+      "id": "https://docs.os.uk/osngd/getting-started/downloading-with-os-select+build/getting-started-with-data-packages/getting-started-with-temporal-filtering.md",
+      "kind": "temporal-filter-guidance",
+      "semanticReview": "See docs/implementation/OKF-220_OS_SOURCE_REVIEW.md",
+      "sourceSha256": "d7e233e1e37e38dd029faebf23898cd2f406be9798a0c7db3eae808fae734a4e",
+      "title": "Getting started with temporal filtering",
+      "url": "https://docs.os.uk/osngd/getting-started/downloading-with-os-select+build/getting-started-with-data-packages/getting-started-with-temporal-filtering.md"
+    },
+    {
+      "callable": false,
+      "contentCaptured": true,
+      "id": "https://docs.os.uk/osngd/os-ngd-news/change-log.md",
+      "kind": "documentation-change-log",
+      "semanticReview": "See docs/implementation/OKF-220_OS_SOURCE_REVIEW.md",
+      "sourceSha256": "f35bd550537532c0efdbd5e048313186428df1e64c28bba9e4d203987cb265b1",
+      "title": "Change Log",
+      "url": "https://docs.os.uk/osngd/os-ngd-news/change-log.md"
+    },
+    {
+      "callable": false,
+      "contentCaptured": true,
+      "id": "https://docs.os.uk/osngd/code-lists/code-lists-overview.md",
+      "kind": "code-list-index",
+      "semanticReview": "See docs/implementation/OKF-220_OS_SOURCE_REVIEW.md",
+      "sourceSha256": "4777694fc1b5133249657bb69101ecec9303d278cd886c2815e6ed19fbae3743",
+      "title": "Code Lists Overview",
+      "url": "https://docs.os.uk/osngd/code-lists/code-lists-overview.md"
+    }
+  ],
+  "schema": "okf-plus-source-snapshot.v1"
+}

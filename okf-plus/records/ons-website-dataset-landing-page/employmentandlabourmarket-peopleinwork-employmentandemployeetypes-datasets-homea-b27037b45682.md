@@ -1,0 +1,145 @@
+---
+{
+  "@context": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/context.jsonld",
+  "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-website-dataset-landing-page/%2Femploymentandlabourmarket%2Fpeopleinwork%2Femploymentandemployeetypes%2Fdatasets%2Fhomeandhybridworkinggreatbritain",
+  "@type": [
+    "dcat:Dataset",
+    "okfp:MetadataRecord"
+  ],
+  "type": "Dataset",
+  "title": "Home and hybrid working, Great Britain",
+  "description": "Data from the Opinions and Lifestyle Survey (OPN) on home working patterns and location of work for adults in Great Britain, as well as reasons for home working and expectations of returning to the workplace.",
+  "nativeIdentifier": "/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/datasets/homeandhybridworkinggreatbritain",
+  "sourceFamily": "ons-website-dataset-landing-page",
+  "resource": "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/datasets/homeandhybridworkinggreatbritain",
+  "status": "draft",
+  "generated": {
+    "by": "gis-ai-go OKF+ source producer"
+  },
+  "okfp:machineImported": true,
+  "assertionStatus": "normalised",
+  "reviewStatus": "not-human-reviewed",
+  "tags": [
+    "Working from home",
+    "home working",
+    "hybrid working",
+    "Great Britain",
+    "Coronavirus",
+    "COVID-19",
+    "dataset_landing_page"
+  ],
+  "sources": [
+    {
+      "resource": "https://api.beta.ons.gov.uk/v1/search?q=&content_type=dataset_landing_page&sort=title&highlight=false&limit=1000&offset=1000",
+      "retrievedAt": "2026-10-02T07:58:51.109895Z",
+      "responseSha256": "096d4f3d6adcd37b38f0bbf15c984de9130344bd7a7c6666b1bf88819b2d9767",
+      "sourcePointer": "/items/654",
+      "normalisedSource": "okf-plus/source/ons-website-dataset-landing-page.json",
+      "normalisedPointer": "/records/1654",
+      "normalisedRecordSha256": "7687fb45c99778f47267bff80b39d896a29b21f27070e92694febaea43d99704",
+      "evidenceKind": "captured-public-metadata",
+      "sourcePointerStatus": "exact-native-id-match"
+    }
+  ],
+  "prov:wasDerivedFrom": {
+    "@id": "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/datasets/homeandhybridworkinggreatbritain"
+  },
+  "dcterms:conformsTo": {
+    "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/profile/v1"
+  },
+  "temporal": {
+    "status": "not-evidenced",
+    "kind": "dataset-reference-period",
+    "start": null,
+    "end": null,
+    "sourceField": null,
+    "note": "No supported reference-period extent in captured metadata; release and catalogue dates are separate."
+  },
+  "update": {
+    "frequency": {
+      "status": "not-evidenced",
+      "label": null,
+      "iri": null,
+      "sourceField": null
+    },
+    "releaseCatalogue": [
+      "https://www.ons.gov.uk/releasecalendar"
+    ],
+    "releaseFeed": [
+      "https://www.ons.gov.uk/releasecalendar?rss&highlight=true&limit=10&page=1&release-type=type-published&sort=date-newest"
+    ],
+    "nextRelease": null,
+    "metadataModified": null,
+    "releaseVersion": ""
+  },
+  "rights": {
+    "metadata": "Public metadata citation and factual normalisation; source rights retained.",
+    "describedData": "Not established by metadata discovery; consult source-specific terms.",
+    "retrievalAuthority": "metadata-only",
+    "executionAdmitted": false
+  },
+  "limitations": [
+    "Website and API representations are retained separately; matching titles do not prove equivalence.",
+    "Release dates do not establish the period covered by statistical observations."
+  ],
+  "details": {
+    "canonical_topic": "",
+    "cdid": "",
+    "dataset_id": "",
+    "edition": "",
+    "id": "/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/datasets/homeandhybridworkinggreatbritain",
+    "keywords": [
+      "Working from home",
+      "home working",
+      "hybrid working",
+      "Great Britain",
+      "Coronavirus",
+      "COVID-19"
+    ],
+    "meta_description": "Data from the Opinions and Lifestyle Survey (OPN) on home working patterns and location of work for adults in Great Britain, as well as reasons for home working and expectations of returning to the workplace.",
+    "nativeIdentityField": "uri",
+    "release_date": "2022-05-22T23:00:00.000Z",
+    "resource": "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/datasets/homeandhybridworkinggreatbritain",
+    "sourceEvidence": {
+      "pointer": "/items/654",
+      "retrievedAt": "2026-10-02T07:58:51.109895Z",
+      "sha256": "096d4f3d6adcd37b38f0bbf15c984de9130344bd7a7c6666b1bf88819b2d9767",
+      "status": 200,
+      "url": "https://api.beta.ons.gov.uk/v1/search?q=&content_type=dataset_landing_page&sort=title&highlight=false&limit=1000&offset=1000"
+    },
+    "summary": "Data on working patterns and location of work of adults in Great Britain, including costs and benefits of homeworking and future expectations. Survey data from the Opinions and Lifestyle Survey (OPN).",
+    "title": "Home and hybrid working, Great Britain",
+    "topics": [
+      "5687",
+      "2114",
+      "9243"
+    ],
+    "type": "dataset_landing_page",
+    "uri": "/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/datasets/homeandhybridworkinggreatbritain"
+  }
+}
+---
+
+# Home and hybrid working, Great Britain
+
+Data from the Opinions and Lifestyle Survey (OPN) on home working patterns and location of work for adults in Great Britain, as well as reasons for home working and expectations of returning to the workplace.
+
+Native identifier: `/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/datasets/homeandhybridworkinggreatbritain`.
+
+Source family: `ons-website-dataset-landing-page`. Assertion: normalised metadata; independent human review is not recorded.
+
+[Official source](https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/datasets/homeandhybridworkinggreatbritain)
+
+Update cadence: not evidenced in captured metadata.
+Temporal evidence: not-evidenced (dataset-reference-period); start not stated, end not stated.
+No supported reference-period extent in captured metadata; release and catalogue dates are separate.
+
+[Release catalogue or change-discovery route](https://www.ons.gov.uk/releasecalendar)
+[Recent release feed](https://www.ons.gov.uk/releasecalendar?rss&highlight=true&limit=10&page=1&release-type=type-published&sort=date-newest)
+
+## Evidence limits
+
+- Website and API representations are retained separately; matching titles do not prove equivalence.
+- Release dates do not establish the period covered by statistical observations.
+
+The front matter retains source receipts, rights, native metadata and schema facts. Discovery does not authorise data access.

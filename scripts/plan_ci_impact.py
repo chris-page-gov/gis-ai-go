@@ -24,7 +24,8 @@ COMMIT = re.compile(r"^[0-9a-f]{40}$")
 LANE_ID = re.compile(r"^[a-z][a-z0-9_-]*$")
 RULE_ID = re.compile(r"^[a-z][a-z0-9-]*$")
 MAX_MAP_BYTES = 1024 * 1024
-MAX_CHANGED_PATHS = 20_000
+# Match the source-package file ceiling so a bounded metadata import can be planned.
+MAX_CHANGED_PATHS = 65_536
 MAX_DIFF_BYTES = 64 * 1024 * 1024
 MAX_PATH_BYTES = 4_096
 ALLOWED_EVENTS = frozenset({"pull_request", "push_main"})

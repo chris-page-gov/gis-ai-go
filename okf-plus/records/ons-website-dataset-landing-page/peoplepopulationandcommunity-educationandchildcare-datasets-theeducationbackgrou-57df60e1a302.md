@@ -1,0 +1,142 @@
+---
+{
+  "@context": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/context.jsonld",
+  "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-website-dataset-landing-page/%2Fpeoplepopulationandcommunity%2Feducationandchildcare%2Fdatasets%2Ftheeducationbackgroundoflookedafterchildrenwhointeractwiththecriminaljusticesystem",
+  "@type": [
+    "dcat:Dataset",
+    "okfp:MetadataRecord"
+  ],
+  "type": "Dataset",
+  "title": "The education background of looked-after children who interact with the criminal justice system",
+  "description": "Educational attainment and provision, criminal justice system interactions and demographics of children looked after educated in England who subsequently received a custodial sentence.",
+  "nativeIdentifier": "/peoplepopulationandcommunity/educationandchildcare/datasets/theeducationbackgroundoflookedafterchildrenwhointeractwiththecriminaljusticesystem",
+  "sourceFamily": "ons-website-dataset-landing-page",
+  "resource": "https://www.ons.gov.uk/peoplepopulationandcommunity/educationandchildcare/datasets/theeducationbackgroundoflookedafterchildrenwhointeractwiththecriminaljusticesystem",
+  "status": "draft",
+  "generated": {
+    "by": "gis-ai-go OKF+ source producer"
+  },
+  "okfp:machineImported": true,
+  "assertionStatus": "normalised",
+  "reviewStatus": "not-human-reviewed",
+  "tags": [
+    "imprisonment",
+    "disadvantage",
+    "young people",
+    "crime",
+    "social care",
+    "dataset_landing_page"
+  ],
+  "sources": [
+    {
+      "resource": "https://api.beta.ons.gov.uk/v1/search?q=&content_type=dataset_landing_page&sort=title&highlight=false&limit=1000&offset=3000",
+      "retrievedAt": "2026-10-02T07:58:53.503544Z",
+      "responseSha256": "0ebe824ca624eef0a815aad8798cb1057b61256c539186b17205f7c3368beebc",
+      "sourcePointer": "/items/546",
+      "normalisedSource": "okf-plus/source/ons-website-dataset-landing-page.json",
+      "normalisedPointer": "/records/3546",
+      "normalisedRecordSha256": "57fc84b6439f96646aa7461d83ce8b4cc3ed8427c8a0980a6fe8918b87e0de5b",
+      "evidenceKind": "captured-public-metadata",
+      "sourcePointerStatus": "exact-native-id-match"
+    }
+  ],
+  "prov:wasDerivedFrom": {
+    "@id": "https://www.ons.gov.uk/peoplepopulationandcommunity/educationandchildcare/datasets/theeducationbackgroundoflookedafterchildrenwhointeractwiththecriminaljusticesystem"
+  },
+  "dcterms:conformsTo": {
+    "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/profile/v1"
+  },
+  "temporal": {
+    "status": "not-evidenced",
+    "kind": "dataset-reference-period",
+    "start": null,
+    "end": null,
+    "sourceField": null,
+    "note": "No supported reference-period extent in captured metadata; release and catalogue dates are separate."
+  },
+  "update": {
+    "frequency": {
+      "status": "not-evidenced",
+      "label": null,
+      "iri": null,
+      "sourceField": null
+    },
+    "releaseCatalogue": [
+      "https://www.ons.gov.uk/releasecalendar"
+    ],
+    "releaseFeed": [
+      "https://www.ons.gov.uk/releasecalendar?rss&highlight=true&limit=10&page=1&release-type=type-published&sort=date-newest"
+    ],
+    "nextRelease": null,
+    "metadataModified": null,
+    "releaseVersion": ""
+  },
+  "rights": {
+    "metadata": "Public metadata citation and factual normalisation; source rights retained.",
+    "describedData": "Not established by metadata discovery; consult source-specific terms.",
+    "retrievalAuthority": "metadata-only",
+    "executionAdmitted": false
+  },
+  "limitations": [
+    "Website and API representations are retained separately; matching titles do not prove equivalence.",
+    "Release dates do not establish the period covered by statistical observations."
+  ],
+  "details": {
+    "canonical_topic": "",
+    "cdid": "",
+    "dataset_id": "",
+    "edition": "",
+    "id": "/peoplepopulationandcommunity/educationandchildcare/datasets/theeducationbackgroundoflookedafterchildrenwhointeractwiththecriminaljusticesystem",
+    "keywords": [
+      "imprisonment",
+      "disadvantage",
+      "young people",
+      "crime",
+      "social care"
+    ],
+    "meta_description": "Educational attainment and provision, criminal justice system interactions and demographics of children looked after educated in England who subsequently received a custodial sentence.",
+    "nativeIdentityField": "uri",
+    "release_date": "2022-12-05T00:00:00.000Z",
+    "resource": "https://www.ons.gov.uk/peoplepopulationandcommunity/educationandchildcare/datasets/theeducationbackgroundoflookedafterchildrenwhointeractwiththecriminaljusticesystem",
+    "sourceEvidence": {
+      "pointer": "/items/546",
+      "retrievedAt": "2026-10-02T07:58:53.503544Z",
+      "sha256": "0ebe824ca624eef0a815aad8798cb1057b61256c539186b17205f7c3368beebc",
+      "status": 200,
+      "url": "https://api.beta.ons.gov.uk/v1/search?q=&content_type=dataset_landing_page&sort=title&highlight=false&limit=1000&offset=3000"
+    },
+    "summary": "Educational attainment and provision, criminal justice system interactions and demographics of children looked after educated in England who subsequently received a custodial sentence.",
+    "title": "The education background of looked-after children who interact with the criminal justice system",
+    "topics": [
+      "9581",
+      "2452"
+    ],
+    "type": "dataset_landing_page",
+    "uri": "/peoplepopulationandcommunity/educationandchildcare/datasets/theeducationbackgroundoflookedafterchildrenwhointeractwiththecriminaljusticesystem"
+  }
+}
+---
+
+# The education background of looked-after children who interact with the criminal justice system
+
+Educational attainment and provision, criminal justice system interactions and demographics of children looked after educated in England who subsequently received a custodial sentence.
+
+Native identifier: `/peoplepopulationandcommunity/educationandchildcare/datasets/theeducationbackgroundoflookedafterchildrenwhointeractwiththecriminaljusticesystem`.
+
+Source family: `ons-website-dataset-landing-page`. Assertion: normalised metadata; independent human review is not recorded.
+
+[Official source](https://www.ons.gov.uk/peoplepopulationandcommunity/educationandchildcare/datasets/theeducationbackgroundoflookedafterchildrenwhointeractwiththecriminaljusticesystem)
+
+Update cadence: not evidenced in captured metadata.
+Temporal evidence: not-evidenced (dataset-reference-period); start not stated, end not stated.
+No supported reference-period extent in captured metadata; release and catalogue dates are separate.
+
+[Release catalogue or change-discovery route](https://www.ons.gov.uk/releasecalendar)
+[Recent release feed](https://www.ons.gov.uk/releasecalendar?rss&highlight=true&limit=10&page=1&release-type=type-published&sort=date-newest)
+
+## Evidence limits
+
+- Website and API representations are retained separately; matching titles do not prove equivalence.
+- Release dates do not establish the period covered by statistical observations.
+
+The front matter retains source receipts, rights, native metadata and schema facts. Discovery does not authorise data access.

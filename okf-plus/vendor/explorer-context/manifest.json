@@ -1,0 +1,104 @@
+{
+  "files": [
+    {
+      "bytes": 1068,
+      "path": "LICENSE-CODE.md",
+      "sha256": "f3503f87ef771a5231d8f9e0ac6d81bfcb585a39698bd146ad247ba142959b17",
+      "sourceUrl": "https://github.com/chris-page-gov/okf-explorer/blob/84fb37f11411c04db8c58046827061f741249002/LICENSE-CODE.md"
+    },
+    {
+      "bytes": 654,
+      "path": "LICENSE.md",
+      "sha256": "5b35af98e4767287f35875144ad3f504c0c594c1678471b53fa1b207e133116c",
+      "sourceUrl": "https://github.com/chris-page-gov/okf-explorer/blob/84fb37f11411c04db8c58046827061f741249002/LICENSE.md"
+    },
+    {
+      "bytes": 20561,
+      "path": "apps/okf-explorer/src/lib/context/corpus.ts",
+      "sha256": "a770352c6e4628f0c391b0c12bbdaf185b476a714ca212e99459d135f8f57f6f",
+      "sourceUrl": "https://github.com/chris-page-gov/okf-explorer/blob/84fb37f11411c04db8c58046827061f741249002/apps/okf-explorer/src/lib/context/corpus.ts"
+    },
+    {
+      "bytes": 48466,
+      "path": "apps/okf-explorer/src/lib/context/corpusV3.ts",
+      "sha256": "944617e1630362b7a41d60da92651007b96252eff3075eb4c4b852f420f5a5c0",
+      "sourceUrl": "https://github.com/chris-page-gov/okf-explorer/blob/84fb37f11411c04db8c58046827061f741249002/apps/okf-explorer/src/lib/context/corpusV3.ts"
+    },
+    {
+      "bytes": 47433,
+      "path": "apps/okf-explorer/src/lib/context/index.ts",
+      "sha256": "689f8b8ab1cfb5ccc21b6dd9b5527fcad04de01f5876b44cbb2dc0240fceb010",
+      "sourceUrl": "https://github.com/chris-page-gov/okf-explorer/blob/84fb37f11411c04db8c58046827061f741249002/apps/okf-explorer/src/lib/context/index.ts"
+    },
+    {
+      "bytes": 7704,
+      "path": "apps/okf-explorer/src/lib/context/types.ts",
+      "sha256": "febf83b5c65153fd2e49ac070b6117525463034fb1b33534a086a1cc7bbb42cc",
+      "sourceUrl": "https://github.com/chris-page-gov/okf-explorer/blob/84fb37f11411c04db8c58046827061f741249002/apps/okf-explorer/src/lib/context/types.ts"
+    },
+    {
+      "bytes": 6121,
+      "path": "apps/okf-explorer/src/lib/context/unit.ts",
+      "sha256": "7cd989c00564ad2e0469073c66685ffb5111809e7f598dc42b6f3df1bf693aa6",
+      "sourceUrl": "https://github.com/chris-page-gov/okf-explorer/blob/84fb37f11411c04db8c58046827061f741249002/apps/okf-explorer/src/lib/context/unit.ts"
+    },
+    {
+      "bytes": 18353,
+      "path": "profiles/context-assembly/v1/common.schema.json",
+      "sha256": "e53099c72351860fd34c26dd88914f5984d749d4eec13aef4fa151d1c96713e2",
+      "sourceUrl": "https://github.com/chris-page-gov/okf-explorer/blob/84fb37f11411c04db8c58046827061f741249002/profiles/context-assembly/v1/common.schema.json"
+    },
+    {
+      "bytes": 1752,
+      "path": "profiles/context-assembly/v1/context-adjacency.schema.json",
+      "sha256": "d43ed7b05efb681b61d871a913bd39ac85b1d19c097b6a26e535870b788c4092",
+      "sourceUrl": "https://github.com/chris-page-gov/okf-explorer/blob/84fb37f11411c04db8c58046827061f741249002/profiles/context-assembly/v1/context-adjacency.schema.json"
+    },
+    {
+      "bytes": 13948,
+      "path": "profiles/context-assembly/v1/corpus-v3.schema.json",
+      "sha256": "80a551ad81fb6efb705bff11923ea5d8bfdec994a99086db0bdf31b065472f23",
+      "sourceUrl": "https://github.com/chris-page-gov/okf-explorer/blob/84fb37f11411c04db8c58046827061f741249002/profiles/context-assembly/v1/corpus-v3.schema.json"
+    },
+    {
+      "bytes": 3484,
+      "path": "profiles/context-assembly/v1/discovery-card.schema.json",
+      "sha256": "7941fc4ee6c042d5c187949e8289e31346042df9a9e2fe1e49963c57f77f84bd",
+      "sourceUrl": "https://github.com/chris-page-gov/okf-explorer/blob/84fb37f11411c04db8c58046827061f741249002/profiles/context-assembly/v1/discovery-card.schema.json"
+    },
+    {
+      "bytes": 599,
+      "path": "profiles/context-assembly/v1/discovery-cards.schema.json",
+      "sha256": "c862a894099f53f5a181465e0e99692c2d2e72e9b3e682fb6dde64af206c33cd",
+      "sourceUrl": "https://github.com/chris-page-gov/okf-explorer/blob/84fb37f11411c04db8c58046827061f741249002/profiles/context-assembly/v1/discovery-cards.schema.json"
+    },
+    {
+      "bytes": 712,
+      "path": "profiles/context-assembly/v1/discovery-postings.schema.json",
+      "sha256": "f9f351ff29ba32dc00d4473422b84cd0fef97a626ddc19db17a15982bdc8dfdd",
+      "sourceUrl": "https://github.com/chris-page-gov/okf-explorer/blob/84fb37f11411c04db8c58046827061f741249002/profiles/context-assembly/v1/discovery-postings.schema.json"
+    },
+    {
+      "bytes": 3932,
+      "path": "profiles/context-assembly/v1/evidence-unit.schema.json",
+      "sha256": "9d86a7343b3f0da70e115fec8fa7e4bea1627fec89d95e0a6a45d2dd976833a6",
+      "sourceUrl": "https://github.com/chris-page-gov/okf-explorer/blob/84fb37f11411c04db8c58046827061f741249002/profiles/context-assembly/v1/evidence-unit.schema.json"
+    },
+    {
+      "bytes": 1272,
+      "path": "profiles/context-assembly/v1/index.schema.json",
+      "sha256": "4bc2e83c1243a1e4b89b6d1a41deca7549f14afa44e854750717a7d4908fb93e",
+      "sourceUrl": "https://github.com/chris-page-gov/okf-explorer/blob/84fb37f11411c04db8c58046827061f741249002/profiles/context-assembly/v1/index.schema.json"
+    }
+  ],
+  "licence": {
+    "code": "MIT",
+    "notice": "LICENSE-CODE.md",
+    "scope": "Copied TypeScript engine and machine-readable validation schemas. No upstream Markdown corpus, source indexes or narrative documentation included.",
+    "upstreamSplitNotice": "LICENSE.md"
+  },
+  "purpose": "Exact offline validation schemas and engine dependency closure; no corpus, application, service registry or generated data.",
+  "schema": "gis-ai-go.okf-plus-vendored-context.v1",
+  "sourceRepository": "https://github.com/chris-page-gov/okf-explorer",
+  "sourceRevision": "84fb37f11411c04db8c58046827061f741249002"
+}

@@ -1,0 +1,762 @@
+{
+  "schema": "gis-ai-go.okf-plus-question-corpus.v1",
+  "version": "2026-10-02.2",
+  "scope": "Offline metadata retrieval and source-bound field checks, with separate manual semantic review prompts. No live API, model, licence entitlement or installed Ask OKF acceptance is claimed.",
+  "defaults": {
+    "maxRecords": 10,
+    "maxBytes": 262144
+  },
+  "evaluationRules": [
+    "Evaluate retrieval targets and literal field checks separately from the review boundaries.",
+    "A retrieval pass means the declared metadata record was retained; it is not evidence sufficiency or an answer-quality score.",
+    "Record complete-index candidate counts, rank, byte and record omissions, source revision and index digests.",
+    "Context-required cases remain explicitly unassessed by this local lexical search harness.",
+    "Do not supply expected targets or field values to the search function as retrieval seeds.",
+    "Retain source-native dates and unknown values; a metadata refresh may legitimately require reviewing a frozen expectation."
+  ],
+  "cases": [
+    {
+      "id": "K01",
+      "category": "native-identifier",
+      "question": "What is OpenNames?",
+      "mode": "retrieval",
+      "targets": [
+        {
+          "sourceFamily": "os-open-products",
+          "nativeIdentifier": "OpenNames"
+        }
+      ],
+      "reviewBoundaries": [
+        "Metadata describes a product; it does not return a current place search result."
+      ]
+    },
+    {
+      "id": "K02",
+      "category": "ordinary-language",
+      "question": "Which OS open product provides place names, road numbers and postcodes?",
+      "mode": "retrieval",
+      "targets": [
+        {
+          "sourceFamily": "os-open-products",
+          "nativeIdentifier": "OpenNames"
+        }
+      ],
+      "reviewBoundaries": [
+        "Distinguish names discovery from address matching and statistical-area assignment."
+      ]
+    },
+    {
+      "id": "K03",
+      "category": "native-identifier",
+      "question": "What coordinates and identifiers does OpenUPRN describe?",
+      "mode": "retrieval",
+      "targets": [
+        {
+          "sourceFamily": "os-open-products",
+          "nativeIdentifier": "OpenUPRN"
+        }
+      ],
+      "reviewBoundaries": [
+        "UPRN data is not an address list or a verified postcode-to-area join."
+      ]
+    },
+    {
+      "id": "K04",
+      "category": "cross-identifier",
+      "question": "How does LIDS link UPRNs, USRNs and TOIDs?",
+      "mode": "retrieval",
+      "targets": [
+        {
+          "sourceFamily": "os-open-products",
+          "nativeIdentifier": "LIDS"
+        }
+      ],
+      "reviewBoundaries": [
+        "Relationships do not establish identity or licence equivalence between all referenced datasets."
+      ]
+    },
+    {
+      "id": "K05",
+      "category": "native-identifier",
+      "question": "Show metadata for OpenRoads",
+      "mode": "retrieval",
+      "targets": [
+        {
+          "sourceFamily": "os-open-products",
+          "nativeIdentifier": "OpenRoads"
+        }
+      ],
+      "reviewBoundaries": [
+        "Keep the open product distinct from OS NGD Road Link collections."
+      ]
+    },
+    {
+      "id": "K06",
+      "category": "native-identifier",
+      "question": "What does OpenUSRN provide?",
+      "mode": "retrieval",
+      "targets": [
+        {
+          "sourceFamily": "os-open-products",
+          "nativeIdentifier": "OpenUSRN"
+        }
+      ],
+      "reviewBoundaries": [
+        "A street reference is not an address identifier."
+      ]
+    },
+    {
+      "id": "K07",
+      "category": "native-identifier",
+      "question": "Show metadata and formats for OpenRivers",
+      "mode": "retrieval",
+      "targets": [
+        {
+          "sourceFamily": "os-open-products",
+          "nativeIdentifier": "OpenRivers"
+        }
+      ],
+      "reviewBoundaries": [
+        "No water level, flow or environmental observation is inferred."
+      ]
+    },
+    {
+      "id": "K08",
+      "category": "native-identifier",
+      "question": "What does OpenGreenspace describe?",
+      "mode": "retrieval",
+      "targets": [
+        {
+          "sourceFamily": "os-open-products",
+          "nativeIdentifier": "OpenGreenspace"
+        }
+      ],
+      "reviewBoundaries": [
+        "Dataset presence does not establish public access rights to every place."
+      ]
+    },
+    {
+      "id": "K09",
+      "category": "native-identifier",
+      "question": "What is the Terrain50 product?",
+      "mode": "retrieval",
+      "targets": [
+        {
+          "sourceFamily": "os-open-products",
+          "nativeIdentifier": "Terrain50"
+        }
+      ],
+      "reviewBoundaries": [
+        "A terrain product is not a building surface model."
+      ]
+    },
+    {
+      "id": "K10",
+      "category": "native-identifier",
+      "question": "What is CodePointOpen?",
+      "mode": "retrieval",
+      "targets": [
+        {
+          "sourceFamily": "os-open-products",
+          "nativeIdentifier": "CodePointOpen"
+        }
+      ],
+      "reviewBoundaries": [
+        "A postcode point does not identify every address or its exact polygon membership."
+      ]
+    },
+    {
+      "id": "K11",
+      "category": "versioned-collection",
+      "question": "Show bld-fts-building-4 metadata",
+      "mode": "retrieval",
+      "targets": [
+        {
+          "sourceFamily": "os-ngd-collections",
+          "nativeIdentifier": "bld-fts-building-4"
+        }
+      ],
+      "reviewBoundaries": [
+        "Preserve the explicit collection version and protected-data boundary."
+      ]
+    },
+    {
+      "id": "K12",
+      "category": "versioned-collection",
+      "question": "Show trn-ntwk-roadlink-5 metadata",
+      "mode": "retrieval",
+      "targets": [
+        {
+          "sourceFamily": "os-ngd-collections",
+          "nativeIdentifier": "trn-ntwk-roadlink-5"
+        }
+      ],
+      "reviewBoundaries": [
+        "A road-link collection is not an open-road-product equivalence claim."
+      ]
+    },
+    {
+      "id": "K13",
+      "category": "schema",
+      "question": "What fields and queryables are declared for bld-fts-building-4?",
+      "mode": "retrieval",
+      "targets": [
+        {
+          "sourceFamily": "os-ngd-collections",
+          "nativeIdentifier": "bld-fts-building-4"
+        }
+      ],
+      "reviewBoundaries": [
+        "Distinguish schema properties from supported queryable properties; capture is not full feature validation."
+      ]
+    },
+    {
+      "id": "K14",
+      "category": "schema-defect",
+      "question": "Does trn-ntwk-roadlink-5 have any required fields absent from its declared schema properties?",
+      "mode": "retrieval",
+      "targets": [
+        {
+          "sourceFamily": "os-ngd-collections",
+          "nativeIdentifier": "trn-ntwk-roadlink-5"
+        }
+      ],
+      "fieldChecks": [
+        {
+          "nativeIdentifier": "trn-ntwk-roadlink-5",
+          "path": [
+            "schemaEvidence",
+            "schema",
+            "requiredUndeclared"
+          ],
+          "equals": [
+            "presenceOfstreetlight_coverage",
+            "presenceofcyclelane_overallPercentage"
+          ],
+          "sourceFamily": "os-ngd-collections"
+        }
+      ],
+      "reviewBoundaries": [
+        "Preserve the upstream spelling discrepancy rather than silently repairing the official schema."
+      ]
+    },
+    {
+      "id": "K15",
+      "category": "temporal",
+      "question": "What advertised temporal extent does trn-ntwk-roadlink-5 declare?",
+      "mode": "retrieval",
+      "targets": [
+        {
+          "sourceFamily": "os-ngd-collections",
+          "nativeIdentifier": "trn-ntwk-roadlink-5"
+        }
+      ],
+      "fieldChecks": [
+        {
+          "nativeIdentifier": "trn-ntwk-roadlink-5",
+          "path": [
+            "temporal",
+            "kind"
+          ],
+          "equals": "advertised-collection-temporal-extent",
+          "sourceFamily": "os-ngd-collections"
+        },
+        {
+          "nativeIdentifier": "trn-ntwk-roadlink-5",
+          "path": [
+            "temporal",
+            "end"
+          ],
+          "equals": null,
+          "sourceFamily": "os-ngd-collections"
+        }
+      ],
+      "reviewBoundaries": [
+        "An open end does not establish a complete historical feature archive or an as-of query capability."
+      ]
+    },
+    {
+      "id": "K16",
+      "category": "temporal-unknown",
+      "question": "How often is bld-fts-building-4 updated?",
+      "mode": "retrieval",
+      "targets": [
+        {
+          "sourceFamily": "os-ngd-collections",
+          "nativeIdentifier": "bld-fts-building-4"
+        }
+      ],
+      "fieldChecks": [
+        {
+          "nativeIdentifier": "bld-fts-building-4",
+          "path": [
+            "update",
+            "frequency",
+            "status"
+          ],
+          "equals": "not-evidenced",
+          "sourceFamily": "os-ngd-collections"
+        }
+      ],
+      "reviewBoundaries": [
+        "Do not infer a delivery cadence from collection version or temporal start."
+      ]
+    },
+    {
+      "id": "K17",
+      "category": "native-identifier",
+      "question": "What is the ONS dataset cpih01?",
+      "mode": "retrieval",
+      "targets": [
+        {
+          "sourceFamily": "ons-datasets",
+          "nativeIdentifier": "cpih01"
+        }
+      ],
+      "reviewBoundaries": [
+        "CPIH metadata is distinct from an observation or inflation-rate calculation."
+      ]
+    },
+    {
+      "id": "K18",
+      "category": "publication-frequency",
+      "question": "How often is cpih01 released?",
+      "mode": "retrieval",
+      "targets": [
+        {
+          "sourceFamily": "ons-datasets",
+          "nativeIdentifier": "cpih01"
+        }
+      ],
+      "fieldChecks": [
+        {
+          "nativeIdentifier": "cpih01",
+          "path": [
+            "update",
+            "frequency",
+            "label"
+          ],
+          "equals": "Monthly",
+          "sourceFamily": "ons-datasets"
+        },
+        {
+          "nativeIdentifier": "cpih01",
+          "path": [
+            "update",
+            "frequency",
+            "sourceField"
+          ],
+          "equals": "release_frequency",
+          "sourceFamily": "ons-datasets"
+        }
+      ],
+      "reviewBoundaries": [
+        "This is the source-declared cadence, not confirmation that a particular next release happened."
+      ]
+    },
+    {
+      "id": "K19",
+      "category": "temporal-unknown",
+      "question": "What exact observation date range is captured for cpih01?",
+      "mode": "retrieval",
+      "targets": [
+        {
+          "sourceFamily": "ons-datasets",
+          "nativeIdentifier": "cpih01"
+        }
+      ],
+      "fieldChecks": [
+        {
+          "nativeIdentifier": "cpih01",
+          "path": [
+            "temporal",
+            "status"
+          ],
+          "equals": "not-evidenced",
+          "sourceFamily": "ons-datasets"
+        },
+        {
+          "nativeIdentifier": "cpih01",
+          "path": [
+            "temporal",
+            "start"
+          ],
+          "equals": null,
+          "sourceFamily": "ons-datasets"
+        }
+      ],
+      "reviewBoundaries": [
+        "A description mentioning 2005 to latest month is not a validated version-specific time-option inventory."
+      ]
+    },
+    {
+      "id": "K20",
+      "category": "stale-source",
+      "question": "What next release string is captured for mid-year-pop-est?",
+      "mode": "retrieval",
+      "targets": [
+        {
+          "sourceFamily": "ons-datasets",
+          "nativeIdentifier": "mid-year-pop-est"
+        }
+      ],
+      "reviewBoundaries": [
+        "Retain the upstream string, even if historically stale; retrieval time does not make a planned release current."
+      ]
+    },
+    {
+      "id": "K21",
+      "category": "publication-frequency",
+      "question": "How often does regional-gdp-by-year publish?",
+      "mode": "retrieval",
+      "targets": [
+        {
+          "sourceFamily": "ons-datasets",
+          "nativeIdentifier": "regional-gdp-by-year"
+        }
+      ],
+      "fieldChecks": [
+        {
+          "nativeIdentifier": "regional-gdp-by-year",
+          "path": [
+            "update",
+            "frequency",
+            "label"
+          ],
+          "equals": "Annual",
+          "sourceFamily": "ons-datasets"
+        }
+      ],
+      "reviewBoundaries": [
+        "Annual cadence is not complete observation-year coverage."
+      ]
+    },
+    {
+      "id": "K22",
+      "category": "native-identifier",
+      "question": "Show ashe-tables-9-and-10 for earnings by place of work and residence",
+      "mode": "retrieval",
+      "targets": [
+        {
+          "sourceFamily": "ons-datasets",
+          "nativeIdentifier": "ashe-tables-9-and-10"
+        }
+      ],
+      "reviewBoundaries": [
+        "Keep workplace and residence measures distinct; no earnings values are returned."
+      ]
+    },
+    {
+      "id": "K23",
+      "category": "native-identifier",
+      "question": "What does NM_1_1 measure?",
+      "mode": "retrieval",
+      "targets": [
+        {
+          "sourceFamily": "ons-nomis-datasets",
+          "nativeIdentifier": "NM_1_1"
+        }
+      ],
+      "reviewBoundaries": [
+        "Jobseeker's Allowance claimants are not a general unemployment measure."
+      ]
+    },
+    {
+      "id": "K24",
+      "category": "frequency-unknown",
+      "question": "Does the FREQ dimension prove NM_1_1 publication cadence?",
+      "mode": "retrieval",
+      "targets": [
+        {
+          "sourceFamily": "ons-nomis-datasets",
+          "nativeIdentifier": "NM_1_1"
+        }
+      ],
+      "fieldChecks": [
+        {
+          "nativeIdentifier": "NM_1_1",
+          "path": [
+            "update",
+            "frequency",
+            "status"
+          ],
+          "equals": "not-evidenced",
+          "sourceFamily": "ons-nomis-datasets"
+        }
+      ],
+      "reviewBoundaries": [
+        "Statistical frequency options do not establish release cadence."
+      ]
+    },
+    {
+      "id": "K25",
+      "category": "native-period-options",
+      "question": "What years are captured as the NM_1_1 observation range?",
+      "mode": "retrieval",
+      "targets": [
+        {
+          "sourceFamily": "ons-nomis-datasets",
+          "nativeIdentifier": "NM_1_1"
+        }
+      ],
+      "fieldChecks": [
+        {
+          "sourceFamily": "ons-nomis-datasets",
+          "nativeIdentifier": "NM_1_1",
+          "path": [
+            "temporal",
+            "status"
+          ],
+          "equals": "normalised-source-options"
+        },
+        {
+          "sourceFamily": "ons-nomis-datasets",
+          "nativeIdentifier": "NM_1_1",
+          "path": [
+            "temporal",
+            "kind"
+          ],
+          "equals": "available-native-period-options"
+        },
+        {
+          "sourceFamily": "ons-nomis-datasets",
+          "nativeIdentifier": "NM_1_1",
+          "path": [
+            "temporal",
+            "start"
+          ],
+          "equals": "1983-06"
+        },
+        {
+          "sourceFamily": "ons-nomis-datasets",
+          "nativeIdentifier": "NM_1_1",
+          "path": [
+            "temporal",
+            "end"
+          ],
+          "equals": "2026-08"
+        }
+      ],
+      "reviewBoundaries": [
+        "Complete native TIME options now evidence extrema from June 1983 to August 2026. They do not establish populated observation cells, continuity or an exact actual-observation date range.",
+        "FirstReleased, LastUpdated and statistical FREQ remain separate from the captured time-option evidence."
+      ]
+    },
+    {
+      "id": "K26",
+      "category": "feed",
+      "question": "What release feed is linked from cpih01 metadata?",
+      "mode": "retrieval",
+      "targets": [
+        {
+          "sourceFamily": "ons-datasets",
+          "nativeIdentifier": "cpih01"
+        }
+      ],
+      "reviewBoundaries": [
+        "The ONS feed is catalogue-wide; no CPIH-specific subscription or delivery is verified."
+      ]
+    },
+    {
+      "id": "K27",
+      "category": "ordinary-language",
+      "question": "Which ONS datasets are updated monthly?",
+      "mode": "retrieval",
+      "targets": [
+        {
+          "sourceFamily": "ons-datasets"
+        }
+      ],
+      "reviewBoundaries": [
+        "Prefer explicit release_frequency evidence; do not infer cadence from a monthly time dimension."
+      ]
+    },
+    {
+      "id": "K28",
+      "category": "geography",
+      "question": "Middle layer Super Output Area 2021 names and codes",
+      "mode": "retrieval",
+      "targets": [
+        {
+          "sourceFamily": "ons-geography-items"
+        }
+      ],
+      "reviewBoundaries": [
+        "Distinguish names/codes, boundaries and lookup tables; preserve release and geography vintage."
+      ]
+    },
+    {
+      "id": "K29",
+      "category": "schema-version",
+      "question": "What do versiondate and versionavailablefromdate mean in bld-fts-building-4?",
+      "mode": "retrieval",
+      "targets": [
+        {
+          "sourceFamily": "os-ngd-collections",
+          "nativeIdentifier": "bld-fts-building-4"
+        }
+      ],
+      "reviewBoundaries": [
+        "Feature version dates, schema version and collection version are separate claims."
+      ]
+    },
+    {
+      "id": "K30",
+      "category": "rights",
+      "question": "Does public bld-fts-building-4 schema metadata permit feature retrieval and AI hosting?",
+      "mode": "retrieval",
+      "targets": [
+        {
+          "sourceFamily": "os-ngd-collections",
+          "nativeIdentifier": "bld-fts-building-4"
+        }
+      ],
+      "fieldChecks": [
+        {
+          "nativeIdentifier": "bld-fts-building-4",
+          "path": [
+            "rights",
+            "executionAdmitted"
+          ],
+          "equals": false,
+          "sourceFamily": "os-ngd-collections"
+        }
+      ],
+      "reviewBoundaries": [
+        "Public metadata does not establish PSGA entitlement, permitted hosting or AI-recipient rights."
+      ]
+    },
+    {
+      "id": "K31",
+      "category": "faq-discovery",
+      "question": "OS APIs FAQs",
+      "mode": "retrieval",
+      "targets": [
+        {
+          "sourceFamily": "os-apis-documentation",
+          "nativeIdentifier": "https://docs.os.uk/os-apis/core-concepts/faqs.md"
+        }
+      ],
+      "reviewBoundaries": [
+        "A captured navigation reference alone does not prove the target page was fetched or its answer is current."
+      ]
+    },
+    {
+      "id": "K32",
+      "category": "documentation",
+      "question": "OS NGD change log",
+      "mode": "retrieval",
+      "targets": [
+        {
+          "sourceFamily": "osngd-documentation"
+        }
+      ],
+      "reviewBoundaries": [
+        "Documentation changes and data-release events are not necessarily the same feed."
+      ]
+    },
+    {
+      "id": "K33",
+      "category": "native-identifier-case",
+      "question": "Tell me about openuprn",
+      "mode": "retrieval",
+      "targets": [
+        {
+          "sourceFamily": "os-open-products",
+          "nativeIdentifier": "OpenUPRN"
+        }
+      ],
+      "reviewBoundaries": [
+        "Case-insensitive retrieval must preserve the source-native identifier in output."
+      ]
+    },
+    {
+      "id": "K34",
+      "category": "unknown",
+      "question": "quasar zygomorphic unobtainium",
+      "mode": "retrieval",
+      "targets": [],
+      "expectedCandidateCount": 0,
+      "reviewBoundaries": [
+        "No match is a catalogue retrieval result, not a claim that such a product cannot exist elsewhere."
+      ]
+    },
+    {
+      "id": "K35",
+      "category": "unsupported-execution",
+      "question": "Retrieve today's actual cpih01 observation values",
+      "mode": "retrieval",
+      "targets": [
+        {
+          "sourceFamily": "ons-datasets",
+          "nativeIdentifier": "cpih01"
+        }
+      ],
+      "reviewBoundaries": [
+        "The result must remain metadata discovery. No observations or provider call may be claimed."
+      ]
+    },
+    {
+      "id": "K36",
+      "category": "unsupported-history",
+      "question": "Return every historical bld-fts-building-4 feature as of January 2024",
+      "mode": "retrieval",
+      "targets": [
+        {
+          "sourceFamily": "os-ngd-collections",
+          "nativeIdentifier": "bld-fts-building-4"
+        }
+      ],
+      "reviewBoundaries": [
+        "Collection extent is not an as-of feature-query contract or authority to retrieve licensed contents."
+      ]
+    },
+    {
+      "id": "K37",
+      "category": "geospatial-concept",
+      "question": "How do a postcode centroid and a point-in-polygon address join differ?",
+      "mode": "context-required",
+      "targets": [],
+      "reviewBoundaries": [
+        "Needs source-backed concept relationships and an evaluated context package; keyword matches alone cannot pass this case."
+      ]
+    },
+    {
+      "id": "K38",
+      "category": "geospatial-concept",
+      "question": "What is the difference between ONSPD and NSPL allocation?",
+      "mode": "context-required",
+      "targets": [],
+      "reviewBoundaries": [
+        "Point-in-polygon and Output Area best fit must remain distinct, with source and vintage evidence."
+      ]
+    },
+    {
+      "id": "K39",
+      "category": "geospatial-concept",
+      "question": "Can I treat EPSG 27700 coordinates as WGS84 longitude and latitude?",
+      "mode": "context-required",
+      "targets": [],
+      "reviewBoundaries": [
+        "Needs CRS, axis, unit and transformation evidence. No deterministic coordinate calculation is delegated to a model."
+      ]
+    },
+    {
+      "id": "K40",
+      "category": "scope",
+      "question": "Does this catalogue cover every OS and ONS product, historical release and schema?",
+      "mode": "context-required",
+      "targets": [],
+      "reviewBoundaries": [
+        "Requires the source-family coverage ledger, explicit denominators, omissions and unimplemented lanes; search totals alone cannot establish completeness."
+      ]
+    }
+  ],
+  "methodologyChanges": [
+    {
+      "date": "2026-10-02",
+      "change": "Bind field checks to source family and native identifier, because independently retained metadata lanes can share native IDs. K25 now checks captured complete time-option extrema after enrichment; it still forbids treating available codes as populated observations.",
+      "evidence": "ons-nomis-time-options snapshot NM_1_1; complete code-list response retained with receipt."
+    }
+  ]
+}

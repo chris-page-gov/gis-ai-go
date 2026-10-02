@@ -49,6 +49,14 @@ the complete delivery history at every turn or compaction.
   tests, issue management or the next already-authorised stage.
 - When blocked, record the exact failed prerequisite and continue independent
   authorised work. Ask only for missing authority or a material user choice.
+- Before unattended work, identify steps that may open an authentication,
+  operating-system or tool permission prompt. Exercise required access while the
+  owner is present; reuse existing authorisation without asking again. Prefer
+  non-interactive APIs and scripts with explicit request ceilings, deadlines and
+  resumable checkpoints. Do not place optional browser/CDP inspection on the
+  unattended critical path. If a UI-only check cannot run without interaction,
+  record that separate acceptance gap and continue independent work. Never bypass
+  an approval control or treat elapsed waiting time as approval.
 - Preserve the objective, current commit, completed checks and next action across
   compaction. Answer side questions and then resume the objective unless the owner
   changes it. A status label is not proof that a process is still running.

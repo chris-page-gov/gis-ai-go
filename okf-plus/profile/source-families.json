@@ -1,0 +1,234 @@
+{
+  "schema": "gis-ai-go.okf-plus-source-families.v1",
+  "reviewedOn": "2026-10-02",
+  "families": [
+    {
+      "id": "os-open-products",
+      "title": "OS-served OpenData catalogue",
+      "entrypoint": "https://api.os.uk/downloads/v1/products",
+      "scope": "Captured OpenData products and documentation references; includes partner-produced resources.",
+      "status": "captured-catalogue",
+      "releaseDiscovery": "https://docs.os.uk/os-downloads/resources/product-resources/product-refresh-dates"
+    },
+    {
+      "id": "os-product-catalogue",
+      "title": "OS product and service catalogue",
+      "entrypoint": "https://www.ordnancesurvey.co.uk/products/search-for-os-products",
+      "scope": "Broader catalogue of downloads, APIs and services including products outside the OpenData API.",
+      "status": "captured-http-partial-rendered-supplement",
+      "releaseDiscovery": "https://docs.os.uk/os-downloads/resources/product-resources/end-of-life-product-notices",
+      "captureFamilies": [
+        "os-product-search"
+      ]
+    },
+    {
+      "id": "os-ngd-collections",
+      "title": "OS NGD API collections, schemas and queryables",
+      "entrypoint": "https://api.os.uk/features/ngd/ofa/v1/collections",
+      "scope": "Versioned API collections, feature-property schemas, queryable fields and advertised temporal extents.",
+      "status": "captured-catalogue",
+      "releaseDiscovery": "https://docs.os.uk/osngd/os-ngd-news/change-log"
+    },
+    {
+      "id": "os-ngd-downloads",
+      "title": "OS NGD Select+Build and nine theme documentation",
+      "entrypoint": "https://docs.os.uk/osngd",
+      "scope": "All indexed NGD documentation pages are captured with bounded structural projections. Reviewed code-list tables retain native Label rows and their source positions; labels are not silently treated as API enum constraints or merged concepts. Download feature types and code lists extend beyond the API collection surface; full field semantics and cross-list identity/version relationships remain unproved.",
+      "status": "captured-indexed-pages-structural-projection",
+      "releaseDiscovery": "https://docs.os.uk/osngd/os-ngd-news/change-log",
+      "captureFamilies": [
+        "osngd-documentation",
+        "osngd-documentation-pages"
+      ]
+    },
+    {
+      "id": "os-gemini",
+      "title": "OS GEMINI metadata catalogue",
+      "entrypoint": "https://osmetadata.astuntechnology.com/geonetwork",
+      "scope": "Metadata records declare products, themes, dates and profiles. Catalogue items are metadata, not NGD feature items.",
+      "status": "captured-catalogue",
+      "releaseDiscovery": "https://osmetadata.astuntechnology.com/geonetwork/api/collections/main/items?f=rss&sortby=-createDate&size=30",
+      "captureFamilies": [
+        "os-gemini-metadata"
+      ]
+    },
+    {
+      "id": "os-api-contracts",
+      "title": "OS API specifications and technical guides",
+      "entrypoint": "https://docs.os.uk/os-apis",
+      "scope": "Separate OpenAPI fragments describe operations, constraints and security; documented operations are not admitted MCP tools.",
+      "status": "captured-documentation-and-contract-fragments",
+      "releaseDiscovery": "https://docs.os.uk/os-apis",
+      "captureFamilies": [
+        "os-api-contracts"
+      ]
+    },
+    {
+      "id": "os-download-guides",
+      "title": "OS download product specifications and release notes",
+      "entrypoint": "https://docs.os.uk/os-downloads",
+      "scope": "The complete published navigation index and two selected refresh/withdrawal guides are captured. Other indexed product guides, specifications and release histories remain references; the index includes historic/template pages.",
+      "status": "captured-index-selected-guide-structures",
+      "releaseDiscovery": "https://docs.os.uk/os-downloads/resources/product-resources/product-refresh-dates",
+      "captureFamilies": [
+        "os-downloads-documentation",
+        "os-download-guide-pages"
+      ]
+    },
+    {
+      "id": "os-net",
+      "title": "OS Net and positioning services",
+      "entrypoint": "https://www.ordnancesurvey.co.uk/products/os-net",
+      "scope": "Positioning and reference-network services belong to the broader geospatial inventory, not the OpenData product denominator.",
+      "status": "reviewed-reference-unenumerated",
+      "releaseDiscovery": "https://www.ordnancesurvey.co.uk/products/os-net"
+    },
+    {
+      "id": "ons-datasets",
+      "title": "ONS dataset API catalogue",
+      "entrypoint": "https://api.beta.ons.gov.uk/v1/datasets",
+      "scope": "Dataset identities, editions and versions; publication cadence, units, methodology and next release where supplied.",
+      "status": "captured-catalogue",
+      "releaseDiscovery": "https://www.ons.gov.uk/releasecalendar"
+    },
+    {
+      "id": "ons-latest-versions",
+      "title": "ONS version metadata and time options",
+      "entrypoint": "https://developer.ons.gov.uk/dataset/",
+      "scope": "Current advertised edition/version metadata and native time-dimension options; historic version traversal is separate.",
+      "status": "captured-current-metadata-history-untraversed",
+      "releaseDiscovery": "https://www.ons.gov.uk/releasecalendar",
+      "captureFamilies": [
+        "ons-latest-versions"
+      ]
+    },
+    {
+      "id": "ons-nomis-datasets",
+      "title": "Nomis statistical dataset definitions",
+      "entrypoint": "https://www.nomisweb.co.uk/api/v01/dataset/def.sdmx.json",
+      "scope": "Native SDMX key families and dimensions for population, labour market and historical Census data. Statistical FREQ is separate from release cadence.",
+      "status": "captured-catalogue",
+      "releaseDiscovery": "https://www.nomisweb.co.uk/releasecalendar.asp"
+    },
+    {
+      "id": "ons-nomis-time-options",
+      "title": "Nomis time code lists and revisions",
+      "entrypoint": "https://www.nomisweb.co.uk/api/v01/help",
+      "scope": "Time-dimension metadata retains native periods and revision annotations without downloading observations.",
+      "status": "captured-with-empty-and-failed-metadata",
+      "releaseDiscovery": "https://www.nomisweb.co.uk/releasecalendar.asp",
+      "captureFamilies": [
+        "ons-nomis-time-options"
+      ]
+    },
+    {
+      "id": "ons-geography-items",
+      "title": "ONS Open Geography and public organisation items",
+      "entrypoint": "https://geoportal.statistics.gov.uk/",
+      "scope": "Boundaries, names/codes, lookups, postcode and UPRN products, services, guides and alternative representations at explicit vintages.",
+      "status": "captured-public-organisation-catalogue",
+      "releaseDiscovery": "https://geoportal.statistics.gov.uk/"
+    },
+    {
+      "id": "ons-geography-schemas",
+      "title": "ONS hosted geography service and layer schemas",
+      "entrypoint": "https://geoportal.statistics.gov.uk/",
+      "scope": "Each service/layer has its own fields, geometry type, CRS, domains and capabilities. Item metadata is not a complete layer-schema inventory.",
+      "status": "not-yet-enumerated",
+      "releaseDiscovery": "https://geoportal.statistics.gov.uk/"
+    },
+    {
+      "id": "ons-website",
+      "title": "ONS website dataset and publication discovery",
+      "entrypoint": "https://developer.ons.gov.uk/search/search/",
+      "scope": "Website search includes datasets, articles, bulletins, methodology and related content beyond the dataset API.",
+      "status": "captured-with-rejected-api-filter",
+      "releaseDiscovery": "https://www.ons.gov.uk/releasecalendar",
+      "captureFamilies": [
+        "ons-website-dataset",
+        "ons-website-dataset-landing-page",
+        "ons-website-api-dataset-landing-page"
+      ]
+    },
+    {
+      "id": "ons-timeseries",
+      "title": "ONS CDID time-series metadata",
+      "entrypoint": "https://developer.ons.gov.uk/retirement/v0api/",
+      "scope": "Search returns CDID, dataset ID and canonical URI. A retained time-series URI does not pin an observation vintage.",
+      "status": "partial-paginated-catalogue",
+      "releaseDiscovery": "https://www.ons.gov.uk/releasecalendar",
+      "captureFamilies": [
+        "ons-website-timeseries"
+      ]
+    },
+    {
+      "id": "ons-releases",
+      "title": "ONS release catalogue and feeds",
+      "entrypoint": "https://developer.ons.gov.uk/search/search-releases/",
+      "scope": "Publication events include announced, published, revised, cancelled and postponed releases. RSS is a recent change signal; historical coverage requires an explicit calendar interval.",
+      "status": "captured-explicit-2026-window",
+      "releaseDiscovery": "https://www.ons.gov.uk/releasecalendar",
+      "captureFamilies": [
+        "ons-releases-published",
+        "ons-releases-upcoming",
+        "ons-releases-cancelled"
+      ]
+    },
+    {
+      "id": "ons-census",
+      "title": "ONS Census population types and custom-dataset definitions",
+      "entrypoint": "https://developer.ons.gov.uk/population-types/",
+      "scope": "Population, area type, dimensions and categorisations describe a query space; disclosure checks mean not every combination is an available dataset.",
+      "status": "captured-population-types-children-untraversed",
+      "releaseDiscovery": "https://www.ons.gov.uk/census",
+      "captureFamilies": [
+        "ons-population-types"
+      ]
+    },
+    {
+      "id": "ons-codelists",
+      "title": "ONS code lists and hierarchies",
+      "entrypoint": "https://developer.ons.gov.uk/code-list/",
+      "scope": "Preserve code-list/edition/code identities and links to dataset dimensions. A shared label does not establish semantic equivalence.",
+      "status": "captured-listing-with-duplicate-children-untraversed",
+      "releaseDiscovery": "https://developer.ons.gov.uk/code-list/",
+      "captureFamilies": [
+        "ons-code-lists"
+      ]
+    },
+    {
+      "id": "ons-classifications",
+      "title": "ONS statistical classifications and standards",
+      "entrypoint": "https://www.ons.gov.uk/methodology/classificationsandstandards",
+      "scope": "SIC, SOC, NS-SEC and correspondence tables have distinct versions and adoption schedules; preserve the version actually used by each dataset.",
+      "status": "reviewed-reference-unenumerated",
+      "releaseDiscovery": "https://www.ons.gov.uk/methodology/classificationsandstandards"
+    },
+    {
+      "id": "ons-qmi",
+      "title": "ONS quality, methodology and statistical concepts",
+      "entrypoint": "https://www.ons.gov.uk/methodology/methodologytopicsandstatisticalconcepts/qualityinofficialstatistics",
+      "scope": "QMI and guides establish strengths, limitations, comparability and methods. Publication timing alone does not decide applicability.",
+      "status": "reviewed-reference-unenumerated",
+      "releaseDiscovery": "https://www.ons.gov.uk/releasecalendar"
+    },
+    {
+      "id": "ons-els",
+      "title": "Explore Local Statistics",
+      "entrypoint": "https://www.ons.gov.uk/explore-local-statistics/",
+      "scope": "Earlier okf-ons captured an application metadata projection. Current application data and catalogue parity need fresh verification.",
+      "status": "historical-reference-not-refreshed",
+      "releaseDiscovery": "https://www.ons.gov.uk/explore-local-statistics/"
+    },
+    {
+      "id": "ons-secure",
+      "title": "ONS controlled research and secure data discovery",
+      "entrypoint": "https://www.ons.gov.uk/aboutus/whatwedo/statistics/requestingstatistics/approvedresearcherscheme",
+      "scope": "Public discovery and approval information can be represented. Secure microdata and research outputs are excluded from this public metadata capture.",
+      "status": "public-guidance-only",
+      "releaseDiscovery": "https://www.ons.gov.uk/aboutus/whatwedo/statistics/requestingstatistics/approvedresearcherscheme"
+    }
+  ],
+  "globalCompleteness": "not-established",
+  "enumerationRule": "Close each lane against its own reported denominator or document why no complete denominator is available."
+}

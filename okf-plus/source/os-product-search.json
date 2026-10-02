@@ -1,0 +1,1456 @@
+{
+  "coverage": {
+    "browserObservation": {
+      "completionText": "You have viewed 65 of 65",
+      "method": "browserDOM",
+      "observedOn": "2026-10-02",
+      "observedTotal": 65,
+      "sourceUrl": "https://www.ordnancesurvey.co.uk/products/search-for-os-products",
+      "status": "browser-observed"
+    },
+    "browserSupplementCount": 5,
+    "catalogueComplete": false,
+    "combinedCoverage": {
+      "complete": true,
+      "method": "HTTP embedded state plus browser DOM",
+      "reportedTotal": 65,
+      "reviewedUnique": 65
+    },
+    "limitations": [
+      "Only the returned embedded catalogue state is parsed; no page script is executed.",
+      "The observed delivery API returned 401; no credentials are acquired or transport retried.",
+      "Browser supplement entries have no captured native UUID, HTTP status, response hash or retrievedAt.",
+      "Product/service marketing entries are not all independent datasets or admitted providers."
+    ],
+    "reportedTotal": 65,
+    "retrievedUnique": 60,
+    "sourcePaging": {
+      "isLoading": false,
+      "pageCount": 2,
+      "pageIndex": 0,
+      "pageSize": 60,
+      "pagesLoaded": [
+        0
+      ],
+      "prevPageIndex": 0,
+      "totalCount": 65
+    },
+    "unit": "OS product search entry"
+  },
+  "family": "os-product-search",
+  "receipts": [
+    {
+      "bytes": 415626,
+      "etag": null,
+      "finalUrl": "https://www.ordnancesurvey.co.uk/products/search-for-os-products",
+      "lastModified": null,
+      "retrievedAt": "2026-10-02T07:29:22.958527Z",
+      "sha256": "c5aa5d34f7b31c043238ed1ae35bc42a231276dfdd9b3f337cb3ddd963d85d1b",
+      "status": 200,
+      "url": "https://www.ordnancesurvey.co.uk/products/search-for-os-products"
+    }
+  ],
+  "records": [
+    {
+      "callable": false,
+      "id": "eeb4fb8d-f385-4578-8118-b977c20ffac3",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "f1d24cd4-a22b-4228-9a64-e5e7170ff4bf",
+            "label": "Download and hard disk drive (HDD)"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "b3eac22d-eda9-45f0-8aa0-40002022d3c6",
+            "label": "Maps and imagery"
+          }
+        ]
+      },
+      "title": "OS MasterMap Imagery Layer",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-mastermap-imagery-layer"
+    },
+    {
+      "callable": false,
+      "id": "c3e0b901-b907-49d6-83a8-1197502950d3",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "8cbf4982-4d6d-4d11-80eb-501a53fefc43",
+            "label": "Download"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "b3eac22d-eda9-45f0-8aa0-40002022d3c6",
+            "label": "Maps and imagery"
+          }
+        ]
+      },
+      "title": "1:50 000 Scale Colour Raster",
+      "url": "https://www.ordnancesurvey.co.uk/products/50k-raster"
+    },
+    {
+      "callable": false,
+      "id": "a1d0806b-99fc-4420-a0c5-2bea0e05c4c0",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "8cbf4982-4d6d-4d11-80eb-501a53fefc43",
+            "label": "Download"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "61e1b1a7-4d56-4eeb-afb5-df3c2e575630",
+            "label": "Addresses and names"
+          }
+        ]
+      },
+      "title": "OS Open UPRN",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-open-uprn"
+    },
+    {
+      "callable": false,
+      "id": "abe31004-a89c-46e0-8bcc-9dc1656d0695",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "8cbf4982-4d6d-4d11-80eb-501a53fefc43",
+            "label": "Download"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "1fbd54a5-0bbe-446f-9266-0ffc28df2094",
+            "label": "Areas and zones"
+          }
+        ]
+      },
+      "title": "Code-Point",
+      "url": "https://www.ordnancesurvey.co.uk/products/code-point"
+    },
+    {
+      "callable": false,
+      "id": "f5fc3f1c-d0b3-4cb2-9804-1cf80b4ab17e",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "13b519f3-d286-4e5c-a6c9-b75a92f9f130",
+            "label": "Download and API"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "01b22f35-ad6b-40ab-9a9f-eb46c6ea950d",
+            "label": "Land and terrain"
+          }
+        ]
+      },
+      "title": "OS MasterMap Sites Layer",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-mastermap-sites-layer"
+    },
+    {
+      "callable": false,
+      "id": "8e211d2e-fa27-4b83-9453-274d0345a349",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "13b519f3-d286-4e5c-a6c9-b75a92f9f130",
+            "label": "Download and API"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "b3eac22d-eda9-45f0-8aa0-40002022d3c6",
+            "label": "Maps and imagery"
+          }
+        ]
+      },
+      "title": "OS Open Zoomstack",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-open-zoomstack"
+    },
+    {
+      "callable": false,
+      "id": "2a5bd2d8-5893-457f-997d-9f9d0a7e3197",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "8cbf4982-4d6d-4d11-80eb-501a53fefc43",
+            "label": "Download"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "01b22f35-ad6b-40ab-9a9f-eb46c6ea950d",
+            "label": "Land and terrain"
+          }
+        ]
+      },
+      "title": "OS Enhanced Land Cover (Beta)",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-enhanced-land-cover"
+    },
+    {
+      "callable": false,
+      "id": "6622fbe4-2e83-473b-b968-ec2286096788",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "13b519f3-d286-4e5c-a6c9-b75a92f9f130",
+            "label": "Download and API"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "01b22f35-ad6b-40ab-9a9f-eb46c6ea950d",
+            "label": "Land and terrain"
+          }
+        ]
+      },
+      "title": "OS Land Use Features",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-land-use-features"
+    },
+    {
+      "callable": false,
+      "id": "7a124993-e5f6-4183-8e41-a78a7c719035",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "13b519f3-d286-4e5c-a6c9-b75a92f9f130",
+            "label": "Download and API"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "81474235-cdef-45c3-8193-1fa1e3561776",
+            "label": "Buildings and infrastructure"
+          }
+        ]
+      },
+      "title": "OS Transport Features",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-transport-features"
+    },
+    {
+      "callable": false,
+      "id": "67a8b4d2-85fe-4161-a17c-8fe2fd75a915",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "8cbf4982-4d6d-4d11-80eb-501a53fefc43",
+            "label": "Download"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "c0eeedd6-0165-47ff-a7ce-f4e244a7af76",
+            "label": "Transport networks"
+          }
+        ]
+      },
+      "title": "OS MasterMap Highways Network - Routing and Asset Management",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-mastermap-highways-network-routing-and-asset-management"
+    },
+    {
+      "callable": false,
+      "id": "51097214-4d7d-445e-82dc-5b595b1702ad",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "13b519f3-d286-4e5c-a6c9-b75a92f9f130",
+            "label": "Download and API"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "1fbd54a5-0bbe-446f-9266-0ffc28df2094",
+            "label": "Areas and zones"
+          }
+        ]
+      },
+      "title": "Boundary-Line",
+      "url": "https://www.ordnancesurvey.co.uk/products/boundary-line"
+    },
+    {
+      "callable": false,
+      "id": "2ea4b099-54d4-433f-8850-e52eb431b01e",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "8cbf4982-4d6d-4d11-80eb-501a53fefc43",
+            "label": "Download"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "b3eac22d-eda9-45f0-8aa0-40002022d3c6",
+            "label": "Maps and imagery"
+          }
+        ]
+      },
+      "title": "OS 3D Mesh (Beta)",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-3d-mesh"
+    },
+    {
+      "callable": false,
+      "id": "e6502fa2-de22-4d25-85ca-c430c78e5e20",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "d390c6fc-e792-4fd4-9907-b717aaee6f71",
+            "label": "API"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "61e1b1a7-4d56-4eeb-afb5-df3c2e575630",
+            "label": "Addresses and names"
+          }
+        ]
+      },
+      "title": "OS Places API",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-places-api"
+    },
+    {
+      "callable": false,
+      "id": "e27d9690-d54c-4c39-9e1a-6e28bf34b124",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "13b519f3-d286-4e5c-a6c9-b75a92f9f130",
+            "label": "Download and API"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "61e1b1a7-4d56-4eeb-afb5-df3c2e575630",
+            "label": "Addresses and names"
+          }
+        ]
+      },
+      "title": "OS Named Features",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-named-features"
+    },
+    {
+      "callable": false,
+      "id": "fadf426d-5d32-4f9e-8283-489cc8fd1ab4",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "13b519f3-d286-4e5c-a6c9-b75a92f9f130",
+            "label": "Download and API"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "01b22f35-ad6b-40ab-9a9f-eb46c6ea950d",
+            "label": "Land and terrain"
+          }
+        ]
+      },
+      "title": "OS MasterMap Greenspace Layer",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-mastermap-greenspace-layer"
+    },
+    {
+      "callable": false,
+      "id": "5cffca86-4ba4-4d62-86da-a76f3ba31442",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "8cbf4982-4d6d-4d11-80eb-501a53fefc43",
+            "label": "Download"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "81474235-cdef-45c3-8193-1fa1e3561776",
+            "label": "Buildings and infrastructure"
+          }
+        ]
+      },
+      "title": "OS Open TOID",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-open-toid"
+    },
+    {
+      "callable": false,
+      "id": "bc30764b-a13f-48f7-8baf-85740fbab64f",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "8cbf4982-4d6d-4d11-80eb-501a53fefc43",
+            "label": "Download"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "1fbd54a5-0bbe-446f-9266-0ffc28df2094",
+            "label": "Areas and zones"
+          }
+        ]
+      },
+      "title": "Code-Point with Polygons",
+      "url": "https://www.ordnancesurvey.co.uk/products/code-point-polygons"
+    },
+    {
+      "callable": false,
+      "id": "17bd7600-33b8-4715-8cb7-c286d7b53c1a",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "8cbf4982-4d6d-4d11-80eb-501a53fefc43",
+            "label": "Download"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "61e1b1a7-4d56-4eeb-afb5-df3c2e575630",
+            "label": "Addresses and names"
+          }
+        ]
+      },
+      "title": "OS Open Names",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-open-names"
+    },
+    {
+      "callable": false,
+      "id": "17072aac-a7d9-4b4f-b19c-7d3a3019f9b6",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "8cbf4982-4d6d-4d11-80eb-501a53fefc43",
+            "label": "Download"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "81474235-cdef-45c3-8193-1fa1e3561776",
+            "label": "Buildings and infrastructure"
+          }
+        ]
+      },
+      "title": "OS MasterMap Building Height Attribute",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-mastermap-building-height-attribute"
+    },
+    {
+      "callable": false,
+      "id": "ab1890c0-1652-42de-b8b5-7d0625d39792",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "d390c6fc-e792-4fd4-9907-b717aaee6f71",
+            "label": "API"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "b3eac22d-eda9-45f0-8aa0-40002022d3c6",
+            "label": "Maps and imagery"
+          }
+        ]
+      },
+      "title": "OS NGD API – Tiles",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-ngd-api-tiles"
+    },
+    {
+      "callable": false,
+      "id": "63928020-6c3f-4c69-a2b1-9a7f6be9caf0",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "8cbf4982-4d6d-4d11-80eb-501a53fefc43",
+            "label": "Download"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "c0eeedd6-0165-47ff-a7ce-f4e244a7af76",
+            "label": "Transport networks"
+          }
+        ]
+      },
+      "title": "OS MasterMap Highways Network - Paths",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-mastermap-highways-network-paths"
+    },
+    {
+      "callable": false,
+      "id": "727e52ff-a871-40c6-97f0-bf457324e10d",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "d390c6fc-e792-4fd4-9907-b717aaee6f71",
+            "label": "API"
+          }
+        ],
+        "plan": [],
+        "type": []
+      },
+      "title": "OS Downloads API",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-downloads-api"
+    },
+    {
+      "callable": false,
+      "id": "d888d663-60c2-49a8-94d4-c79bc58cf8b5",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "8cbf4982-4d6d-4d11-80eb-501a53fefc43",
+            "label": "Download"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "61e1b1a7-4d56-4eeb-afb5-df3c2e575630",
+            "label": "Addresses and names"
+          }
+        ]
+      },
+      "title": "OS Islands Address",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-islands-address"
+    },
+    {
+      "callable": false,
+      "id": "51951a3f-6671-486e-8720-f5f90812e1f8",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "8cbf4982-4d6d-4d11-80eb-501a53fefc43",
+            "label": "Download"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "c0eeedd6-0165-47ff-a7ce-f4e244a7af76",
+            "label": "Transport networks"
+          }
+        ]
+      },
+      "title": "OS Open Roads",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-open-roads"
+    },
+    {
+      "callable": false,
+      "id": "c8da8380-cfb0-4b61-81cf-185ec19c1321",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "8cbf4982-4d6d-4d11-80eb-501a53fefc43",
+            "label": "Download"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "01b22f35-ad6b-40ab-9a9f-eb46c6ea950d",
+            "label": "Land and terrain"
+          }
+        ]
+      },
+      "title": "OS Terrain 5",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-terrain-5"
+    },
+    {
+      "callable": false,
+      "id": "84a283af-f652-45ff-aa7e-9adff452a953",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "13b519f3-d286-4e5c-a6c9-b75a92f9f130",
+            "label": "Download and API"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "c0eeedd6-0165-47ff-a7ce-f4e244a7af76",
+            "label": "Transport networks"
+          }
+        ]
+      },
+      "title": "OS Routing and Asset Management Information",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-routing-asset-management-information"
+    },
+    {
+      "callable": false,
+      "id": "80bcd87e-9ac7-45df-8dae-f7af084c5c4a",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "13b519f3-d286-4e5c-a6c9-b75a92f9f130",
+            "label": "Download and API"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "61e1b1a7-4d56-4eeb-afb5-df3c2e575630",
+            "label": "Addresses and names"
+          }
+        ]
+      },
+      "title": "AddressBase Premium",
+      "url": "https://www.ordnancesurvey.co.uk/products/addressbase-premium"
+    },
+    {
+      "callable": false,
+      "id": "b9650d6b-1e1a-4237-888f-dcb3fb88c26d",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "8cbf4982-4d6d-4d11-80eb-501a53fefc43",
+            "label": "Download"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "61e1b1a7-4d56-4eeb-afb5-df3c2e575630",
+            "label": "Addresses and names"
+          }
+        ]
+      },
+      "title": "AddressBase Core",
+      "url": "https://www.ordnancesurvey.co.uk/products/addressbase-core"
+    },
+    {
+      "callable": false,
+      "id": "a394cf4e-5234-4d88-aac4-0b26f4dbe2ee",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "8cbf4982-4d6d-4d11-80eb-501a53fefc43",
+            "label": "Download"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "1fbd54a5-0bbe-446f-9266-0ffc28df2094",
+            "label": "Areas and zones"
+          }
+        ]
+      },
+      "title": "Code-Point Open",
+      "url": "https://www.ordnancesurvey.co.uk/products/code-point-open"
+    },
+    {
+      "callable": false,
+      "id": "cccad80d-6b81-4bfe-87d3-45a207df6da8",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "d390c6fc-e792-4fd4-9907-b717aaee6f71",
+            "label": "API"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "81474235-cdef-45c3-8193-1fa1e3561776",
+            "label": "Buildings and infrastructure"
+          }
+        ]
+      },
+      "title": "OS NGD API – Features",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-ngd-api-features"
+    },
+    {
+      "callable": false,
+      "id": "c4792e20-0386-4c4c-ac5a-66a9c643ae43",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "d390c6fc-e792-4fd4-9907-b717aaee6f71",
+            "label": "API"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "b3eac22d-eda9-45f0-8aa0-40002022d3c6",
+            "label": "Maps and imagery"
+          }
+        ]
+      },
+      "title": "OS Maps API",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-maps-api"
+    },
+    {
+      "callable": false,
+      "id": "d45e7a3a-8b81-4037-bc63-c2f2e8f28ff3",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "13b519f3-d286-4e5c-a6c9-b75a92f9f130",
+            "label": "Download and API"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "1fbd54a5-0bbe-446f-9266-0ffc28df2094",
+            "label": "Areas and zones"
+          }
+        ]
+      },
+      "title": "OS Boundaries",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-boundaries"
+    },
+    {
+      "callable": false,
+      "id": "433e9746-84b5-44b9-8396-6ee8a874cd54",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "8cbf4982-4d6d-4d11-80eb-501a53fefc43",
+            "label": "Download"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "b3eac22d-eda9-45f0-8aa0-40002022d3c6",
+            "label": "Maps and imagery"
+          }
+        ]
+      },
+      "title": "OS OpenMap - Local",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-open-map-local"
+    },
+    {
+      "callable": false,
+      "id": "31339985-8b71-432d-8001-3e90a80981f2",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "8cbf4982-4d6d-4d11-80eb-501a53fefc43",
+            "label": "Download"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "01b22f35-ad6b-40ab-9a9f-eb46c6ea950d",
+            "label": "Land and terrain"
+          }
+        ]
+      },
+      "title": "OS Open Greenspace",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-open-greenspace"
+    },
+    {
+      "callable": false,
+      "id": "582e96d8-5c0a-4247-a3cf-28c76d9b6de7",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "13b519f3-d286-4e5c-a6c9-b75a92f9f130",
+            "label": "Download and API"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "c0eeedd6-0165-47ff-a7ce-f4e244a7af76",
+            "label": "Transport networks"
+          }
+        ]
+      },
+      "title": "OS Transport Network",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-transport-network"
+    },
+    {
+      "callable": false,
+      "id": "37996e08-34e7-49e7-8959-a53799b82875",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "8cbf4982-4d6d-4d11-80eb-501a53fefc43",
+            "label": "Download"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "c0eeedd6-0165-47ff-a7ce-f4e244a7af76",
+            "label": "Transport networks"
+          }
+        ]
+      },
+      "title": "OS MasterMap Highways Network - Roads",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-mastermap-highways-network-roads"
+    },
+    {
+      "callable": false,
+      "id": "2cf571f7-d591-4a63-8440-cc35820e8e81",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "13b519f3-d286-4e5c-a6c9-b75a92f9f130",
+            "label": "Download and API"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "b3eac22d-eda9-45f0-8aa0-40002022d3c6",
+            "label": "Maps and imagery"
+          }
+        ]
+      },
+      "title": "OS MasterMap Topography Layer",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-mastermap-topography-layer"
+    },
+    {
+      "callable": false,
+      "id": "f936d783-05c0-4c69-89a8-203438e95f80",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "8cbf4982-4d6d-4d11-80eb-501a53fefc43",
+            "label": "Download"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "b3eac22d-eda9-45f0-8aa0-40002022d3c6",
+            "label": "Maps and imagery"
+          }
+        ]
+      },
+      "title": "GB Overview Maps",
+      "url": "https://www.ordnancesurvey.co.uk/products/gb-overview"
+    },
+    {
+      "callable": false,
+      "id": "2d996672-eac4-432c-8e79-7c27c55ec0d0",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "8cbf4982-4d6d-4d11-80eb-501a53fefc43",
+            "label": "Download"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "92609ecd-24b9-4bd9-8e23-7415d57e8a38",
+            "label": "Water"
+          }
+        ]
+      },
+      "title": "OS Open Rivers",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-open-rivers"
+    },
+    {
+      "callable": false,
+      "id": "5e1a2438-96af-4d36-8f69-ab6ea7544a32",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "13b519f3-d286-4e5c-a6c9-b75a92f9f130",
+            "label": "Download and API"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "b3eac22d-eda9-45f0-8aa0-40002022d3c6",
+            "label": "Maps and imagery"
+          }
+        ]
+      },
+      "title": "1:25 000 Scale Colour Raster",
+      "url": "https://www.ordnancesurvey.co.uk/products/25k-raster"
+    },
+    {
+      "callable": false,
+      "id": "d3b17d5b-33e7-4a10-94e6-88dd5cd16cee",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "13b519f3-d286-4e5c-a6c9-b75a92f9f130",
+            "label": "Download and API"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "1fbd54a5-0bbe-446f-9266-0ffc28df2094",
+            "label": "Areas and zones"
+          }
+        ]
+      },
+      "title": "OS GB Postcodes",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-gb-postcodes"
+    },
+    {
+      "callable": false,
+      "id": "88c5540b-63fe-4ea9-a9fb-c8803a034975",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "8cbf4982-4d6d-4d11-80eb-501a53fefc43",
+            "label": "Download"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "1fbd54a5-0bbe-446f-9266-0ffc28df2094",
+            "label": "Areas and zones"
+          }
+        ]
+      },
+      "title": "OS NI Postcodes",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-ni-postcodes"
+    },
+    {
+      "callable": false,
+      "id": "9f65961a-cf75-42f6-a987-d108128435a4",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "8cbf4982-4d6d-4d11-80eb-501a53fefc43",
+            "label": "Download"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "81474235-cdef-45c3-8193-1fa1e3561776",
+            "label": "Buildings and infrastructure"
+          }
+        ]
+      },
+      "title": "OS Open Linked Identifiers",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-open-linked-identifiers"
+    },
+    {
+      "callable": false,
+      "id": "529f9a43-fd30-4b90-8dc9-c5223c1ccec4",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "8cbf4982-4d6d-4d11-80eb-501a53fefc43",
+            "label": "Download"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "61e1b1a7-4d56-4eeb-afb5-df3c2e575630",
+            "label": "Addresses and names"
+          }
+        ]
+      },
+      "title": "OS GB Address",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-gb-address"
+    },
+    {
+      "callable": false,
+      "id": "60ed11bc-95f5-41c9-a0dd-3447c91c9bb3",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "0baac5c0-5964-41a7-a5bc-e070f44b9164",
+            "label": "Browser, FTP"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "f371e159-a93d-4955-8d1f-07c9b355ee64",
+            "label": "OS Net positioning data"
+          }
+        ]
+      },
+      "title": "OS Net RINEX data",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-net-rinex"
+    },
+    {
+      "callable": false,
+      "id": "43374677-f35f-41e9-9a8f-df87685c4d7e",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "8cbf4982-4d6d-4d11-80eb-501a53fefc43",
+            "label": "Download"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "c0eeedd6-0165-47ff-a7ce-f4e244a7af76",
+            "label": "Transport networks"
+          }
+        ]
+      },
+      "title": "OS Open USRN",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-open-usrn"
+    },
+    {
+      "callable": false,
+      "id": "9844ab7f-ee00-4026-a1f7-5bb2c35c5763",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "8cbf4982-4d6d-4d11-80eb-501a53fefc43",
+            "label": "Download"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "1fbd54a5-0bbe-446f-9266-0ffc28df2094",
+            "label": "Areas and zones"
+          }
+        ]
+      },
+      "title": "OS Functional Areas",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-functional-areas"
+    },
+    {
+      "callable": false,
+      "id": "d78f8e27-0be8-4b74-8a73-1dd9a7633205",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "d390c6fc-e792-4fd4-9907-b717aaee6f71",
+            "label": "API"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "61e1b1a7-4d56-4eeb-afb5-df3c2e575630",
+            "label": "Addresses and names"
+          }
+        ]
+      },
+      "title": "OS Names API",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-names-api"
+    },
+    {
+      "callable": false,
+      "id": "d3f0e98d-c7ba-4bd6-8de4-1dd47e684f58",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "8cbf4982-4d6d-4d11-80eb-501a53fefc43",
+            "label": "Download"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "b3eac22d-eda9-45f0-8aa0-40002022d3c6",
+            "label": "Maps and imagery"
+          }
+        ]
+      },
+      "title": "MiniScale",
+      "url": "https://www.ordnancesurvey.co.uk/products/miniscale"
+    },
+    {
+      "callable": false,
+      "id": "d53a2069-97c8-4491-ac94-4a9d4605942e",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "13b519f3-d286-4e5c-a6c9-b75a92f9f130",
+            "label": "Download and API"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "01b22f35-ad6b-40ab-9a9f-eb46c6ea950d",
+            "label": "Land and terrain"
+          }
+        ]
+      },
+      "title": "OS Land Features",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-land-features"
+    },
+    {
+      "callable": false,
+      "id": "59ade539-aa61-476c-80c2-cbab09c74c83",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "d390c6fc-e792-4fd4-9907-b717aaee6f71",
+            "label": "API"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "01b22f35-ad6b-40ab-9a9f-eb46c6ea950d",
+            "label": "Land and terrain"
+          }
+        ]
+      },
+      "title": "OS Linked Identifiers API",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-linked-identifiers-api"
+    },
+    {
+      "callable": false,
+      "id": "cf01dc72-8806-4211-b1ec-ba1127514ca1",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "8cbf4982-4d6d-4d11-80eb-501a53fefc43",
+            "label": "Download"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "1fbd54a5-0bbe-446f-9266-0ffc28df2094",
+            "label": "Areas and zones"
+          }
+        ]
+      },
+      "title": "OS Open Built Up Areas",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-open-built-up-areas"
+    },
+    {
+      "callable": false,
+      "id": "8ae69516-bbcd-47e1-8b9e-e198ff53c265",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "d390c6fc-e792-4fd4-9907-b717aaee6f71",
+            "label": "API"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "01b22f35-ad6b-40ab-9a9f-eb46c6ea950d",
+            "label": "Land and terrain"
+          }
+        ]
+      },
+      "title": "OS Features API",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-features-api"
+    },
+    {
+      "callable": false,
+      "id": "ce3c0b04-deb5-44b8-8402-9c370154a4ca",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "13b519f3-d286-4e5c-a6c9-b75a92f9f130",
+            "label": "Download and API"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "61e1b1a7-4d56-4eeb-afb5-df3c2e575630",
+            "label": "Addresses and names"
+          }
+        ]
+      },
+      "title": "AddressBase Premium Islands",
+      "url": "https://www.ordnancesurvey.co.uk/products/addressbase-islands"
+    },
+    {
+      "callable": false,
+      "id": "5c3c4183-c283-4928-8f36-0dc868827494",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "8cbf4982-4d6d-4d11-80eb-501a53fefc43",
+            "label": "Download"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "b3eac22d-eda9-45f0-8aa0-40002022d3c6",
+            "label": "Maps and imagery"
+          }
+        ]
+      },
+      "title": "1:250 000 Scale Colour Raster",
+      "url": "https://www.ordnancesurvey.co.uk/products/250k-raster"
+    },
+    {
+      "callable": false,
+      "id": "f2575ec1-97e2-4406-9450-f7cd392a954c",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "8cbf4982-4d6d-4d11-80eb-501a53fefc43",
+            "label": "Download"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "c0eeedd6-0165-47ff-a7ce-f4e244a7af76",
+            "label": "Transport networks"
+          }
+        ]
+      },
+      "title": "OS Multi-modal Routing Network",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-multi-modal-routing-network"
+    },
+    {
+      "callable": false,
+      "id": "2bf7fb6d-4ff3-45f1-81a9-1098a6897b3d",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "8cbf4982-4d6d-4d11-80eb-501a53fefc43",
+            "label": "Download"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "01b22f35-ad6b-40ab-9a9f-eb46c6ea950d",
+            "label": "Land and terrain"
+          }
+        ]
+      },
+      "title": "OS Terrain 50",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-terrain-50"
+    },
+    {
+      "callable": false,
+      "id": "fade422c-4fe1-4cd7-927b-9362f4e30eeb",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "13b519f3-d286-4e5c-a6c9-b75a92f9f130",
+            "label": "Download and API"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "81474235-cdef-45c3-8193-1fa1e3561776",
+            "label": "Buildings and infrastructure"
+          }
+        ]
+      },
+      "title": "OS Building Features",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-building-features"
+    },
+    {
+      "callable": false,
+      "id": "bd8005b0-175f-4d2b-8897-e7751695f0e6",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "13b519f3-d286-4e5c-a6c9-b75a92f9f130",
+            "label": "Download and API"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "81474235-cdef-45c3-8193-1fa1e3561776",
+            "label": "Buildings and infrastructure"
+          }
+        ]
+      },
+      "title": "OS Structure Features",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-structure-features"
+    },
+    {
+      "callable": false,
+      "id": "f98b8ba0-5b8f-4c78-a39c-6f4beee2bbd8",
+      "kind": "product-reference",
+      "tags": {
+        "access": [
+          {
+            "id": "8cbf4982-4d6d-4d11-80eb-501a53fefc43",
+            "label": "Download"
+          }
+        ],
+        "plan": [],
+        "type": [
+          {
+            "id": "61e1b1a7-4d56-4eeb-afb5-df3c2e575630",
+            "label": "Addresses and names"
+          }
+        ]
+      },
+      "title": "OS Emergency Services Gazetteer",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-emergency-services-gazetteer"
+    },
+    {
+      "callable": false,
+      "id": "https://www.ordnancesurvey.co.uk/products/os-water-network",
+      "idBasis": "canonical-reference-url",
+      "kind": "product-reference",
+      "nativeIdentifier": null,
+      "sourceObservation": {
+        "completionText": "You have viewed 65 of 65",
+        "method": "browserDOM",
+        "observedOn": "2026-10-02",
+        "observedTotal": 65,
+        "sourceUrl": "https://www.ordnancesurvey.co.uk/products/search-for-os-products",
+        "status": "browser-observed"
+      },
+      "title": "OS Water Network",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-water-network"
+    },
+    {
+      "callable": false,
+      "id": "https://www.ordnancesurvey.co.uk/products/os-vectormap-district",
+      "idBasis": "canonical-reference-url",
+      "kind": "product-reference",
+      "nativeIdentifier": null,
+      "sourceObservation": {
+        "completionText": "You have viewed 65 of 65",
+        "method": "browserDOM",
+        "observedOn": "2026-10-02",
+        "observedTotal": 65,
+        "sourceUrl": "https://www.ordnancesurvey.co.uk/products/search-for-os-products",
+        "status": "browser-observed"
+      },
+      "title": "OS VectorMap District",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-vectormap-district"
+    },
+    {
+      "callable": false,
+      "id": "https://www.ordnancesurvey.co.uk/products/os-water-features",
+      "idBasis": "canonical-reference-url",
+      "kind": "product-reference",
+      "nativeIdentifier": null,
+      "sourceObservation": {
+        "completionText": "You have viewed 65 of 65",
+        "method": "browserDOM",
+        "observedOn": "2026-10-02",
+        "observedTotal": 65,
+        "sourceUrl": "https://www.ordnancesurvey.co.uk/products/search-for-os-products",
+        "status": "browser-observed"
+      },
+      "title": "OS Water Features",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-water-features"
+    },
+    {
+      "callable": false,
+      "id": "https://www.ordnancesurvey.co.uk/products/os-vector-tile-api",
+      "idBasis": "canonical-reference-url",
+      "kind": "product-reference",
+      "nativeIdentifier": null,
+      "sourceObservation": {
+        "completionText": "You have viewed 65 of 65",
+        "method": "browserDOM",
+        "observedOn": "2026-10-02",
+        "observedTotal": 65,
+        "sourceUrl": "https://www.ordnancesurvey.co.uk/products/search-for-os-products",
+        "status": "browser-observed"
+      },
+      "title": "OS Vector Tile API",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-vector-tile-api"
+    },
+    {
+      "callable": false,
+      "id": "https://www.ordnancesurvey.co.uk/products/os-vectormap-local",
+      "idBasis": "canonical-reference-url",
+      "kind": "product-reference",
+      "nativeIdentifier": null,
+      "sourceObservation": {
+        "completionText": "You have viewed 65 of 65",
+        "method": "browserDOM",
+        "observedOn": "2026-10-02",
+        "observedTotal": 65,
+        "sourceUrl": "https://www.ordnancesurvey.co.uk/products/search-for-os-products",
+        "status": "browser-observed"
+      },
+      "title": "OS VectorMap Local",
+      "url": "https://www.ordnancesurvey.co.uk/products/os-vectormap-local"
+    }
+  ],
+  "schema": "okf-plus-source-snapshot.v1"
+}

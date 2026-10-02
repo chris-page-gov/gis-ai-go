@@ -1,0 +1,164 @@
+---
+{
+  "@context": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/context.jsonld",
+  "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-geography-items/3e6fe2f0acca49818fb9e8ac2d9fed76",
+  "@type": [
+    "dcat:Dataset",
+    "okfp:MetadataRecord"
+  ],
+  "type": "Dataset",
+  "title": "Regions (December 2019) Boundaries EN BFE",
+  "description": "This file contains the digital vector boundaries for Regions in England, as at December 2019. The BFC boundaries are full resolution - extent of the realm (usually this is the Mean Low Water mark but in some cases boundaries extend beyond this to include off shore islands). Contains both Ordnance Survey and ONS Intellectual Property Rights. REST URL of ArcGIS for INSPIRE View Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Regions_(December_2019)_FEB_EN/MapServer REST URL of ArcGIS for INSPIRE Feature DownloadService – https://dservices1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/services/Regions_December_2019_Full_Extent_Boundaries_EN/WFSServer?service=wfs&request=getcapabilities REST URL of Feature Access Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Regions_December_2019_FEB_EN_2022/FeatureServer",
+  "nativeIdentifier": "3e6fe2f0acca49818fb9e8ac2d9fed76",
+  "sourceFamily": "ons-geography-items",
+  "resource": "https://geoportal.statistics.gov.uk/items/3e6fe2f0acca49818fb9e8ac2d9fed76",
+  "status": "draft",
+  "generated": {
+    "by": "gis-ai-go OKF+ source producer"
+  },
+  "okfp:machineImported": true,
+  "assertionStatus": "normalised",
+  "reviewStatus": "not-human-reviewed",
+  "tags": [
+    "Boundaries",
+    "Regions",
+    "RGN",
+    "2019",
+    "Administrative Boundaries",
+    "England",
+    "WFS",
+    "WMS",
+    "BDY_ADM",
+    "BDY_RGN",
+    "DEC_2019",
+    "Map Service"
+  ],
+  "sources": [
+    {
+      "resource": "https://www.arcgis.com/sharing/rest/search?f=json&q=orgid%3AESMARspQHYMw9BZ9&num=100&start=1801&sortField=created&sortOrder=asc",
+      "retrievedAt": "2026-10-02T01:27:52.698003Z",
+      "responseSha256": "6dd833eb8661ef64b7bd37798926a4ac099a2a58630cd90c9ec05ae3aa33a5fe",
+      "sourcePointer": "/results/71",
+      "normalisedSource": "okf-plus/source/ons-geography-items.json",
+      "normalisedPointer": "/records/1871",
+      "normalisedRecordSha256": "b0b4542d4377384442fc5a79a723af9422b566d61b4ec5c2824dbc68394d541a",
+      "evidenceKind": "captured-public-metadata",
+      "sourcePointerStatus": "exact-native-id-match"
+    }
+  ],
+  "prov:wasDerivedFrom": {
+    "@id": "https://geoportal.statistics.gov.uk/items/3e6fe2f0acca49818fb9e8ac2d9fed76"
+  },
+  "dcterms:conformsTo": {
+    "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/profile/v1"
+  },
+  "temporal": {
+    "status": "not-evidenced",
+    "kind": "dataset-reference-period",
+    "start": null,
+    "end": null,
+    "sourceField": null,
+    "note": "No supported reference-period extent in captured metadata; release and catalogue dates are separate."
+  },
+  "update": {
+    "frequency": {
+      "status": "not-evidenced",
+      "label": null,
+      "iri": null,
+      "sourceField": null
+    },
+    "releaseCatalogue": [
+      "https://geoportal.statistics.gov.uk/"
+    ],
+    "releaseFeed": [],
+    "nextRelease": null,
+    "metadataModified": "2025-08-11T07:57:54Z",
+    "releaseVersion": null
+  },
+  "rights": {
+    "metadata": "Public metadata citation and factual normalisation; source rights retained.",
+    "describedData": "https://www.ons.gov.uk/methodology/geography/licences",
+    "retrievalAuthority": "metadata-only",
+    "executionAdmitted": false
+  },
+  "limitations": [
+    "A date in an item title is not automatically the observation/reference range.",
+    "Portal items can be different representations or vintages of one product."
+  ],
+  "details": {
+    "access": "public",
+    "categories": [],
+    "created": 1662734140000,
+    "culture": "en-gb",
+    "description": "This file contains the digital vector boundaries for Regions in England, as at December 2019. The BFC boundaries are full resolution - extent of the realm (usually this is the Mean Low Water mark but in some cases boundaries extend beyond this to include off shore islands). Contains both Ordnance Survey and ONS Intellectual Property Rights. REST URL of ArcGIS for INSPIRE View Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Regions_(December_2019)_FEB_EN/MapServer REST URL of ArcGIS for INSPIRE Feature DownloadService – https://dservices1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/services/Regions_December_2019_Full_Extent_Boundaries_EN/WFSServer?service=wfs&request=getcapabilities REST URL of Feature Access Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Regions_December_2019_FEB_EN_2022/FeatureServer",
+    "extent": [
+      [
+        -7.053295413234965,
+        49.863963567620075
+      ],
+      [
+        2.0792464098381385,
+        55.81166868451978
+      ]
+    ],
+    "id": "3e6fe2f0acca49818fb9e8ac2d9fed76",
+    "licenseInfo": "<a href='https://www.ons.gov.uk/methodology/geography/licences' target='_blank' rel='nofollow ugc noopener noreferrer'>https://www.ons.gov.uk/methodology/geography/licences</a>",
+    "modified": 1754899074000,
+    "organisationId": "ESMARspQHYMw9BZ9",
+    "snippet": "Boundaries",
+    "spatialReference": "27700",
+    "tags": [
+      "Boundaries",
+      "Regions",
+      "RGN",
+      "2019",
+      "Administrative Boundaries",
+      "England",
+      "WFS",
+      "WMS",
+      "BDY_ADM",
+      "BDY_RGN",
+      "DEC_2019"
+    ],
+    "title": "Regions (December 2019) Boundaries EN BFE",
+    "type": "Map Service",
+    "typeKeywords": [
+      "ArcGIS Server",
+      "Data",
+      "Map Service",
+      "Metadata",
+      "Service",
+      "Singlelayer",
+      "WMTS",
+      "Hosted Service"
+    ],
+    "url": "https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Regions_(December_2019)_FEB_EN/MapServer"
+  },
+  "dcterms:publisher": {
+    "@id": "https://www.ons.gov.uk/"
+  }
+}
+---
+
+# Regions (December 2019) Boundaries EN BFE
+
+This file contains the digital vector boundaries for Regions in England, as at December 2019. The BFC boundaries are full resolution - extent of the realm (usually this is the Mean Low Water mark but in some cases boundaries extend beyond this to include off shore islands). Contains both Ordnance Survey and ONS Intellectual Property Rights. REST URL of ArcGIS for INSPIRE View Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Regions_(December_2019)_FEB_EN/MapServer REST URL of ArcGIS for INSPIRE Feature DownloadService – https://dservices1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/services/Regions_December_2019_Full_Extent_Boundaries_EN/WFSServer?service=wfs&request=getcapabilities REST URL of Feature Access Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Regions_December_2019_FEB_EN_2022/FeatureServer
+
+Native identifier: `3e6fe2f0acca49818fb9e8ac2d9fed76`.
+
+Source family: `ons-geography-items`. Assertion: normalised metadata; independent human review is not recorded.
+
+[Official source](https://geoportal.statistics.gov.uk/items/3e6fe2f0acca49818fb9e8ac2d9fed76)
+
+Update cadence: not evidenced in captured metadata.
+Temporal evidence: not-evidenced (dataset-reference-period); start not stated, end not stated.
+No supported reference-period extent in captured metadata; release and catalogue dates are separate.
+
+[Release catalogue or change-discovery route](https://geoportal.statistics.gov.uk/)
+
+## Evidence limits
+
+- A date in an item title is not automatically the observation/reference range.
+- Portal items can be different representations or vintages of one product.
+
+The front matter retains source receipts, rights, native metadata and schema facts. Discovery does not authorise data access.
