@@ -1,5 +1,13 @@
 #!/usr/bin/env python3
-"""Package verified tracked source for the separate LOCAL-214 evaluation edition."""
+"""Package verified tracked source for the separate LOCAL-214 evaluation edition.
+
+OKF-220 adds roughly 31,000 public metadata source files and 280 MB. The bounded
+package includes the complete committed tree, including those sources; excluding
+them would invalidate the claimed Git identity. Keep file, total and identity
+document ceilings explicit on both packaging and extracted-source verification.
+The source bytes are held in memory, so the total ceiling is a resource limit,
+not an invitation to package private captures or generated build outputs.
+"""
 
 from __future__ import annotations
 
@@ -23,9 +31,10 @@ ROOT = Path(__file__).resolve().parents[1]
 EDITION = "v0.2.0-local.1"
 IDENTITY = "local214-source-identity.json"
 ARCHIVE = f"gis-ai-go-{EDITION}-source.tar.gz"
-MAX_FILES = 4096
+MAX_FILES = 65_536
 MAX_FILE_BYTES = 32 * 1024 * 1024
-MAX_TOTAL_BYTES = 128 * 1024 * 1024
+MAX_TOTAL_BYTES = 512 * 1024 * 1024
+MAX_IDENTITY_BYTES = 32 * 1024 * 1024
 GENERATED = {
     ".git", ".venv", ".uv-cache", ".pnpm-store", "node_modules", "dist",
     "dist-hosted", "artifacts", "__pycache__", ".pytest_cache", ".ruff_cache",
@@ -131,6 +140,7 @@ def capture_source(root: Path) -> tuple[dict, dict[str, bytes]]:
         capture_output=True, check=True, timeout=60,
     ).stdout
     stream = io.BytesIO(batch)
+    del batch  # Do not retain another complete source copy during materialisation.
     files, materials = {}, []
     for name, mode, object_id, size in entries:
         if stream.readline() != f"{object_id} blob {size}\n".encode():
@@ -144,6 +154,7 @@ def capture_source(root: Path) -> tuple[dict, dict[str, bytes]]:
                           "sha256": digest(content), "git_blob": object_id})
     if stream.read(1):
         raise ValueError("Git returned surplus source data")
+    stream.close()
     if any(name not in files for name in (*LOCKFILES, "package.json", "scripts/start-local-candidate")):
         raise ValueError("Source is missing a required local-edition input")
     if git(root, "rev-parse", "HEAD").decode().strip() != commit or git(
@@ -160,6 +171,8 @@ def capture_source(root: Path) -> tuple[dict, dict[str, bytes]]:
         "boundary": {"source_only": True, "attested": False,
                      "supported_public_release": False, "provider_calls": False},
     }
+    if len(serialise(identity)) > MAX_IDENTITY_BYTES:
+        raise ValueError("Source identity exceeds the packaging bound")
     return identity, files
 
 
@@ -210,7 +223,7 @@ def verify(root: Path) -> dict:
     root = root.resolve(strict=True)
     identity_path = root / IDENTITY
     if (identity_path.is_symlink() or not identity_path.is_file()
-            or identity_path.stat().st_size > 4 * 1024 * 1024):
+            or identity_path.stat().st_size > MAX_IDENTITY_BYTES):
         raise ValueError("Source identity must be a bounded regular file")
     identity = json.loads(identity_path.read_bytes())
     if (identity.get("schema") != "gis-ai-go.local214-source-identity.v1"
@@ -250,6 +263,7 @@ def verify(root: Path) -> dict:
     for name in LOCKFILES:
         if name not in names or digest((root / name).read_bytes()) != identity["lockfiles"][name]:
             raise ValueError("Changed source lockfile")
+    expected_names = names | {IDENTITY}
     for directory, folders, filenames in os.walk(root, followlinks=False):
         base = Path(directory)
         folders[:] = [name for name in folders if name not in GENERATED
@@ -259,7 +273,7 @@ def verify(root: Path) -> dict:
                 raise ValueError("Unexpected source directory symlink")
         for name in filenames:
             relative = (base / name).relative_to(root).as_posix()
-            if relative not in names | {IDENTITY} and name != ".DS_Store":
+            if relative not in expected_names and name != ".DS_Store":
                 raise ValueError(f"Unexpected source file: {relative}")
     return identity
 

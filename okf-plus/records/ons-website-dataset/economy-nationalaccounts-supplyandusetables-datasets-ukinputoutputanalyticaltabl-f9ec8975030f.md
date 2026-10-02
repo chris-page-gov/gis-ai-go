@@ -1,0 +1,132 @@
+---
+{
+  "@context": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/context.jsonld",
+  "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-website-dataset/%2Feconomy%2Fnationalaccounts%2Fsupplyandusetables%2Fdatasets%2Fukinputoutputanalyticaltablesdetailed%2F2010detailed",
+  "@type": [
+    "dcat:Dataset",
+    "okfp:MetadataRecord"
+  ],
+  "type": "Dataset",
+  "title": "UK input-output analytical tables",
+  "description": "Product by industry, product by product and further analyses tables.",
+  "nativeIdentifier": "/economy/nationalaccounts/supplyandusetables/datasets/ukinputoutputanalyticaltablesdetailed/2010detailed",
+  "sourceFamily": "ons-website-dataset",
+  "resource": "https://www.ons.gov.uk/economy/nationalaccounts/supplyandusetables/datasets/ukinputoutputanalyticaltablesdetailed/2010detailed",
+  "status": "draft",
+  "generated": {
+    "by": "gis-ai-go OKF+ source producer"
+  },
+  "okfp:machineImported": true,
+  "assertionStatus": "normalised",
+  "reviewStatus": "not-human-reviewed",
+  "tags": [
+    "dataset"
+  ],
+  "sources": [
+    {
+      "resource": "https://api.beta.ons.gov.uk/v1/search?q=&content_type=dataset&sort=title&highlight=false&limit=1000&offset=1000",
+      "retrievedAt": "2026-10-02T07:58:48.612491Z",
+      "responseSha256": "827bff4267a994c7c49a1be34a175d59ed55be78b2add562ce0c2326b8c4f2c1",
+      "sourcePointer": "/items/807",
+      "normalisedSource": "okf-plus/source/ons-website-dataset.json",
+      "normalisedPointer": "/records/1807",
+      "normalisedRecordSha256": "b531c18ac7c27de75803eb8474c2e66affd056164a748b4a2539af05d23d70cf",
+      "evidenceKind": "captured-public-metadata",
+      "sourcePointerStatus": "exact-native-id-match"
+    }
+  ],
+  "prov:wasDerivedFrom": {
+    "@id": "https://www.ons.gov.uk/economy/nationalaccounts/supplyandusetables/datasets/ukinputoutputanalyticaltablesdetailed/2010detailed"
+  },
+  "dcterms:conformsTo": {
+    "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/profile/v1"
+  },
+  "temporal": {
+    "status": "not-evidenced",
+    "kind": "dataset-reference-period",
+    "start": null,
+    "end": null,
+    "sourceField": null,
+    "note": "No supported reference-period extent in captured metadata; release and catalogue dates are separate."
+  },
+  "update": {
+    "frequency": {
+      "status": "not-evidenced",
+      "label": null,
+      "iri": null,
+      "sourceField": null
+    },
+    "releaseCatalogue": [
+      "https://www.ons.gov.uk/releasecalendar"
+    ],
+    "releaseFeed": [
+      "https://www.ons.gov.uk/releasecalendar?rss&highlight=true&limit=10&page=1&release-type=type-published&sort=date-newest"
+    ],
+    "nextRelease": null,
+    "metadataModified": null,
+    "releaseVersion": "2010 detailed"
+  },
+  "rights": {
+    "metadata": "Public metadata citation and factual normalisation; source rights retained.",
+    "describedData": "Not established by metadata discovery; consult source-specific terms.",
+    "retrievalAuthority": "metadata-only",
+    "executionAdmitted": false
+  },
+  "limitations": [
+    "Website and API representations are retained separately; matching titles do not prove equivalence.",
+    "Release dates do not establish the period covered by statistical observations."
+  ],
+  "details": {
+    "canonical_topic": "",
+    "cdid": "",
+    "dataset_id": "",
+    "edition": "2010 detailed",
+    "id": "/economy/nationalaccounts/supplyandusetables/datasets/ukinputoutputanalyticaltablesdetailed/2010detailed",
+    "keywords": [],
+    "meta_description": "Product by industry, product by product and further analyses tables.",
+    "nativeIdentityField": "uri",
+    "release_date": "2014-02-12T00:00:00.000Z",
+    "resource": "https://www.ons.gov.uk/economy/nationalaccounts/supplyandusetables/datasets/ukinputoutputanalyticaltablesdetailed/2010detailed",
+    "sourceEvidence": {
+      "pointer": "/items/807",
+      "retrievedAt": "2026-10-02T07:58:48.612491Z",
+      "sha256": "827bff4267a994c7c49a1be34a175d59ed55be78b2add562ce0c2326b8c4f2c1",
+      "status": 200,
+      "url": "https://api.beta.ons.gov.uk/v1/search?q=&content_type=dataset&sort=title&highlight=false&limit=1000&offset=1000"
+    },
+    "summary": "Product by industry, product by product and further analyses tables.",
+    "title": "UK input-output analytical tables",
+    "topics": [
+      "1245",
+      "2735",
+      "3741"
+    ],
+    "type": "dataset",
+    "uri": "/economy/nationalaccounts/supplyandusetables/datasets/ukinputoutputanalyticaltablesdetailed/2010detailed"
+  }
+}
+---
+
+# UK input-output analytical tables
+
+Product by industry, product by product and further analyses tables.
+
+Native identifier: `/economy/nationalaccounts/supplyandusetables/datasets/ukinputoutputanalyticaltablesdetailed/2010detailed`.
+
+Source family: `ons-website-dataset`. Assertion: normalised metadata; independent human review is not recorded.
+
+[Official source](https://www.ons.gov.uk/economy/nationalaccounts/supplyandusetables/datasets/ukinputoutputanalyticaltablesdetailed/2010detailed)
+
+Update cadence: not evidenced in captured metadata.
+Temporal evidence: not-evidenced (dataset-reference-period); start not stated, end not stated.
+No supported reference-period extent in captured metadata; release and catalogue dates are separate.
+
+[Release catalogue or change-discovery route](https://www.ons.gov.uk/releasecalendar)
+[Recent release feed](https://www.ons.gov.uk/releasecalendar?rss&highlight=true&limit=10&page=1&release-type=type-published&sort=date-newest)
+
+## Evidence limits
+
+- Website and API representations are retained separately; matching titles do not prove equivalence.
+- Release dates do not establish the period covered by statistical observations.
+
+The front matter retains source receipts, rights, native metadata and schema facts. Discovery does not authorise data access.

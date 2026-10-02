@@ -1,0 +1,343 @@
+---
+{
+  "@context": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/context.jsonld",
+  "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-nomis-datasets/NM_2308_1",
+  "@type": [
+    "dcat:Dataset",
+    "okfp:MetadataRecord"
+  ],
+  "type": "Dataset",
+  "title": "RM208 - Economic activity status by hours worked by sex by long-term health problem or disability",
+  "description": "Nomis dataset definition with native SDMX components.",
+  "nativeIdentifier": "NM_2308_1",
+  "sourceFamily": "ons-nomis-datasets",
+  "resource": "https://www.nomisweb.co.uk/api/v01/dataset/NM_2308_1/def.sdmx.json",
+  "status": "draft",
+  "generated": {
+    "by": "gis-ai-go OKF+ source producer"
+  },
+  "okfp:machineImported": true,
+  "assertionStatus": "normalised",
+  "reviewStatus": "not-human-reviewed",
+  "tags": [
+    "Economic activity",
+    "Sex",
+    "Hours worked",
+    "Disability"
+  ],
+  "sources": [
+    {
+      "resource": "https://www.nomisweb.co.uk/api/v01/dataset/def.sdmx.json",
+      "retrievedAt": "2026-10-02T01:18:03.834666Z",
+      "responseSha256": "e782c84721db296c396660a4df4b65fa967b9cbab0b52768e1262659e37e9a54",
+      "sourcePointer": "/structure/keyfamilies/keyfamily/1571",
+      "normalisedSource": "okf-plus/source/ons-nomis-datasets.json",
+      "normalisedPointer": "/records/1571",
+      "normalisedRecordSha256": "dec8c6bcf95a922d9faa688a7c7f667d0981716dab169c5efb477045704184ad",
+      "evidenceKind": "captured-public-metadata",
+      "sourcePointerStatus": "exact-native-id-match"
+    },
+    {
+      "resource": "https://www.nomisweb.co.uk/api/v01/dataset/NM_2308_1/time.def.sdmx.json",
+      "retrievedAt": "2026-10-02T07:57:00.569082Z",
+      "responseSha256": "014ff165fd5091858c33c9058f59822006b7af3f49792ca5c2ee4597e2c298ad",
+      "sourcePointer": null,
+      "normalisedSource": "okf-plus/source/ons-nomis-time-options.json",
+      "normalisedPointer": "/records/1571",
+      "normalisedRecordSha256": "eae1f2f3d2ac55ecd20b7e7bd1db36f14f841020dc19c80bcf460b998c1bd397",
+      "evidenceKind": "captured-public-metadata",
+      "sourcePointerStatus": "catalogue-document"
+    }
+  ],
+  "prov:wasDerivedFrom": {
+    "@id": "https://www.nomisweb.co.uk/api/v01/dataset/NM_2308_1/def.sdmx.json"
+  },
+  "dcterms:conformsTo": {
+    "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/profile/v1"
+  },
+  "temporal": {
+    "status": "normalised-source-options",
+    "kind": "available-native-period-options",
+    "start": 2021,
+    "end": 2021,
+    "sourceField": "timeMetadata.codes",
+    "note": "Extrema of the complete published native period-code list; no continuity or populated observation cells are inferred.",
+    "precision": "year",
+    "derivation": "Nomis-native-integer-year.v1"
+  },
+  "update": {
+    "frequency": {
+      "status": "not-evidenced",
+      "label": null,
+      "iri": null,
+      "sourceField": null
+    },
+    "releaseCatalogue": [
+      "https://www.nomisweb.co.uk/releasecalendar.asp"
+    ],
+    "releaseFeed": [],
+    "nextRelease": null,
+    "metadataModified": null,
+    "releaseVersion": null
+  },
+  "rights": {
+    "metadata": "Public metadata citation and factual normalisation; source rights retained.",
+    "describedData": "Not established by metadata discovery; consult source-specific terms.",
+    "retrievalAuthority": "metadata-only",
+    "executionAdmitted": false
+  },
+  "limitations": [
+    "FREQ denotes statistical observation frequency; it does not establish release cadence.",
+    "FirstReleased and LastUpdated describe publication history, not the observation date range.",
+    "Time-option extrema describe available native codes; continuity and populated observation cells have not been established."
+  ],
+  "details": {
+    "agencyid": "NOMIS",
+    "annotations": {
+      "Keywords": "Economic activity,Sex,Hours worked,Disability",
+      "Mnemonic": "c2021rm208",
+      "Status": "Current (being actively updated)",
+      "SubDescription": "All usual residents aged 16 years and over",
+      "Units": "Persons"
+    },
+    "components": {
+      "attribute": [
+        {
+          "assignmentstatus": "Mandatory",
+          "attachmentlevel": "Observation",
+          "codelist": "CL_OBS_STATUS",
+          "conceptref": "OBS_STATUS"
+        },
+        {
+          "assignmentstatus": "Conditional",
+          "attachmentlevel": "Observation",
+          "codelist": "CL_OBS_CONF",
+          "conceptref": "OBS_CONF"
+        },
+        {
+          "assignmentstatus": "Conditional",
+          "attachmentlevel": "Observation",
+          "codelist": "CL_OBS_ROUND",
+          "conceptref": "OBS_ROUND"
+        },
+        {
+          "assignmentstatus": "Conditional",
+          "attachmentlevel": "Series",
+          "codelist": "CL_UNIT_MULT",
+          "conceptref": "UNIT_MULTIPLIER"
+        },
+        {
+          "assignmentstatus": "Mandatory",
+          "attachmentlevel": "Series",
+          "codelist": "CL_TIME_FORMAT",
+          "conceptref": "TIME_FORMAT"
+        },
+        {
+          "assignmentstatus": "Mandatory",
+          "attachmentlevel": "Series",
+          "codelist": "CL_UNIT",
+          "conceptref": "UNIT"
+        },
+        {
+          "assignmentstatus": "Mandatory",
+          "attachmentlevel": "Series",
+          "conceptref": "TITLE_COMPL"
+        }
+      ],
+      "dimension": [
+        {
+          "codelist": "CL_2308_1_GEOGRAPHY",
+          "conceptref": "GEOGRAPHY"
+        },
+        {
+          "codelist": "CL_2308_1_C2021_EA_HRS_20",
+          "conceptref": "C2021_EA_HRS_20"
+        },
+        {
+          "codelist": "CL_2308_1_C_SEX",
+          "conceptref": "C_SEX"
+        },
+        {
+          "codelist": "CL_2308_1_C2021_DISABILITY_4",
+          "conceptref": "C2021_DISABILITY_4"
+        },
+        {
+          "codelist": "CL_2308_1_MEASURES",
+          "conceptref": "MEASURES"
+        },
+        {
+          "codelist": "CL_2308_1_FREQ",
+          "conceptref": "FREQ",
+          "isfrequencydimension": "true"
+        }
+      ],
+      "primarymeasure": {
+        "conceptref": "OBS_VALUE"
+      },
+      "timedimension": {
+        "codelist": "CL_2308_1_TIME",
+        "conceptref": "TIME"
+      }
+    },
+    "id": "NM_2308_1",
+    "name": {
+      "lang": "en",
+      "value": "RM208 - Economic activity status by hours worked by sex by long-term health problem or disability"
+    },
+    "uri": "Nm-2308d1",
+    "version": 1.0,
+    "timeMetadata": {
+      "bounds": {
+        "basis": "Nomis returned TIME codelist native codes; no observations",
+        "comparisonRule": "Nomis-native-integer-year.v1",
+        "continuityEstablished": false,
+        "granularity": "year",
+        "maximumNative": 2021,
+        "minimumNative": 2021,
+        "status": "known-option-extrema"
+      },
+      "codeListId": "CL_2308_1_TIME",
+      "id": "NM_2308_1",
+      "metadataEvidence": {
+        "retrievedAt": "2026-10-02T07:57:00.569082Z",
+        "sha256": "014ff165fd5091858c33c9058f59822006b7af3f49792ca5c2ee4597e2c298ad",
+        "status": 200,
+        "url": "https://www.nomisweb.co.uk/api/v01/dataset/NM_2308_1/time.def.sdmx.json"
+      },
+      "metadataStatus": "captured",
+      "returnedCodeCount": 1,
+      "timeOptionsTable": {
+        "encoding": "gis-ai-go.native-time-table.v1",
+        "columns": [
+          "value",
+          "description",
+          "revisionMetadata"
+        ],
+        "revisionColumns": [
+          "title",
+          "value"
+        ],
+        "absentDescription": null,
+        "rows": [
+          [
+            2021,
+            {
+              "lang": "en",
+              "value": 2021
+            },
+            []
+          ]
+        ]
+      }
+    }
+  },
+  "qb:structure": {
+    "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-nomis-datasets/NM_2308_1/structure",
+    "@type": "qb:DataStructureDefinition",
+    "qb:component": [
+      {
+        "@type": "qb:ComponentSpecification",
+        "qb:dimension": {
+          "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-nomis-datasets/NM_2308_1/dimension/GEOGRAPHY",
+          "@type": "qb:DimensionProperty",
+          "rdfs:label": "GEOGRAPHY",
+          "qb:codeList": {
+            "@id": "https://www.nomisweb.co.uk/api/v01/codelist/CL_2308_1_GEOGRAPHY/def.sdmx.json"
+          }
+        }
+      },
+      {
+        "@type": "qb:ComponentSpecification",
+        "qb:dimension": {
+          "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-nomis-datasets/NM_2308_1/dimension/C2021_EA_HRS_20",
+          "@type": "qb:DimensionProperty",
+          "rdfs:label": "C2021_EA_HRS_20",
+          "qb:codeList": {
+            "@id": "https://www.nomisweb.co.uk/api/v01/codelist/CL_2308_1_C2021_EA_HRS_20/def.sdmx.json"
+          }
+        }
+      },
+      {
+        "@type": "qb:ComponentSpecification",
+        "qb:dimension": {
+          "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-nomis-datasets/NM_2308_1/dimension/C_SEX",
+          "@type": "qb:DimensionProperty",
+          "rdfs:label": "C_SEX",
+          "qb:codeList": {
+            "@id": "https://www.nomisweb.co.uk/api/v01/codelist/CL_2308_1_C_SEX/def.sdmx.json"
+          }
+        }
+      },
+      {
+        "@type": "qb:ComponentSpecification",
+        "qb:dimension": {
+          "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-nomis-datasets/NM_2308_1/dimension/C2021_DISABILITY_4",
+          "@type": "qb:DimensionProperty",
+          "rdfs:label": "C2021_DISABILITY_4",
+          "qb:codeList": {
+            "@id": "https://www.nomisweb.co.uk/api/v01/codelist/CL_2308_1_C2021_DISABILITY_4/def.sdmx.json"
+          }
+        }
+      },
+      {
+        "@type": "qb:ComponentSpecification",
+        "qb:dimension": {
+          "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-nomis-datasets/NM_2308_1/dimension/MEASURES",
+          "@type": "qb:DimensionProperty",
+          "rdfs:label": "MEASURES",
+          "qb:codeList": {
+            "@id": "https://www.nomisweb.co.uk/api/v01/codelist/CL_2308_1_MEASURES/def.sdmx.json"
+          }
+        }
+      },
+      {
+        "@type": "qb:ComponentSpecification",
+        "qb:dimension": {
+          "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-nomis-datasets/NM_2308_1/dimension/FREQ",
+          "@type": "qb:DimensionProperty",
+          "rdfs:label": "FREQ",
+          "qb:codeList": {
+            "@id": "https://www.nomisweb.co.uk/api/v01/codelist/CL_2308_1_FREQ/def.sdmx.json"
+          }
+        }
+      }
+    ]
+  },
+  "okfp:nativeTemporalBounds": {
+    "@value": {
+      "basis": "Nomis returned TIME codelist native codes; no observations",
+      "comparisonRule": "Nomis-native-integer-year.v1",
+      "continuityEstablished": false,
+      "granularity": "year",
+      "maximumNative": 2021,
+      "minimumNative": 2021,
+      "status": "known-option-extrema"
+    },
+    "@type": "@json"
+  }
+}
+---
+
+# RM208 - Economic activity status by hours worked by sex by long-term health problem or disability
+
+Nomis dataset definition with native SDMX components.
+
+Native identifier: `NM_2308_1`.
+
+Source family: `ons-nomis-datasets`. Assertion: normalised metadata; independent human review is not recorded.
+
+[Official source](https://www.nomisweb.co.uk/api/v01/dataset/NM_2308_1/def.sdmx.json)
+
+Update cadence: not evidenced in captured metadata.
+Temporal evidence: normalised-source-options (available-native-period-options); start 2021, end 2021.
+Extrema of the complete published native period-code list; no continuity or populated observation cells are inferred.
+
+[Release catalogue or change-discovery route](https://www.nomisweb.co.uk/releasecalendar.asp)
+
+## Evidence limits
+
+- FREQ denotes statistical observation frequency; it does not establish release cadence.
+- FirstReleased and LastUpdated describe publication history, not the observation date range.
+- Time-option extrema describe available native codes; continuity and populated observation cells have not been established.
+
+The front matter retains source receipts, rights, native metadata and schema facts. Discovery does not authorise data access.

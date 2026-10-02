@@ -80,3 +80,15 @@ built openly, but live pilots require current agreements, provider/enterprise
 credentials, DPIA and security approval, paid infrastructure where necessary and
 physically isolated data planes. These external decisions do not block the open
 roadmap.
+
+## Additive OS and ONS knowledge framework
+
+The owner authorised [OKF-220](OKF-220_METADATA_KNOWLEDGE_FRAMEWORK.md) on
+2 October 2026. It extends metadata discovery through OKF+ without changing the
+existing runtime or supported-release gates. Deliver measured source inventories,
+source-backed Markdown/YAML-LD, schema and vocabulary mappings, provenance,
+search, clear reference periods, update/release routes and question evaluations.
+
+Acceptance separates catalogue traversal, metadata evidence, schema validation,
+semantic curation, retrieval and live Ask OKF admission. Unknown completeness
+denominators remain open; a large record count does not close them.

@@ -6,6 +6,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -15,6 +16,8 @@ if str(SCRIPTS) not in sys.path:
 
 from plan_ci_impact import (  # noqa: E402
     ImpactPlanError,
+    MAX_CHANGED_PATHS,
+    MAX_PATH_BYTES,
     canonical_json_bytes,
     changed_paths_between,
     load_impact_map,
@@ -378,6 +381,32 @@ class CiImpactPlanTests(unittest.TestCase):
         with self.assertRaisesRegex(ImpactPlanError, "control character"):
             self.plan("docs/forged\nheading.md")
 
+    def test_exact_changed_path_limit_preserves_full_assurance_for_unknown_path(self) -> None:
+        paths = [f"docs/metadata-{index:05d}.md" for index in range(65_535)]
+        paths.append("unmapped-metadata/inventory.json")
+        self.assertEqual(MAX_CHANGED_PATHS, 65_536)
+        plan = self.plan(*paths)
+        self.assertEqual(plan["changed_path_count"], 65_536)
+        self.assertEqual(plan["unmatched_paths"], ["unmapped-metadata/inventory.json"])
+        self.assertEqual(plan["reason"], "unmatched-path")
+        self.assertIs(plan["force_full"], True)
+        self.assertEqual(plan["selected_lanes"], plan["applicable_lanes"])
+        self.assertEqual(plan["mode"], "shadow")
+        self.assertIs(plan["enforced"], False)
+
+    def test_changed_path_limit_rejects_one_over_before_deduplication(self) -> None:
+        with self.assertRaisesRegex(ImpactPlanError, "changed-path count"):
+            self.plan(*(["docs/repeated.md"] * 65_537))
+
+    def test_path_byte_limit_is_retained_for_large_inventory_support(self) -> None:
+        # Count UTF-8 bytes, including a multibyte character, rather than characters.
+        path = "docs/" + ("a" * (4_096 - 7)) + "é"
+        self.assertEqual(MAX_PATH_BYTES, 4_096)
+        self.assertEqual(len(path.encode("utf-8")), 4_096)
+        self.assertEqual(self.plan(path)["changed_paths"], [path])
+        with self.assertRaisesRegex(ImpactPlanError, "invalid byte length"):
+            self.plan(path + "x")
+
     def test_map_rejects_a_non_full_unknown_path_policy(self) -> None:
         document = json.loads(MAP_PATH.read_text(encoding="utf-8"))
         document["unknown_path_policy"] = "none"
@@ -472,6 +501,27 @@ class CiImpactPlanTests(unittest.TestCase):
                 changed_paths_between(root, base, head),
                 ("docs/new.md", "docs/old.md"),
             )
+
+    def test_git_inventory_limit_counts_both_rename_paths(self) -> None:
+        for count in (65_536, 65_537):
+            with self.subTest(changed_path_count=count):
+                paths = [f"docs/metadata-{index:05d}.md" for index in range(count - 2)]
+                raw = b"".join(b"A\0" + path.encode("utf-8") + b"\0" for path in paths)
+                raw += b"R100\0docs/old.md\0docs/new.md\0"
+                with patch(
+                    "plan_ci_impact._run_git",
+                    side_effect=[b"", b"", HEAD.encode("ascii") + b"\n", raw],
+                ):
+                    if count == 65_536:
+                        observed = changed_paths_between(ROOT, BASE, HEAD)
+                        self.assertEqual(len(observed), 65_536)
+                        self.assertEqual(
+                            observed,
+                            tuple(sorted([*paths, "docs/old.md", "docs/new.md"])),
+                        )
+                    else:
+                        with self.assertRaisesRegex(ImpactPlanError, "changed-path count"):
+                            changed_paths_between(ROOT, BASE, HEAD)
 
     def test_locked_input_rename_evaluates_old_and_new_paths(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

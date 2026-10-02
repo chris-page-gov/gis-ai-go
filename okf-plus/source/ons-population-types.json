@@ -1,0 +1,671 @@
+{
+  "coverage": {
+    "catalogueComplete": true,
+    "duplicateCount": 0,
+    "limitations": [
+      "Population definitions describe a query space, not a finite list of published datasets.",
+      "Area types, dimensions and categorisations are separate untraversed child catalogues.",
+      "Completeness is confined to the returned filtered catalogue; not all ONS data or website content.",
+      "The live index is not transactionally frozen; stable counts cannot exclude equal-count substitutions.",
+      "Only selected metadata is retained; no observations or download payloads are requested.",
+      "Contact fields and unreviewed nested content are excluded from the public projection.",
+      "Release dates do not establish statistical observation periods; native representations are not merged."
+    ],
+    "pageCounts": [
+      {
+        "offset": 0,
+        "reportedTotal": 39
+      }
+    ],
+    "parameters": {},
+    "reportedTotal": 39,
+    "requestStatuses": [
+      200
+    ],
+    "retrievedUnique": 39,
+    "rowsReceived": 39,
+    "stableReportedTotal": true,
+    "stopReason": "exhausted",
+    "unit": "ONS published population-type definition"
+  },
+  "family": "ons-population-types",
+  "receipts": [
+    {
+      "bytes": 6016,
+      "etag": null,
+      "finalUrl": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0",
+      "lastModified": null,
+      "retrievedAt": "2026-10-02T07:59:12.057850Z",
+      "sha256": "1ba1f96cadab4501d99432e79cdf17779949de76af862fba5087efe1532ff1e3",
+      "status": 200,
+      "url": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0"
+    }
+  ],
+  "records": [
+    {
+      "description": "Dwellings",
+      "id": "atc-rm-pk1-dwl-ct-ltla",
+      "label": "Dwellings",
+      "name": "atc-rm-pk1-dwl-ct-ltla",
+      "nativeIdentityField": "name",
+      "resource": "https://api.beta.ons.gov.uk/v1/population-types",
+      "sourceEvidence": {
+        "pointer": "/items/0",
+        "retrievedAt": "2026-10-02T07:59:12.057850Z",
+        "sha256": "1ba1f96cadab4501d99432e79cdf17779949de76af862fba5087efe1532ff1e3",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0"
+      },
+      "type": "tabular"
+    },
+    {
+      "description": "Dwellings",
+      "id": "atc-rm-pk1-dwl-ct-msoa",
+      "label": "Dwellings",
+      "name": "atc-rm-pk1-dwl-ct-msoa",
+      "nativeIdentityField": "name",
+      "resource": "https://api.beta.ons.gov.uk/v1/population-types",
+      "sourceEvidence": {
+        "pointer": "/items/1",
+        "retrievedAt": "2026-10-02T07:59:12.057850Z",
+        "sha256": "1ba1f96cadab4501d99432e79cdf17779949de76af862fba5087efe1532ff1e3",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0"
+      },
+      "type": "tabular"
+    },
+    {
+      "description": "Dwellings",
+      "id": "atc-rm-pk1-dwl-ct-oa",
+      "label": "Dwellings",
+      "name": "atc-rm-pk1-dwl-ct-oa",
+      "nativeIdentityField": "name",
+      "resource": "https://api.beta.ons.gov.uk/v1/population-types",
+      "sourceEvidence": {
+        "pointer": "/items/2",
+        "retrievedAt": "2026-10-02T07:59:12.057850Z",
+        "sha256": "1ba1f96cadab4501d99432e79cdf17779949de76af862fba5087efe1532ff1e3",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0"
+      },
+      "type": "tabular"
+    },
+    {
+      "description": "All Household Reference Persons",
+      "id": "atc-rm-pk2-hrp-ct-oa",
+      "label": "All Household Reference Persons",
+      "name": "atc-rm-pk2-hrp-ct-oa",
+      "nativeIdentityField": "name",
+      "resource": "https://api.beta.ons.gov.uk/v1/population-types",
+      "sourceEvidence": {
+        "pointer": "/items/3",
+        "retrievedAt": "2026-10-02T07:59:12.057850Z",
+        "sha256": "1ba1f96cadab4501d99432e79cdf17779949de76af862fba5087efe1532ff1e3",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0"
+      },
+      "type": "tabular"
+    },
+    {
+      "description": "All usual residents",
+      "id": "atc-rm-pk2-ur-ct-oa",
+      "label": "All usual residents",
+      "name": "atc-rm-pk2-ur-ct-oa",
+      "nativeIdentityField": "name",
+      "resource": "https://api.beta.ons.gov.uk/v1/population-types",
+      "sourceEvidence": {
+        "pointer": "/items/4",
+        "retrievedAt": "2026-10-02T07:59:12.057850Z",
+        "sha256": "1ba1f96cadab4501d99432e79cdf17779949de76af862fba5087efe1532ff1e3",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0"
+      },
+      "type": "tabular"
+    },
+    {
+      "description": "All usual residents in families with dependent children",
+      "id": "atc-rm-pk2-urfamdc-ct-oa",
+      "label": "All usual residents in families with dependent children",
+      "name": "atc-rm-pk2-urfamdc-ct-oa",
+      "nativeIdentityField": "name",
+      "resource": "https://api.beta.ons.gov.uk/v1/population-types",
+      "sourceEvidence": {
+        "pointer": "/items/5",
+        "retrievedAt": "2026-10-02T07:59:12.057850Z",
+        "sha256": "1ba1f96cadab4501d99432e79cdf17779949de76af862fba5087efe1532ff1e3",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0"
+      },
+      "type": "tabular"
+    },
+    {
+      "description": "All usual residents in households",
+      "id": "atc-rm-pk2-urhh-ct-msoa",
+      "label": "All usual residents in households",
+      "name": "atc-rm-pk2-urhh-ct-msoa",
+      "nativeIdentityField": "name",
+      "resource": "https://api.beta.ons.gov.uk/v1/population-types",
+      "sourceEvidence": {
+        "pointer": "/items/6",
+        "retrievedAt": "2026-10-02T07:59:12.057850Z",
+        "sha256": "1ba1f96cadab4501d99432e79cdf17779949de76af862fba5087efe1532ff1e3",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0"
+      },
+      "type": "tabular"
+    },
+    {
+      "description": "All communal establishments",
+      "id": "atc-rm-pk3-ce-ct-msoa",
+      "label": "All communal establishments",
+      "name": "atc-rm-pk3-ce-ct-msoa",
+      "nativeIdentityField": "name",
+      "resource": "https://api.beta.ons.gov.uk/v1/population-types",
+      "sourceEvidence": {
+        "pointer": "/items/7",
+        "retrievedAt": "2026-10-02T07:59:12.057850Z",
+        "sha256": "1ba1f96cadab4501d99432e79cdf17779949de76af862fba5087efe1532ff1e3",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0"
+      },
+      "type": "tabular"
+    },
+    {
+      "description": "All families",
+      "id": "atc-rm-pk3-fam-ct-oa",
+      "label": "All families",
+      "name": "atc-rm-pk3-fam-ct-oa",
+      "nativeIdentityField": "name",
+      "resource": "https://api.beta.ons.gov.uk/v1/population-types",
+      "sourceEvidence": {
+        "pointer": "/items/8",
+        "retrievedAt": "2026-10-02T07:59:12.057850Z",
+        "sha256": "1ba1f96cadab4501d99432e79cdf17779949de76af862fba5087efe1532ff1e3",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0"
+      },
+      "type": "tabular"
+    },
+    {
+      "description": "All households",
+      "id": "atc-rm-pk3-hh-ct-ltla",
+      "label": "All households",
+      "name": "atc-rm-pk3-hh-ct-ltla",
+      "nativeIdentityField": "name",
+      "resource": "https://api.beta.ons.gov.uk/v1/population-types",
+      "sourceEvidence": {
+        "pointer": "/items/9",
+        "retrievedAt": "2026-10-02T07:59:12.057850Z",
+        "sha256": "1ba1f96cadab4501d99432e79cdf17779949de76af862fba5087efe1532ff1e3",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0"
+      },
+      "type": "tabular"
+    },
+    {
+      "description": "All households",
+      "id": "atc-rm-pk3-hh-ct-oa",
+      "label": "All households",
+      "name": "atc-rm-pk3-hh-ct-oa",
+      "nativeIdentityField": "name",
+      "resource": "https://api.beta.ons.gov.uk/v1/population-types",
+      "sourceEvidence": {
+        "pointer": "/items/10",
+        "retrievedAt": "2026-10-02T07:59:12.057850Z",
+        "sha256": "1ba1f96cadab4501d99432e79cdf17779949de76af862fba5087efe1532ff1e3",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0"
+      },
+      "type": "tabular"
+    },
+    {
+      "description": "All household spaces",
+      "id": "atc-rm-pk3-hhsp-ct-oa",
+      "label": "All household spaces",
+      "name": "atc-rm-pk3-hhsp-ct-oa",
+      "nativeIdentityField": "name",
+      "resource": "https://api.beta.ons.gov.uk/v1/population-types",
+      "sourceEvidence": {
+        "pointer": "/items/11",
+        "retrievedAt": "2026-10-02T07:59:12.057850Z",
+        "sha256": "1ba1f96cadab4501d99432e79cdf17779949de76af862fba5087efe1532ff1e3",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0"
+      },
+      "type": "tabular"
+    },
+    {
+      "description": "All dependent children",
+      "id": "atc-rm-pk3-urdc-ct-oa",
+      "label": "All dependent children",
+      "name": "atc-rm-pk3-urdc-ct-oa",
+      "nativeIdentityField": "name",
+      "resource": "https://api.beta.ons.gov.uk/v1/population-types",
+      "sourceEvidence": {
+        "pointer": "/items/12",
+        "retrievedAt": "2026-10-02T07:59:12.057850Z",
+        "sha256": "1ba1f96cadab4501d99432e79cdf17779949de76af862fba5087efe1532ff1e3",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0"
+      },
+      "type": "tabular"
+    },
+    {
+      "description": "All dependent children in families",
+      "id": "atc-rm-pk3-urdcfam-ct-oa",
+      "label": "All dependent children in families",
+      "name": "atc-rm-pk3-urdcfam-ct-oa",
+      "nativeIdentityField": "name",
+      "resource": "https://api.beta.ons.gov.uk/v1/population-types",
+      "sourceEvidence": {
+        "pointer": "/items/13",
+        "retrievedAt": "2026-10-02T07:59:12.057850Z",
+        "sha256": "1ba1f96cadab4501d99432e79cdf17779949de76af862fba5087efe1532ff1e3",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0"
+      },
+      "type": "tabular"
+    },
+    {
+      "description": "All dependent children in households",
+      "id": "atc-rm-pk3-urdchh-ct-msoa",
+      "label": "All dependent children in households",
+      "name": "atc-rm-pk3-urdchh-ct-msoa",
+      "nativeIdentityField": "name",
+      "resource": "https://api.beta.ons.gov.uk/v1/population-types",
+      "sourceEvidence": {
+        "pointer": "/items/14",
+        "retrievedAt": "2026-10-02T07:59:12.057850Z",
+        "sha256": "1ba1f96cadab4501d99432e79cdf17779949de76af862fba5087efe1532ff1e3",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0"
+      },
+      "type": "tabular"
+    },
+    {
+      "description": "All usual residents aged 16 years and over",
+      "id": "atc-rm-sogi-ur16o-ct-ltla",
+      "label": "All usual residents aged 16 years and over",
+      "name": "atc-rm-sogi-ur16o-ct-ltla",
+      "nativeIdentityField": "name",
+      "resource": "https://api.beta.ons.gov.uk/v1/population-types",
+      "sourceEvidence": {
+        "pointer": "/items/15",
+        "retrievedAt": "2026-10-02T07:59:12.057850Z",
+        "sha256": "1ba1f96cadab4501d99432e79cdf17779949de76af862fba5087efe1532ff1e3",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0"
+      },
+      "type": "tabular"
+    },
+    {
+      "description": "All usual residents aged 16 years and over in households",
+      "id": "atc-rm-sogi-ur16ohh-ct-ltla",
+      "label": "All usual residents aged 16 years and over in households",
+      "name": "atc-rm-sogi-ur16ohh-ct-ltla",
+      "nativeIdentityField": "name",
+      "resource": "https://api.beta.ons.gov.uk/v1/population-types",
+      "sourceEvidence": {
+        "pointer": "/items/16",
+        "retrievedAt": "2026-10-02T07:59:12.057850Z",
+        "sha256": "1ba1f96cadab4501d99432e79cdf17779949de76af862fba5087efe1532ff1e3",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0"
+      },
+      "type": "tabular"
+    },
+    {
+      "description": "All non-UK born short-term residents",
+      "id": "atc-st-pk2-str-ct-ltla",
+      "label": "All non-UK born short-term residents",
+      "name": "atc-st-pk2-str-ct-ltla",
+      "nativeIdentityField": "name",
+      "resource": "https://api.beta.ons.gov.uk/v1/population-types",
+      "sourceEvidence": {
+        "pointer": "/items/17",
+        "retrievedAt": "2026-10-02T07:59:12.057850Z",
+        "sha256": "1ba1f96cadab4501d99432e79cdf17779949de76af862fba5087efe1532ff1e3",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0"
+      },
+      "type": "tabular"
+    },
+    {
+      "description": "All non-UK born short-term residents",
+      "id": "atc-st-pk2-str-ct-region",
+      "label": "All non-UK born short-term residents",
+      "name": "atc-st-pk2-str-ct-region",
+      "nativeIdentityField": "name",
+      "resource": "https://api.beta.ons.gov.uk/v1/population-types",
+      "sourceEvidence": {
+        "pointer": "/items/18",
+        "retrievedAt": "2026-10-02T07:59:12.057850Z",
+        "sha256": "1ba1f96cadab4501d99432e79cdf17779949de76af862fba5087efe1532ff1e3",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0"
+      },
+      "type": "tabular"
+    },
+    {
+      "description": "All non-UK born short-term residents in households",
+      "id": "atc-st-pk2-strhhsp-ct-ltla",
+      "label": "All non-UK born short-term residents in households",
+      "name": "atc-st-pk2-strhhsp-ct-ltla",
+      "nativeIdentityField": "name",
+      "resource": "https://api.beta.ons.gov.uk/v1/population-types",
+      "sourceEvidence": {
+        "pointer": "/items/19",
+        "retrievedAt": "2026-10-02T07:59:12.057850Z",
+        "sha256": "1ba1f96cadab4501d99432e79cdf17779949de76af862fba5087efe1532ff1e3",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0"
+      },
+      "type": "tabular"
+    },
+    {
+      "description": "All households",
+      "id": "atc-ts-demmig-hh-ct-oa",
+      "label": "All households",
+      "name": "atc-ts-demmig-hh-ct-oa",
+      "nativeIdentityField": "name",
+      "resource": "https://api.beta.ons.gov.uk/v1/population-types",
+      "sourceEvidence": {
+        "pointer": "/items/20",
+        "retrievedAt": "2026-10-02T07:59:12.057850Z",
+        "sha256": "1ba1f96cadab4501d99432e79cdf17779949de76af862fba5087efe1532ff1e3",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0"
+      },
+      "type": "tabular"
+    },
+    {
+      "description": "All non-UK born short-term residents",
+      "id": "atc-ts-demmig-str-ct-oa",
+      "label": "All non-UK born short-term residents",
+      "name": "atc-ts-demmig-str-ct-oa",
+      "nativeIdentityField": "name",
+      "resource": "https://api.beta.ons.gov.uk/v1/population-types",
+      "sourceEvidence": {
+        "pointer": "/items/21",
+        "retrievedAt": "2026-10-02T07:59:12.057850Z",
+        "sha256": "1ba1f96cadab4501d99432e79cdf17779949de76af862fba5087efe1532ff1e3",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0"
+      },
+      "type": "tabular"
+    },
+    {
+      "description": "All usual residents",
+      "id": "atc-ts-demmig-ur-ct-oa",
+      "label": "All usual residents",
+      "name": "atc-ts-demmig-ur-ct-oa",
+      "nativeIdentityField": "name",
+      "resource": "https://api.beta.ons.gov.uk/v1/population-types",
+      "sourceEvidence": {
+        "pointer": "/items/22",
+        "retrievedAt": "2026-10-02T07:59:12.057850Z",
+        "sha256": "1ba1f96cadab4501d99432e79cdf17779949de76af862fba5087efe1532ff1e3",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0"
+      },
+      "type": "tabular"
+    },
+    {
+      "description": "All usual residents",
+      "id": "atc-ts-demmig-ur-pd-oa",
+      "label": "All usual residents",
+      "name": "atc-ts-demmig-ur-pd-oa",
+      "nativeIdentityField": "name",
+      "resource": "https://api.beta.ons.gov.uk/v1/population-types",
+      "sourceEvidence": {
+        "pointer": "/items/23",
+        "retrievedAt": "2026-10-02T07:59:12.057850Z",
+        "sha256": "1ba1f96cadab4501d99432e79cdf17779949de76af862fba5087efe1532ff1e3",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0"
+      },
+      "type": "tabular"
+    },
+    {
+      "description": "All schoolchildren and full-time students aged 5 years and over at their term-time address",
+      "id": "atc-ts-ed-ftetta-ct-oa",
+      "label": "All schoolchildren and full-time students aged 5 years and over at their term-time address",
+      "name": "atc-ts-ed-ftetta-ct-oa",
+      "nativeIdentityField": "name",
+      "resource": "https://api.beta.ons.gov.uk/v1/population-types",
+      "sourceEvidence": {
+        "pointer": "/items/24",
+        "retrievedAt": "2026-10-02T07:59:12.057850Z",
+        "sha256": "1ba1f96cadab4501d99432e79cdf17779949de76af862fba5087efe1532ff1e3",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0"
+      },
+      "type": "tabular"
+    },
+    {
+      "description": "All usual residents aged 3 years and over",
+      "id": "atc-ts-eilr-ur-ct-ltla",
+      "label": "All usual residents aged 3 years and over",
+      "name": "atc-ts-eilr-ur-ct-ltla",
+      "nativeIdentityField": "name",
+      "resource": "https://api.beta.ons.gov.uk/v1/population-types",
+      "sourceEvidence": {
+        "pointer": "/items/25",
+        "retrievedAt": "2026-10-02T07:59:12.057850Z",
+        "sha256": "1ba1f96cadab4501d99432e79cdf17779949de76af862fba5087efe1532ff1e3",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0"
+      },
+      "type": "tabular"
+    },
+    {
+      "description": "All usual residents",
+      "id": "atc-ts-eilr-ur-ct-msoa",
+      "label": "All usual residents",
+      "name": "atc-ts-eilr-ur-ct-msoa",
+      "nativeIdentityField": "name",
+      "resource": "https://api.beta.ons.gov.uk/v1/population-types",
+      "sourceEvidence": {
+        "pointer": "/items/26",
+        "retrievedAt": "2026-10-02T07:59:12.057850Z",
+        "sha256": "1ba1f96cadab4501d99432e79cdf17779949de76af862fba5087efe1532ff1e3",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0"
+      },
+      "type": "tabular"
+    },
+    {
+      "description": "All usual residents",
+      "id": "atc-ts-hduc-ur-asp-ltla",
+      "label": "All usual residents",
+      "name": "atc-ts-hduc-ur-asp-ltla",
+      "nativeIdentityField": "name",
+      "resource": "https://api.beta.ons.gov.uk/v1/population-types",
+      "sourceEvidence": {
+        "pointer": "/items/27",
+        "retrievedAt": "2026-10-02T07:59:12.057850Z",
+        "sha256": "1ba1f96cadab4501d99432e79cdf17779949de76af862fba5087efe1532ff1e3",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0"
+      },
+      "type": "tabular"
+    },
+    {
+      "description": "All usual residents",
+      "id": "atc-ts-hous-ur-ct-oa",
+      "label": "All usual residents",
+      "name": "atc-ts-hous-ur-ct-oa",
+      "nativeIdentityField": "name",
+      "resource": "https://api.beta.ons.gov.uk/v1/population-types",
+      "sourceEvidence": {
+        "pointer": "/items/28",
+        "retrievedAt": "2026-10-02T07:59:12.057850Z",
+        "sha256": "1ba1f96cadab4501d99432e79cdf17779949de76af862fba5087efe1532ff1e3",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0"
+      },
+      "type": "tabular"
+    },
+    {
+      "description": "All usual residents in communal establishments",
+      "id": "atc-ts-hous-urce-ct-msoa",
+      "label": "All usual residents in communal establishments",
+      "name": "atc-ts-hous-urce-ct-msoa",
+      "nativeIdentityField": "name",
+      "resource": "https://api.beta.ons.gov.uk/v1/population-types",
+      "sourceEvidence": {
+        "pointer": "/items/29",
+        "retrievedAt": "2026-10-02T07:59:12.057850Z",
+        "sha256": "1ba1f96cadab4501d99432e79cdf17779949de76af862fba5087efe1532ff1e3",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0"
+      },
+      "type": "tabular"
+    },
+    {
+      "description": "All usual residents",
+      "id": "atc-ts-lmttw-ur-ct-oa",
+      "label": "All usual residents",
+      "name": "atc-ts-lmttw-ur-ct-oa",
+      "nativeIdentityField": "name",
+      "resource": "https://api.beta.ons.gov.uk/v1/population-types",
+      "sourceEvidence": {
+        "pointer": "/items/30",
+        "retrievedAt": "2026-10-02T07:59:12.057850Z",
+        "sha256": "1ba1f96cadab4501d99432e79cdf17779949de76af862fba5087efe1532ff1e3",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0"
+      },
+      "type": "tabular"
+    },
+    {
+      "description": "All usual residents aged 16 years and over",
+      "id": "atc-ts-sogi-ur16o-ct-ltla",
+      "label": "All usual residents aged 16 years and over",
+      "name": "atc-ts-sogi-ur16o-ct-ltla",
+      "nativeIdentityField": "name",
+      "resource": "https://api.beta.ons.gov.uk/v1/population-types",
+      "sourceEvidence": {
+        "pointer": "/items/31",
+        "retrievedAt": "2026-10-02T07:59:12.057850Z",
+        "sha256": "1ba1f96cadab4501d99432e79cdf17779949de76af862fba5087efe1532ff1e3",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0"
+      },
+      "type": "tabular"
+    },
+    {
+      "description": "All usual residents aged 16 years and over",
+      "id": "atc-ts-sogi-ur16o-ct-msoa",
+      "label": "All usual residents aged 16 years and over",
+      "name": "atc-ts-sogi-ur16o-ct-msoa",
+      "nativeIdentityField": "name",
+      "resource": "https://api.beta.ons.gov.uk/v1/population-types",
+      "sourceEvidence": {
+        "pointer": "/items/32",
+        "retrievedAt": "2026-10-02T07:59:12.057850Z",
+        "sha256": "1ba1f96cadab4501d99432e79cdf17779949de76af862fba5087efe1532ff1e3",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0"
+      },
+      "type": "tabular"
+    },
+    {
+      "description": "All usual residents who have previously served in the UK armed forces",
+      "id": "atc-ts-vets-vetsur-ct-msoa",
+      "label": "All usual residents who have previously served in the UK armed forces",
+      "name": "atc-ts-vets-vetsur-ct-msoa",
+      "nativeIdentityField": "name",
+      "resource": "https://api.beta.ons.gov.uk/v1/population-types",
+      "sourceEvidence": {
+        "pointer": "/items/33",
+        "retrievedAt": "2026-10-02T07:59:12.057850Z",
+        "sha256": "1ba1f96cadab4501d99432e79cdf17779949de76af862fba5087efe1532ff1e3",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0"
+      },
+      "type": "tabular"
+    },
+    {
+      "description": "Either one usual resident living alone or a group of people who share cooking and living facilities, where that group includes at least one usual resident.",
+      "id": "HH",
+      "label": "All households",
+      "name": "HH",
+      "nativeIdentityField": "name",
+      "resource": "https://api.beta.ons.gov.uk/v1/population-types",
+      "sourceEvidence": {
+        "pointer": "/items/34",
+        "retrievedAt": "2026-10-02T07:59:12.057850Z",
+        "sha256": "1ba1f96cadab4501d99432e79cdf17779949de76af862fba5087efe1532ff1e3",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0"
+      },
+      "type": "microdata"
+    },
+    {
+      "description": "A person who serves as a reference point, mainly based on economic activity, to characterise a whole household.",
+      "id": "HRP",
+      "label": "All Household Reference Persons",
+      "name": "HRP",
+      "nativeIdentityField": "name",
+      "resource": "https://api.beta.ons.gov.uk/v1/population-types",
+      "sourceEvidence": {
+        "pointer": "/items/35",
+        "retrievedAt": "2026-10-02T07:59:12.057850Z",
+        "sha256": "1ba1f96cadab4501d99432e79cdf17779949de76af862fba5087efe1532ff1e3",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0"
+      },
+      "type": "microdata"
+    },
+    {
+      "description": "A usual resident who lives in a place that provides managed full-time or part-time supervision of residential accommodation such as a university hall of residence, care home or prison.",
+      "id": "UR_CE",
+      "label": "All usual residents in communal establishments",
+      "name": "UR_CE",
+      "nativeIdentityField": "name",
+      "resource": "https://api.beta.ons.gov.uk/v1/population-types",
+      "sourceEvidence": {
+        "pointer": "/items/36",
+        "retrievedAt": "2026-10-02T07:59:12.057850Z",
+        "sha256": "1ba1f96cadab4501d99432e79cdf17779949de76af862fba5087efe1532ff1e3",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0"
+      },
+      "type": "microdata"
+    },
+    {
+      "description": "A person who usually lives in England or Wales, and in a household.",
+      "id": "UR_HH",
+      "label": "All usual residents in households",
+      "name": "UR_HH",
+      "nativeIdentityField": "name",
+      "resource": "https://api.beta.ons.gov.uk/v1/population-types",
+      "sourceEvidence": {
+        "pointer": "/items/37",
+        "retrievedAt": "2026-10-02T07:59:12.057850Z",
+        "sha256": "1ba1f96cadab4501d99432e79cdf17779949de76af862fba5087efe1532ff1e3",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0"
+      },
+      "type": "microdata"
+    },
+    {
+      "description": "The main population base for census statistics. It includes people usually living in England and Wales and excludes non-UK born short-term residents and visitors.",
+      "id": "UR",
+      "label": "All usual residents",
+      "name": "UR",
+      "nativeIdentityField": "name",
+      "resource": "https://api.beta.ons.gov.uk/v1/population-types",
+      "sourceEvidence": {
+        "pointer": "/items/38",
+        "retrievedAt": "2026-10-02T07:59:12.057850Z",
+        "sha256": "1ba1f96cadab4501d99432e79cdf17779949de76af862fba5087efe1532ff1e3",
+        "status": 200,
+        "url": "https://api.beta.ons.gov.uk/v1/population-types?limit=1000&offset=0"
+      },
+      "type": "microdata"
+    }
+  ],
+  "schema": "okf-plus-source-snapshot.v1"
+}

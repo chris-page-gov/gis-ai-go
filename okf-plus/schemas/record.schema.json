@@ -1,0 +1,293 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/schemas/record.schema.json",
+  "title": "OKF+ project metadata record",
+  "type": "object",
+  "required": [
+    "@context",
+    "@id",
+    "@type",
+    "type",
+    "title",
+    "description",
+    "nativeIdentifier",
+    "sourceFamily",
+    "resource",
+    "status",
+    "generated",
+    "assertionStatus",
+    "reviewStatus",
+    "tags",
+    "sources",
+    "temporal",
+    "update",
+    "rights",
+    "limitations",
+    "details"
+  ],
+  "properties": {
+    "@context": {
+      "const": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/context.jsonld"
+    },
+    "@id": {
+      "type": "string",
+      "pattern": "^https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/"
+    },
+    "@type": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "type": {
+      "enum": [
+        "Dataset",
+        "Collection",
+        "Documentation",
+        "Concept",
+        "SourceFamily",
+        "Specification",
+        "DataService"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string"
+    },
+    "nativeIdentifier": {
+      "type": "string"
+    },
+    "sourceFamily": {
+      "type": "string"
+    },
+    "resource": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "stable",
+        "deprecated"
+      ]
+    },
+    "generated": {
+      "type": "object",
+      "required": [
+        "by"
+      ],
+      "properties": {
+        "by": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "assertionStatus": {
+      "enum": [
+        "official",
+        "normalised",
+        "inferred",
+        "model-derived"
+      ]
+    },
+    "reviewStatus": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "resource"
+        ],
+        "properties": {
+          "resource": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "temporal": {
+      "type": "object",
+      "required": [
+        "status",
+        "kind",
+        "start",
+        "end",
+        "sourceField",
+        "note"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "not-evidenced",
+            "not-applicable",
+            "source-stated",
+            "normalised-source-options"
+          ]
+        },
+        "kind": {
+          "type": "string"
+        },
+        "start": {
+          "type": [
+            "string",
+            "integer",
+            "null"
+          ]
+        },
+        "end": {
+          "type": [
+            "string",
+            "integer",
+            "null"
+          ]
+        },
+        "sourceField": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "update": {
+      "type": "object",
+      "required": [
+        "frequency",
+        "releaseCatalogue",
+        "releaseFeed",
+        "nextRelease",
+        "metadataModified",
+        "releaseVersion"
+      ],
+      "properties": {
+        "frequency": {
+          "type": "object",
+          "required": [
+            "status",
+            "label",
+            "iri",
+            "sourceField"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "not-evidenced",
+                "not-applicable",
+                "source-stated"
+              ]
+            },
+            "label": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "iri": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "sourceField": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "releaseCatalogue": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "releaseFeed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "nextRelease": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "metadataModified": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "releaseVersion": {
+          "type": [
+            "string",
+            "number",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "rights": {
+      "type": "object",
+      "required": [
+        "metadata",
+        "describedData",
+        "retrievalAuthority",
+        "executionAdmitted"
+      ],
+      "properties": {
+        "metadata": {
+          "type": "string"
+        },
+        "describedData": {
+          "type": "string"
+        },
+        "retrievalAuthority": {
+          "type": "string"
+        },
+        "executionAdmitted": {
+          "const": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "details": {
+      "type": "object"
+    },
+    "schemaEvidence": {
+      "type": "object"
+    }
+  },
+  "patternProperties": {
+    "^[a-z][A-Za-z0-9-]*:": {}
+  },
+  "additionalProperties": false
+}

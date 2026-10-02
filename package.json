@@ -56,7 +56,9 @@
     "validate:secrets": "uv run --locked --cache-dir .uv-cache python scripts/scan_secrets.py",
     "render:diagrams": "node scripts/render_diagrams.mjs --output artifacts/diagrams",
     "sbom": "uv run --locked --cache-dir .uv-cache python scripts/generate_sbom.py --output artifacts/sbom.cdx.json",
-    "check": "pnpm run typecheck && pnpm run test && pnpm run test:browser && pnpm run validate:release-reproducibility && pnpm run validate:versions && pnpm run validate:changelog-fragments && pnpm run validate:public-read-v2 && pnpm run validate:contracts && pnpm run validate:links && pnpm run validate:secrets && pnpm run render:diagrams && pnpm run sbom"
+    "check": "pnpm run typecheck && pnpm run test && pnpm run test:browser && pnpm run validate:release-reproducibility && pnpm run validate:versions && pnpm run validate:changelog-fragments && pnpm run validate:public-read-v2 && pnpm run validate:contracts && pnpm run validate:links && pnpm run validate:secrets && pnpm run render:diagrams && pnpm run sbom && pnpm run check:okf-plus",
+    "build:okf-plus": "uv run --locked --cache-dir .uv-cache python scripts/okf_plus/build.py",
+    "check:okf-plus": "uv run --locked --cache-dir .uv-cache python scripts/okf_plus/verify.py"
   },
   "devDependencies": {
     "@gis-ai-go/tool-registry": "workspace:*",

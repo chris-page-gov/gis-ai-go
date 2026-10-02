@@ -1,0 +1,44 @@
+{
+  "coverage": {
+    "catalogueComplete": false,
+    "duplicateCount": 0,
+    "limitations": [
+      "Pagination uses count; distinct_items_count and unfiltered content-type buckets are separate facts.",
+      "Server result-window or capture ceilings remain explicit partial coverage; they are not bypassed.",
+      "CDID, dataset_id and URI remain separate source-native identity fields.",
+      "Completeness is confined to the returned filtered catalogue; not all ONS data or website content.",
+      "The live index is not transactionally frozen; stable counts cannot exclude equal-count substitutions.",
+      "Only selected metadata is retained; no observations or download payloads are requested.",
+      "Contact fields and unreviewed nested content are excluded from the public projection.",
+      "Release dates do not establish statistical observation periods; native representations are not merged."
+    ],
+    "pageCounts": [],
+    "parameters": {
+      "content_type": "api_dataset_landing_page",
+      "highlight": "false",
+      "q": "",
+      "sort": "title"
+    },
+    "reportedTotal": null,
+    "requestStatuses": [
+      400
+    ],
+    "retrievedUnique": 0,
+    "rowsReceived": 0,
+    "stableReportedTotal": true,
+    "stopReason": "request-failed",
+    "unit": "ONS website api_dataset_landing_page URI representation"
+  },
+  "family": "ons-website-api-dataset-landing-page",
+  "receipts": [
+    {
+      "error": "HTTPError",
+      "retrievedAt": "2026-10-02T07:58:54.755152Z",
+      "retryAfter": null,
+      "status": 400,
+      "url": "https://api.beta.ons.gov.uk/v1/search?q=&content_type=api_dataset_landing_page&sort=title&highlight=false&limit=1000&offset=0"
+    }
+  ],
+  "records": [],
+  "schema": "okf-plus-source-snapshot.v1"
+}

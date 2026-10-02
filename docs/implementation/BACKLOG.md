@@ -57,6 +57,14 @@ and milestones are the source of truth for item-level status.
 - `SEC-404` — complete release security assessment and remediation.
 - `REL-405` — complete supported-release and provenance evidence.
 
+## OS and ONS knowledge expansion
+
+- [OKF-220 #140](https://github.com/chris-page-gov/gis-ai-go/issues/140) — build the
+  [OS/ONS metadata and schema OKF+](OKF-220_METADATA_KNOWLEDGE_FRAMEWORK.md), with
+  source-native identities, Markdown/YAML-LD, provenance, measured coverage,
+  search, update/release discovery, temporal evidence and geospatial concepts.
+  Catalogue completeness and installed Ask OKF acceptance are separate gates.
+
 ## Conditional integrations
 
 - `SITES-218` — implement and assess the [private Sites MCP pilot](SITES-218_PRIVATE_MCP_PILOT.md),

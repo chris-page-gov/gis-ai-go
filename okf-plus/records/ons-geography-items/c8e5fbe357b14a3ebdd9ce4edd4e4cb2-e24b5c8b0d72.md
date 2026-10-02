@@ -1,0 +1,166 @@
+---
+{
+  "@context": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/context.jsonld",
+  "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-geography-items/c8e5fbe357b14a3ebdd9ce4edd4e4cb2",
+  "@type": [
+    "dcat:Dataset",
+    "okfp:MetadataRecord"
+  ],
+  "type": "Dataset",
+  "title": "Local Skills Improvement Plan Areas (October 2025) Boundaries EN BUC",
+  "description": "This file contains the digital vector boundaries for Local Skills Improvement Plan Areas, in England, as at October 2025. The boundaries available are: (BUC) Ultra Generalised (500m) - clipped to the coastline (Mean High Water Mark). Contains both Ordnance Survey and ONS Intellectual Property Rights. REST URL of Feature Access Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/LSIP_OCT_2025_EN_BUC/FeatureServer REST URL of WFS Server – https://dservices1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/services/Local_Skills_Improvement_Plan_Areas_(October_2025)_Boundaries_EN_BUC/WFSServer?request=getcapabilities&service=wfs REST URL of MapServer – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Local_Skills_Improvement_Plan_Areas_(October_2025)_Boundaries_EN_BUC/MapServer",
+  "nativeIdentifier": "c8e5fbe357b14a3ebdd9ce4edd4e4cb2",
+  "sourceFamily": "ons-geography-items",
+  "resource": "https://geoportal.statistics.gov.uk/items/c8e5fbe357b14a3ebdd9ce4edd4e4cb2",
+  "status": "draft",
+  "generated": {
+    "by": "gis-ai-go OKF+ source producer"
+  },
+  "okfp:machineImported": true,
+  "assertionStatus": "normalised",
+  "reviewStatus": "not-human-reviewed",
+  "tags": [
+    "Boundaries",
+    "BDY_OTH",
+    "England",
+    "EN",
+    "Local Skills Improvement Plan Areas",
+    "BDY_LSIP",
+    "LSIP",
+    "Other Boundaries",
+    "2025",
+    "OCT_2025",
+    "Feature Service"
+  ],
+  "sources": [
+    {
+      "resource": "https://www.arcgis.com/sharing/rest/search?f=json&q=orgid%3AESMARspQHYMw9BZ9&num=100&start=6301&sortField=created&sortOrder=asc",
+      "retrievedAt": "2026-10-02T01:28:45.613584Z",
+      "responseSha256": "86ba1d0827620b73f335037b268218dfcc2857fe8d5d267ff9e786b507c5de21",
+      "sourcePointer": "/results/0",
+      "normalisedSource": "okf-plus/source/ons-geography-items.json",
+      "normalisedPointer": "/records/6300",
+      "normalisedRecordSha256": "ca275e605f5f461e51f2da563bad6bbd3611208991c0e3efcb817733acf2590c",
+      "evidenceKind": "captured-public-metadata",
+      "sourcePointerStatus": "exact-native-id-match"
+    }
+  ],
+  "prov:wasDerivedFrom": {
+    "@id": "https://geoportal.statistics.gov.uk/items/c8e5fbe357b14a3ebdd9ce4edd4e4cb2"
+  },
+  "dcterms:conformsTo": {
+    "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/profile/v1"
+  },
+  "temporal": {
+    "status": "not-evidenced",
+    "kind": "dataset-reference-period",
+    "start": null,
+    "end": null,
+    "sourceField": null,
+    "note": "No supported reference-period extent in captured metadata; release and catalogue dates are separate."
+  },
+  "update": {
+    "frequency": {
+      "status": "not-evidenced",
+      "label": null,
+      "iri": null,
+      "sourceField": null
+    },
+    "releaseCatalogue": [
+      "https://geoportal.statistics.gov.uk/"
+    ],
+    "releaseFeed": [],
+    "nextRelease": null,
+    "metadataModified": "2026-03-03T09:30:32Z",
+    "releaseVersion": null
+  },
+  "rights": {
+    "metadata": "Public metadata citation and factual normalisation; source rights retained.",
+    "describedData": "https://www.ons.gov.uk/methodology/geography/licences",
+    "retrievalAuthority": "metadata-only",
+    "executionAdmitted": false
+  },
+  "limitations": [
+    "A date in an item title is not automatically the observation/reference range.",
+    "Portal items can be different representations or vintages of one product."
+  ],
+  "details": {
+    "access": "public",
+    "categories": [
+      "/Categories/Boundaries - Other",
+      "/Categories/LATEST",
+      "/Categories/ONS Geography Open Data"
+    ],
+    "created": 1766043557000,
+    "culture": "en-gb",
+    "description": "This file contains the digital vector boundaries for Local Skills Improvement Plan Areas, in England, as at October 2025. The boundaries available are: (BUC) Ultra Generalised (500m) - clipped to the coastline (Mean High Water Mark). Contains both Ordnance Survey and ONS Intellectual Property Rights. REST URL of Feature Access Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/LSIP_OCT_2025_EN_BUC/FeatureServer REST URL of WFS Server – https://dservices1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/services/Local_Skills_Improvement_Plan_Areas_(October_2025)_Boundaries_EN_BUC/WFSServer?request=getcapabilities&service=wfs REST URL of MapServer – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Local_Skills_Improvement_Plan_Areas_(October_2025)_Boundaries_EN_BUC/MapServer",
+    "extent": [
+      [
+        -7.004558712781008,
+        49.88101634610532
+      ],
+      [
+        2.0737271357311893,
+        55.81118865708003
+      ]
+    ],
+    "id": "c8e5fbe357b14a3ebdd9ce4edd4e4cb2",
+    "licenseInfo": "<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.ons.gov.uk/methodology/geography/licences\">https://www.ons.gov.uk/methodology/geography/licences</a></p>",
+    "modified": 1772530232000,
+    "organisationId": "ESMARspQHYMw9BZ9",
+    "snippet": "Other Boundaries",
+    "spatialReference": "27700",
+    "tags": [
+      "Boundaries",
+      "BDY_OTH",
+      "England",
+      "EN",
+      "Local Skills Improvement Plan Areas",
+      "BDY_LSIP",
+      "LSIP",
+      "Other Boundaries",
+      "2025",
+      "OCT_2025"
+    ],
+    "title": "Local Skills Improvement Plan Areas (October 2025) Boundaries EN BUC",
+    "type": "Feature Service",
+    "typeKeywords": [
+      "ArcGIS Server",
+      "Data",
+      "Feature Access",
+      "Feature Service",
+      "Metadata",
+      "Service",
+      "Singlelayer",
+      "Hosted Service"
+    ],
+    "url": "https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/LSIP_OCT_2025_EN_BUC/FeatureServer"
+  },
+  "dcterms:publisher": {
+    "@id": "https://www.ons.gov.uk/"
+  }
+}
+---
+
+# Local Skills Improvement Plan Areas (October 2025) Boundaries EN BUC
+
+This file contains the digital vector boundaries for Local Skills Improvement Plan Areas, in England, as at October 2025. The boundaries available are: (BUC) Ultra Generalised (500m) - clipped to the coastline (Mean High Water Mark). Contains both Ordnance Survey and ONS Intellectual Property Rights. REST URL of Feature Access Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/LSIP_OCT_2025_EN_BUC/FeatureServer REST URL of WFS Server – https://dservices1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/services/Local_Skills_Improvement_Plan_Areas_(October_2025)_Boundaries_EN_BUC/WFSServer?request=getcapabilities&service=wfs REST URL of MapServer – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Local_Skills_Improvement_Plan_Areas_(October_2025)_Boundaries_EN_BUC/MapServer
+
+Native identifier: `c8e5fbe357b14a3ebdd9ce4edd4e4cb2`.
+
+Source family: `ons-geography-items`. Assertion: normalised metadata; independent human review is not recorded.
+
+[Official source](https://geoportal.statistics.gov.uk/items/c8e5fbe357b14a3ebdd9ce4edd4e4cb2)
+
+Update cadence: not evidenced in captured metadata.
+Temporal evidence: not-evidenced (dataset-reference-period); start not stated, end not stated.
+No supported reference-period extent in captured metadata; release and catalogue dates are separate.
+
+[Release catalogue or change-discovery route](https://geoportal.statistics.gov.uk/)
+
+## Evidence limits
+
+- A date in an item title is not automatically the observation/reference range.
+- Portal items can be different representations or vintages of one product.
+
+The front matter retains source receipts, rights, native metadata and schema facts. Discovery does not authorise data access.

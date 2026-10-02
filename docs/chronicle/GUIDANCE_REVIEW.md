@@ -1,5 +1,18 @@
 # Guidance review and model transitions
 
+## 2 October 2026: unattended permission preflight
+
+An optional browser/CDP catalogue check in OKF-220 waited for a permission
+decision overnight and blocked coordination for approximately 5 hours 46
+minutes. The owner reported the lost time. This was an approval dependency, not
+source latency. `AGENTS.md` now requires likely interactive dependencies to be
+identified before unattended work, required access to be checked while the owner
+is present, and optional browser acceptance to stay separate from independent
+non-interactive capture and assurance. Existing approval controls remain in
+force; this is a workflow correction, not a model change or a claim that all
+future prompts can be predicted. The remaining task uses bounded, resumable
+command-line acquisition and offline checks.
+
 ## 1 October 2026: Sites pilot capability and method review
 
 The owner authorised a fresh assessment of Sites and the current Codex-assisted

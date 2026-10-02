@@ -1,0 +1,152 @@
+---
+{
+  "@context": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/context.jsonld",
+  "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-geography-items/8b282f68feca4e65ab1fac6b72e4ed32",
+  "@type": [
+    "dcat:Dataset",
+    "okfp:MetadataRecord"
+  ],
+  "type": "Dataset",
+  "title": "Standard Area Measurements (2015) User Guide",
+  "description": "This document is the Standard Area Measurements - 2015 User Guide. It provides information regarding the Standard Area Measurements (SAM) products including: types of measurement; data tolerance, accuracy and currency; guidance on the use of measurements for statistical purposes; and conditions of use. (File Size - 561 KB)",
+  "nativeIdentifier": "8b282f68feca4e65ab1fac6b72e4ed32",
+  "sourceFamily": "ons-geography-items",
+  "resource": "https://geoportal.statistics.gov.uk/items/8b282f68feca4e65ab1fac6b72e4ed32",
+  "status": "draft",
+  "generated": {
+    "by": "gis-ai-go OKF+ source producer"
+  },
+  "okfp:machineImported": true,
+  "assertionStatus": "normalised",
+  "reviewStatus": "not-human-reviewed",
+  "tags": [
+    "Documents",
+    "Standard Area Measurements",
+    "User Guidances",
+    "DOC_UG",
+    "DOC_UG_SAM",
+    "PDF"
+  ],
+  "sources": [
+    {
+      "resource": "https://www.arcgis.com/sharing/rest/search?f=json&q=orgid%3AESMARspQHYMw9BZ9&num=100&start=401&sortField=created&sortOrder=asc",
+      "retrievedAt": "2026-10-02T01:27:35.962002Z",
+      "responseSha256": "f834ce52fa6e6a2cc6d487ecbf249fa5af7ee9cb3d5b8b08bdcaff3c297a8a2b",
+      "sourcePointer": "/results/93",
+      "normalisedSource": "okf-plus/source/ons-geography-items.json",
+      "normalisedPointer": "/records/493",
+      "normalisedRecordSha256": "813da42cb38078821f0a35f8879a48ac268ac4e0c50dd1907e2633ada89a2f01",
+      "evidenceKind": "captured-public-metadata",
+      "sourcePointerStatus": "exact-native-id-match"
+    }
+  ],
+  "prov:wasDerivedFrom": {
+    "@id": "https://geoportal.statistics.gov.uk/items/8b282f68feca4e65ab1fac6b72e4ed32"
+  },
+  "dcterms:conformsTo": {
+    "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/profile/v1"
+  },
+  "temporal": {
+    "status": "not-evidenced",
+    "kind": "dataset-reference-period",
+    "start": null,
+    "end": null,
+    "sourceField": null,
+    "note": "No supported reference-period extent in captured metadata; release and catalogue dates are separate."
+  },
+  "update": {
+    "frequency": {
+      "status": "not-evidenced",
+      "label": null,
+      "iri": null,
+      "sourceField": null
+    },
+    "releaseCatalogue": [
+      "https://geoportal.statistics.gov.uk/"
+    ],
+    "releaseFeed": [],
+    "nextRelease": null,
+    "metadataModified": "2025-08-11T07:48:59Z",
+    "releaseVersion": null
+  },
+  "rights": {
+    "metadata": "Public metadata citation and factual normalisation; source rights retained.",
+    "describedData": "https://www.ons.gov.uk/methodology/geography/licences",
+    "retrievalAuthority": "metadata-only",
+    "executionAdmitted": false
+  },
+  "limitations": [
+    "A date in an item title is not automatically the observation/reference range.",
+    "Portal items can be different representations or vintages of one product."
+  ],
+  "details": {
+    "access": "public",
+    "categories": [
+      "/Categories/ONS Geography Open Data",
+      "/Categories/Documents/User Guides"
+    ],
+    "created": 1658310586000,
+    "culture": "en-us",
+    "description": "This document is the Standard Area Measurements - 2015 User Guide. It provides information regarding the Standard Area Measurements (SAM) products including: types of measurement; data tolerance, accuracy and currency; guidance on the use of measurements for statistical purposes; and conditions of use. (File Size - 561 KB)",
+    "extent": [
+      [
+        -8.7,
+        48.3
+      ],
+      [
+        2.2,
+        61
+      ]
+    ],
+    "id": "8b282f68feca4e65ab1fac6b72e4ed32",
+    "licenseInfo": "<a href='https://www.ons.gov.uk/methodology/geography/licences' target='_blank' rel='nofollow ugc noopener noreferrer'>https://www.ons.gov.uk/methodology/geography/licences</a>",
+    "modified": 1754898539000,
+    "organisationId": "ESMARspQHYMw9BZ9",
+    "snippet": "Standard Area Measurements User Guide",
+    "spatialReference": null,
+    "tags": [
+      "Documents",
+      "Standard Area Measurements",
+      "User Guidances",
+      "DOC_UG",
+      "DOC_UG_SAM"
+    ],
+    "title": "Standard Area Measurements (2015) User Guide",
+    "type": "PDF",
+    "typeKeywords": [
+      "Copy Item",
+      "Data",
+      "Document",
+      "Metadata",
+      "PDF"
+    ],
+    "url": null
+  },
+  "dcterms:publisher": {
+    "@id": "https://www.ons.gov.uk/"
+  }
+}
+---
+
+# Standard Area Measurements (2015) User Guide
+
+This document is the Standard Area Measurements - 2015 User Guide. It provides information regarding the Standard Area Measurements (SAM) products including: types of measurement; data tolerance, accuracy and currency; guidance on the use of measurements for statistical purposes; and conditions of use. (File Size - 561 KB)
+
+Native identifier: `8b282f68feca4e65ab1fac6b72e4ed32`.
+
+Source family: `ons-geography-items`. Assertion: normalised metadata; independent human review is not recorded.
+
+[Official source](https://geoportal.statistics.gov.uk/items/8b282f68feca4e65ab1fac6b72e4ed32)
+
+Update cadence: not evidenced in captured metadata.
+Temporal evidence: not-evidenced (dataset-reference-period); start not stated, end not stated.
+No supported reference-period extent in captured metadata; release and catalogue dates are separate.
+
+[Release catalogue or change-discovery route](https://geoportal.statistics.gov.uk/)
+
+## Evidence limits
+
+- A date in an item title is not automatically the observation/reference range.
+- Portal items can be different representations or vintages of one product.
+
+The front matter retains source receipts, rights, native metadata and schema facts. Discovery does not authorise data access.

@@ -1,0 +1,7260 @@
+---
+{
+  "@context": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/context.jsonld",
+  "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-nomis-datasets/NM_39_1",
+  "@type": [
+    "dcat:Dataset",
+    "okfp:MetadataRecord"
+  ],
+  "type": "Dataset",
+  "title": "Jobseeker's Allowance flows - seasonally adjusted",
+  "description": "Nomis dataset definition with native SDMX components.",
+  "nativeIdentifier": "NM_39_1",
+  "sourceFamily": "ons-nomis-datasets",
+  "resource": "https://www.nomisweb.co.uk/api/v01/dataset/NM_39_1/def.sdmx.json",
+  "status": "draft",
+  "generated": {
+    "by": "gis-ai-go OKF+ source producer"
+  },
+  "okfp:machineImported": true,
+  "assertionStatus": "normalised",
+  "reviewStatus": "not-human-reviewed",
+  "tags": [
+    "Claimants",
+    "JSA",
+    "Seasonally adjusted"
+  ],
+  "sources": [
+    {
+      "resource": "https://www.nomisweb.co.uk/api/v01/dataset/def.sdmx.json",
+      "retrievedAt": "2026-10-02T01:18:03.834666Z",
+      "responseSha256": "e782c84721db296c396660a4df4b65fa967b9cbab0b52768e1262659e37e9a54",
+      "sourcePointer": "/structure/keyfamilies/keyfamily/28",
+      "normalisedSource": "okf-plus/source/ons-nomis-datasets.json",
+      "normalisedPointer": "/records/28",
+      "normalisedRecordSha256": "2f9cf7d50f93691f72fd101dce037e3f9338b837ab9dc1eff0aa125870eb138b",
+      "evidenceKind": "captured-public-metadata",
+      "sourcePointerStatus": "exact-native-id-match"
+    },
+    {
+      "resource": "https://www.nomisweb.co.uk/api/v01/dataset/NM_39_1/time.def.sdmx.json",
+      "retrievedAt": "2026-10-02T07:32:44.781594Z",
+      "responseSha256": "8571201e0e89a9a23a4fbc8be8528b6896067326891ebac338a75c7970015914",
+      "sourcePointer": null,
+      "normalisedSource": "okf-plus/source/ons-nomis-time-options.json",
+      "normalisedPointer": "/records/28",
+      "normalisedRecordSha256": "b0fbc460b7db6df9ddceb8c4e925b930963a6096ade14e232969ea94ab0badfb",
+      "evidenceKind": "captured-public-metadata",
+      "sourcePointerStatus": "catalogue-document"
+    }
+  ],
+  "prov:wasDerivedFrom": {
+    "@id": "https://www.nomisweb.co.uk/api/v01/dataset/NM_39_1/def.sdmx.json"
+  },
+  "dcterms:conformsTo": {
+    "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/profile/v1"
+  },
+  "temporal": {
+    "status": "normalised-source-options",
+    "kind": "available-native-period-options",
+    "start": "1988-11",
+    "end": "2025-12",
+    "sourceField": "timeMetadata.codes",
+    "note": "Extrema of the complete published native period-code list; no continuity or populated observation cells are inferred.",
+    "precision": "month",
+    "derivation": "ONS-native-ISO-period-code.v1"
+  },
+  "update": {
+    "frequency": {
+      "status": "not-evidenced",
+      "label": null,
+      "iri": null,
+      "sourceField": null
+    },
+    "releaseCatalogue": [
+      "https://www.nomisweb.co.uk/releasecalendar.asp"
+    ],
+    "releaseFeed": [],
+    "nextRelease": null,
+    "metadataModified": "2026-01-20 07:00:00",
+    "releaseVersion": null
+  },
+  "rights": {
+    "metadata": "Public metadata citation and factual normalisation; source rights retained.",
+    "describedData": "Not established by metadata discovery; consult source-specific terms.",
+    "retrievalAuthority": "metadata-only",
+    "executionAdmitted": false
+  },
+  "limitations": [
+    "FREQ denotes statistical observation frequency; it does not establish release cadence.",
+    "FirstReleased and LastUpdated describe publication history, not the observation date range.",
+    "Time-option extrema describe available native codes; continuity and populated observation cells have not been established."
+  ],
+  "details": {
+    "agencyid": "NOMIS",
+    "annotations": {
+      "FirstReleased": "2004-04-16 09:30:00",
+      "Keywords": "Claimants,JSA,Seasonally adjusted",
+      "LastUpdated": "2026-01-20 07:00:00",
+      "Mnemonic": "usaf",
+      "Status": "Current (being actively updated)",
+      "Units": "Persons"
+    },
+    "components": {
+      "attribute": [
+        {
+          "assignmentstatus": "Mandatory",
+          "attachmentlevel": "Observation",
+          "codelist": "CL_OBS_STATUS",
+          "conceptref": "OBS_STATUS"
+        },
+        {
+          "assignmentstatus": "Conditional",
+          "attachmentlevel": "Observation",
+          "codelist": "CL_OBS_CONF",
+          "conceptref": "OBS_CONF"
+        },
+        {
+          "assignmentstatus": "Conditional",
+          "attachmentlevel": "Observation",
+          "codelist": "CL_OBS_ROUND",
+          "conceptref": "OBS_ROUND"
+        },
+        {
+          "assignmentstatus": "Conditional",
+          "attachmentlevel": "Series",
+          "codelist": "CL_UNIT_MULT",
+          "conceptref": "UNIT_MULTIPLIER"
+        },
+        {
+          "assignmentstatus": "Mandatory",
+          "attachmentlevel": "Series",
+          "codelist": "CL_TIME_FORMAT",
+          "conceptref": "TIME_FORMAT"
+        },
+        {
+          "assignmentstatus": "Mandatory",
+          "attachmentlevel": "Series",
+          "codelist": "CL_UNIT",
+          "conceptref": "UNIT"
+        },
+        {
+          "assignmentstatus": "Mandatory",
+          "attachmentlevel": "Series",
+          "conceptref": "TITLE_COMPL"
+        }
+      ],
+      "dimension": [
+        {
+          "codelist": "CL_39_1_GEOGRAPHY",
+          "conceptref": "GEOGRAPHY"
+        },
+        {
+          "codelist": "CL_39_1_SEX",
+          "conceptref": "SEX"
+        },
+        {
+          "codelist": "CL_39_1_FLOW",
+          "conceptref": "FLOW"
+        },
+        {
+          "codelist": "CL_39_1_MEASURES",
+          "conceptref": "MEASURES"
+        },
+        {
+          "codelist": "CL_39_1_FREQ",
+          "conceptref": "FREQ",
+          "isfrequencydimension": "true"
+        }
+      ],
+      "primarymeasure": {
+        "conceptref": "OBS_VALUE"
+      },
+      "timedimension": {
+        "codelist": "CL_39_1_TIME",
+        "conceptref": "TIME"
+      }
+    },
+    "id": "NM_39_1",
+    "name": {
+      "lang": "en",
+      "value": "Jobseeker's Allowance flows - seasonally adjusted"
+    },
+    "uri": "Nm-39d1",
+    "version": 1.0,
+    "timeMetadata": {
+      "bounds": {
+        "basis": "Nomis returned TIME codelist native codes; no observations",
+        "comparisonRule": "ONS-native-ISO-period-code.v1",
+        "continuityEstablished": false,
+        "granularity": "month",
+        "maximumNative": "2025-12",
+        "minimumNative": "1988-11",
+        "status": "known-option-extrema"
+      },
+      "codeListId": "CL_39_1_TIME",
+      "id": "NM_39_1",
+      "metadataEvidence": {
+        "retrievedAt": "2026-10-02T07:32:44.781594Z",
+        "sha256": "8571201e0e89a9a23a4fbc8be8528b6896067326891ebac338a75c7970015914",
+        "status": 200,
+        "url": "https://www.nomisweb.co.uk/api/v01/dataset/NM_39_1/time.def.sdmx.json"
+      },
+      "metadataStatus": "captured",
+      "returnedCodeCount": 445,
+      "timeOptionsTable": {
+        "encoding": "gis-ai-go.native-time-table.v1",
+        "columns": [
+          "value",
+          "description",
+          "revisionMetadata"
+        ],
+        "revisionColumns": [
+          "title",
+          "value"
+        ],
+        "absentDescription": null,
+        "rows": [
+          [
+            "1988-11",
+            {
+              "lang": "en",
+              "value": "November 1988"
+            },
+            []
+          ],
+          [
+            "1988-12",
+            {
+              "lang": "en",
+              "value": "December 1988"
+            },
+            []
+          ],
+          [
+            "1989-01",
+            {
+              "lang": "en",
+              "value": "January 1989"
+            },
+            []
+          ],
+          [
+            "1989-02",
+            {
+              "lang": "en",
+              "value": "February 1989"
+            },
+            []
+          ],
+          [
+            "1989-03",
+            {
+              "lang": "en",
+              "value": "March 1989"
+            },
+            []
+          ],
+          [
+            "1989-04",
+            {
+              "lang": "en",
+              "value": "April 1989"
+            },
+            []
+          ],
+          [
+            "1989-05",
+            {
+              "lang": "en",
+              "value": "May 1989"
+            },
+            []
+          ],
+          [
+            "1989-06",
+            {
+              "lang": "en",
+              "value": "June 1989"
+            },
+            []
+          ],
+          [
+            "1989-07",
+            {
+              "lang": "en",
+              "value": "July 1989"
+            },
+            []
+          ],
+          [
+            "1989-08",
+            {
+              "lang": "en",
+              "value": "August 1989"
+            },
+            []
+          ],
+          [
+            "1989-09",
+            {
+              "lang": "en",
+              "value": "September 1989"
+            },
+            []
+          ],
+          [
+            "1989-10",
+            {
+              "lang": "en",
+              "value": "October 1989"
+            },
+            []
+          ],
+          [
+            "1989-11",
+            {
+              "lang": "en",
+              "value": "November 1989"
+            },
+            []
+          ],
+          [
+            "1989-12",
+            {
+              "lang": "en",
+              "value": "December 1989"
+            },
+            []
+          ],
+          [
+            "1990-01",
+            {
+              "lang": "en",
+              "value": "January 1990"
+            },
+            []
+          ],
+          [
+            "1990-02",
+            {
+              "lang": "en",
+              "value": "February 1990"
+            },
+            []
+          ],
+          [
+            "1990-03",
+            {
+              "lang": "en",
+              "value": "March 1990"
+            },
+            []
+          ],
+          [
+            "1990-04",
+            {
+              "lang": "en",
+              "value": "April 1990"
+            },
+            []
+          ],
+          [
+            "1990-05",
+            {
+              "lang": "en",
+              "value": "May 1990"
+            },
+            []
+          ],
+          [
+            "1990-06",
+            {
+              "lang": "en",
+              "value": "June 1990"
+            },
+            []
+          ],
+          [
+            "1990-07",
+            {
+              "lang": "en",
+              "value": "July 1990"
+            },
+            []
+          ],
+          [
+            "1990-08",
+            {
+              "lang": "en",
+              "value": "August 1990"
+            },
+            []
+          ],
+          [
+            "1990-09",
+            {
+              "lang": "en",
+              "value": "September 1990"
+            },
+            []
+          ],
+          [
+            "1990-10",
+            {
+              "lang": "en",
+              "value": "October 1990"
+            },
+            []
+          ],
+          [
+            "1990-11",
+            {
+              "lang": "en",
+              "value": "November 1990"
+            },
+            []
+          ],
+          [
+            "1990-12",
+            {
+              "lang": "en",
+              "value": "December 1990"
+            },
+            []
+          ],
+          [
+            "1991-01",
+            {
+              "lang": "en",
+              "value": "January 1991"
+            },
+            []
+          ],
+          [
+            "1991-02",
+            {
+              "lang": "en",
+              "value": "February 1991"
+            },
+            []
+          ],
+          [
+            "1991-03",
+            {
+              "lang": "en",
+              "value": "March 1991"
+            },
+            []
+          ],
+          [
+            "1991-04",
+            {
+              "lang": "en",
+              "value": "April 1991"
+            },
+            []
+          ],
+          [
+            "1991-05",
+            {
+              "lang": "en",
+              "value": "May 1991"
+            },
+            []
+          ],
+          [
+            "1991-06",
+            {
+              "lang": "en",
+              "value": "June 1991"
+            },
+            []
+          ],
+          [
+            "1991-07",
+            {
+              "lang": "en",
+              "value": "July 1991"
+            },
+            []
+          ],
+          [
+            "1991-08",
+            {
+              "lang": "en",
+              "value": "August 1991"
+            },
+            []
+          ],
+          [
+            "1991-09",
+            {
+              "lang": "en",
+              "value": "September 1991"
+            },
+            []
+          ],
+          [
+            "1991-10",
+            {
+              "lang": "en",
+              "value": "October 1991"
+            },
+            []
+          ],
+          [
+            "1991-11",
+            {
+              "lang": "en",
+              "value": "November 1991"
+            },
+            []
+          ],
+          [
+            "1991-12",
+            {
+              "lang": "en",
+              "value": "December 1991"
+            },
+            []
+          ],
+          [
+            "1992-01",
+            {
+              "lang": "en",
+              "value": "January 1992"
+            },
+            []
+          ],
+          [
+            "1992-02",
+            {
+              "lang": "en",
+              "value": "February 1992"
+            },
+            []
+          ],
+          [
+            "1992-03",
+            {
+              "lang": "en",
+              "value": "March 1992"
+            },
+            []
+          ],
+          [
+            "1992-04",
+            {
+              "lang": "en",
+              "value": "April 1992"
+            },
+            []
+          ],
+          [
+            "1992-05",
+            {
+              "lang": "en",
+              "value": "May 1992"
+            },
+            []
+          ],
+          [
+            "1992-06",
+            {
+              "lang": "en",
+              "value": "June 1992"
+            },
+            []
+          ],
+          [
+            "1992-07",
+            {
+              "lang": "en",
+              "value": "July 1992"
+            },
+            []
+          ],
+          [
+            "1992-08",
+            {
+              "lang": "en",
+              "value": "August 1992"
+            },
+            []
+          ],
+          [
+            "1992-09",
+            {
+              "lang": "en",
+              "value": "September 1992"
+            },
+            []
+          ],
+          [
+            "1992-10",
+            {
+              "lang": "en",
+              "value": "October 1992"
+            },
+            []
+          ],
+          [
+            "1992-11",
+            {
+              "lang": "en",
+              "value": "November 1992"
+            },
+            []
+          ],
+          [
+            "1992-12",
+            {
+              "lang": "en",
+              "value": "December 1992"
+            },
+            []
+          ],
+          [
+            "1993-01",
+            {
+              "lang": "en",
+              "value": "January 1993"
+            },
+            []
+          ],
+          [
+            "1993-02",
+            {
+              "lang": "en",
+              "value": "February 1993"
+            },
+            []
+          ],
+          [
+            "1993-03",
+            {
+              "lang": "en",
+              "value": "March 1993"
+            },
+            []
+          ],
+          [
+            "1993-04",
+            {
+              "lang": "en",
+              "value": "April 1993"
+            },
+            []
+          ],
+          [
+            "1993-05",
+            {
+              "lang": "en",
+              "value": "May 1993"
+            },
+            []
+          ],
+          [
+            "1993-06",
+            {
+              "lang": "en",
+              "value": "June 1993"
+            },
+            []
+          ],
+          [
+            "1993-07",
+            {
+              "lang": "en",
+              "value": "July 1993"
+            },
+            []
+          ],
+          [
+            "1993-08",
+            {
+              "lang": "en",
+              "value": "August 1993"
+            },
+            []
+          ],
+          [
+            "1993-09",
+            {
+              "lang": "en",
+              "value": "September 1993"
+            },
+            []
+          ],
+          [
+            "1993-10",
+            {
+              "lang": "en",
+              "value": "October 1993"
+            },
+            []
+          ],
+          [
+            "1993-11",
+            {
+              "lang": "en",
+              "value": "November 1993"
+            },
+            []
+          ],
+          [
+            "1993-12",
+            {
+              "lang": "en",
+              "value": "December 1993"
+            },
+            []
+          ],
+          [
+            "1994-01",
+            {
+              "lang": "en",
+              "value": "January 1994"
+            },
+            []
+          ],
+          [
+            "1994-02",
+            {
+              "lang": "en",
+              "value": "February 1994"
+            },
+            []
+          ],
+          [
+            "1994-03",
+            {
+              "lang": "en",
+              "value": "March 1994"
+            },
+            []
+          ],
+          [
+            "1994-04",
+            {
+              "lang": "en",
+              "value": "April 1994"
+            },
+            []
+          ],
+          [
+            "1994-05",
+            {
+              "lang": "en",
+              "value": "May 1994"
+            },
+            []
+          ],
+          [
+            "1994-06",
+            {
+              "lang": "en",
+              "value": "June 1994"
+            },
+            []
+          ],
+          [
+            "1994-07",
+            {
+              "lang": "en",
+              "value": "July 1994"
+            },
+            []
+          ],
+          [
+            "1994-08",
+            {
+              "lang": "en",
+              "value": "August 1994"
+            },
+            []
+          ],
+          [
+            "1994-09",
+            {
+              "lang": "en",
+              "value": "September 1994"
+            },
+            []
+          ],
+          [
+            "1994-10",
+            {
+              "lang": "en",
+              "value": "October 1994"
+            },
+            []
+          ],
+          [
+            "1994-11",
+            {
+              "lang": "en",
+              "value": "November 1994"
+            },
+            []
+          ],
+          [
+            "1994-12",
+            {
+              "lang": "en",
+              "value": "December 1994"
+            },
+            []
+          ],
+          [
+            "1995-01",
+            {
+              "lang": "en",
+              "value": "January 1995"
+            },
+            []
+          ],
+          [
+            "1995-02",
+            {
+              "lang": "en",
+              "value": "February 1995"
+            },
+            []
+          ],
+          [
+            "1995-03",
+            {
+              "lang": "en",
+              "value": "March 1995"
+            },
+            []
+          ],
+          [
+            "1995-04",
+            {
+              "lang": "en",
+              "value": "April 1995"
+            },
+            []
+          ],
+          [
+            "1995-05",
+            {
+              "lang": "en",
+              "value": "May 1995"
+            },
+            []
+          ],
+          [
+            "1995-06",
+            {
+              "lang": "en",
+              "value": "June 1995"
+            },
+            []
+          ],
+          [
+            "1995-07",
+            {
+              "lang": "en",
+              "value": "July 1995"
+            },
+            []
+          ],
+          [
+            "1995-08",
+            {
+              "lang": "en",
+              "value": "August 1995"
+            },
+            []
+          ],
+          [
+            "1995-09",
+            {
+              "lang": "en",
+              "value": "September 1995"
+            },
+            []
+          ],
+          [
+            "1995-10",
+            {
+              "lang": "en",
+              "value": "October 1995"
+            },
+            []
+          ],
+          [
+            "1995-11",
+            {
+              "lang": "en",
+              "value": "November 1995"
+            },
+            []
+          ],
+          [
+            "1995-12",
+            {
+              "lang": "en",
+              "value": "December 1995"
+            },
+            []
+          ],
+          [
+            "1996-01",
+            {
+              "lang": "en",
+              "value": "January 1996"
+            },
+            []
+          ],
+          [
+            "1996-02",
+            {
+              "lang": "en",
+              "value": "February 1996"
+            },
+            []
+          ],
+          [
+            "1996-03",
+            {
+              "lang": "en",
+              "value": "March 1996"
+            },
+            []
+          ],
+          [
+            "1996-04",
+            {
+              "lang": "en",
+              "value": "April 1996"
+            },
+            []
+          ],
+          [
+            "1996-05",
+            {
+              "lang": "en",
+              "value": "May 1996"
+            },
+            []
+          ],
+          [
+            "1996-06",
+            {
+              "lang": "en",
+              "value": "June 1996"
+            },
+            []
+          ],
+          [
+            "1996-07",
+            {
+              "lang": "en",
+              "value": "July 1996"
+            },
+            []
+          ],
+          [
+            "1996-08",
+            {
+              "lang": "en",
+              "value": "August 1996"
+            },
+            []
+          ],
+          [
+            "1996-09",
+            {
+              "lang": "en",
+              "value": "September 1996"
+            },
+            []
+          ],
+          [
+            "1996-10",
+            {
+              "lang": "en",
+              "value": "October 1996"
+            },
+            []
+          ],
+          [
+            "1996-11",
+            {
+              "lang": "en",
+              "value": "November 1996"
+            },
+            []
+          ],
+          [
+            "1996-12",
+            {
+              "lang": "en",
+              "value": "December 1996"
+            },
+            []
+          ],
+          [
+            "1997-01",
+            {
+              "lang": "en",
+              "value": "January 1997"
+            },
+            []
+          ],
+          [
+            "1997-02",
+            {
+              "lang": "en",
+              "value": "February 1997"
+            },
+            []
+          ],
+          [
+            "1997-03",
+            {
+              "lang": "en",
+              "value": "March 1997"
+            },
+            []
+          ],
+          [
+            "1997-04",
+            {
+              "lang": "en",
+              "value": "April 1997"
+            },
+            []
+          ],
+          [
+            "1997-05",
+            {
+              "lang": "en",
+              "value": "May 1997"
+            },
+            []
+          ],
+          [
+            "1997-06",
+            {
+              "lang": "en",
+              "value": "June 1997"
+            },
+            []
+          ],
+          [
+            "1997-07",
+            {
+              "lang": "en",
+              "value": "July 1997"
+            },
+            []
+          ],
+          [
+            "1997-08",
+            {
+              "lang": "en",
+              "value": "August 1997"
+            },
+            []
+          ],
+          [
+            "1997-09",
+            {
+              "lang": "en",
+              "value": "September 1997"
+            },
+            []
+          ],
+          [
+            "1997-10",
+            {
+              "lang": "en",
+              "value": "October 1997"
+            },
+            []
+          ],
+          [
+            "1997-11",
+            {
+              "lang": "en",
+              "value": "November 1997"
+            },
+            []
+          ],
+          [
+            "1997-12",
+            {
+              "lang": "en",
+              "value": "December 1997"
+            },
+            []
+          ],
+          [
+            "1998-01",
+            {
+              "lang": "en",
+              "value": "January 1998"
+            },
+            []
+          ],
+          [
+            "1998-02",
+            {
+              "lang": "en",
+              "value": "February 1998"
+            },
+            []
+          ],
+          [
+            "1998-03",
+            {
+              "lang": "en",
+              "value": "March 1998"
+            },
+            []
+          ],
+          [
+            "1998-04",
+            {
+              "lang": "en",
+              "value": "April 1998"
+            },
+            []
+          ],
+          [
+            "1998-05",
+            {
+              "lang": "en",
+              "value": "May 1998"
+            },
+            []
+          ],
+          [
+            "1998-06",
+            {
+              "lang": "en",
+              "value": "June 1998"
+            },
+            []
+          ],
+          [
+            "1998-07",
+            {
+              "lang": "en",
+              "value": "July 1998"
+            },
+            []
+          ],
+          [
+            "1998-08",
+            {
+              "lang": "en",
+              "value": "August 1998"
+            },
+            []
+          ],
+          [
+            "1998-09",
+            {
+              "lang": "en",
+              "value": "September 1998"
+            },
+            []
+          ],
+          [
+            "1998-10",
+            {
+              "lang": "en",
+              "value": "October 1998"
+            },
+            []
+          ],
+          [
+            "1998-11",
+            {
+              "lang": "en",
+              "value": "November 1998"
+            },
+            []
+          ],
+          [
+            "1998-12",
+            {
+              "lang": "en",
+              "value": "December 1998"
+            },
+            []
+          ],
+          [
+            "1999-01",
+            {
+              "lang": "en",
+              "value": "January 1999"
+            },
+            []
+          ],
+          [
+            "1999-02",
+            {
+              "lang": "en",
+              "value": "February 1999"
+            },
+            []
+          ],
+          [
+            "1999-03",
+            {
+              "lang": "en",
+              "value": "March 1999"
+            },
+            []
+          ],
+          [
+            "1999-04",
+            {
+              "lang": "en",
+              "value": "April 1999"
+            },
+            []
+          ],
+          [
+            "1999-05",
+            {
+              "lang": "en",
+              "value": "May 1999"
+            },
+            []
+          ],
+          [
+            "1999-06",
+            {
+              "lang": "en",
+              "value": "June 1999"
+            },
+            []
+          ],
+          [
+            "1999-07",
+            {
+              "lang": "en",
+              "value": "July 1999"
+            },
+            []
+          ],
+          [
+            "1999-08",
+            {
+              "lang": "en",
+              "value": "August 1999"
+            },
+            []
+          ],
+          [
+            "1999-09",
+            {
+              "lang": "en",
+              "value": "September 1999"
+            },
+            []
+          ],
+          [
+            "1999-10",
+            {
+              "lang": "en",
+              "value": "October 1999"
+            },
+            []
+          ],
+          [
+            "1999-11",
+            {
+              "lang": "en",
+              "value": "November 1999"
+            },
+            []
+          ],
+          [
+            "1999-12",
+            {
+              "lang": "en",
+              "value": "December 1999"
+            },
+            []
+          ],
+          [
+            "2000-01",
+            {
+              "lang": "en",
+              "value": "January 2000"
+            },
+            []
+          ],
+          [
+            "2000-02",
+            {
+              "lang": "en",
+              "value": "February 2000"
+            },
+            []
+          ],
+          [
+            "2000-03",
+            {
+              "lang": "en",
+              "value": "March 2000"
+            },
+            []
+          ],
+          [
+            "2000-04",
+            {
+              "lang": "en",
+              "value": "April 2000"
+            },
+            []
+          ],
+          [
+            "2000-05",
+            {
+              "lang": "en",
+              "value": "May 2000"
+            },
+            []
+          ],
+          [
+            "2000-06",
+            {
+              "lang": "en",
+              "value": "June 2000"
+            },
+            []
+          ],
+          [
+            "2000-07",
+            {
+              "lang": "en",
+              "value": "July 2000"
+            },
+            []
+          ],
+          [
+            "2000-08",
+            {
+              "lang": "en",
+              "value": "August 2000"
+            },
+            []
+          ],
+          [
+            "2000-09",
+            {
+              "lang": "en",
+              "value": "September 2000"
+            },
+            []
+          ],
+          [
+            "2000-10",
+            {
+              "lang": "en",
+              "value": "October 2000"
+            },
+            []
+          ],
+          [
+            "2000-11",
+            {
+              "lang": "en",
+              "value": "November 2000"
+            },
+            []
+          ],
+          [
+            "2000-12",
+            {
+              "lang": "en",
+              "value": "December 2000"
+            },
+            []
+          ],
+          [
+            "2001-01",
+            {
+              "lang": "en",
+              "value": "January 2001"
+            },
+            []
+          ],
+          [
+            "2001-02",
+            {
+              "lang": "en",
+              "value": "February 2001"
+            },
+            []
+          ],
+          [
+            "2001-03",
+            {
+              "lang": "en",
+              "value": "March 2001"
+            },
+            []
+          ],
+          [
+            "2001-04",
+            {
+              "lang": "en",
+              "value": "April 2001"
+            },
+            []
+          ],
+          [
+            "2001-05",
+            {
+              "lang": "en",
+              "value": "May 2001"
+            },
+            []
+          ],
+          [
+            "2001-06",
+            {
+              "lang": "en",
+              "value": "June 2001"
+            },
+            []
+          ],
+          [
+            "2001-07",
+            {
+              "lang": "en",
+              "value": "July 2001"
+            },
+            []
+          ],
+          [
+            "2001-08",
+            {
+              "lang": "en",
+              "value": "August 2001"
+            },
+            []
+          ],
+          [
+            "2001-09",
+            {
+              "lang": "en",
+              "value": "September 2001"
+            },
+            []
+          ],
+          [
+            "2001-10",
+            {
+              "lang": "en",
+              "value": "October 2001"
+            },
+            []
+          ],
+          [
+            "2001-11",
+            {
+              "lang": "en",
+              "value": "November 2001"
+            },
+            []
+          ],
+          [
+            "2001-12",
+            {
+              "lang": "en",
+              "value": "December 2001"
+            },
+            []
+          ],
+          [
+            "2002-01",
+            {
+              "lang": "en",
+              "value": "January 2002"
+            },
+            []
+          ],
+          [
+            "2002-02",
+            {
+              "lang": "en",
+              "value": "February 2002"
+            },
+            []
+          ],
+          [
+            "2002-03",
+            {
+              "lang": "en",
+              "value": "March 2002"
+            },
+            []
+          ],
+          [
+            "2002-04",
+            {
+              "lang": "en",
+              "value": "April 2002"
+            },
+            []
+          ],
+          [
+            "2002-05",
+            {
+              "lang": "en",
+              "value": "May 2002"
+            },
+            []
+          ],
+          [
+            "2002-06",
+            {
+              "lang": "en",
+              "value": "June 2002"
+            },
+            []
+          ],
+          [
+            "2002-07",
+            {
+              "lang": "en",
+              "value": "July 2002"
+            },
+            []
+          ],
+          [
+            "2002-08",
+            {
+              "lang": "en",
+              "value": "August 2002"
+            },
+            []
+          ],
+          [
+            "2002-09",
+            {
+              "lang": "en",
+              "value": "September 2002"
+            },
+            []
+          ],
+          [
+            "2002-10",
+            {
+              "lang": "en",
+              "value": "October 2002"
+            },
+            []
+          ],
+          [
+            "2002-11",
+            {
+              "lang": "en",
+              "value": "November 2002"
+            },
+            []
+          ],
+          [
+            "2002-12",
+            {
+              "lang": "en",
+              "value": "December 2002"
+            },
+            []
+          ],
+          [
+            "2003-01",
+            {
+              "lang": "en",
+              "value": "January 2003"
+            },
+            []
+          ],
+          [
+            "2003-02",
+            {
+              "lang": "en",
+              "value": "February 2003"
+            },
+            []
+          ],
+          [
+            "2003-03",
+            {
+              "lang": "en",
+              "value": "March 2003"
+            },
+            []
+          ],
+          [
+            "2003-04",
+            {
+              "lang": "en",
+              "value": "April 2003"
+            },
+            []
+          ],
+          [
+            "2003-05",
+            {
+              "lang": "en",
+              "value": "May 2003"
+            },
+            []
+          ],
+          [
+            "2003-06",
+            {
+              "lang": "en",
+              "value": "June 2003"
+            },
+            []
+          ],
+          [
+            "2003-07",
+            {
+              "lang": "en",
+              "value": "July 2003"
+            },
+            []
+          ],
+          [
+            "2003-08",
+            {
+              "lang": "en",
+              "value": "August 2003"
+            },
+            []
+          ],
+          [
+            "2003-09",
+            {
+              "lang": "en",
+              "value": "September 2003"
+            },
+            []
+          ],
+          [
+            "2003-10",
+            {
+              "lang": "en",
+              "value": "October 2003"
+            },
+            []
+          ],
+          [
+            "2003-11",
+            {
+              "lang": "en",
+              "value": "November 2003"
+            },
+            []
+          ],
+          [
+            "2003-12",
+            {
+              "lang": "en",
+              "value": "December 2003"
+            },
+            []
+          ],
+          [
+            "2004-01",
+            {
+              "lang": "en",
+              "value": "January 2004"
+            },
+            []
+          ],
+          [
+            "2004-02",
+            {
+              "lang": "en",
+              "value": "February 2004"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2004-04-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2004-03",
+            {
+              "lang": "en",
+              "value": "March 2004"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2004-05-12 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2004-04",
+            {
+              "lang": "en",
+              "value": "April 2004"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2004-06-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2004-05",
+            {
+              "lang": "en",
+              "value": "May 2004"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2004-07-14 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2004-06",
+            {
+              "lang": "en",
+              "value": "June 2004"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2004-08-11 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2004-07",
+            {
+              "lang": "en",
+              "value": "July 2004"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2004-09-15 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2004-08",
+            {
+              "lang": "en",
+              "value": "August 2004"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2004-10-13 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2004-09",
+            {
+              "lang": "en",
+              "value": "September 2004"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2004-11-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2004-10",
+            {
+              "lang": "en",
+              "value": "October 2004"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2004-12-15 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2004-11",
+            {
+              "lang": "en",
+              "value": "November 2004"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2005-01-19 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2004-12",
+            {
+              "lang": "en",
+              "value": "December 2004"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2005-02-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2005-01",
+            {
+              "lang": "en",
+              "value": "January 2005"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2005-03-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2005-02",
+            {
+              "lang": "en",
+              "value": "February 2005"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2005-04-13 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2005-03",
+            {
+              "lang": "en",
+              "value": "March 2005"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2005-05-18 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2005-04",
+            {
+              "lang": "en",
+              "value": "April 2005"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2005-06-15 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2005-05",
+            {
+              "lang": "en",
+              "value": "May 2005"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2005-07-13 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2005-06",
+            {
+              "lang": "en",
+              "value": "June 2005"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2005-08-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2005-07",
+            {
+              "lang": "en",
+              "value": "July 2005"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2005-09-14 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2005-08",
+            {
+              "lang": "en",
+              "value": "August 2005"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2005-10-12 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2005-09",
+            {
+              "lang": "en",
+              "value": "September 2005"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2005-11-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2005-10",
+            {
+              "lang": "en",
+              "value": "October 2005"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2005-12-14 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2005-11",
+            {
+              "lang": "en",
+              "value": "November 2005"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2006-01-18 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2005-12",
+            {
+              "lang": "en",
+              "value": "December 2005"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2006-02-15 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2006-01",
+            {
+              "lang": "en",
+              "value": "January 2006"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2006-03-15 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2006-02",
+            {
+              "lang": "en",
+              "value": "February 2006"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2006-04-12 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2006-03",
+            {
+              "lang": "en",
+              "value": "March 2006"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2006-05-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2006-04",
+            {
+              "lang": "en",
+              "value": "April 2006"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2006-06-14 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2006-05",
+            {
+              "lang": "en",
+              "value": "May 2006"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2006-07-12 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2006-06",
+            {
+              "lang": "en",
+              "value": "June 2006"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2006-08-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2006-07",
+            {
+              "lang": "en",
+              "value": "July 2006"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2006-09-13 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2006-08",
+            {
+              "lang": "en",
+              "value": "August 2006"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2006-10-18 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2006-09",
+            {
+              "lang": "en",
+              "value": "September 2006"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2006-11-15 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2006-10",
+            {
+              "lang": "en",
+              "value": "October 2006"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2006-12-13 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2006-11",
+            {
+              "lang": "en",
+              "value": "November 2006"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2007-01-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2006-12",
+            {
+              "lang": "en",
+              "value": "December 2006"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2007-02-14 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2007-01",
+            {
+              "lang": "en",
+              "value": "January 2007"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2007-03-14 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2007-02",
+            {
+              "lang": "en",
+              "value": "February 2007"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2007-04-18 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2007-03",
+            {
+              "lang": "en",
+              "value": "March 2007"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2007-05-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2007-04",
+            {
+              "lang": "en",
+              "value": "April 2007"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2007-06-13 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2007-05",
+            {
+              "lang": "en",
+              "value": "May 2007"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2007-07-18 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2007-06",
+            {
+              "lang": "en",
+              "value": "June 2007"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2007-08-15 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2007-07",
+            {
+              "lang": "en",
+              "value": "July 2007"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2007-09-12 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2007-08",
+            {
+              "lang": "en",
+              "value": "August 2007"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2007-10-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2007-09",
+            {
+              "lang": "en",
+              "value": "September 2007"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2007-11-14 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2007-10",
+            {
+              "lang": "en",
+              "value": "October 2007"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2007-12-12 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2007-11",
+            {
+              "lang": "en",
+              "value": "November 2007"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2008-01-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2007-12",
+            {
+              "lang": "en",
+              "value": "December 2007"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2008-02-13 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2008-01",
+            {
+              "lang": "en",
+              "value": "January 2008"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2008-03-19 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2008-02",
+            {
+              "lang": "en",
+              "value": "February 2008"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2008-04-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2008-03",
+            {
+              "lang": "en",
+              "value": "March 2008"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2008-05-14 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2008-04",
+            {
+              "lang": "en",
+              "value": "April 2008"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2008-06-11 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2008-05",
+            {
+              "lang": "en",
+              "value": "May 2008"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2008-07-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2008-06",
+            {
+              "lang": "en",
+              "value": "June 2008"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2008-08-13 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2008-07",
+            {
+              "lang": "en",
+              "value": "July 2008"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2008-09-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2008-08",
+            {
+              "lang": "en",
+              "value": "August 2008"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2008-10-15 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2008-09",
+            {
+              "lang": "en",
+              "value": "September 2008"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2008-11-12 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2008-10",
+            {
+              "lang": "en",
+              "value": "October 2008"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2008-12-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2008-11",
+            {
+              "lang": "en",
+              "value": "November 2008"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2009-01-21 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2008-12",
+            {
+              "lang": "en",
+              "value": "December 2008"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2009-02-11 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2009-01",
+            {
+              "lang": "en",
+              "value": "January 2009"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2009-02",
+            {
+              "lang": "en",
+              "value": "February 2009"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2009-03",
+            {
+              "lang": "en",
+              "value": "March 2009"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2009-04",
+            {
+              "lang": "en",
+              "value": "April 2009"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2009-05",
+            {
+              "lang": "en",
+              "value": "May 2009"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2009-06",
+            {
+              "lang": "en",
+              "value": "June 2009"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2009-07",
+            {
+              "lang": "en",
+              "value": "July 2009"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2009-08",
+            {
+              "lang": "en",
+              "value": "August 2009"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2009-09",
+            {
+              "lang": "en",
+              "value": "September 2009"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2009-10",
+            {
+              "lang": "en",
+              "value": "October 2009"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2009-11",
+            {
+              "lang": "en",
+              "value": "November 2009"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2009-12",
+            {
+              "lang": "en",
+              "value": "December 2009"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2010-01",
+            {
+              "lang": "en",
+              "value": "January 2010"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2010-02",
+            {
+              "lang": "en",
+              "value": "February 2010"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2010-03",
+            {
+              "lang": "en",
+              "value": "March 2010"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2010-04",
+            {
+              "lang": "en",
+              "value": "April 2010"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2010-05",
+            {
+              "lang": "en",
+              "value": "May 2010"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2010-06",
+            {
+              "lang": "en",
+              "value": "June 2010"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2010-07",
+            {
+              "lang": "en",
+              "value": "July 2010"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2010-08",
+            {
+              "lang": "en",
+              "value": "August 2010"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2010-09",
+            {
+              "lang": "en",
+              "value": "September 2010"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2010-10",
+            {
+              "lang": "en",
+              "value": "October 2010"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2010-11",
+            {
+              "lang": "en",
+              "value": "November 2010"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2010-12",
+            {
+              "lang": "en",
+              "value": "December 2010"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2011-01",
+            {
+              "lang": "en",
+              "value": "January 2011"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2011-02",
+            {
+              "lang": "en",
+              "value": "February 2011"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2011-03",
+            {
+              "lang": "en",
+              "value": "March 2011"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2011-04",
+            {
+              "lang": "en",
+              "value": "April 2011"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2011-05",
+            {
+              "lang": "en",
+              "value": "May 2011"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2011-06",
+            {
+              "lang": "en",
+              "value": "June 2011"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2011-07",
+            {
+              "lang": "en",
+              "value": "July 2011"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2011-08",
+            {
+              "lang": "en",
+              "value": "August 2011"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2011-09",
+            {
+              "lang": "en",
+              "value": "September 2011"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2011-10",
+            {
+              "lang": "en",
+              "value": "October 2011"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2011-11",
+            {
+              "lang": "en",
+              "value": "November 2011"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2011-12",
+            {
+              "lang": "en",
+              "value": "December 2011"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2012-01",
+            {
+              "lang": "en",
+              "value": "January 2012"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2012-02",
+            {
+              "lang": "en",
+              "value": "February 2012"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2012-03",
+            {
+              "lang": "en",
+              "value": "March 2012"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2012-04",
+            {
+              "lang": "en",
+              "value": "April 2012"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2012-05",
+            {
+              "lang": "en",
+              "value": "May 2012"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2012-06",
+            {
+              "lang": "en",
+              "value": "June 2012"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2012-07",
+            {
+              "lang": "en",
+              "value": "July 2012"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2012-08",
+            {
+              "lang": "en",
+              "value": "August 2012"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2012-09",
+            {
+              "lang": "en",
+              "value": "September 2012"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2012-10",
+            {
+              "lang": "en",
+              "value": "October 2012"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2012-11",
+            {
+              "lang": "en",
+              "value": "November 2012"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2012-12",
+            {
+              "lang": "en",
+              "value": "December 2012"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2013-01",
+            {
+              "lang": "en",
+              "value": "January 2013"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2013-02",
+            {
+              "lang": "en",
+              "value": "February 2013"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2013-03",
+            {
+              "lang": "en",
+              "value": "March 2013"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2013-04",
+            {
+              "lang": "en",
+              "value": "April 2013"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-05-15 11:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2013-05",
+            {
+              "lang": "en",
+              "value": "May 2013"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-06-12 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2013-06",
+            {
+              "lang": "en",
+              "value": "June 2013"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-07-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2013-07",
+            {
+              "lang": "en",
+              "value": "July 2013"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-08-14 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2013-08",
+            {
+              "lang": "en",
+              "value": "August 2013"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-09-11 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2013-09",
+            {
+              "lang": "en",
+              "value": "September 2013"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-10-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2013-10",
+            {
+              "lang": "en",
+              "value": "October 2013"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-11-13 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2013-11",
+            {
+              "lang": "en",
+              "value": "November 2013"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2013-12-18 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2013-12",
+            {
+              "lang": "en",
+              "value": "December 2013"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2014-01-22 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2014-01",
+            {
+              "lang": "en",
+              "value": "January 2014"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2014-02-19 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2014-02",
+            {
+              "lang": "en",
+              "value": "February 2014"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2014-03-19 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2014-03",
+            {
+              "lang": "en",
+              "value": "March 2014"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2014-04-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2014-04",
+            {
+              "lang": "en",
+              "value": "April 2014"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2014-05-14 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2014-05",
+            {
+              "lang": "en",
+              "value": "May 2014"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2014-06-11 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2014-06",
+            {
+              "lang": "en",
+              "value": "June 2014"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2014-07-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2014-07",
+            {
+              "lang": "en",
+              "value": "July 2014"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2014-08-13 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2014-08",
+            {
+              "lang": "en",
+              "value": "August 2014"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2014-09-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2014-09",
+            {
+              "lang": "en",
+              "value": "September 2014"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2014-10-15 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2014-10",
+            {
+              "lang": "en",
+              "value": "October 2014"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2014-11-12 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2014-11",
+            {
+              "lang": "en",
+              "value": "November 2014"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2014-12-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2014-12",
+            {
+              "lang": "en",
+              "value": "December 2014"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2015-01-21 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2015-01",
+            {
+              "lang": "en",
+              "value": "January 2015"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2015-02-18 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2015-02",
+            {
+              "lang": "en",
+              "value": "February 2015"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2015-03-18 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2015-03",
+            {
+              "lang": "en",
+              "value": "March 2015"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2015-04-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2015-04",
+            {
+              "lang": "en",
+              "value": "April 2015"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2015-05-13 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2015-05",
+            {
+              "lang": "en",
+              "value": "May 2015"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2015-06-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2015-06",
+            {
+              "lang": "en",
+              "value": "June 2015"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2015-07-15 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2015-07",
+            {
+              "lang": "en",
+              "value": "July 2015"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2015-08-12 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2015-08",
+            {
+              "lang": "en",
+              "value": "August 2015"
+            },
+            []
+          ],
+          [
+            "2015-09",
+            {
+              "lang": "en",
+              "value": "September 2015"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2015-10-14 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2015-10",
+            {
+              "lang": "en",
+              "value": "October 2015"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2015-11-11 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2015-11",
+            {
+              "lang": "en",
+              "value": "November 2015"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2015-12-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ],
+          [
+            "2015-12",
+            {
+              "lang": "en",
+              "value": "December 2015"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2017-02-15 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2016-01",
+            {
+              "lang": "en",
+              "value": "January 2016"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2017-02-15 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2016-02",
+            {
+              "lang": "en",
+              "value": "February 2016"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-04-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2016-03",
+            {
+              "lang": "en",
+              "value": "March 2016"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-04-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2016-04",
+            {
+              "lang": "en",
+              "value": "April 2016"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-04-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2016-05",
+            {
+              "lang": "en",
+              "value": "May 2016"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-04-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2016-06",
+            {
+              "lang": "en",
+              "value": "June 2016"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-04-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2016-07",
+            {
+              "lang": "en",
+              "value": "July 2016"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-04-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2016-08",
+            {
+              "lang": "en",
+              "value": "August 2016"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-04-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2016-09",
+            {
+              "lang": "en",
+              "value": "September 2016"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-04-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2016-10",
+            {
+              "lang": "en",
+              "value": "October 2016"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-04-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2016-11",
+            {
+              "lang": "en",
+              "value": "November 2016"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-04-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2016-12",
+            {
+              "lang": "en",
+              "value": "December 2016"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-04-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2017-01",
+            {
+              "lang": "en",
+              "value": "January 2017"
+            },
+            []
+          ],
+          [
+            "2017-02",
+            {
+              "lang": "en",
+              "value": "February 2017"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-04-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2017-03",
+            {
+              "lang": "en",
+              "value": "March 2017"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-04-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2017-04",
+            {
+              "lang": "en",
+              "value": "April 2017"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-04-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2017-05",
+            {
+              "lang": "en",
+              "value": "May 2017"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-04-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2017-06",
+            {
+              "lang": "en",
+              "value": "June 2017"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-04-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2017-07",
+            {
+              "lang": "en",
+              "value": "July 2017"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-04-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2017-08",
+            {
+              "lang": "en",
+              "value": "August 2017"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-04-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2017-09",
+            {
+              "lang": "en",
+              "value": "September 2017"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-04-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2017-10",
+            {
+              "lang": "en",
+              "value": "October 2017"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-04-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2017-11",
+            {
+              "lang": "en",
+              "value": "November 2017"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-04-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2017-12",
+            {
+              "lang": "en",
+              "value": "December 2017"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-04-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2018-01",
+            {
+              "lang": "en",
+              "value": "January 2018"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-04-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2018-02",
+            {
+              "lang": "en",
+              "value": "February 2018"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-04-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2018-03",
+            {
+              "lang": "en",
+              "value": "March 2018"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-04-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2018-04",
+            {
+              "lang": "en",
+              "value": "April 2018"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-04-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2018-05",
+            {
+              "lang": "en",
+              "value": "May 2018"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-04-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2018-06",
+            {
+              "lang": "en",
+              "value": "June 2018"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-04-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2018-07",
+            {
+              "lang": "en",
+              "value": "July 2018"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-04-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2018-08",
+            {
+              "lang": "en",
+              "value": "August 2018"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-04-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2018-09",
+            {
+              "lang": "en",
+              "value": "September 2018"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-04-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2018-10",
+            {
+              "lang": "en",
+              "value": "October 2018"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-04-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2018-11",
+            {
+              "lang": "en",
+              "value": "November 2018"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-04-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2018-12",
+            {
+              "lang": "en",
+              "value": "December 2018"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-04-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2019-01",
+            {
+              "lang": "en",
+              "value": "January 2019"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-04-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Revised"
+              ],
+              [
+                "CurrentRevisionVersion",
+                2
+              ]
+            ]
+          ],
+          [
+            "2019-02",
+            {
+              "lang": "en",
+              "value": "February 2019"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-04-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2019-03",
+            {
+              "lang": "en",
+              "value": "March 2019"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-05-14 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2019-04",
+            {
+              "lang": "en",
+              "value": "April 2019"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-06-11 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2019-05",
+            {
+              "lang": "en",
+              "value": "May 2019"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-07-16 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2019-06",
+            {
+              "lang": "en",
+              "value": "June 2019"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-08-13 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2019-07",
+            {
+              "lang": "en",
+              "value": "July 2019"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-09-10 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2019-08",
+            {
+              "lang": "en",
+              "value": "August 2019"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-10-15 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2019-09",
+            {
+              "lang": "en",
+              "value": "September 2019"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-11-12 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2019-10",
+            {
+              "lang": "en",
+              "value": "October 2019"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2019-12-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2019-12",
+            {
+              "lang": "en",
+              "value": "December 2019"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2020-02-18 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2020-01",
+            {
+              "lang": "en",
+              "value": "January 2020"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2020-03-17 09:30:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2020-02",
+            {
+              "lang": "en",
+              "value": "February 2020"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2020-04-21 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2020-03",
+            {
+              "lang": "en",
+              "value": "March 2020"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2020-05-19 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2020-04",
+            {
+              "lang": "en",
+              "value": "April 2020"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2020-06-16 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2020-05",
+            {
+              "lang": "en",
+              "value": "May 2020"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2020-07-16 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2020-06",
+            {
+              "lang": "en",
+              "value": "June 2020"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2020-08-11 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2020-07",
+            {
+              "lang": "en",
+              "value": "July 2020"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2020-09-15 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2020-08",
+            {
+              "lang": "en",
+              "value": "August 2020"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2020-10-13 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2020-09",
+            {
+              "lang": "en",
+              "value": "September 2020"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2020-11-10 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2020-10",
+            {
+              "lang": "en",
+              "value": "October 2020"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2020-12-15 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2020-11",
+            {
+              "lang": "en",
+              "value": "November 2020"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2021-01-26 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2020-12",
+            {
+              "lang": "en",
+              "value": "December 2020"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2021-02-23 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2021-01",
+            {
+              "lang": "en",
+              "value": "January 2021"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2021-03-23 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2021-02",
+            {
+              "lang": "en",
+              "value": "February 2021"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2021-04-20 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2021-03",
+            {
+              "lang": "en",
+              "value": "March 2021"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2021-05-18 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2021-04",
+            {
+              "lang": "en",
+              "value": "April 2021"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2021-06-15 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2021-05",
+            {
+              "lang": "en",
+              "value": "May 2021"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2021-07-15 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2021-06",
+            {
+              "lang": "en",
+              "value": "June 2021"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2021-08-17 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2021-07",
+            {
+              "lang": "en",
+              "value": "July 2021"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2021-09-14 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2021-08",
+            {
+              "lang": "en",
+              "value": "August 2021"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2021-10-12 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2021-09",
+            {
+              "lang": "en",
+              "value": "September 2021"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2021-11-16 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2021-10",
+            {
+              "lang": "en",
+              "value": "October 2021"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2021-12-14 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2021-11",
+            {
+              "lang": "en",
+              "value": "November 2021"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2022-01-18 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2021-12",
+            {
+              "lang": "en",
+              "value": "December 2021"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2022-02-15 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2022-01",
+            {
+              "lang": "en",
+              "value": "January 2022"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2022-03-15 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2022-02",
+            {
+              "lang": "en",
+              "value": "February 2022"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2022-04-12 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2022-03",
+            {
+              "lang": "en",
+              "value": "March 2022"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2022-05-17 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2022-04",
+            {
+              "lang": "en",
+              "value": "April 2022"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2022-06-14 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2022-05",
+            {
+              "lang": "en",
+              "value": "May 2022"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2022-07-19 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2022-06",
+            {
+              "lang": "en",
+              "value": "June 2022"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2022-08-16 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2022-07",
+            {
+              "lang": "en",
+              "value": "July 2022"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2022-09-13 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2022-08",
+            {
+              "lang": "en",
+              "value": "August 2022"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2022-10-11 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2022-09",
+            {
+              "lang": "en",
+              "value": "September 2022"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2022-11-15 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2022-10",
+            {
+              "lang": "en",
+              "value": "October 2022"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2022-12-13 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2022-11",
+            {
+              "lang": "en",
+              "value": "November 2022"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2023-01-17 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2022-12",
+            {
+              "lang": "en",
+              "value": "December 2022"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2023-02-14 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2023-01",
+            {
+              "lang": "en",
+              "value": "January 2023"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2023-03-14 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2023-02",
+            {
+              "lang": "en",
+              "value": "February 2023"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2023-04-18 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2023-03",
+            {
+              "lang": "en",
+              "value": "March 2023"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2023-05-16 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2023-04",
+            {
+              "lang": "en",
+              "value": "April 2023"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2023-06-13 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2023-05",
+            {
+              "lang": "en",
+              "value": "May 2023"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2023-07-11 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2023-06",
+            {
+              "lang": "en",
+              "value": "June 2023"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2023-08-15 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2023-07",
+            {
+              "lang": "en",
+              "value": "July 2023"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2023-09-12 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2023-08",
+            {
+              "lang": "en",
+              "value": "August 2023"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2023-10-24 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2023-09",
+            {
+              "lang": "en",
+              "value": "September 2023"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2023-11-14 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2023-10",
+            {
+              "lang": "en",
+              "value": "October 2023"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2023-12-12 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2023-11",
+            {
+              "lang": "en",
+              "value": "November 2023"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2024-01-16 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2023-12",
+            {
+              "lang": "en",
+              "value": "December 2023"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2024-02-13 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2024-01",
+            {
+              "lang": "en",
+              "value": "January 2024"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2024-03-12 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2024-02",
+            {
+              "lang": "en",
+              "value": "February 2024"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2024-04-16 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2024-03",
+            {
+              "lang": "en",
+              "value": "March 2024"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2024-05-14 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2024-04",
+            {
+              "lang": "en",
+              "value": "April 2024"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2024-06-11 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2024-05",
+            {
+              "lang": "en",
+              "value": "May 2024"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2024-07-18 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2024-06",
+            {
+              "lang": "en",
+              "value": "June 2024"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2024-08-13 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2024-07",
+            {
+              "lang": "en",
+              "value": "July 2024"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2024-09-10 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2024-08",
+            {
+              "lang": "en",
+              "value": "August 2024"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2024-10-15 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2024-09",
+            {
+              "lang": "en",
+              "value": "September 2024"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2024-11-15 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2024-10",
+            {
+              "lang": "en",
+              "value": "October 2024"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2024-12-17 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2024-11",
+            {
+              "lang": "en",
+              "value": "November 2024"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2025-01-21 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2024-12",
+            {
+              "lang": "en",
+              "value": "December 2024"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2025-02-18 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2025-01",
+            {
+              "lang": "en",
+              "value": "January 2025"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2025-03-20 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2025-02",
+            {
+              "lang": "en",
+              "value": "February 2025"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2025-04-15 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2025-03",
+            {
+              "lang": "en",
+              "value": "March 2025"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2025-05-13 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2025-04",
+            {
+              "lang": "en",
+              "value": "April 2025"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2025-06-10 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2025-05",
+            {
+              "lang": "en",
+              "value": "May 2025"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2025-07-17 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2025-06",
+            {
+              "lang": "en",
+              "value": "June 2025"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2025-08-12 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2025-07",
+            {
+              "lang": "en",
+              "value": "July 2025"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2025-09-16 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2025-08",
+            {
+              "lang": "en",
+              "value": "August 2025"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2025-10-14 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2025-09",
+            {
+              "lang": "en",
+              "value": "September 2025"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2025-11-11 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2025-10",
+            {
+              "lang": "en",
+              "value": "October 2025"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2025-12-16 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2025-11",
+            {
+              "lang": "en",
+              "value": "November 2025"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2026-01-20 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                1
+              ]
+            ]
+          ],
+          [
+            "2025-12",
+            {
+              "lang": "en",
+              "value": "December 2025"
+            },
+            [
+              [
+                "CurrentRevisionReleased",
+                "2026-01-20 07:00:00"
+              ],
+              [
+                "CurrentRevisionStatus",
+                "Live"
+              ],
+              [
+                "CurrentRevisionVersion",
+                0
+              ]
+            ]
+          ]
+        ]
+      }
+    }
+  },
+  "qb:structure": {
+    "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-nomis-datasets/NM_39_1/structure",
+    "@type": "qb:DataStructureDefinition",
+    "qb:component": [
+      {
+        "@type": "qb:ComponentSpecification",
+        "qb:dimension": {
+          "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-nomis-datasets/NM_39_1/dimension/GEOGRAPHY",
+          "@type": "qb:DimensionProperty",
+          "rdfs:label": "GEOGRAPHY",
+          "qb:codeList": {
+            "@id": "https://www.nomisweb.co.uk/api/v01/codelist/CL_39_1_GEOGRAPHY/def.sdmx.json"
+          }
+        }
+      },
+      {
+        "@type": "qb:ComponentSpecification",
+        "qb:dimension": {
+          "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-nomis-datasets/NM_39_1/dimension/SEX",
+          "@type": "qb:DimensionProperty",
+          "rdfs:label": "SEX",
+          "qb:codeList": {
+            "@id": "https://www.nomisweb.co.uk/api/v01/codelist/CL_39_1_SEX/def.sdmx.json"
+          }
+        }
+      },
+      {
+        "@type": "qb:ComponentSpecification",
+        "qb:dimension": {
+          "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-nomis-datasets/NM_39_1/dimension/FLOW",
+          "@type": "qb:DimensionProperty",
+          "rdfs:label": "FLOW",
+          "qb:codeList": {
+            "@id": "https://www.nomisweb.co.uk/api/v01/codelist/CL_39_1_FLOW/def.sdmx.json"
+          }
+        }
+      },
+      {
+        "@type": "qb:ComponentSpecification",
+        "qb:dimension": {
+          "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-nomis-datasets/NM_39_1/dimension/MEASURES",
+          "@type": "qb:DimensionProperty",
+          "rdfs:label": "MEASURES",
+          "qb:codeList": {
+            "@id": "https://www.nomisweb.co.uk/api/v01/codelist/CL_39_1_MEASURES/def.sdmx.json"
+          }
+        }
+      },
+      {
+        "@type": "qb:ComponentSpecification",
+        "qb:dimension": {
+          "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-nomis-datasets/NM_39_1/dimension/FREQ",
+          "@type": "qb:DimensionProperty",
+          "rdfs:label": "FREQ",
+          "qb:codeList": {
+            "@id": "https://www.nomisweb.co.uk/api/v01/codelist/CL_39_1_FREQ/def.sdmx.json"
+          }
+        }
+      }
+    ]
+  },
+  "okfp:nativeTemporalBounds": {
+    "@value": {
+      "basis": "Nomis returned TIME codelist native codes; no observations",
+      "comparisonRule": "ONS-native-ISO-period-code.v1",
+      "continuityEstablished": false,
+      "granularity": "month",
+      "maximumNative": "2025-12",
+      "minimumNative": "1988-11",
+      "status": "known-option-extrema"
+    },
+    "@type": "@json"
+  }
+}
+---
+
+# Jobseeker's Allowance flows - seasonally adjusted
+
+Nomis dataset definition with native SDMX components.
+
+Native identifier: `NM_39_1`.
+
+Source family: `ons-nomis-datasets`. Assertion: normalised metadata; independent human review is not recorded.
+
+[Official source](https://www.nomisweb.co.uk/api/v01/dataset/NM_39_1/def.sdmx.json)
+
+Update cadence: not evidenced in captured metadata.
+Temporal evidence: normalised-source-options (available-native-period-options); start 1988-11, end 2025-12.
+Extrema of the complete published native period-code list; no continuity or populated observation cells are inferred.
+
+[Release catalogue or change-discovery route](https://www.nomisweb.co.uk/releasecalendar.asp)
+
+## Evidence limits
+
+- FREQ denotes statistical observation frequency; it does not establish release cadence.
+- FirstReleased and LastUpdated describe publication history, not the observation date range.
+- Time-option extrema describe available native codes; continuity and populated observation cells have not been established.
+
+The front matter retains source receipts, rights, native metadata and schema facts. Discovery does not authorise data access.

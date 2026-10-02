@@ -1,0 +1,1487 @@
+{
+  "coverage": {
+    "catalogueComplete": true,
+    "detailsCaptured": 26,
+    "limitations": [
+      "Includes partner products; not the complete commercial or PSGA portfolio.",
+      "Product version is a release label, not a data reference period."
+    ],
+    "reportedTotal": 26,
+    "retrievedUnique": 26,
+    "unit": "OS-served OpenData product"
+  },
+  "family": "os-open-products",
+  "receipts": [
+    {
+      "bytes": 13987,
+      "etag": null,
+      "lastModified": null,
+      "retrievedAt": "2026-10-02T01:17:55.502682Z",
+      "sha256": "7a61842705bd7e0b74b80f0faf7e3a473f29ebb2dd1e486d82cf64fd783f6be1",
+      "status": 200,
+      "url": "https://api.os.uk/downloads/v1/products"
+    },
+    {
+      "bytes": 1045,
+      "etag": null,
+      "lastModified": null,
+      "retrievedAt": "2026-10-02T01:17:55.797161Z",
+      "sha256": "ba9042739fcb55580ff0e1bc6f4d7e1693dd23c7b6012baeda20aa8d9ecc7cf3",
+      "status": 200,
+      "url": "https://api.os.uk/downloads/v1/products/250kScaleColourRaster"
+    },
+    {
+      "bytes": 2247,
+      "etag": null,
+      "lastModified": null,
+      "retrievedAt": "2026-10-02T01:17:56.069588Z",
+      "sha256": "264b7290875cf12815864d7ee060d7853792b98bf8e9742c1fbdfa7e6e06a95e",
+      "status": 200,
+      "url": "https://api.os.uk/downloads/v1/products/GeoCoast_Open"
+    },
+    {
+      "bytes": 2324,
+      "etag": null,
+      "lastModified": null,
+      "retrievedAt": "2026-10-02T01:17:56.331461Z",
+      "sha256": "83831fa7f172f4a3f768d4674559046750bf384ff3de92ae48d1e6e6978490e4",
+      "status": 200,
+      "url": "https://api.os.uk/downloads/v1/products/GeoScour_Open"
+    },
+    {
+      "bytes": 2272,
+      "etag": null,
+      "lastModified": null,
+      "retrievedAt": "2026-10-02T01:17:56.599426Z",
+      "sha256": "bd686083d624ce9216f99eba5b497cbcf342ace5cb848eb7c39c8abd15243aa5",
+      "status": 200,
+      "url": "https://api.os.uk/downloads/v1/products/GB-Hex-5km-GeoSure"
+    },
+    {
+      "bytes": 2794,
+      "etag": null,
+      "lastModified": null,
+      "retrievedAt": "2026-10-02T01:17:56.867119Z",
+      "sha256": "115f7e1de3e82a4d1f42d8dae1a9220c08135520bb9260ff5855d37686e708ee",
+      "status": 200,
+      "url": "https://api.os.uk/downloads/v1/products/BGS_Geology_625k"
+    },
+    {
+      "bytes": 2140,
+      "etag": null,
+      "lastModified": null,
+      "retrievedAt": "2026-10-02T01:17:57.133951Z",
+      "sha256": "7bfd4476f794009a7f727cb144aa037dcb62a3ea789cb79cb37dbc68f55c5b30",
+      "status": 200,
+      "url": "https://api.os.uk/downloads/v1/products/Hydrogeology_625k"
+    },
+    {
+      "bytes": 2627,
+      "etag": null,
+      "lastModified": null,
+      "retrievedAt": "2026-10-02T01:17:57.398090Z",
+      "sha256": "1eb764dc29f4cb8daaaf231d7626b48271c80c2eb8e3a3498c438c8e37525300",
+      "status": 200,
+      "url": "https://api.os.uk/downloads/v1/products/GB-Hex-1km-Mining-Haz"
+    },
+    {
+      "bytes": 2649,
+      "etag": null,
+      "lastModified": null,
+      "retrievedAt": "2026-10-02T01:17:57.679499Z",
+      "sha256": "9713cb535aa07bdc72b2b6fdaef39171c1d15a3e0e38792bc7faa9cc3dd267ec",
+      "status": 200,
+      "url": "https://api.os.uk/downloads/v1/products/Soil_Parent_Material_Model_1km"
+    },
+    {
+      "bytes": 2778,
+      "etag": null,
+      "lastModified": null,
+      "retrievedAt": "2026-10-02T01:17:57.962933Z",
+      "sha256": "765f7f16a4d064533fcca9e054e7d042f21f1daa846be5e4e85e7d674f0ccf7b",
+      "status": 200,
+      "url": "https://api.os.uk/downloads/v1/products/Radon_Indicative_Atlas"
+    },
+    {
+      "bytes": 1025,
+      "etag": null,
+      "lastModified": null,
+      "retrievedAt": "2026-10-02T01:17:58.223522Z",
+      "sha256": "ba843bf78410aa1c0e852ee780d4aa69e9c648a214d2ac0e5f94b1ba222da6d0",
+      "status": 200,
+      "url": "https://api.os.uk/downloads/v1/products/BoundaryLine"
+    },
+    {
+      "bytes": 1124,
+      "etag": null,
+      "lastModified": null,
+      "retrievedAt": "2026-10-02T01:17:58.500725Z",
+      "sha256": "e4becaaad09c4745e19ee513f6d580a64b699cfe02e7c197f55183fe57163266",
+      "status": 200,
+      "url": "https://api.os.uk/downloads/v1/products/CodePointOpen"
+    },
+    {
+      "bytes": 725,
+      "etag": null,
+      "lastModified": null,
+      "retrievedAt": "2026-10-02T01:17:58.768549Z",
+      "sha256": "9f34dca861bb59c7f7fecb38bf0a16f80ba4174411d3bae18980a08137d919db",
+      "status": 200,
+      "url": "https://api.os.uk/downloads/v1/products/GBOverviewMaps"
+    },
+    {
+      "bytes": 943,
+      "etag": null,
+      "lastModified": null,
+      "retrievedAt": "2026-10-02T01:17:59.040965Z",
+      "sha256": "233f94af4f2790f118ef2b98158381dd53d70d2d5b2eb73ba538041a9c5458f9",
+      "status": 200,
+      "url": "https://api.os.uk/downloads/v1/products/MiniScale"
+    },
+    {
+      "bytes": 986,
+      "etag": null,
+      "lastModified": null,
+      "retrievedAt": "2026-10-02T01:17:59.295994Z",
+      "sha256": "8f4a0fca65ede8316a7e957ad27ebb58de1d1ea7ffa69c36b32b3d096bea2c8e",
+      "status": 200,
+      "url": "https://api.os.uk/downloads/v1/products/BuiltUpAreas"
+    },
+    {
+      "bytes": 1470,
+      "etag": null,
+      "lastModified": null,
+      "retrievedAt": "2026-10-02T01:17:59.593610Z",
+      "sha256": "3ad85a031e676546b9987c48cf3d60126e888f5969cfc8d2ba47aa255c930137",
+      "status": 200,
+      "url": "https://api.os.uk/downloads/v1/products/OpenGreenspace"
+    },
+    {
+      "bytes": 1228,
+      "etag": null,
+      "lastModified": null,
+      "retrievedAt": "2026-10-02T01:17:59.846174Z",
+      "sha256": "882cdc6ec0ae6ff94fe518012a7387465448d91a58cd3f7ad7b706ad2f1d5242",
+      "status": 200,
+      "url": "https://api.os.uk/downloads/v1/products/LIDS"
+    },
+    {
+      "bytes": 1056,
+      "etag": null,
+      "lastModified": null,
+      "retrievedAt": "2026-10-02T01:18:00.122039Z",
+      "sha256": "aae35bb5c233ab608e1eaf99bbf26bdcc7f503ee4fed1c629e7a6e9525502379",
+      "status": 200,
+      "url": "https://api.os.uk/downloads/v1/products/OpenNames"
+    },
+    {
+      "bytes": 918,
+      "etag": null,
+      "lastModified": null,
+      "retrievedAt": "2026-10-02T01:18:00.372364Z",
+      "sha256": "90550edcf615558bcc2f784847e101cbcde63285d84d435946ccccd1fab72f57",
+      "status": 200,
+      "url": "https://api.os.uk/downloads/v1/products/OpenRivers"
+    },
+    {
+      "bytes": 948,
+      "etag": null,
+      "lastModified": null,
+      "retrievedAt": "2026-10-02T01:18:00.633766Z",
+      "sha256": "b69675fb481c193a6cd1e4a938933395dd349952e95b5075bd181144e34b5396",
+      "status": 200,
+      "url": "https://api.os.uk/downloads/v1/products/OpenRoads"
+    },
+    {
+      "bytes": 1292,
+      "etag": null,
+      "lastModified": null,
+      "retrievedAt": "2026-10-02T01:18:00.962133Z",
+      "sha256": "3871b2f55ce9a45996bf98812b460276bc3dd47db1b927cd526c19d456c90495",
+      "status": 200,
+      "url": "https://api.os.uk/downloads/v1/products/OpenTOID"
+    },
+    {
+      "bytes": 964,
+      "etag": null,
+      "lastModified": null,
+      "retrievedAt": "2026-10-02T01:18:01.215592Z",
+      "sha256": "28f27e7cf37c9491036ebb0c205018e75d735cc6f37187fd4f68ae2ddfb9467a",
+      "status": 200,
+      "url": "https://api.os.uk/downloads/v1/products/OpenUPRN"
+    },
+    {
+      "bytes": 947,
+      "etag": null,
+      "lastModified": null,
+      "retrievedAt": "2026-10-02T01:18:01.483951Z",
+      "sha256": "84b27f065ae7da38028d4d0859ff7c35bc15a39ccc44bc8024c1d8c2f159637c",
+      "status": 200,
+      "url": "https://api.os.uk/downloads/v1/products/OpenUSRN"
+    },
+    {
+      "bytes": 1081,
+      "etag": null,
+      "lastModified": null,
+      "retrievedAt": "2026-10-02T01:18:01.728105Z",
+      "sha256": "6a82a72f35701aad0a2526bc703212f0d9716868f660dc1e9db6549e90afd450",
+      "status": 200,
+      "url": "https://api.os.uk/downloads/v1/products/OpenZoomstack"
+    },
+    {
+      "bytes": 1399,
+      "etag": null,
+      "lastModified": null,
+      "retrievedAt": "2026-10-02T01:18:01.984833Z",
+      "sha256": "806d7e318f019f6c6d2a530eeb44e967f2d50e034dae3bbd6391f8fb3a3de5f5",
+      "status": 200,
+      "url": "https://api.os.uk/downloads/v1/products/OpenMapLocal"
+    },
+    {
+      "bytes": 1019,
+      "etag": null,
+      "lastModified": null,
+      "retrievedAt": "2026-10-02T01:18:02.238262Z",
+      "sha256": "7119215f324112250a5e2b9653cfdfa694136dbd33c9119e57dc33dab28750b0",
+      "status": 200,
+      "url": "https://api.os.uk/downloads/v1/products/Terrain50"
+    },
+    {
+      "bytes": 1387,
+      "etag": null,
+      "lastModified": null,
+      "retrievedAt": "2026-10-02T01:18:02.488231Z",
+      "sha256": "c6fd7dbc3739ce6da64e8d95f2bb0bf88cdb8f4454162c8443ff2880a7a3373d",
+      "status": 200,
+      "url": "https://api.os.uk/downloads/v1/products/VectorMapDistrict"
+    }
+  ],
+  "records": [
+    {
+      "areas": [
+        "GB"
+      ],
+      "categories": [
+        "mapsAndImagery"
+      ],
+      "category": "Mapping",
+      "dataStructures": [
+        "Raster"
+      ],
+      "description": [
+        "1:250 000 Scale Colour Raster is a small-scale, digital, raster mapping product giving a regional view, similar in content and appearance to a typical road atlas."
+      ],
+      "documentationUrl": "https://docs.os.uk/os-downloads/products/maps-and-imagery-portfolio/1-250-000-scale-colour-raster/1-250-000-scale-colour-raster-overview",
+      "downloadsUrl": "https://api.os.uk/downloads/v1/products/250kScaleColourRaster/downloads",
+      "formats": [
+        {
+          "format": "TIFF-LZW"
+        }
+      ],
+      "id": "250kScaleColourRaster",
+      "name": "1:250 000 Scale Colour Raster™",
+      "supportingInfo": [
+        {
+          "link": "https://docs.os.uk/os-downloads/products/maps-and-imagery-portfolio/1-250-000-scale-colour-raster/1-250-000-scale-colour-raster-technical-specification",
+          "name": "Technical Specification"
+        }
+      ],
+      "url": "https://api.os.uk/downloads/v1/products/250kScaleColourRaster",
+      "version": "2026-06"
+    },
+    {
+      "areas": [
+        "GB"
+      ],
+      "categories": [
+        "geological"
+      ],
+      "category": "Geological",
+      "dataStructures": [
+        "Vector"
+      ],
+      "description": [
+        "BGS GeoCoast Open contains a detailed suite of statistical data based on the underlying datasets (GeoCoast Premium). These include, for example, percentage of county at threat from inundation and percentage of county coastline with high susceptibility to erosion. In addition, there is a tool to compare or share best practise at a regional scale and streamline the consideration of multiple underlying datasets through a simple, high-level scheme, presented as domains.",
+        "GeoCoast Open consists of: regional statistics (shapefiles); coastal domains for erosion and morphology."
+      ],
+      "documentationUrl": "https://www.bgs.ac.uk/datasets/geocoast-open/",
+      "downloadsUrl": "https://api.os.uk/downloads/v1/products/GeoCoast_Open/downloads",
+      "formats": [
+        {
+          "format": "ESRI® Shapefile"
+        }
+      ],
+      "id": "GeoCoast_Open",
+      "name": "BGS GeoCoast Open",
+      "supportingInfo": [
+        {
+          "link": "https://www.bgs.ac.uk/download/bgs-geocoast-user-guide/?wpdmdl=83617&amp;refresh=65e19e268bfba1709284902",
+          "name": "User Guide"
+        }
+      ],
+      "url": "https://api.os.uk/downloads/v1/products/GeoCoast_Open",
+      "version": "Version 1"
+    },
+    {
+      "areas": [
+        "GB"
+      ],
+      "categories": [
+        "geological"
+      ],
+      "category": "Geological",
+      "dataStructures": [
+        "Vector"
+      ],
+      "description": [
+        "The BGS GeoScour Open datasets provide a generalised overview of the natural characteristics and properties of catchment and riverine environments for the assessment of river scour in Great Britain.",
+        "The GeoScour Open dataset comprises two different tiers of geographical information system data containing seven different data layers. Each tier represents a different scale of assessment, from a high-level catchment to subcatchment data. The datasets are polygon (area) layers, which are described using straightforward classifications and enabling an indicative catchment susceptibility assessment.",
+        "Further investigation can be carried out using BGS GeoScour premium data."
+      ],
+      "documentationUrl": "https://www.bgs.ac.uk/datasets/bgs-geoscour-open/",
+      "downloadsUrl": "https://api.os.uk/downloads/v1/products/GeoScour_Open/downloads",
+      "formats": [
+        {
+          "format": "ESRI® Shapefile"
+        }
+      ],
+      "id": "GeoScour_Open",
+      "name": "BGS GeoScour Open",
+      "supportingInfo": [
+        {
+          "link": "https://www.bgs.ac.uk/download/bgs-geoscour-user-guide/?wpdmdl=85955",
+          "name": "User Guide"
+        },
+        {
+          "link": "https://storymaps.arcgis.com/stories/6493e8ec34e0444289b9f3151f4a9d34",
+          "name": "Storymap Case Study - River Erosion"
+        }
+      ],
+      "url": "https://api.os.uk/downloads/v1/products/GeoScour_Open",
+      "version": "Version 2"
+    },
+    {
+      "areas": [
+        "GB"
+      ],
+      "categories": [
+        "geological"
+      ],
+      "category": "Geological",
+      "dataStructures": [
+        "Vector"
+      ],
+      "description": [
+        "The BGS GeoSure 5 km hex grid datasets provide a generalised overview of the susceptibility to six naturally occurring geohazards in Great Britain. The hexagon grid provides a national-scale summary of the GeoSure data product. The detailed GeoSure dataset is also available to licence and provides further detail at a scale of 1:50 000.",
+        "The 5 km hex grid data has been generalised into a vector map of interlocking hexagon cells (a side length of 5 km), with an area approximately 65 km² . There are three classes included within the data: low, moderate and significant.",
+        "The six BGS GeoSure data layers provided are: collapsible deposits, compressible ground, landslides, running sand, shrink–swell and soluble rocks.",
+        "Further investigation can be carried out using BGS GeoSure premium data for each hazard type."
+      ],
+      "documentationUrl": "https://www.bgs.ac.uk/datasets/bgs-geosure-5-km-hex-grid/",
+      "downloadsUrl": "https://api.os.uk/downloads/v1/products/GB-Hex-5km-GeoSure/downloads",
+      "formats": [
+        {
+          "format": "ESRI® Shapefile"
+        },
+        {
+          "format": "GeoPackage"
+        }
+      ],
+      "id": "GB-Hex-5km-GeoSure",
+      "name": "BGS GeoSure 5 km hex grid",
+      "supportingInfo": [
+        {
+          "link": "https://www.bgs.ac.uk/download/bgs-geosure-5km-hex-grids-information-note/?wpdmdl=16281&amp;refresh=65e18e0e00c371709280782",
+          "name": "Information Note"
+        }
+      ],
+      "url": "https://api.os.uk/downloads/v1/products/GB-Hex-5km-GeoSure",
+      "version": "Version 8"
+    },
+    {
+      "areas": [
+        "UK"
+      ],
+      "categories": [
+        "geological"
+      ],
+      "category": "Geological",
+      "dataStructures": [
+        "Vector"
+      ],
+      "description": [
+        "Generalised digital geological map data based on BGS’ published poster maps of the UK (north and south). Bedrock-related themes were created by generalisation of 1:50 000 data to make the 2007 fifth edition bedrock geology map.",
+        "The geological areas (or polygons) are labelled or attributed with a name based on their lithostratographical, chronostratographical or lithodemic nomenclature and their composition (rock type or lithology). Faults and other linear features are available in a separate theme.",
+        "Geology maps are the foundation for many other types of earth science-related maps and are of potential use to a wide range of customers. This dataset uses the themes: (i) bedrock geology; (ii) dykes; and (iii) linear (faults) features."
+      ],
+      "documentationUrl": "https://www.bgs.ac.uk/datasets/bgs-geology-625k/",
+      "downloadsUrl": "https://api.os.uk/downloads/v1/products/BGS_Geology_625k/downloads",
+      "formats": [
+        {
+          "format": "ESRI® Shapefile"
+        },
+        {
+          "format": "MapInfo"
+        }
+      ],
+      "id": "BGS_Geology_625k",
+      "name": "BGS Geology 625K",
+      "url": "https://api.os.uk/downloads/v1/products/BGS_Geology_625k",
+      "version": "Version 5"
+    },
+    {
+      "areas": [
+        "UK"
+      ],
+      "categories": [
+        "geological"
+      ],
+      "category": "Geological",
+      "dataStructures": [
+        "Vector"
+      ],
+      "description": [
+        "The BGS hydrogeological map indicates aquifer potential in generalised terms using a threefold division of geological formations: (i) those in which intergranular flow in the saturated zone is dominant; (ii) those in which flow is controlled by fissures or discontinuities; and (iii) less permeable formations including aquifers concealed at depth beneath covering layers.",
+        "Highly productive aquifers are distinguished from those that are only of local importance or have no significant groundwater. Within each of these classes the strata are grouped together according to age or lithology.",
+        "The 1:625 000-scale data may be used as a guide to the aquifers at a regional or national level, but should not be relied on for local information."
+      ],
+      "documentationUrl": "https://www.bgs.ac.uk/datasets/hydrogeology-625k/",
+      "downloadsUrl": "https://api.os.uk/downloads/v1/products/Hydrogeology_625k/downloads",
+      "formats": [
+        {
+          "format": "ESRI® Shapefile"
+        },
+        {
+          "format": "GeoPackage"
+        }
+      ],
+      "id": "Hydrogeology_625k",
+      "name": "BGS Hydrogeology 625k digital hydrogeological map of the UK",
+      "url": "https://api.os.uk/downloads/v1/products/Hydrogeology_625k",
+      "version": "Version 5"
+    },
+    {
+      "areas": [
+        "GB"
+      ],
+      "categories": [
+        "geological"
+      ],
+      "category": "Geological",
+      "dataStructures": [
+        "Vector"
+      ],
+      "description": [
+        "The BGS mining hazard (not including coal) 1 km hex grid dataset provides a generalised overview of the likelihood for mining to have occurred. It provides a national-scale summary of the presence of mining and an indication of the level of hazard associated with old workings.",
+        "The data has been generalised into a vector map of interlocking hexagon cells, side length 1 km, area approximately 2.6 km²",
+        "There are four classes included within the data: (i) low: localised, small-scale mining may have occurred in the area; (ii) moderate: small-scale, underground mining may have occurred in the area; (iii) significant: underground mining is known or considered likely to have occurred in the area; and (iv) NA: no record of activity.",
+        "The data has been generalised from the BGS mining hazard (not including coal) dataset. This additional, detailed dataset is also available to licence and provides further detail as well as information on the type of commodity extracted, mine names and any additional details where available, at a scale of 1:50 000.",
+        "Further investigation can be carried out using BGS Mining Hazard (not including Coal) premium data."
+      ],
+      "documentationUrl": "https://www.bgs.ac.uk/datasets/mining-hazard-not-including-coal-1-km-hex-grid/",
+      "downloadsUrl": "https://api.os.uk/downloads/v1/products/GB-Hex-1km-Mining-Haz/downloads",
+      "formats": [
+        {
+          "format": "ESRI® Shapefile"
+        },
+        {
+          "format": "GeoPackage"
+        }
+      ],
+      "id": "GB-Hex-1km-Mining-Haz",
+      "name": "BGS Mining hazard (not including coal) 1 km hex grid",
+      "supportingInfo": [
+        {
+          "link": "https://www.bgs.ac.uk/?wpdmdl=11857",
+          "name": "Information Note"
+        }
+      ],
+      "url": "https://api.os.uk/downloads/v1/products/GB-Hex-1km-Mining-Haz",
+      "version": "Version 8"
+    },
+    {
+      "areas": [
+        "GB"
+      ],
+      "categories": [
+        "geological"
+      ],
+      "category": "Geological",
+      "dataStructures": [
+        "Vector"
+      ],
+      "description": [
+        "Soils are the result of weathering processes that occur on the Earth’s surface where the atmosphere meets the geosphere and hydrosphere. We live in this ‘critical zone’, relying on our soils to grow our food and sustain the biodiversity and health of our environment.",
+        "A ‘parent material’ is a soil-science name for a weathered rock or deposit from and within which a soil has formed. In Great Britain, parent materials provide the basic foundations and building blocks of the soil, influencing their texture, structure, drainage and chemistry.",
+        "The Soil Parent Material Model details the distribution of physiochemical properties of the weathered and unweathered parent materials of Great Britain to: (i) facilitate spatial mapping of soil properties Great Britain; (ii) identify soils and landscapes sensitive to erosion; (iii) provide a national overview of our soil resource; and (iv) develop a better understanding of weathering properties and processes."
+      ],
+      "documentationUrl": "https://www.bgs.ac.uk/datasets/soil-parent-material-model/",
+      "downloadsUrl": "https://api.os.uk/downloads/v1/products/Soil_Parent_Material_Model_1km/downloads",
+      "formats": [
+        {
+          "format": "ESRI® Shapefile"
+        },
+        {
+          "format": "GeoPackage"
+        }
+      ],
+      "id": "Soil_Parent_Material_Model_1km",
+      "name": "BGS Soil Parent Material Model",
+      "supportingInfo": [
+        {
+          "link": "https://www.bgs.ac.uk/?wpdmdl=12059",
+          "name": "User Guide (1 km resolution)"
+        }
+      ],
+      "url": "https://api.os.uk/downloads/v1/products/Soil_Parent_Material_Model_1km",
+      "version": "Version 6"
+    },
+    {
+      "areas": [
+        "GB",
+        "NI"
+      ],
+      "categories": [
+        "geological"
+      ],
+      "category": "Geological",
+      "dataStructures": [
+        "Vector"
+      ],
+      "description": [
+        "The joint UK Health Security Agency (UKHSA)-BGS Indicative Atlas of Radon in the United Kingdom presents an overview of the results of detailed mapping of radon potential (defined as the estimated percentage of homes in an area above the radon action level).",
+        "The Radon potential dataset for the United Kingdom provides the current definitive map of radon-affected areas in the United Kingdom. This data presents a simplified version of the radon potential dataset with each 1 km-grid square being classed according to the highest radon potential found within it, so is indicative rather than definitive.",
+        "UKHSA recommends that radon levels should be reduced in homes where the annual average is at or above 200 becquerels per cubic metre (200 Bq/m³ ) — this is termed the radon action level.",
+        "Further investigation can be carried out using the detailed BGS/UKHSA Radon Potential dataset."
+      ],
+      "documentationUrl": "https://www.bgs.ac.uk/datasets/radon-data-indicative-atlas-of-radon/",
+      "downloadsUrl": "https://api.os.uk/downloads/v1/products/Radon_Indicative_Atlas/downloads",
+      "formats": [
+        {
+          "format": "ESRI® Shapefile"
+        },
+        {
+          "format": "GeoPackage"
+        }
+      ],
+      "id": "Radon_Indicative_Atlas",
+      "name": "BGS/UKHSA Radon data: Indicative Atlas of Radon",
+      "supportingInfo": [
+        {
+          "link": "https://nora.nerc.ac.uk/id/eprint/537367/1/OR24026.pdf",
+          "name": "User Guide Great Britain"
+        },
+        {
+          "link": "https://www.bgs.ac.uk/download/radon-potential-dataset-user-guide-northern-ireland/?wpdmdl=18772&amp;refresh=65e1e223f2dc21709302307",
+          "name": "User Guide Northern Ireland"
+        }
+      ],
+      "url": "https://api.os.uk/downloads/v1/products/Radon_Indicative_Atlas",
+      "version": "Version 3 (GB); Version 1 (NI)"
+    },
+    {
+      "areas": [
+        "GB"
+      ],
+      "categories": [
+        "areasAndZones"
+      ],
+      "category": "Lookups",
+      "dataStructures": [
+        "Vector"
+      ],
+      "description": [
+        "From parliamentary constituencies to council wards, Boundary-Line maps every administrative boundary in detail for you."
+      ],
+      "documentationUrl": "https://docs.os.uk/os-downloads/products/areas-and-zones-portfolio/boundary-line/boundary-line-overview",
+      "downloadsUrl": "https://api.os.uk/downloads/v1/products/BoundaryLine/downloads",
+      "formats": [
+        {
+          "format": "ESRI® Shapefile"
+        },
+        {
+          "format": "GML",
+          "subformat": "3"
+        },
+        {
+          "format": "MapInfo® TAB"
+        },
+        {
+          "format": "GeoPackage"
+        },
+        {
+          "format": "Vector Tiles",
+          "subformat": "(MBTiles)"
+        }
+      ],
+      "id": "BoundaryLine",
+      "name": "Boundary-Line™",
+      "supportingInfo": [
+        {
+          "link": "https://docs.os.uk/os-downloads/products/areas-and-zones-portfolio/boundary-line/boundary-line-technical-specification",
+          "name": "Technical Specification"
+        }
+      ],
+      "url": "https://api.os.uk/downloads/v1/products/BoundaryLine",
+      "version": "2026-10"
+    },
+    {
+      "areas": [
+        "GB"
+      ],
+      "categories": [
+        "addressesAndNames",
+        "areasAndZones"
+      ],
+      "category": "Lookups",
+      "dataStructures": [
+        "Vector"
+      ],
+      "description": [
+        "An open dataset of all the current postcode units in Great Britain. Get started with geographical analysis, simple route planning and asset management."
+      ],
+      "documentationUrl": "https://docs.os.uk/os-downloads/products/areas-and-zones-portfolio/code-point-open/code-point-open-overview",
+      "downloadsUrl": "https://api.os.uk/downloads/v1/products/CodePointOpen/downloads",
+      "formats": [
+        {
+          "format": "CSV"
+        },
+        {
+          "format": "GeoPackage"
+        }
+      ],
+      "id": "CodePointOpen",
+      "name": "Code-Point® Open",
+      "supportingInfo": [
+        {
+          "link": "https://docs.os.uk/os-downloads/products/areas-and-zones-portfolio/code-point-open/code-point-open-technical-specification",
+          "name": "Technical Specification"
+        },
+        {
+          "link": "https://docs.os.uk/os-downloads/products/areas-and-zones-portfolio/code-point-open/code-point-open-getting-started-guide",
+          "name": "Getting Started"
+        }
+      ],
+      "url": "https://api.os.uk/downloads/v1/products/CodePointOpen",
+      "version": "2026-08"
+    },
+    {
+      "areas": [
+        "GB"
+      ],
+      "categories": [
+        "mapsAndImagery"
+      ],
+      "category": "Mapping",
+      "dataStructures": [
+        "Raster"
+      ],
+      "description": [
+        "Our simplest overview maps of Great Britain."
+      ],
+      "downloadsUrl": "https://api.os.uk/downloads/v1/products/GBOverviewMaps/downloads",
+      "formats": [
+        {
+          "format": "GeoTIFF",
+          "subformat": "Full Colour"
+        }
+      ],
+      "id": "GBOverviewMaps",
+      "name": "GB Overview Maps",
+      "supportingInfo": [
+        {
+          "link": "https://docs.os.uk/os-downloads/products/maps-and-imagery-portfolio/gb-overview-maps/gb-overview-maps-technical-specification",
+          "name": "Technical Specification"
+        }
+      ],
+      "url": "https://api.os.uk/downloads/v1/products/GBOverviewMaps",
+      "version": "2026-01"
+    },
+    {
+      "areas": [
+        "GB"
+      ],
+      "categories": [
+        "mapsAndImagery"
+      ],
+      "category": "Mapping",
+      "dataStructures": [
+        "Raster"
+      ],
+      "description": [
+        "MiniScale is a free small-scale digital map of Great Britain in a single data file that clearly shows towns and cities, motorways, major roads, railways and airports."
+      ],
+      "documentationUrl": "https://docs.os.uk/os-downloads/products/maps-and-imagery-portfolio/miniscale/miniscale-overview",
+      "downloadsUrl": "https://api.os.uk/downloads/v1/products/MiniScale/downloads",
+      "formats": [
+        {
+          "format": "Zip file (containing EPS, Illustrator and TIFF-LZW)"
+        }
+      ],
+      "id": "MiniScale",
+      "name": "MiniScale®",
+      "supportingInfo": [
+        {
+          "link": "https://docs.os.uk/os-downloads/products/maps-and-imagery-portfolio/miniscale/miniscale-technical-specification",
+          "name": "Technical Specification"
+        }
+      ],
+      "url": "https://api.os.uk/downloads/v1/products/MiniScale",
+      "version": "2026-01"
+    },
+    {
+      "areas": [
+        "GB"
+      ],
+      "categories": [
+        "areasAndZones"
+      ],
+      "category": "Lookups",
+      "dataStructures": [
+        "Vector"
+      ],
+      "description": [
+        "OS Open Built Up Areas represents the built-up areas of Great Britain equal to or greater than 200,000m² or 20 hectares and they include unique names, alternative language names and GSS codes."
+      ],
+      "documentationUrl": "https://docs.os.uk/os-downloads/products/areas-and-zones-portfolio/os-open-built-up-areas",
+      "downloadsUrl": "https://api.os.uk/downloads/v1/products/BuiltUpAreas/downloads",
+      "formats": [
+        {
+          "format": "CSV"
+        },
+        {
+          "format": "GeoPackage"
+        }
+      ],
+      "id": "BuiltUpAreas",
+      "name": "OS Open Built Up Areas",
+      "supportingInfo": [
+        {
+          "link": "https://docs.os.uk/os-downloads/products/areas-and-zones-portfolio/os-open-built-up-areas/os-open-built-up-areas-technical-specification",
+          "name": "Technical Specification"
+        }
+      ],
+      "url": "https://api.os.uk/downloads/v1/products/BuiltUpAreas",
+      "version": "2026-04"
+    },
+    {
+      "areas": [
+        "GB",
+        "HP",
+        "HT",
+        "HU",
+        "HY",
+        "HZ",
+        "NA",
+        "NB",
+        "NC",
+        "ND",
+        "NF",
+        "NG",
+        "NH",
+        "NJ",
+        "NK",
+        "NL",
+        "NM",
+        "NN",
+        "NO",
+        "NR",
+        "NS",
+        "NT",
+        "NU",
+        "NW",
+        "NX",
+        "NY",
+        "NZ",
+        "SD",
+        "SE",
+        "SH",
+        "SJ",
+        "SK",
+        "SM",
+        "SN",
+        "SO",
+        "SP",
+        "SR",
+        "SS",
+        "ST",
+        "SU",
+        "SV",
+        "SW",
+        "SX",
+        "SY",
+        "SZ",
+        "TA",
+        "TF",
+        "TG",
+        "TL",
+        "TM",
+        "TQ",
+        "TR",
+        "TV"
+      ],
+      "categories": [
+        "landAndTerrain"
+      ],
+      "category": "Greenspace",
+      "dataStructures": [
+        "Vector"
+      ],
+      "description": [
+        "Covering a range of greenspaces in urban and rural areas including playing fields, sports’ facilities, play areas and allotments."
+      ],
+      "documentationUrl": "https://docs.os.uk/os-downloads/products/land-and-terrain-portfolio/os-open-greenspace/os-open-greenspace-overview",
+      "downloadsUrl": "https://api.os.uk/downloads/v1/products/OpenGreenspace/downloads",
+      "formats": [
+        {
+          "format": "ESRI® Shapefile"
+        },
+        {
+          "format": "GML",
+          "subformat": "3"
+        },
+        {
+          "format": "GeoPackage"
+        },
+        {
+          "format": "Vector Tiles",
+          "subformat": "(MBTiles)"
+        }
+      ],
+      "id": "OpenGreenspace",
+      "name": "OS Open Greenspace",
+      "supportingInfo": [
+        {
+          "link": "https://docs.os.uk/os-downloads/products/land-and-terrain-portfolio/os-open-greenspace/os-open-greenspace-technical-specification",
+          "name": "Technical Specification"
+        },
+        {
+          "link": "https://docs.os.uk/os-downloads/products/land-and-terrain-portfolio/os-open-greenspace/os-open-greenspace-getting-started-guide",
+          "name": "Getting Started"
+        }
+      ],
+      "url": "https://api.os.uk/downloads/v1/products/OpenGreenspace",
+      "version": "2026-04"
+    },
+    {
+      "areas": [
+        "GB"
+      ],
+      "categories": [
+        "addressesAndNames",
+        "buildingsAndInfrastructure",
+        "landAndTerrain",
+        "transportNetworks",
+        "water"
+      ],
+      "category": "Identifiers",
+      "dataStructures": [
+        "Identifier"
+      ],
+      "description": [
+        "A comprehensive dataset that provides authoritative relationship between UPRNs, USRNs, TOIDs and meta data to enable reliable matching."
+      ],
+      "documentationUrl": "https://docs.os.uk/os-downloads/products/buildings-and-infrastructure-portfolio/os-open-linked-identifiers/os-open-linked-identifiers-overview",
+      "downloadsUrl": "https://api.os.uk/downloads/v1/products/LIDS/downloads",
+      "formats": [
+        {
+          "format": "CSV"
+        }
+      ],
+      "id": "LIDS",
+      "name": "OS Open Linked Identifiers",
+      "supportingInfo": [
+        {
+          "link": "https://docs.os.uk/os-downloads/products/buildings-and-infrastructure-portfolio/os-open-linked-identifiers/os-open-linked-identifiers-technical-specification",
+          "name": "Technical Specification"
+        },
+        {
+          "link": "https://docs.os.uk/os-downloads/products/buildings-and-infrastructure-portfolio/os-open-linked-identifiers/os-open-linked-identifiers-getting-started-guide",
+          "name": "Getting Started"
+        }
+      ],
+      "url": "https://api.os.uk/downloads/v1/products/LIDS",
+      "version": "2026-09"
+    },
+    {
+      "areas": [
+        "GB"
+      ],
+      "categories": [
+        "addressesAndNames"
+      ],
+      "category": "Lookups",
+      "dataStructures": [
+        "Vector"
+      ],
+      "description": [
+        "A comprehensive dataset of place names, roads numbers and postcodes for Great Britain."
+      ],
+      "documentationUrl": "https://docs.os.uk/os-downloads/products/addresses-and-names-portfolio/os-open-names/os-open-names-overview",
+      "downloadsUrl": "https://api.os.uk/downloads/v1/products/OpenNames/downloads",
+      "formats": [
+        {
+          "format": "CSV"
+        },
+        {
+          "format": "GML",
+          "subformat": "3"
+        },
+        {
+          "format": "GeoPackage"
+        }
+      ],
+      "id": "OpenNames",
+      "name": "OS Open Names",
+      "supportingInfo": [
+        {
+          "link": "https://docs.os.uk/os-downloads/products/addresses-and-names-portfolio/os-open-names/os-open-names-technical-specification",
+          "name": "Technical Specification"
+        },
+        {
+          "link": "https://docs.os.uk/os-downloads/products/addresses-and-names-portfolio/os-open-names/os-open-names-getting-started-guide",
+          "name": "Getting Started"
+        }
+      ],
+      "url": "https://api.os.uk/downloads/v1/products/OpenNames",
+      "version": "2026-07"
+    },
+    {
+      "areas": [
+        "GB"
+      ],
+      "categories": [
+        "water"
+      ],
+      "category": "Networks",
+      "dataStructures": [
+        "Vector"
+      ],
+      "description": [
+        "An open dataset of the high-level view of watercourse in Great Britain."
+      ],
+      "documentationUrl": "https://docs.os.uk/os-downloads/products/water-portfolio/os-open-rivers/os-open-rivers-overview",
+      "downloadsUrl": "https://api.os.uk/downloads/v1/products/OpenRivers/downloads",
+      "formats": [
+        {
+          "format": "ESRI® Shapefile"
+        },
+        {
+          "format": "GML",
+          "subformat": "3"
+        },
+        {
+          "format": "GeoPackage"
+        },
+        {
+          "format": "Vector Tiles",
+          "subformat": "(MBTiles)"
+        }
+      ],
+      "id": "OpenRivers",
+      "name": "OS Open Rivers",
+      "supportingInfo": [
+        {
+          "link": "https://docs.os.uk/os-downloads/products/water-portfolio/os-open-rivers/os-open-rivers-technical-specification",
+          "name": "Technical Specification"
+        }
+      ],
+      "url": "https://api.os.uk/downloads/v1/products/OpenRivers",
+      "version": "2026-04"
+    },
+    {
+      "areas": [
+        "GB"
+      ],
+      "categories": [
+        "transportNetworks"
+      ],
+      "category": "Networks",
+      "dataStructures": [
+        "Vector"
+      ],
+      "description": [
+        "Get a high-level view of the road network, from motorways to country lanes."
+      ],
+      "documentationUrl": "https://docs.os.uk/os-downloads/products/transport-network-portfolio/os-open-roads/os-open-roads-overview",
+      "downloadsUrl": "https://api.os.uk/downloads/v1/products/OpenRoads/downloads",
+      "formats": [
+        {
+          "format": "ESRI® Shapefile"
+        },
+        {
+          "format": "GML",
+          "subformat": "3"
+        },
+        {
+          "format": "GeoPackage"
+        },
+        {
+          "format": "Vector Tiles",
+          "subformat": "(MBTiles)"
+        }
+      ],
+      "id": "OpenRoads",
+      "name": "OS Open Roads",
+      "supportingInfo": [
+        {
+          "link": "https://docs.os.uk/os-downloads/products/transport-network-portfolio/os-open-roads/os-open-roads-technical-specification",
+          "name": "Technical Specification"
+        }
+      ],
+      "url": "https://api.os.uk/downloads/v1/products/OpenRoads",
+      "version": "2026-04"
+    },
+    {
+      "areas": [
+        "HP",
+        "HT",
+        "HU",
+        "HW",
+        "HX",
+        "HY",
+        "HZ",
+        "NA",
+        "NB",
+        "NC",
+        "ND",
+        "NF",
+        "NG",
+        "NH",
+        "NJ",
+        "NK",
+        "NL",
+        "NM",
+        "NN",
+        "NO",
+        "NR",
+        "NS",
+        "NT",
+        "NU",
+        "NW",
+        "NX",
+        "NY",
+        "NZ",
+        "SD",
+        "SE",
+        "SH",
+        "SJ",
+        "SK",
+        "SM",
+        "SN",
+        "SO",
+        "SP",
+        "SR",
+        "SS",
+        "ST",
+        "SU",
+        "SV",
+        "SW",
+        "SX",
+        "SY",
+        "SZ",
+        "TA",
+        "TF",
+        "TG",
+        "TL",
+        "TM",
+        "TQ",
+        "TR",
+        "TV"
+      ],
+      "categories": [
+        "buildingsAndInfrastructure",
+        "landAndTerrain",
+        "water"
+      ],
+      "category": "Identifiers",
+      "dataStructures": [
+        "Vector"
+      ],
+      "description": [
+        "An open dataset providing access to a generalised location to key features found in OS MasterMap premium products enabling visualisation of third party data linked to their respective TOID identifier."
+      ],
+      "documentationUrl": "https://docs.os.uk/os-downloads/products/buildings-and-infrastructure-portfolio/os-open-toid/os-open-toid-overview",
+      "downloadsUrl": "https://api.os.uk/downloads/v1/products/OpenTOID/downloads",
+      "formats": [
+        {
+          "format": "CSV"
+        },
+        {
+          "format": "GeoPackage"
+        }
+      ],
+      "id": "OpenTOID",
+      "name": "OS Open TOID",
+      "supportingInfo": [
+        {
+          "link": "https://docs.os.uk/os-downloads/products/buildings-and-infrastructure-portfolio/os-open-toid/os-open-toid-technical-specification",
+          "name": "Technical Specification"
+        }
+      ],
+      "url": "https://api.os.uk/downloads/v1/products/OpenTOID",
+      "version": "2026-08"
+    },
+    {
+      "areas": [
+        "GB"
+      ],
+      "categories": [
+        "addressesAndNames"
+      ],
+      "category": "Identifiers",
+      "dataStructures": [
+        "Vector"
+      ],
+      "description": [
+        "An open dataset containing all the Unique Property Reference Numbers (UPRNs) found in AddressBase Premium, with their respective geometries in British National Grid and Latitude, Longitude."
+      ],
+      "documentationUrl": "https://docs.os.uk/os-downloads/products/addresses-and-names-portfolio/os-open-uprn/os-open-uprn-overview",
+      "downloadsUrl": "https://api.os.uk/downloads/v1/products/OpenUPRN/downloads",
+      "formats": [
+        {
+          "format": "CSV"
+        },
+        {
+          "format": "GeoPackage"
+        }
+      ],
+      "id": "OpenUPRN",
+      "name": "OS Open UPRN",
+      "supportingInfo": [
+        {
+          "link": "https://docs.os.uk/os-downloads/products/addresses-and-names-portfolio/os-open-uprn/os-open-uprn-technical-specification",
+          "name": "Technical Specification"
+        }
+      ],
+      "url": "https://api.os.uk/downloads/v1/products/OpenUPRN",
+      "version": "2026-09"
+    },
+    {
+      "areas": [
+        "GB"
+      ],
+      "categories": [
+        "transportNetworks"
+      ],
+      "category": "Identifiers",
+      "dataStructures": [
+        "Vector"
+      ],
+      "description": [
+        "An open dataset of all Unique Street Reference Numbers (USRNs) within OS MasterMap Highways Network, with an associated simplified line geometry representing the geographic extent of each USRN."
+      ],
+      "documentationUrl": "https://docs.os.uk/os-downloads/products/transport-network-portfolio/os-open-usrn/os-open-usrn-overview",
+      "downloadsUrl": "https://api.os.uk/downloads/v1/products/OpenUSRN/downloads",
+      "formats": [
+        {
+          "format": "GeoPackage"
+        }
+      ],
+      "id": "OpenUSRN",
+      "name": "OS Open USRN",
+      "supportingInfo": [
+        {
+          "link": "https://docs.os.uk/os-downloads/products/transport-network-portfolio/os-open-usrn/os-open-usrn-technical-specification",
+          "name": "Technical Specification"
+        }
+      ],
+      "url": "https://api.os.uk/downloads/v1/products/OpenUSRN",
+      "version": "2026-10"
+    },
+    {
+      "areas": [
+        "GB"
+      ],
+      "categories": [
+        "mapsAndImagery"
+      ],
+      "category": "Mapping",
+      "dataStructures": [
+        "Vector"
+      ],
+      "description": [
+        "A comprehensive basemap of Great Britain showing coverage from national level right down to street detail."
+      ],
+      "documentationUrl": "https://docs.os.uk/os-downloads/products/maps-and-imagery-portfolio/os-open-zoomstack",
+      "downloadsUrl": "https://api.os.uk/downloads/v1/products/OpenZoomstack/downloads",
+      "formats": [
+        {
+          "format": "GeoPackage"
+        },
+        {
+          "format": "Vector Tiles",
+          "subformat": "(MBTiles)"
+        }
+      ],
+      "id": "OpenZoomstack",
+      "name": "OS Open Zoomstack",
+      "supportingInfo": [
+        {
+          "link": "https://docs.os.uk/os-downloads/products/maps-and-imagery-portfolio/os-open-zoomstack/os-open-zoomstack-technical-specification",
+          "name": "Technical Specification"
+        },
+        {
+          "link": "https://docs.os.uk/os-downloads/products/maps-and-imagery-portfolio/os-open-zoomstack/os-open-zoomstack-getting-started-guide",
+          "name": "Getting Started"
+        }
+      ],
+      "url": "https://api.os.uk/downloads/v1/products/OpenZoomstack",
+      "version": "2026-06"
+    },
+    {
+      "areas": [
+        "GB",
+        "HP",
+        "HT",
+        "HU",
+        "HW",
+        "HX",
+        "HY",
+        "HZ",
+        "NA",
+        "NB",
+        "NC",
+        "ND",
+        "NF",
+        "NG",
+        "NH",
+        "NJ",
+        "NK",
+        "NL",
+        "NM",
+        "NN",
+        "NO",
+        "NR",
+        "NS",
+        "NT",
+        "NU",
+        "NW",
+        "NX",
+        "NY",
+        "NZ",
+        "OV",
+        "SD",
+        "SE",
+        "SH",
+        "SJ",
+        "SK",
+        "SM",
+        "SN",
+        "SO",
+        "SP",
+        "SR",
+        "SS",
+        "ST",
+        "SU",
+        "SV",
+        "SW",
+        "SX",
+        "SY",
+        "SZ",
+        "TA",
+        "TF",
+        "TG",
+        "TL",
+        "TM",
+        "TQ",
+        "TR",
+        "TV"
+      ],
+      "categories": [
+        "mapsAndImagery"
+      ],
+      "category": "Mapping",
+      "dataStructures": [
+        "Raster",
+        "Vector"
+      ],
+      "description": [
+        "Map, visualise and truly understand your data at street level."
+      ],
+      "documentationUrl": "https://docs.os.uk/os-downloads/products/maps-and-imagery-portfolio/os-openmap-local/os-openmap-local-overview",
+      "downloadsUrl": "https://api.os.uk/downloads/v1/products/OpenMapLocal/downloads",
+      "formats": [
+        {
+          "format": "ESRI® Shapefile"
+        },
+        {
+          "format": "GML",
+          "subformat": "3"
+        },
+        {
+          "format": "GeoTIFF",
+          "subformat": "Full Colour"
+        },
+        {
+          "format": "GeoPackage"
+        }
+      ],
+      "id": "OpenMapLocal",
+      "name": "OS OpenMap - Local",
+      "supportingInfo": [
+        {
+          "link": "https://docs.os.uk/os-downloads/products/maps-and-imagery-portfolio/os-openmap-local/os-openmap-local-technical-specification",
+          "name": "Technical Specification"
+        },
+        {
+          "link": "https://docs.os.uk/os-downloads/products/maps-and-imagery-portfolio/os-openmap-local/os-openmap-local-getting-started-guide",
+          "name": "Getting Started"
+        }
+      ],
+      "url": "https://api.os.uk/downloads/v1/products/OpenMapLocal",
+      "version": "2026-04"
+    },
+    {
+      "areas": [
+        "GB"
+      ],
+      "categories": [
+        "landAndTerrain"
+      ],
+      "category": "Heights",
+      "dataStructures": [
+        "Vector"
+      ],
+      "description": [
+        "Visualise simple landscapes in 3D and bring your geographic analysis to life."
+      ],
+      "documentationUrl": "https://docs.os.uk/os-downloads/products/land-and-terrain-portfolio/os-terrain-50/os-terrain-50-overview",
+      "downloadsUrl": "https://api.os.uk/downloads/v1/products/Terrain50/downloads",
+      "formats": [
+        {
+          "format": "ASCII Grid and GML (Grid)"
+        },
+        {
+          "format": "ESRI® Shapefile",
+          "subformat": "(Contours)"
+        },
+        {
+          "format": "GeoPackage"
+        },
+        {
+          "format": "GML",
+          "subformat": "(Contours)"
+        },
+        {
+          "format": "Vector Tiles",
+          "subformat": "(MBTiles)"
+        }
+      ],
+      "id": "Terrain50",
+      "name": "OS Terrain® 50",
+      "supportingInfo": [
+        {
+          "link": "https://docs.os.uk/os-downloads/products/land-and-terrain-portfolio/os-terrain-50/os-terrain-50-technical-specification",
+          "name": "Technical Specification"
+        }
+      ],
+      "url": "https://api.os.uk/downloads/v1/products/Terrain50",
+      "version": "2026-07"
+    },
+    {
+      "areas": [
+        "GB",
+        "HP",
+        "HT",
+        "HU",
+        "HW",
+        "HX",
+        "HY",
+        "HZ",
+        "NA",
+        "NB",
+        "NC",
+        "ND",
+        "NF",
+        "NG",
+        "NH",
+        "NJ",
+        "NK",
+        "NL",
+        "NM",
+        "NN",
+        "NO",
+        "NR",
+        "NS",
+        "NT",
+        "NU",
+        "NW",
+        "NX",
+        "NY",
+        "NZ",
+        "OV",
+        "SD",
+        "SE",
+        "SH",
+        "SJ",
+        "SK",
+        "SM",
+        "SN",
+        "SO",
+        "SP",
+        "SR",
+        "SS",
+        "ST",
+        "SU",
+        "SV",
+        "SW",
+        "SX",
+        "SY",
+        "SZ",
+        "TA",
+        "TF",
+        "TG",
+        "TL",
+        "TM",
+        "TQ",
+        "TR",
+        "TV"
+      ],
+      "categories": [
+        "mapsAndImagery"
+      ],
+      "category": "Mapping",
+      "dataStructures": [
+        "Vector",
+        "Raster"
+      ],
+      "description": [
+        "District level mapping. Use the vectors to customise your perfect map or choose the raster for pre-defined cartography."
+      ],
+      "documentationUrl": "https://docs.os.uk/os-downloads/products/maps-and-imagery-portfolio/os-vectormap-district/os-vectormap-district-overview",
+      "downloadsUrl": "https://api.os.uk/downloads/v1/products/VectorMapDistrict/downloads",
+      "formats": [
+        {
+          "format": "ESRI® Shapefile"
+        },
+        {
+          "format": "GeoTIFF",
+          "subformat": "Backdrop"
+        },
+        {
+          "format": "GeoTIFF",
+          "subformat": "Full Colour"
+        },
+        {
+          "format": "GML",
+          "subformat": "3.2"
+        },
+        {
+          "format": "GeoPackage"
+        }
+      ],
+      "id": "VectorMapDistrict",
+      "name": "OS VectorMap® District",
+      "supportingInfo": [
+        {
+          "link": "https://docs.os.uk/os-downloads/products/maps-and-imagery-portfolio/os-vectormap-district/os-vectormap-district-technical-specification",
+          "name": "Technical Specification"
+        }
+      ],
+      "url": "https://api.os.uk/downloads/v1/products/VectorMapDistrict",
+      "version": "2026-05"
+    }
+  ],
+  "schema": "okf-plus-source-snapshot.v1"
+}

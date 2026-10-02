@@ -1,0 +1,173 @@
+---
+{
+  "@context": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/context.jsonld",
+  "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-geography-items/fbd29142ba384f189eece050b5eb8d2e",
+  "@type": [
+    "dcat:Dataset",
+    "okfp:MetadataRecord"
+  ],
+  "type": "Dataset",
+  "title": "NUTS, level 2 (January 2018) Boundaries UK BSC",
+  "description": "This file contains the digital vector boundaries for Nomenclature of Territorial Units for Statistics Level 2, in the United Kingdom, as at January 2018. The boundaries are super generalised (200m) - clipped to the coastline (Mean High Water mark). Contains both Ordnance Survey and ONS Intellectual Property Rights. REST URL of ArcGIS for INSPIRE View Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/NUTS2_(Jan_2018)_SGCB_in_the_UK/MapServer REST URL of ArcGIS for INSPIRE Feature DownloadService – https://dservices1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/services/NUTS2_Jan_2018_Super_Generalised_Clipped_Boundaries_in_the_UK/WFSServer?service=wfs&request=getcapabilities REST URL of Feature Access Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/NUTS2_Jan_2018_SGCB_in_the_UK_2022/FeatureServer",
+  "nativeIdentifier": "fbd29142ba384f189eece050b5eb8d2e",
+  "sourceFamily": "ons-geography-items",
+  "resource": "https://geoportal.statistics.gov.uk/items/fbd29142ba384f189eece050b5eb8d2e",
+  "status": "draft",
+  "generated": {
+    "by": "gis-ai-go OKF+ source producer"
+  },
+  "okfp:machineImported": true,
+  "assertionStatus": "normalised",
+  "reviewStatus": "not-human-reviewed",
+  "tags": [
+    "Boundaries",
+    "Nomenclature of Territorial Units for Statistics Level 2",
+    "NUTS2",
+    "2018",
+    "Eurostat Boundaries",
+    "United Kingdom",
+    "WFS",
+    "WMS",
+    "NUTS 2 Boundaries",
+    "Latest_Boundaries",
+    "boundaries",
+    "BDY_EUR",
+    "BDY_NUTS2",
+    "JAN_2018",
+    "Feature Service"
+  ],
+  "sources": [
+    {
+      "resource": "https://www.arcgis.com/sharing/rest/search?f=json&q=orgid%3AESMARspQHYMw9BZ9&num=100&start=2801&sortField=created&sortOrder=asc",
+      "retrievedAt": "2026-10-02T01:28:03.989429Z",
+      "responseSha256": "437fd7c3ed0f08c55b726d79d847c51e21cb7fda85c67fe372b9332585733feb",
+      "sourcePointer": "/results/15",
+      "normalisedSource": "okf-plus/source/ons-geography-items.json",
+      "normalisedPointer": "/records/2815",
+      "normalisedRecordSha256": "9637a8830d1c8617353551880757f7fb9c80aa1c5d0bcb5d2bf88ea312c0b788",
+      "evidenceKind": "captured-public-metadata",
+      "sourcePointerStatus": "exact-native-id-match"
+    }
+  ],
+  "prov:wasDerivedFrom": {
+    "@id": "https://geoportal.statistics.gov.uk/items/fbd29142ba384f189eece050b5eb8d2e"
+  },
+  "dcterms:conformsTo": {
+    "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/profile/v1"
+  },
+  "temporal": {
+    "status": "not-evidenced",
+    "kind": "dataset-reference-period",
+    "start": null,
+    "end": null,
+    "sourceField": null,
+    "note": "No supported reference-period extent in captured metadata; release and catalogue dates are separate."
+  },
+  "update": {
+    "frequency": {
+      "status": "not-evidenced",
+      "label": null,
+      "iri": null,
+      "sourceField": null
+    },
+    "releaseCatalogue": [
+      "https://geoportal.statistics.gov.uk/"
+    ],
+    "releaseFeed": [],
+    "nextRelease": null,
+    "metadataModified": "2025-08-11T08:03:54Z",
+    "releaseVersion": null
+  },
+  "rights": {
+    "metadata": "Public metadata citation and factual normalisation; source rights retained.",
+    "describedData": "https://www.ons.gov.uk/methodology/geography/licences",
+    "retrievalAuthority": "metadata-only",
+    "executionAdmitted": false
+  },
+  "limitations": [
+    "A date in an item title is not automatically the observation/reference range.",
+    "Portal items can be different representations or vintages of one product."
+  ],
+  "details": {
+    "access": "public",
+    "categories": [
+      "/Categories/Boundaries - OECD_Eurostat/2018",
+      "/Categories/ONS Geography Open Data"
+    ],
+    "created": 1664454509000,
+    "culture": "en-us",
+    "description": "This file contains the digital vector boundaries for Nomenclature of Territorial Units for Statistics Level 2, in the United Kingdom, as at January 2018. The boundaries are super generalised (200m) - clipped to the coastline (Mean High Water mark). Contains both Ordnance Survey and ONS Intellectual Property Rights. REST URL of ArcGIS for INSPIRE View Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/NUTS2_(Jan_2018)_SGCB_in_the_UK/MapServer REST URL of ArcGIS for INSPIRE Feature DownloadService – https://dservices1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/services/NUTS2_Jan_2018_Super_Generalised_Clipped_Boundaries_in_the_UK/WFSServer?service=wfs&request=getcapabilities REST URL of Feature Access Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/NUTS2_Jan_2018_SGCB_in_the_UK_2022/FeatureServer",
+    "extent": [
+      [
+        -9.330219522919432,
+        49.81570424352799
+      ],
+      [
+        2.6949116252363647,
+        60.86170628372345
+      ]
+    ],
+    "id": "fbd29142ba384f189eece050b5eb8d2e",
+    "licenseInfo": "<a href='https://www.ons.gov.uk/methodology/geography/licences' target='_blank' rel='nofollow ugc noopener noreferrer'>https://www.ons.gov.uk/methodology/geography/licences</a>",
+    "modified": 1754899434000,
+    "organisationId": "ESMARspQHYMw9BZ9",
+    "snippet": "OECD/Eurostat Boundaries",
+    "spatialReference": "27700",
+    "tags": [
+      "Boundaries",
+      "Nomenclature of Territorial Units for Statistics Level 2",
+      "NUTS2",
+      "2018",
+      "Eurostat Boundaries",
+      "United Kingdom",
+      "WFS",
+      "WMS",
+      "NUTS 2 Boundaries",
+      "Latest_Boundaries",
+      "boundaries",
+      "BDY_EUR",
+      "BDY_NUTS2",
+      "JAN_2018"
+    ],
+    "title": "NUTS, level 2 (January 2018) Boundaries UK BSC",
+    "type": "Feature Service",
+    "typeKeywords": [
+      "ArcGIS Server",
+      "Data",
+      "Feature Access",
+      "Feature Service",
+      "Metadata",
+      "Service",
+      "Singlelayer",
+      "Hosted Service"
+    ],
+    "url": "https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/NUTS2_Jan_2018_SGCB_in_the_UK_2022/FeatureServer"
+  },
+  "dcterms:publisher": {
+    "@id": "https://www.ons.gov.uk/"
+  }
+}
+---
+
+# NUTS, level 2 (January 2018) Boundaries UK BSC
+
+This file contains the digital vector boundaries for Nomenclature of Territorial Units for Statistics Level 2, in the United Kingdom, as at January 2018. The boundaries are super generalised (200m) - clipped to the coastline (Mean High Water mark). Contains both Ordnance Survey and ONS Intellectual Property Rights. REST URL of ArcGIS for INSPIRE View Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/NUTS2_(Jan_2018)_SGCB_in_the_UK/MapServer REST URL of ArcGIS for INSPIRE Feature DownloadService – https://dservices1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/services/NUTS2_Jan_2018_Super_Generalised_Clipped_Boundaries_in_the_UK/WFSServer?service=wfs&request=getcapabilities REST URL of Feature Access Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/NUTS2_Jan_2018_SGCB_in_the_UK_2022/FeatureServer
+
+Native identifier: `fbd29142ba384f189eece050b5eb8d2e`.
+
+Source family: `ons-geography-items`. Assertion: normalised metadata; independent human review is not recorded.
+
+[Official source](https://geoportal.statistics.gov.uk/items/fbd29142ba384f189eece050b5eb8d2e)
+
+Update cadence: not evidenced in captured metadata.
+Temporal evidence: not-evidenced (dataset-reference-period); start not stated, end not stated.
+No supported reference-period extent in captured metadata; release and catalogue dates are separate.
+
+[Release catalogue or change-discovery route](https://geoportal.statistics.gov.uk/)
+
+## Evidence limits
+
+- A date in an item title is not automatically the observation/reference range.
+- Portal items can be different representations or vintages of one product.
+
+The front matter retains source receipts, rights, native metadata and schema facts. Discovery does not authorise data access.

@@ -1,0 +1,174 @@
+---
+{
+  "@context": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/context.jsonld",
+  "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-geography-items/afdad0dc1a0f48d28ab2715effb6d9a3",
+  "@type": [
+    "dcat:Dataset",
+    "okfp:MetadataRecord"
+  ],
+  "type": "Dataset",
+  "title": "Lower layer Super Output Areas (December 2011) Boundaries EW BFC (V3)",
+  "description": "This file contains the digital vector boundaries for lower layer super output areas for England and Wales, as at December 2011. The BFC boundaries are full resolution - clipped to the coastline (Mean High Water mark). Version 3 - Amendments made to remove spike anomalies which occurred due to the automated production process. No changes to boundaries, names and codes have been undertaken. Contains both Ordnance Survey and ONS Intellectual Property Rights. REST URL of ArcGIS for INSPIRE View Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Lower_layer_Super_Output_Areas_(Dec_2011)_Boundaries_Full_Clipped_(BFC)_EW_V3/MapServer REST URL of ArcGIS for INSPIRE Feature DownloadService – https://dservices1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/services/Lower_layer_Super_Output_Areas_Dec_2011_Boundaries_Full_Clipped_BFC_EW_V3/WFSServer?service=wfs&request=getcapabilities REST URL of Feature Access Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Lower_layer_Super_Output_Areas_Dec_2011_Boundaries_Full_Clipped_BFC_EW_V3_2022/FeatureServer",
+  "nativeIdentifier": "afdad0dc1a0f48d28ab2715effb6d9a3",
+  "sourceFamily": "ons-geography-items",
+  "resource": "https://geoportal.statistics.gov.uk/items/afdad0dc1a0f48d28ab2715effb6d9a3",
+  "status": "draft",
+  "generated": {
+    "by": "gis-ai-go OKF+ source producer"
+  },
+  "okfp:machineImported": true,
+  "assertionStatus": "normalised",
+  "reviewStatus": "not-human-reviewed",
+  "tags": [
+    "Boundaries",
+    "2011",
+    "Census Boundaries",
+    "England and Wales",
+    "Lower Layer Super Output Area",
+    "Lower Layer Super Output Areas",
+    "LSOA",
+    "WFS",
+    "WMS",
+    "Lower Super Output Areas",
+    "LSOA_Boundaries",
+    "LSOA_Boundaries_2011",
+    "boundaries",
+    "BDY_CEN",
+    "BDY_LSOA",
+    "DEC_2011",
+    "Map Service"
+  ],
+  "sources": [
+    {
+      "resource": "https://www.arcgis.com/sharing/rest/search?f=json&q=orgid%3AESMARspQHYMw9BZ9&num=100&start=2901&sortField=created&sortOrder=asc",
+      "retrievedAt": "2026-10-02T01:28:05.387319Z",
+      "responseSha256": "4463b5634ca7e08b75f82dcc087a424b22dbe343e539e7a540fcb2c02ebf3cdf",
+      "sourcePointer": "/results/28",
+      "normalisedSource": "okf-plus/source/ons-geography-items.json",
+      "normalisedPointer": "/records/2928",
+      "normalisedRecordSha256": "a499f647ebf2f2ddd68ea7f86d7ca9dcfcdcbea9e45027bc32dd1cc16a56e696",
+      "evidenceKind": "captured-public-metadata",
+      "sourcePointerStatus": "exact-native-id-match"
+    }
+  ],
+  "prov:wasDerivedFrom": {
+    "@id": "https://geoportal.statistics.gov.uk/items/afdad0dc1a0f48d28ab2715effb6d9a3"
+  },
+  "dcterms:conformsTo": {
+    "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/profile/v1"
+  },
+  "temporal": {
+    "status": "not-evidenced",
+    "kind": "dataset-reference-period",
+    "start": null,
+    "end": null,
+    "sourceField": null,
+    "note": "No supported reference-period extent in captured metadata; release and catalogue dates are separate."
+  },
+  "update": {
+    "frequency": {
+      "status": "not-evidenced",
+      "label": null,
+      "iri": null,
+      "sourceField": null
+    },
+    "releaseCatalogue": [
+      "https://geoportal.statistics.gov.uk/"
+    ],
+    "releaseFeed": [],
+    "nextRelease": null,
+    "metadataModified": "2025-08-11T08:04:38Z",
+    "releaseVersion": null
+  },
+  "rights": {
+    "metadata": "Public metadata citation and factual normalisation; source rights retained.",
+    "describedData": "https://www.ons.gov.uk/methodology/geography/licences",
+    "retrievalAuthority": "metadata-only",
+    "executionAdmitted": false
+  },
+  "limitations": [
+    "A date in an item title is not automatically the observation/reference range.",
+    "Portal items can be different representations or vintages of one product."
+  ],
+  "details": {
+    "access": "public",
+    "categories": [],
+    "created": 1664469017000,
+    "culture": "en-us",
+    "description": "This file contains the digital vector boundaries for lower layer super output areas for England and Wales, as at December 2011. The BFC boundaries are full resolution - clipped to the coastline (Mean High Water mark). Version 3 - Amendments made to remove spike anomalies which occurred due to the automated production process. No changes to boundaries, names and codes have been undertaken. Contains both Ordnance Survey and ONS Intellectual Property Rights. REST URL of ArcGIS for INSPIRE View Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Lower_layer_Super_Output_Areas_(Dec_2011)_Boundaries_Full_Clipped_(BFC)_EW_V3/MapServer REST URL of ArcGIS for INSPIRE Feature DownloadService – https://dservices1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/services/Lower_layer_Super_Output_Areas_Dec_2011_Boundaries_Full_Clipped_BFC_EW_V3/WFSServer?service=wfs&request=getcapabilities REST URL of Feature Access Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Lower_layer_Super_Output_Areas_Dec_2011_Boundaries_Full_Clipped_BFC_EW_V3_2022/FeatureServer",
+    "extent": [
+      [
+        -7.052768370540061,
+        49.864017146050195
+      ],
+      [
+        2.0737151164895495,
+        55.811073220421854
+      ]
+    ],
+    "id": "afdad0dc1a0f48d28ab2715effb6d9a3",
+    "licenseInfo": "<a href='https://www.ons.gov.uk/methodology/geography/licences' target='_blank' rel='nofollow ugc noopener noreferrer'>https://www.ons.gov.uk/methodology/geography/licences</a>",
+    "modified": 1754899478000,
+    "organisationId": "ESMARspQHYMw9BZ9",
+    "snippet": "Boundaries",
+    "spatialReference": "27700",
+    "tags": [
+      "Boundaries",
+      "2011",
+      "Census Boundaries",
+      "England and Wales",
+      "Lower Layer Super Output Area",
+      "Lower Layer Super Output Areas",
+      "LSOA",
+      "WFS",
+      "WMS",
+      "Lower Super Output Areas",
+      "LSOA_Boundaries",
+      "LSOA_Boundaries_2011",
+      "boundaries",
+      "BDY_CEN",
+      "BDY_LSOA",
+      "DEC_2011"
+    ],
+    "title": "Lower layer Super Output Areas (December 2011) Boundaries EW BFC (V3)",
+    "type": "Map Service",
+    "typeKeywords": [
+      "ArcGIS Server",
+      "Data",
+      "Map Service",
+      "Metadata",
+      "Service",
+      "Singlelayer",
+      "WMTS",
+      "Hosted Service"
+    ],
+    "url": "https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Lower_layer_Super_Output_Areas_(Dec_2011)_Boundaries_Full_Clipped_(BFC)_EW_V3/MapServer"
+  },
+  "dcterms:publisher": {
+    "@id": "https://www.ons.gov.uk/"
+  }
+}
+---
+
+# Lower layer Super Output Areas (December 2011) Boundaries EW BFC (V3)
+
+This file contains the digital vector boundaries for lower layer super output areas for England and Wales, as at December 2011. The BFC boundaries are full resolution - clipped to the coastline (Mean High Water mark). Version 3 - Amendments made to remove spike anomalies which occurred due to the automated production process. No changes to boundaries, names and codes have been undertaken. Contains both Ordnance Survey and ONS Intellectual Property Rights. REST URL of ArcGIS for INSPIRE View Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Lower_layer_Super_Output_Areas_(Dec_2011)_Boundaries_Full_Clipped_(BFC)_EW_V3/MapServer REST URL of ArcGIS for INSPIRE Feature DownloadService – https://dservices1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/services/Lower_layer_Super_Output_Areas_Dec_2011_Boundaries_Full_Clipped_BFC_EW_V3/WFSServer?service=wfs&request=getcapabilities REST URL of Feature Access Service – https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Lower_layer_Super_Output_Areas_Dec_2011_Boundaries_Full_Clipped_BFC_EW_V3_2022/FeatureServer
+
+Native identifier: `afdad0dc1a0f48d28ab2715effb6d9a3`.
+
+Source family: `ons-geography-items`. Assertion: normalised metadata; independent human review is not recorded.
+
+[Official source](https://geoportal.statistics.gov.uk/items/afdad0dc1a0f48d28ab2715effb6d9a3)
+
+Update cadence: not evidenced in captured metadata.
+Temporal evidence: not-evidenced (dataset-reference-period); start not stated, end not stated.
+No supported reference-period extent in captured metadata; release and catalogue dates are separate.
+
+[Release catalogue or change-discovery route](https://geoportal.statistics.gov.uk/)
+
+## Evidence limits
+
+- A date in an item title is not automatically the observation/reference range.
+- Portal items can be different representations or vintages of one product.
+
+The front matter retains source receipts, rights, native metadata and schema facts. Discovery does not authorise data access.

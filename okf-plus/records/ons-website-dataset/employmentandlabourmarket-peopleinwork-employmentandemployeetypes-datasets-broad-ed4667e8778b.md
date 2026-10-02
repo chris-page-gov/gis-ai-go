@@ -1,0 +1,132 @@
+---
+{
+  "@context": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/context.jsonld",
+  "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/ons-website-dataset/%2Femploymentandlabourmarket%2Fpeopleinwork%2Femploymentandemployeetypes%2Fdatasets%2Fbroadindustrygroupsicbusinessregisterandemploymentsurveybrestable1%2F2010revisedwith_nersadjustment",
+  "@type": [
+    "dcat:Dataset",
+    "okfp:MetadataRecord"
+  ],
+  "type": "Dataset",
+  "title": "Broad Industry Group (SIC) - Business Register and Employment Survey (BRES): Table 1",
+  "description": "Annual employee and employment estimates for GB and UK split by Broad Industry Group (SIC2007) in September 2013. Results given by full-time/part-time and public/private splits",
+  "nativeIdentifier": "/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/datasets/broadindustrygroupsicbusinessregisterandemploymentsurveybrestable1/2010revisedwith_nersadjustment",
+  "sourceFamily": "ons-website-dataset",
+  "resource": "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/datasets/broadindustrygroupsicbusinessregisterandemploymentsurveybrestable1/2010revisedwith_nersadjustment",
+  "status": "draft",
+  "generated": {
+    "by": "gis-ai-go OKF+ source producer"
+  },
+  "okfp:machineImported": true,
+  "assertionStatus": "normalised",
+  "reviewStatus": "not-human-reviewed",
+  "tags": [
+    "dataset"
+  ],
+  "sources": [
+    {
+      "resource": "https://api.beta.ons.gov.uk/v1/search?q=&content_type=dataset&sort=title&highlight=false&limit=1000&offset=0",
+      "retrievedAt": "2026-10-02T07:58:47.412144Z",
+      "responseSha256": "9a04b8223d1ab2edb2fc93446a4a9cbe8a51fa0e744c338f583cdb3a02145bba",
+      "sourcePointer": "/items/183",
+      "normalisedSource": "okf-plus/source/ons-website-dataset.json",
+      "normalisedPointer": "/records/183",
+      "normalisedRecordSha256": "8419c6f106176194856ffe915aeeb20e76a32cc84829ae747197b1fe514302d4",
+      "evidenceKind": "captured-public-metadata",
+      "sourcePointerStatus": "exact-native-id-match"
+    }
+  ],
+  "prov:wasDerivedFrom": {
+    "@id": "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/datasets/broadindustrygroupsicbusinessregisterandemploymentsurveybrestable1/2010revisedwith_nersadjustment"
+  },
+  "dcterms:conformsTo": {
+    "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/profile/v1"
+  },
+  "temporal": {
+    "status": "not-evidenced",
+    "kind": "dataset-reference-period",
+    "start": null,
+    "end": null,
+    "sourceField": null,
+    "note": "No supported reference-period extent in captured metadata; release and catalogue dates are separate."
+  },
+  "update": {
+    "frequency": {
+      "status": "not-evidenced",
+      "label": null,
+      "iri": null,
+      "sourceField": null
+    },
+    "releaseCatalogue": [
+      "https://www.ons.gov.uk/releasecalendar"
+    ],
+    "releaseFeed": [
+      "https://www.ons.gov.uk/releasecalendar?rss&highlight=true&limit=10&page=1&release-type=type-published&sort=date-newest"
+    ],
+    "nextRelease": null,
+    "metadataModified": null,
+    "releaseVersion": "2010 (revised with working owners adjustment)"
+  },
+  "rights": {
+    "metadata": "Public metadata citation and factual normalisation; source rights retained.",
+    "describedData": "Not established by metadata discovery; consult source-specific terms.",
+    "retrievalAuthority": "metadata-only",
+    "executionAdmitted": false
+  },
+  "limitations": [
+    "Website and API representations are retained separately; matching titles do not prove equivalence.",
+    "Release dates do not establish the period covered by statistical observations."
+  ],
+  "details": {
+    "canonical_topic": "",
+    "cdid": "",
+    "dataset_id": "",
+    "edition": "2010 (revised with working owners adjustment)",
+    "id": "/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/datasets/broadindustrygroupsicbusinessregisterandemploymentsurveybrestable1/2010revisedwith_nersadjustment",
+    "keywords": [],
+    "meta_description": "Annual employee and employment estimates for GB and UK split by Broad Industry Group (SIC2007) in September 2013. Results given by full-time/part-time and public/private splits",
+    "nativeIdentityField": "uri",
+    "release_date": "2015-09-23T23:00:00.000Z",
+    "resource": "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/datasets/broadindustrygroupsicbusinessregisterandemploymentsurveybrestable1/2010revisedwith_nersadjustment",
+    "sourceEvidence": {
+      "pointer": "/items/183",
+      "retrievedAt": "2026-10-02T07:58:47.412144Z",
+      "sha256": "9a04b8223d1ab2edb2fc93446a4a9cbe8a51fa0e744c338f583cdb3a02145bba",
+      "status": 200,
+      "url": "https://api.beta.ons.gov.uk/v1/search?q=&content_type=dataset&sort=title&highlight=false&limit=1000&offset=0"
+    },
+    "summary": "Annual employee and employment estimates for GB and UK split by Broad Industry Group (SIC2007) in September 2013. Results given by full-time/part-time and public/private splits",
+    "title": "Broad Industry Group (SIC) - Business Register and Employment Survey (BRES): Table 1",
+    "topics": [
+      "5687",
+      "2114",
+      "9243"
+    ],
+    "type": "dataset",
+    "uri": "/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/datasets/broadindustrygroupsicbusinessregisterandemploymentsurveybrestable1/2010revisedwith_nersadjustment"
+  }
+}
+---
+
+# Broad Industry Group (SIC) - Business Register and Employment Survey (BRES): Table 1
+
+Annual employee and employment estimates for GB and UK split by Broad Industry Group (SIC2007) in September 2013. Results given by full-time/part-time and public/private splits
+
+Native identifier: `/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/datasets/broadindustrygroupsicbusinessregisterandemploymentsurveybrestable1/2010revisedwith_nersadjustment`.
+
+Source family: `ons-website-dataset`. Assertion: normalised metadata; independent human review is not recorded.
+
+[Official source](https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/datasets/broadindustrygroupsicbusinessregisterandemploymentsurveybrestable1/2010revisedwith_nersadjustment)
+
+Update cadence: not evidenced in captured metadata.
+Temporal evidence: not-evidenced (dataset-reference-period); start not stated, end not stated.
+No supported reference-period extent in captured metadata; release and catalogue dates are separate.
+
+[Release catalogue or change-discovery route](https://www.ons.gov.uk/releasecalendar)
+[Recent release feed](https://www.ons.gov.uk/releasecalendar?rss&highlight=true&limit=10&page=1&release-type=type-published&sort=date-newest)
+
+## Evidence limits
+
+- Website and API representations are retained separately; matching titles do not prove equivalence.
+- Release dates do not establish the period covered by statistical observations.
+
+The front matter retains source receipts, rights, native metadata and schema facts. Discovery does not authorise data access.
