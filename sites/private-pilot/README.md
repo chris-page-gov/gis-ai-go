@@ -52,6 +52,15 @@ provider fixtures. It checks all six tools, denial paths, source binding, migrat
 replay, receipt persistence across restart and the existing workbench/static routes.
 Its output explicitly excludes hosted authentication and database-recovery claims.
 
+After starting the built Site preview at `http://localhost:4177`, run
+`node scripts/test_sites_pilot_page.mjs` from the GIS AI GO checkout. The check
+uses installed Chrome, intercepts the three MCP messages with a synthetic
+capability response, verifies all six explanation links and checks keyboard
+focus, layout and automated accessibility. It refuses external requests and
+records HTTP/page errors. Restart the preview after rebuilding so its asset
+manifest matches the new output. This is local UI evidence, not hosted identity
+or provider acceptance.
+
 The overlay alone cannot typecheck or build as a standalone application: it uses
 the host Site's pinned React, Vinext and Workers types and the generated vendor
 runtime. Do not replace that runtime with test fixtures to make a build pass.
