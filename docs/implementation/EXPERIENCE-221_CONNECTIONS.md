@@ -176,10 +176,13 @@ neither test establishes hosted OAuth or Claude use.
 
 ## Proposed facilities are not current capabilities
 
-Voice-driven selection and presentation, persistent JIT explanations, general
-file/folder/archive/URL ingestion, arbitrary spatial analysis, uploaded office
-documents, general ONS retrieval, hosted NGD and interactive MCP App views need
-their own admitted schemas, implementation, examples and acceptance. Existing
-metadata about a file format or NGD collection does not implement its parser or
-authorise its contents. Keep these entries visible as proposed or blocked until
-their exact working scope is proved.
+This increment implements persistent JIT explanations, fixed page actions,
+folder/ZIP inventory and small text/CSV/GeoJSON previews locally. Its authored
+examples and browser checks do not establish actual spoken Voice use.
+
+General binary import and URL retrieval, arbitrary spatial analysis, office
+document extraction, general ONS retrieval, hosted NGD and interactive MCP App
+views remain proposed. Each needs admitted schemas, implementation, examples and
+acceptance. Metadata about a file format or NGD collection does not implement
+its parser or authorise its contents. Keep these entries visible as proposed or
+blocked until their exact working scope is proved.
