@@ -237,3 +237,61 @@ uv run --locked --cache-dir .uv-cache python -m unittest tests.contract.test_ci_
 
 This bounded synthetic evidence does not replace the final committed-revision
 Git inventory or canonical CI result.
+
+The subsequent committed-candidate Python run exposed a second integration
+condition: 30,888 newly tracked `okf-plus/` paths had no explicit map rule. They
+already fell back to full assurance, but the tracked-path coverage regression
+correctly rejected the missing declaration. The additive `okf-plus/**` rule now
+explicitly forces every applicable assurance lane. The unknown-path policy,
+protected-main policy and shadow-only status remain unchanged. All 35 planner
+tests pass with the new paths tracked, including module and similarly named
+unknown-sibling boundaries. The separate geo-execution suite passed 22 tests.
+
+The initial full Python run is retained as failed evidence: 1,048 tests in
+105.117 seconds, with 30,888 routing subtest failures, two further failures and
+seven errors. Beyond the repaired routing issue, it exposed a reviewed
+receipt-hash mismatch and macOS-specific harness failures. The host's sandbox
+executable differs from the existing reviewed identity; the affected harness
+and test sources are unchanged from the task baseline. The identity checks
+have not been weakened. These macOS-only cases are explicitly skipped on Linux,
+so canonical Linux acceptance must not be described as fresh macOS harness
+acceptance. Receipt review confirmed that the authorised generator refresh
+changed only the package-script binding and derived set ID. The regenerable
+receipt pin now matches those bytes; 26 strict-modern tests and seven independent
+binding tests pass. Historical receipt pins remain unchanged. Canonical CI remains
+the integration gate.
+
+## Final corpus and source-package evidence
+
+At `e28b0da130d3ce03d85e7a8d6751e3cfa8f419d5`, `pnpm run check:okf-plus`
+passed in 244.393 seconds. It audited every one of 30,833 records and discovery
+cards, with zero omitted records or semantic fields. All 36 automated retrieval
+cases and four pinned-engine probes passed; four interpretation cases remain
+explicitly unassessed. The input digest is
+`70a2db1159da87d3c5aef79c478ed9fe08eb2492b2fec6b8df2c1b25a0ce819b`.
+The ignored `artifacts/okf-plus/verification.json` binds the actual generated
+files, full-corpus audit and pinned engine/schema reports.
+
+The same committed source passed the LOCAL-214 round trip: 32,099 source files,
+296,992,518 source bytes and a 22,338,034-byte compressed archive. All checksum
+and six manifest identity bindings matched after safe extraction. The retained
+receipt is `artifacts/okf-plus/assurance/local214-e28b0da/roundtrip.json`.
+This proves source packaging and identity, not a fresh dependency installation
+or client journey; those remain in canonical CI. It does not override the
+macOS-specific identity mismatch described above.
+
+Two additional full-index native-label probes each returned the intended record
+at rank one. `ZW99TP` is preserved at zero-based source row 578; all 579 labels
+match the independently parsed original Markdown. The exact AccessTypeValue
+label `Pedestrian And Vehicular` and all three labels likewise match. Selected
+records, native snapshot rows, source hashes and successful receipt tuples agree.
+The second query explicitly reports 35 candidate omissions at its ten-result
+limit; this is separate from completeness of the selected record. No definition
+prose is silently promoted into the label projection.
+
+The first candidate's canonical Linux run
+[`36986427336`](https://github.com/chris-page-gov/gis-ai-go/actions/runs/36986427336)
+failed only the two now-repaired Python conditions: 30,888 path-map subtests and
+one regenerable receipt pin. Its shadow plan, gateway image and separate CodeQL
+checks passed. Because repository assurance stopped during Python tests, later
+stages require a fresh repaired-head run. These results do not replace it.

@@ -282,6 +282,33 @@ class CiImpactPlanTests(unittest.TestCase):
         self.assertEqual(sibling["reason"], "unmatched-path")
         self.assertTrue(sibling["force_full"])
 
+    def test_okf_plus_inventory_has_explicit_full_shadow_assurance(self) -> None:
+        for relative in (
+            "README.md", "context.jsonld", "records/os-ngd/collection.md",
+            "source-snapshots/os-ngd.json", "profile/record.schema.json",
+            "vendor/okf-explorer/engine.mjs", "evaluation/questions.json",
+            "future-config.json",
+        ):
+            path = f"okf-plus/{relative}"
+            with self.subTest(path=path):
+                plan = self.plan(path)
+                self.assertEqual(plan["unmatched_paths"], [])
+                self.assertEqual(plan["matched_rule_ids"], ["okf-plus-metadata-inventory"])
+                self.assertEqual(plan["force_full_rule_ids"], ["okf-plus-metadata-inventory"])
+                self.assertIs(plan["force_full"], True)
+                self.assertEqual(plan["selected_lanes"], plan["applicable_lanes"])
+                self.assertEqual(plan["mode"], "shadow")
+                self.assertIs(plan["enforced"], False)
+                main = plan_for_paths(
+                    self.impact_map, [path], base_commit=BASE,
+                    head_commit=HEAD, event="push_main",
+                )
+                self.assertEqual(main["reason"], "protected-main-exact-commit")
+                self.assertEqual(main["selected_lanes"], list(self.impact_map.full_lanes))
+        sibling = self.plan("okf-plus-next/records/new.md")
+        self.assertEqual(sibling["reason"], "unmatched-path")
+        self.assertIs(sibling["force_full"], True)
+
     def test_each_frontend_has_an_explicit_source_and_configuration_route(self) -> None:
         for app, rule in (
             ("public-explorer", "public-explorer-publication"),

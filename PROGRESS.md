@@ -25,12 +25,16 @@ Source and pinned reuse reviews are complete. The final capture includes all
 478 indexed NGD documentation pages and two selected download guides. The
 current import holds 30,833 Markdown/YAML-LD records, 6,067 native NGD labels and
 2,915 NGD schema field nodes; twelve source schemas have required-field
-inconsistencies. The preceding
-30,353-record build passed the complete-record context audit and four pinned-engine
-cases. The revised question harness passed 36 automated cases with four
-interpretation cases explicitly unassessed. Final integration assurance and export
-are in progress. Initial account usage was 41% weekly used (59% remaining); the
-latest checkpoint is 52% used (48% remaining). This is account-wide, not task usage.
+inconsistencies. The complete 30,833-record build at `e28b0da1` passed the
+record/card/semantic-field audit with zero omissions, 36 automated retrieval cases
+and four pinned-engine cases. Four interpretation cases remain explicitly
+unassessed. The full source-package identity round trip also passed. Integration
+repairs address the explicit CI path map and a regenerable receipt digest. The
+local full Python run exposed unchanged macOS harnesses rejecting the current
+host's sandbox executable identity; those checks remain intact. Canonical CI and
+verified export are pending in [PR #141](https://github.com/chris-page-gov/gis-ai-go/pull/141).
+Initial account usage was 41% weekly used (59% remaining); the latest checkpoint
+is 55% used (45% remaining). This is account-wide, not task usage.
 See the implementation record for coverage boundaries and checkpoints.
 
 Unattended execution correction (2 October): an optional browser/CDP permission

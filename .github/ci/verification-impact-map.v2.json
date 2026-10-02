@@ -165,6 +165,22 @@
       "force_full": false
     },
     {
+      "id": "okf-plus-metadata-inventory",
+      "description": "The additive metadata inventory, semantic contracts and vendored projection dependencies retain every applicable assurance lane.",
+      "patterns": [
+        "okf-plus/**"
+      ],
+      "lanes": [
+        "gateway-provenance",
+        "gateway_attestation_verification",
+        "gateway_image",
+        "gateway_independent_image",
+        "provenance",
+        "repository_assurance"
+      ],
+      "force_full": true
+    },
+    {
       "id": "public-explorer-publication",
       "description": "Explorer source, browser checks and Pages packaging affect the static product.",
       "patterns": [

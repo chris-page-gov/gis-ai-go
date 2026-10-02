@@ -86,16 +86,23 @@ term mappings; namespace declarations alone do not establish conformance.
    privately. The private-original export preflight passes for 637 original
    files; this is input verification, not a completed export archive.
 7. Final source freeze/import complete: 30,721 source representations plus 112
-   authored concept/family records produce 30,833 Markdown records. Mandatory
-   assurance, final verified export and integrated hand-off remain pending. The
-   earlier whole-corpus result and revised question checks are useful checkpoints;
-   a fresh combined verifier result is required for the final imported inputs.
-   No installed Ask OKF admission is implied by local compatibility.
+   authored concept/family records produce 30,833 Markdown records. The final
+   combined verifier at `e28b0da130d3ce03d85e7a8d6751e3cfa8f419d5` passed all
+   30,833 records/cards with zero omitted records or semantic fields, 36 automated
+   retrieval cases and four pinned-engine cases. Four interpretation cases remain
+   separately unassessed. No installed Ask OKF admission is implied by local
+   compatibility.
 8. Final source review recovered all 6,067 native NGD labels across 237 tables
    from the retained documentation, with no new provider calls. The compact
    representation preserves row identities, ordering and exact labels within
    the unchanged consumer limit. The builder also reports actual vocabulary
    term usage; declared but unused namespaces and terms remain explicit.
+9. The actual 32,099-file source package passed checksum, safe extraction and
+   complete Git identity verification. The full local Python run exposed two
+   integration repairs (an explicit CI path rule and a regenerable receipt pin)
+   and pre-existing macOS harness identity failures. The focused repairs pass;
+   the macOS identity checks remain intact. Canonical CI and verified archives
+   remain pending in [PR #141](https://github.com/chris-page-gov/gis-ai-go/pull/141).
 
 ## Current retained scope and remaining gaps
 
@@ -103,8 +110,9 @@ The completed acquisition checkpoint has 25 source snapshot families and
 30,721 retained source representation records. Those rows exclude the 112 authored
 concept/family records and are not a count of unique datasets. The final importer
 produces 30,833 Markdown records, including the last 480 documentation projections.
-Final build and combined verification evidence remain pending; the earlier
-30,353-record audit does not establish assurance for those final inputs.
+The final build and combined offline verification passed with input digest
+`70a2db1159da87d3c5aef79c478ed9fe08eb2492b2fec6b8df2c1b25a0ce819b`.
+Canonical integration acceptance and live consumer admission are separate gates.
 
 | Evidence lane | Retained scope | Explicit boundary or gap |
 | --- | --- | --- |
@@ -130,6 +138,11 @@ separate from this metadata inventory. Unknown quality, rights, historical and
 temporal fields must remain unknown.
 
 ## Export and final acceptance sequence
+
+The [government demonstration rehearsal](OKF-220_GOVERNMENT_DEMONSTRATION.md)
+sets out three short presenter-led exercises using the existing plan and pilot.
+It separates planned native Voice use from verified metadata retrieval and
+requires microphone and authentication checks while the owner is present.
 
 There are two separate hand-offs. The public metadata archive contains the
 reviewable source module, producer, exact dependency manifests, relevant
@@ -180,7 +193,7 @@ review identified that `id` was not a supported sort field. Both observed runs
 returned 6,719 unique public items; equality of totals cannot prove an atomic
 snapshot. Raw originals remain in ignored acquisition evidence.
 
-Usage checkpoint: 52% weekly used, 48% remaining, compared with 41% used at
+Usage checkpoint: 55% weekly used, 45% remaining, compared with 41% used at
 start. This is an account-wide observation, not a task-exclusive measure. No
 paid services, model API calls or chargeable provider calls were introduced.
 
