@@ -16,6 +16,11 @@ Last updated: 2 October 2026
 
 ## Authorised current work
 
+The latest exact-commit CI, publication and client-acceptance checkpoint is
+[EXPERIENCE-221 issue #143](https://github.com/chris-page-gov/gis-ai-go/issues/143),
+with implementation review in [PR #144](https://github.com/chris-page-gov/gis-ai-go/pull/144).
+The following local verification snapshot was recorded before those final gates.
+
 The current task is [EXPERIENCE-221](docs/implementation/EXPERIENCE-221_LEARNING_AND_EVALUATION.md),
 authorised on 2 October: establish actual MCP/client facilities; cover every
 current feature with personas, stories, questions, sources, presentation forms
