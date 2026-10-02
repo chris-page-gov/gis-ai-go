@@ -8,7 +8,7 @@ import test, { type TestContext } from "node:test";
 import { Client, StreamableHTTPClientTransport } from "@modelcontextprotocol/client";
 import { WebStandardStreamableHTTPServerTransport, type CallToolResult } from "@modelcontextprotocol/server";
 import type { Web216D1Database, Web216D1Statement } from "@gis-ai-go/evidence/web216-pure";
-import { createSitesPilotHttpHandler, SITES_PILOT_INPUTS, type SitesPilotOptions } from "../src/sites-pilot-http.js";
+import { createSitesPilotCapacity, createSitesPilotHttpHandler, SITES_PILOT_INPUTS, type SitesPilotOptions } from "../src/sites-pilot-http.js";
 import { createSitesPilotStore, makePilotResult, pilotHash, SITES_PILOT_SQL, SitesPilotStoreError,
   verifyPilotResult, type PilotProvider, type PilotResult } from "../src/sites-pilot-store.js";
 
@@ -92,10 +92,11 @@ function scenario(t: TestContext, changes: Partial<SitesPilotOptions> = {}, enab
     throw new Error("Unexpected provider destination");
   };
   const store = createSitesPilotStore(db);
-  const handler = createSitesPilotHttpHandler({ origin: ORIGIN, path: "/pilot/mcp", softwareRevision: REVISION,
-    store, fetch: fetcher, osApiKey: OS_KEY, ...(enableTestToken ? { testTokenSha256: TEST_TOKEN_HASH } : {}), now: () => NOW, ...changes });
+  const options: SitesPilotOptions = { origin: ORIGIN, path: "/pilot/mcp", softwareRevision: REVISION,
+    store, fetch: fetcher, osApiKey: OS_KEY, ...(enableTestToken ? { testTokenSha256: TEST_TOKEN_HASH } : {}), now: () => NOW, ...changes };
+  const handler = createSitesPilotHttpHandler(options);
   t.after(() => handler.close());
-  return { db, outgoing, store, handler };
+  return { db, outgoing, store, handler, options };
 }
 async function connect(t: TestContext, s: ReturnType<typeof scenario>, protocol: "2025-11-25" | "2026-07-28") {
   const client = new Client({ name: "sites-pilot-offline-test", version: "1.0.0" }, {
@@ -402,7 +403,7 @@ function deferred() {
   const promise = new Promise<void>((resolve) => { release = resolve; });
   return { promise, release };
 }
-function wireCall(protocol: "2025-11-25" | "2026-07-28", tool: string, args: Record<string, unknown>, signal?: AbortSignal) {
+function wireCall(protocol: "2025-11-25" | "2026-07-28", tool: string, args: Record<string, unknown>, signal?: AbortSignal, path = "/pilot/mcp") {
   return request({ jsonrpc: "2.0", id: 1, method: "tools/call", params: {
     name: tool, arguments: args,
     ...(protocol === "2026-07-28" ? { _meta: {
@@ -410,11 +411,79 @@ function wireCall(protocol: "2025-11-25" | "2026-07-28", tool: string, args: Rec
       "io.modelcontextprotocol/clientCapabilities": {},
       "io.modelcontextprotocol/clientInfo": { name: "synthetic-capacity-test", version: "1.0.0" },
     } } : {}),
-  } }, { headers: { "mcp-protocol-version": protocol, "mcp-method": "tools/call", "mcp-name": tool },
+  } }, { url: `${ORIGIN}${path}`, headers: { "mcp-protocol-version": protocol, "mcp-method": "tools/call", "mcp-name": tool,
+    ...(path === "/mcp" ? { "oai-authenticated-user-id": "synthetic-native-owner" } : {}) },
     ...(signal ? { signal } : {}) });
 }
 
+test("shared capacity cannot be forged and mounting another route does not refill provider allowance", async (t) => {
+  const capacity = createSitesPilotCapacity();
+  assert.equal(Object.isFrozen(capacity), true);
+  const s = scenario(t, { capacity });
+  assert.throws(() => createSitesPilotHttpHandler({ ...s.options, capacity: { kind: capacity.kind } }), /Invalid pilot capacity/);
+  s.db.sqlite.prepare("UPDATE sites_pilot_allowance_v1 SET maximum = 1 WHERE provider = 'os-open-data'").run();
+  const first = await s.handler.fetch(wireCall("2025-11-25", "sites_os_open_product", { product: "OpenNames" }));
+  assert.equal(first.status, 200);
+  assert.notEqual((await first.json() as { result: { isError?: boolean } }).result.isError, true);
+  const { testTokenSha256: _testToken, ...nativeOptions } = s.options;
+  const native = createSitesPilotHttpHandler({ ...nativeOptions, path: "/mcp" });
+  t.after(() => native.close());
+  const second = await native.fetch(wireCall("2025-11-25", "sites_os_open_product", { product: "OpenNames" }, undefined, "/mcp"));
+  assert.equal(second.status, 200);
+  assert.equal((await second.json() as { result: { structuredContent: { code: string } } }).result.structuredContent.code, "admission-denied");
+  assert.equal(s.db.used("os-open-data"), 1);
+  assert.equal(s.db.receipts(), 1);
+  assert.equal(s.outgoing.length, 1);
+});
+
 for (const protocol of ["2025-11-25", "2026-07-28"] as const) {
+  for (const stage of ["admit", "append", "inspect"] as const) {
+    test(`${protocol} both mounts share two leases through cancelled ${stage} settlement and close`, { timeout: 3000 }, async (t) => {
+      const held = [deferred(), deferred()], entered = [deferred(), deferred()];
+      const backgrounds: Promise<void>[] = [];
+      let calls = 0;
+      const hold = async () => { const index = calls++; entered[index]!.release(); await held[index]!.promise; };
+      const capacity = createSitesPilotCapacity();
+      const s = scenario(t, { capacity, store: {
+        admit: async () => { if (stage === "admit") await hold(); },
+        append: async () => { if (stage === "append") await hold(); },
+        inspect: async () => { if (stage === "inspect") await hold(); return receipt(); },
+      }, waitUntil: (completion) => { backgrounds.push(completion); } });
+      const { testTokenSha256: _testToken, ...nativeOptions } = s.options;
+      const native = createSitesPilotHttpHandler({ ...nativeOptions, path: "/mcp" });
+      t.after(() => native.close());
+      const handlers = [s.handler, native], paths = ["/pilot/mcp", "/mcp"];
+      const tool = stage === "inspect" ? "sites_evidence_inspect" : "sites_os_open_product";
+      const args = stage === "inspect" ? { receipt_id: receipt().evidence.receipt_id } : { product: "OpenNames" };
+      let closed = false;
+      let closing: Promise<void> | undefined;
+      try {
+        for (let index = 0; index < 2; index++) {
+          const controller = new AbortController();
+          const pending = handlers[index]!.fetch(wireCall(protocol, tool, args, controller.signal, paths[index]));
+          await entered[index]!.promise; controller.abort();
+          assert.equal((await pending).status, 408);
+        }
+        for (let index = 0; index < 2; index++) {
+          assert.equal((await handlers[index]!.fetch(wireCall(protocol, "sites_capabilities", {}, undefined, paths[index]))).status, 429);
+        }
+        assert.equal(calls, 2);
+        assert.equal(s.outgoing.length, stage === "append" ? 2 : 0);
+        closing = s.handler.close().then(() => { closed = true; });
+        await new Promise<void>((resolve) => setImmediate(resolve));
+        assert.equal(closed, false, "close must wait for the cancelled application, not just its HTTP response");
+        assert.equal((await native.fetch(wireCall(protocol, "sites_capabilities", {}, undefined, "/mcp"))).status, 429);
+      } finally {
+        for (const item of held) item.release();
+        await Promise.all(backgrounds);
+        await closing;
+      }
+      assert.equal(closed, true);
+      assert.equal((await native.fetch(wireCall(protocol, "sites_capabilities", {}, undefined, "/mcp"))).status, 200);
+      assert.equal((await s.handler.fetch(request())).status, 503);
+      assert.equal(calls, 2);
+    });
+  }
   for (const stage of ["admit", "append", "inspect"] as const) {
     test(`${protocol} cancelled ${stage} retains capacity until the underlying operation settles`, { timeout: 3000 }, async (t) => {
       const held = [deferred(), deferred()], entered = [deferred(), deferred()];

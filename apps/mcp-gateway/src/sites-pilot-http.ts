@@ -20,6 +20,14 @@ export const SITES_PILOT_INPUTS = Object.freeze({
   sites_evidence_inspect: object({ receipt_id: { type: "string", pattern: "^sites-pilot:sha256:[0-9a-f]{64}$" } }),
 });
 export type SitesPilotTool = keyof typeof SITES_PILOT_INPUTS;
+/** Opaque, fixed-capacity lease pool; only this module can acquire or release it. */
+export interface SitesPilotCapacity { readonly kind: "gis-ai-go.sites-pilot-capacity.v1" }
+const capacities = new WeakMap<SitesPilotCapacity, { inFlight: number }>();
+export function createSitesPilotCapacity(): SitesPilotCapacity {
+  const capacity = Object.freeze({ kind: "gis-ai-go.sites-pilot-capacity.v1" as const });
+  capacities.set(capacity, { inFlight: 0 });
+  return capacity;
+}
 export interface SitesPilotOptions {
   origin: string;
   path: string;
@@ -29,6 +37,8 @@ export interface SitesPilotOptions {
   osApiKey?: string;
   testTokenSha256?: string;
   now?: () => number;
+  /** Share the unchanged two-request ceiling between trusted mounts in one isolate. */
+  capacity?: SitesPilotCapacity;
   /** Extend a Worker request's lifetime for already-started application work after client cancellation. */
   waitUntil?: (completion: Promise<void>) => void;
 }
@@ -136,9 +146,10 @@ export function createSitesPilotHttpHandler(options: SitesPilotOptions): { fetch
     || !/^[0-9a-f]{40}$/.test(options.softwareRevision)
     || (options.testTokenSha256 !== undefined && !/^[0-9a-f]{64}$/.test(options.testTokenSha256))) throw new TypeError("Invalid pilot configuration");
   const finiteMethods = new Set(["initialize", "notifications/initialized", "server/discover", "tools/list", "tools/call", "ping"]);
+  const capacity = capacities.get(options.capacity ?? createSitesPilotCapacity());
+  if (capacity === undefined) throw new TypeError("Invalid pilot capacity");
   const completions = new Set<Promise<void>>();
   let closed = false;
-  let inFlight = 0;
   return { async close() { closed = true; await Promise.all(completions); }, async fetch(request) {
     if (closed) return response(503, "pilot-closed");
     if (request.url !== `${options.origin}${options.path}`) return response(404, "not-found");
@@ -160,12 +171,12 @@ export function createSitesPilotHttpHandler(options: SitesPilotOptions): { fetch
       return value > 0 && value <= 1 ? media?.trim() : undefined;
     });
     if (!accept.includes("application/json") || !accept.includes("text/event-stream")) return response(406, "mcp-accept-required");
-    if (inFlight >= 2) return response(429, "isolate-capacity");
-    inFlight++;
+    if (capacity.inFlight >= 2) return response(429, "isolate-capacity");
+    capacity.inFlight++;
     let settleRequest!: () => void;
     const requestCompletion = new Promise<void>((resolve) => { settleRequest = resolve; });
     completions.add(requestCompletion);
-    const release = () => { inFlight--; completions.delete(requestCompletion); settleRequest(); };
+    const release = () => { capacity.inFlight--; completions.delete(requestCompletion); settleRequest(); };
     const signal = AbortSignal.any([request.signal, AbortSignal.timeout(25_000)]);
     const applications = new Set<Promise<void>>();
     let handler: { close(): Promise<void> } | undefined;

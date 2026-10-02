@@ -1,7 +1,7 @@
 # Private Sites live-data pilot assembly
 
 This directory is an additive assembly overlay for the existing private Site. It
-contains the manual `/pilot` page, `/pilot/mcp` route, trusted runtime wrapper and
+contains the manual `/pilot` page, `/pilot/mcp` route, native `/mcp` route, trusted runtime wrapper and
 one schema migration. It does not alter the old `/demo`, `/workbench`, captured
 CPIH store or supported GIS AI GO release.
 
@@ -10,10 +10,17 @@ CPIH store or supported GIS AI GO release.
 1. Use an exact clean, committed GIS AI GO checkout whose required assurance has
    passed. Run `scripts/package_sites_pilot_runtime.mjs` with the admitted pinned
    Site tooling and a new output directory, as documented by that script.
-2. Copy this overlay's `app/pilot/` and `server/sites-pilot-runtime.mjs` into the
+2. Copy this overlay's `app/pilot/`, `app/mcp/` and `server/sites-pilot-runtime.mjs` into the
    recovered Site source. Install the generated runtime, `bundle-manifest.json`
    licence and third-party notices under `server/vendor/sites-pilot/`. Preserve the Site's existing
    routes, dependency lock, audience and configuration.
+   Add `"mcp"` to the existing `.openai/hosting.json` `capabilities` array,
+   preserving every existing capability and the exact `project_id`. If the
+   capability array is absent, the additional field is
+   `"capabilities": ["mcp"]`; otherwise append `"mcp"` once to that array.
+   This is a merge instruction, not a replacement hosting manifest.
+   This declaration is specified by the installed Sites MCP skill, version
+   `0.1.75`, reviewed on 2 October 2026. Confirm the built hosting manifest retains it.
 3. Register and apply `drizzle/0001_sites_pilot.sql` through the existing Site's
    reviewed migration mechanism. The SQL adds only the two pilot tables. It seeds
    four enabled provider rows at 120 attempts each and never refills or re-enables
@@ -102,6 +109,25 @@ does not invent another identity-header rule. The owner-private Sites dispatcher
 must enforce its existing audience and protect the platform identity headers.
 An explicitly configured application test token is a separate test route; passing
 that route does not prove native Sites MCP OAuth or independent-client acceptance.
+
+The native `/mcp` route uses the same six-tool application with its exact path and
+the same D1 store, persistent provider allowances and receipts. It never accepts
+the application test token as user identity. Both routes retain exact-origin,
+method, body, time and input checks; an incoming URL is never rewritten to another
+route to pass those checks. Both mounts share one two-request isolate capacity. Cancelled requests retain
+capacity until their underlying work settles. Provider allowances and receipt
+limits remain shared durable controls.
+Removing the admitted origin stops both routes after redeployment.
+
+Publishing this overlay is a separate acceptance step. After a successful private
+publication, call `get_site` with `include_mcp_connection: true`; preserve the
+returned endpoint, OAuth resource and plugin ID. Reuse the Sites-provisioned App
+and plugin, then offer that plugin through `plugin_management.suggest_plugins`.
+Do not create a second App, run `codex mcp add`/`login`, invent an OAuth flow or
+distribute the private test token as a connector credential. A successful native
+read-only `sites_capabilities` call must precede any native live-provider test.
+The assembled Worker probe uses synthetic identity and cannot establish hosted
+OAuth, user consent, plugin installation or Claude acceptance.
 
 ## Manual and MCP behaviour
 

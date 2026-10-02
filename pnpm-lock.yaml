@@ -131,6 +131,8 @@ importers:
 
   packages/evidence: {}
 
+  packages/experience-intake: {}
+
   packages/policy-client:
     dependencies:
       '@gis-ai-go/authority-context':

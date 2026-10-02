@@ -4,12 +4,22 @@ Last updated: 2 October 2026
 
 ## Authority and reading order
 
+On 2 October 2026 the owner authorised [EXPERIENCE-221](docs/implementation/EXPERIENCE-221_LEARNING_AND_EVALUATION.md):
+review actual connection facilities, build feature-complete authored persona,
+story and evaluation coverage with source and presentation links, implement
+plain-language learning help and develop voice/page and file/URL intake journeys.
+The owner chose a facilitator-led version and offline activities for the event
+on 7 October with students aged 13 to 14. Preserve the private audience; do not
+infer independent participant account approval or licensed-data redistribution.
+Existing included allowances and the existing promotional credits are available;
+no new paid service, chargeable overage or separate API billing is authorised.
+
 On 2 October 2026 the owner authorised [OKF-220](docs/implementation/OKF-220_METADATA_KNOWLEDGE_FRAMEWORK.md):
 export the necessary OS/ONS metadata, specifications, documentation and guides;
 build a broad provenance-backed OKF+ inventory with Markdown/YAML-LD, search,
 coverage, release/update discovery, temporal coverage and geospatial concepts.
 Review `okf-ons` and reuse the lessons of DWP and other OKF projects. Existing
-included allowances only remain the spending boundary. This is the current task;
+included allowances only remain the spending boundary. This preceding metadata increment is accepted through PR #141;
 catalogue completeness, semantic coverage and live Ask OKF acceptance must each
 have their own evidence.
 

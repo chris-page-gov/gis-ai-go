@@ -229,6 +229,7 @@ jobs:
             !artifacts/okf-plus/export/**/PRIVATE*
             !artifacts/okf-plus/export/PRIVATE*
             apps/public-explorer/test-results/
+            output/playwright/experience/
           if-no-files-found: warn
 
   gateway_image:

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en-GB">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>GIS AI GO · Learn by trying</title></head>
+<body>
+<a class="skip-link" href="#activity">Skip to activity</a>
+<header class="top"><a href="./index.html">GIS AI GO</a><span>Learn by trying · experimental</span><a href="#bring-data">Bring your data</a></header>
+<main>
+  <section class="intro"><h1>What would you like to find out?</h1><p>Try a question, see where its answer comes from, and learn the words as you go.</p></section>
+  <div class="workspace">
+    <section id="activity" aria-labelledby="activity-heading">
+      <h2 id="activity-heading">Choose an example</h2>
+      <form id="example-filter" class="filters">
+        <div><label for="example-search">Find an activity or a word</label><input id="example-search" type="search" maxlength="200" placeholder="For example, place names or inflation"></div>
+        <div><label for="example-persona">Examples written for</label><select id="example-persona"><option value="">Everyone</option></select></div>
+        <button type="submit">Find examples</button>
+      </form>
+      <p id="example-count" role="status"></p>
+      <label for="example-choice">Activity</label><select id="example-choice"></select>
+      <article id="example-detail" aria-live="polite"></article>
+      <div class="view-controls"><label for="example-view">Show the example as</label><select id="example-view"><option value="cards">Step-by-step cards</option><option value="table">Question table</option><option value="evidence">Sources and checks</option></select></div>
+      <div id="example-content"></div>
+      <p id="page-tool-state" class="note"></p>
+    </section>
+    <aside class="learning" aria-labelledby="learning-heading">
+      <h2 id="learning-heading">What does that mean?</h2>
+      <p id="jit-summary">Choose an example. Its explanation stays here while you work.</p>
+      <label for="concept-choice">Explain a word</label><select id="concept-choice"></select>
+      <div id="concept-detail" aria-live="polite"></div>
+      <p class="note">You can be new to the words and still ask a good question.</p>
+    </aside>
+  </div>
+  <section id="bring-data" class="intake" aria-labelledby="intake-heading">
+    <h2 id="intake-heading">Bring your data</h2>
+    <p>Choose files or drop them here. Matching Shapefile parts are found together, including inside a folder or ZIP. Small text, CSV and GeoJSON files can be previewed on this device. Other formats receive an explanation and a preparation checklist. Nothing is uploaded.</p>
+    <div id="drop-zone" class="drop-zone"><label for="intake-files">Choose one or more files</label><input type="file" id="intake-files" multiple><label for="intake-folder">Or choose a folder</label><input type="file" id="intake-folder" multiple webkitdirectory><p>For a Shapefile, include files with the same name, such as .shp, .shx, .dbf and .prj.</p></div>
+    <form id="url-form"><label for="intake-url">Or check a data link</label><input type="url" id="intake-url" maxlength="2048" placeholder="https://example.org/data.geojson"><button type="submit">Check link</button><p class="note">Links are checked by their shape only. This page does not open or download them.</p></form>
+    <div class="actions"><button id="synthetic-example" type="button" class="secondary">Try a made-up park dataset</button><button id="clear-intake" type="button" class="secondary">Clear files and previews</button></div>
+    <p id="intake-status" role="status"></p><div id="intake-results"></div>
+  </section>
+  <section class="session" aria-labelledby="session-heading"><h2 id="session-heading">Try this together</h2><p>Ask a question in your own words. Explain one new word. Then tell us what was confusing. Use the made-up dataset rather than names, home addresses or private files.</p><p>Voice starts in your connected assistant. This page has no microphone or paid AI service. A compatible assistant can change the example, view and explanation using the page tools. A real spoken test is still needed to establish that connection.</p><button id="download-session" type="button" class="secondary">Download this example checklist</button><p class="note">The checklist contains example identifiers and expected checks, not your files or spoken conversation.</p></section>
+</main>
+<footer><p>Examples explain the available facilities. A completed example is not proof that every source, question or client has been tested.</p></footer>
+<script type="module" src="/src/experience.ts"></script>
+</body></html>

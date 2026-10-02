@@ -1,10 +1,12 @@
 import { defineConfig } from "vite";
 export default defineConfig(({ mode }) => ({
   base: "./",
-  build: { assetsInlineLimit: 0, sourcemap: false, outDir: mode === "hosted" ? "dist-hosted" : "dist" },
+  build: { assetsInlineLimit: 0, sourcemap: false, outDir: mode === "hosted" ? "dist-hosted" : mode === "experience-offline" ? "dist/experience-offline" : "dist",
+    rollupOptions: { input: mode === "experience-offline" ? { experience: "experience.html" } : { main: "index.html", experience: "experience.html" } } },
   plugins: mode === "hosted" ? [{
     name: "web216-hosted-edition",
-    transformIndexHtml(html: string) {
+    transformIndexHtml(html: string, context) {
+      if (context.filename.endsWith("experience.html")) return html;
       const replacements = [
         ["Experimental · local", "Experimental · private Site"],
         ["This local experiment retrieves two ONS CPIH observations.", "This private experiment retrieves two captured ONS CPIH observations."],

@@ -315,6 +315,22 @@
         "repository_assurance"
       ],
       "force_full": false
+    },
+    {
+      "id": "experience-learning-and-intake",
+      "description": "Learning examples, local file intake and evaluation require full assurance.",
+      "patterns": [
+        "packages/experience-intake/**"
+      ],
+      "lanes": [
+        "gateway-provenance",
+        "gateway_attestation_verification",
+        "gateway_image",
+        "gateway_independent_image",
+        "provenance",
+        "repository_assurance"
+      ],
+      "force_full": true
     }
   ]
 }
