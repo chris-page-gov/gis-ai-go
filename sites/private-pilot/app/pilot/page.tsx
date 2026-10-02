@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, type SubmitEvent } from 'react';
+import { pilotLearning } from './learning';
 
 type Operation = 'sites_os_names' | 'sites_os_open_product' | 'sites_ons_areas' | 'sites_ons_cpih' | 'sites_capabilities' | 'sites_evidence_inspect';
 type JsonObject = Record<string, unknown>;
@@ -141,7 +142,8 @@ export default function SitesPilotPage() {
       .sites-pilot *{box-sizing:border-box}.sites-pilot h1{font-size:clamp(2rem,5vw,3rem);line-height:1.15;margin:.6rem 0 1rem}.sites-pilot h2{font-size:1.55rem;margin-top:0}
       .sites-pilot a{color:#07589c;text-decoration:underline}.sites-pilot a:focus-visible,.sites-pilot button:focus-visible,.sites-pilot input:focus-visible,.sites-pilot select:focus-visible,.sites-pilot summary:focus-visible{outline:3px solid #efbd18;outline-offset:3px}
       .pilot-tag{font-weight:bold;color:#34566d;letter-spacing:.04em}.pilot-intro{max-width:52rem}.pilot-notice{padding:1rem;border-left:5px solid #8e6f0c;background:#fff8de}
-      .pilot-grid{display:grid;grid-template-columns:minmax(0,3fr) minmax(15rem,2fr);gap:2rem;margin:2rem 0}.pilot-form,.pilot-limits{border:1px solid #b9c8d1;border-radius:.35rem;padding:1.5rem}
+      .pilot-grid{display:grid;grid-template-columns:minmax(0,3fr) minmax(15rem,2fr);gap:2rem;margin:2rem 0}.pilot-form,.pilot-limits{border:1px solid #b9c8d1;border-radius:.35rem;padding:1.5rem}.pilot-learning{position:sticky;top:1rem;border-top:5px solid #075b57;background:#edf7f7;padding:1rem;z-index:2;max-height:32vh;overflow:auto}
+      .sites-pilot :is(input,select,button,a,summary){scroll-margin-top:calc(32vh + 2rem)}.pilot-learning a{scroll-margin:0}
       .pilot-form label{display:block;font-weight:bold;margin-top:1rem}.pilot-form input:not([type=checkbox]),.pilot-form select{width:100%;font:inherit;padding:.65rem;border:2px solid #476270;border-radius:.2rem;background:#fff;color:#172b3a;min-height:44px}
       .pilot-form .pilot-checkbox{display:flex;align-items:center;gap:.7rem;font-weight:normal}.pilot-checkbox input{width:22px;height:22px}.pilot-help{font-size:.94rem;color:#425d6d;margin:.4rem 0 1rem}.pilot-actions{display:flex;flex-wrap:wrap;gap:.8rem;margin-top:1.5rem}
       .pilot-actions button{min-height:44px;font:inherit;font-weight:bold;border:2px solid #075b57;border-radius:.2rem;background:#075b57;color:#fff;padding:.6rem 1.2rem;cursor:pointer}.pilot-actions button.secondary{background:#fff;color:#075b57}.pilot-actions button:disabled{opacity:.6;cursor:wait}
@@ -152,6 +154,7 @@ export default function SitesPilotPage() {
     <header className="pilot-intro"><p className="pilot-tag">GIS AI GO · private evaluation</p><h1>Ask a bounded question of live public data</h1>
       <p>Find named places, look up statistical-area codes and compare published index levels. This manual page calls the same six MCP tools as an AI client.</p>
       <p className="pilot-notice">Experimental open-data pilot. This is not the supported GIS AI GO release. Private access does not establish permission to use PSGA data.</p></header>
+    <aside className="pilot-learning" aria-labelledby="pilot-learning-heading" aria-live="polite"><h2 id="pilot-learning-heading">What does that mean?</h2><p>{pilotLearning[operation].summary}</p><p>{pilotLearning[operation].words}</p><a href={`/experience/experience.html#feature=${pilotLearning[operation].feature}&view=cards`}>See questions, examples and sources</a></aside>
     <div className="pilot-grid"><form className="pilot-form" onSubmit={submit} aria-busy={busy}>
       <h2>Choose your question</h2><label htmlFor="pilot-operation">What do you want to find?</label>
       <select id="pilot-operation" value={operation} onChange={(event) => setOperation(event.target.value as Operation)} disabled={busy}>

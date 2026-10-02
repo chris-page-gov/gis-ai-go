@@ -48,6 +48,7 @@ class ReleaseMetadataTests(unittest.TestCase):
             "packages/authority-context/package.json",
             "packages/contracts/package.json",
             "packages/evidence/package.json",
+            "packages/experience-intake/package.json",
             "packages/policy-client/package.json",
             "packages/provider-adapter-sdk/package.json",
             "packages/tool-registry/package.json",

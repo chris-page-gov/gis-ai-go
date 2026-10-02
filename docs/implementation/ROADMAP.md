@@ -92,3 +92,14 @@ search, clear reference periods, update/release routes and question evaluations.
 Acceptance separates catalogue traversal, metadata evidence, schema validation,
 semantic curation, retrieval and live Ask OKF admission. Unknown completeness
 denominators remain open; a large record count does not close them.
+
+## Learning and feature evaluation
+
+[EXPERIENCE-221](EXPERIENCE-221_LEARNING_AND_EVALUATION.md) was authorised on
+2 October 2026. It maps current facilities to personas, plain and specialist
+language, source APIs/data, presentation forms, user stories and executable or
+reviewable evaluation cases. Authored 100% coverage uses the closed current-feature
+inventory, with baseline and new local facilities separated. Participant success,
+natural-language/Voice execution, native Sites connection, Claude access and
+proposed file converters remain independently measured. The first event route is
+facilitator-led with offline activities; preserve the existing private audience.

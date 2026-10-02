@@ -38,9 +38,10 @@ EXACT_RESOURCES = [
 # This source-bound local set is deliberately regenerated after authorised source
 # changes; it is not an immutable observed-host artefact. Current material bindings
 # are independently checked by test_qual_206_local_evaluation_receipts.
-# The OKF-220 refresh changes only the package-script binding and derived set ID.
+# The EXPERIENCE-221 refresh changes only the package-script and workspace-lock
+# bindings and derived set ID; suite and receipt bodies remain unchanged.
 REGENERABLE_LOCAL_RECEIPT_SHA256 = (
-    "c88e1e084834bc4e7eb5f4a7bc0b10a2f9b0446b71eb9cea32c4fc58f1f872d4"
+    "f91bf531c72362d00c7918171826367b155230925553f8f65058833c36304e82"
 )
 HISTORICAL_V1_SHA256 = {
     "evaluation/qual-206-local-protocol-evidence-matrix.v1.json": (

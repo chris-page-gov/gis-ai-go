@@ -16,26 +16,53 @@ Last updated: 2 October 2026
 
 ## Authorised current work
 
-The current task is [OKF-220](docs/implementation/OKF-220_METADATA_KNOWLEDGE_FRAMEWORK.md),
-authorised on 2 October: build the OS/ONS metadata and schema OKF+ inventory,
-provenance, Markdown/YAML-LD, search, update/release discovery, temporal coverage
-and an extensible geospatial concept scheme. Baseline:
-`357aa6c85c787f29710ff208c938eb54af02a488`; branch `codex/okf-plus-inventory`.
-Source and pinned reuse reviews are complete. The final capture includes all
-478 indexed NGD documentation pages and two selected download guides. The
-current import holds 30,833 Markdown/YAML-LD records, 6,067 native NGD labels and
-2,915 NGD schema field nodes; twelve source schemas have required-field
-inconsistencies. The complete 30,833-record build at `e28b0da1` passed the
-record/card/semantic-field audit with zero omissions, 36 automated retrieval cases
-and four pinned-engine cases. Four interpretation cases remain explicitly
-unassessed. The full source-package identity round trip also passed. Integration
-repairs address the explicit CI path map and a regenerable receipt digest. The
-local full Python run exposed unchanged macOS harnesses rejecting the current
-host's sandbox executable identity; those checks remain intact. Canonical CI and
-verified export are pending in [PR #141](https://github.com/chris-page-gov/gis-ai-go/pull/141).
-Initial account usage was 41% weekly used (59% remaining); the latest checkpoint
-is 55% used (45% remaining). This is account-wide, not task usage.
-See the implementation record for coverage boundaries and checkpoints.
+The latest exact-commit CI, publication and client-acceptance checkpoint is
+[EXPERIENCE-221 issue #143](https://github.com/chris-page-gov/gis-ai-go/issues/143),
+with implementation review in [PR #144](https://github.com/chris-page-gov/gis-ai-go/pull/144).
+The following local verification snapshot was recorded before those final gates.
+
+The current task is [EXPERIENCE-221](docs/implementation/EXPERIENCE-221_LEARNING_AND_EVALUATION.md),
+authorised on 2 October: establish actual MCP/client facilities; cover every
+current feature with personas, stories, questions, sources, presentation forms
+and plain-language learning help; prepare voice-driven page actions and bounded
+file intake. The owner selected facilitator-led use and offline activities for
+the 7 October event with students aged 13 to 14. Individual accounts, devices and
+wider access remain unconfirmed; the Site stays private.
+
+Implementation is complete locally on `codex/experience-221` from
+`387e86695e7002e78f005e972703f5c5e51fa546`. The catalogue currently distinguishes
+45 baseline facilities, 29 new local facilities and eight planned facilities.
+It contains nine personas, 222 questions and 904 language variants. Authored
+coverage is separate from actual user/AI outcomes. Native Sites registration,
+Claude and spoken Voice acceptance require their own observed evidence. Local
+folder/ZIP inventory discovers Shapefile companions; full binary feature import
+and arbitrary URL downloading remain separate work.
+
+Local verification passed: 47 pilot/native-mount tests, 44 workbench tests,
+19 intake tests, 11 evaluation-harness tests, 30 deterministic intake fixtures
+and 20 offline browser journeys. The browser checks include keyboard use and
+320/390/1280-pixel layouts at normal and doubled text size, with no page network
+requests, page errors or automated accessibility violations. The page-tool bridge
+is mocked for these checks. All 222 natural-language questions remain unobserved;
+canonical CI, private publication and actual client/Voice acceptance are pending.
+
+The preceding [OKF-220](docs/implementation/OKF-220_METADATA_KNOWLEDGE_FRAMEWORK.md)
+metadata increment was merged through [PR #141](https://github.com/chris-page-gov/gis-ai-go/pull/141)
+at `387e86695e7002e78f005e972703f5c5e51fa546`. Protected-main CI `36990326268` and
+CodeQL `36990336704` passed, including independent image derivation and provenance.
+The complete 30,833-record build has zero omitted retained records or semantic
+fields, 36 automated retrieval passes and four pinned-engine passes. Four
+interpretation questions remain unassessed. Public metadata and separate private
+original-document archives were verified, including a fresh-directory offline
+replay. Global catalogue completeness and installed Ask OKF admission remain open.
+The final acceptance record is [issue #140](https://github.com/chris-page-gov/gis-ai-go/issues/140#issuecomment-5949786558).
+Unchanged macOS harnesses reject this host's sandbox executable identity; their
+checks remain intact. Dependency maintenance is separately tracked in #142.
+
+At the EXPERIENCE-221 starting usage check, 59% of the weekly allowance was used
+(41% remaining), with 62,460.4597875 existing credits. These are account-wide
+figures, not task cost. No new service, purchase, overage or reset is authorised
+by this checkpoint.
 
 Unattended execution correction (2 October): an optional browser/CDP permission
 prompt held the coordinating task overnight. Remaining work uses non-interactive
@@ -60,8 +87,9 @@ versions passed their bounded discovery/refusal checks. A complete private
 checkpoint contains 33 independently hash-checked receipts; stopping and
 reinstating the application preserved the checked receipts and allowance counts.
 See the [hosted observation](docs/implementation/SITES-218_HOSTED_OBSERVATION.md)
-for timings, rollback evidence and precise limits. Native Sites registration
-still reports `has_mcp: false`; the exact supported declaration remains unavailable.
+for timings, rollback evidence and precise limits. The version 7 Site still lacks native MCP registration. The new Sites MCP skill
+now documents `capabilities: ["mcp"]` and `POST /mcp`; EXPERIENCE-221 implements
+and separately verifies that route without treating it as completed OAuth acceptance.
 Native OAuth, independent AI-client acceptance and full public release remain
 separate gates. Required PR assurance for the runtime revision passed. Integration
 and exact-head canonical acceptance are tracked in [PR #139](https://github.com/chris-page-gov/gis-ai-go/pull/139);

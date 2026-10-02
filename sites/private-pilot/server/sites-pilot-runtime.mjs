@@ -1,4 +1,4 @@
-import { createSitesPilotHttpHandler, createSitesPilotStore } from './vendor/sites-pilot/sites-pilot-runtime.mjs';
+import { createSitesPilotCapacity, createSitesPilotHttpHandler, createSitesPilotStore } from './vendor/sites-pilot/sites-pilot-runtime.mjs';
 import manifest from './vendor/sites-pilot/bundle-manifest.json' with { type: 'json' };
 
 const runtimes = new WeakMap();
@@ -26,7 +26,7 @@ function configuration(environment) {
 }
 
 /** Uses trusted worker bindings only; normal requests never initialise or reset storage. */
-export async function dispatchSitesPilot(request, environment, waitUntil) {
+async function dispatch(request, environment, waitUntil, path) {
   try {
     if (typeof waitUntil !== 'function') throw new Error('Pilot unavailable');
     const config = configuration(environment);
@@ -37,21 +37,37 @@ export async function dispatchSitesPilot(request, environment, waitUntil) {
     }
     let entry = existing;
     if (!entry) {
-      const handler = createSitesPilotHttpHandler({
-        origin: config.origin, path: '/pilot/mcp', softwareRevision: config.softwareRevision,
-        store: createSitesPilotStore(config.database), fetch: globalThis.fetch.bind(globalThis),
+      entry = { config, store: createSitesPilotStore(config.database), capacity: createSitesPilotCapacity(), handlers: new Map() };
+      runtimes.set(config.database, entry);
+    }
+    let handler = entry.handlers.get(path);
+    if (!handler) {
+      handler = createSitesPilotHttpHandler({
+        origin: config.origin, path, softwareRevision: config.softwareRevision,
+        store: entry.store, capacity: entry.capacity, fetch: globalThis.fetch.bind(globalThis),
         // cloudflare:workers resolves the current request context when called.
         // Never capture a previous request's ExecutionContext in this shared handler.
         waitUntil,
         ...(config.osApiKey === undefined ? {} : { osApiKey: config.osApiKey }),
-        ...(config.testTokenSha256 === undefined ? {} : { testTokenSha256: config.testTokenSha256 }),
+        // Native MCP must use Sites' authenticated identity. The historical
+        // application test token remains confined to the ordinary pilot route.
+        ...(path !== '/pilot/mcp' || config.testTokenSha256 === undefined ? {} : { testTokenSha256: config.testTokenSha256 }),
       });
-      entry = { config, handler };
-      runtimes.set(config.database, entry);
+      entry.handlers.set(path, handler);
     }
-    return await entry.handler.fetch(request);
+    return await handler.fetch(request);
   } catch {
     return Response.json({ error: 'pilot-unavailable' }, { status: 503,
       headers: { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' } });
   }
+}
+
+/** The path is authored here, never inferred from a caller or rewritten. */
+export function dispatchSitesPilot(request, environment, waitUntil) {
+  return dispatch(request, environment, waitUntil, '/pilot/mcp');
+}
+
+/** Native Sites OAuth supplies the trusted identity at the hosting boundary. */
+export function dispatchSitesNativeMcp(request, environment, waitUntil) {
+  return dispatch(request, environment, waitUntil, '/mcp');
 }

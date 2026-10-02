@@ -152,15 +152,16 @@ function rpcRequest(method, params, id = ++rpcId) {
   return { method: 'POST', headers: { 'content-type': 'application/json', accept: 'application/json, text/event-stream',
     origin, 'mcp-protocol-version': protocol }, body: JSON.stringify({ jsonrpc: '2.0', ...(id === null ? {} : { id }), method, ...(params === undefined ? {} : { params }) }) };
 }
-async function rpc(method, params, id = ++rpcId) {
-  const response = await wire(`${origin}/pilot/mcp`, rpcRequest(method, params, id));
+async function rpc(method, params, id = ++rpcId, path = '/pilot/mcp') {
+  assert(['/pilot/mcp', '/mcp'].includes(path));
+  const response = await wire(`${origin}${path}`, rpcRequest(method, params, id));
   if (id === null) { assert.equal(response.status, 202); return; }
   assert.equal(response.status, 200); assert.match(response.headers.get('content-type') ?? '', /^application\/json/iu);
   const message = await response.json(); assert.equal(message.jsonrpc, '2.0'); assert.equal(message.id, id); assert.equal(message.error, undefined);
   return message.result;
 }
-async function callTool(name, parameters, expectedError) {
-  const result = await rpc('tools/call', { name, arguments: parameters });
+async function callTool(name, parameters, expectedError, path = '/pilot/mcp') {
+  const result = await rpc('tools/call', { name, arguments: parameters }, undefined, path);
   assert.equal(result.content.length, 1); assert.equal(result.content[0].type, 'text');
   assert.deepEqual(JSON.parse(result.content[0].text), result.structuredContent);
   if (result.isError === true) problems.push({ tool: tools.includes(name) ? name : 'unknown',
@@ -237,10 +238,21 @@ try {
   const staticBefore = { demo: await staticPage('/demo.html'), workbench: await staticPage('/workbench/index.html') };
   await staticPage('/pilot', 'Ask a bounded question of live public data');
   phase = 'identity-origin-denials';
-  assert.equal((await wire(`${origin}/pilot/mcp`, rpcRequest('tools/list'), false)).status, 401);
-  const wrongOrigin = rpcRequest('tools/list'); wrongOrigin.headers.origin = 'https://untrusted.invalid';
-  assert.equal((await wire(`${origin}/pilot/mcp`, wrongOrigin)).status, 403);
+  for (const path of ['/pilot/mcp', '/mcp']) {
+    assert.equal((await wire(`${origin}${path}`, rpcRequest('tools/list'), false)).status, 401);
+    const wrongOrigin = rpcRequest('tools/list'); wrongOrigin.headers.origin = 'https://untrusted.invalid';
+    assert.equal((await wire(`${origin}${path}`, wrongOrigin)).status, 403);
+  }
   assert.equal(outboundAttempts, 0); assert.deepEqual(await receiptCount(database), { count: 0 });
+  phase = 'native-mount-discovery';
+  assert.equal((await rpc('initialize', { protocolVersion: protocol, capabilities: {},
+    clientInfo: { name: 'synthetic-local-native-client', version: '1.0.0' } }, undefined, '/mcp')).protocolVersion, protocol);
+  await rpc('notifications/initialized', undefined, null, '/mcp');
+  assert.deepEqual((await rpc('tools/list', undefined, undefined, '/mcp')).tools.map(tool => tool.name).sort(), tools);
+  const nativeCapabilities = await callTool('sites_capabilities', {}, undefined, '/mcp');
+  assert.equal(nativeCapabilities.evidence.software_revision, manifest.source_revision);
+  assert.equal(nativeCapabilities.evidence.provider_egress, false);
+  assert.equal(outboundAttempts, 0); assert.deepEqual(await quotaRows(database), initialQuotas);
   phase = 'six-tool-journey';
   assert.equal((await rpc('initialize', { protocolVersion: protocol, capabilities: {}, clientInfo: { name: 'synthetic-local-client', version: '1.0.0' } })).protocolVersion, protocol);
   await rpc('notifications/initialized', undefined, null);
@@ -263,6 +275,7 @@ try {
   assert.equal(receipts[3].data.data.comparison.difference_index_points, '3.3');
   assert.equal(receipts[3].data.data.comparison.relative_change_percent, '2.367288');
   assert.deepEqual(await callTool('sites_evidence_inspect', { receipt_id: receipts[0].evidence.receipt_id }), receipts[0]);
+  assert.deepEqual(await callTool('sites_evidence_inspect', { receipt_id: receipts[0].evidence.receipt_id }, undefined, '/mcp'), receipts[0]);
   assert.equal(outboundAttempts, 5); assert.equal(unexpectedOutbound, 0); assert.deepEqual(await receiptCount(database), { count: 4 });
   assert.deepEqual((await quotaRows(database)).map(row => [row.provider, row.used]),
     [['ons-cpih', 2], ['ons-geography', 1], ['os-names', 1], ['os-open-data', 1]]);
@@ -271,18 +284,21 @@ try {
   const stoppedQuotas = await quotaRows(database); await migrate(database, pilotMigration);
   assert.deepEqual(await quotaRows(database), stoppedQuotas);
   await callTool('sites_os_names', queries[0][1], 'admission-denied');
+  await callTool('sites_os_names', queries[0][1], 'admission-denied', '/mcp');
   assert.equal(outboundAttempts, 5); assert.deepEqual(await receiptCount(database), { count: 4 });
   assert.deepEqual(await legacyRow(database), legacyBefore);
   phase = 'restart-persistence';
   await bounded(() => worker.dispose()); worker = undefined; worker = new Miniflare(options());
   database = await bounded(() => worker.getD1Database('DB', 'sites-pilot-built-probe'));
   for (const receipt of receipts) assert.deepEqual(await callTool('sites_evidence_inspect', { receipt_id: receipt.evidence.receipt_id }), receipt);
+  for (const receipt of receipts) assert.deepEqual(await callTool('sites_evidence_inspect', { receipt_id: receipt.evidence.receipt_id }, undefined, '/mcp'), receipt);
   assert.deepEqual(await quotaRows(database), stoppedQuotas); assert.deepEqual(await legacyRow(database), legacyBefore);
   assert.deepEqual({ demo: await staticPage('/demo.html'), workbench: await staticPage('/workbench/index.html') }, staticBefore);
   phase = 'source-revision-mismatch';
   await bounded(() => worker.dispose()); worker = undefined;
   worker = new Miniflare(options(manifest.source_revision === '0'.repeat(40) ? '1'.repeat(40) : '0'.repeat(40)));
   assert.equal((await wire(`${origin}/pilot/mcp`, rpcRequest('tools/list'))).status, 503);
+  assert.equal((await wire(`${origin}/mcp`, rpcRequest('tools/list'))).status, 503);
   assert.equal(outboundAttempts, 5); assert.equal(unexpectedOutbound, 0); assert.deepEqual(runtimeErrors, []);
   // Ensure neither executing the Worker nor serving assets modified the recorded build.
   for (const source of sources) assert.equal(hash(await readFile(join(site, source.path))), source.sha256);
@@ -291,6 +307,7 @@ try {
       storage: 'temporary-local-d1-dispose-recreate', hosted_backup: false, cloud_durability: false, deployed: false, independent_attestation: false },
     versions, source_revision: manifest.source_revision, package_manifest_sha256: hash(manifestBytes), bundle_sha256: manifest.bundle.sha256,
     built_material_count: sources.length, built_material_bytes: sourceBytes, built_inventory_sha256: valueHash(sources),
+    mounted_paths: ['/pilot/mcp', '/mcp'], native_oauth_verified: false,
     migrations_sha256: { existing: hash(oldMigration), pilot: hash(pilotMigration) },
     requests: sequence, mocked_provider_requests: outboundAttempts, unexpected_outbound_requests: unexpectedOutbound, receipts: receipts.length,
     receipt_hashes: receipts.map(receipt => valueHash(receipt)), legacy_snapshot_sha256: valueHash(legacyBefore),

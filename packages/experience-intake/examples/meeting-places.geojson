@@ -1,0 +1,7 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [-1.58, 52.28] }, "properties": { "name": "Example meeting place A", "source": "Synthetic training fixture", "visits": 8 } },
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [-1.57, 52.29] }, "properties": { "name": "Example meeting place B", "source": "Synthetic training fixture", "visits": 12 } }
+  ]
+}

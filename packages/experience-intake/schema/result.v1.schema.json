@@ -1,0 +1,383 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "experience-intake.v1"
+    },
+    "status": {
+      "enum": [
+        "empty",
+        "ready",
+        "attention",
+        "blocked"
+      ]
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "inputKind": {
+            "enum": [
+              "file",
+              "file-group",
+              "url"
+            ]
+          },
+          "format": {
+            "enum": [
+              "geojson",
+              "json",
+              "csv",
+              "tsv",
+              "text",
+              "shapefile",
+              "geopackage",
+              "geoparquet-candidate",
+              "raster-candidate",
+              "gis-document",
+              "geodatabase-candidate",
+              "archive",
+              "spreadsheet",
+              "presentation",
+              "document",
+              "image",
+              "url-folder",
+              "unknown"
+            ]
+          },
+          "status": {
+            "enum": [
+              "preview-ready",
+              "needs-input",
+              "planned-only",
+              "blocked"
+            ]
+          },
+          "summary": {
+            "type": "string"
+          },
+          "jit": {
+            "type": "string"
+          },
+          "nextSteps": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "severity": {
+                  "enum": [
+                    "information",
+                    "warning",
+                    "error"
+                  ]
+                },
+                "message": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "code",
+                "severity",
+                "message"
+              ]
+            }
+          },
+          "sourceRefs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "companionSuggestions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 5
+          },
+          "preview": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "geojson",
+                  "table",
+                  "text"
+                ]
+              },
+              "summary": {
+                "type": "string"
+              },
+              "featureCount": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "geometryTypes": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "coordinateCount": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "nullGeometryCount": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "bounds": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 4,
+                "maxItems": 4
+              },
+              "fieldNames": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "maxItems": 64
+              },
+              "fieldNamesOmitted": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "rowCount": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "columnCount": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "rows": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "maxItems": 64
+                },
+                "maxItems": 8
+              },
+              "rowsOmitted": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "headerAssumption": {
+                "type": "string"
+              },
+              "characterCount": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "lineCount": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "excerpt": {
+                "type": "string",
+                "maxLength": 1200
+              },
+              "excerptTruncated": {
+                "type": "boolean"
+              },
+              "crs": {
+                "type": "string"
+              },
+              "limitations": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "kind",
+              "summary",
+              "limitations"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "inputKind",
+          "format",
+          "status",
+          "summary",
+          "jit",
+          "nextSteps",
+          "issues",
+          "sourceRefs"
+        ]
+      },
+      "maxItems": 72
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "severity": {
+            "enum": [
+              "information",
+              "warning",
+              "error"
+            ]
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "severity",
+          "message"
+        ]
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "owner": {
+          "const": "GIS AI GO product owner"
+        },
+        "profile": {
+          "const": "local-intake-preview-v1"
+        },
+        "networkRequests": {
+          "const": 0
+        },
+        "persistedFiles": {
+          "const": 0
+        },
+        "executesContent": {
+          "const": false
+        },
+        "sharing": {
+          "const": "local-preview-only"
+        }
+      },
+      "required": [
+        "owner",
+        "profile",
+        "networkRequests",
+        "persistedFiles",
+        "executesContent",
+        "sharing"
+      ]
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "level": {
+          "const": "local-structural-observation"
+        },
+        "fileCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "declaredBytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "suppliedTextBytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "urlCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "limitation": {
+          "type": "string"
+        },
+        "archive": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "format": {
+              "const": "zip"
+            },
+            "compressedBytes": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "memberCount": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "declaredExpandedBytes": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "contentExtracted": {
+              "const": false
+            },
+            "crcVerified": {
+              "const": false
+            }
+          },
+          "required": [
+            "format",
+            "compressedBytes",
+            "memberCount",
+            "declaredExpandedBytes",
+            "contentExtracted",
+            "crcVerified"
+          ]
+        }
+      },
+      "required": [
+        "level",
+        "fileCount",
+        "declaredBytes",
+        "suppliedTextBytes",
+        "urlCount",
+        "limitation"
+      ]
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "status",
+    "items",
+    "issues",
+    "policy",
+    "evidence"
+  ],
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Local intake observation v1",
+  "description": "Local preview and planning result, not a hosted import acceptance or content-safety certificate."
+}
