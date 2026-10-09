@@ -107,13 +107,15 @@ async function denied(client, name, args) {
   }
 }
 try {
-  const req = createRequire(resolve(ROOT, "apps/mcp-gateway/package.json"));
+  const gatewayManifest = resolve(ROOT, "apps/mcp-gateway/package.json");
+  const clientVersion = JSON.parse(await readFile(gatewayManifest, "utf8")).devDependencies["@modelcontextprotocol/client"];
+  const req = createRequire(gatewayManifest);
   sdk = await import(pathToFileURL(req.resolve("@modelcontextprotocol/client")).href);
   const gateway = resolve(ROOT, "apps/mcp-gateway/dist/src");
   ({ validateWeb216HostedCpihMcpResult: validatedResult } = await import(pathToFileURL(resolve(gateway, "web216-hosted-cpih-mcp.js")).href));
   ({ MCP_PROTOCOL_VERSION: protocol } = await import(pathToFileURL(resolve(gateway, "mcp-constants.js")).href));
   const client = await connect(tokens.allowed);
-  pass("negotiation", { client: "@modelcontextprotocol/client@2.0.0", protocol, era: client.getProtocolEra(), wire_model: "modern SDK negotiation (server/discover); not a legacy initialize claim" });
+  pass("negotiation", { client: `@modelcontextprotocol/client@${clientVersion}`, protocol, era: client.getProtocolEra(), wire_model: "modern SDK negotiation (server/discover); not a legacy initialize claim" });
   const tools = (await client.listTools()).tools.map(({ name }) => name).sort();
   pass("discovery", { tools });
   const selected = await call(client, "web216_cpih_select", { period: "2026-07" });

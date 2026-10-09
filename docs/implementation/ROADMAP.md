@@ -118,6 +118,23 @@ private configuration, review/package and approval-bound installation. Follow
 [the platform installer guide](../deployment/gcp/INSTALL_PLATFORM.md); it consumes
 approved platform resources and preserves all hosted acceptance gates.
 
+GCP-223 extends portable local/cloud/secure development and the safe transition
+from an existing older VS Code clone through GitHub. Preserve dirty work and
+review the exact fetched full commit before selecting it. Full source/security
+and immutable image scan/SBOM/provenance/platform admission precede repository
+execution or secure container opening; a default development container does not
+inherit a host Docker socket, home, credentials, sudo or automatic installs.
+The secure profile must fail closed until the real approved internal image and
+decision are supplied. Approved builders and deployment credentials remain
+separate boundaries. See [development profiles](../development/README.md) and
+[the secure transition](../development/SECURE_TRANSITION.md).
+The authorised remediation closes source-inventory/IaC/ZIP alias paths and
+limits received compressed-tar metadata before parser allocations. Exact patched
+SDK and transitive dependencies remain lock-bound. Preserve the original audit
+and record supplemental verification in the
+[sanitised security review](../security/GCP-223-SECURITY-REVIEW.md); source fixes
+and a clean lock scan do not admit an image or authorise secure execution.
+
 Local preparation, real private transport, hosted authentication/persistence,
 personal reference acceptance and BDUK Okta/network acceptance have distinct
 gates. Cloud mutations require the exact approved project, resources, upload

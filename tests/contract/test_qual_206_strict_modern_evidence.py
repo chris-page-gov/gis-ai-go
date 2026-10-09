@@ -42,8 +42,10 @@ EXACT_RESOURCES = [
 # (the offline GCP check and pinned OIDC library) and derived set ID. Independent
 # comparison with the preceding committed set confirms suite, receipt bodies and
 # acceptance claims remain unchanged; historical observed-host artefacts stay pinned.
+# GCP-223 updates only the exact workspace-lock hash and derived set identity
+# for the security dependency fixes; receipt bodies and claims remain identical.
 REGENERABLE_LOCAL_RECEIPT_SHA256 = (
-    "2b835b60fdf481813cdeeafb3fe233a88df4e64f684988a5c2ea8ededbe09862"
+    "c374933dcef34e138e085dc08cd4df86c0ff9e833be8d6a3d91ac7a8a8130f05"
 )
 HISTORICAL_V1_SHA256 = {
     "evaluation/qual-206-local-protocol-evidence-matrix.v1.json": (

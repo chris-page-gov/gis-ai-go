@@ -29,7 +29,7 @@ not values invented in this template:
 | Application image and provenance | Local OCI/build evidence; real published digest when publication is approved |
 | OKF/OKF+ profiles, content roots, rights/counts | Prepared bundle/release and upload manifests |
 | UI/API/MCP/policy scope | Runtime capability and policy manifests; repository discovery |
-| Resource/change/cost plan | Sanitised submitted plan with unresolved cloud inputs explicit; `artifacts/gcp/costs-illustrative-london-2026-10-05.json` contains observed official USD rows, arithmetic and unverified billing/FX/tax gates |
+| Resource/change/cost plan | Sanitised submitted plan with unresolved cloud inputs explicit; the documented London illustration retains unverified billing/FX/tax gates. Local ignored cost evidence is excluded from the source ZIP and requires separate sanitisation and approval binding. |
 | Test results and gaps | Machine-readable acceptance report and retained local logs |
 | Review ZIP identity | Generated SHA-256 checksum; compare before execution |
 
@@ -44,6 +44,8 @@ accepted deployment configuration.
 | Area | Supply or approve | Until supplied |
 | --- | --- | --- |
 | Project/billing/region | Exact project ID/number, organisation/service-project relationship, approved location, cost centre/currency, spend envelope and pilot duration | No cloud mutation. |
+| Source/workspace admission | Full security/source review for the exact fetched GitHub commit, dependency locks and remaining canonical gates | No repository script, dependency install, container build/opening or workspace trust on the secure machine before the recorded decision. |
+| Development/build image admission | Exact internal image digest, vulnerability disposition, SBOM/provenance/signature policy, permitted toolchain and custodian | Secure profile fails closed; image family or mutable tag approval is insufficient. |
 | Build/runtime identities | Approved deployer, publisher, service agents, runtime/invoker identities and resource-scoped permissions | No broad Owner/Editor or downloadable keys. |
 | Build facilities | Approved local/platform build route, base image/digests, dependency mirrors, registry and scan/provenance gates | No source checkout upload or internet installer. |
 | Network | Shared VPC host/service project, subnet, DNS/routes/private API path, user/developer connection, firewall/network ownership | Internal ingress; consume existing platform infrastructure. |
@@ -93,6 +95,14 @@ redacted results, cost worksheet and runbook. The package excludes private
 configuration/state, personal identities/projects, credentials, research archives
 and private originals. Verify the sanitisation scan and archive inventory before
 sharing it.
+
+The secure machine's source route is GitHub. Follow
+[the existing-clone transition](../../development/SECURE_TRANSITION.md), retaining
+dirty work and the exact reviewed full commit. A source review package can inform
+the decision without authorising its execution. The editor container, approved
+builder and operator host have separate permissions; no default socket/home,
+credential or protected-data mount connects them. A mirror or CA change is an
+explicit platform input, never permission to disable TLS.
 
 Keep infrastructure approval and application release approval separate where
 platform policy requires. The recorded approval must bind the exact immutable

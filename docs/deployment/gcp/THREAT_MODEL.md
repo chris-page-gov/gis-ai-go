@@ -31,6 +31,8 @@ untrusted data. They cannot change destinations, permissions or task authority.
 | Leak tokens, raw private requests or identity via logs/errors | Metadata-only redacted logs; generic identity errors | Inspect real logs; no shell tracing/config dumps. |
 | Overspend or delete unrelated resources | Explicit total-cost/pilot authority; approved owned-VM start/stop; one-hour tunnel, finally-stop, hourly stop schedule and cooperative 1.25-hour reservation ledger; owned-resource destructive plan | Scheduling can lag 15 minutes or fail; the proposed 80-hour ceiling is not approved usage. CLI controls and alerts are not a hard billing cap. Stopped disk/DNS/images/evidence/logs remain chargeable. |
 | Compromise software bootstrap/supply chain | Pinned runtime/dependencies/provider/tool versions and TLS/checksum/signature checks | Image/provenance/scan and independent derivation gates remain mandatory where applicable. Never disable verification. |
+| Execute unreviewed source through workspace tasks or a development container | Exact fetched-commit full source/security review and image/platform admission before secure execution/trust | GitHub publication is source transfer; it is not source approval. Keep dirty work and stop on divergence. |
+| Cross from a development container into host credentials or protected data | No default mounts for the Docker socket, host home, credentials or protected folders; no privilege, sudo, features or automatic tool installs; separate reviewed builder/operator | A Docker socket grants host-level control. Approved images, mirrors and CA paths remain exact platform inputs; do not weaken TLS. |
 
 ## Network and egress
 

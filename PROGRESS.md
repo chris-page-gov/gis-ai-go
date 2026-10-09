@@ -4,6 +4,38 @@ Last updated: 9 October 2026
 
 ## Current checkpoint
 
+- [GCP-223 issue #145](https://github.com/chris-page-gov/gis-ai-go/issues/145) adds manual local/cloud/BDUK development-container profiles, pinned
+  offline tooling, exact source/image/platform admission, a portable existing-clone
+  transition and offline OCI assurance. The actual toolchain image built and
+  passed the non-root offline container tool check. Affected local checks passed:
+  23 environment, 44 image-assurance, 70 lifecycle and 39 archive tests; the full
+  GCP command passed 26 runtime, 111 Python and seven packaging/UI checks.
+  The patched SDK passed 639 TypeScript/launcher and 52 workbench unit checks,
+  with the credential-required provider case skipped. Workspace typechecks,
+  source privacy and documentation/research/changelog checks. Canonical CI remains
+  mandatory. [Build assurance](docs/development/BUILD_ASSURANCE.md) records the
+  executable workflow, observed image identities and precise gates.
+  The repository-wide Standard Security report completed with three MEDIUM
+  source findings and explicitly partial semantic coverage. It preserves the
+  original installer snapshot and records concurrent source changes; the final
+  published source needs its own exact review. Scan token usage was unavailable.
+  The owner subsequently authorised fixes and sanitised GitHub publication.
+  The three source findings are remediated within focused local verification.
+  Independent review identified a further archive metadata-retention case; its
+  correction passed the parent's direct recheck and regressions. Full canonical
+  assurance remains blocked locally: the full check ran 1,249 Python checks
+  with three failures and seven skips. The receipt-binding failure is corrected
+  (33 owning checks pass); native observer and strict collector identity fixtures
+  remain unresolved, and canonical Chrome is absent. Canonical CI is mandatory.
+  Copy-only offline dependency imports and 23 environment checks pass.
+  The maintained-lock
+  offline recheck found zero advisory entries across 155 npm and eight Python
+  packages, including development dependencies. The
+  [sanitised report](docs/security/GCP-223-SECURITY-REVIEW.md) preserves original
+  findings and supplemental observations. Secure-machine execution remains
+  blocked by HIGH/CRITICAL image findings, incomplete scan coverage and exact
+  source/image/platform admission. Neither image was published or
+  deployed. No cloud mutation or hosted/BDUK acceptance is claimed.
 - Supported public product: [v0.1.0 static Explorer](https://github.com/chris-page-gov/gis-ai-go/releases/tag/v0.1.0).
 - Accepted local runtime: LOCAL-212 through [PR #112](https://github.com/chris-page-gov/gis-ai-go/pull/112),
   commit `57e49322e305b499fccfbb6c46bc15e2a0ff38f9`. A clean clone can run

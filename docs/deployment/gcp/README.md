@@ -30,6 +30,13 @@ For the BDUK operator entry script and complete command sequence, use
 
 ## Local preparation
 
+On the secure BDUK machine, first complete
+[source/image admission and the existing-clone transition](../../development/SECURE_TRANSITION.md).
+No repository script, dependency install, container build/opening or workspace
+trust is authorised there by a branch name or a local test report. Use the approved
+internal development image and separate platform builder, with approved
+mirrors/proxy/CA and host-held deployment credentials.
+
 Use the existing isolated checkout; preserve unrelated changes. Never reset it to
 a public checkpoint to run these scripts. Keep real configuration, plan,
 approval, Terraform state and result files in ignored `artifacts/gcp/`, with owner

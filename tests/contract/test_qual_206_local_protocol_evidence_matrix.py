@@ -719,7 +719,7 @@ class Qual206LocalProtocolEvidenceMatrixTests(unittest.TestCase):
         manifest = load_json(GATEWAY_MANIFEST_PATH)
         self.assertEqual(
             manifest["devDependencies"]["@modelcontextprotocol/client"],
-            "2.0.0",
+            "2.2.0",
         )
         lockfile = LOCKFILE_PATH.read_text(encoding="utf-8")
         importer = re.search(
@@ -733,8 +733,8 @@ class Qual206LocalProtocolEvidenceMatrixTests(unittest.TestCase):
             importer_body,
             (
                 r"'@modelcontextprotocol/client':\n"
-                r"\s+specifier: 2\.0\.0\n"
-                r"\s+version: 2\.0\.0"
+                r"\s+specifier: 2\.2\.0\n"
+                r"\s+version: 2\.2\.0"
             ),
         )
 

@@ -384,7 +384,7 @@ jobs:
           cache: pnpm
 
       - name: Install locked test dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --ignore-scripts --package-import-method=copy
 
       - name: Run public browser acceptance
         env:

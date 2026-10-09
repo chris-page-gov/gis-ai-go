@@ -65,9 +65,10 @@ account's billing-currency quote or permission to deploy. Gross prices exclude
 unverified credits/free allowances. The sanitised source extracts, response hashes,
 exact arithmetic and scenarios are retained in
 `artifacts/gcp/costs-illustrative-london-2026-10-05.json`.
-The approval package includes that sanitised evidence at the same relative path;
-compare its entry in `package-files.sha256.json` and its price date
-before using the worksheet. It does not establish the selected billing currency.
+The source review ZIP excludes ignored artifact files, including that local
+worksheet evidence. Review and bind a separately sanitised cost worksheet before
+any deployment approval; do not assume its presence in the source package.
+The documented illustration does not establish the selected billing currency.
 
 The illustration spans 88 days (2,112 hours), using 730 hours for pro-rated monthly
 storage. Recalculate from the actual approved start/end timestamps. It assumes one

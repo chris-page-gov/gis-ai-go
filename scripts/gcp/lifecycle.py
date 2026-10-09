@@ -16,6 +16,7 @@ import os
 from pathlib import Path
 import re
 import shutil
+import stat
 import subprocess
 import sys
 import tarfile
@@ -23,12 +24,16 @@ import urllib.error
 import urllib.request
 import urllib.parse
 import zipfile
+import uuid
 
 ROOT = Path(__file__).resolve().parents[2]
 SCHEMA = ROOT / "infra/gcp/config.schema.json"
 PHASES = ("foundation", "service")
 COMMANDS = ("preflight", "prepare", "plan", "apply", "connect", "verify", "status", "package-approval", "rollback", "destroy")
 TIMEOUT = 180
+SOURCE_FILE_LIMIT = 64 * 1024 * 1024
+SOURCE_TOTAL_LIMIT = 4 * 1024 * 1024 * 1024
+SOURCE_FILE_COUNT_LIMIT = 100000
 
 
 class GateError(RuntimeError):
@@ -53,6 +58,171 @@ def file_digest(path):
         for block in iter(lambda: stream.read(1024 * 1024), b""):
             result.update(block)
     return result.hexdigest()
+
+
+def _source_name(name):
+    """A Git name is a lexical repository path, never a resolved alias."""
+    name = str(name)
+    path = Path(name)
+    if not name or "\0" in name or path.is_absolute() or any(part in ("", ".", "..") for part in name.split("/")) or path.as_posix() != name:
+        raise GateError("Source inventory contains an invalid repository path")
+    return name
+
+
+def _open_regular_source(name, root):
+    """Open every component without following links, including the root."""
+    name = _source_name(name)
+    descriptors = []
+    try:
+        descriptors.append(os.open(root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW))
+        for part in Path(name).parts[:-1]:
+            descriptors.append(os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=descriptors[-1]))
+        directories = [(os.fstat(fd).st_dev, os.fstat(fd).st_ino) for fd in descriptors]
+        descriptors.append(os.open(Path(name).name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=descriptors[-1]))
+        metadata = os.fstat(descriptors[-1])
+        if not stat.S_ISREG(metadata.st_mode) or metadata.st_nlink != 1:
+            raise GateError("Source must be a regular file with one link: " + name)
+        return descriptors, directories, metadata
+    except (OSError, GateError) as error:
+        for fd in reversed(descriptors):
+            os.close(fd)
+        if isinstance(error, GateError):
+            raise
+        raise GateError("Source is missing, linked or has an invalid ancestor: " + name) from error
+
+
+def _file_identity(metadata):
+    return (metadata.st_dev, metadata.st_ino, metadata.st_size, metadata.st_mtime_ns,
+            metadata.st_ctime_ns, metadata.st_mode, metadata.st_nlink)
+
+
+def read_source_file(name, *, root=None, expected=None, include_bytes=True, validate_only=False, limit=SOURCE_FILE_LIMIT):
+    """Read bounded stable bytes from a regular repository-contained file.
+
+    Directory descriptors prevent traversal through parent links. Reopening the
+    lexical path after the read detects replacement of a file or an ancestor.
+    The same reader is used for inventory, policy, IaC and review ZIP payloads.
+    """
+    root = ROOT if root is None else Path(root)
+    name = _source_name(name)
+    descriptors, directories, before = _open_regular_source(name, root)
+    try:
+        if before.st_size > limit:
+            raise GateError("Source exceeds its bounded file limit: " + name)
+        sha = hashlib.sha256()
+        content = bytearray() if include_bytes else None
+        count = 0
+        if not validate_only:
+            while block := os.read(descriptors[-1], 1024 * 1024):
+                count += len(block)
+                if count > limit:
+                    raise GateError("Source exceeds its bounded file limit: " + name)
+                sha.update(block)
+                if content is not None:
+                    content.extend(block)
+        after = os.fstat(descriptors[-1])
+        if _file_identity(before) != _file_identity(after) or (not validate_only and count != before.st_size):
+            raise GateError("Source changed during its bounded read: " + name)
+        reopened, current_directories, current = _open_regular_source(name, root)
+        try:
+            if directories != current_directories or _file_identity(before) != _file_identity(current):
+                raise GateError("Source or its ancestor changed during its bounded read: " + name)
+        finally:
+            for fd in reversed(reopened):
+                os.close(fd)
+        entry = {"path": name, "sha256": sha.hexdigest(), "bytes": count, "mode": stat.S_IMODE(before.st_mode)}
+        if expected is not None and entry != expected:
+            raise GateError("Admitted source bytes or mode changed: " + name)
+        return entry, bytes(content) if content is not None else None
+    finally:
+        for fd in reversed(descriptors):
+            os.close(fd)
+
+
+def source_path_name(path):
+    path = Path(path)
+    if not path.is_absolute():
+        return _source_name(path.as_posix())
+    try:
+        return _source_name(path.relative_to(ROOT).as_posix())
+    except ValueError as error:
+        raise GateError("Reviewed source must be contained in the repository") from error
+
+
+def validate_prepared_sources(manifest, source):
+    admitted = {entry["path"]: entry for entry in source["files"]}
+    for declared in manifest.get("sourceFiles", []):
+        name = _source_name(declared["path"])
+        if name not in admitted:
+            raise GateError("Prepared build source is outside the admitted Git inventory: " + name)
+        actual, _ = read_source_file(name, expected=admitted[name], include_bytes=False)
+        if declared.get("sha256") != actual["sha256"] or ("bytes" in declared and declared["bytes"] != actual["bytes"]):
+            raise GateError("Prepared build source changed: " + name)
+
+
+def _directory_descriptors(root, name, *, create=False):
+    descriptors = []
+    try:
+        descriptors.append(os.open(root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW))
+        for part in Path(_source_name(name)).parts:
+            if create:
+                try:
+                    os.mkdir(part, mode=0o700, dir_fd=descriptors[-1])
+                except FileExistsError:
+                    pass
+            descriptors.append(os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=descriptors[-1]))
+        return descriptors
+    except (OSError, GateError) as error:
+        for fd in reversed(descriptors):
+            os.close(fd)
+        if isinstance(error, GateError):
+            raise
+        raise GateError("IaC destination has a linked or invalid ancestor") from error
+
+
+def write_admitted_source(root, name, content, mode):
+    """Replace only a normal destination leaf; never follow a target alias."""
+    name = _source_name(name)
+    parent = Path(name).parent.as_posix()
+    descriptors = _directory_descriptors(root, parent, create=True) if parent != "." else [os.open(root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)]
+    temporary = ".source-" + uuid.uuid4().hex + ".tmp"
+    leaf = Path(name).name
+    try:
+        try:
+            existing = os.stat(leaf, dir_fd=descriptors[-1], follow_symlinks=False)
+        except FileNotFoundError:
+            existing = None
+        if existing is not None and (not stat.S_ISREG(existing.st_mode) or existing.st_nlink != 1):
+            raise GateError("IaC destination is linked or is not a regular file: " + name)
+        fd = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=descriptors[-1])
+        try:
+            with os.fdopen(fd, "wb") as stream:
+                stream.write(content)
+                stream.flush()
+                os.fchmod(stream.fileno(), mode)
+                os.fsync(stream.fileno())
+            os.replace(temporary, leaf, src_dir_fd=descriptors[-1], dst_dir_fd=descriptors[-1])
+            os.fsync(descriptors[-1])
+        finally:
+            try:
+                os.unlink(temporary, dir_fd=descriptors[-1])
+            except FileNotFoundError:
+                pass
+    finally:
+        for fd in reversed(descriptors):
+            os.close(fd)
+
+
+def private_source_name(name):
+    parts = Path(name).parts
+    leaf = parts[-1]
+    return (any(part in (".terraform", "__pycache__", "node_modules", "artifacts", "inputs") for part in parts)
+            or leaf == ".env" or leaf.startswith(".env.") or leaf.endswith(".env")
+            or bool(re.search(r"(?:\.tfstate|\.tfplan)(?:\.|$)|\.private\.json$|(?:^|[-.])(?:credentials|credential|secrets?)(?:\.|$)", leaf)))
+
+
+def terraform_input_name(name):
+    return name.endswith((".tf", ".tf.json", ".tfvars", ".tfvars.json")) or Path(name).name == ".terraform.lock.hcl"
 
 
 def directory_manifest(path):
@@ -166,14 +336,14 @@ def load_config(path):
 
 def concrete_runtime_policy():
     """Read the deliberately static reviewed grants; fail if source shape changes."""
-    identity = (ROOT / "apps/mcp-gateway/src/gcp-identity.ts").read_text()
+    identity = read_source_file("apps/mcp-gateway/src/gcp-identity.ts")[1].decode()
     match = re.search(r"const GRANTS:[\s\S]*?Object\.freeze\(\{([\s\S]*?)\n\}\);", identity)
     if not match:
         raise GateError("Static application grants could not be inspected")
     roles = {}
     for quoted, bare, values in re.findall(r'(?:"([^\"]+)"|([a-zA-Z_][a-zA-Z0-9_-]*)):\s*(\[[^\]]+\])', match.group(1)):
         roles[quoted or bare] = json.loads(values)
-    mcp = (ROOT / "apps/mcp-gateway/src/gcp-mcp.ts").read_text()
+    mcp = read_source_file("apps/mcp-gateway/src/gcp-mcp.ts")[1].decode()
     match = re.search(r"GCP_TOOL_CAPABILITIES:[\s\S]*?Object\.freeze\(\{([\s\S]*?)\n\}\);", mcp)
     if not match or len(roles) != 5:
         raise GateError("Static tool capability mapping could not be inspected")
@@ -190,13 +360,10 @@ def reviewed_policy(config):
         raise GateError("A concrete reviewed policy manifest is required")
     path = Path(name)
     path = path if path.is_absolute() else ROOT / path
-    try:
-        path.resolve().relative_to((ROOT / "infra/gcp/policy").resolve())
-    except ValueError as error:
-        raise GateError("Policy manifest must be a repository-owned reviewed policy file") from error
-    if path.is_symlink() or not path.is_file():
-        raise GateError("Reviewed policy manifest is missing or a symlink")
-    policy = read_json(path)
+    relative = source_path_name(path)
+    if not relative.startswith("infra/gcp/policy/"):
+        raise GateError("Policy manifest must be a repository-owned reviewed policy file")
+    policy = json.loads(read_source_file(relative)[1])
     concrete = concrete_runtime_policy()
     expected_toolsets = {role: [tool for tool, capability in concrete["tool_capabilities"].items() if capability in capabilities] for role, capabilities in concrete["roles"].items()}
     if policy.get("schema") != "gis-ai-go.gcp-role-toolsets.v1" or policy.get("id") != config["policy"]["policy_release"] or policy.get("id") != concrete["policy_release"] or policy.get("roles") != concrete["roles"] or policy.get("tool_capabilities") != concrete["tool_capabilities"] or policy.get("role_toolsets") != expected_toolsets or policy.get("default_decision") != "deny" or policy.get("classifications") != ["public-metadata"]:
@@ -205,7 +372,7 @@ def reviewed_policy(config):
     if {binding.get("path") for binding in policy.get("source_bindings", [])} != source_paths:
         raise GateError("Policy manifest must bind both actual authorisation/tool sources")
     for binding in policy["source_bindings"]:
-        if file_digest(ROOT / binding["path"]) != binding.get("sha256"):
+        if read_source_file(binding["path"], include_bytes=False)[0]["sha256"] != binding.get("sha256"):
             raise GateError("Policy source changed after manifest review")
     return path
 
@@ -218,16 +385,24 @@ def browser_public_origin(browser):
 
 
 def source_manifest(config_path=None):
-    result = execute(["git", "ls-files", "--cached", "--others", "--exclude-standard", "-z"])
+    result = execute(["git", "ls-files", "--cached", "--others", "--exclude-standard", "-z"], cwd=ROOT)
     paths = require(result, "source inventory").split("\0")
-    private = Path(config_path).resolve() if config_path else None
+    # Exact selected config is the only authorised omission. Validate its lexical
+    # components before exclusion; a link to it can never hide a source entry.
+    private = Path(config_path).absolute() if config_path else None
     files = []
+    total = 0
     for item in sorted(set(filter(None, paths))):
-        path = ROOT / item
-        if path.resolve() == private or not path.is_file() or path.is_symlink():
+        item = _source_name(item)
+        if ROOT / item == private:
+            read_source_file(item, include_bytes=False, validate_only=True)
             continue
-        files.append({"path": item, "sha256": file_digest(path), "bytes": path.stat().st_size})
-    return {"revision": require(execute(["git", "rev-parse", "HEAD"]), "revision").strip(), "files": files}
+        entry, _ = read_source_file(item, include_bytes=False)
+        files.append(entry)
+        total += entry["bytes"]
+        if len(files) > SOURCE_FILE_COUNT_LIMIT or total > SOURCE_TOTAL_LIMIT:
+            raise GateError("Source inventory exceeds its bounded count or byte limit")
+    return {"revision": require(execute(["git", "rev-parse", "HEAD"], cwd=ROOT), "revision").strip(), "files": files}
 
 
 def placeholders(value):
@@ -334,6 +509,7 @@ class Lifecycle:
         self.directory = ROOT / "artifacts/gcp" / self.config_digest[:16]
         self.directory.mkdir(parents=True, exist_ok=True)
         self.journal_path = self.directory / "commands.jsonl"
+        self.source_binding = None
 
     def run(self, args, *, mutation=False, **kwargs):
         result = execute(args, **kwargs)
@@ -499,30 +675,68 @@ class Lifecycle:
         return common
 
     def iac_root(self, phase):
+        if phase not in PHASES:
+            raise GateError("Unknown IaC phase")
         environment = "personal" if self.config["profile"] == "personal-network-private" else "bduk-sandpit"
         owner = digest({"profile": self.config["profile"], "project": self.config["project"]["id"], "name": self.config["operations"]["name_prefix"]})[:16]
-        target = ROOT / "artifacts/gcp/state" / owner / "iac"
-        shutil.copytree(ROOT / "infra/gcp", target, dirs_exist_ok=True, ignore=shutil.ignore_patterns(".terraform", "*.tfstate*", "*.private.json"))
+        source = source_manifest(self.config_path)
+        if self.source_binding and digest(source) != self.source_binding:
+            raise GateError("Source changed before Terraform invocation")
+        entries = {entry["path"][len("infra/gcp/"):]: entry for entry in source["files"] if entry["path"].startswith("infra/gcp/")}
+        if not entries or f"environments/{environment}/{phase}/main.tf" not in entries:
+            raise GateError("Admitted Git inventory has no executable IaC phase")
+        if any(private_source_name(name) for name in entries):
+            raise GateError("Private/generated IaC cannot be admitted as public source")
+        target_name = f"artifacts/gcp/state/{owner}/iac"
+        descriptors = _directory_descriptors(ROOT, target_name, create=True)
+        for fd in reversed(descriptors):
+            os.close(fd)
+        target = ROOT / target_name
+        generated_inputs = {f"environments/{profile}/{part}/inputs.auto.tfvars.json" for profile in ("personal", "bduk-sandpit") for part in PHASES}
+        # Old overlay copies must not leave executable configuration behind. Keep
+        # state, saved plans and provider cache intact; report rather than remove it.
+        for current, directories, filenames in os.walk(target, followlinks=False):
+            for directory in directories:
+                if (Path(current) / directory).is_symlink():
+                    raise GateError("IaC target contains a linked directory")
+            directories[:] = [name for name in directories if name != ".terraform"]
+            for filename in filenames:
+                relative = (Path(current) / filename).relative_to(target).as_posix()
+                if terraform_input_name(relative):
+                    read_source_file(relative, root=target, include_bytes=False)
+                    if relative not in entries and relative not in generated_inputs:
+                        raise GateError("IaC target contains stale or unadmitted Terraform input: " + relative)
+        for relative, entry in sorted(entries.items()):
+            _actual, content = read_source_file(entry["path"], expected=entry)
+            write_admitted_source(target, relative, content, entry["mode"])
+            read_source_file(relative, root=target, expected={**entry, "path": relative}, include_bytes=False)
         return target / "environments" / environment / phase
+
+    def terraform_run(self, phase, args, **kwargs):
+        # Revalidate/re-materialise immediately before every Terraform process;
+        # a previous root copy is not an authority for later invocations.
+        root = self.iac_root(phase)
+        return self.run(["terraform", f"-chdir={root}", *args], **kwargs)
 
     def terraform_plan(self, phase, variables, *, destroy=False, targets=()):
         root = self.iac_root(phase)
         write_json(root / "inputs.auto.tfvars.json", variables)
-        require(self.run(["terraform", f"-chdir={root}", "init", "-input=false", "-backend=false"], timeout=600), "Terraform provider initialisation")
+        require(self.terraform_run(phase, ["init", "-input=false", "-backend=false", "-lockfile=readonly"], timeout=600), "Terraform provider initialisation")
         plan_path = root / ("destroy.tfplan" if destroy else "deployment.tfplan")
-        args = ["terraform", f"-chdir={root}", "plan", "-input=false", "-lock-timeout=30s", "-out", plan_path]
+        args = ["plan", "-input=false", "-lock-timeout=30s", "-out", plan_path]
         if destroy:
             args.append("-destroy")
         for address in targets:
             args.extend(["-target", address])
-        require(self.run(args, timeout=600, env=self.terraform_environment()), "Terraform saved plan")
-        shown = require(self.run(["terraform", f"-chdir={root}", "show", "-json", plan_path]), "Terraform plan inspection")
+        require(self.terraform_run(phase, args, timeout=600, env=self.terraform_environment()), "Terraform saved plan")
+        shown = require(self.terraform_run(phase, ["show", "-json", plan_path]), "Terraform plan inspection")
         write_json(root / ("destroy-plan.json" if destroy else "deployment-plan.json"), json.loads(shown))
         return {"sha256": file_digest(plan_path), "file": str(plan_path), "changes": [{"address": r["address"], "actions": r["change"]["actions"]} for r in json.loads(shown).get("resource_changes", [])]}
 
     def plan(self, destructive=False):
         preflight = self.preflight()
         source = source_manifest(self.config_path)
+        self.source_binding = digest(source)
         prepared_path = self.directory / "prepared/manifest.json"
         image_path = self.directory / "image.json"
         blockers = unresolved(self.config)
@@ -543,10 +757,10 @@ class Lifecycle:
             manifest = read_json(prepared_path)
             if image.get("prepared_manifest_sha256") != file_digest(prepared_path) or image.get("prepared_context_sha256") != digest(directory_manifest(prepared_path.parent / "context")) or image.get("build_source_sha256") != manifest.get("sourceSha256"):
                 blockers.append("image build receipt does not bind this exact admitted context/source manifest")
-            for entry in manifest.get("sourceFiles", []):
-                path = ROOT / entry["path"]
-                if not path.is_file() or file_digest(path) != entry["sha256"]:
-                    blockers.append("prepared build source changed: " + entry["path"])
+            try:
+                validate_prepared_sources(manifest, source)
+            except GateError as error:
+                blockers.append(str(error))
         if not shutil.which("terraform"):
             blockers.append("terraform unavailable")
         if not shutil.which("gcloud"):
@@ -587,7 +801,7 @@ class Lifecycle:
             self.assert_cloud_identity(destructive=destructive)
             if destructive:
                 for phase in reversed(PHASES):
-                    state = require(self.run(["terraform", f"-chdir={self.iac_root(phase)}", "state", "list"]), "owned state inventory").splitlines()
+                    state = require(self.terraform_run(phase, ["state", "list"]), "owned state inventory").splitlines()
                     targets = [s for s in state if not re.search(r"google_(storage_bucket\.backup|firestore_database\.evidence)", s)]
                     if targets:
                         current_variables = read_json(self.iac_root(phase) / "inputs.auto.tfvars.json")
@@ -644,6 +858,7 @@ class Lifecycle:
             raise GateError("BDUK platform approval reference differs")
         if digest(self.config) != expected["config_sha256"] or digest(source_manifest(self.config_path)) != expected["source_sha256"]:
             raise GateError("Source/configuration changed after the approved plan")
+        self.source_binding = expected["source_sha256"]
         if kind != "destroy" and not connection and digest(directory_manifest(self.directory / "prepared/context")) != expected["prepared_context_sha256"]:
             raise GateError("Prepared context changed after the approved plan")
         if file_digest(self.config["project"]["billing_currency_evidence"]) != expected["billing_currency_evidence_sha256"]:
@@ -664,15 +879,16 @@ class Lifecycle:
         selected_path = root / key
         if phase in plan.get("terraform", {}):
             bound = plan["terraform"][phase]
-            bound_path = Path(bound["file"]).resolve()
-            if bound_path != selected_path.resolve():
+            bound_path = Path(bound["file"])
+            if not bound_path.is_absolute() or bound_path != selected_path:
                 raise GateError("Saved plan path differs from the approved execution path")
-            if file_digest(bound_path) != bound["sha256"]:
+            bound_name = bound_path.relative_to(ROOT).as_posix()
+            if read_source_file(bound_name, include_bytes=False, limit=128 * 1024 * 1024)[0]["sha256"] != bound["sha256"]:
                 raise GateError("Saved Terraform plan changed")
             selected_path = bound_path
         else:
             raise GateError("No saved Terraform plan was approved for this phase")
-        require(self.run(["terraform", f"-chdir={root}", "apply", "-input=false", "-lock-timeout=30s", selected_path], mutation=True, timeout=1200, env=self.terraform_environment()), "approved Terraform apply")
+        require(self.terraform_run(phase, ["apply", "-input=false", "-lock-timeout=30s", selected_path], mutation=True, timeout=1200, env=self.terraform_environment()), "approved Terraform apply")
 
     @staticmethod
     def service_scope(concrete_plan, *, deleting=False):
@@ -684,7 +900,7 @@ class Lifecycle:
                 raise GateError("Output-bound deployment would delete or replace a resource outside approval")
 
     def outputs(self, phase):
-        data = json.loads(require(self.run(["terraform", f"-chdir={self.iac_root(phase)}", "output", "-json"]), "actual Terraform outputs"))
+        data = json.loads(require(self.terraform_run(phase, ["output", "-json"]), "actual Terraform outputs"))
         return {name: item["value"] for name, item in data.items()}
 
     def apply(self, plan_id):
@@ -881,10 +1097,7 @@ class Lifecycle:
             verified = self.run(["node", "scripts/gcp/prepare.mjs", "--verify-prepared", manifest_path.parent], timeout=600)
             if verified["status"] != "PASS":
                 raise GateError("Admitted context validation did not pass")
-            for entry in manifest.get("sourceFiles", []):
-                path = ROOT / entry["path"]
-                if not path.is_file() or file_digest(path) != entry["sha256"]:
-                    raise GateError("Prepared application source changed")
+            validate_prepared_sources(manifest, source_manifest(self.config_path))
             if not manifest.get("sourceFiles") or manifest.get("schema") != "gis-ai-go.gcp-prepared.v1":
                 raise GateError("Prepared source inventory is incomplete")
             with tarfile.open(archive_path) as archive:
@@ -955,18 +1168,26 @@ class Lifecycle:
             self.plan()
         plan = read_json(self.directory / "latest-plan.json")
         source = source_manifest(self.config_path)
+        if plan.get("bindings", {}).get("source_sha256") != digest(source):
+            raise GateError("Review plan source changed; create a current plan before packaging")
         package = self.directory / "platform-review.zip"
-        # Allowlist only reviewable code/docs and public/synthetic inventory metadata.
-        files = []
-        for prefix in ("infra/gcp", "scripts/gcp", "docs/deployment/gcp"):
-            for path in sorted((ROOT / prefix).rglob("*")):
-                if path.is_file() and not path.is_symlink() and not any(part in (".terraform", "__pycache__") for part in path.parts) and not re.search(r"(\.tfstate|\.private\.json|\.tfplan)$", path.name):
-                    files.append(path)
-        for prefix in ("apps", "packages", "tests/deployment"):
-            for path in sorted((ROOT / prefix).rglob("*")):
-                if path.is_file() and path.suffix in (".ts", ".tsx", ".mjs", ".js", ".py", ".json", ".html", ".css") and not any(part in ("dist", "dist-hosted", "node_modules", "__pycache__", "public", "playwright-report", "test-results") for part in path.relative_to(ROOT).parts):
-                    files.append(path)
-        files.extend(p for p in (ROOT / "evaluation/gcp-private-acceptance.v1.json", ROOT / "pnpm-lock.yaml", ROOT / "pnpm-workspace.yaml", ROOT / "package.json", ROOT / "uv.lock", ROOT / "pyproject.toml", ROOT / "docs/decisions/ADR-0019-network-private-gcp-pilot.md", ROOT / "AGENTS.md", ROOT / "README.md", ROOT / "LICENSE", ROOT / "tsconfig.base.json", ROOT / ".node-version", ROOT / ".python-version", ROOT / "scripts/build_okf.py", ROOT / "scripts/okf_plus/build.py", ROOT / "scripts/okf_plus/verify.py", ROOT / "artifacts/gcp/costs-illustrative-london-2026-10-05.json") if p.exists())
+        # Membership is exclusively the admitted Git inventory. No filesystem
+        # fallback can discover ignored credentials, state or generated tooling.
+        root_files = {"evaluation/gcp-private-acceptance.v1.json", "pnpm-lock.yaml", "pnpm-workspace.yaml", "package.json", "uv.lock", "pyproject.toml", "docs/decisions/ADR-0019-network-private-gcp-pilot.md", "AGENTS.md", "README.md", "SECURITY.md", "CONTEXT.md", "PROGRESS.md", "LICENSE", "tsconfig.base.json", ".nvmrc", ".node-version", ".python-version", "scripts/build_okf.py", "scripts/okf_plus/build.py", "scripts/okf_plus/verify.py"}
+        def reviewable(name):
+            if private_source_name(name):
+                return False
+            if name in root_files or name.startswith(("infra/gcp/", "scripts/gcp/", "docs/deployment/gcp/")):
+                return True
+            path = Path(name)
+            if name.startswith("docs/security/"):
+                return path.suffix == ".md"
+            if name.startswith((".devcontainer/", "scripts/environment/", "scripts/security/", "docs/development/")):
+                return path.suffix in (".py", ".sh", ".md") or path.name in ("Containerfile", ".dockerignore", "devcontainer.json", "toolchain.lock.json") or path.name.endswith(".example.json")
+            return (name.startswith(("apps/", "packages/", "tests/deployment/"))
+                    and path.suffix in (".ts", ".tsx", ".mjs", ".js", ".py", ".json", ".html", ".css")
+                    and not any(part in ("dist", "dist-hosted", "public", "playwright-report", "test-results") for part in path.parts))
+        files = [entry for entry in source["files"] if reviewable(entry["path"])]
         redactions = [self.config["project"].get(k) for k in ("id", "number", "expected_account", "billing_account")]
         redactions.extend([self.config.get("identity", {}).get(k) for k in ("oidc_issuer", "client_id", "resource_audience", "secret_reference", "federation_resource")])
         redactions.extend(self.config["network"]["access_principals"] + self.config["network"]["transport_principals"])
@@ -1001,19 +1222,20 @@ class Lifecycle:
                 info.compress_type = zipfile.ZIP_DEFLATED
                 archive.writestr(info, content)
                 package_checksums.append({"path": name, "sha256": hashlib.sha256(content).hexdigest(), "bytes": len(content)})
-            for path in sorted(set(files)):
-                content = path.read_text()
+            for entry in files:
+                _actual, raw = read_source_file(entry["path"], expected=entry)
+                content = raw.decode()
                 # Code includes clearly synthetic identity fixtures. Preserve them;
                 # redact exact known private inputs only, not arbitrary addresses.
                 for index, private_input in enumerate(filter(None, redactions)):
                     content = content.replace(private_input, f"REDACTED_INPUT_{index}")
-                name = path.relative_to(ROOT).as_posix()
-                add_review_file(name, content, path.stat().st_mode)
+                add_review_file(entry["path"], content, stat.S_IFREG | entry["mode"])
             add_review_file("review-manifest.json", json.dumps(review, indent=2) + "\n")
             for name in ("verification.json", "local-tests.json", "image.json", "prepared/manifest.json"):
                 path = self.directory / name
-                if path.exists():
-                    add_review_file("evidence/" + name, json.dumps(sanitise(read_json(path)), indent=2) + "\n")
+                if os.path.lexists(path):
+                    _entry, raw = read_source_file(path.relative_to(ROOT).as_posix())
+                    add_review_file("evidence/" + name, json.dumps(sanitise(json.loads(raw)), indent=2) + "\n")
             add_review_file("SOURCE_REPLAY.md", "# Source replay\n\nThis review package includes the changed application code, deployment code and tests.\nObtain the public repository at source revision `" + source["revision"] + "` in a separate approved workspace, then overlay these reviewed files.\nUse the pinned pnpm/uv tools and frozen lockfiles. Admitted public OKF+ build inputs are a separately validated prerequisite; private original archives are excluded.\nRun prepare only after the source-lock verification and public metadata input inventory succeed.\nThe image/bundle manifest identifies exact payload bytes; no cloud upload or acceptance is implied by this ZIP.\n")
             archive.writestr("package-files.sha256.json", json.dumps(package_checksums, indent=2) + "\n")
         checksum = file_digest(package)

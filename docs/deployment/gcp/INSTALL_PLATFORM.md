@@ -6,6 +6,16 @@ over the existing approval-bound deployment lifecycle. Copying only the script
 is insufficient: it needs the runtime, infrastructure, locks and admitted public
 metadata from the repository or reviewed source-replay package.
 
+On the secure machine, full source/security review and the exact development/build
+image's scan, SBOM, provenance and platform admission must pass **before** running
+any repository script (including `--help`), installing dependencies, building or
+opening a container, or trusting the updated workspace. Read
+[the secure transition workflow](../../development/SECURE_TRANSITION.md) first.
+The published branch and earlier local tests do not establish this approval.
+The [current source/image assurance status](../../development/BUILD_ASSURANCE.md)
+blocks secure-machine execution, packaging and deployment until its findings
+and exact admission gates are resolved.
+
 The target is ordinary Cloud Run with internal ingress on the approved BDUK GCP
 network, the current website/workbench, both OKF evidence surfaces and the custom
 Streamable HTTP MCP server. This profile consumes existing platform network,
@@ -15,19 +25,25 @@ authenticating the human through Okta and authorising a tool are distinct checks
 
 ## Clone through GitHub
 
-For a secure machine that can transfer source only through GitHub, clone the
-implementation branch directly. The installer, runtime, Terraform, schemas,
-policy, lockfiles and public metadata sources are all part of this branch:
+The secure machine already has an older clone in VS Code. Use GitHub to fetch
+the implementation into that clone for review, with the workspace kept restricted:
 
 ```sh
-git clone --branch codex/gcp-private-pilot --single-branch \
-  https://github.com/chris-page-gov/gis-ai-go.git
-cd gis-ai-go
-git rev-parse HEAD
-./scripts/gcp/install-platform.sh --help
+git status --short --untracked-files=all
+git remote get-url origin
+git fetch --no-tags origin codex/gcp-private-pilot
+git rev-parse FETCH_HEAD
+git show --stat --oneline FETCH_HEAD
+git diff --stat HEAD FETCH_HEAD
 ```
 
-Record the full commit printed by Git and compare it with the supplied handover.
+Confirm the remote is `chris-page-gov/gis-ai-go`, record the full fetched commit
+and compare it with the actual source review/approval. The published installer
+baseline is `78ab9b2828b4c713ca467d38a77ffa3db2f03ab9`; later changes need their
+own reviewed published commit. Before switching, stop for dirty work or divergence;
+do not automatically stash/reset/clean. The
+[transition guide](../../development/SECURE_TRANSITION.md#preserve-edits-and-switch-only-after-sourceimage-approval)
+gives the existing/new local branch and fast-forward commands after approval.
 `main` keeps its existing release. The implementation branch carries local test
 evidence and outstanding canonical/hosted gates; cloning it does not approve
 deployment. No chat ZIP overlay is needed for this route. Private configuration,
@@ -41,6 +57,13 @@ binaries. The script never opens additional internet access automatically.
 
 ## 1. Prepare the approved operator machine
 
+Complete the source/image admission above before these execution steps. A secure
+development container and a platform builder are separate reviewed boundaries:
+the former does not gain a host Docker socket to satisfy a builder prerequisite.
+Use the approved builder with an immutable internal image, registry/mirrors,
+proxy and CA trust, and keep `gcloud`/credentials on the approved operator host.
+Do not mount a host home, credential directory or protected BDUK workbench.
+
 Provide Bash, Python 3.12+, Node 24.19.0+ and pnpm 10.33.2; the repository's uv
 lock workflow; Terraform 1.13.4 and its locked Google 6.49.0 provider; a Docker
 Buildx builder capable of OCI export; `skopeo` and the platform-supported Google
@@ -51,13 +74,14 @@ From the reviewed repository root, install the frozen dependencies through that
 approved route:
 
 ```sh
-pnpm install --frozen-lockfile
+pnpm install --frozen-lockfile --ignore-scripts --package-import-method=copy
 uv sync --locked --group dev --cache-dir .uv-cache
 ```
 
 Retain the actual working tree. Do not reset it to the public GitHub checkpoint.
-For a review ZIP, first follow `SOURCE_REPLAY.md` to obtain its pinned base and
-overlay the reviewed implementation. Local tests are available through
+The secure machine uses the complete reviewed GitHub source; a chat ZIP is not
+its transfer route. On another explicitly approved source-replay route, follow
+`SOURCE_REPLAY.md` before applying the reviewed overlay. Local tests are available through
 `pnpm run test:gcp`; they cannot establish hosted BDUK acceptance.
 
 ## 2. Create and complete a private configuration
@@ -200,11 +224,22 @@ and teardown must be observed on the approved platform.
 
 ## Observed local installer checks
 
-On 9 October 2026 all 20 installer tests and the full 119-test focused GCP command
-passed. Shell syntax, links, secret scanning and changelog validation also passed.
+The earlier 9 October 2026 installer observation passed all 20 installer tests
+and the then-current 119-test focused GCP command. Shell syntax, links, secret
+scanning and changelog validation also passed.
 Actual CLI `init` created a mode-600 draft, `inputs` returned exit 2 for unresolved
 platform fields, and `review --skip-prepare` returned exit 2 while successfully
 creating the sanitised ZIP. Existing deployment/build material was retained.
 These are local orchestration tests with no inherited platform credentials; no
 BDUK cloud mutation or hosted acceptance occurred. Logs are under
 `artifacts/gcp/platform-installer-20261009/`.
+
+After the security remediation on the same date, `pnpm run test:gcp` passed 144
+local checks: 26 runtime, 111 Python deployment and seven packaging/UI checks.
+The 70 focused lifecycle checks are included in the deployment total. The
+aggregate log is `artifacts/environment/gcp-223-remediation-gcp.log`, SHA-256
+`6c28508660926565c4f002c0ee0f793bc5d2556ac2ff23f063d860a9f390b9ef`.
+See the [sanitised security record](../../security/GCP-223-SECURITY-REVIEW.md) for
+the distinct sealed audit, source-fix observations and remaining image/platform
+gates. These checks do not establish hosted authentication, persistence or BDUK
+acceptance.

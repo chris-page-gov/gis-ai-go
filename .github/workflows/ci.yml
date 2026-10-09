@@ -123,7 +123,7 @@ jobs:
 
       - name: Install locked dependencies
         run: |
-          pnpm install --frozen-lockfile
+          pnpm install --frozen-lockfile --ignore-scripts --package-import-method=copy
           uv sync --locked --group dev --cache-dir .uv-cache
 
       - name: Run assurance
@@ -141,7 +141,7 @@ jobs:
           (
             cd "$local214_source"
             python3 -m scripts.local214_package verify
-            pnpm install --frozen-lockfile
+            pnpm install --frozen-lockfile --ignore-scripts --package-import-method=copy
             uv sync --locked --group dev --cache-dir .uv-cache
           )
           mkdir -p artifacts/local214
@@ -268,7 +268,7 @@ jobs:
 
       - name: Install locked dependencies
         run: |
-          pnpm install --frozen-lockfile
+          pnpm install --frozen-lockfile --ignore-scripts --package-import-method=copy
           uv sync --locked --group dev --cache-dir .uv-cache
 
       - name: Start the pinned gateway image builder

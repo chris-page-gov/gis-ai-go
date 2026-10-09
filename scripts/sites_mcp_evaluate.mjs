@@ -160,7 +160,7 @@ export function latencySummary(values) {
 async function sdk() {
   const require = createRequire(resolve(ROOT, "apps/mcp-gateway/package.json"));
   const manifest = JSON.parse(await readFile(resolve(ROOT, "apps/mcp-gateway/node_modules/@modelcontextprotocol/client/package.json"), "utf8"));
-  check(manifest.version === "2.0.0", "manifest-rejected");
+  check(manifest.version === "2.2.0", "manifest-rejected");
   return import(pathToFileURL(require.resolve("@modelcontextprotocol/client")).href);
 }
 
@@ -176,7 +176,7 @@ export async function runEvaluation(manifestInput, { corpus, token, fetch: suppl
   const wire = []; const results = [];
   const report = { schema: REPORT_SCHEMA, classification: suppliedFetch ? "injected-transport-test" : "bounded-live-observation",
     started_at: new Date().toISOString(), completed_at: "", manifest, manifest_sha256: sha(manifest), corpus_sha256: sha(corpus),
-    harness_sha256: sha(await readFile(fileURLToPath(import.meta.url), "utf8")), client_version: "2.0.0", results, wire,
+    harness_sha256: sha(await readFile(fileURLToPath(import.meta.url), "utf8")), client_version: "2.2.0", results, wire,
     preflight: "not-run", completion: "partial", error_code: null, latency: latencySummary([]), latency_by_case: [],
     claims: { independent_host_acceptance: false, oauth_flow_verified: false, public_release_acceptance: false,
       protected_data_authority: false, provider_payloads_retained: false, cost_established: false } };

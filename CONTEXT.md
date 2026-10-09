@@ -4,6 +4,31 @@ Last updated: 9 October 2026
 
 ## Authority and reading order
 
+On 9 October the owner explicitly authorised fixing the three reported source
+findings and dependency advisories, and publishing a sanitised report through
+GitHub. Preserve the sealed original audit and distinguish supplemental fix
+verification from its original findings and partial coverage. This authorises
+local fixes, regression checks and source/report publication; it does not grant
+secure-machine execution, image/registry publication, merging, cloud mutation
+or BDUK acceptance. See the [sanitised review](docs/security/GCP-223-SECURITY-REVIEW.md).
+
+On 9 October the owner additionally requested portable development containers,
+updated dependencies/instructions and a full-repository security scan before any
+execution on the secured machine. Local implementation, source review and
+bounded local image/dependency assurance are authorised. Use repository-relative
+paths and the host's own home location, preserve the existing secure clone and
+dirty work, and use GitHub as its source-transfer route. Do not open a container,
+install dependencies or run repository scripts there before exact-source,
+exact-image and platform admission. Vendor hardened-image availability does not
+select an entitlement, mirror, base digest, budget or approving identity.
+Source fixes and the maintained-lock recheck are recorded separately; original
+image findings, incomplete coverage and exact-source/platform admission still
+block secure execution;
+see [development and build assurance](docs/development/BUILD_ASSURANCE.md).
+No cloud mutation, image publication, protected-data upload or live provider/model
+call is granted by this increment. The original deployment approval contract
+and separate hosted acceptance requirements remain in force.
+
 On 9 October the owner requested an executable platform installer and explicitly
 selected the BDUK GCP sandpit. Implement and test that operator entrypoint using
 the existing private deployment contract. Do not reuse personal project/budget or
