@@ -29,6 +29,10 @@ import threading
 import uuid
 from typing import Any, BinaryIO
 
+# Resolve the repository helper for direct CLI and isolated importlib callers.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from security.bounded_tar import BoundedTarInfo
+
 
 SYFT_VERSION = "1.42.2"
 TRIVY_VERSION = "0.74.0"
@@ -189,8 +193,10 @@ def _layer_identity(stream: BinaryIO, compressed: bool, budget: list[int],
                     passwd: bytes | None, etc_link: bool, need_passwd: bool) -> tuple[str, bytes | None, bool]:
     source = gzip.GzipFile(fileobj=stream) if compressed else stream
     reader = HashedStream(source, budget)
-    with tarfile.open(fileobj=reader, mode="r|") as layer:
+    with tarfile.open(fileobj=reader, mode="r|", tarinfo=BoundedTarInfo) as layer:
         for count, item in enumerate(layer):
+            # This reader uses TarInfo objects directly, never name lookup.
+            layer.members.clear()
             require(count < MAX_LAYER_ENTRIES, "layer_entry_limit")
             # Linux image layers legitimately contain symlinks. They are metadata
             # here: neither the layer nor any link target is extracted onto host.
@@ -216,7 +222,7 @@ def inspect_oci(path: Path, expected: str) -> dict[str, Any]:
     """Validate every content-addressed blob and the complete selected closure."""
     require(bool(DIGEST.fullmatch(expected)), "invalid_expected_manifest_digest")
     try:
-        with tarfile.open(path, mode="r:") as archive:
+        with tarfile.open(path, mode="r:", tarinfo=BoundedTarInfo) as archive:
             members: dict[str, tarfile.TarInfo] = {}
             total = 0
             for member in archive:
@@ -505,7 +511,7 @@ def normalize_scanner_directory(source: Path, target: Path, image: dict[str, Any
     original archive/index and unverified attestations remain retained authority.
     """
     try:
-        with tarfile.open(source, mode="r:") as incoming:
+        with tarfile.open(source, mode="r:", tarinfo=BoundedTarInfo) as incoming:
             manifest_name = "blobs/sha256/" + image["manifest_digest"][7:]
             member = incoming.getmember(manifest_name)
             require(member.isreg() and member.size <= MAX_JSON, "invalid_normalization_source")

@@ -1,5 +1,10 @@
 # GCP-223 security review and remediation record
 
+The subsequent [independent 9 October review](GCP-223-INDEPENDENT-REVIEW-2026-10-09.md)
+records the exact published input, measured time, two additional source findings,
+local corrections and remaining secure-machine/platform gates. The original
+observations below retain their own scope and custody.
+
 Observed on 9 October 2026. This is an owner-authorised, sanitised public
 derivative of the sealed repository review and subsequent fix observations.
 It is suitable for source transfer through GitHub. It excludes private host

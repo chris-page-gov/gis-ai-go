@@ -49,7 +49,7 @@ working daemon for the application image. Install dependencies through the
 repository's normal frozen-lockfile workflow before preparation:
 
 ```sh
-pnpm install --frozen-lockfile
+pnpm install --frozen-lockfile --ignore-scripts --package-import-method=copy
 uv sync --locked --group dev --cache-dir .uv-cache
 ```
 

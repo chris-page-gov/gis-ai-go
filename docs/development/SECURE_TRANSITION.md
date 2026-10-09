@@ -59,6 +59,13 @@ the actual remediation observations and exact final source before approval;
 the archive correction passed its final focused checks and parent's recheck. Neither
 the historical clone nor that dependency result grants execution.
 
+The [independent 9 October follow-up](../security/GCP-223-INDEPENDENT-REVIEW-2026-10-09.md)
+retains two additional MEDIUM/LOW findings and their focused local corrections.
+Its immutable source predates the corrections and its semantic coverage remains
+partial. Fresh pre-patch investigations completed; independent final candidate
+reviews were unavailable because of host state. Parent review fallback and
+local tests do not replace the platform's exact-source decision.
+
 ## Preserve edits and switch only after source/image approval
 
 If `git status` reports changes, stop before switching. Preserve and review that

@@ -29,7 +29,7 @@ do not yet retrieve those datasets.
 Use the repository's pinned Node, pnpm and Python/uv environment. From a clone:
 
 ```sh
-pnpm install --frozen-lockfile
+pnpm install --frozen-lockfile --ignore-scripts --package-import-method=copy
 uv sync --locked --group dev --cache-dir .uv-cache
 pnpm start:public-data-workbench
 ```

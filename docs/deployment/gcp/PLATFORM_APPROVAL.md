@@ -80,7 +80,12 @@ transport and application tokens; it must not replace human identity with the
 Cloud Run invoker service account or trust caller-written email/role headers.
 The implementation includes strict bearer verification and a maintained
 `openid-client` 6.8.8 browser code flow with state/nonce/S256 PKCE, five-minute
-secure sessions, stored flow/session CAS, Origin CSRF validation and POST logout.
+secure sessions, stateless sealed login starts, verified-flow replay/session CAS,
+Origin CSRF validation and POST logout. Accepted replay records remain through
+the original flow expiry, including after logout or failed session storage;
+unauthenticated login attempts write no shared reservations. Failed/concurrent
+grants can reach the approved issuer; hosted acceptance must exercise single
+acceptance, expiry, revocation and bounded concurrent operation.
 BDUK deployment requires its exact approved browser registration, endpoint
 allowlist and pinned session-key/client-secret references. Actual provider sign-in,
 revocation and direct MCP OAuth remain separate hosted acceptance gates. The

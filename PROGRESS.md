@@ -4,6 +4,26 @@ Last updated: 9 October 2026
 
 ## Current checkpoint
 
+- The [independent 9 October review](docs/security/GCP-223-INDEPENDENT-REVIEW-2026-10-09.md)
+  is sealed at published input `f3dd856f`: 752 distinct full-reviewed files,
+  explicitly partial corpus/document/dependency semantics, 50 minutes 30 seconds
+  to confirmed completion, and unavailable token/Fast comparison measurements.
+  Its additional MEDIUM host tar-parser and LOW browser-login availability paths
+  have local corrections. Shared metadata admission covers all ten OCI/database
+  read entry points; browser login reserves no pre-human storage and accepted
+  replay markers remain bounded and durable. Parent reproduced the fresh
+  reviewer's ledger contention case and corrected it for eight admitted requests.
+  Affected checks pass: 308 Python, 30 GCP runtime and five demo checks, gateway
+  compilation and the baseline secret/path scan. Current demo SDK checks and
+  active install instructions are aligned. Both pre-patch investigations completed;
+  final reviewer threads became host `pending_init` and were interrupted after
+  a bounded wait. Parent bypass/regression fallback completed; independent final
+  candidate-review results remain unavailable. The sanitised follow-up and
+  reproducible exact-source package commands are included on the implementation
+  branch for [draft PR #146](https://github.com/chris-page-gov/gis-ai-go/pull/146). Canonical assurance,
+  HIGH/CRITICAL images and exact source/image/platform admission still block
+  secure-machine execution; no GCP mutation or hosted acceptance is claimed.
+
 - [GCP-223 issue #145](https://github.com/chris-page-gov/gis-ai-go/issues/145) adds manual local/cloud/BDUK development-container profiles, pinned
   offline tooling, exact source/image/platform admission, a portable existing-clone
   transition and offline OCI assurance. The actual toolchain image built and

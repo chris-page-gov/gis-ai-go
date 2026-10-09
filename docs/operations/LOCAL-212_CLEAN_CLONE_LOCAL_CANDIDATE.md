@@ -68,7 +68,7 @@ record for observed versions. Python must satisfy `pyproject.toml`.
 ```bash
 git clone https://github.com/chris-page-gov/gis-ai-go.git
 cd gis-ai-go
-pnpm install --frozen-lockfile
+pnpm install --frozen-lockfile --ignore-scripts --package-import-method=copy
 uv sync --locked --group dev --cache-dir .uv-cache
 ```
 

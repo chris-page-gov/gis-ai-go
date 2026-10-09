@@ -4,6 +4,17 @@ Last updated: 9 October 2026
 
 ## Authority and reading order
 
+The owner subsequently requested an independent review after reporting a switch
+to Daybreak, and clearer stable progress and elapsed-time reporting. The exact
+`f3dd856f` Standard source review is sealed with two additional findings and
+explicit partial semantic coverage. Existing fix/publication authority applies
+to those source paths and affected instructions; it does not admit an image,
+permit secure-machine execution or grant GCP/BDUK approval. Preserve the
+immutable findings, separately recorded patch checks and historical model baselines.
+Fresh pre-patch investigations completed; the host did not supply independent
+final candidate reviews. Preserve that gap alongside the parent review fallback.
+See the [follow-up record](docs/security/GCP-223-INDEPENDENT-REVIEW-2026-10-09.md).
+
 On 9 October the owner explicitly authorised fixing the three reported source
 findings and dependency advisories, and publishing a sanitised report through
 GitHub. Preserve the sealed original audit and distinguish supplemental fix
@@ -521,7 +532,7 @@ protocol boundary or complete the independent-host gate.
 The complete local gate is:
 
 ```bash
-pnpm install --frozen-lockfile
+pnpm install --frozen-lockfile --ignore-scripts --package-import-method=copy
 uv sync --locked --group dev --cache-dir .uv-cache
 pnpm run check
 ```

@@ -181,7 +181,7 @@ those remaining gates rather than claiming a public service.
 From a clean repository checkout with the locked Node and Python dependencies:
 
 ```bash
-pnpm install --frozen-lockfile
+pnpm install --frozen-lockfile --ignore-scripts --package-import-method=copy
 uv sync --locked
 pnpm --filter @gis-ai-go/mcp-gateway run test
 pnpm --filter @gis-ai-go/tool-registry run test

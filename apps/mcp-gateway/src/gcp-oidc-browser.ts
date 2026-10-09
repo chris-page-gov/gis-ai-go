@@ -55,7 +55,7 @@ export function validateGcpBrowserConfig(browser: GcpBrowserOidcConfig, publicOr
   https(publicOrigin); https(browser.callbackUrl);
   for (const endpoint of browser.allowedEndpoints) https(endpoint);
 }
-type Flow = { v: 1; kind: "login"; sid: string; state: string; nonce: string; verifier: string; exp: number };
+type Flow = { v: 2; kind: "login"; sid: string; state: string; nonce: string; verifier: string; exp: number };
 type Session = { v: 1; kind: "session"; sid: string; token: string; exp: number };
 export function createGcpBrowserOidc(options: {
   readonly browser: GcpBrowserOidcConfig; readonly identity: GcpOidcConfig;
@@ -70,13 +70,51 @@ export function createGcpBrowserOidc(options: {
       (browser.clientAuthMethod === "client_secret_basic" && !options.secrets.clientSecret)) fail();
   const fetcher = options.fetch ?? fetch; const verifier = options.verifier ?? createGcpJwtVerifier({ fetch: fetcher, now });
   const allowed = new Set(browser.allowedEndpoints);
-  async function allocate(purpose: "flow" | "session", fields: Readonly<Record<string, string>>) {
+  async function allocate(purpose: "session", fields: Readonly<Record<string, string>>) {
     // At most four strong reads and CAS attempts. Occupied unexpired slots are never overwritten.
     for (let attempt = 0; attempt < 4; attempt += 1) {
       const sid = randomBytes(32).toString("hex"); const id = slot(purpose, sid); const previous = await options.backend.read(id);
       if (previous && Number(previous.fields.expires_at) > seconds() && !["consumed", "revoked"].includes(previous.fields.status ?? "")) continue;
       if (previous && previous.fields.schema !== `gis-ai-go.gcp-browser-${purpose}.v1`) fail();
       if (await options.backend.compareAndSet(id, previous?.version ?? null, { ...fields, sid_hash: hash(purpose, sid) })) return sid;
+    }
+    fail();
+  }
+  // Login cookies are sealed but do not reserve shared storage before identity.
+  // One fixed, bounded ledger retains accepted original flow IDs until expiry.
+  const consumedId = hash("accepted-flow-ledger.v2", "singleton");
+  type Consumed = { sid_hash: string; expires_at: number };
+  async function consumption(flow: Flow) {
+    const document = await options.backend.read(consumedId);
+    if (flow.exp <= seconds()) fail();
+    let entries: Consumed[] = [];
+    if (document) {
+      if (document.fields.schema !== "gis-ai-go.gcp-browser-consumed-flows.v2" || Object.keys(document.fields).length !== 2) fail();
+      const parsed = parseBoundedJsonBytes(Buffer.from(document.fields.entries_json ?? ""), 65_536);
+      if (!Array.isArray(parsed) || parsed.length > 256) fail();
+      const seen = new Set<string>();
+      for (const entry of parsed) {
+        if (!entry || typeof entry !== "object" || Array.isArray(entry) || Object.keys(entry).length !== 2 ||
+            typeof entry.sid_hash !== "string" || !/^[0-9a-f]{64}$/u.test(entry.sid_hash) ||
+            !Number.isSafeInteger(entry.expires_at) || entry.expires_at < 0 || seen.has(entry.sid_hash)) fail();
+        seen.add(entry.sid_hash);
+        if (entry.expires_at > seconds()) entries.push(entry as Consumed);
+      }
+    }
+    if (entries.some((entry) => entry.sid_hash === hash("flow", flow.sid))) fail();
+    return { document, entries };
+  }
+  async function consumeVerifiedFlow(flow: Flow) {
+    // The server admits eight active requests; each distinct winner can move
+    // the shared version once. Keep retries bounded without rejecting a cohort.
+    for (let attempt = 0; attempt < 8; attempt += 1) {
+      const { document, entries } = await consumption(flow);
+      if (entries.length >= 256 || flow.exp <= seconds()) fail();
+      entries.push({ sid_hash: hash("flow", flow.sid), expires_at: flow.exp });
+      if (await options.backend.compareAndSet(consumedId, document?.version ?? null, {
+        schema: "gis-ai-go.gcp-browser-consumed-flows.v2", entries_json: JSON.stringify(entries),
+      })) { if (flow.exp <= seconds()) fail(); return; }
+      // Retry a fresh read and duplicate check, never claim the same SID twice.
     }
     fail();
   }
@@ -97,7 +135,7 @@ export function createGcpBrowserOidc(options: {
       const bytes = Buffer.from(encoded, "base64url"); if (bytes.length < 29 || bytes.toString("base64url") !== encoded) fail();
       const decipher = createDecipheriv("aes-256-gcm", key, bytes.subarray(0, 12)); decipher.setAAD(Buffer.from(name)); decipher.setAuthTag(bytes.subarray(-16));
       const value = parseBoundedJsonBytes(Buffer.concat([decipher.update(bytes.subarray(12, -16)), decipher.final()]), 4_096) as T;
-      if (value.v !== 1 || value.kind !== kind || !/^[0-9a-f]{64}$/u.test(value.sid) || !Number.isSafeInteger(value.exp) || value.exp <= seconds()) fail();
+      if (value.v !== (kind === "login" ? 2 : 1) || value.kind !== kind || !/^[0-9a-f]{64}$/u.test(value.sid) || !Number.isSafeInteger(value.exp) || value.exp <= seconds()) fail();
       return value;
     } catch { return fail(); }
   }
@@ -156,9 +194,8 @@ export function createGcpBrowserOidc(options: {
           if (url.search) fail();
           const oidc = await maintainedLibrary();
           const client = await configuration(); const verifierValue = oidc.randomPKCECodeVerifier();
-          const flow: Flow = { v: 1, kind: "login", sid: randomBytes(32).toString("hex"), state: oidc.randomState(), nonce: oidc.randomNonce(),
+          const flow: Flow = { v: 2, kind: "login", sid: randomBytes(32).toString("hex"), state: oidc.randomState(), nonce: oidc.randomNonce(),
             verifier: verifierValue, exp: seconds() + 300 };
-          flow.sid = await allocate("flow", { schema: "gis-ai-go.gcp-browser-flow.v1", status: "pending", expires_at: String(flow.exp) });
           const target = oidc.buildAuthorizationUrl(client, { redirect_uri: browser.callbackUrl, scope: browser.scopes.join(" "), response_type: "code",
             state: flow.state, nonce: flow.nonce, code_challenge: await oidc.calculatePKCECodeChallenge(flow.verifier), code_challenge_method: "S256" });
           if (!allowed.has(target.origin + target.pathname)) fail();
@@ -169,9 +206,7 @@ export function createGcpBrowserOidc(options: {
               [...new Set(url.searchParams.keys())].some((name) => url.searchParams.getAll(name).length !== 1)) fail();
           const flow = unseal<Flow>(request, FLOW, "login");
           if (!flow || !url.searchParams.get("state") || !equal(flow.state, url.searchParams.get("state")!)) fail();
-          const stored = await options.backend.read(slot("flow", flow.sid));
-          if (stored?.fields.schema !== "gis-ai-go.gcp-browser-flow.v1" || stored.fields.status !== "pending" || stored.fields.sid_hash !== hash("flow", flow.sid) || Number(stored.fields.expires_at) !== flow.exp ||
-              !await options.backend.compareAndSet(slot("flow", flow.sid), stored.version, { ...stored.fields, status: "consumed" })) fail();
+          await consumption(flow); // Accepted replay is refused before another exchange.
           const callback = new URL(browser.callbackUrl); callback.search = url.search;
           const oidc = await maintainedLibrary();
           const tokens = await oidc.authorizationCodeGrant(await configuration(), callback, { expectedState: flow.state, expectedNonce: flow.nonce,
@@ -179,10 +214,12 @@ export function createGcpBrowserOidc(options: {
           if (!tokens.id_token || !tokens.access_token || tokens.access_token.length > 2_500) fail();
           const claims = await verifier.verify(tokens.access_token, options.identity);
           if ((claims.exp as number) - (claims.iat as number) > 300 || tokens.claims()?.sub !== claims.sub) fail();
+          await consumeVerifiedFlow(flow);
           const value: Session = { v: 1, kind: "session", sid: randomBytes(32).toString("hex"), token: tokens.access_token,
             exp: Math.min(seconds() + 300, claims.exp as number) };
           value.sid = await allocate("session", { schema: "gis-ai-go.gcp-browser-session.v1", status: "active",
             expires_at: String(value.exp), principal_scope: gcpPrincipalScope(options.identity.issuer, claims.sub as string, options.environment) });
+          if (flow.exp <= seconds() || value.exp <= seconds()) fail();
           const encrypted = seal(SESSION, value);
           const headers = new Headers({ location: options.publicOrigin + "/", "cache-control": "no-store" });
           headers.append("set-cookie", cookie(SESSION, encrypted, value.exp - seconds())); headers.append("set-cookie", cookie(FLOW, "", 0));

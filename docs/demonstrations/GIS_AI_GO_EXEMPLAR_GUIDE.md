@@ -173,7 +173,7 @@ git fetch origin
 git worktree add ../gis-ai-go-demo-1c51991 \
   1c51991c2d34fd43c602890cfff36f7f33dcef5f
 cd ../gis-ai-go-demo-1c51991
-pnpm install --frozen-lockfile
+pnpm install --frozen-lockfile --ignore-scripts --package-import-method=copy
 uv sync --locked --group dev --cache-dir .uv-cache
 git status --short
 git rev-parse HEAD

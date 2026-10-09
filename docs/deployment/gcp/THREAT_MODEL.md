@@ -68,13 +68,19 @@ arbitrary internet access to make Okta work.
 
 The optional maintained `openid-client` browser adapter validates discovery,
 state/nonce, S256 PKCE, code grant and exact issuer/subject binding. Flow state is
-consumed once using Firestore CAS. Encrypted Secure/HttpOnly `__Host-` cookies,
+accepted once using Firestore CAS after verified human identity. Login starts
+reserve no database capacity. Encrypted Secure/HttpOnly `__Host-` cookies,
 five-minute sessions, stored-session checks, Origin checks for mutations and
 revocation on POST logout constrain replay/CSRF. Cookie identity never substitutes
 for the signed Google transport proof. Exact registration/endpoints and pinned
-Secret Manager versions are platform inputs. Flow/session metadata uses 256 fixed slots per family, 512 documents in total,
-with bounded compare-and-swap reuse after expiry. Tokens, state, nonce and PKCE
-verifier remain in encrypted cookies rather than database metadata. Slot reuse
+Secret Manager versions are platform inputs. Up to 256 accepted original flows
+share one bounded replay document, retained until their original five-minute
+expiry; sessions use 256 fixed slots. Eight bounded flow-CAS rounds accommodate
+the server's eight admitted active requests. Failed or concurrent grants may
+reach the approved issuer, but one flow can issue at most one session. Version 1
+pending login cookies fail closed after upgrade; existing session validation
+remains. Tokens, state, nonce and PKCE verifier remain in encrypted cookies
+rather than database metadata. Slot reuse
 does not prove backup/restore or disposal; its cost/retention decision remains
 explicit.
 

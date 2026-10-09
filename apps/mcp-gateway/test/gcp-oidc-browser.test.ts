@@ -48,12 +48,75 @@ function fixture(overrides: { idNonce?: string; idAudience?: string; idIssuer?: 
     const state = redirect.searchParams.get("state")!;
     return { response: response!, redirect, state, cookie: cookieValue(response!, "__Host-gis-login") };
   }
-  async function callback(flow: Awaited<ReturnType<typeof login>>, state = flow.state) {
-    return adapter.handle(new Request(`${BROWSER.callbackUrl}?code=synthetic-code&state=${state}&iss=${encodeURIComponent(HUMAN_ISSUER)}`, { headers: { cookie: flow.cookie } }));
+  async function callback(flow: Awaited<ReturnType<typeof login>>, state = flow.state, selectedAdapter = adapter) {
+    nonce = flow.redirect.searchParams.get("nonce")!; challenge = flow.redirect.searchParams.get("code_challenge")!;
+    return selectedAdapter.handle(new Request(`${BROWSER.callbackUrl}?code=synthetic-code&state=${state}&iss=${encodeURIComponent(HUMAN_ISSUER)}`, { headers: { cookie: flow.cookie } }));
   }
   return { adapter, backend, options, config, login, callback, get exchanges() { return exchanges; }, destinations,
     advance: (milliseconds: number) => { clock += milliseconds; } };
 }
+
+test("private callers cannot reserve shared storage by starting or failing browser logins", async () => {
+  const s = fixture(); const victim = await s.login();
+  for (let index = 0; index < 400; index += 1) await s.login();
+  assert.equal(s.backend.rows.size, 0); assert.equal(s.backend.writes, 0);
+  assert.equal((await s.callback(victim))!.status, 303);
+  const rejected = fixture({ idNonce: "wrong" }); const badFlow = await rejected.login();
+  assert.equal((await rejected.callback(badFlow))!.status, 400);
+  assert.equal(rejected.backend.rows.size, 0); assert.equal(rejected.backend.writes, 0);
+});
+
+test("concurrent verified callbacks accept one session and retain original replay state across fresh adapters", async () => {
+  const s = fixture(); const flow = await s.login();
+  const results = await Promise.all([s.callback(flow), s.callback(flow)]);
+  assert.deepEqual(results.map((response) => response!.status).sort(), [303, 400]);
+  assert.equal([...s.backend.rows.values()].filter((row) => row.fields.status === "active").length, 1);
+  const fresh = createGcpBrowserOidc(s.options); const exchanges = s.exchanges;
+  assert.equal((await fresh.handle(new Request(`${BROWSER.callbackUrl}?code=synthetic-code&state=${flow.state}`, { headers: { cookie: flow.cookie } })))!.status, 400);
+  assert.equal(s.exchanges, exchanges);
+  const successful = results.find((response) => response!.status === 303)!;
+  const cookie = cookieValue(successful!, "__Host-gis-browser");
+  assert.equal((await fresh.handle(new Request(ORIGIN + "/auth/logout", { method: "POST", headers: { cookie, origin: ORIGIN } })))!.status, 303);
+  assert.equal((await s.callback(flow))!.status, 400); assert.equal(s.exchanges, exchanges);
+});
+
+test("distinct verified flows admitted concurrently do not exhaust replay-ledger retry rounds", async () => {
+  const shared = new FakeAtomicStore(); const cases = Array.from({ length: 8 }, () => fixture());
+  const adapters = cases.map((entry) => createGcpBrowserOidc({ ...entry.options, backend: shared }));
+  const flows = await Promise.all(cases.map((entry) => entry.login()));
+  const original = shared.compareAndSet;
+  let expected = 8; let waiting: (() => void)[] = [];
+  shared.compareAndSet = async (id, version, fields) => {
+    if (fields.schema === "gis-ai-go.gcp-browser-consumed-flows.v2") {
+      await new Promise<void>((resolve) => {
+        waiting.push(resolve);
+        if (waiting.length === expected) {
+          const ready = waiting; waiting = []; expected -= 1;
+          for (const release of ready) release();
+        }
+      });
+    }
+    return original(id, version, fields);
+  };
+  const responses = await Promise.all(cases.map((entry, index) => entry.callback(flows[index]!, flows[index]!.state, adapters[index])));
+  assert.deepEqual(responses.map((response) => response!.status), Array(8).fill(303));
+  assert.equal([...shared.rows.values()].filter((row) => row.fields.status === "active").length, 8);
+});
+
+test("accepted flow tombstone survives session failure; expiry during verification cannot commit a flow", async () => {
+  const s = fixture(); const flow = await s.login();
+  const original = s.backend.compareAndSet;
+  s.backend.compareAndSet = async (id, version, fields) => fields.schema === "gis-ai-go.gcp-browser-session.v1" ? false : original(id, version, fields);
+  assert.equal((await s.callback(flow))!.status, 400); const exchanges = s.exchanges;
+  assert.equal((await s.callback(flow))!.status, 400); assert.equal(s.exchanges, exchanges);
+  const expired = fixture(); const expiredFlow = await expired.login();
+  const verifier = { verify: async (token: string, config: Parameters<typeof expired.options.verifier.verify>[1]) => {
+    const claims = await expired.options.verifier.verify(token, config); expired.advance(300_001); return claims;
+  } };
+  const adapter = createGcpBrowserOidc({ ...expired.options, verifier });
+  assert.equal((await adapter.handle(new Request(`${BROWSER.callbackUrl}?code=synthetic-code&state=${expiredFlow.state}`, { headers: { cookie: expiredFlow.cookie } })))!.status, 400);
+  assert.equal(expired.backend.writes, 0);
+});
 
 test("maintained OIDC performs exact issuer/client ID/signature/nonce validation with state and S256 PKCE; encrypted session rechecks signed access", async () => {
   const s = fixture(); const flow = await s.login();
@@ -126,9 +189,20 @@ test("server browser flow keeps transport separate, applies current role policy 
   assert.equal((await unavailable.fetch(new Request(ORIGIN + "/auth/login", { headers }))).status, 503);
 });
 
-test("durable login documents reuse 256 fixed slots after expiry with a bounded four-attempt allocation", async () => {
+test("verified-flow ledger and sessions stay bounded and expired markers can be reclaimed after restart", async () => {
   const s = fixture();
-  for (let index = 0; index < 400; index += 1) { await s.login(); s.advance(301_000); }
-  assert.ok(s.backend.rows.size <= 256); assert.ok(s.backend.rows.size > 1);
+  for (let index = 0; index < 256; index += 1) {
+    const response = await s.callback(await s.login()); assert.ok([303, 400].includes(response!.status));
+  }
+  assert.ok(s.backend.rows.size <= 257);
+  const ledger = [...s.backend.rows.values()].find((row) => row.fields.schema === "gis-ai-go.gcp-browser-consumed-flows.v2")!;
+  assert.equal(JSON.parse(ledger.fields.entries_json!).length, 256);
+  const writes = s.backend.writes;
+  assert.equal((await s.callback(await s.login()))!.status, 400); assert.equal(s.backend.writes, writes);
+  s.advance(301_000);
+  const fresh = createGcpBrowserOidc(s.options); const flow = await s.login();
+  assert.equal((await s.callback(flow, flow.state, fresh))!.status, 303);
+  const renewed = [...s.backend.rows.values()].find((row) => row.fields.schema === "gis-ai-go.gcp-browser-consumed-flows.v2")!;
+  assert.equal(JSON.parse(renewed.fields.entries_json!).length, 1);
   assert.equal([...s.backend.rows.values()].some((row) => "token" in row.fields || "verifier" in row.fields || "nonce" in row.fields), false);
 });
