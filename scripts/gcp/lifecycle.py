@@ -566,7 +566,7 @@ class Lifecycle:
                             facts["enabled_apis"] = [item["config"]["name"] for item in data]
                 browser = config["identity"].get("browser")
                 if browser:
-                    api_status = "PASS" if "secretmanager.googleapis.com" in facts.get("enabled_apis", []) else "BLOCKED"
+                    api_status = "PASS" if any(api == "secretmanager.googleapis.com" for api in facts.get("enabled_apis", [])) else "BLOCKED"
                     checks.append({"id": "browser-secretmanager-api", "status": api_status, "reason": "Existing API required; preflight never enables it"})
                     references = [browser["session_key_secret"]] + ([browser["client_secret"]] if browser["client_secret"] else [])
                     for index, reference in enumerate(references):

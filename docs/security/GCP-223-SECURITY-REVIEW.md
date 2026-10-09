@@ -9,7 +9,7 @@ databases, private configuration and protected data.
 The original review reported **three MEDIUM source findings and partial semantic
 coverage**. Both originally scanned images remain **BLOCKED**. The subsequent
 maintained-lock recheck returned zero advisory entries. Focused lifecycle
-regressions passed 70 checks and the final archive regressions passed 39.
+regressions passed 71 checks and the final archive regressions passed 39.
 Supplemental independent review found a further archive metadata-retention case;
 the revised boundary passed the parent's direct recheck and regression controls.
 All three source findings are remediated within this focused local verification
@@ -59,8 +59,8 @@ operator review boundary.
 | Finding | Original severity and confidence | Source boundary | Supplemental fix verification |
 | --- | --- | --- | --- |
 | `csf_abb1ea931e2d97c98d0d70be`: OKF+ compressed tar extension headers can exhaust memory | MEDIUM; high confidence | Received archive to offline parser | Remediated; 39 checks pass, including the independently identified metadata-retention case |
-| `csf_0c831d7b64d205d21dbf36aa`: cloud approval omits symlinked IaC bytes later consumed | MEDIUM; medium confidence | Contributed source to approved cloud execution | 70 focused lifecycle checks pass; supplemental review found no additional concrete bypass |
-| `csf_3ec0a21650c5a95f5c2495d6`: review-package source symlinks can include host-file contents | MEDIUM; high confidence | Contributed source to transfer ZIP membership | 70 focused lifecycle checks pass; supplemental review found no additional concrete bypass |
+| `csf_0c831d7b64d205d21dbf36aa`: cloud approval omits symlinked IaC bytes later consumed | MEDIUM; medium confidence | Contributed source to approved cloud execution | 71 focused lifecycle checks pass; supplemental review found no additional concrete bypass |
+| `csf_3ec0a21650c5a95f5c2495d6`: review-package source symlinks can include host-file contents | MEDIUM; high confidence | Contributed source to transfer ZIP membership | 71 focused lifecycle checks pass; supplemental review found no additional concrete bypass |
 
 ### Received archive resource budget
 
@@ -115,7 +115,7 @@ dependency reassessment are recorded here only after their actual results are
 available. They supplement the sealed audit; they do not rewrite its findings,
 severity, original image receipts or partial coverage outcome.
 
-The following focused lifecycle command passed **70 checks** against the fixed
+The following focused lifecycle command passed **71 checks** against the fixed
 source:
 
 ```sh
@@ -136,16 +136,16 @@ excluded. Executable modes, configured-input redaction and outgoing checksums
 remain covered. These controls close the reported source-alias and membership
 paths; they do not redesign the service resource-attribute policy or certify
 every source file's content as public. The aggregate `pnpm run test:gcp` local
-suite also passed: 26 runtime, 111 Python deployment and seven packaging/UI
-checks. The 70 focused lifecycle checks are included in the deployment total,
+suite also passed: 26 runtime, 115 Python deployment and seven packaging/UI
+checks. The 71 focused lifecycle checks are included in the deployment total,
 not an additional aggregate count. The supplemental static review found no
 additional concrete bypass in the lifecycle, packaging or dependency changes.
 
 | Supplemental fixed lifecycle source | SHA-256 |
 | --- | --- |
-| `scripts/gcp/lifecycle.py` | `935af1db9de4f193b59a71e839f59f8e4a75cd14971b43831a7e85f1ee785837` |
-| `tests/deployment/test_gcp_lifecycle.py` | `c16c8e371722ba27f25049025cdf29177f7c86f9cb52d58b26ddddd683465c38` |
-| Aggregate local GCP check log | `6c28508660926565c4f002c0ee0f793bc5d2556ac2ff23f063d860a9f390b9ef` |
+| `scripts/gcp/lifecycle.py` | `fac5dc20a4e87d60ff1a32d40c8a3ebd2536a8de200c50bbc15bdb3b968bf221` |
+| `tests/deployment/test_gcp_lifecycle.py` | `932845247978777928249d0896dafafb6c5aa53a75f600f0eaf77d7ee0cc2591` |
+| Aggregate local GCP check log | `71ee55d7b6923c71aceaa4a77834fb843bee894de51227060f7dd4fd52a2d4c3` |
 
 The final archive regression command passed **39 checks**: 17 existing checks and 22
 new resource-budget checks.
@@ -223,6 +223,66 @@ observations, not hosted-client, live-provider or BDUK acceptance.
 | Actual Trivy lock recheck JSON | `43ad316ca4896a799b5270698ca252989b94fcd89de08f22db4889d113c1c711` |
 | Exact 16-input manifest for that recheck | `098841b7b1407e093ddf2b7578443dfaf098ffda05f36f74c7e710349bb836bd` |
 
+## Published CodeQL follow-through
+
+[Draft PR #146](https://github.com/chris-page-gov/gis-ai-go/pull/146) publishes
+the implementation and this sanitised report. Its first published remediation
+commit, `ffdfff4cec678b7e84583f42accfa9acfd31d664`, produced
+[three CodeQL annotations](https://github.com/chris-page-gov/gis-ai-go/runs/113986521013).
+Static triage preserves each annotation; it does not invent repository alert IDs
+or treat repeated header annotations as independent demonstrated exploits.
+
+The HIGH incomplete-URL-substring annotation is not actionable in the observed
+path. `enabled_apis` is constructed as a list of full service names; Python list
+membership already compares complete values. The condition now spells out
+element equality. Seven service-list cases exercise the real preflight path:
+empty, prefix/suffix/URL/case variants refuse, while the exact service and
+duplicates pass. This is a clarity change, not correction of a demonstrated
+substring vulnerability. No secret values are read or APIs enabled.
+
+The two MEDIUM response-splitting annotations concern upstream response headers
+passed to Python's HTTP server. Production uses one fixed authenticated HTTPS
+Cloud Run origin and a loopback-only listener. Static inspection did not establish
+a lower-trust caller-controlled value through the maintained application;
+initial exploitability remains unproven. Nevertheless, the response boundary
+previously forwarded parser-retained folded CRLF and control values. A bounded
+synthetic upstream reproduced four invalid field variants while a legitimate
+two-cookie response passed through the same path.
+
+The shared response-header guard now materialises and validates every upstream
+field before buffering any status or header, including fields later filtered.
+It rejects CR/LF, invalid ASCII token names, illegal field controls and values
+outside Latin-1; invalid material produces one empty `502` and closes the upstream
+connection. It refuses invalid values rather than silently stripping them.
+Repeated `Set-Cookie` fields retain their order and individual values. Body
+streaming and existing response/export budgets remain intact.
+
+Syntax/import checks passed before the negative cases. All 19 malformed field
+variants now refuse before a success status, upstream marker or body; valid
+cookies, HTAB/Latin-1 fields, streaming and the 17 MiB admitted public export
+remain covered. All **11 proxy checks** and the aggregate GCP suite above pass:
+
+```sh
+python3 -m unittest tests.deployment.test_gcp_proxy -v
+pnpm run test:gcp
+```
+
+One fresh read-only investigator and one fresh read-only candidate reviewer
+independently traced this boundary. The candidate reviewer found no concrete
+surviving bypass or introduced regression; it inspected source and tests without
+executing them. The parent ran the ordered local checks above. A raw upstream
+CRLF sequence parsed as separate valid fields cannot be distinguished from
+ordinary upstream fields; no caller-controlled production route to such a
+response was established. Do not treat boundary hardening as proof of original
+lower-trust exploitability.
+
+| Supplemental proxy evidence | SHA-256 |
+| --- | --- |
+| `scripts/gcp/access_proxy.py` | `ea0b7f90a4da1c14f24a2b6e2de5235ca39b3025fab0e61818adfaa19a93b47a` |
+| `tests/deployment/test_gcp_proxy.py` | `567e0806a71ef292f31b591e0c6e64092267a8d15e5a3989bf88665c5c7a7a35` |
+| Focused proxy check log | `8bf788f48502c1309566f80a6228ed4ae9fd2e5510c80d8dd83a1b389a8f6826` |
+| Candidate supplied for independent static review | `71a73c0f9d86985672711f8a157891ca065e7b93ce851d17b4cfbfc17355420d` |
+
 ## Original image and dependency observations
 
 Actual digest-pinned Syft 1.42.2 and Trivy 0.74.0 ran against frozen offline OCI
@@ -270,7 +330,13 @@ uniqueness refusal still reproduces, so no passing collector acceptance is
 claimed. Source and CI install commands use copy imports and disable dependency
 hooks. No process/identity assertion was relaxed to make these checks pass.
 The canonical Chrome binary is absent, so canonical browser checks remain
-unrun. Canonical CI against the published commit must resolve these gates.
+unrun. At the first published remediation commit, GitHub's Repository assurance
+job failed in its Run assurance step with exit code 1; Gateway image assurance
+passed. Detailed action logs could not be retrieved because their download host
+was denied by this environment's network policy. This does not establish the
+remote failure's cause. Canonical CI against the final published commit and
+fresh CodeQL analysis must resolve their gates; no alert dismissal or query
+suppression is claimed.
 
 1. Complete canonical CI against the final published source. Preserve the tested
    lifecycle, packaging and archive guarantees. Retain the zero-advisory

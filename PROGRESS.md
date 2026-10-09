@@ -8,8 +8,8 @@ Last updated: 9 October 2026
   offline tooling, exact source/image/platform admission, a portable existing-clone
   transition and offline OCI assurance. The actual toolchain image built and
   passed the non-root offline container tool check. Affected local checks passed:
-  23 environment, 44 image-assurance, 70 lifecycle and 39 archive tests; the full
-  GCP command passed 26 runtime, 111 Python and seven packaging/UI checks.
+  23 environment, 44 image-assurance, 71 lifecycle and 39 archive tests; the full
+  GCP command passed 26 runtime, 115 Python and seven packaging/UI checks.
   The patched SDK passed 639 TypeScript/launcher and 52 workbench unit checks,
   with the credential-required provider case skipped. Workspace typechecks,
   source privacy and documentation/research/changelog checks. Canonical CI remains
@@ -32,7 +32,14 @@ Last updated: 9 October 2026
   offline recheck found zero advisory entries across 155 npm and eight Python
   packages, including development dependencies. The
   [sanitised report](docs/security/GCP-223-SECURITY-REVIEW.md) preserves original
-  findings and supplemental observations. Secure-machine execution remains
+  findings and supplemental observations. Implementation/report publication is
+  [draft PR #146](https://github.com/chris-page-gov/gis-ai-go/pull/146). Fresh
+  CodeQL triage found exact API-list membership already safe and identified a
+  response-header framing hardening gap. The proxy now validates every upstream
+  field before buffering a status; 11 proxy checks preserve duplicate cookies,
+  streaming and large public exports. The first published Repository assurance
+  job failed; its detailed log download is network-blocked. Final canonical CI
+  and CodeQL remain gates. Secure-machine execution remains
   blocked by HIGH/CRITICAL image findings, incomplete scan coverage and exact
   source/image/platform admission. Neither image was published or
   deployed. No cloud mutation or hosted/BDUK acceptance is claimed.

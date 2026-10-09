@@ -175,6 +175,33 @@ class OfflineLifecycleTests(unittest.TestCase):
             self.assertNotIn("create", args)
             self.assertNotIn("set-iam-policy", args)
 
+    def test_browser_api_preflight_requires_exact_service_name(self):
+        self.lifecycle.config["project"]["id"] = "synthetic-project"
+        self.lifecycle.config["identity"]["browser"] = {
+            "client_id": "synthetic-oidc-client", "client_auth_method": "none",
+            "callback_url": "https://private.synthetic.invalid/auth/callback",
+            "allowed_redirect_uris": ["https://private.synthetic.invalid/auth/callback"],
+            "allowed_endpoints": ["https://okta.synthetic.invalid/token"], "scopes": ["openid"], "session_seconds": 300,
+            "session_key_secret": {"resource": "projects/synthetic-project/secrets/browser-session", "version": "3"},
+            "client_secret": None,
+        }
+        for names, expected in (([], "BLOCKED"),
+            (["prefix-secretmanager.googleapis.com"], "BLOCKED"),
+            (["secretmanager.googleapis.com.evil"], "BLOCKED"),
+            (["https://secretmanager.googleapis.com"], "BLOCKED"),
+            (["Secretmanager.googleapis.com"], "BLOCKED"),
+            (["run.googleapis.com", "secretmanager.googleapis.com"], "PASS"),
+            (["secretmanager.googleapis.com"] * 2, "PASS")):
+            with self.subTest(names=names):
+                def read_only(args, **kwargs):
+                    payload = ([{"config": {"name": name}} for name in names] if "services" in args
+                        else [] if "auth" in args else {"state": "ENABLED"})
+                    return {"status": "PASS", "exit_code": 0, "stdout": json.dumps(payload), "stderr": ""}
+                with patch.object(gcp.shutil, "which", return_value="synthetic-bin"), patch.object(self.lifecycle, "run", side_effect=read_only):
+                    result = self.lifecycle.preflight()
+                observed = next(check for check in result["checks"] if check["id"] == "browser-secretmanager-api")
+                self.assertEqual(observed["status"], expected)
+
     def test_unresolved_plan_writes_reviewable_approval_template(self):
         with patch.object(gcp.shutil, "which", return_value=None):
             plan = self.lifecycle.plan()

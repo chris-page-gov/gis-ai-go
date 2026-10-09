@@ -134,6 +134,9 @@ SDK and transitive dependencies remain lock-bound. Preserve the original audit
 and record supplemental verification in the
 [sanitised security review](../security/GCP-223-SECURITY-REVIEW.md); source fixes
 and a clean lock scan do not admit an image or authorise secure execution.
+Published CodeQL annotations receive source-backed triage and focused checks;
+upstream response headers must validate before any downstream status is buffered,
+preserving independent browser cookies and existing streaming limits.
 
 Local preparation, real private transport, hosted authentication/persistence,
 personal reference acceptance and BDUK Okta/network acceptance have distinct

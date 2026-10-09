@@ -46,6 +46,24 @@ def validate_origin(value: str) -> str:
     return value
 
 
+def validate_response_headers(headers):
+    result = []
+    for key, value in headers:
+        if not isinstance(key, str) or not isinstance(value, str):
+            raise ValueError("upstream-response-header-invalid")
+        clean_key = key.replace("\r", "").replace("\n", "")
+        clean_value = value.replace("\r", "").replace("\n", "")
+        if (clean_key != key or clean_value != value
+            or not re.fullmatch(r"[!#$%&'*+\-.^_`|~0-9A-Za-z]+", clean_key)
+            or re.search(r"[\x00-\x08\x0b-\x1f\x7f]", clean_value)):
+            raise ValueError("upstream-response-header-invalid")
+        # send_header encodes Latin-1. Check before any status/header enters its
+        # buffer so a later encoding failure cannot append 502 to a buffered 200.
+        clean_value.encode("latin-1")
+        result.append((clean_key, clean_value))
+    return result
+
+
 class MetadataIdentity:
     def __init__(self, audience: str):
         self.audience = validate_upstream(audience)
@@ -187,6 +205,9 @@ def create_server(upstream: str, allowed_origin: str, port: int = 8081,
                 try:
                     connection.request(self.command, self.path, body=body, headers=headers)
                     response = connection.getresponse()
+                    # Validate the complete list, including filtered fields,
+                    # before buffering a response. Preserve repeated Set-Cookie.
+                    response_headers = validate_response_headers(response.getheaders())
                     response_length = response.getheader("Content-Length")
                     # The full OKF+ JSON/JSON-LD exports exceed the ordinary API
                     # limit. Only a bounded, manifest-hashed file from the fixed
@@ -200,7 +221,7 @@ def create_server(upstream: str, allowed_origin: str, port: int = 8081,
                     if response_length is not None and (not response_length.isdigit() or int(response_length) > response_limit):
                         return self.reject(502)
                     self.send_response(response.status)
-                    for key, value in response.getheaders():
+                    for key, value in response_headers:
                         if key.lower() not in HOP_HEADERS | {"content-length", "server", "date"}:
                             self.send_header(key, value)
                     self.send_header("Connection", "close")

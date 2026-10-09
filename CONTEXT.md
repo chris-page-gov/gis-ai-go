@@ -11,6 +11,10 @@ verification from its original findings and partial coverage. This authorises
 local fixes, regression checks and source/report publication; it does not grant
 secure-machine execution, image/registry publication, merging, cloud mutation
 or BDUK acceptance. See the [sanitised review](docs/security/GCP-223-SECURITY-REVIEW.md).
+The same remediation scope includes triaging annotations from the published
+draft PR and hardening the proxy's upstream response-header boundary. Preserve
+the distinction between an established vulnerability, already-safe API-list
+membership and unproven exploitability under a fixed authenticated upstream.
 
 On 9 October the owner additionally requested portable development containers,
 updated dependencies/instructions and a full-repository security scan before any
