@@ -1,0 +1,9 @@
+output "runtime_email" { value = var.create_foundation ? google_service_account.runtime[0].email : var.existing_runtime_email }
+output "invoker_email" { value = var.create_foundation ? google_service_account.invoker[0].email : var.existing_invoker_email }
+output "invoker_unique_id" { value = var.create_foundation ? google_service_account.invoker[0].unique_id : var.existing_invoker_unique_id }
+output "network_id" { value = local.network_id }
+output "subnet_id" { value = local.subnet_id }
+output "image_repository" { value = var.create_foundation ? "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.images[0].repository_id}/gateway" : var.existing_image_repository }
+output "backup_bucket" { value = var.backup_bucket_name }
+output "database_id" { value = var.database_id }
+output "access_vm" { value = var.create_access_vm ? google_compute_instance.access[0].name : null }

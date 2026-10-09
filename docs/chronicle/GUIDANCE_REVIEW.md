@@ -1,5 +1,28 @@
 # Guidance review and model transitions
 
+## 9 October 2026: independent review and observable progress
+
+The owner reported switching to Daybreak for an independent review of published
+GCP-223 source. Actual backend model identifiers and measured token usage were
+unavailable; the owner selection is not a verified per-worker model claim.
+The Standard source audit at `f3dd856f` began at 19:50:48 UTC and completion was
+confirmed at 20:41:18 UTC: 50 minutes 30 seconds. No Fast-mode control run was
+performed, so timing, speedup and price comparisons remain unmeasured.
+
+One fixed five-step checklist now covers publication, immutable review, fixes,
+local verification and final publication/handover. Completed work persists across
+model changes and compaction. Updates show the current stage, measured elapsed
+time and concrete remaining work; file counts distinguish full source review
+from corpus/document/dependency gaps. One fresh investigator and one fresh
+candidate reviewer per fix were assigned alongside the single completed
+repository scan. Both investigations completed. The login reviewer supplied a
+concrete contention case, which was reproduced and corrected. The host then
+reported both final reviewer threads as `pending_init`; a bounded wait returned
+no final result. Parent bypass/regression fallback completed, with the missing
+independent final results recorded explicitly. Reviews do not replace tests or
+grant secure-machine, image, spending or hosted acceptance. Historical
+client/model baselines remain unchanged.
+
 ## 2 October 2026: feature coverage and native Sites registration
 
 The owner requested a traceable beginner-to-specialist evaluation and a

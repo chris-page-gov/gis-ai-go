@@ -2,7 +2,9 @@ packages:
   - apps/*
   - packages/*
 
-# SDK transitive dependency: all three September 2026 Hono advisories are
-# patched in 4.13.5. Keep the remediation explicit and reproducible.
+# Exact patched transitive versions from the 9 October 2026 offline advisory
+# review. Keep application and development dependency remediation reproducible.
 overrides:
-  hono: 4.13.5
+  hono: 4.13.7
+  source-map-js: 1.2.2
+  undici: 8.10.2

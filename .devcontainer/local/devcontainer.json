@@ -1,0 +1,48 @@
+{
+  "name": "GIS AI GO local (manual, offline)",
+  "image": "${localEnv:GIS_AI_GO_DEV_IMAGE}",
+  "containerUser": "1000:1000",
+  "remoteUser": "1000",
+  "updateRemoteUserUID": false,
+  "workspaceFolder": "/workspace/gis-ai-go",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace/gis-ai-go,type=bind",
+  "mounts": [],
+  "runArgs": [
+    "--pull=never",
+    "--network=none",
+    "--cap-drop=ALL",
+    "--security-opt=no-new-privileges",
+    "--pids-limit=256",
+    "--memory=4g"
+  ],
+  "privileged": false,
+  "forwardPorts": [],
+  "portsAttributes": {},
+  "otherPortsAttributes": {
+    "onAutoForward": "ignore"
+  },
+  "remoteEnv": {
+    "SSH_AUTH_SOCK": "",
+    "GIT_ASKPASS": "",
+    "SSH_ASKPASS": "",
+    "CLOUDSDK_CONFIG": "/opt/gis-ai-go/unconfigured/gcloud",
+    "AWS_SHARED_CREDENTIALS_FILE": "/opt/gis-ai-go/unconfigured/aws",
+    "GOOGLE_APPLICATION_CREDENTIALS": ""
+  },
+  "containerEnv": {
+    "GIS_AI_GO_ENVIRONMENT_PROFILE": "local",
+    "UV_PYTHON_DOWNLOADS": "never"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [],
+      "settings": {
+        "remote.autoForwardPorts": false,
+        "remote.localPortHost": "localhost",
+        "git.enabled": false,
+        "git.autofetch": false,
+        "dev.containers.copyGitConfig": false
+      }
+    }
+  }
+}

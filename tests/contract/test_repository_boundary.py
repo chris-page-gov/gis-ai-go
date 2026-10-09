@@ -62,13 +62,13 @@ class RepositoryBoundaryTests(unittest.TestCase):
             )
         )
         self.assertEqual(
-            package["dependencies"]["@modelcontextprotocol/server"], "2.0.0"
+            package["dependencies"]["@modelcontextprotocol/server"], "2.2.0"
         )
         self.assertEqual(
             package["dependencies"]["@modelcontextprotocol/node"], "2.0.0"
         )
         self.assertEqual(
-            package["devDependencies"]["@modelcontextprotocol/client"], "2.0.0"
+            package["devDependencies"]["@modelcontextprotocol/client"], "2.2.0"
         )
         for forbidden in (
             "@modelcontextprotocol/sdk",

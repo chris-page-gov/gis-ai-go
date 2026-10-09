@@ -20,6 +20,19 @@ service. Live status is in
 [`PROGRESS.md`](PROGRESS.md); current authority and boundaries are in
 [`CONTEXT.md`](CONTEXT.md); notable changes are in [`CHANGELOG.md`](CHANGELOG.md).
 
+The additive private GCP candidate serves the current website, OKF/OKF+ evidence
+and custom Streamable HTTP MCP under a separate deployment contract. Its
+[platform installer](docs/deployment/gcp/INSTALL_PLATFORM.md) retains source,
+image, cloud-change and hosted acceptance gates. No deployed GCP URL or BDUK
+acceptance is claimed by the implementation branch.
+
+The [sanitised security review](docs/security/GCP-223-SECURITY-REVIEW.md) preserves
+the original three MEDIUM source findings and partial coverage separately from
+subsequent fix verification. The updated dependency locks have zero advisory
+entries in the actual offline recheck; the original development and GCP images
+remain blocked. Supplemental review found an unresolved archive metadata-budget
+issue. Source publication does not supply secure-platform approval.
+
 The unreleased `v0.2.0` exact-five local candidate can be cloned and run without a
 cloud account, hostname or provider credentials. It is a provider-free local
 evaluation path, not the supported `v0.2.0` release or a public MCP service.
@@ -71,12 +84,20 @@ relicensed under MIT; their folder-specific provenance record controls handling.
 
 ## Local verification
 
+For an existing secure-machine clone, first follow
+[the GitHub transfer and secure admission workflow](docs/development/SECURE_TRANSITION.md).
+Full source/security and exact image/platform approval precede repository
+execution, dependency installation, container build/opening and workspace trust
+there. Preserve dirty work; do not reset it to a GitHub checkpoint. The
+[development profile guide](docs/development/README.md) distinguishes personal,
+managed-cloud and secure BDUK execution.
+
 Prerequisites are Node.js 24.19.0 LTS, pnpm 10.33.2, Python 3.12 or later and
 uv 0.12.2. The Node.js baseline is recorded in `.nvmrc`; diagram rendering uses
 the lockfile-pinned WebAssembly renderer.
 
 ```bash
-pnpm install --frozen-lockfile
+pnpm install --frozen-lockfile --ignore-scripts --package-import-method=copy
 uv sync --locked --group dev --cache-dir .uv-cache
 pnpm run check
 ```
@@ -103,7 +124,7 @@ it. From a new clone:
 ```bash
 git clone https://github.com/chris-page-gov/gis-ai-go.git
 cd gis-ai-go
-pnpm install --frozen-lockfile
+pnpm install --frozen-lockfile --ignore-scripts --package-import-method=copy
 uv sync --locked --group dev --cache-dir .uv-cache
 ./scripts/start-local-candidate
 ```
@@ -148,6 +169,9 @@ model/guidance changes, local-completion plan and A4 print edition instructions.
 - `architecture/source/` — live diagram sources rendered by CI
 - `evaluation/` — acceptance and threat-test manifests
 - `okf/` — reviewed public publication inputs, profile, source lock and provenance
+- `okf-plus/` — expanded public metadata pipeline and verified context surfaces
+- `infra/gcp/`, `scripts/gcp/` — approval-bound private GCP runtime and operator lifecycle
+- `docs/development/` — portable execution profiles and secure-machine source transition
 - `docs/research/` — immutable research evidence
 - `scripts/` — repository and release assurance tooling
 - `docs/implementation/` — live roadmap, backlog and delivery model

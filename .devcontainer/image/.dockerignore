@@ -1,0 +1,8 @@
+*
+!Containerfile
+!toolchain.lock.json
+!install_image.py
+!inputs/
+!inputs/pnpm-10.33.2.tgz
+!inputs/uv-0.12.2.whl
+!inputs/terraform_1.13.4_linux_amd64.zip

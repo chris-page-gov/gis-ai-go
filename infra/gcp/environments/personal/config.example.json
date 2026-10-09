@@ -1,0 +1,114 @@
+{
+  "_status": "Proposed schema for Codex to implement; NOT a working GIS AI GO configuration; nulls block apply.",
+  "profile": "personal-network-private",
+  "project": {
+    "id": null,
+    "number": null,
+    "expected_account": null,
+    "billing_account": null,
+    "region": "europe-west2",
+    "billing_currency": null,
+    "billing_currency_evidence": null
+  },
+  "authority": {
+    "approved_plan_id": null,
+    "spend_envelope": null,
+    "pilot_end": null,
+    "cloud_mutations_approved": false,
+    "planning_budget_total": null,
+    "planning_budget_currency": null
+  },
+  "network": {
+    "ingress": "internal",
+    "access_mode": "iap-ssh-to-private-vpc",
+    "public_app_endpoint": false,
+    "vm_external_ip": false,
+    "vpc_id": null,
+    "subnet_id": null,
+    "private_google_access": true,
+    "runtime_provider_egress": false,
+    "create_access_vm": true,
+    "subnet_cidr": "10.86.0.0/24",
+    "access_vm_image": null,
+    "access_vm_zone": null,
+    "access_vm_machine_type": "e2-micro",
+    "access_principals": [],
+    "transport_principals": [],
+    "access_vm_on_demand": true,
+    "access_vm_max_connected_hours": 80
+  },
+  "identity": {
+    "initial_milestone": "single-owner-transport-pilot",
+    "human_identity_mode": null,
+    "workload_principal": null,
+    "oidc_issuer": null,
+    "client_id": null,
+    "resource_audience": null,
+    "secret_reference": null,
+    "claims_mapping": null,
+    "runtime_service_account": null,
+    "transport_service_account": null,
+    "transport_subject": null,
+    "jwks_uri": null,
+    "browser": null
+  },
+  "policy": {
+    "default_decision": "deny",
+    "policy_release": "gis-ai-go.gcp-public-metadata.v1",
+    "role_toolsets_manifest": "infra/gcp/policy/gcp-public-metadata.v1.json",
+    "mock_identity_allowed_in_deployed_service": false
+  },
+  "release": {
+    "source_revision": null,
+    "approved_working_tree_manifest": null,
+    "image_digest": null,
+    "bundles": [],
+    "capability_manifest": null
+  },
+  "data": {
+    "allowed_content": [
+      "admitted-public-metadata",
+      "redistributable-projections",
+      "synthetic-fixtures"
+    ],
+    "private_original_archives": false,
+    "bduk_secure_data": false,
+    "bigquery": false,
+    "licensed_feature_payloads": false,
+    "external_model_calls": false,
+    "live_provider_calls": false
+  },
+  "state": {
+    "bundle_store": {
+      "mode": "baked-image",
+      "backup_bucket_name": null
+    },
+    "evidence_store": {
+      "backend": "firestore",
+      "database_id": "gis-ai-go-evidence",
+      "collection": "evidence"
+    },
+    "retention_policy": null,
+    "full_acceptance_requires_restart_proof": true,
+    "store_nonce": null,
+    "created_at": null,
+    "software_revision": null
+  },
+  "operations": {
+    "runtime_sizing": {
+      "cpu": "1",
+      "memory": "2Gi",
+      "min_instances": 0,
+      "max_instances": 2,
+      "concurrency": 20,
+      "timeout_seconds": 120
+    },
+    "build_path": "local-oci",
+    "logging_policy": "redacted-metadata-only",
+    "retention_on_destroy": "retain-evidence-and-backups",
+    "preview_features_enabled": false,
+    "name_prefix": "gis-ai-go",
+    "image_repository": null
+  },
+  "schema_version": "1"
+}

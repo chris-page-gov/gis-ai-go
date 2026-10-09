@@ -38,10 +38,14 @@ EXACT_RESOURCES = [
 # This source-bound local set is deliberately regenerated after authorised source
 # changes; it is not an immutable observed-host artefact. Current material bindings
 # are independently checked by test_qual_206_local_evaluation_receipts.
-# The EXPERIENCE-221 refresh changes only the package-script and workspace-lock
-# bindings and derived set ID; suite and receipt bodies remain unchanged.
+# The GCP-222 refresh changes only the package-script and workspace-lock bindings
+# (the offline GCP check and pinned OIDC library) and derived set ID. Independent
+# comparison with the preceding committed set confirms suite, receipt bodies and
+# acceptance claims remain unchanged; historical observed-host artefacts stay pinned.
+# GCP-223 updates only the exact workspace-lock hash and derived set identity
+# for the security dependency fixes; receipt bodies and claims remain identical.
 REGENERABLE_LOCAL_RECEIPT_SHA256 = (
-    "f91bf531c72362d00c7918171826367b155230925553f8f65058833c36304e82"
+    "c374933dcef34e138e085dc08cd4df86c0ff9e833be8d6a3d91ac7a8a8130f05"
 )
 HISTORICAL_V1_SHA256 = {
     "evaluation/qual-206-local-protocol-evidence-matrix.v1.json": (
