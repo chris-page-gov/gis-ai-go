@@ -1,6 +1,6 @@
 import "./styles.css";
 import { findData } from "./discovery";
-import { createHostedMcpCall, createMcpCall } from "./mcp-client";
+import { createGcpMcpCall, createHostedMcpCall, createMcpCall } from "./mcp-client";
 import { createWorkbench, type EvidenceResult, type Plan } from "./controller";
 import { registerPageTools } from "./webmcp";
 
@@ -15,8 +15,11 @@ function element(tag: string, text: string, className?: string) {
   return item;
 }
 // Build-authored mode only: neither a URL argument nor returned evidence selects it.
-const hosted = import.meta.env.MODE === "hosted";
-const workbench = hosted
+const gcp = import.meta.env.MODE === "gcp";
+const hosted = import.meta.env.MODE === "hosted" || gcp;
+const workbench = gcp
+  ? createWorkbench(createGcpMcpCall(window.location), { evidenceMode: "hosted-transaction" })
+  : hosted
   ? createWorkbench(createHostedMcpCall(window.location), { evidenceMode: "hosted-transaction" })
   : createWorkbench(createMcpCall(window.location));
 let currentPlan: Plan | undefined, currentResult: EvidenceResult | undefined, active: AbortController | undefined;
@@ -65,6 +68,7 @@ function showResult(result: EvidenceResult, inspected = false) {
   panel.append(element("p", `${result.period === "2026-07" ? "July" : "January"} 2026 · CPIH all items`, "eyebrow"),
     element("div", result.value, "observation-value"), element("p", "Index level · 2015 = 100 · not an inflation percentage", "observation-meta"),
     element("p", inspected ? "Existing receipt returned by MCP inspection. No new receipt was issued."
+      : gcp ? "Returned by this private deployment's MCP route from the admitted ONS capture. Receipt found in the verified storage snapshot."
       : hosted ? "Returned by the private Site's MCP route from the admitted ONS capture. Receipt found in the verified storage snapshot."
       : "Returned by the local MCP server from the admitted ONS capture. Receipt persisted.", "observation-meta"));
   if (hosted) panel.append(element("p", "The server checked the stored snapshot's content and chain. This page receives only the selected evidence: it does not independently prove the complete chain, freshness, rollback protection or an attestation.", "observation-meta"));
@@ -77,7 +81,7 @@ async function execute<T>(action: (signal: AbortSignal) => Promise<T>, signal?: 
   if (active) throw new Error("An operation is already running.");
   const controller = new AbortController(); active = controller;
   const joined = signal ? AbortSignal.any([controller.signal, signal]) : controller.signal;
-  node("cancel-button").hidden = false; status.textContent = hosted ? "Calling this private Site's MCP route…" : "Calling the local MCP server…";
+  node("cancel-button").hidden = false; status.textContent = gcp ? "Calling this private deployment's MCP route…" : hosted ? "Calling this private Site's MCP route…" : "Calling the local MCP server…";
   try { return await action(joined); }
   catch (error) { status.textContent = error instanceof Error ? error.message : "The operation could not be completed."; throw error; }
   finally { active = undefined; node("cancel-button").hidden = true; }

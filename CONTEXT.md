@@ -1,8 +1,32 @@
 # Current context
 
-Last updated: 2 October 2026
+Last updated: 9 October 2026
 
 ## Authority and reading order
+
+On 9 October the owner requested an executable platform installer and explicitly
+selected the BDUK GCP sandpit. Implement and test that operator entrypoint using
+the existing private deployment contract. Do not reuse personal project/budget or
+VM authority for BDUK. Platform inputs and exact first-cloud-mutation approval
+remain required under the 5 October commission.
+The owner subsequently confirmed GitHub is the secure machine's only source
+transfer route. Publish the reviewed implementation branch for cloning; keep
+private configuration, credentials, state and images outside Git. This source
+publication grants no cloud mutation, merge or hosted acceptance.
+
+On 5 October 2026 the owner authorised GCP-222: implement an additive,
+network-private personal GCP pilot of the current website, OKF/OKF+ knowledge,
+workbench and custom Streamable HTTP MCP, plus a portable BDUK sandpit review
+package. Local implementation and checks are authorised. Cloud prerequisites
+may be inspected read-only; the first cloud mutation requires a recorded exact
+account/project, resource and upload inventory, costed plan, spend envelope and
+pilot duration approval. Approval is reusable only within its recorded scope.
+Do not infer a budget, billing attachment, enterprise identity or deployment
+permission from earlier Sites/OS work. Initial content is admitted public
+metadata and synthetic fixtures; credentials, licensed features, private
+original archives and protected BDUK data are excluded. No external model or
+live-provider calls are authorised by this commission. See
+[`docs/deployment/gcp/README.md`](docs/deployment/gcp/README.md).
 
 On 2 October 2026 the owner authorised [EXPERIENCE-221](docs/implementation/EXPERIENCE-221_LEARNING_AND_EVALUATION.md):
 review actual connection facilities, build feature-complete authored persona,

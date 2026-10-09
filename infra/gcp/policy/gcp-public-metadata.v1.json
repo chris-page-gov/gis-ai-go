@@ -1,0 +1,123 @@
+{
+  "schema": "gis-ai-go.gcp-role-toolsets.v1",
+  "id": "gis-ai-go.gcp-public-metadata.v1",
+  "owner": "GIS AI GO repository owner; BDUK group/identity mapping requires platform approval",
+  "status": "Source-bound public/synthetic private-pilot approval manifest; not enterprise admission",
+  "default_decision": "deny",
+  "admitted_bundles": [
+    "okf",
+    "okf-plus"
+  ],
+  "classifications": [
+    "public-metadata"
+  ],
+  "roles": {
+    "viewer": [
+      "website",
+      "knowledge.read",
+      "knowledge.search",
+      "cpih.select"
+    ],
+    "analyst": [
+      "website",
+      "knowledge.read",
+      "knowledge.search",
+      "cpih.select",
+      "cpih.query",
+      "evidence.inspect"
+    ],
+    "evidence-auditor": [
+      "website",
+      "knowledge.read",
+      "knowledge.search",
+      "evidence.inspect"
+    ],
+    "platform-operator": [
+      "operations.status"
+    ],
+    "owner": [
+      "website",
+      "knowledge.read",
+      "knowledge.export",
+      "knowledge.search",
+      "cpih.select",
+      "cpih.query",
+      "evidence.inspect",
+      "operations.status"
+    ]
+  },
+  "tool_capabilities": {
+    "web216_cpih_select": "cpih.select",
+    "web216_cpih_query": "cpih.query",
+    "web216_cpih_inspect": "evidence.inspect",
+    "okf_search": "knowledge.search",
+    "okf_describe": "knowledge.read",
+    "okf_export": "knowledge.export"
+  },
+  "role_toolsets": {
+    "viewer": [
+      "web216_cpih_select",
+      "okf_search",
+      "okf_describe"
+    ],
+    "analyst": [
+      "web216_cpih_select",
+      "web216_cpih_query",
+      "web216_cpih_inspect",
+      "okf_search",
+      "okf_describe"
+    ],
+    "evidence-auditor": [
+      "web216_cpih_inspect",
+      "okf_search",
+      "okf_describe"
+    ],
+    "platform-operator": [],
+    "owner": [
+      "web216_cpih_select",
+      "web216_cpih_query",
+      "web216_cpih_inspect",
+      "okf_search",
+      "okf_describe",
+      "okf_export"
+    ]
+  },
+  "guards": {
+    "verified_signed_principal_required": true,
+    "exact_environment_match_required": true,
+    "classification": "public-metadata",
+    "evidence_principal_scope_match_required": true,
+    "token_expiry_checked_on_each_decision": true,
+    "maximum_bearer_issued_lifetime_seconds": 3600,
+    "maximum_browser_session_seconds": 300,
+    "maximum_jwks_cache_seconds": 300,
+    "unknown_attributes": "deny",
+    "caller_role_group_email_purpose_headers": "never-authority",
+    "missing_evidence_state": "deny; explicit approved principal provisioning only",
+    "discovery_invocation_api_resource_export_evidence": "same source policy decision",
+    "dynamic_external_policy_calls": false,
+    "protected_bduk_data": false,
+    "licensed_feature_payloads": false,
+    "private_original_archives": false,
+    "live_provider_calls": false,
+    "external_model_calls": false
+  },
+  "metadata_input_schema_symbol": "GCP_METADATA_TOOL_SCHEMAS",
+  "maintained_cpih_schema_symbol": "WEB216_HOSTED_CPIH_MCP_SCHEMAS",
+  "source_revision": "97bc45635a91064cd78f06bf0848ad7636f05439",
+  "source_bindings": [
+    {
+      "path": "apps/mcp-gateway/src/gcp-identity.ts",
+      "sha256": "32470782ff2e7b3f3f8eafcee4b2bcada2d9907c6bf434b23e27c9dcd272ca02",
+      "symbol": "GRANTS and gcpAuthorise"
+    },
+    {
+      "path": "apps/mcp-gateway/src/gcp-mcp.ts",
+      "sha256": "eee6f29f86750729bcd2aff1349e006c1d2f77bc7856a2acac85ba2ce242a41f",
+      "symbol": "GCP_TOOL_CAPABILITIES and GCP_METADATA_TOOL_SCHEMAS"
+    }
+  ],
+  "threat_model": "docs/deployment/gcp/THREAT_MODEL.md",
+  "iam_matrix": "docs/deployment/gcp/IAM_MATRIX.md",
+  "acceptance_catalogue": "evaluation/gcp-private-acceptance.v1.json"
+}

@@ -103,3 +103,23 @@ inventory, with baseline and new local facilities separated. Participant success
 natural-language/Voice execution, native Sites connection, Claude access and
 proposed file converters remain independently measured. The first event route is
 facilitator-led with offline activities; preserve the existing private audience.
+
+## Private GCP deployment and BDUK review
+
+GCP-222 was authorised on 5 October 2026. Deliver an additive internal-ingress
+Cloud Run runtime of the current website, both admitted knowledge pipelines and
+custom Streamable HTTP MCP, with private network access, separate transport and
+human identity, server-side policy and durable principal-scoped evidence. Supply
+approval-bound lifecycle tooling and a sanitised executable platform package.
+See [the GCP runbook](../deployment/gcp/README.md).
+
+The 9 October BDUK operator increment adds `scripts/gcp/install-platform.sh` for
+private configuration, review/package and approval-bound installation. Follow
+[the platform installer guide](../deployment/gcp/INSTALL_PLATFORM.md); it consumes
+approved platform resources and preserves all hosted acceptance gates.
+
+Local preparation, real private transport, hosted authentication/persistence,
+personal reference acceptance and BDUK Okta/network acceptance have distinct
+gates. Cloud mutations require the exact approved project, resources, upload
+inventory, costs and spend scope. Public releases and existing Sites deployments
+keep their own acceptance requirements.

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { createHostedMcpCall, createMcpCall, type Operation } from "../src/mcp-client";
+import { createGcpMcpCall, createHostedMcpCall, createMcpCall, type Operation } from "../src/mcp-client";
 
 const sdk = vi.hoisted(() => ({
   connect: vi.fn(), callTool: vi.fn(), close: vi.fn(), client: vi.fn(), transport: vi.fn(),
@@ -22,6 +22,24 @@ beforeEach(() => {
   vi.clearAllMocks();
   sdk.connect.mockResolvedValue(undefined); sdk.close.mockResolvedValue(undefined);
   sdk.callTool.mockResolvedValue({ structuredContent: { example: "controller validates this" } });
+});
+
+describe("GCP private browser transport", () => {
+  it.each(["http://127.0.0.1:8789", "https://pilot-a.run.app"])("uses the exact same origin at %s", async (origin) => {
+    await createGcpMcpCall(locationAt(origin))("web216_cpih_select", { period: "2026-07" });
+    expect(sdk.transport.mock.calls[0]![0].href).toBe(origin + "/mcp");
+    const configured = sdk.transport.mock.calls[0]![1] as FetchOptions;
+    const fetchMock = vi.fn().mockResolvedValue(new Response("{}")); vi.stubGlobal("fetch", fetchMock);
+    await configured.fetch(origin + "/mcp");
+    expect(fetchMock.mock.calls[0]![1]).toMatchObject({ credentials: "same-origin", redirect: "error", cache: "no-store" });
+    expect(() => configured.fetch("https://gis-ai-go-webmcp-explorer.crpage.chatgpt.site/workbench/mcp")).toThrow(/unapproved destination/);
+    expect(() => configured.fetch(origin + "/mcp?role=admin")).toThrow(/unapproved destination/);
+  });
+
+  it.each(["http://localhost:8789", "http://127.0.0.1:8788", "http://example.invalid", "https://example.invalid/path", "https://user:secret@example.invalid", "null"])("refuses unapproved origin %s", (origin) => {
+    expect(() => createGcpMcpCall(locationAt(origin))).toThrow();
+    expect(sdk.client).not.toHaveBeenCalled();
+  });
 });
 afterEach(() => vi.unstubAllGlobals());
 

@@ -1,6 +1,6 @@
 # Current progress
 
-Last updated: 2 October 2026
+Last updated: 9 October 2026
 
 ## Current checkpoint
 
@@ -15,6 +15,61 @@ Last updated: 2 October 2026
   remain open in #23, #24 and #25.
 
 ## Authorised current work
+
+The owner confirmed on 9 October that the secure machine can transfer this work
+only through GitHub. The `codex/gcp-private-pilot` branch is the source transfer
+target, containing the installer, runtime, infrastructure, locks, policy and
+public metadata inputs. The [clone instructions](docs/deployment/gcp/INSTALL_PLATFORM.md#clone-through-github)
+replace the chat ZIP route for that machine. Retain the exact cloned commit for
+review; branch publication does not merge the change, approve cloud mutation or
+complete canonical/hosted BDUK acceptance. Private configs/state/images remain
+ignored and outside Git.
+
+On 9 October the owner requested a runnable installer and confirmed the BDUK GCP
+sandpit target. `scripts/gcp/install-platform.sh` adds one operator entrypoint for
+exclusive private configuration, input checks, non-mutating review/package and
+execution of the existing exact approved plan. It refuses personal VM/access
+configuration and keeps platform identity, pricing and approvals explicit. The
+[operator guide](docs/deployment/gcp/INSTALL_PLATFORM.md) gives prerequisites,
+commands and recovery/cleanup. Earlier implementation and evidence are retained;
+this increment grants no cloud mutation or BDUK acceptance.
+Local verification passed 20 installer tests and the full 119-test focused GCP
+command, shell syntax, links, secret scan and changelog checks. Real `init` created
+an exclusive mode-600 draft; `inputs` and `review --skip-prepare` returned blocked
+for missing platform inputs while the review stage produced an actual sanitised
+ZIP containing the executable installer. Evidence is under
+`artifacts/gcp/platform-installer-20261009/`; no cloud calls or mutations occurred.
+
+GCP-222 implementation and local verification are complete on
+`codex/gcp-private-pilot` in the existing authoritative checkout based on
+`97bc45635a91064cd78f06bf0848ad7636f05439`. It adds private Cloud Run, the current
+website/workbench, full OKF/OKF+ surfaces, custom Streamable HTTP MCP, durable
+evidence operations, distinct transport/human/application policy and ten executable
+lifecycle commands. The personal tunnel VM starts on demand and stops on disconnect,
+with a stop-only schedule; it has not been created. BDUK consumes approved platform
+resources and requires real Okta/network/role acceptance. Existing local/public/Sites
+work is preserved.
+
+Final focused checks passed: 26 runtime, 66 lifecycle/proxy/verifier and seven
+packaging/UI tests; Terraform validation and seven mocked plans; actual full
+36/30,833-record HTTP/MCP/proxy integration and a matching 189,929,585-byte export;
+2 GiB non-root/read-only/no-network image boot; 38 existing browser assertions,
+20 offline experience journeys and nine new portal journeys using Chromium.
+Canonical assurance remains open: sandbox recovery/executable/hardlink fixtures
+failed; the canonical Chrome binary is absent. The authorised package/lock change's
+regenerable receipt bindings were refreshed without changing receipt bodies/claims,
+and all 33 targeted tests passed. Full canonical CI was not claimed green.
+
+The actual accepted local output is `artifacts/gcp/1784b702d63d0ba7/`;
+`package-approval` produces its sanitised `platform-review.zip` and checksum.
+Preflight/plan remain blocked by missing cloud CLI/login/project/billing/pricing,
+state and exact VM/access inputs. The owner selected a £20 total ceiling and
+31 December 2026 end; no billing account or deployment approval was inferred.
+Verification reports `prepared-only`; all 41 hosted requirements remain blocked.
+No GCP mutation/upload occurred and no deployed GCP URL exists. See
+[observed results](docs/deployment/gcp/LOCAL_OBSERVATION.md) for commands, evidence,
+illustrative costs, exact gates and cleanup; [runbook](docs/deployment/gcp/README.md)
+and [platform review](docs/deployment/gcp/PLATFORM_APPROVAL.md) govern continuation.
 
 The latest exact-commit CI, publication and client-acceptance checkpoint is
 [EXPERIENCE-221 issue #143](https://github.com/chris-page-gov/gis-ai-go/issues/143),
