@@ -13,6 +13,74 @@ from harvest import clean_text
 ROOT=Path(__file__).resolve().parents[2]
 RELEASE_CALENDAR='https://www.ons.gov.uk/releasecalendar'
 RELEASE_RSS=RELEASE_CALENDAR+'?rss&highlight=true&limit=10&page=1&release-type=type-published&sort=date-newest'
+FAMILY_NAME=re.compile(r'[a-z0-9]+(?:-[a-z0-9]+)*\Z')
+# Adding a source family requires an explicit code review of the directory it owns.
+IMPORTED_FAMILIES=frozenset({
+    'ons-code-lists','ons-datasets','ons-geography-items','ons-latest-versions',
+    'ons-nomis-datasets','ons-nomis-time-options','ons-population-types',
+    'ons-releases-cancelled','ons-releases-published','ons-releases-upcoming',
+    'ons-website-api-dataset-landing-page','ons-website-dataset',
+    'ons-website-dataset-landing-page','ons-website-timeseries','os-api-contracts',
+    'os-apis-documentation','os-download-guide-pages','os-downloads-documentation',
+    'os-gemini-metadata','os-lifecycle-guides','os-ngd-collections','os-open-products',
+    'os-product-search','osngd-documentation','osngd-documentation-pages',
+})
+
+
+def source_file(root,path):
+    """Return one ordinary direct child of the frozen source directory."""
+    root=Path(root).resolve();okf=root/'okf-plus';source=okf/'source';path=Path(path)
+    if not path.is_absolute():path=root/path
+    if (okf.is_symlink() or not okf.is_dir() or okf.resolve()!=okf
+            or source.is_symlink() or not source.is_dir() or source.resolve()!=source or path.is_symlink()
+            or not path.is_file() or path.parent.resolve()!=source.resolve()):
+        raise ValueError('Source snapshot must be an ordinary direct source file')
+    return path
+
+
+def snapshot_family(root,path,snapshot,admitted_families=None):
+    """Bind one admitted source family to its reviewed snapshot filename."""
+    path=source_file(root,path);family=snapshot.get('family')
+    admitted=IMPORTED_FAMILIES if admitted_families is None else frozenset(admitted_families)
+    if (not isinstance(family,str) or len(family)>64 or not FAMILY_NAME.fullmatch(family)
+            or path.name!=family+'.json' or family not in admitted):
+        raise ValueError('Source family is not an admitted filename-bound identifier')
+    return family
+
+
+def family_target(root,family):
+    """Return the importer-owned direct child for an admitted family."""
+    root=Path(root).resolve();okf=root/'okf-plus';records=okf/'records'
+    if (okf.is_symlink() or not okf.is_dir() or okf.resolve()!=okf
+            or records.is_symlink() or not records.is_dir() or records.resolve()!=records):
+        raise ValueError('OKF+ records root must be an ordinary directory')
+    records=records.resolve();target=records/family;resolved=target.resolve()
+    if (target.is_symlink() or resolved!=target or resolved.parent!=records
+            or (target.exists() and not target.is_dir())):
+        raise ValueError('Source family target must be an ordinary direct records directory')
+    return target
+
+
+def family_output(target,filename):
+    """Keep a generated Markdown file inside its ordinary family directory."""
+    target=Path(target);filename=str(filename);output=target/filename;resolved=output.resolve()
+    if (Path(filename).name!=filename or not filename.endswith('.md')
+            or target.is_symlink() or target.resolve()!=target
+            or output.is_symlink() or resolved!=output or resolved.parent!=target):
+        raise ValueError('Generated source record must remain inside its family directory')
+    return output
+
+
+def stale_family_files(target):
+    """Enumerate only ordinary Markdown files in the validated family directory."""
+    target=Path(target)
+    if target.is_symlink() or target.resolve()!=target:
+        raise ValueError('Source family cleanup target is symbolic or redirected')
+    for stale in target.glob('*.md'):
+        if stale.is_symlink() or stale.resolve()!=stale or stale.parent!=target:
+            raise ValueError('Source family cleanup entry is symbolic or redirected')
+        yield stale
+
 
 def text_value(value):
     if isinstance(value,str):return clean_text(value)
@@ -274,19 +342,25 @@ def body_for(row):
 def main():
     parser=argparse.ArgumentParser();parser.add_argument('--families',nargs='*');parser.add_argument('--check',action='store_true',help='Verify imported sources without changing any file');args=parser.parse_args()
     count=0;drift=[]
+    requested=set(args.families or ())
+    if not requested.issubset(IMPORTED_FAMILIES):raise ValueError('Requested source family is not admitted')
+    locator_path=source_file(ROOT,ROOT/'okf-plus/source/locator-index.json')
+    locator_families=json.loads(locator_path.read_text())['families']
     supplements={}
     for family in ('ons-latest-versions','ons-nomis-time-options'):
         path=ROOT/'okf-plus/source'/(family+'.json')
         if path.exists():
-            snapshot=json.loads(path.read_text());locators=json.loads((ROOT/'okf-plus/source/locator-index.json').read_text())['families'].get(family,{})
+            path=source_file(ROOT,path)
+            snapshot=json.loads(path.read_text());snapshot_family(ROOT,path,snapshot);locators=locator_families.get(family,{})
             supplements[family]={native(item):(item,source_evidence(snapshot,path.relative_to(ROOT),i,item,locators)) for i,item in enumerate(snapshot['records'])}
     for path in sorted((ROOT/'okf-plus/source').glob('*.json')):
+        path=source_file(ROOT,path)
         snapshot=json.loads(path.read_text())
         if snapshot.get('schema')!='okf-plus-source-snapshot.v1':continue
-        family=snapshot['family']
-        if args.families and family not in args.families:continue
-        locators=json.loads((ROOT/'okf-plus/source/locator-index.json').read_text())['families'].get(family,{})
-        target=ROOT/'okf-plus/records'/family;expected=set()
+        family=snapshot_family(ROOT,path,snapshot)
+        if requested and family not in requested:continue
+        locators=locator_families.get(family,{})
+        target=family_target(ROOT,family);expected=set()
         for index,item in enumerate(snapshot['records']):
             source=source_evidence(snapshot,path.relative_to(ROOT),index,item,locators)
             row=map_record(family,item,source)
@@ -298,14 +372,14 @@ def main():
                 bounds=extra.get('temporal',{}).get('bounds',{}) if extra_family=='ons-latest-versions' else extra.get('bounds',{})
                 apply_native_bounds(row,bounds,'timeMetadata.temporal.options' if extra_family=='ons-latest-versions' else 'timeMetadata.codes')
                 row['limitations'].append('Time-option extrema describe available native codes; continuity and populated observation cells have not been established.')
-            output=target/(file_key(row['nativeIdentifier'])+'.md');expected.add(output)
+            output=family_output(target,file_key(row['nativeIdentifier'])+'.md');expected.add(output)
             if args.check:
                 if not output.is_file() or output.read_text()!=markdown_text(row,body_for(row)):drift.append(output.relative_to(ROOT).as_posix())
             else:write_markdown(output,row,body_for(row))
             count+=1
         # Explicit importer owns only this family directory, never authored concepts.
         if target.exists():
-            for stale in target.glob('*.md'):
+            for stale in stale_family_files(target):
                 if stale not in expected:
                     if args.check:drift.append(stale.relative_to(ROOT).as_posix())
                     else:stale.unlink()

@@ -8,8 +8,10 @@ import hashlib
 import importlib.util
 import io
 import json
+import os
 from pathlib import Path, PurePosixPath
 import re
+import stat
 import tarfile
 import tempfile
 
@@ -21,6 +23,8 @@ MARKER = 'gis-ai-go.okf-plus-export.v1\n'
 MAX_FILE = 256 * 1024 * 1024
 MAX_TOTAL = 2 * 1024 * 1024 * 1024
 MAX_FILES = 100_000
+MAX_PAX_HEADER = 64 * 1024
+MAX_PAX_TOTAL = 128 * 1024 * 1024
 MANIFEST = 'EXPORT_MANIFEST.json'
 FIXED = ('LICENSE', '.nvmrc', 'pyproject.toml', 'uv.lock', 'package.json', 'pnpm-lock.yaml',
          'services/geo-execution/pyproject.toml', 'scripts/scan_secrets.py')
@@ -40,6 +44,45 @@ def safe_path(value):
     if path.is_absolute() or any(p in ('', '.', '..') for p in value.split('/')) or ':' in value:
         raise ValueError('Export paths must be safe relative paths')
     return value
+
+
+class BoundedTarInfo(tarfile.TarInfo):
+    """Admit the bounded local-PAX subset produced by the OKF+ exporters."""
+
+    def _proc_pax(self, archive):
+        if self.type != tarfile.XHDTYPE or getattr(archive, '_okf_pax_active', False):
+            raise ValueError('Unsupported or nested archive metadata')
+        padded = self._block(self.size)
+        count = getattr(archive, '_okf_pax_count', 0) + 1
+        total = getattr(archive, '_okf_pax_bytes', 0) + tarfile.BLOCKSIZE + padded
+        if (not 0 < self.size <= MAX_PAX_HEADER or count > MAX_FILES
+                or total > MAX_PAX_TOTAL):
+            raise ValueError('PAX archive metadata exceeds its resource ceiling')
+        archive._okf_pax_count = count
+        archive._okf_pax_bytes = total
+        archive._okf_pax_active = True
+        try:
+            member = super()._proc_pax(archive)
+        finally:
+            archive._okf_pax_active = False
+        if set(member.pax_headers) != {'path'}:
+            raise ValueError('Archive contains non-canonical PAX metadata')
+        return member
+
+    def _proc_gnulong(self, archive):
+        raise ValueError('GNU archive metadata is unsupported')
+
+    def _proc_sparse(self, archive):
+        raise ValueError('Sparse archive metadata is unsupported')
+
+    def _proc_gnusparse_00(self, *args):
+        raise ValueError('Sparse archive metadata is unsupported')
+
+    def _proc_gnusparse_01(self, *args):
+        raise ValueError('Sparse archive metadata is unsupported')
+
+    def _proc_gnusparse_10(self, *args):
+        raise ValueError('Sparse archive metadata is unsupported')
 
 
 def read_file(root, relative):
@@ -198,27 +241,39 @@ def readme(revision, generated):
 
 def verify_archive(path, expected_schema='gis-ai-go.okf-plus-export-manifest.v1'):
     """Inspect and hash regular files without extracting an archive."""
-    if Path(path).stat().st_size > MAX_TOTAL:
-        raise ValueError('Compressed archive exceeds byte ceiling')
+    path = Path(path)
+    try:
+        metadata = path.lstat()
+    except FileNotFoundError as error:
+        raise ValueError('Archive does not exist') from error
+    if (stat.S_ISLNK(metadata.st_mode) or not stat.S_ISREG(metadata.st_mode)
+            or metadata.st_nlink != 1 or metadata.st_size > MAX_TOTAL):
+        raise ValueError('Archive must be a bounded ordinary single-link file')
     found = {}; total = 0; manifest = None
-    with tarfile.open(path, 'r:gz') as archive:
-        for member in archive:
-            name = safe_path(member.name)
-            if (not member.isfile() or member.issym() or member.islnk() or name in found
-                    or not 0 <= member.size <= MAX_FILE or len(found) >= MAX_FILES):
-                raise ValueError('Unsafe or oversized archive member')
-            total += member.size
-            if total > MAX_TOTAL:
-                raise ValueError('Archive exceeds total byte ceiling')
-            handle = archive.extractfile(member)
-            if handle is None:
-                raise ValueError('Archive member has no data')
-            raw = handle.read(MAX_FILE + 1)
-            if len(raw) != member.size:
-                raise ValueError('Archive member size mismatch')
-            found[name] = {'path': name, 'bytes': len(raw), 'sha256': sha(raw)}
-            if name == MANIFEST:
-                manifest = load_json(raw.decode())
+    with path.open('rb') as compressed:
+        opened = os.fstat(compressed.fileno())
+        if ((opened.st_dev, opened.st_ino) != (metadata.st_dev, metadata.st_ino)
+                or not stat.S_ISREG(opened.st_mode) or opened.st_nlink != 1
+                or opened.st_size > MAX_TOTAL):
+            raise ValueError('Archive changed or escaped its file boundary')
+        with tarfile.open(fileobj=compressed, mode='r:gz', tarinfo=BoundedTarInfo) as archive:
+            for member in archive:
+                name = safe_path(member.name)
+                if (not member.isfile() or member.issym() or member.islnk() or name in found
+                        or not 0 <= member.size <= MAX_FILE or len(found) >= MAX_FILES):
+                    raise ValueError('Unsafe or oversized archive member')
+                total += member.size
+                if total > MAX_TOTAL:
+                    raise ValueError('Archive exceeds total byte ceiling')
+                handle = archive.extractfile(member)
+                if handle is None:
+                    raise ValueError('Archive member has no data')
+                raw = handle.read(MAX_FILE + 1)
+                if len(raw) != member.size:
+                    raise ValueError('Archive member size mismatch')
+                found[name] = {'path': name, 'bytes': len(raw), 'sha256': sha(raw)}
+                if name == MANIFEST:
+                    manifest = load_json(raw.decode())
     if not manifest or manifest.get('schema') != expected_schema:
         raise ValueError('Export manifest is missing or unsupported')
     expected = {item['path']: item for item in manifest['files']}
