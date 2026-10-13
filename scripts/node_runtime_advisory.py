@@ -14,7 +14,7 @@ import subprocess
 import tempfile
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 from urllib.error import HTTPError
 from urllib.parse import parse_qs, unquote, urlsplit
 from urllib.request import (
@@ -26,6 +26,7 @@ from urllib.request import (
 )
 
 from gateway_image import (
+    NODE_ADVISORY_STAGE_EXIT_CODES,
     NODE_BINARY_SHA256,
     NODE_RUNTIME_CPE,
     NODE_RUNTIME_PURL,
@@ -89,6 +90,31 @@ _SHA256 = re.compile(r"[0-9a-f]{64}\Z")
 _GRYPE_SCHEMA = re.compile(r"v6\.[0-9]+\.[0-9]+\Z")
 _XXH64 = re.compile(r"xxh64:[0-9a-f]{16}\Z")
 _CVE = re.compile(r"CVE-[0-9]{4}-[0-9]{4,}\Z")
+
+
+class NodeAdvisoryFailure(ValueError):
+    """Expose only a reviewed Node advisory failure stage."""
+
+    def __init__(self, stage: str) -> None:
+        if stage not in NODE_ADVISORY_STAGE_EXIT_CODES:
+            raise ValueError("Node advisory diagnostic stage is invalid")
+        self.stage = stage
+        super().__init__(f"Node advisory failed closed at {stage}")
+
+
+def _node_step(
+    stage: str, operation: Callable[..., Any], /, *args: Any, **kwargs: Any
+) -> Any:
+    if stage not in NODE_ADVISORY_STAGE_EXIT_CODES:
+        raise ValueError("Node advisory diagnostic stage is invalid")
+    try:
+        return operation(*args, **kwargs)
+    except NodeAdvisoryFailure:
+        raise
+    except Exception:
+        pass
+    # Raise outside the handler without copying private exception text or chains.
+    raise NodeAdvisoryFailure(stage)
 
 
 class _RejectRedirect(HTTPRedirectHandler):
@@ -967,15 +993,23 @@ def _assess(
     *,
     database_source: dict[str, Any],
 ) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], dict[str, Any]]:
-    raw_json = _scan_raw(cache, input_document, output_format="json")
-    raw_cdx = _scan_raw(cache, input_document, output_format="cyclonedx-json")
-    projected_json = normalise_json_report(
+    raw_json = _node_step(
+        "node-scan-execution", _scan_raw, cache, input_document, output_format="json"
+    )
+    raw_cdx = _node_step(
+        "node-scan-execution", _scan_raw, cache, input_document,
+        output_format="cyclonedx-json",
+    )
+    projected_json = _node_step(
+        "node-report-validation", normalise_json_report,
         raw_json, input_document, database_source=database_source
     )
-    projected_cdx = normalise_cyclonedx_report(raw_cdx, input_document)
+    projected_cdx = _node_step(
+        "node-report-validation", normalise_cyclonedx_report, raw_cdx, input_document
+    )
     json_ids = sorted(item["id"] for item in projected_json["matches"])
     if json_ids != projected_cdx["vulnerability_ids"]:
-        raise ValueError("Grype JSON and CycloneDX Node findings disagree")
+        raise NodeAdvisoryFailure("node-report-validation")
     return raw_json, raw_cdx, projected_json, projected_cdx
 
 
@@ -1089,13 +1123,14 @@ def assess_node(
     *,
     database_source: dict[str, Any],
 ) -> tuple[dict[str, Any], dict[str, bytes], list[dict[str, Any]]]:
-    identity = extract_node_identity(sbom, receipt)
+    identity = _node_step("node-identity-binding", extract_node_identity, sbom, receipt)
     roles: dict[str, dict[str, Any]] = {}
     artifacts: dict[str, bytes] = {}
     projections: dict[str, tuple[dict[str, Any], dict[str, Any]]] = {}
     actual_boundary: dict[str, Any] | None = None
     for role, (version, calibration) in NODE_ROLES.items():
-        input_document = make_node_input(
+        input_document = _node_step(
+            "node-identity-binding", make_node_input,
             identity, version=version, calibration=calibration
         )
         raw_json, raw_cdx, projected_json, projected_cdx = _assess(
@@ -1110,17 +1145,23 @@ def assess_node(
         elif any(
             projected_json[key] != value for key, value in actual_boundary.items()
         ):
-            raise ValueError("Grype roles did not use the exact assessment boundary")
-        input_bytes = canonical_json_bytes(input_document)
-        report_bytes = canonical_json_bytes(raw_json)
-        cdx_bytes = canonical_json_bytes(raw_cdx)
+            raise NodeAdvisoryFailure("node-report-validation")
+        input_bytes = _node_step("node-report-validation", canonical_json_bytes, input_document)
+        report_bytes = _node_step("node-report-validation", canonical_json_bytes, raw_json)
+        cdx_bytes = _node_step("node-report-validation", canonical_json_bytes, raw_cdx)
         for document, encoded, label in (
             (input_document, input_bytes, "input"),
             (raw_json, report_bytes, "JSON report"),
             (raw_cdx, cdx_bytes, "CycloneDX report"),
         ):
-            assert_no_private_json(document, f"Grype Node {role} {label}")
-            assert_no_private_text(encoded, f"Grype Node {role} {label}")
+            _node_step(
+                "node-report-validation", assert_no_private_json,
+                document, f"Grype Node {role} {label}",
+            )
+            _node_step(
+                "node-report-validation", assert_no_private_text,
+                encoded, f"Grype Node {role} {label}",
+            )
         files = NODE_ROLE_FILES[role]
         artifacts.update(
             {
@@ -1129,7 +1170,8 @@ def assess_node(
                 files["cyclonedx_report"]: cdx_bytes,
             }
         )
-        roles[role] = _role_evidence(
+        roles[role] = _node_step(
+            "node-report-validation", _role_evidence,
             role=role,
             version=version,
             input_bytes=input_bytes,
@@ -1140,10 +1182,10 @@ def assess_node(
         )
         projections[role] = (projected_json, projected_cdx)
     if actual_boundary is None:
-        raise ValueError("Grype Node role inventory is empty")
-    calibration = _calibration_projection(roles)
+        raise NodeAdvisoryFailure("node-report-validation")
+    calibration = _node_step("node-calibration", _calibration_projection, roles)
     actual_json, _ = projections["actual"]
-    assessment = _actual_assessment(roles["actual"])
+    assessment = _node_step("node-runtime-policy", _actual_assessment, roles["actual"])
     evidence = {
         "scanner": {
             "image": GRYPE_REFERENCE,
@@ -1157,7 +1199,9 @@ def assess_node(
         "calibration": calibration,
         "assessment": assessment,
     }
-    return evidence, artifacts, _project_findings(actual_json)
+    return evidence, artifacts, _node_step(
+        "node-report-validation", _project_findings, actual_json
+    )
 
 
 def _file_binding(path: Path, *, maximum_bytes: int) -> dict[str, Any]:
@@ -1254,42 +1298,46 @@ def _verify_protected_provenance_freshness(
 def generate_node_advisory(
     *, sbom: dict[str, Any], receipt: dict[str, Any], output: Path
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
-    acquire_grype_image()
+    _node_step("node-scanner-acquisition", acquire_grype_image)
     database_archive = output / GRYPE_DB_ARCHIVE_NAME
     database_checksum = output / GRYPE_DB_CHECKSUM_NAME
     with tempfile.TemporaryDirectory(prefix="gis-ai-go-grype-online-") as temporary:
         cache = Path(temporary) / "cache"
         cache.mkdir(mode=0o700)
-        online_status = update_database(cache)
-        download_database_archive(online_status, database_archive)
-    database_checksum.write_text(
-        f"{sha256_file(database_archive)}  {database_archive.name}\n", encoding="utf-8"
+        online_status = _node_step("node-db-update", update_database, cache)
+        _node_step("node-db-download", download_database_archive, online_status, database_archive)
+    database_digest = _node_step("node-db-download", sha256_file, database_archive)
+    _node_step(
+        "node-evidence-write", database_checksum.write_text,
+        f"{database_digest}  {database_archive.name}\n", encoding="utf-8"
     )
     with tempfile.TemporaryDirectory(prefix="gis-ai-go-grype-replay-") as temporary:
         cache = Path(temporary) / "cache"
         cache.mkdir(mode=0o700)
-        replay_status = import_database(
+        replay_status = _node_step(
+            "node-db-import", import_database,
             cache, database_archive, source=online_status
         )
-        if _database_source_binding(replay_status) != online_status:
-            raise ValueError("offline Grype import differs from the acquired database status")
-        inventory_before = database_inventory(cache)
+        if _node_step("node-db-replay-binding", _database_source_binding, replay_status) != online_status:
+            raise NodeAdvisoryFailure("node-db-replay-binding")
+        inventory_before = _node_step("node-db-inventory", database_inventory, cache)
         node, artifacts, findings = assess_node(
             cache, sbom, receipt, database_source=online_status
         )
-        if database_inventory(cache) != inventory_before:
-            raise ValueError("offline Grype assessment mutated the imported database")
+        if _node_step("node-db-inventory", database_inventory, cache) != inventory_before:
+            raise NodeAdvisoryFailure("node-db-replay-binding")
     assessed_at = datetime.now(UTC).isoformat(timespec="seconds").replace("+00:00", "Z")
-    age_seconds = _database_age_seconds(node["database"], assessed_at)
-    provider_age_seconds = _provider_age_seconds(node["database"], assessed_at)
+    age_seconds = _node_step("node-db-freshness", _database_age_seconds, node["database"], assessed_at)
+    provider_age_seconds = _node_step("node-provider-freshness", _provider_age_seconds, node["database"], assessed_at)
     for name, content in artifacts.items():
-        (output / name).write_bytes(content)
+        _node_step("node-evidence-write", (output / name).write_bytes, content)
     node["database"] = {
         **node["database"],
         "assessed_at": assessed_at,
         "age_seconds": age_seconds,
         "provider_age_seconds": provider_age_seconds,
-        "archive": _file_binding(
+        "archive": _node_step(
+            "node-evidence-write", _file_binding,
             database_archive, maximum_bytes=MAX_GRYPE_DB_ARCHIVE_BYTES
         ),
         "expanded_files": inventory_before,

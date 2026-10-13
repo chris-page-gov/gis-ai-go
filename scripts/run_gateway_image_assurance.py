@@ -21,6 +21,7 @@ from typing import Any
 
 from gateway_evidence import write_evidence_manifest
 from gateway_image import (
+    NODE_ADVISORY_STAGE_EXIT_CODES,
     PRIVACY_PHASE_OUTPUT_BOUNDARY,
     RUNTIME_LIBRARY_DONOR_ACQUISITION_EXIT_CODE,
     RUNTIME_LIBRARY_DONOR_VALIDATION_EXIT_CODE,
@@ -40,7 +41,10 @@ PHASE_OUTPUT_CHUNK_BYTES = 64 * 1024
 PHASE_OUTPUT_BOUNDARY = PRIVACY_PHASE_OUTPUT_BOUNDARY + "\n"
 PHASE_NAME = re.compile(r"[a-z][a-z0-9-]{0,63}\Z")
 SCAN_FAILURE_STAGES = {
-    code: stage for stage, code in VULNERABILITY_SCAN_STAGE_EXIT_CODES.items()
+    code: stage for stage, code in {
+        **VULNERABILITY_SCAN_STAGE_EXIT_CODES,
+        **NODE_ADVISORY_STAGE_EXIT_CODES,
+    }.items()
 }
 
 

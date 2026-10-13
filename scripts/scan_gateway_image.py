@@ -44,6 +44,7 @@ from gateway_image import (
     MAX_LAYER_PATH_COMPONENTS,
     MAX_LAYER_PATH_COMPONENT_BYTES,
     MAX_OCI_BYTES,
+    NODE_ADVISORY_STAGE_EXIT_CODES,
     RUNTIME_LIBRARY_DONOR_ACQUISITION_EXIT_CODE,
     RUNTIME_LIBRARY_DONOR_VALIDATION_EXIT_CODE,
     ROOT,
@@ -62,7 +63,11 @@ from gateway_image import (
     sha256_file,
     verify_pinned_builder,
 )
-from node_runtime_advisory import generate_node_advisory, verify_node_advisory
+from node_runtime_advisory import (
+    NodeAdvisoryFailure,
+    generate_node_advisory,
+    verify_node_advisory,
+)
 
 BLOCKED_SEVERITIES = frozenset({"HIGH", "CRITICAL"})
 TRIVY_VERSION = "0.74.0"
@@ -143,6 +148,7 @@ def _scan_stage(stage: str) -> Iterator[None]:
         yield
     except (
         ScanStageFailure,
+        NodeAdvisoryFailure,
         TrivyDatabaseAcquisitionError,
         RuntimeLibraryDonorAcquisitionError,
         RuntimeLibraryDonorValidationError,
@@ -2345,6 +2351,8 @@ def cli() -> None:
         raise SystemExit(RUNTIME_LIBRARY_DONOR_VALIDATION_EXIT_CODE) from None
     except ScanStageFailure as error:
         exit_code = VULNERABILITY_SCAN_STAGE_EXIT_CODES[error.stage]
+    except NodeAdvisoryFailure as error:
+        exit_code = NODE_ADVISORY_STAGE_EXIT_CODES[error.stage]
     else:
         return
     # Do not retain even the fixed diagnostic exception on the CLI exit.

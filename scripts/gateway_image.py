@@ -182,6 +182,22 @@ VULNERABILITY_SCAN_STAGE_EXIT_CODES = {
     "final-evidence-validation": 96,
     "vulnerability-policy": 97,
 }
+NODE_ADVISORY_STAGE_EXIT_CODES = {
+    "node-scanner-acquisition": 98,
+    "node-db-update": 99,
+    "node-db-download": 100,
+    "node-db-import": 101,
+    "node-db-inventory": 102,
+    "node-scan-execution": 103,
+    "node-report-validation": 104,
+    "node-identity-binding": 105,
+    "node-calibration": 106,
+    "node-runtime-policy": 107,
+    "node-db-freshness": 108,
+    "node-provider-freshness": 109,
+    "node-evidence-write": 110,
+    "node-db-replay-binding": 111,
+}
 
 EXPECTED_REPOSITORY = "chris-page-gov/gis-ai-go"
 EXPECTED_REGISTRY_ID = "io.github.chris-page-gov/gis-ai-go"

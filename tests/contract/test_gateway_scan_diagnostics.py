@@ -272,7 +272,7 @@ class GatewayScanDiagnosticsTests(unittest.TestCase):
                 self.assertEqual(rendered.count("failure_stage="), 1)
 
     def test_unknown_and_other_phase_exit_codes_are_generic_failures(self):
-        cases = [("vulnerability-scan", 1), ("vulnerability-scan", 98)]
+        cases = [("vulnerability-scan", 1), ("vulnerability-scan", 125)]
         cases.extend(("container-acceptance", code)
                      for code in VULNERABILITY_SCAN_STAGE_EXIT_CODES.values())
         for phase, code in cases:
