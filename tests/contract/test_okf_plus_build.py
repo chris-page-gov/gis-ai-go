@@ -96,6 +96,110 @@ def capture_fixture(root, document, url=SOURCE_URL):
             "status": 200, "bytes": len(raw)}
 
 
+class OkfPlusImportBoundaryTests(unittest.TestCase):
+    @staticmethod
+    def source_snapshot(root, filename, family):
+        source = root / "okf-plus/source"
+        source.mkdir(parents=True, exist_ok=True)
+        (root / "okf-plus/records").mkdir(parents=True, exist_ok=True)
+        path = source / filename
+        snapshot = {"schema": "okf-plus-source-snapshot.v1", "family": family,
+                    "records": [], "receipts": [], "coverage": {}}
+        path.write_text(json.dumps(snapshot))
+        return path, snapshot
+
+    def test_family_is_safe_filename_bound_and_explicitly_admitted(self):
+        cases = [
+            ("safe.json", "../.."),
+            ("safe.json", "/tmp/outside"),
+            ("safe.json", "safe/other"),
+            ("safe.json", "safe\\other"),
+            ("safe.json", "different"),
+        ]
+        for filename, family in cases:
+            with self.subTest(family=family), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                path, snapshot = self.source_snapshot(root, filename, family)
+                sentinel = root / "README.md"; sentinel.write_text("keep\n")
+                with self.assertRaisesRegex(ValueError, "admitted filename-bound"):
+                    import_sources.snapshot_family(root, path, snapshot, {family})
+                self.assertEqual(sentinel.read_text(), "keep\n")
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            path, snapshot = self.source_snapshot(
+                root, "geospatial-concepts.json", "geospatial-concepts")
+            authored = root / "okf-plus/records/geospatial-concepts/authored.md"
+            authored.parent.mkdir(); authored.write_text("keep authored record\n")
+            with self.assertRaisesRegex(ValueError, "admitted filename-bound"):
+                import_sources.snapshot_family(root, path, snapshot)
+            self.assertEqual(authored.read_text(), "keep authored record\n")
+
+    def test_import_rejects_traversal_before_cleanup_or_writes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory); source = root / "okf-plus/source"
+            records = root / "okf-plus/records"; source.mkdir(parents=True); records.mkdir()
+            (source / "locator-index.json").write_text(json.dumps({"families": {}}))
+            (source / "attack.json").write_text(json.dumps({
+                "schema": "okf-plus-source-snapshot.v1", "family": "../..",
+                "records": [], "receipts": [], "coverage": {},
+            }))
+            sentinel = root / "README.md"; sentinel.write_text("keep root Markdown\n")
+            with mock.patch.object(import_sources, "ROOT", root), \
+                    mock.patch.object(sys, "argv", ["import_sources.py"]), \
+                    self.assertRaisesRegex(ValueError, "admitted filename-bound"):
+                import_sources.main()
+            self.assertEqual(sentinel.read_text(), "keep root Markdown\n")
+
+    def test_source_target_output_and_cleanup_reject_symbolic_redirection(self):
+        with tempfile.TemporaryDirectory() as directory, tempfile.TemporaryDirectory() as external:
+            root = Path(directory); outside = Path(external)
+            path, snapshot = self.source_snapshot(root, "synthetic.json", "synthetic")
+            external_snapshot = outside / "synthetic.json"
+            external_snapshot.write_text(path.read_text()); path.unlink(); path.symlink_to(external_snapshot)
+            with self.assertRaisesRegex(ValueError, "ordinary direct source file"):
+                import_sources.snapshot_family(root, path, snapshot, {"synthetic"})
+
+            path.unlink(); path.write_text(json.dumps(snapshot))
+            family = import_sources.snapshot_family(root, path, snapshot, {"synthetic"})
+            external_target = outside / "records"; external_target.mkdir()
+            target = root / "okf-plus/records/synthetic"; target.symlink_to(external_target)
+            with self.assertRaisesRegex(ValueError, "ordinary direct records directory"):
+                import_sources.family_target(root, family)
+
+            target.unlink(); target.mkdir()
+            outside_file = outside / "outside.md"; outside_file.write_text("keep outside\n")
+            redirected = target / "record.md"; redirected.symlink_to(outside_file)
+            with self.assertRaisesRegex(ValueError, "remain inside"):
+                import_sources.family_output(target, "record.md")
+            with self.assertRaisesRegex(ValueError, "cleanup entry"):
+                list(import_sources.stale_family_files(target))
+            self.assertEqual(outside_file.read_text(), "keep outside\n")
+
+    def test_source_and_records_roots_reject_symbolic_ancestors(self):
+        with tempfile.TemporaryDirectory() as directory, tempfile.TemporaryDirectory() as external:
+            root = Path(directory); outside = Path(external) / "okf-plus"
+            (outside / "source").mkdir(parents=True); (outside / "records").mkdir()
+            snapshot = {"schema": "okf-plus-source-snapshot.v1", "family": "synthetic",
+                        "records": [], "receipts": [], "coverage": {}}
+            path = outside / "source/synthetic.json"; path.write_text(json.dumps(snapshot))
+            (root / "okf-plus").symlink_to(outside, target_is_directory=True)
+            with self.assertRaises(ValueError):
+                import_sources.snapshot_family(root, root / "okf-plus/source/synthetic.json",
+                                               snapshot, {"synthetic"})
+            with self.assertRaises(ValueError):
+                import_sources.family_target(root, "synthetic")
+
+    def test_legitimate_family_paths_remain_usable(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            path, snapshot = self.source_snapshot(root, "synthetic.json", "synthetic")
+            family = import_sources.snapshot_family(root, path, snapshot, {"synthetic"})
+            target = import_sources.family_target(root, family); target.mkdir()
+            output = import_sources.family_output(target, "record.md"); output.write_text("record\n")
+            self.assertEqual(list(import_sources.stale_family_files(target)), [output])
+
+
 class OkfPlusLocatorTests(unittest.TestCase):
     def test_exact_native_identifier_is_bound_to_its_page(self):
         with tempfile.TemporaryDirectory() as directory:
