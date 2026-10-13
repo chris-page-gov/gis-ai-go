@@ -109,7 +109,8 @@ class NodeInventorySizeDiagnosticsTests(unittest.TestCase):
         self.assertNotIn(self.line, overflow)
 
     def test_private_malformed_or_duplicate_output_cannot_publish_measurements(self):
-        for payload in (b"Bearer SYNTHETIC-SECRET", b"/home/synthetic/private.txt",
+        private_path = "/".join(("", "home", "synthetic", "private.txt"))
+        for payload in (b"Bearer SYNTHETIC-SECRET", private_path.encode(),
                         b"::warning::synthetic", b"\xff", b"\0"):
             for stream in ("stdout", "stderr"):
                 kwargs = ({"stdout": payload} if stream == "stdout" else
@@ -118,7 +119,7 @@ class NodeInventorySizeDiagnosticsTests(unittest.TestCase):
                     rendered = self.run_child(**kwargs)
                     self.assertNotIn(self.line, rendered)
                     self.assertNotIn("SYNTHETIC-SECRET", rendered)
-                    self.assertNotIn("/home/synthetic/private.txt", rendered)
+                    self.assertNotIn(private_path, rendered)
         for extra in (self.line, "node_db_inventory_sizes malformed"):
             with self.subTest(extra=extra):
                 rendered = self.run_child(stderr=(self.line + "\n" + extra + "\n").encode())

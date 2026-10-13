@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import os
 import shutil
 import stat
@@ -10,10 +11,13 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
+from jsonschema import Draft202012Validator, ValidationError
+
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "scripts"))
 
 import node_runtime_advisory as node  # noqa: E402
+from gateway_image import MAX_GRYPE_DB_EXPANDED_BYTES  # noqa: E402
 
 
 class NodeDatabaseInventoryTests(unittest.TestCase):
@@ -174,6 +178,43 @@ class NodeDatabaseInventoryTests(unittest.TestCase):
                               mock.call(cache / "6/vulnerability.db")])
             node._database_inventory_shape(inventory, label="synthetic exact-bound inventory")
 
+    def test_observed_database_size_passes_inventory_shape_and_real_schema(self):
+        schema = json.loads(
+            (ROOT / "schemas/gateway-image-vulnerability-scan.schema.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        self.assertEqual(MAX_GRYPE_DB_EXPANDED_BYTES, 4 * 1024 * 1024 * 1024)
+        self.assertEqual(node.MAX_GRYPE_DB_EXPANDED_BYTES, MAX_GRYPE_DB_EXPANDED_BYTES)
+        self.assertEqual(
+            schema["$defs"]["grypeDatabaseFile"]["properties"]["bytes"]["maximum"],
+            MAX_GRYPE_DB_EXPANDED_BYTES,
+        )
+        # Retain the schema's local SHA-256 reference without a remote resolver.
+        validator = Draft202012Validator({
+            "$ref": "#/$defs/grypeDatabaseFile", "$defs": schema["$defs"],
+        })
+        with tempfile.TemporaryDirectory() as temporary:
+            cache = self.make_cache(Path(temporary))
+            (cache / "6/import.json").write_bytes(b"m" * 97)
+            with (cache / "6/vulnerability.db").open("wb") as stream:
+                stream.truncate(3_239_141_376)
+            with mock.patch.object(node, "sha256_file", side_effect=["a" * 64, "b" * 64]):
+                inventory = node.database_inventory(cache)
+            self.assertEqual(sum(item["bytes"] for item in inventory), 3_239_141_473)
+            self.assertEqual(
+                node._database_inventory_shape(inventory, label="observed-size fixture"),
+                [{"path": "6/import.json", "bytes": 97},
+                 {"path": "6/vulnerability.db", "bytes": 3_239_141_376}],
+            )
+            for item in inventory:
+                validator.validate(item)
+            oversized_item = {
+                **inventory[1], "bytes": MAX_GRYPE_DB_EXPANDED_BYTES + 1,
+            }
+            with self.assertRaises(ValidationError):
+                validator.validate(oversized_item)
+
     def test_one_byte_over_aggregate_bound_fails_before_hash_and_reports_only_sizes(self):
         with tempfile.TemporaryDirectory() as temporary:
             cache = self.make_cache(Path(temporary))
@@ -185,13 +226,24 @@ class NodeDatabaseInventoryTests(unittest.TestCase):
                 "metadata_bytes": 2,
                 "database_bytes": database_bytes,
                 "expanded_bytes": node.MAX_GRYPE_DB_EXPANDED_BYTES + 1,
-                "maximum_bytes": 3 * 1024 * 1024 * 1024,
+                "maximum_bytes": 4 * 1024 * 1024 * 1024,
             })
             for value in error.inventory_sizes.values():
                 self.assertIs(type(value), int)
                 self.assertGreaterEqual(value, 0)
                 self.assertLessEqual(value, 2**63 - 1)
             self.assertNotIn(temporary, str(error))
+            retained_inventory = [
+                {"path": "6/import.json", "sha256": "a" * 64, "bytes": 2},
+                {"path": "6/vulnerability.db", "sha256": "b" * 64,
+                 "bytes": database_bytes},
+            ]
+            for item in retained_inventory:
+                self.assertLessEqual(item["bytes"], MAX_GRYPE_DB_EXPANDED_BYTES)
+            with self.assertRaisesRegex(ValueError, "exceeds its expanded bound"):
+                node._database_inventory_shape(
+                    retained_inventory, label="synthetic aggregate-overflow inventory"
+                )
 
     def test_oversized_metadata_is_included_in_aggregate_before_hashing(self):
         with tempfile.TemporaryDirectory() as temporary:

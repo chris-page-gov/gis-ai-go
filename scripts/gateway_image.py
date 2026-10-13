@@ -204,7 +204,7 @@ NODE_ADVISORY_STAGE_EXIT_CODES = {
     "node-db-inventory-unexpected-entry": 116,
     "node-db-inventory-read": 117,
 }
-MAX_GRYPE_DB_EXPANDED_BYTES = 3 * 1024 * 1024 * 1024
+MAX_GRYPE_DB_EXPANDED_BYTES = 4 * 1024 * 1024 * 1024
 NODE_INVENTORY_SIZE_PREFIX = "node_db_inventory_sizes "
 NODE_INVENTORY_SIZE_FIELDS = (
     "metadata_bytes", "database_bytes", "expanded_bytes", "maximum_bytes"
