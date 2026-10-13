@@ -19,7 +19,7 @@
   },
   "suites": [
     {
-      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:e77747d71dca4dd3959cdc56f31efb36b963d9644bdd9e0b64658217f6e6f458",
+      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:aeb95e88161ef241a1ca0200e680e95ebce82b07e7c6830911fc9a7366ae366d",
       "label": "catalogue-snapshot",
       "command": [
         "node",
@@ -46,7 +46,7 @@
         },
         {
           "path": "okf/source-lock.json",
-          "sha256": "666e9f995ae9b12541dd326ba9407b17644aad45e0be85f98164fc63aac27cbf"
+          "sha256": "943fa1e1348f470610fc89b664a36b4f8cb3e77fc20592e2688118392f04d440"
         },
         {
           "path": "okf/source/publication.json",
@@ -1031,7 +1031,7 @@
       }
     },
     {
-      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:95c3a7a665a51e17b99701e77e20f4a01fe80cf2aaa2e64ba525f4af60ab749a",
+      "suite_id": "gis-ai-go:qual-206-local-suite-evidence:sha256:39f11807cfce43a9692d0851fddb34a66991b7e53a99b9d824677fa7d3ed2782",
       "label": "public-explorer",
       "command": [
         "pnpm",
@@ -1084,7 +1084,7 @@
         },
         {
           "path": "okf/source-lock.json",
-          "sha256": "666e9f995ae9b12541dd326ba9407b17644aad45e0be85f98164fc63aac27cbf"
+          "sha256": "943fa1e1348f470610fc89b664a36b4f8cb3e77fc20592e2688118392f04d440"
         },
         {
           "path": "okf/source/publication.json",
@@ -1100,7 +1100,7 @@
   ],
   "receipts": [
     {
-      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:4a5ca6ae59fe5786f813ca061a3ce75252f1e007a9028828c141c6fe1a2cbe9a",
+      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:9322d9e2354e1bffc5946f125f2a1c0dcf7a1ac3f7110ce991c47f532ca7fafc",
       "case": {
         "id": "E01",
         "title": "Anonymous discovery of open boundaries and statistics",
@@ -1113,7 +1113,7 @@
         "case_complete": false
       },
       "evidence_suite_ids": [
-        "gis-ai-go:qual-206-local-suite-evidence:sha256:e77747d71dca4dd3959cdc56f31efb36b963d9644bdd9e0b64658217f6e6f458",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:aeb95e88161ef241a1ca0200e680e95ebce82b07e7c6830911fc9a7366ae366d",
         "gis-ai-go:qual-206-local-suite-evidence:sha256:abc1e780398ca4a1dfcddd3b07e0e8b1cd1be4a48f8e8c7b11fbe9e8bd5bb5f4",
         "gis-ai-go:qual-206-local-suite-evidence:sha256:803bbbbd134584e6be34647c53e09a653eba95e3b3bc71577b4b768c6c817670",
         "gis-ai-go:qual-206-local-suite-evidence:sha256:428da4688b09fa26b0fc4ec760ac8626924baf29de6f6255c5d9c0fd71c48188",
@@ -1143,7 +1143,7 @@
       "boundary": "Repository-only deterministic evidence. It is non-live and unscored, does not complete the research case, and does not authorise activation, deployment, registration or release."
     },
     {
-      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:41b03509f0ada13f4acaeea154ea71f08c03b07c94c24be8a7b88a93b4731f8d",
+      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:9cfe9fcbddfaf79ef9c89539ae7ed4981e675d7b8eb006569fcab624cee86e35",
       "case": {
         "id": "E02",
         "title": "Anonymous AI uses the public site without scraping",
@@ -1156,7 +1156,7 @@
         "case_complete": false
       },
       "evidence_suite_ids": [
-        "gis-ai-go:qual-206-local-suite-evidence:sha256:95c3a7a665a51e17b99701e77e20f4a01fe80cf2aaa2e64ba525f4af60ab749a"
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:39f11807cfce43a9692d0851fddb34a66991b7e53a99b9d824677fa7d3ed2782"
       ],
       "local_assertions": [
         {
@@ -1178,7 +1178,7 @@
       "boundary": "Repository-only deterministic evidence. It is non-live and unscored, does not complete the research case, and does not authorise activation, deployment, registration or release."
     },
     {
-      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:32ad594ad00e7f36d120cea70d08f6097bd00751f35037b45727bc83163df8f1",
+      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:f702d0c2a50bacc9e624437abba8aff0bd3ea1780858b5e16344db283d3cbf40",
       "case": {
         "id": "E09",
         "title": "HMLR, ONS and LandIS open query with full provenance",
@@ -1195,7 +1195,7 @@
         "gis-ai-go:qual-206-local-suite-evidence:sha256:803bbbbd134584e6be34647c53e09a653eba95e3b3bc71577b4b768c6c817670",
         "gis-ai-go:qual-206-local-suite-evidence:sha256:50cb904862f32cb54421b7d21147431ada299ec3427663eafe89005fe22331ef",
         "gis-ai-go:qual-206-local-suite-evidence:sha256:428da4688b09fa26b0fc4ec760ac8626924baf29de6f6255c5d9c0fd71c48188",
-        "gis-ai-go:qual-206-local-suite-evidence:sha256:95c3a7a665a51e17b99701e77e20f4a01fe80cf2aaa2e64ba525f4af60ab749a"
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:39f11807cfce43a9692d0851fddb34a66991b7e53a99b9d824677fa7d3ed2782"
       ],
       "local_assertions": [
         {
@@ -1263,7 +1263,7 @@
       "boundary": "Repository-only deterministic evidence. It is non-live and unscored, does not complete the research case, and does not authorise activation, deployment, registration or release."
     },
     {
-      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:48666e123839732440f33fee90197b1403d1abb905cbb292034ec253795bfa6d",
+      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:1a62ae64454bf757d11138362e825cfe03d8b4a013cca92dade23156a76010f1",
       "case": {
         "id": "E15",
         "title": "WebMCP-incapable agent follows linked OKF/API",
@@ -1276,9 +1276,9 @@
         "case_complete": false
       },
       "evidence_suite_ids": [
-        "gis-ai-go:qual-206-local-suite-evidence:sha256:95c3a7a665a51e17b99701e77e20f4a01fe80cf2aaa2e64ba525f4af60ab749a",
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:39f11807cfce43a9692d0851fddb34a66991b7e53a99b9d824677fa7d3ed2782",
         "gis-ai-go:qual-206-local-suite-evidence:sha256:d4eee8c10563f5462839c267462d5a5377c222371201e33856fdc2aebe9ef61d",
-        "gis-ai-go:qual-206-local-suite-evidence:sha256:e77747d71dca4dd3959cdc56f31efb36b963d9644bdd9e0b64658217f6e6f458"
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:aeb95e88161ef241a1ca0200e680e95ebce82b07e7c6830911fc9a7366ae366d"
       ],
       "local_assertions": [
         {
@@ -1300,7 +1300,7 @@
       "boundary": "Repository-only deterministic evidence. It is non-live and unscored, does not complete the research case, and does not authorise activation, deployment, registration or release."
     },
     {
-      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:6761e4d4cef0efc0658874c5a73a798b139a7d0c09f47c9d02f37f5eac8af174",
+      "receipt_id": "gis-ai-go:qual-206-local-evaluation-receipt:sha256:27aeb6aa45bb759962270119e59b6d85a0a63dc86202d36564e884bc40fb7ce0",
       "case": {
         "id": "E17",
         "title": "Malicious record attempts prompt injection",
@@ -1316,7 +1316,7 @@
         "gis-ai-go:qual-206-local-suite-evidence:sha256:abc1e780398ca4a1dfcddd3b07e0e8b1cd1be4a48f8e8c7b11fbe9e8bd5bb5f4",
         "gis-ai-go:qual-206-local-suite-evidence:sha256:0eacb77e20d4a7c067a64a65d5087a4201c8f011e1da99b21df9902cd9ec060d",
         "gis-ai-go:qual-206-local-suite-evidence:sha256:cd13eee7ac902750b72a9559cbb7f222e0ba0df02c35925ffc08d241169a3ba3",
-        "gis-ai-go:qual-206-local-suite-evidence:sha256:95c3a7a665a51e17b99701e77e20f4a01fe80cf2aaa2e64ba525f4af60ab749a"
+        "gis-ai-go:qual-206-local-suite-evidence:sha256:39f11807cfce43a9692d0851fddb34a66991b7e53a99b9d824677fa7d3ed2782"
       ],
       "local_assertions": [
         {
@@ -1407,5 +1407,5 @@
     "complete_case_evaluation": false
   },
   "boundary": "Repository-only deterministic evidence. It is non-live and unscored, does not complete the research case, and does not authorise activation, deployment, registration or release.",
-  "set_id": "gis-ai-go:qual-206-local-evaluation-set:sha256:6f1902b90c4c4e934f22ea323ca8350cf59d15d26edf1e0dad9bfc15ae672ce3"
+  "set_id": "gis-ai-go:qual-206-local-evaluation-set:sha256:0f9a541f417bbd5f9b1ecb245d6a0d388f19a6604f60cf8f447be605d1b5d5b5"
 }

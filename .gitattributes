@@ -3,3 +3,4 @@
 *.svg text eol=lf
 docs/research/2026-08-19/research-pack/** -text -diff
 docs/research/2026-08-23/agentic-ai-governance-review/sources/** -text -diff
+docs/research/2026-10-13/governance-as-code/*.docx binary

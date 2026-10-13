@@ -13,12 +13,12 @@ concurrency:
 permissions: {}
 
 jobs:
-  ci_impact_shadow:
-    name: CI impact plan (shadow)
+  ci_impact_candidate:
+    name: CI impact candidate (shadow)
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     outputs:
-      force_full: ${{ steps.plan.outputs.force_full }}
+      force_full: ${{ steps.plan.outputs.force_full || steps.fail_full.outputs.force_full }}
       gateway_image_required: ${{ steps.plan.outputs.gateway_image_required || steps.fail_full.outputs.gateway_image_required }}
       plan_sha256: ${{ steps.plan.outputs.plan_sha256 }}
       selected_lanes: ${{ steps.plan.outputs.selected_lanes }}
@@ -27,7 +27,7 @@ jobs:
     steps:
       - name: Default gateway image routing to fail-full
         id: fail_full
-        run: printf 'gateway_image_required=true\n' >> "$GITHUB_OUTPUT"
+        run: printf 'force_full=true\ngateway_image_required=true\n' >> "$GITHUB_OUTPUT"
 
       - name: Check out impact-planning source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -54,7 +54,14 @@ jobs:
             --map .github/ci/verification-impact-map.v2.json \
             --output artifacts/ci/impact-plan.json
           plan_sha256="$(sha256sum artifacts/ci/impact-plan.json | cut -d ' ' -f 1)"
-          force_full="$(jq -r '.force_full' artifacts/ci/impact-plan.json)"
+          force_full="$(
+            jq -er '
+              if .force_full == true then "true"
+              elif .force_full == false then "false"
+              else error("force_full must be a boolean")
+              end
+            ' artifacts/ci/impact-plan.json
+          )"
           gateway_image_required="$(
             jq -er '
               if .gateway_image_required == true then "true"
@@ -69,7 +76,7 @@ jobs:
           printf 'gateway_image_required=%s\n' "$gateway_image_required" >> "$GITHUB_OUTPUT"
           printf 'selected_lanes=%s\n' "$selected_lanes" >> "$GITHUB_OUTPUT"
           {
-            printf '### CI impact plan (shadow)\n\n'
+            printf '### CI impact candidate (shadow)\n\n'
             printf 'All current assurance jobs still run; this plan cannot skip a check.\n\n'
             printf -- '- Plan SHA-256: `%s`\n' "$plan_sha256"
             printf -- '- Force full: `%s`\n' "$force_full"
@@ -86,6 +93,152 @@ jobs:
         with:
           name: ci-impact-plan-${{ github.sha }}
           path: artifacts/ci/impact-plan.json
+          if-no-files-found: error
+          retention-days: 30
+
+  ci_impact_shadow:
+    name: CI impact agreement (shadow)
+    if: always()
+    needs:
+      - ci_impact_candidate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      force_full: ${{ steps.agreement.outputs.force_full || steps.fail_full.outputs.force_full }}
+      gateway_image_required: ${{ steps.agreement.outputs.gateway_image_required || steps.fail_full.outputs.gateway_image_required }}
+      agreement_sha256: ${{ steps.agreement.outputs.agreement_sha256 }}
+    permissions:
+      contents: read
+    steps:
+      - name: Default agreement to fail-full before any work
+        id: fail_full
+        run: |
+          printf 'force_full=true\ngateway_image_required=true\n' >> "$GITHUB_OUTPUT"
+          agreement_root="$(mktemp -d "$RUNNER_TEMP/ci-impact-agreement.XXXXXX")"
+          mkdir "$agreement_root/trusted" "$agreement_root/candidate"
+          printf 'agreement_root=%s\n' "$agreement_root" >> "$GITHUB_OUTPUT"
+
+      - name: Check out exact impact inventory without candidate preparation
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The PR merge commit deliberately matches the candidate planner's head.
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Extract agreement code from the exact trusted event base
+        id: trusted
+        env:
+          AGREEMENT_ROOT: ${{ steps.fail_full.outputs.agreement_root }}
+          CANDIDATE_RESULT: ${{ needs.ci_impact_candidate.result }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PUSH_BASE_SHA: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+          case "$GITHUB_EVENT_NAME" in
+            pull_request) base_sha="$PR_BASE_SHA"; impact_event='pull_request' ;;
+            push) base_sha="$PUSH_BASE_SHA"; impact_event='push_main' ;;
+            *) echo 'Unsupported CI impact event' >&2; exit 1 ;;
+          esac
+          for commit in "$base_sha" "$GITHUB_SHA"; do
+            if [[ ! "$commit" =~ ^[0-9a-f]{40}$ ]] || \
+               [[ "$commit" == '0000000000000000000000000000000000000000' ]]; then
+              echo 'An exact non-zero event commit is required for impact agreement' >&2
+              exit 1
+            fi
+            git cat-file -e "$commit^{commit}"
+          done
+          printf 'base_sha=%s\nimpact_event=%s\n' "$base_sha" "$impact_event" >> "$GITHUB_OUTPUT"
+          verifier_entry="$(git ls-tree "$base_sha" -- scripts/agree_ci_impact.py)"
+          if [[ -z "$verifier_entry" ]]; then
+            # Bootstrap only when the trusted tree really lacks the new verifier.
+            # Never fall back to executing a candidate-head verifier.
+            jq -S -n \
+              --arg base_commit "$base_sha" --arg head_commit "$GITHUB_SHA" \
+              --arg event "$impact_event" --arg candidate_result "$CANDIDATE_RESULT" \
+              '{schema: "gis-ai-go.ci-impact-agreement.v1", mode: "shadow", enforced: false,
+                base_commit: $base_commit, head_commit: $head_commit, event: $event,
+                candidate_result: $candidate_result, force_full: true,
+                gateway_image_required: true, reason: "trusted-verifier-unavailable"}' \
+              > "$AGREEMENT_ROOT/impact-agreement.json"
+            printf 'available=false\n' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          for source in scripts/agree_ci_impact.py scripts/plan_ci_impact.py; do
+            entry="$(git ls-tree "$base_sha" -- "$source")"
+            read -r mode type object path <<< "$entry"
+            if [[ "$mode" != '100644' && "$mode" != '100755' ]] || \
+               [[ "$type" != 'blob' || "$path" != "$source" ]] || \
+               [[ ! "$object" =~ ^[0-9a-f]{40}$ ]]; then
+              echo 'Trusted impact code must be a regular Git blob' >&2
+              exit 1
+            fi
+            git show "$base_sha:$source" > "$AGREEMENT_ROOT/trusted/${source##*/}"
+          done
+          printf 'available=true\n' >> "$GITHUB_OUTPUT"
+
+      - name: Download candidate impact data from this run
+        id: candidate_data
+        if: ${{ steps.trusted.outputs.available == 'true' }}
+        continue-on-error: true
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: ci-impact-plan-${{ github.sha }}
+          path: ${{ steps.fail_full.outputs.agreement_root }}/candidate
+
+      - name: Compare candidate data using only trusted-base Python
+        if: ${{ steps.trusted.outputs.available == 'true' }}
+        env:
+          AGREEMENT_ROOT: ${{ steps.fail_full.outputs.agreement_root }}
+          BASE_SHA: ${{ steps.trusted.outputs.base_sha }}
+          IMPACT_EVENT: ${{ steps.trusted.outputs.impact_event }}
+          CANDIDATE_RESULT: ${{ needs.ci_impact_candidate.result }}
+          CANDIDATE_DOWNLOAD: ${{ steps.candidate_data.outcome }}
+        run: |
+          set -euo pipefail
+          candidate_plan="$AGREEMENT_ROOT/candidate/impact-plan.json"
+          if [[ "$CANDIDATE_DOWNLOAD" != 'success' ]]; then
+            candidate_plan="$AGREEMENT_ROOT/candidate-download-failed.json"
+          fi
+          python3 -I "$AGREEMENT_ROOT/trusted/agree_ci_impact.py" \
+            --repository-root "$GITHUB_WORKSPACE" \
+            --base "$BASE_SHA" --head "$GITHUB_SHA" --event "$IMPACT_EVENT" \
+            --candidate-plan "$candidate_plan" --candidate-result "$CANDIDATE_RESULT" \
+            --output "$AGREEMENT_ROOT/impact-agreement.json"
+
+      - name: Publish closed agreement scalars
+        id: agreement
+        env:
+          AGREEMENT_ROOT: ${{ steps.fail_full.outputs.agreement_root }}
+        run: |
+          set -euo pipefail
+          receipt="$AGREEMENT_ROOT/impact-agreement.json"
+          force_full="$(jq -er '
+            if .force_full == true then "true"
+            elif .force_full == false then "false"
+            else error("force_full must be a boolean") end' "$receipt")"
+          gateway_image_required="$(jq -er '
+            if .gateway_image_required == true then "true"
+            elif .gateway_image_required == false then "false"
+            else error("gateway_image_required must be a boolean") end' "$receipt")"
+          agreement_sha256="$(sha256sum "$receipt" | cut -d ' ' -f 1)"
+          printf 'force_full=%s\ngateway_image_required=%s\nagreement_sha256=%s\n' \
+            "$force_full" "$gateway_image_required" "$agreement_sha256" >> "$GITHUB_OUTPUT"
+          {
+            printf '### CI impact agreement (shadow)\n\n'
+            printf 'All current assurance jobs still run; this agreement cannot skip a check.\n\n'
+            printf 'The candidate-controlled workflow still needs external ownership protection before enforcement.\n\n'
+            printf -- '- Agreement SHA-256: `%s`\n' "$agreement_sha256"
+            printf -- '- Force full: `%s`\n' "$force_full"
+            printf -- '- Gateway image required (trusted agreement shadow): `%s`\n' "$gateway_image_required"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload shadow agreement receipt
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ci-impact-agreement-${{ github.sha }}
+          path: ${{ steps.fail_full.outputs.agreement_root }}/impact-agreement.json
           if-no-files-found: error
           retention-days: 30
 
@@ -304,6 +457,7 @@ jobs:
     name: assurance
     if: always()
     needs:
+      - ci_impact_candidate
       - ci_impact_shadow
       - repository_assurance
       - gateway_image
@@ -313,14 +467,17 @@ jobs:
     steps:
       - name: Require all assurance producers to succeed
         env:
+          CI_IMPACT_CANDIDATE_RESULT: ${{ needs.ci_impact_candidate.result }}
           CI_IMPACT_SHADOW_RESULT: ${{ needs.ci_impact_shadow.result }}
           GATEWAY_IMAGE_RESULT: ${{ needs.gateway_image.result }}
           REPOSITORY_ASSURANCE_RESULT: ${{ needs.repository_assurance.result }}
         run: |
-          if [[ "$CI_IMPACT_SHADOW_RESULT" != 'success' ]] || \
+          if [[ "$CI_IMPACT_CANDIDATE_RESULT" != 'success' ]] || \
+             [[ "$CI_IMPACT_SHADOW_RESULT" != 'success' ]] || \
              [[ "$REPOSITORY_ASSURANCE_RESULT" != 'success' ]] || \
              [[ "$GATEWAY_IMAGE_RESULT" != 'success' ]]; then
-            printf 'CI impact plan (shadow): %s\n' "$CI_IMPACT_SHADOW_RESULT" >&2
+            printf 'CI impact candidate (shadow): %s\n' "$CI_IMPACT_CANDIDATE_RESULT" >&2
+            printf 'CI impact agreement (shadow): %s\n' "$CI_IMPACT_SHADOW_RESULT" >&2
             printf 'Repository assurance: %s\n' "$REPOSITORY_ASSURANCE_RESULT" >&2
             printf 'Gateway image assurance: %s\n' "$GATEWAY_IMAGE_RESULT" >&2
             exit 1
