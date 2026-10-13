@@ -169,6 +169,19 @@ TRIVY_DB_REPOSITORIES = (
 TRIVY_DB_ACQUISITION_EXIT_CODE = 86
 RUNTIME_LIBRARY_DONOR_ACQUISITION_EXIT_CODE = 87
 RUNTIME_LIBRARY_DONOR_VALIDATION_EXIT_CODE = 88
+# Reserved scanner failures expose only reviewed stage names to the parent job.
+# These codes do not change policy, evidence handling or stream privacy checks.
+VULNERABILITY_SCAN_STAGE_EXIT_CODES = {
+    "input-binding": 89,
+    "scanner-images": 90,
+    "trivy-db-retention": 91,
+    "trivy-gateway-assessment": 92,
+    "trivy-donor-assessment": 93,
+    "trivy-evidence-binding": 94,
+    "node-advisory": 95,
+    "final-evidence-validation": 96,
+    "vulnerability-policy": 97,
+}
 
 EXPECTED_REPOSITORY = "chris-page-gov/gis-ai-go"
 EXPECTED_REGISTRY_ID = "io.github.chris-page-gov/gis-ai-go"

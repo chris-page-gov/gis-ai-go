@@ -27,6 +27,7 @@ from gateway_image import (
     ROOT,
     TRIVY_DB_ACQUISITION_EXIT_CODE,
     TRIVY_DB_REPOSITORIES,
+    VULNERABILITY_SCAN_STAGE_EXIT_CODES,
     contains_diagnostic_private_path,
     prohibited_text_reason,
 )
@@ -38,6 +39,9 @@ MAX_PHASE_OUTPUT_BYTES = 1024 * 1024
 PHASE_OUTPUT_CHUNK_BYTES = 64 * 1024
 PHASE_OUTPUT_BOUNDARY = PRIVACY_PHASE_OUTPUT_BOUNDARY + "\n"
 PHASE_NAME = re.compile(r"[a-z][a-z0-9-]{0,63}\Z")
+SCAN_FAILURE_STAGES = {
+    code: stage for stage, code in VULNERABILITY_SCAN_STAGE_EXIT_CODES.items()
+}
 
 
 def _contains_reserved_phase_boundary(text: str) -> bool:
@@ -348,6 +352,8 @@ def run_checked(
             and return_code == RUNTIME_LIBRARY_DONOR_VALIDATION_EXIT_CODE
         ):
             failure = "failed during runtime-library donor validation"
+        elif name == "vulnerability-scan" and return_code in SCAN_FAILURE_STAGES:
+            failure = f"failed during {SCAN_FAILURE_STAGES[return_code]}"
         else:
             failure = "exited unsuccessfully"
     elif prohibited_output_reason is not None:
@@ -394,6 +400,16 @@ def run_checked(
             sys.stderr.write(
                 "gateway image assurance phase vulnerability-scan failed closed; "
                 "failure_stage=runtime-library-donor-validation\n"
+            )
+            sys.stderr.flush()
+        elif (
+            name == "vulnerability-scan"
+            and return_code in SCAN_FAILURE_STAGES
+            and failure == f"failed during {SCAN_FAILURE_STAGES[return_code]}"
+        ):
+            sys.stderr.write(
+                "gateway image assurance phase vulnerability-scan failed closed; "
+                f"failure_stage={SCAN_FAILURE_STAGES[return_code]}\n"
             )
             sys.stderr.flush()
     if failure is not None:

@@ -3623,7 +3623,7 @@ class GatewayImageContractTests(unittest.TestCase):
                 mock.patch("scan_gateway_image.inspect_database_archive", return_value=[]),
                 mock.patch("scan_gateway_image.cache_inventory", return_value=[]),
                 self.assertRaisesRegex(
-                    ValueError, "gateway Trivy report contains prohibited"
+                    ValueError, "failed closed at trivy-evidence-binding"
                 ) as raised,
             ):
                 generate_scan_evidence(
@@ -3672,7 +3672,7 @@ class GatewayImageContractTests(unittest.TestCase):
                 mock.patch("scan_gateway_image.inspect_database_archive", return_value=[]),
                 mock.patch("scan_gateway_image.cache_inventory", return_value=[]),
                 self.assertRaisesRegex(
-                    ValueError, "gateway Trivy report contains prohibited"
+                    ValueError, "failed closed at trivy-evidence-binding"
                 ) as raised,
             ):
                 generate_scan_evidence(

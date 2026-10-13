@@ -83,6 +83,19 @@ shadow scope. Changelog, local-link and baseline secret checks also passed.
 The current change's PR and CI runs are the authority for canonical acceptance;
 local success does not imply a merged or deployed control.
 
+The document intake also updates the packaged source-rights notice, its exact
+publication/image hashes and the affected deterministic local evaluation receipts.
+Receipt outcomes remain non-live and unscored; historical acceptance pins are
+unchanged. The regenerated receipts passed their existing runner and 33 contract
+tests; the publication build and 110 bundle/image contracts passed.
+
+Repeated image-scan failures exposed an observability gap: the existing privacy
+filter correctly withheld raw exception output but could not identify the failing
+scanner stage. Closed stage exit codes now identify that stage without publishing
+exception text or altering scanner pins, vulnerability policy, evidence checks or
+quarantine handling. The diagnostic increment passed 149 focused tests and an
+independent review. A stage label is diagnostic evidence, not a successful scan.
+
 Before describing this as an enforced protection against a change author:
 
 - bind the required workflow to a protected organisation source, or bind an
