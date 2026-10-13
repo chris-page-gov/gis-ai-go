@@ -14,7 +14,7 @@
     "preview": "vite preview --host 127.0.0.1 --port 4176 --strictPort"
   },
   "dependencies": {
-    "@modelcontextprotocol/client": "2.0.0"
+    "@modelcontextprotocol/client": "2.2.0"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.13.0",
