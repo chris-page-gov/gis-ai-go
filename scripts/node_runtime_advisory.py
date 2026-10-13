@@ -26,6 +26,7 @@ from urllib.request import (
 )
 
 from gateway_image import (
+    MAX_GRYPE_DB_EXPANDED_BYTES,
     NODE_ADVISORY_STAGE_EXIT_CODES,
     NODE_BINARY_SHA256,
     NODE_RUNTIME_CPE,
@@ -37,6 +38,7 @@ from gateway_image import (
     assert_no_private_json,
     assert_no_private_text,
     canonical_json_bytes,
+    node_inventory_size_diagnostic,
     parse_bounded_json_object,
     parse_checksum,
     prohibited_text_reason,
@@ -59,7 +61,6 @@ DATABASE_REQUEST_HEADERS = {
     "User-Agent": "gis-ai-go/0.1 vulnerability-evidence",
 }
 MAX_GRYPE_DB_ARCHIVE_BYTES = 256 * 1024 * 1024
-MAX_GRYPE_DB_EXPANDED_BYTES = 3 * 1024 * 1024 * 1024
 MAX_GRYPE_REPORT_BYTES = 32 * 1024 * 1024
 MAX_GRYPE_DIAGNOSTIC_BYTES = 4 * 1024
 GRYPE_TIMEOUT_SECONDS = 20 * 60
@@ -95,10 +96,16 @@ _CVE = re.compile(r"CVE-[0-9]{4}-[0-9]{4,}\Z")
 class NodeAdvisoryFailure(ValueError):
     """Expose only a reviewed Node advisory failure stage."""
 
-    def __init__(self, stage: str) -> None:
+    def __init__(self, stage: str, *, inventory_sizes: dict[str, int] | None = None) -> None:
         if stage not in NODE_ADVISORY_STAGE_EXIT_CODES:
             raise ValueError("Node advisory diagnostic stage is invalid")
+        if inventory_sizes is not None and (
+            stage != "node-db-inventory-expanded-bound"
+            or node_inventory_size_diagnostic(inventory_sizes) is None
+        ):
+            raise ValueError("Node inventory size diagnostic is invalid")
         self.stage = stage
+        self.inventory_sizes = None if inventory_sizes is None else dict(inventory_sizes)
         super().__init__(f"Node advisory failed closed at {stage}")
 
 
@@ -408,29 +415,60 @@ def import_database(
     return read_database_status(cache, expected_source=source)
 
 
+def _inventory_lstat(path: Path) -> os.stat_result:
+    try:
+        return path.lstat()
+    except FileNotFoundError:
+        stage = "node-db-inventory-missing"
+    except OSError:
+        stage = "node-db-inventory-read"
+    raise NodeAdvisoryFailure(stage)
+
+
+def _inventory_entries(directory: Path, expected: set[str]) -> None:
+    seen: set[str] = set()
+    with os.scandir(directory) as entries:
+        for entry in entries:
+            mode = entry.stat(follow_symlinks=False).st_mode
+            if not (stat.S_ISREG(mode) or stat.S_ISDIR(mode)):
+                raise NodeAdvisoryFailure("node-db-inventory-type")
+            if entry.name not in expected:
+                raise NodeAdvisoryFailure("node-db-inventory-unexpected-entry")
+            seen.add(entry.name)
+    if seen != expected:
+        raise NodeAdvisoryFailure("node-db-inventory-missing")
+
+
 def database_inventory(cache: Path) -> list[dict[str, Any]]:
-    expected = {"6/import.json", "6/vulnerability.db"}
-    result: list[dict[str, Any]] = []
-    total = 0
-    for relative in sorted(expected):
-        path = cache / relative
-        metadata = path.lstat()
-        if stat.S_ISLNK(metadata.st_mode) or not stat.S_ISREG(metadata.st_mode):
-            raise ValueError("Grype imported database inventory is not regular")
-        total += metadata.st_size
-        if total > MAX_GRYPE_DB_EXPANDED_BYTES:
-            raise ValueError("Grype imported database exceeds its expanded bound")
-        result.append(
-            {"path": relative, "sha256": sha256_file(path), "bytes": metadata.st_size}
+    # Validate the complete, closed tree before opening or hashing any file.
+    for directory in (cache, cache / "6"):
+        if not stat.S_ISDIR(_inventory_lstat(directory).st_mode):
+            raise NodeAdvisoryFailure("node-db-inventory-type")
+    expected = ("6/import.json", "6/vulnerability.db")
+    sizes: list[int] = []
+    for relative in expected:
+        metadata = _inventory_lstat(cache / relative)
+        if not stat.S_ISREG(metadata.st_mode):
+            raise NodeAdvisoryFailure("node-db-inventory-type")
+        if metadata.st_size <= 0:
+            raise NodeAdvisoryFailure("node-db-inventory-zero-length")
+        sizes.append(metadata.st_size)
+    _node_step("node-db-inventory-read", _inventory_entries, cache, {"6"})
+    _node_step("node-db-inventory-read", _inventory_entries, cache / "6", {"import.json", "vulnerability.db"})
+    total = sum(sizes)
+    if total > MAX_GRYPE_DB_EXPANDED_BYTES:
+        measurements = dict(zip(("metadata_bytes", "database_bytes"), sizes, strict=True))
+        measurements.update(expanded_bytes=total, maximum_bytes=MAX_GRYPE_DB_EXPANDED_BYTES)
+        raise NodeAdvisoryFailure(
+            "node-db-inventory-expanded-bound",
+            inventory_sizes=measurements if node_inventory_size_diagnostic(measurements) else None,
         )
-    unexpected = {
-        item.relative_to(cache).as_posix()
-        for item in cache.rglob("*")
-        if item.is_file() or item.is_symlink()
-    } - expected
-    if unexpected:
-        raise ValueError("Grype imported database inventory is not closed")
-    return result
+    return [
+        {"path": relative,
+         "sha256": _node_step("node-db-inventory-read", sha256_file, cache / relative),
+         "bytes": size}
+        for relative, size in zip(expected, sizes, strict=True)
+    ]
 
 
 def _database_inventory_shape(

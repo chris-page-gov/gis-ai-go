@@ -313,7 +313,7 @@ class NodeAdvisoryDiagnosticsTests(unittest.TestCase):
                  for stage, code in NODE_ADVISORY_STAGE_EXIT_CODES.items()]
         cases += [("container-acceptance", code, None)
                   for code in NODE_ADVISORY_STAGE_EXIT_CODES.values()]
-        cases += [("vulnerability-scan", 112, None)]
+        cases += [("vulnerability-scan", 125, None)]
         for phase, code, stage in cases:
             with self.subTest(phase=phase, code=code):
                 command = (f"import os,sys;os.write(1,{payload!r});"

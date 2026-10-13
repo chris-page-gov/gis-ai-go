@@ -12,6 +12,7 @@ import os
 import re
 import stat
 import subprocess
+import sys
 import tarfile
 import tempfile
 import time
@@ -58,6 +59,7 @@ from gateway_image import (
     assert_no_private_text,
     canonical_json_bytes,
     contains_diagnostic_private_path,
+    node_inventory_size_diagnostic,
     parse_checksum,
     prohibited_text_reason,
     sha256_file,
@@ -2353,6 +2355,9 @@ def cli() -> None:
         exit_code = VULNERABILITY_SCAN_STAGE_EXIT_CODES[error.stage]
     except NodeAdvisoryFailure as error:
         exit_code = NODE_ADVISORY_STAGE_EXIT_CODES[error.stage]
+        diagnostic = node_inventory_size_diagnostic(error.inventory_sizes)
+        if diagnostic is not None:
+            sys.stderr.write(diagnostic + "\n")
     else:
         return
     # Do not retain even the fixed diagnostic exception on the CLI exit.

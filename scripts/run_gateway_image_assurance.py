@@ -22,6 +22,8 @@ from typing import Any
 from gateway_evidence import write_evidence_manifest
 from gateway_image import (
     NODE_ADVISORY_STAGE_EXIT_CODES,
+    NODE_INVENTORY_SIZE_FIELDS,
+    NODE_INVENTORY_SIZE_PREFIX,
     PRIVACY_PHASE_OUTPUT_BOUNDARY,
     RUNTIME_LIBRARY_DONOR_ACQUISITION_EXIT_CODE,
     RUNTIME_LIBRARY_DONOR_VALIDATION_EXIT_CODE,
@@ -30,6 +32,7 @@ from gateway_image import (
     TRIVY_DB_REPOSITORIES,
     VULNERABILITY_SCAN_STAGE_EXIT_CODES,
     contains_diagnostic_private_path,
+    node_inventory_size_diagnostic,
     prohibited_text_reason,
 )
 
@@ -46,6 +49,22 @@ SCAN_FAILURE_STAGES = {
         **NODE_ADVISORY_STAGE_EXIT_CODES,
     }.items()
 }
+
+
+def _node_inventory_size_diagnostic(text: str) -> str | None:
+    lines = [line for line in text.splitlines()
+             if line.startswith(NODE_INVENTORY_SIZE_PREFIX.rstrip())]
+    if len(lines) != 1:
+        return None
+    pattern = re.escape(NODE_INVENTORY_SIZE_PREFIX) + " ".join(
+        re.escape(key) + r"=(0|[1-9][0-9]{0,18})" for key in NODE_INVENTORY_SIZE_FIELDS
+    )
+    match = re.fullmatch(pattern, lines[0])
+    if match is None:
+        return None
+    return node_inventory_size_diagnostic(
+        dict(zip(NODE_INVENTORY_SIZE_FIELDS, map(int, match.groups()), strict=True))
+    )
 
 
 def _contains_reserved_phase_boundary(text: str) -> bool:
@@ -415,6 +434,18 @@ def run_checked(
                 "gateway image assurance phase vulnerability-scan failed closed; "
                 f"failure_stage={SCAN_FAILURE_STAGES[return_code]}\n"
             )
+            if (
+                return_code == NODE_ADVISORY_STAGE_EXIT_CODES["node-db-inventory-expanded-bound"]
+                and prohibited_output_reason is None
+                and classifications[1][2] is not None
+                and not any(
+                    line.startswith(NODE_INVENTORY_SIZE_PREFIX.rstrip())
+                    for line in (classifications[0][2] or "").splitlines()
+                )
+            ):
+                diagnostic = _node_inventory_size_diagnostic(classifications[1][2])
+                if diagnostic is not None:
+                    sys.stderr.write(diagnostic + "\n")
             sys.stderr.flush()
     if failure is not None:
         raise ValueError(f"gateway image assurance phase {name} {failure}")

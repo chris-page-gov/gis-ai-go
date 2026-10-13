@@ -197,7 +197,35 @@ NODE_ADVISORY_STAGE_EXIT_CODES = {
     "node-provider-freshness": 109,
     "node-evidence-write": 110,
     "node-db-replay-binding": 111,
+    "node-db-inventory-missing": 112,
+    "node-db-inventory-type": 113,
+    "node-db-inventory-zero-length": 114,
+    "node-db-inventory-expanded-bound": 115,
+    "node-db-inventory-unexpected-entry": 116,
+    "node-db-inventory-read": 117,
 }
+MAX_GRYPE_DB_EXPANDED_BYTES = 3 * 1024 * 1024 * 1024
+NODE_INVENTORY_SIZE_PREFIX = "node_db_inventory_sizes "
+NODE_INVENTORY_SIZE_FIELDS = (
+    "metadata_bytes", "database_bytes", "expanded_bytes", "maximum_bytes"
+)
+
+
+def node_inventory_size_diagnostic(value: Any) -> str | None:
+    """Project only bounded, internally consistent over-bound file sizes."""
+    if type(value) is not dict or set(value) != set(NODE_INVENTORY_SIZE_FIELDS):
+        return None
+    if any(type(value[key]) is not int or not 0 <= value[key] <= 2**63 - 1
+           for key in NODE_INVENTORY_SIZE_FIELDS):
+        return None
+    if (value["expanded_bytes"] != value["metadata_bytes"] + value["database_bytes"]
+            or value["metadata_bytes"] == 0 or value["database_bytes"] == 0
+            or value["maximum_bytes"] != MAX_GRYPE_DB_EXPANDED_BYTES
+            or value["expanded_bytes"] <= value["maximum_bytes"]):
+        return None
+    return NODE_INVENTORY_SIZE_PREFIX + " ".join(
+        f"{key}={value[key]}" for key in NODE_INVENTORY_SIZE_FIELDS
+    )
 
 EXPECTED_REPOSITORY = "chris-page-gov/gis-ai-go"
 EXPECTED_REGISTRY_ID = "io.github.chris-page-gov/gis-ai-go"
