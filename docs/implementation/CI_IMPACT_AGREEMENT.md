@@ -11,6 +11,14 @@ At the case study's pinned baseline,
 and map only. Its own design explicitly said that trusted agreement was not
 implemented. The peer review's principal criticism is correct for that baseline.
 
+The [source-document intake](../research/2026-10-13/governance-as-code/README.md)
+preserves the owner-supplied revised meeting briefing and peer review as public
+DOCX derivatives and Markdown extracts. The review assessed an earlier 11-page
+case study, not the revised briefing or [PR #147](https://github.com/chris-page-gov/gis-ai-go/pull/147).
+The briefing remains a dated draft; its header claims about models and reviewers
+are unverified. These documents provide evidence for discussion, not operational
+authority or endorsement, and retain their source rights.
+
 The reported mutation is reproducible: moving `.github/**` and
 `scripts/plan_ci_impact.py` from `global-assurance-control` into the documentation
 rule leaves a structurally valid map, but makes those paths recommend repository

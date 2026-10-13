@@ -14,6 +14,11 @@ separate from local verification. [Issue #97](https://github.com/chris-page-gov/
 remains open for an externally protected gate and promotion evidence. No repository
 ruleset, deployment, release or provider entitlement is changed.
 
+The [owner-supplied meeting briefing and peer review](docs/research/2026-10-13/governance-as-code/README.md)
+are retained with provenance and separate source rights. The review assessed the
+earlier 11-page case study, not the revised briefing or the implementation in
+[PR #147](https://github.com/chris-page-gov/gis-ai-go/pull/147).
+
 ## Current checkpoint
 
 - Supported public product: [v0.1.0 static Explorer](https://github.com/chris-page-gov/gis-ai-go/releases/tag/v0.1.0).
