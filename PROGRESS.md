@@ -1,6 +1,18 @@
 # Current progress
 
-Last updated: 2 October 2026
+Last updated: 13 October 2026
+
+## CI governance case-study correction
+
+The owner requested verification and implementation of the missing trusted-base
+agreement identified in a case-study peer review. The baseline at `97bc456` runs
+candidate-only shadow planning; the review's policy re-routing example reproduces.
+The [ASSURE-209 agreement increment](docs/implementation/CI_IMPACT_AGREEMENT.md)
+adds isolated base-owned comparison, conservative bootstrap and regression tests.
+It remains shadow-only: full assurance continues, and canonical PR acceptance is
+separate from local verification. [Issue #97](https://github.com/chris-page-gov/gis-ai-go/issues/97)
+remains open for an externally protected gate and promotion evidence. No repository
+ruleset, deployment, release or provider entitlement is changed.
 
 ## Current checkpoint
 

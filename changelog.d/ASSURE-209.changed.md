@@ -1,0 +1,1 @@
+- Add a separate trusted-base CI impact agreement job with strict candidate-plan replay, full-assurance bootstrap and regression coverage for policy re-routing. Keep all checks active in shadow mode and distinguish the implemented comparison from the external trusted-gate and promotion requirements.
