@@ -59,9 +59,10 @@ The maintained Chrome configuration was unchanged. Additional sandbox network
 permission enabled the browser's local sockets and loopback preview; page
 assurance continued to reject external requests. No provider calls were made.
 
-GitHub access remains unavailable in this environment, so no remote pull request,
-canonical CI result, release or deployment is claimed. Other maintenance findings
-remain separate work.
+GitHub access was unavailable during initial verification, so this repair record
+does not establish canonical CI, release or deployment. Subsequent publication
+and checks are tracked in the [release closure record](RELEASE_CLOSURE.md).
+Other maintenance findings remain separate work.
 
 ## Final browser outcome
 

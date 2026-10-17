@@ -18,7 +18,7 @@ admission leaves no new published output and preserves any previous bundle.
 Small synthetic test checkouts now copy the real schema files. There is no
 production option to bypass this validation.
 
-The [build regressions](../../tests/contract/test_okf_plus_build.py#L265) exercise
+The [build regressions](../../tests/contract/test_okf_plus_build.py#L369) exercise
 each missing schema and a wholly absent schema tree, fresh and existing output,
 and input shapes that pass manual provenance checks but violate JSON Schema.
 Tests distinguish complete structural validation from provenance checking.
@@ -80,6 +80,7 @@ Independent reviews found no actionable issues in either patch. Local Markdown
 links, research hashes, source-ledger snapshots, changelog fragments and whitespace
 checks passed. The offline secret/path scan reported no baseline matches.
 
-Canonical CI and remote publication remain unavailable because this environment's
-GitHub API access returned `Forbidden`. No live provider, hosted deployment or
-full-corpus regeneration is claimed.
+At initial verification, remote publication was unavailable because the shell
+GitHub API returned `Forbidden`. The subsequent [release closure work](RELEASE_CLOSURE.md)
+uses the available connector and Git transport and records canonical CI separately.
+No live provider, hosted deployment or full-corpus regeneration is claimed here.

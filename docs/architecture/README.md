@@ -8,6 +8,11 @@ anchors. Later comments and documentation do not move the referenced source.
 Deployment statements describe the source and recorded acceptance at this baseline;
 they are not a fresh observation of a hosted service.
 
+For subsequent repairs and current release work, see the
+[maintenance disposition](../implementation/MAINTENANCE_DISPOSITION.md) and
+[release closure record](../implementation/RELEASE_CLOSURE.md). These follow-ups
+preserve the historical source links below.
+
 ## Reading routes
 
 | Reader | Start here | Then read |
