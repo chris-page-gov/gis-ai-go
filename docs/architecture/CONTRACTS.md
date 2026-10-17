@@ -13,6 +13,10 @@ are explicitly labelled as dependency contracts. The
 literal reference evidence. It distinguishes definition, use, validation and
 release status; finding a schema does not prove that a service is running.
 
+Later [validation repairs](../implementation/VALIDATION_REPAIRS.md) require the
+OKF+ schema files and add the intake descriptor/producer conformance gate. The
+register and source references here continue to describe the review baseline.
+
 ## What a contract means
 
 A software contract is an agreement between two pieces of code. One side promises

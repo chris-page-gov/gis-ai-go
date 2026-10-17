@@ -1,6 +1,8 @@
 # Contract review findings
 
 Baseline: `97bc45635a91064cd78f06bf0848ad7636f05439`.
+Follow-up: CT-02 is addressed in [the validation repair record](../implementation/VALIDATION_REPAIRS.md).
+The findings below retain their original source baseline and references.
 
 ## CT-01 — stale inactive wording obscures the implemented local boundary
 

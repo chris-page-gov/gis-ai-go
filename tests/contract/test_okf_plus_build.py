@@ -12,6 +12,7 @@ from pathlib import Path
 from unittest import mock
 from urllib.error import HTTPError
 from urllib.request import Request
+from jsonschema import ValidationError
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "scripts/okf_plus"))
@@ -28,9 +29,17 @@ SPEC.loader.exec_module(BUILD)
 REVISION = "c" * 40
 SOURCE_URL = "https://example.org/synthetic-catalogue"
 CAPTURE_TIME = "2026-10-02T00:00:00Z"
+SCHEMA_NAMES = ("record.schema.json", "source-snapshot.schema.json", "search-index.schema.json")
 
 
-def fixture(root: Path):
+def fixture(root: Path, *, include_schemas: bool = True):
+    # Minimal fixtures use the same contracts as ordinary builds. An incomplete
+    # schema tree is created only when a negative test requests it explicitly.
+    if include_schemas:
+        schema_directory = root / "okf-plus/schemas"
+        schema_directory.mkdir(parents=True)
+        for name in SCHEMA_NAMES:
+            (schema_directory / name).write_bytes((ROOT / "okf-plus/schemas" / name).read_bytes())
     native = {"id": "synthetic-1", "title": "Synthetic public metadata"}
     receipt = {"status": 200, "url": SOURCE_URL, "retrievedAt": CAPTURE_TIME,
                "sha256": "a" * 64, "bytes": 100}
@@ -252,6 +261,55 @@ class OkfPlusBuildTests(unittest.TestCase):
     def validate(self, root, row, path, snapshot):
         with mock.patch.object(BUILD, "ROOT", root):
             BUILD.validate_record(row, path, {"okf-plus/source/synthetic.json": snapshot})
+
+    def test_missing_required_schemas_fail_before_record_reads_or_publication(self):
+        for missing in (*SCHEMA_NAMES, "all"):
+            with self.subTest(missing=missing), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                fixture(root, include_schemas=missing != "all")
+                if missing != "all":
+                    (root / "okf-plus/schemas" / missing).unlink()
+                output = root / "generated"
+                with mock.patch.object(BUILD, "read_markdown", wraps=BUILD.read_markdown) as read:
+                    with self.assertRaisesRegex(ValueError, "Required OKF\\+ schema"):
+                        BUILD.build(root, output, REVISION)
+                    read.assert_not_called()
+                self.assertFalse(output.exists())
+                self.assertEqual(list(root.glob(".okf-plus-build-*")), [])
+
+    def test_missing_required_schemas_preserve_previous_bundle(self):
+        for missing in (*SCHEMA_NAMES, "all"):
+            with self.subTest(missing=missing), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                fixture(root)
+                output = root / "generated"
+                BUILD.build(root, output, REVISION)
+                before = generated_bytes(output)
+                for name in SCHEMA_NAMES if missing == "all" else (missing,):
+                    (root / "okf-plus/schemas" / name).unlink()
+                with self.assertRaisesRegex(ValueError, "Required OKF\\+ schema"):
+                    BUILD.build(root, output, REVISION)
+                self.assertEqual(generated_bytes(output), before)
+                self.assertEqual(list(root.glob(".okf-plus-build-*")), [])
+
+    def test_minimal_fixture_retains_schema_validation_beyond_provenance_checks(self):
+        for invalid in ("record", "snapshot"):
+            with self.subTest(invalid=invalid), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                row, path, snapshot = fixture(root)
+                if invalid == "record":
+                    row["generated"]["unexpected"] = "Synthetic unknown field"
+                    model.write_markdown(path, row, "# Invalid synthetic record shape")
+                else:
+                    snapshot["unexpected"] = "Synthetic unknown field"
+                    (root / "okf-plus/source/synthetic.json").write_bytes(model.canonical(snapshot))
+                # The pre-existing provenance checks permit these extra fields;
+                # only the complete JSON Schema pass can reject their shapes.
+                self.validate(root, row, path, snapshot)
+                output = root / "generated"
+                with self.assertRaises(ValidationError):
+                    BUILD.build(root, output, REVISION)
+                self.assertFalse(output.exists())
 
     def test_relocated_builds_are_byte_identical_and_checksums_cover_outputs(self):
         with tempfile.TemporaryDirectory() as a, tempfile.TemporaryDirectory() as b:

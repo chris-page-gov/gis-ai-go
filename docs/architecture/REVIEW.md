@@ -2,6 +2,7 @@
 
 Reviewed source: [`97bc45635a91064cd78f06bf0848ad7636f05439`](https://github.com/chris-page-gov/gis-ai-go/tree/97bc45635a91064cd78f06bf0848ad7636f05439).
 Follow-up: UI-01 and UI-02 are addressed in [the Explorer repair record](../implementation/EXPLORER_UI_REPAIRS.md).
+EX-07 and CT-02 are addressed in [the validation repair record](../implementation/VALIDATION_REPAIRS.md).
 The findings and immutable source references below describe the original review baseline.
 
 The review records **34 findings** across six areas. It identifies small unused

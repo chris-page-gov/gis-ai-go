@@ -1,6 +1,26 @@
 # Current progress
 
-Latest implementation checkpoint: Explorer fixes for review findings UI-01/UI-02.
+Latest implementation checkpoint: validation repairs for review findings EX-07/CT-02.
+
+## Metadata and intake validation repairs
+
+The owner authorised the next two validation improvements after the UI fixes.
+OKF+ builds now require all three schema files before reading records, and failed
+validation preserves an existing generated bundle. Minimal fixtures copy the real
+schemas. Intake package assurance checks both published schema definitions and
+actual planner/ZIP results, including rejected mutations and the distinction
+between structural schema validity and stricter runtime checks. These changes
+reuse locked development dependencies and add no runtime dependency.
+
+Local verification passed all 181 affected OKF+ tests and all 21 intake package
+tests. The intake conformance checks cover 43 cases; four deliberate mutation
+checks demonstrated detection of descriptor and producer-output drift. All 11
+generated files from an unchanged complete metadata fixture remain byte-identical.
+
+The [validation repair record](docs/implementation/VALIDATION_REPAIRS.md) records
+regression evidence, affected test results and integration limits. Supported hosted
+gateway deployment remains a later milestone; no provider or deployment was
+activated by this increment.
 
 ## Explorer focus and Unicode repairs
 
@@ -11,6 +31,8 @@ targets. Search input, canonical state and URL admission now share the existing
 200 UTF-16-unit budget; truncation after normalisation preserves complete Unicode
 characters. The implementation and validation record is in
 [Explorer UI repairs](docs/implementation/EXPLORER_UI_REPAIRS.md).
+Committed as `70249136`, with all 45 local Chromium browser tests and 51
+Vitest unit/component tests passing, plus type and build/distribution checks.
 
 The original architecture review remains pinned to its historical source revision.
 These fixes do not remove unused code, activate a gateway or publish a deployment.

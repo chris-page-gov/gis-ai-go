@@ -1,6 +1,8 @@
 # Experimental and metadata review findings
 
 Baseline: `97bc45635a91064cd78f06bf0848ad7636f05439`.
+Follow-up: EX-07 is addressed in [the validation repair record](../implementation/VALIDATION_REPAIRS.md).
+The findings below retain their original source baseline and references.
 
 The review makes no behavioural changes, removals or refactors. It adds an architecture chapter and comments in six source files. All seven findings below have high confidence in the identified code pattern; impact is maintainability/conditional risk rather than a demonstrated production incident. Suggested priority: EX-01 P3, EX-02 P2, EX-03 P3, EX-04 P2, EX-05 P3, EX-06 P3, EX-07 P2.
 
