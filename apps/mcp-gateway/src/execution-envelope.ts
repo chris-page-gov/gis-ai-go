@@ -151,6 +151,9 @@ function polygonAt(value: unknown, maximum: number): Polygon {
 /**
  * Construct the only gateway-to-Python request currently allowed.
  *
+ * This exported fixture contract has no route in the five-tool assembly; calling
+ * the builder validates a hand-off but does not dispatch work to Python.
+ *
  * The gateway assertion is deliberately not a credential. Python verifies this
  * closed hand-off but does not authenticate an end user or make a policy decision.
  */

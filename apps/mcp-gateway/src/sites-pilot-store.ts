@@ -93,6 +93,8 @@ export function verifyPilotResult(value: unknown): value is PilotResult {
 export function createSitesPilotStore(database: Web216D1Database): PilotStore {
   return {
     async admit(provider, now) {
+      // Admission charges the upstream attempt before network work starts. A failed
+      // response or later receipt write does not refund that durable allowance.
       if (!SITES_PILOT_PROVIDERS.includes(provider) || !Number.isSafeInteger(now) || now < 0) throw new TypeError("Invalid admission");
       try {
         const row = await database.prepare(SITES_PILOT_SQL.admit).bind(now - 60_000, now - 60_000, now,
@@ -109,6 +111,8 @@ export function createSitesPilotStore(database: Web216D1Database): PilotStore {
         const row = await database.prepare(SITES_PILOT_SQL.insert).bind(result.evidence.receipt_id,
           result.evidence.created_at, canonicalJson(result)).first<{ receipt_id: string }>();
         if (row === null) throw new SitesPilotStoreError("store-full");
+        // A successful INSERT alone is insufficient: success also requires the
+        // stored bytes to round-trip through the same integrity checks as inspection.
         const readBack = await this.inspect(result.evidence.receipt_id);
         if (canonicalJson(readBack) !== canonicalJson(result)) throw new SitesPilotStoreError("corrupt-evidence");
       } catch (error) {

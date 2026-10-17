@@ -557,6 +557,8 @@ def main() -> None:
         require_assurance_paths()
         if output.exists() or output.is_symlink():
             raise ValueError("gateway assurance output appeared before verified promotion")
+        # Publication is the final state transition: consumers must never see an
+        # output directory containing only the phases that happened to finish.
         quarantine.replace(output)
         promoted = True
     finally:

@@ -2159,6 +2159,9 @@ class ObjectlessCapture:
 class EvidenceStore:
     """Locked writer for the private delivery-evidence store."""
 
+    # This journal preserves engineering evidence, not public runtime receipts.
+    # Recover pending writes under the same exclusive lock used for new captures
+    # so an interrupted transaction cannot become a second source observation.
     def __init__(
         self,
         root: Path,

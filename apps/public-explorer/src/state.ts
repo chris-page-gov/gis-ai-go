@@ -90,6 +90,8 @@ export function canonicaliseState(
             ),
           ),
     selectedRecordId:
+      // Keep a well-formed but unknown ID so the view can report "Record not found".
+      // Replacing it with the default record would change the meaning of a shared link.
       state.selectedRecordId !== null &&
       state.selectedRecordId.length <= MAX_RECORD_ID_LENGTH &&
       !UNSAFE_CONTROL.test(state.selectedRecordId)

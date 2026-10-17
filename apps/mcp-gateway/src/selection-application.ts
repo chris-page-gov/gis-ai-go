@@ -508,6 +508,8 @@ function receiptTimestamp(now: () => Date): string {
 }
 
 function normalisedParameters(): SelectionResolveNormalisedParameters {
+  // The receipt binds the resolved provider selection. Free-form question text
+  // neither changes the plan nor enters these execution parameters.
   return canonicalJsonClone({
     schema: "gis-ai-go.selection-resolve-parameters.v1",
     profile_id: PUBLIC_READ_ONS_RESOURCE.profile.id,

@@ -111,6 +111,9 @@ export const WEB216_CPIH_MCP_SCHEMAS = canonicalJsonClone({
 } as const);
 
 function validatedByApplication(schema: Schema): StandardSchemaWithJSON<unknown, unknown> {
+  // This SDK adapter advertises the schema but deliberately delegates validation
+  // to resolve/query/inspect, which reject unknown fields and inconsistent plans.
+  // It must only be used with the module-branded application checked below.
   return { "~standard": {
     version: 1, vendor: "gis-ai-go-web216-cpih-application", validate: (value: unknown) => ({ value }),
     jsonSchema: { input: () => schema, output: () => schema },

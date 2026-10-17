@@ -1527,6 +1527,8 @@ export class PublicEvidenceReconciliationIndex {
 
     const claim = buildClaim(this.#descriptor, input, currentTimestamp(this.#now));
     assertPrivacy(claim);
+    // Ownership is the execution exclusion point. Even a crash before the ready
+    // claim leaves this key pending, so absence of a result never permits re-execution.
     const owns = writeExclusiveMarker(join(this.#claimOwnershipDirectory, key));
     if (!owns) {
       verified = this.#verifyState();

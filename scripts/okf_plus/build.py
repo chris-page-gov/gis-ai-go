@@ -132,6 +132,8 @@ def build(root,output,revision):
         return coverage
 
 def _build_into(root,output,revision):
+    # validate_record resolves provenance through this module-level root. The CLI
+    # runs one build at a time; callers must not interleave builds for different roots.
     global ROOT
     ROOT=root
     if not re.fullmatch('[0-9a-f]{40}',revision):raise ValueError('A full Git revision is required')

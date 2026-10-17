@@ -1,6 +1,26 @@
 # Current progress
 
-Last updated: 2 October 2026
+Latest documentation checkpoint: repository review of `97bc45635a91064cd78f06bf0848ad7636f05439`.
+
+## Architecture and maintainability review
+
+The owner requested a whole-repository review of dead/unclear code and refactoring
+opportunities, with architecture diagrams, formal specifications, inline comments
+and a beginner explanation of every contract family. The
+[architecture guide](docs/architecture/README.md) and
+[prioritised review](docs/architecture/REVIEW.md) provide that source-bound record.
+The complete tree inventory covers 32,138 files; 484 code/presentation/migration/
+launcher/CI files have individual references and explicit review depth, separating
+479 authored files from five pinned vendor files. The contract
+register covers 115 JSON Schemas (102 under the root schema directory), embedded
+schemas, exported types, dataclasses and OpenAPI projections.
+
+Implementation edits are comments only. Proposed removals and behavioural repairs
+remain review findings, with verification requirements for the separate improvement
+stage. Local verification and its limits are recorded in the review; this checkpoint
+does not claim a new release, deployment or canonical CI acceptance. The GitHub API
+is blocked in the current environment, so remote pull-request publication remains
+unperformed.
 
 ## Current checkpoint
 
@@ -14,14 +34,14 @@ Last updated: 2 October 2026
 - Public MCP hosting, live deployment acceptance and the `v0.2.0` tag/release
   remain open in #23, #24 and #25.
 
-## Authorised current work
+## Previous implementation checkpoint: EXPERIENCE-221
 
 The latest exact-commit CI, publication and client-acceptance checkpoint is
 [EXPERIENCE-221 issue #143](https://github.com/chris-page-gov/gis-ai-go/issues/143),
 with implementation review in [PR #144](https://github.com/chris-page-gov/gis-ai-go/pull/144).
 The following local verification snapshot was recorded before those final gates.
 
-The current task is [EXPERIENCE-221](docs/implementation/EXPERIENCE-221_LEARNING_AND_EVALUATION.md),
+The preceding task was [EXPERIENCE-221](docs/implementation/EXPERIENCE-221_LEARNING_AND_EVALUATION.md),
 authorised on 2 October: establish actual MCP/client facilities; cover every
 current feature with personas, stories, questions, sources, presentation forms
 and plain-language learning help; prepare voice-driven page actions and bounded

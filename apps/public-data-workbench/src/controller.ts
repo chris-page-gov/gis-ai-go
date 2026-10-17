@@ -116,6 +116,8 @@ function newKey(): string {
 /** Manual controls and page tools use this one bounded controller. */
 export function createWorkbench(call: McpCall, options: WorkbenchOptions = {}) {
   const evidenceMode = constructionMode(options); // Never inferred from a response or tool arguments.
+  // Cancellation cannot undo server persistence. The generation guards the visible
+  // selection; the per-plan request key below separately makes a retry replayable.
   let plan: Plan | undefined, busy = false, generation = 0;
   const keys = new Map<string, string>(); // At most the two admitted month plans.
   async function run<T>(operation: () => Promise<T>): Promise<T> {

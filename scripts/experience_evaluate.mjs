@@ -119,6 +119,8 @@ export async function verifySourceBindings(doc, root = ROOT) {
   const experience = await read('apps/public-data-workbench/src/experience-tools.ts');
   const capture = await read('apps/mcp-gateway/src/web216-cpih-mcp.ts');
   const publicUi = await read('apps/public-explorer/src/main.ts');
+  // These checks bind the authored denominator to source declarations, not to a
+  // running client. Source-format changes must update these extractors together.
   const constantStrings = (source, name) => {
     const match = source.match(new RegExp(`const ${name} = (?:Object\\.freeze\\()?\\[([\\s\\S]*?)\\]`));
     requireThat(match, `Cannot discover ${name}`); return [...match[1].matchAll(/"([^"]+)"/gu)].map((m) => m[1]);
