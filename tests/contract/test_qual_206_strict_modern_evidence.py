@@ -44,8 +44,10 @@ EXACT_RESOURCES = [
 # the derived suite, receipt and set identities; outcomes and claims are unchanged.
 # REVIEW-222 binds the reviewed comments and repaired Explorer source. Only
 # material hashes and derived identities change; assertions and limits are retained.
+# DEP-142 refreshes the patched package/source-lock bindings and derived identities
+# after executing the selected suites; assertions, outcomes and historical pins remain.
 REGENERABLE_LOCAL_RECEIPT_SHA256 = (
-    "9e71e1c6becfc395b3c4f9a28f667f0c513fd2edd9a4293767c1a1c9744cef5a"
+    "f99c1aa9fdcb4f2e555c50ceac9172bd44e3f012959d3f82edfa5b37a59300b6"
 )
 HISTORICAL_V1_SHA256 = {
     "evaluation/qual-206-local-protocol-evidence-matrix.v1.json": (

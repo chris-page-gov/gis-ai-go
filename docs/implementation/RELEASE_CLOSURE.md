@@ -18,6 +18,15 @@ exemplar does not close the exact-five gateway gates. A proposed supported Sites
 product needs a separately recorded support boundary and acceptance decision;
 this checklist does not change the roadmap or weaken DEPLOY-207.
 
+On 17 October the owner agreed to finish the **existing private Sites teaching
+exemplar first**. Porting the full five-tool gateway is a separate milestone.
+Continue the applicable common and Sites checks for that private scope while
+keeping G01–G05 as the later supported-gateway gates. The dependency repair in
+[issue #142](https://github.com/chris-page-gov/gis-ai-go/issues/142) changes the
+hosted workbench's bundled client and therefore requires a rebuilt and published
+Site before claiming hosted remediation; the four earlier review repairs alone
+did not establish a reason to redeploy an unchanged hosted runtime.
+
 ## Four repaired review findings
 
 These implementation repairs have local regression evidence. Their inclusion in
@@ -57,6 +66,7 @@ version, result and permitted digests.
 | Updated Sites build tooling | The required `site-workflow.mjs` helper is absent from the available filesystem; both attempted skill-resource paths are unavailable. The returned saved archive also could not be authorised or resolved by the file-download tool. This blocks source recovery/update through the expected workflow; it does not establish a missing deployment or native-MCP platform capability. | Run source updates in an environment with the installed Sites helper bundle. The existing version 8 remains unchanged. Do not invent a substitute publishing path. |
 | Database operations | The fresh exposed toolset provides database read access; no full backup, restore or row-deletion action was identified. | Supported recovery/deletion workflow and exercised result: **pending**. Do not promote read projections or checkpoint export into a restore claim. |
 | Final publication | No new release, tag, deployment or accepted support transition is recorded here. | Immutable publication and acceptance references: **pending**. |
+| Dependency repair | Pinned pnpm 10.33.2 resolved Hono 4.13.7, jsdom's Undici 8.10.2, source-map-js 1.2.2 and both MCP client pins 2.2.0. Current local registry audit reports zero advisories, compared with 14 before the repair. | [Disposition and retained reports](../operations/DEPENDENCY_SECURITY_2026-10-17.md). Exact-source CI/image/provenance, GitHub alert state and served Site bytes remain separate observations. |
 
 After integration with `main` at `0a046021`, all **191** affected OKF+ tests
 passed, including the newer archive/source-family security cases. The maintained

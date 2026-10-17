@@ -41,7 +41,7 @@ instructions, then run:
 node --test tests/interoperability/test_sites_mcp_evaluate.mjs
 ```
 
-The tests inject Fetch and use the actual pinned MCP client `2.0.0`. They make no
+The tests inject Fetch and use the actual pinned MCP client `2.2.0`. They make no
 network calls. They cover legacy initialisation for `2025-06-18` and `2025-11-25`,
 modern `2026-07-28` discovery, semantic assertions, closed authority inputs,
 secret/payload-free reports, report-schema validation, bounded requests under
@@ -177,6 +177,10 @@ Validate retained output against
 Keep unsuccessful runs and their classifications. Publish only a reviewed
 summary; no tokens, raw provider responses, personal data, licensed data or local
 machine paths belong in the public repository.
+
+The current harness requires and reports client `2.2.0`. The unchanged v1 report
+format also accepts the historical `2.0.0` client identifier; retained reports
+keep their original client version and are not evidence of the patched client.
 
 ## Separate acceptance observations
 

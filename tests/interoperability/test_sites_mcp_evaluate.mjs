@@ -138,7 +138,19 @@ for (const protocol of ["2025-06-18", "2025-11-25", "2026-07-28"]) test(`officia
   assert(!JSON.stringify(report).includes("authorization"));
   assert.equal(report.claims.oauth_flow_verified, false);
   assert.equal(report.classification, "injected-transport-test");
-  execFileSync(fileURLToPath(new URL("../../.venv/bin/python", import.meta.url)), ["-c", "import json,sys; from jsonschema import Draft202012Validator,FormatChecker; s=json.load(open('schemas/sites-mcp-evaluation-run.schema.json')); Draft202012Validator.check_schema(s); Draft202012Validator(s,format_checker=FormatChecker()).validate(json.load(sys.stdin))"],
+  assert.equal(report.client_version, "2.2.0");
+  execFileSync(fileURLToPath(new URL("../../.venv/bin/python", import.meta.url)), ["-c", `
+import json,sys
+from jsonschema import Draft202012Validator,FormatChecker
+s=json.load(open('schemas/sites-mcp-evaluation-run.schema.json'))
+Draft202012Validator.check_schema(s)
+validator=Draft202012Validator(s,format_checker=FormatChecker())
+report=json.load(sys.stdin)
+validator.validate(report)
+# The report format is unchanged; older observed clients remain accurately named.
+validator.validate({**report,'client_version':'2.0.0'})
+assert not validator.is_valid({**report,'client_version':'2.1.0'})
+`],
     { cwd: new URL("../../", import.meta.url), input: JSON.stringify(report), stdio: ["pipe", "pipe", "pipe"] });
 });
 

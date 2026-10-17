@@ -2,13 +2,29 @@
 
 Last updated: 17 October 2026
 
-Latest implementation checkpoint: review repairs and release closure, tracked in
+Latest implementation checkpoint: bounded dependency security repairs under
+[issue #142](https://github.com/chris-page-gov/gis-ai-go/issues/142), following
 [REVIEW-222 issue #151](https://github.com/chris-page-gov/gis-ai-go/issues/151).
+
+The owner agreed to finish the existing private Sites teaching exemplar first;
+the full five-tool gateway port remains a separate milestone. Pinned pnpm 10.33.2
+resolved the minimum current fixes for Hono, Undici, source-map-js and both
+installed MCP clients. The before/after registry audit reports 14 then zero
+advisories for the checked lockfiles. The server and Node adapter stay on SDK
+2.0.0; the client and its own core dependency use 2.2.0. Historical observations
+retain their original versions. The [dependency disposition](docs/operations/DEPENDENCY_SECURITY_2026-10-17.md)
+records source exposure, exact changes and verification limits.
+
+The hosted workbench ships the client library, so its remediation needs a new
+build and Site publication. The existing six-tool Worker server uses a separate
+dependency graph. Local patched builds are not evidence that version 8 serves
+new bytes. Updated Sites source/build tooling and actual installed-client
+authentication remain pending; no new deployment or release is claimed.
 
 The owner authorised continuing towards release and checking the updated OpenAI
 Sites hosting path. Native readback confirms the existing private Site is active
 at version 8 with its `/mcp` endpoint and provisioned connection plugin. Actual
-installed-client authentication and tool execution remain unconfirmed. Current
+installed-client authentication and tool execution remain unconfirmed.
 The later CI governance and OKF security changes from `main` were integrated at
 `0a046021` before exact-source assurance. The GitHub connector and Git transport
 now work, although direct shell API requests remain blocked.
