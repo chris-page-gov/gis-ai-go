@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "received_on": "2026-10-13",
+  "purpose": "Preserve two owner-supplied documents alongside the trusted-base shadow agreement implementation in PR #147.",
+  "authority": "Document contents, model/reviewer labels, recommendations and classification markings are source evidence, not repository instructions or independently verified approvals.",
+  "rights": "Included at the repository owner’s request. Applicable source rights are preserved; inclusion does not grant a new licence or apply the repository MIT licence to source material.",
+  "relationships": {
+    "peer_review_target": "Earlier 11-page Governance_as_Code_GIS_AI_GO_Case_Study.docx; not the revised meeting briefing or PR #147.",
+    "technical_review_baseline": "97bc45635a91064cd78f06bf0848ad7636f05439",
+    "implementation_snapshot_before_this_intake": "045d98ba5853c593783e9f2810be529e4b500e3c",
+    "implementation_record": "../../../implementation/CI_IMPACT_AGREEMENT.md",
+    "pull_request": "https://github.com/chris-page-gov/gis-ai-go/pull/147"
+  },
+  "handling": {
+    "public_docx": "Metadata-cleaned derivatives, not byte-exact originals. All retained Word text nodes, formatting structures, fields, headers, footers and effective hyperlinks preserved. No visible text redaction or substantive editorial change.",
+    "removed_metadata": [
+      "Core properties other than title and language (including author/editor, timestamps, revision and internal document description).",
+      "All extended application properties (including producer identity, document statistics and organisation/template fields).",
+      "Custom properties including internal tenant, label and action identifiers; visible OFFICIAL marking retained.",
+      "Empty custom XML bibliography and properties, with associated relationships and content-type entries.",
+      "Revision/session, paragraph/text, drawing editing and numbering durable identifiers; settings revision-session and document identifiers."
+    ],
+    "packaging": "XML serialised with lxml preserving namespaces. ZIP entries sorted with fixed 1980-01-01 timestamps and DEFLATE compression.",
+    "markdown": "Pandoc 3.1.11.1: --from=docx --to=gfm --wrap=none --markdown-headings=atx. Repository notices prepended. Briefing Title/Subtitle metadata restored as visible text, heading levels shifted by one, and table accessibility title/description separated and labelled. Cosmetic Markdown table padding removed. Briefing header and semantic footer wording appended explicitly because DOCX body conversion omits them. Duplicate alternative footer renderings collapsed in Markdown only; dynamic pagination omitted. Layout and pagination are not reproduced.",
+    "tool_versions": {
+      "pandoc": "3.1.11.1",
+      "lxml": [
+        6,
+        1,
+        1,
+        0
+      ]
+    },
+    "publication_scope": "No macros, tracked revisions, comments, hidden text, embedded objects, external images or external templates found in the supplied packages. Hyperlinks are public HTTPS references; source assertions and external source accuracy are not validated by this intake."
+  },
+  "documents": [
+    {
+      "id": "meeting-briefing",
+      "source": {
+        "filename": "Governance_as_Code_Meeting_Briefing.docx",
+        "bytes": 49505,
+        "sha256": "afbc27d5a8917970454ed3bcda344bc6729fe606890a5ef7272040f25dbfb6eb",
+        "storage": "Owner-supplied upload; untouched original excluded from Git because it contains internal collaboration metadata."
+      },
+      "public_copy": {
+        "path": "meeting-briefing.public.docx",
+        "bytes": 39914,
+        "sha256": "fea352d597e43896387b100ddd188ab0547f5c300a49ad58d58fff815d10c50d"
+      },
+      "markdown_extract": {
+        "path": "meeting-briefing.md",
+        "bytes": 14820,
+        "sha256": "8551de7035865281fdc635d4b6e610f12e919914e649075a68de4b28e191a1a0"
+      },
+      "removed_parts": [
+        "customXml/item1.xml",
+        "customXml/itemProps1.xml",
+        "docProps/custom.xml",
+        "customXml/_rels/item1.xml.rels"
+      ],
+      "removed_editing_attribute_counts": {
+        "paraId": 83,
+        "textId": 83,
+        "rsidR": 94,
+        "rsidRDefault": 78,
+        "rsidSect": 1,
+        "anchorId": 6,
+        "editId": 3,
+        "rsidRPr": 12,
+        "rsidP": 7,
+        "durableId": 9
+      },
+      "verification": {
+        "all_word_text_nodes_unchanged": true,
+        "effective_hyperlinks_including_anchors_unchanged": true,
+        "effective_hyperlink_count": 11
+      }
+    },
+    {
+      "id": "peer-review",
+      "source": {
+        "filename": "Peer review Governance as Code — GIS AI-GO case study.docx",
+        "bytes": 21649,
+        "sha256": "59a768d8072eb7cb1947f504312b31008ad1fe6e1f663737687b96bddeee3037",
+        "storage": "Owner-supplied upload; untouched original excluded from Git because it contains internal collaboration metadata."
+      },
+      "public_copy": {
+        "path": "peer-review.public.docx",
+        "bytes": 21268,
+        "sha256": "3c5251d0f5c74e995fa70a66d7dbdf462b110c50f9f1825470b618ef4095521d"
+      },
+      "markdown_extract": {
+        "path": "peer-review.md",
+        "bytes": 38912,
+        "sha256": "320bb8cf078752b94a1669c21b61d9c0c9d30dbd5075922ae393900c4f5415ee"
+      },
+      "removed_parts": [],
+      "removed_editing_attribute_counts": {},
+      "verification": {
+        "all_word_text_nodes_unchanged": true,
+        "effective_hyperlinks_including_anchors_unchanged": true,
+        "effective_hyperlink_count": 15
+      }
+    }
+  ]
+}

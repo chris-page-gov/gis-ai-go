@@ -1,7 +1,12 @@
 from __future__ import annotations
 
 import json
+import os
 import re
+import shutil
+import subprocess
+import tempfile
+import textwrap
 import unittest
 from pathlib import Path
 
@@ -114,10 +119,15 @@ class PagesWorkflowTests(unittest.TestCase):
                 "repository_assurance",
             },
         )
-        self.assertEqual(always_run, {"assurance", "ci_impact_shadow"})
+        self.assertEqual(
+            always_run, {"assurance", "ci_impact_candidate", "ci_impact_shadow"}
+        )
         self.assertEqual(workflow_jobs, mapped_lanes | always_run)
 
     def test_ci_exposes_one_stable_assurance_gate_for_both_producers(self) -> None:
+        candidate = CI_WORKFLOW.split("\n  ci_impact_candidate:\n", 1)[1].split(
+            "\n  ci_impact_shadow:\n", 1
+        )[0]
         impact = CI_WORKFLOW.split("\n  ci_impact_shadow:\n", 1)[1].split(
             "\n  repository_assurance:\n", 1
         )[0]
@@ -132,19 +142,21 @@ class PagesWorkflowTests(unittest.TestCase):
         )[0]
 
         self.assertEqual(CI_WORKFLOW.count("\n  assurance:\n"), 1)
-        self.assertIn("name: CI impact plan (shadow)", impact)
+        self.assertIn("name: CI impact candidate (shadow)", candidate)
+        self.assertIn("name: CI impact agreement (shadow)", impact)
         self.assertIn("fetch-depth: 0", impact)
         self.assertIn("scripts/plan_ci_impact.py", impact)
         self.assertIn('--repository-root "$GITHUB_WORKSPACE"', impact)
         self.assertIn("impact_event='pull_request'", impact)
         self.assertIn("impact_event='push_main'", impact)
-        self.assertIn('--event "$impact_event"', impact)
+        self.assertIn('--event "$IMPACT_EVENT"', impact)
         impact_map = (
             ROOT / ".github/ci/verification-impact-map.v2.json"
         ).read_text(encoding="utf-8")
         self.assertIn('"mode": "shadow"', impact_map)
         self.assertIn("All current assurance jobs still run", impact)
         self.assertNotIn("needs.ci_impact_shadow.outputs", CI_WORKFLOW)
+        self.assertNotIn("needs.ci_impact_candidate.outputs", CI_WORKFLOW)
         self.assertIn("name: Repository assurance", repository)
         self.assertIn("timeout-minutes: 20", repository)
         self.assertIn("name: Gateway image assurance", gateway)
@@ -155,9 +167,14 @@ class PagesWorkflowTests(unittest.TestCase):
         self.assertIn("name: assurance", assurance)
         self.assertIn("if: always()", assurance)
         self.assertIn("permissions: {}", assurance)
+        self.assertIn("- ci_impact_candidate", assurance)
         self.assertIn("- ci_impact_shadow", assurance)
         self.assertIn("- repository_assurance", assurance)
         self.assertIn("- gateway_image", assurance)
+        self.assertIn(
+            "CI_IMPACT_CANDIDATE_RESULT: ${{ needs.ci_impact_candidate.result }}",
+            assurance,
+        )
         self.assertIn(
             "CI_IMPACT_SHADOW_RESULT: ${{ needs.ci_impact_shadow.result }}",
             assurance,
@@ -173,6 +190,7 @@ class PagesWorkflowTests(unittest.TestCase):
             '[[ "$REPOSITORY_ASSURANCE_RESULT" != \'success\' ]]', assurance
         )
         self.assertIn('[[ "$CI_IMPACT_SHADOW_RESULT" != \'success\' ]]', assurance)
+        self.assertIn('[[ "$CI_IMPACT_CANDIDATE_RESULT" != \'success\' ]]', assurance)
         self.assertIn('[[ "$GATEWAY_IMAGE_RESULT" != \'success\' ]]', assurance)
         self.assertIn("exit 1", assurance)
 
@@ -193,19 +211,19 @@ class PagesWorkflowTests(unittest.TestCase):
         impact = CI_WORKFLOW.split("\n  ci_impact_shadow:\n", 1)[1].split(
             "\n  repository_assurance:\n", 1
         )[0]
-        default_name = "- name: Default gateway image routing to fail-full"
-        checkout_name = "- name: Check out impact-planning source"
-        plan_name = "- name: Produce fail-closed shadow impact plan"
+        default_name = "- name: Default agreement to fail-full before any work"
+        checkout_name = "- name: Check out exact impact inventory without candidate preparation"
+        plan_name = "- name: Compare candidate data using only trusted-base Python"
         self.assertLess(impact.index(default_name), impact.index(checkout_name))
         self.assertLess(impact.index(default_name), impact.index(plan_name))
         self.assertIn("id: fail_full", impact)
         self.assertIn(
-            "run: printf 'gateway_image_required=true\\n' >> \"$GITHUB_OUTPUT\"",
+            "printf 'force_full=true\\ngateway_image_required=true\\n' >> \"$GITHUB_OUTPUT\"",
             impact,
         )
         self.assertIn(
             "gateway_image_required: "
-            "${{ steps.plan.outputs.gateway_image_required || "
+            "${{ steps.agreement.outputs.gateway_image_required || "
             "steps.fail_full.outputs.gateway_image_required }}",
             impact,
         )
@@ -214,7 +232,15 @@ class PagesWorkflowTests(unittest.TestCase):
         self.assertIn(
             'else error("gateway_image_required must be a boolean")', impact
         )
-        self.assertIn("printf 'gateway_image_required=%s\\n'", impact)
+        self.assertIn("if .force_full == true then \"true\"", impact)
+        self.assertIn("elif .force_full == false then \"false\"", impact)
+        self.assertIn('else error("force_full must be a boolean")', impact)
+        self.assertIn(
+            "force_full: ${{ steps.agreement.outputs.force_full || "
+            "steps.fail_full.outputs.force_full }}",
+            impact,
+        )
+        self.assertIn("gateway_image_required=%s\\n", impact)
         self.assertNotRegex(
             CI_WORKFLOW,
             r"(?m)^\s*if:.*needs\.ci_impact_shadow\.outputs\.gateway_image_required",
@@ -223,6 +249,67 @@ class PagesWorkflowTests(unittest.TestCase):
             "\n  provenance:\n", 1
         )[0]
         self.assertNotIn("gateway_image_required", assurance)
+
+    def test_ci_agreement_uses_isolated_trusted_code_and_candidate_data_only(self) -> None:
+        impact = CI_WORKFLOW.split("\n  ci_impact_shadow:\n", 1)[1].split(
+            "\n  repository_assurance:\n", 1
+        )[0]
+        self.assertIn("if: always()", impact)
+        self.assertIn("needs:\n      - ci_impact_candidate", impact)
+        self.assertIn("runs-on: ubuntu-24.04", impact)
+        self.assertIn("permissions:\n      contents: read", impact)
+        self.assertIn("ref: ${{ github.sha }}", impact)
+        self.assertIn("fetch-depth: 0", impact)
+        self.assertIn("persist-credentials: false", impact)
+        self.assertIn('mktemp -d "$RUNNER_TEMP/ci-impact-agreement.XXXXXX"', impact)
+        self.assertIn('git ls-tree "$base_sha" -- scripts/agree_ci_impact.py', impact)
+        self.assertIn('git show "$base_sha:$source"', impact)
+        self.assertIn(
+            "for source in scripts/agree_ci_impact.py scripts/plan_ci_impact.py", impact
+        )
+        self.assertIn('python3 -I "$AGREEMENT_ROOT/trusted/agree_ci_impact.py"', impact)
+        self.assertIn('[[ ! "$commit" =~ ^[0-9a-f]{40}$ ]]', impact)
+        self.assertIn("0000000000000000000000000000000000000000", impact)
+        for forbidden in (
+            "pnpm ", "uv ", "npm ", "pip ", "actions/cache", "setup-python",
+            "python3 scripts/", "python scripts/", "PYTHONPATH=", "pull_request_target",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, impact)
+        self.assertEqual(impact.count("python3 "), 1)
+        download = impact.split("- name: Download candidate impact data from this run", 1)[1].split(
+            "\n\n      - name:", 1
+        )[0]
+        self.assertIn("continue-on-error: true", download)
+        self.assertIn("name: ci-impact-plan-${{ github.sha }}", download)
+        self.assertIn("path: ${{ steps.fail_full.outputs.agreement_root }}/candidate", download)
+        self.assertNotIn("run-id:", download)
+        self.assertNotIn("github-token:", download)
+        self.assertIn('[[ "$CANDIDATE_DOWNLOAD" != \'success\' ]]', impact)
+        self.assertIn('candidate_plan="$AGREEMENT_ROOT/candidate-download-failed.json"', impact)
+        self.assertIn("name: ci-impact-agreement-${{ github.sha }}", impact)
+        self.assertIn("retention-days: 30", impact)
+        self.assertIn("external ownership protection before enforcement", impact)
+
+    def test_ci_routing_control_paths_always_select_full_assurance(self) -> None:
+        impact_map = json.loads(
+            (ROOT / ".github/ci/verification-impact-map.v2.json").read_text(encoding="utf-8")
+        )
+        rule = next(
+            rule for rule in impact_map["rules"] if rule["id"] == "global-assurance-control"
+        )
+        self.assertIs(rule["force_full"], True)
+        self.assertEqual(rule["lanes"], impact_map["full_lanes"])
+        self.assertTrue(
+            {
+                ".github/**",
+                "scripts/agree_ci_impact.py",
+                "scripts/plan_ci_impact.py",
+                "tests/contract/test_ci_impact_agreement.py",
+                "tests/contract/test_ci_impact_plan.py",
+                "tests/contract/test_pages_workflows.py",
+            }.issubset(rule["patterns"])
+        )
 
     def test_ci_gateway_uploads_only_complete_successful_evidence(self) -> None:
         gateway = CI_WORKFLOW.split("\n  gateway_image:\n", 1)[1].split(
@@ -882,6 +969,199 @@ class PagesWorkflowTests(unittest.TestCase):
         self.assertIn("retention-days: 90", failure_upload)
         self.assertNotIn("public-verification-receipt.json", failure_upload)
         self.assertNotIn("if: always()", failure_upload)
+
+
+@unittest.skipUnless(
+    all(shutil.which(command) for command in ("bash", "git", "jq")),
+    "The hosted-runner workflow contracts require Bash, Git and jq",
+)
+class ImpactAgreementWorkflowExecutionTests(unittest.TestCase):
+    """Exercise the workflow's real shell at its trust and output boundaries."""
+
+    @staticmethod
+    def _script(step_name: str) -> str:
+        step = re.split(
+            r"\n(?:      - name:|  [a-z][a-z0-9_-]*:)",
+            CI_WORKFLOW.split(f"- name: {step_name}\n", 1)[1], maxsplit=1,
+        )[0]
+        return textwrap.dedent(step.split("        run: |\n", 1)[1])
+
+    def _directory(self) -> Path:
+        temporary = tempfile.TemporaryDirectory(prefix="ci-agreement-workflow-")
+        self.addCleanup(temporary.cleanup)
+        return Path(temporary.name)
+
+    def _fixture(self, *, verifier: bool = True, symlink: bool = False) -> tuple[Path, dict[str, str]]:
+        root = self._directory()
+        repository = root / "repository"
+        repository.mkdir()
+
+        def git(*arguments: str) -> str:
+            return subprocess.run(
+                ["git", *arguments], cwd=repository, check=True,
+                capture_output=True, text=True,
+            ).stdout.strip()
+
+        git("init", "-q")
+        git("config", "user.name", "Synthetic workflow fixture")
+        git("config", "user.email", "workflow@example.invalid")
+        scripts = repository / "scripts"
+        scripts.mkdir()
+        (scripts / "plan_ci_impact.py").write_text("# trusted planner\n", encoding="utf-8")
+        if symlink:
+            (scripts / "agree_ci_impact.py").symlink_to("plan_ci_impact.py")
+        elif verifier:
+            (scripts / "agree_ci_impact.py").write_text("# trusted agreement\n", encoding="utf-8")
+        git("add", ".")
+        git("commit", "-qm", "Trusted base")
+        base = git("rev-parse", "HEAD")
+        if symlink:
+            (scripts / "agree_ci_impact.py").unlink()
+        (scripts / "agree_ci_impact.py").write_text(
+            "from pathlib import Path\nPath('candidate-executed').write_text('unsafe')\n",
+            encoding="utf-8",
+        )
+        (scripts / "plan_ci_impact.py").write_text("# untrusted candidate planner\n", encoding="utf-8")
+        git("add", ".")
+        git("commit", "-qm", "Untrusted candidate")
+        head = git("rev-parse", "HEAD")
+        agreement = root / "agreement"
+        (agreement / "trusted").mkdir(parents=True)
+        (agreement / "candidate").mkdir()
+        environment = {
+            "AGREEMENT_ROOT": str(agreement),
+            "CANDIDATE_RESULT": "success",
+            "GITHUB_EVENT_NAME": "pull_request",
+            "GITHUB_SHA": head,
+            "GITHUB_WORKSPACE": str(repository),
+            "PR_BASE_SHA": base,
+            "PUSH_BASE_SHA": base,
+            "GITHUB_OUTPUT": str(root / "output"),
+            "GITHUB_STEP_SUMMARY": str(root / "summary"),
+            "RUNNER_TEMP": str(root),
+        }
+        return repository, environment
+
+    def _run(
+        self, step: str, repository: Path, environment: dict[str, str]
+    ) -> subprocess.CompletedProcess[str]:
+        Path(environment["GITHUB_OUTPUT"]).write_text("", encoding="utf-8")
+        return subprocess.run(
+            ["bash", "--noprofile", "--norc", "-e", "-o", "pipefail", "-c", self._script(step)],
+            cwd=repository, env={**os.environ, **environment},
+            capture_output=True, text=True, timeout=15,
+        )
+
+    def test_first_installation_records_full_bootstrap_without_executing_head(self) -> None:
+        repository, environment = self._fixture(verifier=False)
+        result = self._run("Extract agreement code from the exact trusted event base", repository, environment)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        receipt = json.loads(
+            (Path(environment["AGREEMENT_ROOT"]) / "impact-agreement.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(receipt["schema"], "gis-ai-go.ci-impact-agreement.v1")
+        self.assertEqual(receipt["reason"], "trusted-verifier-unavailable")
+        self.assertEqual(receipt["base_commit"], environment["PR_BASE_SHA"])
+        self.assertEqual(receipt["head_commit"], environment["GITHUB_SHA"])
+        self.assertEqual(receipt["candidate_result"], "success")
+        self.assertIs(receipt["enforced"], False)
+        self.assertIs(receipt["force_full"], True)
+        self.assertIs(receipt["gateway_image_required"], True)
+        self.assertIn("available=false\n", Path(environment["GITHUB_OUTPUT"]).read_text(encoding="utf-8"))
+        self.assertFalse((repository / "candidate-executed").exists())
+        self.assertEqual(list((Path(environment["AGREEMENT_ROOT"]) / "trusted").iterdir()), [])
+
+    def test_default_outputs_remain_full_even_if_runner_preparation_fails(self) -> None:
+        repository, environment = self._fixture()
+        environment["RUNNER_TEMP"] = str(repository / "missing-runner-directory")
+        result = self._run("Default agreement to fail-full before any work", repository, environment)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(
+            Path(environment["GITHUB_OUTPUT"]).read_text(encoding="utf-8"),
+            "force_full=true\ngateway_image_required=true\n",
+        )
+
+    def test_extraction_uses_exact_base_blobs_for_both_event_types(self) -> None:
+        for event in ("pull_request", "push"):
+            with self.subTest(event=event):
+                repository, environment = self._fixture()
+                environment["GITHUB_EVENT_NAME"] = event
+                # A different unused event field must not select the policy source.
+                environment["PUSH_BASE_SHA" if event == "pull_request" else "PR_BASE_SHA"] = "0" * 40
+                result = self._run("Extract agreement code from the exact trusted event base", repository, environment)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                trusted = Path(environment["AGREEMENT_ROOT"]) / "trusted"
+                self.assertEqual((trusted / "agree_ci_impact.py").read_text(encoding="utf-8"), "# trusted agreement\n")
+                self.assertEqual((trusted / "plan_ci_impact.py").read_text(encoding="utf-8"), "# trusted planner\n")
+                self.assertIn("available=true\n", Path(environment["GITHUB_OUTPUT"]).read_text(encoding="utf-8"))
+                self.assertFalse((repository / "candidate-executed").exists())
+
+    def test_git_read_failures_cannot_be_reported_as_a_bootstrap(self) -> None:
+        real_git = shutil.which("git")
+        for failed_command in ("ls-tree", "show"):
+            with self.subTest(failed_command=failed_command):
+                repository, environment = self._fixture()
+                binary_directory = Path(environment["RUNNER_TEMP"]) / "bin"
+                binary_directory.mkdir()
+                wrapper = binary_directory / "git"
+                wrapper.write_text(
+                    f'#!/bin/bash\nif [[ "$1" == "{failed_command}" ]]; then exit 2; fi\n'
+                    f'exec "{real_git}" "$@"\n', encoding="utf-8",
+                )
+                wrapper.chmod(0o755)
+                environment["PATH"] = f"{binary_directory}{os.pathsep}{os.environ['PATH']}"
+                result = self._run("Extract agreement code from the exact trusted event base", repository, environment)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertFalse((Path(environment["AGREEMENT_ROOT"]) / "impact-agreement.json").exists())
+                self.assertNotIn("available=false", Path(environment["GITHUB_OUTPUT"]).read_text(encoding="utf-8"))
+
+    def test_trusted_code_symlinks_and_invalid_commit_identities_fail(self) -> None:
+        repository, environment = self._fixture(symlink=True)
+        result = self._run("Extract agreement code from the exact trusted event base", repository, environment)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("regular Git blob", result.stderr)
+        for commit in ("0" * 40, "A" * 40, "main", "--help", "f" * 40):
+            with self.subTest(commit=commit):
+                repository, environment = self._fixture()
+                environment["PR_BASE_SHA"] = commit
+                result = self._run("Extract agreement code from the exact trusted event base", repository, environment)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertFalse((Path(environment["AGREEMENT_ROOT"]) / "impact-agreement.json").exists())
+
+    def test_receipt_scalars_reject_every_non_boolean_without_publishing_false(self) -> None:
+        repository, environment = self._fixture()
+        receipt = Path(environment["AGREEMENT_ROOT"]) / "impact-agreement.json"
+        for field in ("force_full", "gateway_image_required"):
+            for value in (None, "", "false", "true", 0, 1, [], {}):
+                with self.subTest(field=field, value=value):
+                    data = {"force_full": False, "gateway_image_required": False}
+                    data[field] = value
+                    receipt.write_text(json.dumps(data), encoding="utf-8")
+                    result = self._run("Publish closed agreement scalars", repository, environment)
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertEqual(Path(environment["GITHUB_OUTPUT"]).read_text(encoding="utf-8"), "")
+        receipt.write_text('{"force_full":false,"gateway_image_required":false}', encoding="utf-8")
+        result = self._run("Publish closed agreement scalars", repository, environment)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("force_full=false\ngateway_image_required=false\n", Path(environment["GITHUB_OUTPUT"]).read_text(encoding="utf-8"))
+
+    def test_stable_gate_requires_each_producer_to_succeed(self) -> None:
+        repository, environment = self._fixture()
+        producers = (
+            "CI_IMPACT_CANDIDATE_RESULT", "CI_IMPACT_SHADOW_RESULT",
+            "REPOSITORY_ASSURANCE_RESULT", "GATEWAY_IMAGE_RESULT",
+        )
+        environment.update({producer: "success" for producer in producers})
+        result = self._run("Require all assurance producers to succeed", repository, environment)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        for producer in producers:
+            for outcome in ("failure", "cancelled", "skipped", ""):
+                with self.subTest(producer=producer, outcome=outcome):
+                    result = self._run(
+                        "Require all assurance producers to succeed", repository,
+                        {**environment, producer: outcome},
+                    )
+                    self.assertNotEqual(result.returncode, 0)
 
 
 if __name__ == "__main__":

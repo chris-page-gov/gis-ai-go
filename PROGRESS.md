@@ -1,6 +1,17 @@
 # Current progress
 
-Latest implementation checkpoint: validation repairs for review findings EX-07/CT-02.
+Last updated: 17 October 2026
+
+Latest implementation checkpoint: review repairs and release closure, tracked in
+[REVIEW-222 issue #151](https://github.com/chris-page-gov/gis-ai-go/issues/151).
+
+The owner authorised continuing towards release and checking the updated OpenAI
+Sites hosting path. Native readback confirms the existing private Site is active
+at version 8 with its `/mcp` endpoint and provisioned connection plugin. Actual
+installed-client authentication and tool execution remain unconfirmed. Current
+`main` includes the later CI governance and OKF security changes; these are being
+integrated before exact-source assurance. The GitHub connector and Git transport
+now work, although direct shell API requests remain blocked.
 
 ## Metadata and intake validation repairs
 
@@ -50,12 +61,28 @@ launcher/CI files have individual references and explicit review depth, separati
 register covers 115 JSON Schemas (102 under the root schema directory), embedded
 schemas, exported types, dataclasses and OpenAPI projections.
 
-Implementation edits are comments only. Proposed removals and behavioural repairs
-remain review findings, with verification requirements for the separate improvement
-stage. Local verification and its limits are recorded in the review; this checkpoint
-does not claim a new release, deployment or canonical CI acceptance. The GitHub API
-is blocked in the current environment, so remote pull-request publication remains
-unperformed.
+The original review's implementation edits were comments only. The subsequent
+repair sections above record the behavioural changes. Local verification and its
+limits are recorded in the review; the original checkpoint did not establish a
+new release, deployment or canonical CI acceptance. Remote publication is now
+being completed through the available GitHub connector and Git transport.
+
+## CI governance case-study correction
+
+The owner requested verification and implementation of the missing trusted-base
+agreement identified in a case-study peer review. The baseline at `97bc456` runs
+candidate-only shadow planning; the review's policy re-routing example reproduces.
+The [ASSURE-209 agreement increment](docs/implementation/CI_IMPACT_AGREEMENT.md)
+adds isolated base-owned comparison, conservative bootstrap and regression tests.
+It remains shadow-only: full assurance continues, and canonical PR acceptance is
+separate from local verification. [Issue #97](https://github.com/chris-page-gov/gis-ai-go/issues/97)
+remains open for an externally protected gate and promotion evidence. No repository
+ruleset, deployment, release or provider entitlement is changed.
+
+The [owner-supplied meeting briefing and peer review](docs/research/2026-10-13/governance-as-code/README.md)
+are retained with provenance and separate source rights. The review assessed the
+earlier 11-page case study, not the revised briefing or the implementation in
+[PR #147](https://github.com/chris-page-gov/gis-ai-go/pull/147).
 
 ## Current checkpoint
 

@@ -59,6 +59,12 @@ and tenant collaboration metadata. A privacy-scrubbed DOCX derivative and the
 byte-exact supplied Markdown are tracked for review. They retain their source rights
 and are not relicensed under MIT by inclusion in this repository.
 
+The [13 October 2026 governance case-study intake](docs/research/2026-10-13/governance-as-code/README.md)
+contains two owner-supplied documents as public DOCX derivatives and Markdown
+extracts, with provenance and checksums. The dated briefing and earlier peer review
+are research evidence, not operational authority or endorsement. Their source rights
+remain separate from the repository's MIT licence.
+
 ## Licence
 
 GIS AI GO code, original documentation, schemas and the 19 August 2026 research pack
@@ -66,8 +72,9 @@ are licensed under the [MIT licence](LICENSE), copyright © 2026 Chris Page. The
 licensing decision for that immutable research ZIP and extracted copy is recorded in
 [`ADR-0003`](docs/decisions/ADR-0003-mit-licence.md). Linked external resources and
 imported material identified in [`THIRD_PARTY.md`](THIRD_PARTY.md) retain their own
-rights and licence terms. The separately governed 23 August research sources are not
-relicensed under MIT; their folder-specific provenance record controls handling.
+rights and licence terms. The separately governed 23 August and 13 October research
+sources are not relicensed under MIT; their folder-specific provenance records
+control handling.
 
 ## Local verification
 

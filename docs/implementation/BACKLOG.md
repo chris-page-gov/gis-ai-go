@@ -30,6 +30,10 @@ and milestones are the source of truth for item-level status.
 
 ## Current learning and local-completion work
 
+- [ASSURE-209 #97](https://github.com/chris-page-gov/gis-ai-go/issues/97) — implement
+  [trusted-base shadow agreement](CI_IMPACT_AGREEMENT.md); separately establish an
+  externally protected gate and promotion evidence before selective enforcement.
+
 - `RETRO-208` — reconstruct the Claude investigation in
   [issue #86](https://github.com/chris-page-gov/gis-ai-go/issues/86); start authorised
   on 14 September 2026 after the local candidate milestone.

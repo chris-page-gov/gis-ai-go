@@ -40,8 +40,10 @@ EXACT_RESOURCES = [
 # are independently checked by test_qual_206_local_evaluation_receipts.
 # The EXPERIENCE-221 refresh changes only the package-script and workspace-lock
 # bindings and derived set ID; suite and receipt bodies remain unchanged.
+# The ASSURE-209 notice refresh changes only source-lock material bindings and
+# the derived suite, receipt and set identities; outcomes and claims are unchanged.
 REGENERABLE_LOCAL_RECEIPT_SHA256 = (
-    "f91bf531c72362d00c7918171826367b155230925553f8f65058833c36304e82"
+    "ecfeddcdf37ff77449d4c57a48da5e2ec3e2ecc1e367a6cb6f142205dd102e95"
 )
 HISTORICAL_V1_SHA256 = {
     "evaluation/qual-206-local-protocol-evidence-matrix.v1.json": (

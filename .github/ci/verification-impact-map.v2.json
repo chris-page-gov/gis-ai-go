@@ -5,6 +5,7 @@
   "push_main_policy": "full_exact_commit",
   "always_run": [
     "assurance",
+    "ci_impact_candidate",
     "ci_impact_shadow"
   ],
   "lanes": [
@@ -91,8 +92,11 @@
         "pnpm-lock.yaml",
         "pnpm-workspace.yaml",
         "pyproject.toml",
+        "scripts/agree_ci_impact.py",
         "scripts/plan_ci_impact.py",
+        "tests/contract/test_ci_impact_agreement.py",
         "tests/contract/test_ci_impact_plan.py",
+        "tests/contract/test_pages_workflows.py",
         "tsconfig.base.json",
         "uv.lock"
       ],

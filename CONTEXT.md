@@ -1,8 +1,23 @@
 # Current context
 
-Last updated: 2 October 2026
+Last updated: 17 October 2026
 
 ## Authority and reading order
+
+On 17 October the owner authorised continuing the repository review and four
+repairs towards release, including assessing the updated OpenAI Sites hosting
+path. [REVIEW-222](https://github.com/chris-page-gov/gis-ai-go/issues/151) tracks
+integration, maintenance disposition and release evidence. Preserve the existing
+private Site audience, provider rights and spending limits. This authorises
+routine implementation, publication and verification; supported release status
+still requires the existing evidence gates. The experimental six-tool Sites
+pilot does not itself establish acceptance of the exact-five core gateway.
+
+On 13 October the owner requested checking the governance case-study review and
+implementing its missing trusted-base agreement where supported by the evidence.
+The [bounded ASSURE-209 increment](docs/implementation/CI_IMPACT_AGREEMENT.md)
+keeps every existing assurance gate active. It does not select an external trusted
+gate, change repository approval settings or authorise selective enforcement.
 
 On 2 October 2026 the owner authorised [EXPERIENCE-221](docs/implementation/EXPERIENCE-221_LEARNING_AND_EVALUATION.md):
 review actual connection facilities, build feature-complete authored persona,

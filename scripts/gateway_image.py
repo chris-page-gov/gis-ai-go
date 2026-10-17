@@ -169,6 +169,63 @@ TRIVY_DB_REPOSITORIES = (
 TRIVY_DB_ACQUISITION_EXIT_CODE = 86
 RUNTIME_LIBRARY_DONOR_ACQUISITION_EXIT_CODE = 87
 RUNTIME_LIBRARY_DONOR_VALIDATION_EXIT_CODE = 88
+# Reserved scanner failures expose only reviewed stage names to the parent job.
+# These codes do not change policy, evidence handling or stream privacy checks.
+VULNERABILITY_SCAN_STAGE_EXIT_CODES = {
+    "input-binding": 89,
+    "scanner-images": 90,
+    "trivy-db-retention": 91,
+    "trivy-gateway-assessment": 92,
+    "trivy-donor-assessment": 93,
+    "trivy-evidence-binding": 94,
+    "node-advisory": 95,
+    "final-evidence-validation": 96,
+    "vulnerability-policy": 97,
+}
+NODE_ADVISORY_STAGE_EXIT_CODES = {
+    "node-scanner-acquisition": 98,
+    "node-db-update": 99,
+    "node-db-download": 100,
+    "node-db-import": 101,
+    "node-db-inventory": 102,
+    "node-scan-execution": 103,
+    "node-report-validation": 104,
+    "node-identity-binding": 105,
+    "node-calibration": 106,
+    "node-runtime-policy": 107,
+    "node-db-freshness": 108,
+    "node-provider-freshness": 109,
+    "node-evidence-write": 110,
+    "node-db-replay-binding": 111,
+    "node-db-inventory-missing": 112,
+    "node-db-inventory-type": 113,
+    "node-db-inventory-zero-length": 114,
+    "node-db-inventory-expanded-bound": 115,
+    "node-db-inventory-unexpected-entry": 116,
+    "node-db-inventory-read": 117,
+}
+MAX_GRYPE_DB_EXPANDED_BYTES = 4 * 1024 * 1024 * 1024
+NODE_INVENTORY_SIZE_PREFIX = "node_db_inventory_sizes "
+NODE_INVENTORY_SIZE_FIELDS = (
+    "metadata_bytes", "database_bytes", "expanded_bytes", "maximum_bytes"
+)
+
+
+def node_inventory_size_diagnostic(value: Any) -> str | None:
+    """Project only bounded, internally consistent over-bound file sizes."""
+    if type(value) is not dict or set(value) != set(NODE_INVENTORY_SIZE_FIELDS):
+        return None
+    if any(type(value[key]) is not int or not 0 <= value[key] <= 2**63 - 1
+           for key in NODE_INVENTORY_SIZE_FIELDS):
+        return None
+    if (value["expanded_bytes"] != value["metadata_bytes"] + value["database_bytes"]
+            or value["metadata_bytes"] == 0 or value["database_bytes"] == 0
+            or value["maximum_bytes"] != MAX_GRYPE_DB_EXPANDED_BYTES
+            or value["expanded_bytes"] <= value["maximum_bytes"]):
+        return None
+    return NODE_INVENTORY_SIZE_PREFIX + " ".join(
+        f"{key}={value[key]}" for key in NODE_INVENTORY_SIZE_FIELDS
+    )
 
 EXPECTED_REPOSITORY = "chris-page-gov/gis-ai-go"
 EXPECTED_REGISTRY_ID = "io.github.chris-page-gov/gis-ai-go"

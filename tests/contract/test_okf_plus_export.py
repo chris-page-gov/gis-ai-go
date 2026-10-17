@@ -8,6 +8,7 @@ import sys
 import tarfile
 import tempfile
 import unittest
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'scripts/okf_plus'))
@@ -133,6 +134,79 @@ class OkfPlusExportTests(unittest.TestCase):
                 with self.subTest(entries=entries), self.assertRaises(ValueError):
                     EXPORT.verify_archive(path)
 
+    def test_archive_rejects_oversized_pax_before_reading_its_body(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'oversized-pax.tar.gz'
+            info = tarfile.TarInfo('././@PaxHeader')
+            info.type = tarfile.XHDTYPE; info.size = 33
+            with gzip.open(path, 'wb') as compressed:
+                compressed.write(info.tobuf(format=tarfile.USTAR_FORMAT))
+            with mock.patch.object(EXPORT, 'MAX_PAX_HEADER', 32), \
+                    self.assertRaisesRegex(ValueError, 'PAX archive metadata exceeds'):
+                EXPORT.verify_archive(path)
+
+    def test_nested_pax_and_old_gnu_sparse_are_rejected_before_body_reads(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'pre-yield-metadata.tar.gz'
+            first = tarfile.TarInfo._create_pax_generic_header(
+                {'path': 'record.txt'}, tarfile.XHDTYPE, 'utf-8')
+            nested = tarfile.TarInfo('././@PaxHeader')
+            nested.type = tarfile.XHDTYPE; nested.size = EXPORT.MAX_PAX_HEADER
+            with gzip.open(path, 'wb') as compressed:
+                compressed.write(first + nested.tobuf(format=tarfile.USTAR_FORMAT))
+            with self.assertRaisesRegex(ValueError, 'Unsupported or nested archive metadata'):
+                EXPORT.verify_archive(path)
+
+            sparse = tarfile.TarInfo('sparse-record')
+            sparse.type = tarfile.GNUTYPE_SPARSE; sparse.size = 0
+            with gzip.open(path, 'wb') as compressed:
+                compressed.write(sparse.tobuf(format=tarfile.GNU_FORMAT))
+            with self.assertRaisesRegex(ValueError, 'Sparse archive metadata'):
+                EXPORT.verify_archive(path)
+
+    def test_archive_rejects_noncanonical_and_gnu_metadata_before_member_checks(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'metadata.tar.gz'
+            with tarfile.open(path, 'w:gz', format=tarfile.PAX_FORMAT) as output:
+                info = tarfile.TarInfo('record.txt'); info.size = 1
+                info.pax_headers = {'comment': 'untrusted metadata'}
+                output.addfile(info, io.BytesIO(b'x'))
+            with self.assertRaisesRegex(ValueError, 'non-canonical PAX metadata'):
+                EXPORT.verify_archive(path)
+
+            with tarfile.open(path, 'w:gz', format=tarfile.GNU_FORMAT) as output:
+                info = tarfile.TarInfo('nested/' + 'a' * 120 + '.txt'); info.size = 1
+                output.addfile(info, io.BytesIO(b'x'))
+            with self.assertRaisesRegex(ValueError, 'GNU archive metadata'):
+                EXPORT.verify_archive(path)
+
+            with tarfile.open(path, 'w:gz', format=tarfile.PAX_FORMAT) as output:
+                info = tarfile.TarInfo('record.txt'); info.size = 1
+                info.pax_headers = {'path': 'record.txt', 'GNU.sparse.major': '1',
+                                    'GNU.sparse.minor': '0', 'GNU.sparse.realsize': '1'}
+                output.addfile(info, io.BytesIO(b'x'))
+            with self.assertRaisesRegex(ValueError, 'Sparse archive metadata'):
+                EXPORT.verify_archive(path)
+
+    def test_canonical_long_path_pax_archive_remains_supported(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'canonical-pax.tar.gz'
+            name = 'records/' + 'a' * 120 + '.json'; raw = b'public metadata\n'
+            item = {'path': name, 'bytes': len(raw), 'sha256': EXPORT.sha(raw)}
+            manifest = {'schema': 'gis-ai-go.okf-plus-export-manifest.v1',
+                        'fileCount': 1, 'payloadBytes': len(raw), 'files': [item]}
+            archive(path, [(name, raw), (EXPORT.MANIFEST, EXPORT.canonical(manifest))])
+            self.assertEqual(EXPORT.verify_archive(path)['files'], [item])
+
+    def test_cumulative_pax_metadata_is_bounded(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'many-pax.tar.gz'
+            entries = [('records/' + letter * 120 + '.json', b'x') for letter in ('a', 'b')]
+            archive(path, entries)
+            with mock.patch.object(EXPORT, 'MAX_PAX_TOTAL', 1024), \
+                    self.assertRaisesRegex(ValueError, 'PAX archive metadata exceeds'):
+                EXPORT.verify_archive(path)
+
     def test_modified_archive_member_is_rejected_by_manifest(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory); fixture(root); output = root / 'artifacts/okf-plus/export'
@@ -206,7 +280,6 @@ class OkfPlusExportTests(unittest.TestCase):
                     EXPORT.check_public(value, name, patterns)
 
     def test_oversized_file_and_unmarked_output_are_rejected(self):
-        from unittest import mock
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory); fixture(root); output = root / 'artifacts/okf-plus/export'
             with mock.patch.object(EXPORT, 'MAX_FILE', 4), self.assertRaises(ValueError):
