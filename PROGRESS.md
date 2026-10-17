@@ -1,6 +1,19 @@
 # Current progress
 
-Latest documentation checkpoint: repository review of `97bc45635a91064cd78f06bf0848ad7636f05439`.
+Latest implementation checkpoint: Explorer fixes for review findings UI-01/UI-02.
+
+## Explorer focus and Unicode repairs
+
+The owner authorised fixing both UI defects from the repository review. Navigation
+headings now accept programmatic focus, including record/error views, About and
+history restoration, while skip links and form-control focus retain their intended
+targets. Search input, canonical state and URL admission now share the existing
+200 UTF-16-unit budget; truncation after normalisation preserves complete Unicode
+characters. The implementation and validation record is in
+[Explorer UI repairs](docs/implementation/EXPLORER_UI_REPAIRS.md).
+
+The original architecture review remains pinned to its historical source revision.
+These fixes do not remove unused code, activate a gateway or publish a deployment.
 
 ## Architecture and maintainability review
 

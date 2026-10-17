@@ -1,6 +1,9 @@
 # Browser and intake review
 
 Baseline: `97bc45635a91064cd78f06bf0848ad7636f05439`.
+Follow-up: UI-01 and UI-02 are addressed in [the Explorer repair record](../implementation/EXPLORER_UI_REPAIRS.md).
+This report retains the original findings and immutable references.
+
 Scope: every tracked file in `apps/public-explorer`, `apps/webmcp-explorer`, `apps/public-data-workbench`, `packages/experience-intake` (110 files; exact inventory below). Runtime sources, tests/fixtures, schemas, HTML/CSS/SVG, manifests, configuration, build scripts and component READMEs were read. Untracked generated build trees, downloaded dependencies and browser reports are excluded from the source review. No tracked file in the assigned scope was excluded. No live provider, public-deployment or real AI-host claim is established by this review.
 
 ## Findings

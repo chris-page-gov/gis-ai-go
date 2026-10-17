@@ -108,4 +108,64 @@ describe("Explorer URL state", () => {
     );
     expect(canonical.query).toBe("INSPIRE one two three four five six seven eight nine");
   });
+
+  it.each([
+    {
+      name: "supplementary characters at the HTML input limit",
+      query: "𐐀".repeat(100),
+      expected: "𐐀".repeat(100),
+    },
+    {
+      name: "a caller-created state beyond the supplementary-character limit",
+      query: "𐐀".repeat(101),
+      expected: "𐐀".repeat(100),
+    },
+    {
+      name: "a supplementary character straddling the final UTF-16 unit",
+      query: "a".repeat(199) + "𐐀",
+      expected: "a".repeat(199),
+    },
+    {
+      name: "a complete supplementary character occupying the final two units",
+      query: "a".repeat(198) + "𐐀z",
+      expected: "a".repeat(198) + "𐐀",
+    },
+  ])("round trips $name without splitting a surrogate pair", ({ query, expected }) => {
+    const state = { ...createDefaultExplorerState(bundle), query };
+    const canonical = canonicaliseState(state, bundle);
+    const url = serialiseExplorerUrl(state, "https://example.test/gis-ai-go/", bundle);
+
+    expect(canonical.query).toBe(expected);
+    expect(canonical.query.length).toBeLessThanOrEqual(200);
+    expect(url.searchParams.get("q")).toBe(expected);
+    expect(parseExplorerUrl(url, bundle)).toEqual(canonical);
+  });
+
+  it.each([
+    { query: "ﬃ".repeat(67), expected: "ffi".repeat(66) + "ff" },
+    { query: "ﬃ".repeat(66) + "𐐀z", expected: "ffi".repeat(66) + "𐐀" },
+  ])("bounds NFKC expansion before serialising a shareable query", ({ query, expected }) => {
+    const input = new URL("https://example.test/gis-ai-go/");
+    input.searchParams.set("q", query);
+    const parsed = parseExplorerUrl(input, bundle);
+    const serialised = serialiseExplorerUrl(parsed, input, bundle);
+
+    expect(parsed.query).toBe(expected);
+    expect(parsed.query.length).toBe(200);
+    expect(parseExplorerUrl(serialised, bundle)).toEqual(parsed);
+  });
+
+  it.each([
+    "x".repeat(201),
+    "𐐀".repeat(101),
+    "a".repeat(199) + "𐐀",
+  ])("rejects an oversized raw URL query without truncating it", (query) => {
+    const url = new URL("https://example.test/gis-ai-go/#record=missing%3Arecord");
+    url.searchParams.set("q", query);
+
+    expect(parseExplorerUrl(url, bundle)).toMatchObject({
+      query: "",
+      selectedRecordId: "missing:record",
+    });
+  });
 });

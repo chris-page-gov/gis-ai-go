@@ -23,6 +23,7 @@ import { safeNavigableHref } from "./links";
 import {
   canonicaliseState,
   createDefaultExplorerState,
+  MAX_QUERY_LENGTH,
   parseExplorerUrl,
   serialiseExplorerUrl,
 } from "./state";
@@ -114,6 +115,21 @@ function focusAfterRender(focusId: string | undefined, scrollY?: number): void {
       window.scrollTo({ left: 0, top: scrollY });
     }
   });
+}
+
+function navigationHeadingId(): string {
+  if (
+    malformedRecordIntent ||
+    (state.selectedRecordId !== null && !bundle.records.some((record) => record.id === state.selectedRecordId))
+  ) {
+    return "record-not-found-heading";
+  }
+  if (window.location.hash === "#about") {
+    return "about-heading";
+  }
+  return state.view === "cards" && state.selectedRecordId !== null
+    ? recordHeadingId(state.selectedRecordId)
+    : `view-heading-${state.view}`;
 }
 
 function commitState(
@@ -268,7 +284,7 @@ function renderSearch(facets: FacetOptions): HTMLElement {
   input.id = "catalogue-search";
   input.name = "q";
   input.value = state.query;
-  input.maxLength = 200;
+  input.maxLength = MAX_QUERY_LENGTH;
   input.autocomplete = "off";
   input.setAttribute("aria-describedby", "catalogue-search-hint");
   const labelNode = element("label", { className: "form-label", text: "Search catalogue" });
@@ -376,7 +392,7 @@ function renderAbout(): HTMLElement {
   section.setAttribute("aria-labelledby", "about-heading");
   section.tabIndex = -1;
   section.append(
-    element("h2", { id: "about-heading", text: "About this Explorer" }),
+    element("h2", { id: "about-heading", text: "About this Explorer", tabIndex: -1 }),
     element("p", {
       text: "This static candidate lets people inspect and cite public catalogue metadata without an account, MCP host or WebMCP implementation. It makes no provider request and contains no protected data.",
     }),
@@ -445,7 +461,7 @@ function renderNotFound(navigationModel: CardNavigation): HTMLElement {
     navigationModel.selectRecord(null);
   });
   section.append(
-    element("h2", { id: "record-not-found-heading", text: "Record not found" }),
+    element("h2", { id: "record-not-found-heading", text: "Record not found", tabIndex: -1 }),
     element("p", {
       text: "The catalogue does not contain the record named by this link. No substitute record has been selected.",
     }),
@@ -530,7 +546,13 @@ function render(focusId?: string, scrollY?: number): void {
       state.view === "cards" ? "Catalogue" : humaniseToken(state.view);
     document.title = `${viewTitle} – GIS AI GO`;
   }
-  focusAfterRender(focusId ?? (previousFocusId || undefined), scrollY);
+  let nextFocusId = focusId ?? (previousFocusId || undefined);
+  // A missing/malformed record can replace the requested destination with an
+  // error view. Focus its actual heading while preserving surviving controls.
+  if (nextFocusId !== undefined && document.getElementById(nextFocusId) === null) {
+    nextFocusId = navigationHeadingId();
+  }
+  focusAfterRender(nextFocusId, scrollY);
 }
 
 function comparableStateUrl(url: URL): string {
@@ -604,13 +626,12 @@ function handleLocationChange(snapshot: HistorySnapshot = {}): void {
   if (window.location.href === lastHandledLocation) {
     return;
   }
+  // Preserve the native skip-link destination before URL canonicalisation removes
+  // its fragment. The static main element survives the catalogue render.
+  const nativeFocusId = window.location.hash === "#main-content" ? "main-content" : undefined;
   readLocation();
   lastHandledLocation = window.location.href;
-  const focusId =
-    snapshot.focusId ??
-    (state.selectedRecordId === null
-      ? `view-heading-${state.view}`
-      : recordHeadingId(state.selectedRecordId));
+  const focusId = snapshot.focusId ?? nativeFocusId ?? navigationHeadingId();
   render(focusId, snapshot.scrollY);
 }
 

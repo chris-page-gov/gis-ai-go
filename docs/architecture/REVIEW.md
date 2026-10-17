@@ -1,6 +1,9 @@
 # Repository review: dead code, clarity and refactoring
 
 Reviewed source: [`97bc45635a91064cd78f06bf0848ad7636f05439`](https://github.com/chris-page-gov/gis-ai-go/tree/97bc45635a91064cd78f06bf0848ad7636f05439).
+Follow-up: UI-01 and UI-02 are addressed in [the Explorer repair record](../implementation/EXPLORER_UI_REPAIRS.md).
+The findings and immutable source references below describe the original review baseline.
+
 The review records **34 findings** across six areas. It identifies small unused
 fragments, two reproduced UI defects, contract-assurance gaps and concrete module
 boundaries for refactoring. It does not establish that a whole runtime subsystem

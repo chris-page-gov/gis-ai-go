@@ -10,6 +10,7 @@ import {
   type ExplorerState,
 } from "./types.js";
 
+/** Query budget in UTF-16 code units, matching input.maxLength and URL admission. */
 export const MAX_QUERY_LENGTH = 200;
 export const MAX_FACET_VALUES = 20;
 const MAX_TAG_LENGTH = 128;
@@ -24,11 +25,17 @@ function normaliseQuery(value: string): string {
   if (UNSAFE_CONTROL.test(value)) {
     return "";
   }
-  const bounded = [...value.normalize("NFKC").replace(/\s+/gu, " ").trim()]
-    .slice(0, MAX_QUERY_LENGTH)
-    .join("")
-    .trim();
-  return bounded.split(" ").slice(0, 10).join(" ");
+  const normalised = value.normalize("NFKC").replace(/\s+/gu, " ").trim();
+  let bounded = "";
+  // Normalisation can expand the input. Count UTF-16 units afterwards, while
+  // iterating whole code points so truncation never splits a surrogate pair.
+  for (const character of normalised) {
+    if (bounded.length + character.length > MAX_QUERY_LENGTH) {
+      break;
+    }
+    bounded += character;
+  }
+  return bounded.trim().split(" ").slice(0, 10).join(" ");
 }
 
 function uniqueSorted<T extends string>(values: readonly T[]): readonly T[] {

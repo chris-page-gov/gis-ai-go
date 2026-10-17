@@ -37,6 +37,17 @@ arbitrary nested details, rights conditions or forbidden-target notes. The graph
 contains only explicit `sourceRefs`, and the coverage schematic contains no real
 geometry or legal boundary.
 
+Search input, canonical state and URL admission share a limit of 200 UTF-16 code
+units, matching HTML `maxlength`. Normalisation may expand text, so canonical
+queries are bounded afterwards without splitting a supplementary Unicode
+character. Oversized incoming URL queries are discarded rather than truncated.
+
+Client-side navigation moves keyboard focus to the displayed view, record, About
+or error heading. These headings use `tabindex="-1"` so they can receive focus
+without adding stops to the normal Tab order. Search/facet actions preserve their
+control focus; history restores the recorded scroll position and skip navigation
+continues to target the main content.
+
 Run the focused checks with:
 
 ```bash
