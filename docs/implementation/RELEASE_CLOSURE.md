@@ -65,6 +65,15 @@ subprocess access; this closes the earlier sandbox-only verification limitation.
 These tests use synthetic identities and provider responses and make no live
 provider request.
 
+The [five-tool acceptance record](FIVE_TOOL_ACCEPTANCE.md) binds the clean
+`0eae2d0f` source to 15 maintained acceptance tests, an SDK journey with five
+verified receipts and three refusal cases, and focused recovery/replay checks.
+The source-bound QUAL-206 local receipt set was then regenerated through its
+actual selected suites. Only material hashes and derived identities changed;
+assertions, outcomes, limits and historical evidence guards were preserved.
+All 33 local/strict receipt contract tests passed. These are local results, not
+live hosting or a complete scored release evaluation.
+
 The current native registration readback supersedes the historical version-7
 `has_mcp: false` blocker for registration. Keep the historical observation intact.
 It does not close OAuth, user consent, plugin installation, independent-client or
