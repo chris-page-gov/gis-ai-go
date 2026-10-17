@@ -42,8 +42,12 @@ EXACT_RESOURCES = [
 # bindings and derived set ID; suite and receipt bodies remain unchanged.
 # The ASSURE-209 notice refresh changes only source-lock material bindings and
 # the derived suite, receipt and set identities; outcomes and claims are unchanged.
+# REVIEW-222 binds the reviewed comments and repaired Explorer source. Only
+# material hashes and derived identities change; assertions and limits are retained.
+# DEP-142 refreshes the patched package/source-lock bindings and derived identities
+# after executing the selected suites; assertions, outcomes and historical pins remain.
 REGENERABLE_LOCAL_RECEIPT_SHA256 = (
-    "ecfeddcdf37ff77449d4c57a48da5e2ec3e2ecc1e367a6cb6f142205dd102e95"
+    "f99c1aa9fdcb4f2e555c50ceac9172bd44e3f012959d3f82edfa5b37a59300b6"
 )
 HISTORICAL_V1_SHA256 = {
     "evaluation/qual-206-local-protocol-evidence-matrix.v1.json": (

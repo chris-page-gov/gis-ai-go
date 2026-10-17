@@ -1,8 +1,26 @@
 # Current context
 
-Last updated: 13 October 2026
+Last updated: 17 October 2026
 
 ## Authority and reading order
+
+On 17 October the owner authorised continuing the repository review and four
+repairs towards release, including assessing the updated OpenAI Sites hosting
+path. [REVIEW-222](https://github.com/chris-page-gov/gis-ai-go/issues/151) tracks
+integration, maintenance disposition and release evidence. Preserve the existing
+private Site audience, provider rights and spending limits. This authorises
+routine implementation, publication and verification; supported release status
+still requires the existing evidence gates. The experimental six-tool Sites
+pilot does not itself establish acceptance of the exact-five core gateway.
+
+The owner subsequently agreed to finish the existing private Sites teaching
+exemplar first. Porting the full five-tool gateway is a separate milestone;
+retain its existing acceptance requirements. The current dependency repair under
+[issue #142](https://github.com/chris-page-gov/gis-ai-go/issues/142) updates the
+hosted workbench's bundled MCP client as well as affected server/build packages.
+A fresh local audit is not proof that the active Site contains those patched
+bytes; updated Site source/build access and deployed-client acceptance remain
+separate prerequisites. See the [dependency disposition](docs/operations/DEPENDENCY_SECURITY_2026-10-17.md).
 
 On 13 October the owner requested checking the governance case-study review and
 implementing its missing trusted-base agreement where supported by the evidence.

@@ -228,7 +228,7 @@ async function main() {
     } catch (error) { if (error.code !== "ENOENT") throw error; }
     directory = dirname(directory);
   }
-  assert.equal(sdk?.version, "2.0.0", "Use the repository's installed pinned MCP SDK");
+  assert.equal(sdk?.version, "2.2.0", "Use the repository's installed pinned MCP SDK");
   const { Client, StreamableHTTPClientTransport } = await import(pathToFileURL(sdkPath).href);
   const transport = boundedTransport();
   const client = new Client({ name: "gis-ai-go-local214-demonstration", version: "0.2.0-local.1" }, {

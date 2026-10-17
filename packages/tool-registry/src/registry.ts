@@ -741,6 +741,8 @@ function isCurrentCallable(profile: ToolProfile): boolean {
   );
 }
 
+// Candidate membership describes an explicitly assembled evaluation surface.
+// It must stay separate from isCurrentCallable, whose release gates govern public availability.
 function isCandidateAssemblyTool(
   profile: ToolProfile,
   operations: readonly string[],

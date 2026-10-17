@@ -174,6 +174,8 @@ export function createWeb216HostedCpihApplication(options: Web216HostedCpihAppli
       const outcome = planWeb216TransactionalAppend(snapshot, { idempotencyKey: proposal.idempotency_key, receipt, recordedAt: createdAt }, material);
       if (outcome.status !== "append-plan-not-committed") fail("unavailable");
       cancelled(context.signal);
+      // Planning is pure. Only publish may change durable state, and its
+      // compare-and-swap can lose to a concurrent caller using the same snapshot.
       const published = await store.publish(outcome.plan, context.signal === undefined ? {} : { signal: context.signal });
       // Once publish has started, cancellation cannot establish definite absence.
       if (context.signal?.aborted === true) fail("uncertain-write");

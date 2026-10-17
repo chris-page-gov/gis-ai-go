@@ -1,7 +1,9 @@
 /**
- * Inactive CPIH transaction model: plans and snapshots, never storage evidence.
+ * Pure CPIH transaction model: plans and snapshots, never storage evidence.
+ * The D1 adapter uses these transitions; only its verified acknowledgement can
+ * establish publication. Importing this model does not activate that adapter.
  *
- * A future adapter must atomically compare the expected head, enforce unique key
+ * A storage adapter must atomically compare the expected head, enforce unique key
  * and receipt identities, append the immutable record/event and replace the head.
  * A zero-row compare must abort the WHOLE transaction, not let later inserts run.
  * Ambiguous backend outcomes require a consistency-guaranteed read; this model

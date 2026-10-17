@@ -55,6 +55,11 @@ environment and dependencies. Initial dependency setup is separate from the
 network-free build; see [CONTRIBUTING.md](../CONTRIBUTING.md). Do not regenerate
 sources while another process is writing the shared acquisition ledger.
 
+Every build requires the local record, source-snapshot and search-index schemas
+under `okf-plus/schemas/`. Missing or invalid schemas stop the build before a new
+bundle is published; an existing generated bundle is retained. Small synthetic
+test checkouts copy these same schemas and do not bypass validation.
+
 For a local bundle:
 
 ```sh

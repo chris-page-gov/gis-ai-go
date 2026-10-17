@@ -35,6 +35,8 @@ CTX={'@version':1.1,**PREFIXES,
  'reviewStatus':'okfp:reviewStatus','okf_version':'okfp:coreVersion',
  **{k:{'@id':'okfp:'+k,'@type':'@json'} for k in JSON_KEYS}}
 
+# Normalised-source digests include this final newline. The separately pinned
+# Explorer context contract omits it; those two hash conventions are not interchangeable.
 def canonical(value):return (json.dumps(value,ensure_ascii=False,sort_keys=True,separators=(',',':'),allow_nan=False)+'\n').encode()
 def digest(value):return hashlib.sha256(canonical(value)).hexdigest()
 def duplicate_guard(pairs):

@@ -59,6 +59,8 @@ def git_object(kind: str, content: bytes) -> str:
 
 
 def tree_identity(materials: list[dict]) -> str:
+    # Reconstruct Git's byte-level tree encoding, including directory sort order.
+    # A manifest of SHA-256 file hashes alone cannot prove the named Git commit.
     tree: dict = {}
     for item in materials:
         parts = source_path(item["path"]).parts

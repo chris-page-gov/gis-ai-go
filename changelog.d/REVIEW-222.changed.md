@@ -1,0 +1,1 @@
+- Record the four verified local review repairs and a source-linked release closure checklist, separating the supported exact-five gateway from the private Sites exemplar and its pending authentication, deployment and operational evidence.

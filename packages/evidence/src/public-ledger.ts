@@ -1423,6 +1423,9 @@ export class PublicEvidenceLedger {
       health.event_count + 1,
       health.last_event_id,
     );
+    // A record and its event are separate durable writes, not a transaction.
+    // If publication stops between them, restart verification rejects the orphan;
+    // callers must restore a verified pair rather than retrying into a partial chain.
     writeExclusiveCanonical(
       join(this.#recordsDirectory, `${digestFromId(record.record_id)}.json`),
       record,

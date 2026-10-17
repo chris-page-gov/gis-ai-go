@@ -42,10 +42,10 @@ def write_json(path,value):
     path.write_text(json.dumps(value,ensure_ascii=False,indent=2,sort_keys=True,allow_nan=False)+'\n')
 
 def schema_validator(root,name):
-    path=root/'okf-plus/schemas'/name
-    if not path.exists():return None  # Small synthetic build fixtures have no profile tree.
+    path=source_path(root,Path('okf-plus/schemas')/name)
+    if not path.is_file():raise ValueError('Required OKF+ schema is missing or not a regular file: '+name)
     from jsonschema import Draft202012Validator
-    schema=load_json(source_path(root,path.relative_to(root)).read_text())
+    schema=load_json(path.read_text())
     Draft202012Validator.check_schema(schema)
     return Draft202012Validator(schema)
 
@@ -132,6 +132,8 @@ def build(root,output,revision):
         return coverage
 
 def _build_into(root,output,revision):
+    # validate_record resolves provenance through this module-level root. The CLI
+    # runs one build at a time; callers must not interleave builds for different roots.
     global ROOT
     ROOT=root
     if not re.fullmatch('[0-9a-f]{40}',revision):raise ValueError('A full Git revision is required')
@@ -143,12 +145,15 @@ def _build_into(root,output,revision):
         shutil.rmtree(output)
     output.mkdir(parents=True);(output/'.okf-plus-generated').write_text(MARKER)
     records=[];identities=set();source_cache={};search=[]
+    # Require the complete validation set before reading any records. Test-only
+    # fixtures carry these same schemas rather than bypassing normal validation.
     record_check=schema_validator(root,'record.schema.json')
     snapshot_check=schema_validator(root,'source-snapshot.schema.json')
+    index_check=schema_validator(root,'search-index.schema.json')
     for path in sorted((root/'okf-plus/records').rglob('*.md')):
         source_path(root,path.relative_to(root))
         row,body=read_markdown(path);validate_record(row,path,source_cache)
-        if record_check:record_check.validate(row)
+        record_check.validate(row)
         if row['@id'] in identities:raise ValueError('Duplicate semantic identity')
         identities.add(row['@id']);records.append(row)
         route=path.relative_to(root/'okf-plus').as_posix()
@@ -166,8 +171,7 @@ def _build_into(root,output,revision):
     standards=load_json(source_path(root,standards_path.relative_to(root)).read_text()) if standards_path.exists() else {'standards':[]}
     vocabulary=vocabulary_usage(records,standards,revision,input_digest)
     snapshots=[v for v in source_cache.values() if v.get('schema')=='okf-plus-source-snapshot.v1']
-    if snapshot_check:
-        for snapshot in snapshots:snapshot_check.validate(snapshot)
+    for snapshot in snapshots:snapshot_check.validate(snapshot)
     coverage={'schema':'gis-ai-go.okf-plus-coverage.v1','revision':revision,'inputDigest':input_digest,'recordCount':len(records),'globalCompleteness':'not-established','byFamily':dict(sorted(Counter(r['sourceFamily'] for r in records).items())),'byType':dict(sorted(Counter(r['type'] for r in records).items())),'catalogues':[{**s['coverage'],'family':s['family'],'retrievedAt':sorted({r['retrievedAt'] for r in s['receipts']}),'failedRequests':sum(r['status']!=200 for r in s['receipts'])} for s in snapshots],
         'temporalEvidence':dict(Counter(r['temporal']['status'] for r in records)),
         'updateFrequencyEvidence':dict(Counter(r['update']['frequency']['status'] for r in records)),
@@ -182,8 +186,7 @@ def _build_into(root,output,revision):
     write_json(output/'okf-bundle.jsonld',{'@context':CTX,'@id':BASE+'bundle','@type':'dcat:Catalog','dcterms:title':'OS and ONS geospatial OKF+','@graph':records})
     write_json(output/'okf-bundle.json',{'schema':'gis-ai-go.okf-plus-bundle.v1','okfVersion':'0.2','profile':PROFILE,'profileStatus':'candidate-pending-consumer-acceptance','revision':revision,'inputDigest':input_digest,'recordCount':len(records),'records':records})
     index={'schema':'gis-ai-go.okf-plus-search-index.v1','revision':revision,'inputDigest':input_digest,'records':search}
-    index_check=schema_validator(root,'search-index.schema.json')
-    if index_check:index_check.validate(index)
+    index_check.validate(index)
     write_json(output/'search-index.json',index)
     write_json(output/'coverage.json',coverage)
     write_json(output/'source-lock.json',{'schema':'gis-ai-go.okf-plus-source-lock.v1','revision':revision,'inputs':inputs,'sha256':input_digest})

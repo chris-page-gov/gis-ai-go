@@ -142,7 +142,8 @@
       "pattern": "^[0-9a-f]{64}$"
     },
     "client_version": {
-      "const": "2.0.0"
+      "description": "The original harness used 2.0.0; current runs require the patched 2.2.0 client. Historical reports retain their observed version.",
+      "enum": ["2.0.0", "2.2.0"]
     },
     "results": {
       "type": "array",

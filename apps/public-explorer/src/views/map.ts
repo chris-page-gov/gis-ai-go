@@ -140,7 +140,7 @@ export function renderMapView(
   const section = element("section");
   section.setAttribute("aria-labelledby", "view-heading-map");
   section.append(
-    element("h2", { id: "view-heading-map", text: "Coverage schematic — not a property map" }),
+    element("h2", { id: "view-heading-map", text: "Coverage schematic — not a property map", tabIndex: -1 }),
     element("p", {
       text: "This schematic summarises catalogue metadata. It uses no basemap, tiles, coordinates or real property geometry.",
     }),

@@ -1,0 +1,215 @@
+{
+  "baseline": "97bc45635a91064cd78f06bf0848ad7636f05439",
+  "scope": "Local documentation/comment review; not canonical CI or release evidence",
+  "typechecks": [
+    {
+      "project": "apps/mcp-gateway/tsconfig.json",
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "project": "apps/public-data-workbench/tsconfig.json",
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "project": "apps/public-explorer/tsconfig.json",
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "project": "apps/webmcp-explorer/tsconfig.json",
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "project": "packages/authority-context/tsconfig.json",
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "project": "packages/contracts/tsconfig.json",
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "project": "packages/evidence/tsconfig.json",
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "project": "packages/experience-intake/tsconfig.json",
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "project": "packages/policy-client/tsconfig.json",
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "project": "packages/provider-adapter-sdk/tsconfig.json",
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "project": "packages/tool-registry/tsconfig.json",
+      "exit_code": 0,
+      "output": ""
+    }
+  ],
+  "diagrams": {
+    "parser": "mermaid@11.12.3",
+    "passed": [
+      {
+        "file": "BUILD_AND_OPERATIONS.md",
+        "diagram": 1
+      },
+      {
+        "file": "BUILD_AND_OPERATIONS.md",
+        "diagram": 2
+      },
+      {
+        "file": "BUILD_AND_OPERATIONS.md",
+        "diagram": 3
+      },
+      {
+        "file": "BUILD_AND_OPERATIONS.md",
+        "diagram": 4
+      },
+      {
+        "file": "BUILD_AND_OPERATIONS.md",
+        "diagram": 5
+      },
+      {
+        "file": "CONTRACTS.md",
+        "diagram": 1
+      },
+      {
+        "file": "CONTRACTS.md",
+        "diagram": 2
+      },
+      {
+        "file": "CORE_AND_EVIDENCE.md",
+        "diagram": 1
+      },
+      {
+        "file": "CORE_AND_EVIDENCE.md",
+        "diagram": 2
+      },
+      {
+        "file": "CORE_AND_EVIDENCE.md",
+        "diagram": 3
+      },
+      {
+        "file": "EXPERIMENTAL_AND_KNOWLEDGE.md",
+        "diagram": 1
+      },
+      {
+        "file": "EXPERIMENTAL_AND_KNOWLEDGE.md",
+        "diagram": 2
+      },
+      {
+        "file": "EXPERIMENTAL_AND_KNOWLEDGE.md",
+        "diagram": 3
+      },
+      {
+        "file": "EXPERIMENTAL_AND_KNOWLEDGE.md",
+        "diagram": 4
+      },
+      {
+        "file": "GATEWAY.md",
+        "diagram": 1
+      },
+      {
+        "file": "GATEWAY.md",
+        "diagram": 2
+      },
+      {
+        "file": "GATEWAY.md",
+        "diagram": 3
+      },
+      {
+        "file": "GATEWAY.md",
+        "diagram": 4
+      },
+      {
+        "file": "README.md",
+        "diagram": 1
+      },
+      {
+        "file": "README.md",
+        "diagram": 2
+      },
+      {
+        "file": "USER_INTERFACES.md",
+        "diagram": 1
+      },
+      {
+        "file": "USER_INTERFACES.md",
+        "diagram": 2
+      },
+      {
+        "file": "USER_INTERFACES.md",
+        "diagram": 3
+      },
+      {
+        "file": "USER_INTERFACES.md",
+        "diagram": 4
+      }
+    ],
+    "failed": []
+  },
+  "comment_only_implementation_files": [
+    "apps/mcp-gateway/src/data-query-application.ts",
+    "apps/mcp-gateway/src/execution-envelope.ts",
+    "apps/mcp-gateway/src/selection-application.ts",
+    "apps/mcp-gateway/src/sites-pilot-store.ts",
+    "apps/mcp-gateway/src/web216-cpih-mcp.ts",
+    "apps/mcp-gateway/src/web216-hosted-cpih-application.ts",
+    "apps/public-data-workbench/src/controller.ts",
+    "apps/public-data-workbench/src/experience.ts",
+    "apps/public-explorer/src/state.ts",
+    "apps/webmcp-explorer/src/webmcp-adapter.ts",
+    "packages/evidence/src/public-ledger.ts",
+    "packages/evidence/src/reconciliation-index.ts",
+    "packages/evidence/src/web216-transactional-contract.ts",
+    "packages/experience-intake/src/zip.ts",
+    "packages/tool-registry/src/registry.ts",
+    "scripts/capture_delivery_evidence.py",
+    "scripts/evidence_checkpoint_operator_common.mjs",
+    "scripts/experience_evaluate.mjs",
+    "scripts/local214_package.py",
+    "scripts/okf_plus/build.py",
+    "scripts/okf_plus/model.py",
+    "scripts/run_gateway_image_assurance.py",
+    "scripts/verify_deployment_admission.py",
+    "services/geo-execution/src/gis_ai_go_execution/service.py"
+  ],
+  "ui_reproductions": [
+    {
+      "case": "Unicode query roundtrip",
+      "canonicalCodePoints": 101,
+      "canonicalUtf16Units": 202,
+      "parsedQuery": ""
+    },
+    {
+      "case": "Actual graph renderer focus",
+      "target": "view-heading-graph",
+      "tabindexAttribute": null,
+      "activeElement": "BODY"
+    }
+  ],
+  "final_local_checks": {
+    "source_git_references": 2475,
+    "local_markdown_links": 1228,
+    "research_hashes": 183,
+    "ledger_snapshots": 2,
+    "source_identifiers": 71,
+    "changelog_fragments": 105,
+    "diff_whitespace": "passed",
+    "research_diff": "empty",
+    "secret_scan_text_files": 32252,
+    "secret_scan": "no baseline secret or machine-path match"
+  }
+}

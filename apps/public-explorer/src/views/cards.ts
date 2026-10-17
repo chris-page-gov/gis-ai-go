@@ -295,7 +295,7 @@ export function renderRecordDetail(
   article.setAttribute("aria-labelledby", headingId);
   article.append(
     navigationLink("Back to catalogue", null, navigation, "back-link"),
-    element("h2", { id: headingId, text: record.title }),
+    element("h2", { id: headingId, text: record.title, tabIndex: -1 }),
     element("p", { className: "lede", text: record.description }),
     element("div", { className: "warning-panel" }, [
       element("h3", { text: "Important limitations" }),
@@ -324,7 +324,7 @@ export function renderCardsView(
 ): HTMLElement {
   const section = element("section");
   section.setAttribute("aria-labelledby", "view-heading-cards");
-  section.append(element("h2", { id: "view-heading-cards", text: "Catalogue" }));
+  section.append(element("h2", { id: "view-heading-cards", text: "Catalogue", tabIndex: -1 }));
 
   if (selectedRecord !== null) {
     section.append(renderRecordDetail(selectedRecord, allRecords, navigation));

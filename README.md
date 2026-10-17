@@ -141,6 +141,12 @@ for verification and client examples.
 
 ## Repository map
 
+Read the [implemented architecture and repository review](docs/architecture/README.md)
+for component and sequence diagrams, formal invariants, a beginner guide to
+contracts, the complete contract register and prioritised maintenance findings.
+Implementation and test references are pinned to an exact Git commit and line
+range; the source register records coverage and review depth.
+
 For the build history, agent roles and a beginner explanation of the methodology,
 read [How we built GIS AI GO](docs/chronicle/README.md). It includes the code review,
 model/guidance changes, local-completion plan and A4 print edition instructions.

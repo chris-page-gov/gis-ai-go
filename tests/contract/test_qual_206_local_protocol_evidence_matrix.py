@@ -42,7 +42,7 @@ CURRENT_COMPATIBILITY_PATH = (
     / "qual-206-web216-current-runtime-compatibility.v3.json"
 )
 CURRENT_COMPATIBILITY_SHA256 = (
-    "01a334323b549aa15991598156372226c6d49ae63a0dd5654f38c487f62cc6e4"
+    "8d68b0ff9604b9213b1009143f447cc332a991ba9212649dd0a3f15cb90635e9"
 )
 CURRENT_COMPATIBILITY_RUNTIME_PATHS = [
     "apps/mcp-gateway/src/mcp-http.ts",
@@ -618,8 +618,8 @@ class Qual206LocalProtocolEvidenceMatrixTests(unittest.TestCase):
                 )
                 # The manifest and lockfile bindings record the protected runtime
                 # base. Unrelated scripts or workspace importers may change without
-                # changing the pinned gateway client. Its current exact dependency
-                # is checked separately below. Only the explicit additive WEB-216
+                # rewriting the historical client observation. The current patched
+                # client pin is checked separately below. Only the additive WEB-216
                 # runtime admission uses its new exact reviewed hash; every other
                 # runtime/source material remains byte-identical to the base.
                 current_client_projection_paths = {
@@ -709,7 +709,7 @@ class Qual206LocalProtocolEvidenceMatrixTests(unittest.TestCase):
             f"{identity(core)}",
         )
 
-    def test_official_client_and_lock_are_exactly_pinned(self) -> None:
+    def test_historical_client_and_current_patched_client_are_separately_pinned(self) -> None:
         official = self.document["official_client"]
         self.assertEqual(official["package"], "@modelcontextprotocol/client")
         self.assertEqual(official["version"], "2.0.0")
@@ -717,9 +717,11 @@ class Qual206LocalProtocolEvidenceMatrixTests(unittest.TestCase):
         self.assertEqual(official["lockfile"]["path"], "pnpm-lock.yaml")
 
         manifest = load_json(GATEWAY_MANIFEST_PATH)
+        # This does not relabel the immutable v1 matrix as a 2.2.0 observation.
+        # Current interoperability is exercised by the executable SDK suites.
         self.assertEqual(
             manifest["devDependencies"]["@modelcontextprotocol/client"],
-            "2.0.0",
+            "2.2.0",
         )
         lockfile = LOCKFILE_PATH.read_text(encoding="utf-8")
         importer = re.search(
@@ -733,8 +735,8 @@ class Qual206LocalProtocolEvidenceMatrixTests(unittest.TestCase):
             importer_body,
             (
                 r"'@modelcontextprotocol/client':\n"
-                r"\s+specifier: 2\.0\.0\n"
-                r"\s+version: 2\.0\.0"
+                r"\s+specifier: 2\.2\.0\n"
+                r"\s+version: 2\.2\.0"
             ),
         )
 
