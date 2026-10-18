@@ -1,6 +1,39 @@
 # Current progress
 
-Last updated: 17 October 2026
+Last updated: 18 October 2026
+
+## Small linked OS metadata and on-demand retrieval
+
+The owner authorised [OKF-223](docs/implementation/OKF-223_ATOMIC_OS_KNOWLEDGE.md),
+preserving small Markdown/YAML-LD records with rich linked metadata. The chosen
+scope is all metadata now and geographic records on demand, under the owner's
+stated Government PSGA authority and published rate limits. The new implementation
+provides bounded atomic OS cards, SQLite discovery and linked reads, a private
+resumable metadata capture queue, dataset retrieval estimates and a private NGD
+fetcher. Existing frozen source snapshots remain unchanged; 48 reviewed field
+interpretations have separate, explicitly partial source evidence.
+
+Local implementation is available on `codex/okf-223-semantic-retrieval`: 32,596
+atomic records, at most 14,711 bytes each, with 92 version-scoped companion links.
+The final affected suite passes 152 tests and the complete atomic audit passes.
+The metadata queue starts with 2,554 routes, including four documentation indexes,
+GEMINI and public product search. Source capture, field extraction and semantic
+acceptance remain distinct. QUAL-206 source-bound receipts were regenerated after
+the package-script change; 33 related tests pass and historical evidence is intact.
+The full repository gate remains incomplete, including environment-dependent
+Python checks and unavailable Chrome; see the implementation record.
+
+The current environment lacks an OS secret binding and blocks all four required
+metadata hosts. The owner's `~/.secrets/os_api_key` is absent from this cloud
+home. Both metadata and geographic execution now accept `OS_API_KEY` or that
+private dedicated file; they never source `ai.env`. Cloud configuration must
+supply the credential and host access before new live acquisition. No geographic
+features have been requested; fetch tests use synthetic fixtures. No complete
+OS knowledge, fresh catalogue, live retrieval, hosted admission or publication
+claim follows from this local work. Publication of a tracking issue was rejected
+by automatic approval review; no issue or pull request was created for this work.
+
+Earlier release checkpoint:
 
 Latest implementation checkpoint: bounded dependency security repairs under
 [issue #142](https://github.com/chris-page-gov/gis-ai-go/issues/142), following

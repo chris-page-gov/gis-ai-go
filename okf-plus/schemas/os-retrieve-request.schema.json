@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/schemas/os-retrieve-request.schema.json",
+  "title": "Private on-demand OS NGD feature retrieval request",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "collectionId", "schemaId", "schemaSha256"],
+  "properties": {
+    "schema": {"const": "okf-plus-os-retrieve-request.v1"},
+    "collectionId": {"type": "string", "pattern": "^[a-z][a-z0-9-]+-[1-9][0-9]*$", "maxLength": 100},
+    "schemaId": {"type": "string", "minLength": 1, "maxLength": 150},
+    "schemaSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "runId": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,63}$", "description": "Distinct capture identity for refreshing an already completed request; reuse the same identity to resume an interrupted capture."},
+    "bbox": {"type": "array", "minItems": 4, "maxItems": 4, "items": {"type": "number"}},
+    "bboxCrs": {"$ref": "#/$defs/horizontalCrs"},
+    "returnCrs": {"$ref": "#/$defs/returnCrs"},
+    "cql": {"type": "string", "minLength": 1, "maxLength": 4096},
+    "filterCrs": {"$ref": "#/$defs/horizontalCrs"},
+    "datetime": {"type": "string", "minLength": 1, "maxLength": 100},
+    "wholeCollection": {"const": true},
+    "pageSize": {"type": "integer", "minimum": 1, "maximum": 100}
+  },
+  "anyOf": [{"required": ["bbox"]}, {"required": ["cql"]}, {"required": ["datetime"]}, {"required": ["wholeCollection"]}],
+  "dependentRequired": {"bboxCrs": ["bbox"], "filterCrs": ["cql"]},
+  "$defs": {
+    "horizontalCrs": {"enum": ["http://www.opengis.net/def/crs/OGC/1.3/CRS84", "http://www.opengis.net/def/crs/EPSG/0/27700", "http://www.opengis.net/def/crs/EPSG/0/4326", "http://www.opengis.net/def/crs/EPSG/0/3857"]},
+    "returnCrs": {"enum": ["http://www.opengis.net/def/crs/OGC/1.3/CRS84", "http://www.opengis.net/def/crs/EPSG/0/27700", "http://www.opengis.net/def/crs/EPSG/0/4326", "http://www.opengis.net/def/crs/EPSG/0/3857", "http://www.opengis.net/def/crs/EPSG/0/7405"]}
+  },
+  "description": "Local owner-private operation only, no gateway admission. Runtime additionally binds exact catalogue/schema versions, native CRS, queryables and scope. Page and byte ceilings are per-run operational controls, not licensing or total-volume caps. Bounding boxes select intersecting whole features; no clipping, elevation interpolation or inferred height is performed."
+}

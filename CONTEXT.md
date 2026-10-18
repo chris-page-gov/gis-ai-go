@@ -1,8 +1,20 @@
 # Current context
 
-Last updated: 17 October 2026
+Last updated: 18 October 2026
 
 ## Authority and reading order
+
+On 18 October the owner requested [OKF-223](docs/implementation/OKF-223_ATOMIC_OS_KNOWLEDGE.md):
+retain small Markdown/YAML-LD files and Linked Data, acquire all available OS
+metadata, explain individual data items in depth and retrieve geographic records
+on demand. The owner explicitly chose metadata acquisition now rather than a
+complete local geographic-data mirror, states Government PSGA rights, and
+authorises the existing OS API credential without a volume cap subject to the
+documented rate limits. Dataset requests need duration estimates and an
+API/download efficiency comparison. Keep licensed payloads and originals private;
+this local authority does not change hosted-provider admission or establish
+that the current environment contains a usable credential. Exact-source checks,
+measured gaps and truthful completion claims remain required.
 
 On 17 October the owner authorised continuing the repository review and four
 repairs towards release, including assessing the updated OpenAI Sites hosting

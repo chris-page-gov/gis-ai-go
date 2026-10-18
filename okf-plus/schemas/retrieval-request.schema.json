@@ -1,0 +1,526 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/schemas/retrieval-request.schema.json",
+  "title": "Private OS on-demand retrieval planning request",
+  "description": "Metadata-only planning input. Availability and measurements carry evidence; credentials are forbidden. The planner performs additional URL, range and semantic checks.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "dataset",
+    "selection",
+    "authority",
+    "project",
+    "initialWaitSeconds",
+    "retryPolicy",
+    "executionBudget"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gis-ai-go.okf-plus-retrieval-request.v1"
+    },
+    "dataset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "nativeIdentifier",
+        "version",
+        "sourceUrl"
+      ],
+      "properties": {
+        "nativeIdentifier": {
+          "$ref": "#/$defs/identifier"
+        },
+        "version": {
+          "$ref": "#/$defs/identifier"
+        },
+        "sourceUrl": {
+          "$ref": "#/$defs/httpsReference"
+        },
+        "schemaSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "recordId": {
+          "$ref": "#/$defs/reference"
+        }
+      }
+    },
+    "selection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scope",
+        "parameters"
+      ],
+      "properties": {
+        "scope": {
+          "enum": [
+            "whole-collection",
+            "subset"
+          ]
+        },
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "bbox": {
+              "type": "array",
+              "minItems": 4,
+              "maxItems": 4,
+              "items": {
+                "type": "number"
+              }
+            },
+            "bbox-crs": {
+              "$ref": "#/$defs/reference"
+            },
+            "crs": {
+              "$ref": "#/$defs/reference"
+            },
+            "filter-crs": {
+              "$ref": "#/$defs/reference"
+            },
+            "filter": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8000
+            },
+            "filter-lang": {
+              "const": "cql-text"
+            },
+            "datetime": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            },
+            "resourceId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1000
+            }
+          }
+        }
+      }
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "basis",
+        "reference"
+      ],
+      "properties": {
+        "basis": {
+          "enum": [
+            "owner-confirmed-PSGA",
+            "open-data"
+          ]
+        },
+        "reference": {
+          "$ref": "#/$defs/reference"
+        }
+      }
+    },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "reservedTransactionsPerMinute"
+      ],
+      "properties": {
+        "mode": {
+          "enum": [
+            "live",
+            "development",
+            "unknown"
+          ]
+        },
+        "reservedTransactionsPerMinute": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "callerCeilingPerMinute": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1000000,
+          "minimum": 1e-09
+        },
+        "additionalRateLimits": {
+          "type": "array",
+          "maxItems": 10,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "scope",
+              "transactionsPerMinute",
+              "sourceUrl"
+            ],
+            "properties": {
+              "scope": {
+                "enum": [
+                  "account",
+                  "project",
+                  "api",
+                  "api-and-project"
+                ]
+              },
+              "transactionsPerMinute": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "maximum": 1000000,
+                "minimum": 1e-09
+              },
+              "sourceUrl": {
+                "$ref": "#/$defs/httpsReference"
+              }
+            }
+          }
+        }
+      }
+    },
+    "recordCount": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lower",
+        "upper",
+        "basis",
+        "reference"
+      ],
+      "properties": {
+        "lower": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000000000
+        },
+        "upper": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1000000000000
+        },
+        "basis": {
+          "enum": [
+            "provider-reported",
+            "measured",
+            "user-estimate"
+          ]
+        },
+        "reference": {
+          "$ref": "#/$defs/reference"
+        }
+      }
+    },
+    "api": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "service",
+        "pageSize",
+        "availability"
+      ],
+      "properties": {
+        "service": {
+          "enum": [
+            "os-ngd-features",
+            "os-features"
+          ]
+        },
+        "pageSize": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "availability": {
+          "enum": [
+            "verified",
+            "unverified",
+            "unavailable"
+          ]
+        },
+        "evidence": {
+          "$ref": "#/$defs/evidence"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "availability": {
+                "const": "verified"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "evidence"
+            ]
+          }
+        }
+      ]
+    },
+    "downloads": {
+      "type": "array",
+      "maxItems": 20,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "nativeIdentifier",
+          "version",
+          "supplyType",
+          "availability",
+          "selectionMatch",
+          "versionMatch",
+          "evidence",
+          "files"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/identifier"
+          },
+          "nativeIdentifier": {
+            "$ref": "#/$defs/identifier"
+          },
+          "version": {
+            "$ref": "#/$defs/identifier"
+          },
+          "supplyType": {
+            "enum": [
+              "FULL",
+              "COU",
+              "unknown"
+            ]
+          },
+          "availability": {
+            "enum": [
+              "verified",
+              "unverified",
+              "unavailable"
+            ]
+          },
+          "selectionMatch": {
+            "enum": [
+              "exact",
+              "superset",
+              "partial",
+              "unknown"
+            ]
+          },
+          "versionMatch": {
+            "enum": [
+              "verified",
+              "mismatch",
+              "unknown"
+            ]
+          },
+          "evidence": {
+            "$ref": "#/$defs/evidence"
+          },
+          "files": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 1000,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "url",
+                "fileName"
+              ],
+              "properties": {
+                "url": {
+                  "$ref": "#/$defs/httpsReference"
+                },
+                "fileName": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 255,
+                  "pattern": "^[^/\\\\\\u0000-\\u001f]+$"
+                },
+                "size": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 1000000000000000
+                },
+                "md5": {
+                  "type": "string",
+                  "pattern": "^[a-fA-F0-9]{32}$"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "measurements": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "apiRequestSeconds": {
+          "$ref": "#/$defs/measurement"
+        },
+        "apiRecordsProcessedPerSecond": {
+          "$ref": "#/$defs/measurement"
+        },
+        "downloadRequestSeconds": {
+          "$ref": "#/$defs/measurement"
+        },
+        "downloadBytesPerSecond": {
+          "$ref": "#/$defs/measurement"
+        },
+        "downloadBytesProcessedPerSecond": {
+          "$ref": "#/$defs/measurement"
+        }
+      }
+    },
+    "initialWaitSeconds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lower",
+        "upper",
+        "basis"
+      ],
+      "properties": {
+        "lower": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 86400
+        },
+        "upper": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 86400
+        },
+        "basis": {
+          "enum": [
+            "measured",
+            "execution-policy",
+            "assumed"
+          ]
+        }
+      }
+    },
+    "retryPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "maxRetriesPerRequest",
+        "maxWaitPerRetrySeconds"
+      ],
+      "properties": {
+        "maxRetriesPerRequest": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "maxWaitPerRetrySeconds": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 86400
+        }
+      }
+    },
+    "executionBudget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "maxRequests",
+        "maxElapsedSeconds",
+        "maxBytes"
+      ],
+      "properties": {
+        "maxRequests": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000000
+        },
+        "maxElapsedSeconds": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 31536000
+        },
+        "maxBytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000000000000
+        }
+      }
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,199}$"
+    },
+    "reference": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000,
+      "pattern": "^(https://|http://www\\.opengis\\.net/def/crs/|urn:)"
+    },
+    "httpsReference": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000,
+      "pattern": "^https://"
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reference",
+        "observedAt"
+      ],
+      "properties": {
+        "reference": {
+          "$ref": "#/$defs/reference"
+        },
+        "observedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "measurement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lower",
+        "upper",
+        "evidence",
+        "sampleCount"
+      ],
+      "properties": {
+        "lower": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1000000000000,
+          "minimum": 1e-09
+        },
+        "upper": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1000000000000,
+          "minimum": 1e-09
+        },
+        "evidence": {
+          "$ref": "#/$defs/evidence"
+        },
+        "sampleCount": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000000
+        }
+      }
+    }
+  }
+}

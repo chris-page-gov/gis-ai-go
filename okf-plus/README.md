@@ -194,6 +194,101 @@ uv run --locked --cache-dir .uv-cache python scripts/okf_plus/import_sources.py
 
 No schedule or background refresh is created by these commands.
 
+## Small linked OS records and on-demand data
+
+The [OKF-223 extension](../docs/implementation/OKF-223_ATOMIC_OS_KNOWLEDGE.md)
+builds an additional small-record view of the retained OS sources. It keeps
+individual fields, queryables, code values, API operations and documentation
+sections separately addressable. Version-specific links preserve source schemas,
+controlled values and related qualifications. Each Markdown/YAML-LD card is at
+most 16 KiB. A SQLite index serves bounded searches and reads; it is a machine
+index, not a document that an AI must ingest.
+
+Build and independently verify the atomic view:
+
+```sh
+pnpm run build:okf-semantics
+pnpm run search:okf-semantics --max-records 5 --max-bytes 16384 search "pavement width"
+pnpm run search:okf-semantics --max-records 5 --max-bytes 16384 search "building heights"
+pnpm run search:okf-semantics --max-records 5 --max-bytes 16384 search "road height above sea level"
+```
+
+Use the returned `@id` for a complete record read. `read` also accepts a native
+identifier, but reports ambiguity when collection/version scope is needed:
+
+```sh
+pnpm run search:okf-semantics --collection-id bld-fts-building-4 read height_absolutemax_m --expand related --expand parent --depth 1
+```
+
+The results expose source pointers, checksums, known gaps and omitted links.
+Discovery summaries are not complete definitions. A bounded response that omits
+linked evidence must not become an unqualified answer. The source research for
+[pavement widths and heights](../docs/implementation/OKF-223_OS_SEMANTIC_SOURCES.md)
+distinguishes surveyed/derived, side-specific/aggregate and absolute/relative
+measurements. Its reviewed paraphrases do not replace missing source evidence.
+
+The owner chose all metadata now and geographic records on demand. Inspect the
+resumable metadata queue without making any provider request:
+
+```sh
+pnpm run plan:os-metadata
+```
+
+Perform private acquisition once the environment permits the reviewed hosts:
+
+```sh
+uv run --locked --cache-dir .uv-cache python scripts/okf_plus/metadata_refresh.py \
+  --run --semantic-cards \
+  --network-allowed-host docs.os.uk --network-allowed-host api.os.uk \
+  --network-allowed-host osmetadata.astuntechnology.com \
+  --network-allowed-host www.ordnancesurvey.co.uk
+```
+
+These flags cannot override the environment's enforced policy. Public
+documentation and schema routes need no key; authenticated package metadata uses
+`OS_API_KEY`, falling back to the owner's dedicated `~/.secrets/os_api_key` file
+when that variable is absent. The file must be owned by the current user with
+mode `0600`, inside an owner-only `0700` directory. `ai.env` is not sourced.
+The cloud workspace has a separate home directory: local files must be mounted
+or configured as a cloud secret before they are available there.
+Never paste the key into a command, prompt,
+source file or URL. Full originals and small evidence chunks remain in ignored
+private output. Captured schemas and queryables also become individual field,
+code-list and code-value cards, preserving complete source descriptions, units,
+nullability and constraints. Oversized declarations have complete linked parts;
+local schema references remain traversable. These private imports do not silently
+change the pinned public catalogue used by the geographic-data fetcher.
+Run `semantic_search.py --root
+artifacts/okf-plus/metadata-refresh index` after acquisition to index those private
+cards separately. A stopped run checkpoints incomplete work; it does not report
+a complete source inventory. The queue includes GEMINI, embedded public product
+search and four documentation indexes, including More Than Maps. Browser-only
+product supplementation, other specialist projects and linked attachments retain
+explicit refresh gaps.
+
+For a dataset request, `scripts/okf_plus/retrieval_plan.py --request request.json`
+validates a request against `schemas/retrieval-request.schema.json`, compares the
+API with evidenced equivalent downloads, and returns a conditional duration range
+or the missing measurements. It never fabricates a package, throughput benchmark,
+entitlement or precise completion time.
+
+`scripts/okf_plus/os_retrieve.py request.json` plans a specifically scoped NGD
+request; `--fetch` performs that request when the configured credential and
+network are available. Its separate request contract is
+`schemas/os-retrieve-request.schema.json`. It preserves native fields and CRS,
+verifies source-bound pagination and writes private resumable outputs. Current
+execution covers NGD feature retrieval; the planner also describes WFS and
+available download alternatives. These local commands do not register new tools
+with the hosted gateway or installed Ask OKF connector.
+
+Use a new `--run-id` for a fresh dataset capture and keep that ID when resuming
+an interrupted capture. Completed captures require explicit `--reuse-complete`
+before being reused, and retain their original retrieval time. The executor
+defaults to at most 40 requests/minute across this workspace's shared service
+limiter; reserve capacity for independent clients using the same OS project.
+The estimate records the separate schema-preflight overhead and any unknown
+measurements. Dataset volume is not limited by an invented licence allowance.
+
 ## Ask OKF integration boundary
 
 The [pinned reuse review](../docs/implementation/OKF-220_REUSE_REVIEW.md) records

@@ -34,6 +34,13 @@ material, semantics and access boundaries. The [implementation checkpoint](../do
 records current acceptance and gaps. Read generated coverage from the build for
 current counts; the directory size is not a count of unique datasets.
 
+For individual OS attributes, the [small linked record workflow](README.md#small-linked-os-records-and-on-demand-data)
+provides bounded field, code-value, schema and API-operation reads. Its
+[implementation record](../docs/implementation/OKF-223_ATOMIC_OS_KNOWLEDGE.md)
+separates retained metadata, fresh acquisition, semantic gaps and on-demand data
+retrieval. Large source files remain machine build inputs; they are not required
+AI context for answering one field-level question.
+
 ## Find the right evidence
 
 | Need | Starting point | Check before using the result |

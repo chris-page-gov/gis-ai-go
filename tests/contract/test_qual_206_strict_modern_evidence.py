@@ -46,8 +46,11 @@ EXACT_RESOURCES = [
 # material hashes and derived identities change; assertions and limits are retained.
 # DEP-142 refreshes the patched package/source-lock bindings and derived identities
 # after executing the selected suites; assertions, outcomes and historical pins remain.
+# OKF-223 re-executed all selected suites after adding metadata package scripts.
+# Only package_json_sha256 and the derived set ID changed; suite/receipt bodies,
+# assertions, outcomes and the historical evidence pins below remain unchanged.
 REGENERABLE_LOCAL_RECEIPT_SHA256 = (
-    "f99c1aa9fdcb4f2e555c50ceac9172bd44e3f012959d3f82edfa5b37a59300b6"
+    "f590d20a30ccf193d60b535eeeb9ad98fcc1cca59ec6a53d4b31a1c5546b2b69"
 )
 HISTORICAL_V1_SHA256 = {
     "evaluation/qual-206-local-protocol-evidence-matrix.v1.json": (

@@ -93,6 +93,13 @@ Acceptance separates catalogue traversal, metadata evidence, schema validation,
 semantic curation, retrieval and live Ask OKF admission. Unknown completeness
 denominators remain open; a large record count does not close them.
 
+The owner authorised [OKF-223](OKF-223_ATOMIC_OS_KNOWLEDGE.md) on 18 October:
+small linked field/value/operation/evidence records, indexed selective reads,
+complete metadata acquisition and geographic data on demand under the stated
+PSGA authority. Dataset requests compare API and download duration using explicit
+measurements and unknowns. Complete acquisition requires working OS network and
+credential bindings; semantic and live-execution coverage remain measured gates.
+
 ## Learning and feature evaluation
 
 [EXPERIENCE-221](EXPERIENCE-221_LEARNING_AND_EVALUATION.md) was authorised on
