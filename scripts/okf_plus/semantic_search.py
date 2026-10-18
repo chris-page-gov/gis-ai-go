@@ -24,7 +24,7 @@ MAX_QUERY_TERMS = 64
 INDEX_NAME = "semantic.sqlite3"
 SCHEMA = "gis-ai-go.okf-plus-semantic-index.v1"
 EXPANSION_RELATIONS = ("parent", "codeList", "related", "children", "semantic-companion",
-                       "schema", "queryable-schema")
+                       "schema", "queryable-schema", "explicit-local-schema-reference")
 STOP_WORDS = frozenset("a an and are as at be by can do does for from how i in is it of on or our the this to us we what which with".split())
 # These are discovery associations, never field mappings or answer templates.
 ALIASES = {"pavement": ("footway", "sidewalk"), "sidewalk": ("footway", "pavement"),
@@ -392,6 +392,128 @@ def read_item(root: Path, identifier: str, *, collection_id: str | None = None,
         connection.close()
 
 
+def _evidence_at(card, pointer):
+    """Look up literal evidence only; this performs no inference or I/O."""
+    value = card
+    for key in pointer.strip("/").split("/"):
+        if not isinstance(value, dict) or key not in value:
+            return False
+        value = value[key]
+    return value is not None and value != "" and value != [] and value != {}
+
+
+def _interpretation_coverage(results):
+    cards = [row["card"] for row in results if "card" in row]
+    if not cards:
+        return {"assessment": "unassessed", "semanticCompleteness": "not-established",
+                "scope": "No selected complete card was returned; select an unambiguous identity or increase the response budget."}
+    primary = cards[0]
+    # Paths identify evidence retained verbatim in the packet. Horizontal CRS,
+    # labels and native names never substitute for units, datum or definitions.
+    paths = {
+        "definition": ("/definition", "/facts/semantics/definition", "/facts/schema/description", "/facts/constraints/description"),
+        "unit": ("/unit", "/facts/semantics/unit", "/facts/schema/unit", "/facts/schema/units"),
+        "verticalDatum": ("/verticalDatum", "/facts/semantics/verticalDatum", "/facts/schema/verticalDatum"),
+        "derivationMethod": ("/derivationMethod", "/facts/semantics/derivation", "/facts/semantics/derivedFrom", "/facts/schema/derivationMethod"),
+        "constraints": ("/facts/constraints", "/facts/schema", "/facts/queryableConstraints"),
+        "nullability": ("/facts/nullable", "/facts/schema/nullable", "/facts/constraints/nullable",
+                        *("/facts/" + container + "/" + declaration
+                          for container in ("schema", "constraints")
+                          for declaration in ("type", "anyOf", "allOf", "oneOf", "not", "if", "then", "else"))),
+        "confidence": ("/facts/semantics/confidence", "/facts/schema/confidence"),
+        "temporalQualifiers": (),
+        "sourceQualifiers": (),
+        "version": ("/version",),
+        "provenance": ("/source", "/semanticEvidence"),
+        "accessEvidence": ("/facts/accessEvidence", "/facts/retrievalObservation"),
+    }
+    facets = {name: {"evidence": [{"card": primary["@id"], "pointer": path} for path in locations
+                                 if _evidence_at(primary, path)]} for name, locations in paths.items()}
+    # A local $ref supplies contextual schema evidence, not a declaration copied
+    # onto the selected field. Follow only explicit-reference edges originating
+    # at that field, never its companions' unrelated descriptions or units.
+    by_identity = {card["@id"]: card for card in cards}
+    reference_origins, pending = {}, [primary]
+    while pending:
+        current = pending.pop()
+        for link in current.get("related", []):
+            target = _reference(link)
+            if (not isinstance(link, dict) or link.get("relation") != "explicit-local-schema-reference"
+                    or target == primary["@id"] or target not in by_identity or target in reference_origins):
+                continue
+            reference_origins[target] = current["@id"]
+            pending.append(by_identity[target])
+    for identity, origin in reference_origins.items():
+        referenced = by_identity[identity]
+        for name in ("definition", "unit", "verticalDatum", "derivationMethod", "constraints", "nullability"):
+            facets[name]["evidence"].extend({"card": identity, "pointer": path, "scope": "referenced-schema",
+                                             "linkedFrom": origin} for path in paths[name]
+                                            if _evidence_at(referenced, path))
+    qualifiers, scope_differences = [], []
+    for card in cards:
+        if card.get("kind") in ("schema-definition", "private-schema"):
+            facets["sourceQualifiers"]["evidence"].append({"card": card["@id"], "pointer": "/facts"})
+        semantics = card.get("facts", {}).get("semantics", {})
+        role = semantics.get("semanticRole") if isinstance(semantics, dict) else None
+        if isinstance(role, str):
+            qualifiers.append({"card": card["@id"], "declaredRole": role, "pointer": "/facts/semantics"})
+            # These suffixes classify an explicit reviewed role for navigation;
+            # they do not classify a field from its name or assess a data value.
+            facet = ("confidence" if role == "confidence" or role.endswith("-quality") else
+                     "derivationMethod" if role == "derivation" or role.endswith("-derivation") else
+                     "temporalQualifiers" if role.endswith("-date") else None)
+            if facet:
+                facets[facet]["evidence"].append({"card": card["@id"], "pointer": "/facts/semantics"})
+        if card is not primary:
+            differences = [name for name in ("collectionId", "version")
+                           if primary.get(name) is not None and card.get(name) is not None and card[name] != primary[name]]
+            if differences:
+                scope_differences.append({"card": card["@id"], "differentFields": differences})
+    for facet in facets.values():
+        facet["status"] = "evidence-present-unassessed" if facet["evidence"] else "not-evidenced-in-returned-packet"
+    return {"assessment": "unassessed", "semanticCompleteness": "not-established",
+            "scope": "Returned cards only. Presence is not correctness or sufficiency; absence is not absence across OS. Confidence and methods describe metadata, not an observed feature value.",
+            "schemaInterpretation": "Native type and composition declarations are retained without evaluating JSON Schema. Referenced-schema evidence stays scoped to its explicit link and is not assigned as the selected field's own meaning.",
+            "facets": facets, "unknowns": [name for name, facet in facets.items() if not facet["evidence"]],
+            "declaredQualifiers": qualifiers, "linkedScopeDifferences": scope_differences,
+            "gapEvidence": [{"card": card["@id"], "pointer": "/gaps"} for card in cards if card.get("gaps")],
+            "traversalScope": "Exact selected links only; arbitrary source references and parent documents are not fetched. Missing source qualifiers remain unknown.",
+            "accessAssessment": "No live access check or geographic retrieval performed; metadata and owner authority do not establish a successful retrieval."}
+
+
+def explain_item(root: Path, identifier: str, *, collection_id: str | None = None,
+                 version: str | None = None, max_records: int = 30,
+                 max_bytes: int = 65536) -> dict[str, Any]:
+    """Collect an interpretation evidence packet, never a generated explanation.
+
+    The fixed traversal retrieves exact companions, enum values, native schema
+    qualifiers and local references. It remains bounded and reports every limit;
+    coverage points only to complete cards that actually fit in the response.
+    """
+    result = read_item(root, identifier, collection_id=collection_id, version=version,
+                       expand=("semantic-companion", "codeList", "children", "schema", "queryable-schema",
+                               "explicit-local-schema-reference"), depth=3,
+                       max_records=max_records, max_bytes=max_bytes)
+    result["operation"] = "explain"
+    if result["status"] in ("ambiguous-identifier", "not-found"):
+        result["interpretationCoverage"] = {"assessment": "unassessed", "semanticCompleteness": "not-established",
+                                            "scope": "An unambiguous selected identity is required."}
+        return _finish(result, max_bytes)
+    result["status"] = "interpretation-evidence-only"
+    while True:
+        result["interpretationCoverage"] = _interpretation_coverage(result["results"])
+        if _measure(result) <= max_bytes:
+            return result
+        if not result["results"]:
+            raise ValueError("interpretation packet envelope exceeds byte budget")
+        result["results"].pop()
+        result["counts"]["returned"] = len(result["results"])
+        result["unvisitedLinks"] += 1
+        result["truncated"] = True
+        if "byte-limit" not in result["omissions"]:
+            result["omissions"].append("byte-limit")
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, required=True, help="Generated semantic card directory")
@@ -407,6 +529,8 @@ def main(argv=None):
     read_parser.add_argument("identifier")
     read_parser.add_argument("--expand", action="append", choices=EXPANSION_RELATIONS, default=[])
     read_parser.add_argument("--depth", type=int, default=1)
+    explain_parser = sub.add_parser("explain", help="Bounded evidence packet with explicit, unassessed interpretation coverage")
+    explain_parser.add_argument("identifier")
     sub.add_parser("index")
     args = parser.parse_args(argv)
     try:
@@ -415,8 +539,12 @@ def main(argv=None):
         else:
             kwargs = {"max_records": args.max_records, "max_bytes": args.max_bytes,
                       "collection_id": args.collection_id, "version": args.version}
-            result = search(args.root, args.question, kind=args.kind, **kwargs) if args.command == "search" else read_item(
-                args.root, args.identifier, expand=tuple(args.expand), depth=args.depth, **kwargs)
+            if args.command == "search":
+                result = search(args.root, args.question, kind=args.kind, **kwargs)
+            elif args.command == "explain":
+                result = explain_item(args.root, args.identifier, **kwargs)
+            else:
+                result = read_item(args.root, args.identifier, expand=tuple(args.expand), depth=args.depth, **kwargs)
         sys.stdout.buffer.write(render(result))
         return 0
     except (ValueError, OSError, sqlite3.Error, UnicodeError, KeyError, TypeError):

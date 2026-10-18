@@ -15,7 +15,7 @@ interpretations have separate, explicitly partial source evidence.
 
 Local implementation is available on `codex/okf-223-semantic-retrieval`: 32,596
 atomic records, at most 14,711 bytes each, with 92 version-scoped companion links.
-The final affected suite passes 152 tests and the complete atomic audit passes.
+The initial affected suite passed 152 tests and the complete atomic audit passed.
 The metadata queue starts with 2,554 routes, including four documentation indexes,
 GEMINI and public product search. Source capture, field extraction and semantic
 acceptance remain distinct. QUAL-206 source-bound receipts were regenerated after
@@ -23,8 +23,14 @@ the package-script change; 33 related tests pass and historical evidence is inta
 The full repository gate remains incomplete, including environment-dependent
 Python checks and unavailable Chrome; see the implementation record.
 
-The current environment lacks an OS secret binding and blocks all four required
-metadata hosts. The owner's `~/.secrets/os_api_key` is absent from this cloud
+The running task lacks an OS credential binding and blocks all four required
+metadata hosts. Four actual HTTPS probes on 18 October at 20:00 UTC failed with
+proxy CONNECT 403 status hints before reaching OS; no credential was sent.
+The owner's screenshot shows a newly published configuration containing eight
+additional domains and the `OS_API_KEY` environment variable. This running task
+still reports the original five domains and no variable or secret. New tasks use
+the published setup; an environment variable also needs an explicit `api.os.uk`
+host allowance. The owner's `~/.secrets/os_api_key` is absent from this cloud
 home. Both metadata and geographic execution now accept `OS_API_KEY` or that
 private dedicated file; they never source `ai.env`. Cloud configuration must
 supply the credential and host access before new live acquisition. No geographic
@@ -32,6 +38,16 @@ features have been requested; fetch tests use synthetic fixtures. No complete
 OS knowledge, fresh catalogue, live retrieval, hosted admission or publication
 claim follows from this local work. Publication of a tracking issue was rejected
 by automatic approval review; no issue or pull request was created for this work.
+
+The [coverage matrix](docs/implementation/OKF-223_COVERAGE_GAPS.md) records eleven
+documented current service families and the remaining metadata, interpretation
+and execution gaps. A bounded `explain` command collects linked field evidence
+and reports missing qualifications; returned evidence is explicitly unassessed.
+The separate registry contains twelve service cards, including withdrawn material,
+and sixty operation cards, each at most 12,012 bytes. It preserves native contracts
+and distinguishes the local private metadata/data implementations from untested
+live access. This explanation/registry increment passes 53 focused tests and
+independent review; registry generation makes no provider requests.
 
 Earlier release checkpoint:
 

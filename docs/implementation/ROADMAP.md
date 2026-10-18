@@ -99,6 +99,9 @@ complete metadata acquisition and geographic data on demand under the stated
 PSGA authority. Dataset requests compare API and download duration using explicit
 measurements and unknowns. Complete acquisition requires working OS network and
 credential bindings; semantic and live-execution coverage remain measured gates.
+The [coverage matrix](OKF-223_COVERAGE_GAPS.md) separates service roles, acquired
+sources, field interpretation and executable routes, with explicit work remaining
+for other service metadata, attachments and bulk downloads.
 
 ## Learning and feature evaluation
 

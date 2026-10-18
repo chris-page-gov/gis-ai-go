@@ -52,6 +52,11 @@ complete records with a total byte/node budget. Expansion follows bounded linked
 relationships and reports omitted or unresolved evidence. A byte budget must
 never silently cut off a qualification and present the result as complete.
 
+The `explain` command builds this packet from exact linked cards and identifies
+literal evidence pointers for each interpretation facet. It labels every facet
+unassessed, with absent evidence explicit. It performs no generated explanation,
+live access check or implicit inference from a field name or horizontal CRS.
+
 Full documentation originals and their small evidence chunks are local private
 outputs. The public source module retains reviewed factual metadata and concise
 source-backed interpretation. Source passages are evidence, never executable
@@ -138,12 +143,43 @@ credential binding; editing a policy snapshot would not change enforcement.
 Linked attachments and future bulk-download file hosts need evidence from the
 returned metadata before extending this inventory.
 
+On 18 October at 20:00 UTC, one unauthenticated HTTPS request to each of the four
+hosts failed during proxy CONNECT with a 403 status hint, before reaching OS.
+No credential or geographic request was sent. The private observation is retained
+in `artifacts/okf-plus/access-validation/latest.json`. The owner's subsequent
+screenshot shows a published configuration with eight additional domains and
+`OS_API_KEY` as an environment variable. The running task still reports the
+original five domains and no runtime variable or secret binding. These are
+different configuration observations, not evidence that the entered key is bad.
+The [cloud environment guide](https://learn.chatgpt.com/docs/environments/cloud-environments)
+states that newly started tasks use published changes while existing tasks retain
+their state. An environment variable does not add its service's domain permission;
+`api.os.uk` must appear explicitly among allowed hosts for that configuration.
+
 Repository publication was rejected by automatic approval review because external
 disclosure was not explicitly authorised. Local implementation and validation
 continue. Publication, live data execution and hosted connector acceptance must
 be reported separately from the local build.
 
 ## Local evidence and remaining work
+
+The [coverage matrix](OKF-223_COVERAGE_GAPS.md) records known missing metadata,
+semantic interpretations and executors. The retained catalogue documents eleven
+current service families plus withdrawn material. Its sixty extracted operation
+fragments are an extraction denominator, not an exhaustive API operation count.
+Only 48 reviewed field interpretations have a curated semantic supplement;
+schema metadata for the remaining fields must not be described as full meaning.
+
+The offline service registry emits one bounded service or operation record per
+identity, preserving native methods, paths, servers and exact contract hashes.
+Each operation links to the corresponding atomic operation and contract cards.
+Its local private retrieval profile separates metadata capture, data execution,
+synthetic test contracts and live access; withdrawn routes remain ineligible.
+It does not execute operations, resolve remote references or expand authority.
+The retained projection contains twelve service cards (ten current data services,
+OAuth and one withdrawn service) and sixty operation cards, at most 12,012 bytes
+each. Ten operations have implemented metadata subsets and one has a local NGD
+data executor. OAuth's missing extracted contract remains explicit.
 
 The independently audited retained-source build contains 32,596 atomic records,
 including 2,915 fields, 188 schema definitions and 60 API operations. Its largest
@@ -174,7 +210,10 @@ does not implement every OS service executor or automatic bulk-package downloads
 All live acquisition, exact project entitlements and throughput observations still
 need validation in an environment with the authorised OS credential and hosts.
 
-The final affected suite passes 152 tests. All 32,596 generated cards pass the
+The initial affected suite passed 152 tests. The subsequent explanation and
+registry increment passes 53 focused tests, including the independent verifier
+suite. Independent review checked all sixty registry operations against their
+native contracts and exercised bounded reads. All 32,596 generated cards pass the
 independent strict schema, source-pointer/digest and byte-bound audit. The prior
 OKF+ importer, build, retrieval, whole-corpus projection, schema and pinned-engine
 verification also passed for the unchanged frozen source corpus. Link, contract,

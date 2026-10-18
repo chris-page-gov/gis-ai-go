@@ -227,6 +227,36 @@ linked evidence must not become an unqualified answer. The source research for
 distinguishes surveyed/derived, side-specific/aggregate and absolute/relative
 measurements. Its reviewed paraphrases do not replace missing source evidence.
 
+Use `explain` to collect the selected field, its explicitly linked qualifications,
+schema evidence and code meanings within a total response budget:
+
+```sh
+pnpm run search:okf-semantics --collection-id bld-fts-building-4 --max-records 30 --max-bytes 131072 explain height_absolutemax_m
+```
+
+This returns evidence pointers and unknowns for definitions, units, methods,
+datum, confidence, version and access. It does not generate an answer or certify
+semantic completeness. Coverage refers only to complete cards returned in the
+packet; omitted qualifications and differing linked versions remain explicit.
+The [coverage matrix](../docs/implementation/OKF-223_COVERAGE_GAPS.md) distinguishes
+documented services, captured metadata, interpreted fields and working executors.
+
+Build the separate small service/route registry to inspect API roles and local
+implementation support. Choose a new output directory for each build:
+
+```sh
+uv run --locked --cache-dir .uv-cache python scripts/okf_plus/service_registry.py build --output artifacts/okf-plus/services
+uv run --locked --cache-dir .uv-cache python scripts/okf_plus/service_registry.py read --bundle artifacts/okf-plus/services os-ngd-api-features
+uv run --locked --cache-dir .uv-cache python scripts/okf_plus/service_registry.py routes --bundle artifacts/okf-plus/services os-ngd-api-features
+```
+
+Each service and operation has its own record, bounded to 16 KiB, with exact
+source hashes and links to the atomic contract evidence. Statuses separate
+documentation, lifecycle, implemented subsets, test contracts and live access.
+These commands make no provider requests and never execute a retained route.
+Their implementation statuses apply to the local private retrieval profile;
+the experimental Sites adapters have separate scope and evidence.
+
 The owner chose all metadata now and geographic records on demand. Inspect the
 resumable metadata queue without making any provider request:
 
@@ -251,6 +281,10 @@ when that variable is absent. The file must be owned by the current user with
 mode `0600`, inside an owner-only `0700` directory. `ai.env` is not sourced.
 The cloud workspace has a separate home directory: local files must be mounted
 or configured as a cloud secret before they are available there.
+An environment variable named `OS_API_KEY` is supported, but it does not add
+network permission: explicitly allow `api.os.uk` as well as the three metadata
+hosts above. Published environment changes apply to newly started tasks; confirm
+the running task's bindings and policy before attempting acquisition.
 Never paste the key into a command, prompt,
 source file or URL. Full originals and small evidence chunks remain in ignored
 private output. Captured schemas and queryables also become individual field,
