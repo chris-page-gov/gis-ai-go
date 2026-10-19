@@ -94,8 +94,8 @@ def assess_availability(spec):
     observed = 'present' if present else 'absent' if absent else 'unknown'
     detail = observation if present else 'property_missing' if absent and observation == 'property_missing' else reason if absent else 'unknown'
     # Retrieval problems never erase a positive retained observation, nor establish absence.
-    if access == 'denied':
-        status, summary, action = 'permission_denied', 'Access is denied for this request.', 'Check the cited entitlement or access decision.'
+    if access == 'denied' or retrieval == 'failed' and failure_reason == 'permission_denial':
+        status, summary, action = 'permission_denied', 'The provider rejected access for this request.', 'Check authentication and the cited request-level access decision.'
     elif retrieval == 'failed':
         status, summary, action = ('transient_failure' if failure_reason == 'transient_failure' else 'retrieval_failed'), 'Retrieval failed; availability is unresolved.', 'Inspect the receipt and retry within the documented limits.'
     elif present:
@@ -129,7 +129,7 @@ def from_ngd_receipt(receipt, *, source, selector, field, evidence_reference,
     """Read receipt metadata only; never read feature payloads or invoke a provider.
 
     ``complete`` applies to the exact selection. Disposal/reacquisition state is
-    incomplete. Complete receipts must match source collection and selector ID
+    incomplete. Every receipt must match source collection and selector ID
     equal to the canonical native selection SHA256 (or its urn:sha256 form). A
     failed HTTP/transport receipt never proves absent data.
     """
@@ -144,23 +144,27 @@ def from_ngd_receipt(receipt, *, source, selector, field, evidence_reference,
     if not isinstance(receipt,dict): raise ValueError('Receipt must be object')
     _safe(receipt)
     if len(raw)>MAX_INPUT_BYTES: raise ValueError('Receipt byte ceiling')
+    selection=receipt.get('selection')
+    if not isinstance(selection,dict) or not isinstance(source,dict) or not isinstance(selector,dict):
+        raise ValueError('Receipt must bind the requested collection and selector')
+    _text(source.get('id')); _text(selector.get('id'))
+    selection_digest=hashlib.sha256(json.dumps(selection,sort_keys=True,separators=(',',':'),allow_nan=False).encode()).hexdigest()
+    if (source.get('id') != selection.get('collection')
+            or selector.get('id') not in {selection_digest,'urn:sha256:'+selection_digest}):
+        raise ValueError('Receipt must bind the requested collection and selector')
     reason=receipt.get('reason')
     if access == 'unknown' and reason == 'http-failed' and receipt.get('lastHttpStatus') in (401, 403):
         access = 'denied'  # Observed request-level rejection, not a claim about PSGA licence rights.
     if receipt.get('payloadDiscarded') or reason=='needs-reacquisition': state='incomplete'
-    elif receipt.get('complete') is True:
-        selection=receipt.get('selection')
-        selection_digest=hashlib.sha256(json.dumps(selection,sort_keys=True,separators=(',',':'),allow_nan=False).encode()).hexdigest()
-        bound=(isinstance(selection,dict) and source.get('id') == selection.get('collection')
-               and selector.get('id') in {selection_digest,'urn:sha256:'+selection_digest})
-        state='complete' if bound else 'incomplete'
+    elif receipt.get('complete') is True: state='complete'
     elif reason in {'http-failed','transport-failed','rate-limited','content-crs-mismatch','invalid-or-inconsistent-page'}: state='failed'
     else: state='incomplete'
     return assess_availability({'source':source,'selector':selector,'field':field,
         'evidence':[{'reference':evidence_reference,'receipt_sha256':hashlib.sha256(raw).hexdigest()}],
         'access':access,'expected_presence':expected_presence,'retrieval':state,'observation':observation,
         'denominator_known':denominator_known,'empty_reason':empty_reason,
-        'failure_reason':'transient_failure' if reason in {'transport-failed','rate-limited'} else 'unknown'})
+        'failure_reason':('permission_denial' if reason == 'http-failed' and receipt.get('lastHttpStatus') in (401,403) else
+                          'transient_failure' if reason in {'transport-failed','rate-limited'} else 'unknown')})
 
 
 def from_query_plan(plan, *, source, selector, field, evidence_reference,

@@ -26,6 +26,10 @@ spatial or temporal context explicit instead of silently substituting the curren
 version or a broader area. A reported result applies to the supplied selector and
 field; it does not extend to another selection or source version.
 
+A bound HTTP 401/403 receipt reports request-level `permission_denied` even when
+an explicit owner access claim remains `allowed`. The claim is preserved; the
+provider response does not revoke PSGA licence rights or prove the data is absent.
+
 ## Status and wording
 
 | Status | Report wording and interpretation |

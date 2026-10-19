@@ -144,6 +144,26 @@ class RecoveryRunTests(unittest.TestCase):
             self.assertEqual(capture.get(self.url,'text')[0],'cached')
             parent.assert_called_once_with(self.url,'text')
 
+    def test_interrupted_receipts_do_not_shadow_a_known_terminal_failure(self):
+        for pending in ('pending',None):
+            with self.subTest(pending=pending):
+                capture=object.__new__(recovery.NoFailedRetryCapture)
+                failure={'url':self.url,'status':404}
+                capture.ledger={'requests':[failure,{'url':self.url,'status':pending}]}
+                with patch.object(recovery.sync.PrivateCapture,'get') as parent:
+                    self.assertEqual(capture.get(self.url,'text'),(None,failure))
+                    parent.assert_not_called()
+
+    def test_prior_429_stops_even_after_later_terminal_or_interrupted_receipts(self):
+        for later in (200,404,'pending',None):
+            with self.subTest(later=later):
+                capture=object.__new__(recovery.NoFailedRetryCapture)
+                capture.ledger={'requests':[{'url':self.url,'status':429},{'url':self.url,'status':later}]}
+                with patch.object(recovery.sync.PrivateCapture,'get') as parent:
+                    with self.assertRaisesRegex(RuntimeError,'Prior rate-limit stop'):
+                        capture.get(self.url,'text')
+                    parent.assert_not_called()
+
     def test_optional_receipt_schema_enforces_private_partial_and_runtime_limits(self):
         from jsonschema import Draft202012Validator, ValidationError
         schema=json.loads((Path(__file__).resolve().parents[2]/'okf-plus/schemas/recovery-supervisor.schema.json').read_text())

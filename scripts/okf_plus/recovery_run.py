@@ -85,9 +85,13 @@ def audit_captured(root, state):
 class NoFailedRetryCapture(sync.PrivateCapture):
     """Reuse known failure receipts, without another provider attempt."""
     def get(self, url, kind='json'):
+        if any(row.get('status') == 429 for row in self.ledger['requests']):
+            raise RuntimeError('Prior rate-limit stop requires a separately reviewed capture')
         for row in reversed(self.ledger['requests']):
             if row.get('url') == url:
-                if row.get('status') not in (200, 'pending', None): return None, row
+                # An interrupted request cannot supersede a known terminal outcome.
+                if row.get('status') in ('pending', None): continue
+                if row.get('status') != 200: return None, row
                 break
         return super().get(url, kind)
 

@@ -213,3 +213,22 @@ class QueryPlannerTests(unittest.TestCase):
             with self.subTest(requirement=requirement), self.assertRaises(ValueError): plan_query(spec)
         spec = self.fixture(); spec['routes'][0]['output_capabilities']={'invented':{}}
         with self.assertRaises(ValueError): plan_query(spec)
+
+
+    def test_request_and_evidence_credentials_are_rejected_without_echoing_values(self):
+        secret = 'SYNTHETIC-CREDENTIAL-NOT-A-REAL-KEY'
+        cases = [({'headers':{'key':secret}}, None),
+                 ({'headers':{'Authorization':'Bearer '+secret}}, None),
+                 ({'url':'https://api.os.uk/synthetic?key='+secret}, None),
+                 ({'url':'https://user:'+secret+'@api.os.uk/synthetic'}, None),
+                 ({'path':'/synthetic'}, 'https://evidence.invalid/?client_secret='+secret)]
+        for request, evidence in cases:
+            spec = self.fixture(); spec['routes'][0]['request'] = request
+            if evidence:
+                spec['routes'][0]['output_capabilities'] = {
+                    'native-values': {'supported':True,'evidence':evidence}}
+            with self.subTest(request=request), self.assertRaises(ValueError) as raised:
+                plan_query(spec)
+            self.assertNotIn(secret,str(raised.exception))
+        spec = self.fixture(); spec['routes'][0]['request'] = {'key_binding':'OS_API_KEY'}
+        self.assertFalse(plan_query(spec)['execution'])

@@ -1,0 +1,122 @@
+{
+  "@context": {
+    "okfp": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/vocab/",
+    "owner": {
+      "@id": "okfp:owner",
+      "@type": "@json"
+    },
+    "policy": {
+      "@id": "okfp:policy",
+      "@type": "@json"
+    },
+    "rights": {
+      "@id": "okfp:rights",
+      "@type": "@json"
+    },
+    "threats": {
+      "@id": "okfp:threats",
+      "@type": "@json"
+    },
+    "bindings": {
+      "@id": "okfp:bindings",
+      "@type": "@json"
+    },
+    "review": {
+      "@id": "okfp:review",
+      "@type": "@json"
+    }
+  },
+  "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/profile/os-collection-document-bindings/v1",
+  "@type": "okfp:ReviewedCandidateDocumentBindings",
+  "owner": "GIS AI GO repository owner",
+  "policy": {
+    "executionAdmitted": false,
+    "scope": "Two explicitly reviewed document route candidates only; no semantic or version equivalence."
+  },
+  "rights": {
+    "metadata": "Source rights retained",
+    "payloadPublicationAdmitted": false
+  },
+  "threats": [
+    "Identical GB/NI schemas mistaken for collection identity",
+    "Title normalisation inferred as universal alias",
+    "Source version mismatch or substituted snapshot"
+  ],
+  "review": {
+    "date": "2026-10-19",
+    "record": "docs/implementation/OKF_OS_RECOVERY.md",
+    "status": "Owner-reviewed source-backed candidate route curation; not independent human semantic certification"
+  },
+  "bindings": [
+    {
+      "collectionId": "asu-gbpcd-postcodeunitpoint-1",
+      "documentUrl": "https://docs.os.uk/osngd/data-structure/administrative-and-statistical-units/gb-postcodes/postcode-unit-point.md",
+      "collectionTitle": "Postcode Unit Point v1",
+      "documentTitle": "Postcode Unit Point",
+      "nativeDefinition": "The Postcode Unit Point Feature Type is a point representation of a postcode, calculated from the average positions of addresses which share a postcode.",
+      "reason": "GB-scoped native collection; NGD Features excludes NI Postcodes. GB and NI have identical schemas, so field overlap cannot disambiguate.",
+      "versionStatus": "current-document-not-independently-version-matched",
+      "sources": [
+        {
+          "snapshot": "okf-plus/source/os-ngd-collections.json",
+          "snapshotSha256": "88905be3b1563f50a5309669741e1ebfa35700ca5c12d6e51b0c3cac9932acb4",
+          "pointer": "/records/1",
+          "normalisedRecordSha256": "c2ba2a6171c65e178e3b89d9ed860ae0591708660b64d1467447423814cf4f72"
+        },
+        {
+          "snapshot": "okf-plus/source/osngd-documentation.json",
+          "snapshotSha256": "7147d326a37e98bbe8536ee81dadda9cb59c7307516e079931148e555e38558f",
+          "pointer": "/records/102",
+          "normalisedRecordSha256": "701a4cd7432a31f2746b67d5c32d89880861124bf64b930e9d9fc2f6f96fcb5c"
+        },
+        {
+          "snapshot": "okf-plus/source/osngd-documentation-pages.json",
+          "snapshotSha256": "b716faf7b9bdf87b95f59b63e56dc76152d9f13971fcc1c9f44bf1c853421731",
+          "pointer": "/records/102",
+          "normalisedRecordSha256": "c62d249be9f7f486a6dfafb58ac32889f2592a5721c7619ce62b7dd1dec32e94",
+          "sourceSha256": "32543d19750a6c535b1d247a92614db383a966f874690808159c760c135bc93a",
+          "sourceUrl": "https://docs.os.uk/osngd/data-structure/administrative-and-statistical-units/gb-postcodes/postcode-unit-point.md"
+        },
+        {
+          "snapshot": "okf-plus/source/os-api-contracts.json",
+          "snapshotSha256": "231147999cbf1668d7fbcba02a3c871f14731c25190314cb3cd071fbbe207b95",
+          "pointer": "/records/11",
+          "normalisedRecordSha256": "babb5dc5882b807263b81efb699cf1e7be82c96b19bd69821cc59c536ed470ab",
+          "sourceSha256": "e204b34e4a8e9d410ac7bf9261efe92a46bb778d9dd6fb61d76b0ddb14aa12a4",
+          "sourceUrl": "https://docs.os.uk/os-apis/accessing-os-apis/os-ngd-api-features.md"
+        }
+      ]
+    },
+    {
+      "collectionId": "trn-rami-routingstructure-1",
+      "documentUrl": "https://docs.os.uk/osngd/data-structure/transport/rami/routingstructure.md",
+      "collectionTitle": "RoutingStructure v1",
+      "documentTitle": "Routing Structure",
+      "nativeDefinition": "These indicate the location of key structures related to the highway network. These may be:\nBarriers: Structures or equipment constructed to control, obstruct, or prevent passage or access\nBridges and Tunnels\nCrossings and Signals: Equipment such as traffic signals, and locations that control the flow of traffic",
+      "reason": "Native collection and document describe the same highway barriers, bridges/tunnels, crossings/signals; title-spacing is explicitly reviewed, never a general alias rule.",
+      "versionStatus": "current-document-not-independently-version-matched",
+      "sources": [
+        {
+          "snapshot": "okf-plus/source/os-ngd-collections.json",
+          "snapshotSha256": "88905be3b1563f50a5309669741e1ebfa35700ca5c12d6e51b0c3cac9932acb4",
+          "pointer": "/records/80",
+          "normalisedRecordSha256": "ae997be58b27d2268075c412b5560c0e0d5e807d2d2e4fd335019f035751453b"
+        },
+        {
+          "snapshot": "okf-plus/source/osngd-documentation.json",
+          "snapshotSha256": "7147d326a37e98bbe8536ee81dadda9cb59c7307516e079931148e555e38558f",
+          "pointer": "/records/148",
+          "normalisedRecordSha256": "9e2910304f99e609f3b7d4693189d0067f2ab5bf21a6798b312b832cfe3ab820"
+        },
+        {
+          "snapshot": "okf-plus/source/osngd-documentation-pages.json",
+          "snapshotSha256": "b716faf7b9bdf87b95f59b63e56dc76152d9f13971fcc1c9f44bf1c853421731",
+          "pointer": "/records/148",
+          "normalisedRecordSha256": "906e989d78d861bd83924a89a01440b2626ee0e9cfb842e35f16a092e5855501",
+          "sourceSha256": "e0d9ce86682ffd388a6356b9020021c2432cc58aa270ab0dcd765c6b9bdbdde9",
+          "sourceUrl": "https://docs.os.uk/osngd/data-structure/transport/rami/routingstructure.md"
+        }
+      ]
+    }
+  ]
+}

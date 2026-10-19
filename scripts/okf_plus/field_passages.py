@@ -78,6 +78,75 @@ def document_sections(private, entry, url):
     return source, sections, hashlib.sha256(manifest_path.read_bytes()).hexdigest()
 
 
+REVIEWED_ROUTES = {
+    'asu-gbpcd-postcodeunitpoint-1': BASE + 'administrative-and-statistical-units/gb-postcodes/postcode-unit-point.md',
+    'trn-rami-routingstructure-1': BASE + 'transport/rami/routingstructure.md'}
+BINDING_PROFILE = 'okf-plus/profile/os-collection-document-bindings.json'
+
+
+def reviewed_bindings(root, native_collections):
+    """Validate the bounded reviewed registry; source metadata cannot extend it."""
+    path = checked(root, BINDING_PROFILE)
+    raw = path.read_bytes()
+    profile = load_json(raw.decode())
+    if (profile.get('@type') != 'okfp:ReviewedCandidateDocumentBindings' or
+            profile.get('policy', {}).get('executionAdmitted') is not False or
+            not isinstance(profile.get('bindings'), list)):
+        raise ValueError('Malformed reviewed binding profile')
+    result, cache = {}, {}
+    for index, binding in enumerate(profile['bindings']):
+        native = binding.get('collectionId')
+        if native not in REVIEWED_ROUTES or native in result or binding.get('documentUrl') != REVIEWED_ROUTES[native]:
+            raise ValueError('Unreviewed or duplicate collection-document route')
+        if binding.get('versionStatus') != 'current-document-not-independently-version-matched':
+            raise ValueError('Reviewed binding cannot assert version equivalence')
+        sources = binding.get('sources')
+        if not isinstance(sources, list) or len(sources) < 3:
+            raise ValueError('Reviewed binding lacks source evidence')
+        resolved = {}
+        for evidence in sources:
+            source = evidence.get('snapshot')
+            if source not in {'okf-plus/source/' + family + '.json' for family in
+                    ['os-ngd-collections', 'osngd-documentation', 'osngd-documentation-pages', 'os-api-contracts']}:
+                raise ValueError('Unreviewed source snapshot')
+            if source not in cache:
+                body = checked(root, source).read_bytes()
+                cache[source] = (hashlib.sha256(body).hexdigest(), load_json(body.decode()))
+            sha, snapshot = cache[source]
+            if sha != evidence.get('snapshotSha256'):
+                raise ValueError('Reviewed source snapshot checksum mismatch')
+            pointer = evidence.get('pointer', '')
+            if not re.fullmatch(r'/records/[0-9]+', pointer):
+                raise ValueError('Invalid reviewed source pointer')
+            record = snapshot['records'][int(pointer.rsplit('/', 1)[1])]
+            if hashlib.sha256(canonical(record)).hexdigest() != evidence.get('normalisedRecordSha256'):
+                raise ValueError('Reviewed source record checksum mismatch')
+            if evidence.get('sourceSha256'):
+                if record.get('sourceSha256') != evidence['sourceSha256'] or record.get('url') != evidence.get('sourceUrl'):
+                    raise ValueError('Reviewed source response binding mismatch')
+                if not any(r.get('sha256') == evidence['sourceSha256'] and
+                        r.get('url') == evidence['sourceUrl'] and r.get('status') == 200
+                        for r in snapshot['receipts']):
+                    raise ValueError('Reviewed source response lacks receipt')
+            resolved[source] = record
+        collection = resolved.get('okf-plus/source/os-ngd-collections.json', {})
+        document = resolved.get('okf-plus/source/osngd-documentation.json', {})
+        if (collection.get('id') != native or collection.get('title') != binding.get('collectionTitle') or
+                collection.get('description') != binding.get('nativeDefinition') or
+                document.get('url') != binding['documentUrl'] or document.get('title') != binding.get('documentTitle')):
+            raise ValueError('Reviewed native collection or document identity mismatch')
+        if resolved.get('okf-plus/source/osngd-documentation-pages.json', {}).get('url') != binding['documentUrl']:
+            raise ValueError('Reviewed document projection identity mismatch')
+        if native.startswith('asu-') and resolved.get('okf-plus/source/os-api-contracts.json', {}).get('url') !=                 'https://docs.os.uk/os-apis/accessing-os-apis/os-ngd-api-features.md':
+            raise ValueError('GB route lacks NI-exclusion review evidence')
+        result[native] = {'url': binding['documentUrl'], 'evidence': {
+            'profile': BINDING_PROFILE, 'profileSha256': hashlib.sha256(raw).hexdigest(),
+            'pointer': '/bindings/' + str(index), 'reviewedBinding': binding}}
+    if (set(REVIEWED_ROUTES) & set(native_collections)) - set(result):
+        raise ValueError('Missing reviewed collection binding')
+    return result
+
+
 def discover_bindings(root):
     """Exact frozen titles provide candidate routes, never version equivalence."""
     root = no_symlinks(root)
@@ -104,6 +173,14 @@ def discover_bindings(root):
         result[collection['id']] = {'status': 'unique-route' if len(matches) == 1 else
             ('ambiguous-route' if matches else 'route-not-found'),
             'url': matches[0][1]['url'] if len(matches) == 1 else None, 'evidence': evidence}
+    reviewed = reviewed_bindings(root, result)
+    for native, binding in reviewed.items():
+        if native not in result:
+            continue
+        result[native]['status'] = 'unique-route'
+        result[native]['url'] = binding['url']
+        result[native]['method'] = 'reviewed-route-exact-heading-candidate'
+        result[native]['evidence']['reviewedCuration'] = binding['evidence']
     return result
 
 
@@ -175,7 +252,7 @@ def overlays(cards_root, private, *, all_collections=False, root=ROOT):
                'limitations': ['Candidate evidence links only; no inferred units, datum, methods or semantic equivalence.'],
                'passages': []}
         if all_collections:
-            row['binding']['method'] = 'frozen-exact-title-exact-heading-candidate'
+            row['binding']['method'] = route.get('method', 'frozen-exact-title-exact-heading-candidate')
             row['binding']['routeEvidence'] = route.get('evidence', {})
         if all_collections and route['status'] != 'unique-route':
             row['status'] = route['status']

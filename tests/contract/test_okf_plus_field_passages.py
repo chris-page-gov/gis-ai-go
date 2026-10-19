@@ -81,8 +81,62 @@ class FieldPassageTests(unittest.TestCase):
     def frozen_sources(self, root, collections, documents):
         source = root / 'okf-plus/source'
         source.mkdir(parents=True)
+        profile = root / M.BINDING_PROFILE
+        profile.parent.mkdir(parents=True)
+        profile.write_bytes(M.canonical({'@type': 'okfp:ReviewedCandidateDocumentBindings',
+            'policy': {'executionAdmitted': False}, 'bindings': []}))
         for name, rows in [('os-ngd-collections', collections), ('osngd-documentation', documents)]:
             (source / (name + '.json')).write_bytes(M.canonical({'records': rows}))
+
+    def test_real_reviewed_candidates_resolve_gb_and_spacing_without_version_claim(self):
+        registry = M.discover_bindings(ROOT)
+        postcode = registry['asu-gbpcd-postcodeunitpoint-1']
+        routing = registry['trn-rami-routingstructure-1']
+        self.assertEqual(len(postcode['evidence']['candidates']), 2)
+        self.assertIn('/gb-postcodes/', postcode['url'])
+        self.assertNotIn('/ni-postcodes/', postcode['url'])
+        self.assertEqual(routing['evidence']['candidates'], [])
+        self.assertEqual(routing['method'], 'reviewed-route-exact-heading-candidate')
+        for route in [postcode, routing]:
+            curation = route['evidence']['reviewedCuration']
+            self.assertEqual(curation['profileSha256'], hashlib.sha256((ROOT / M.BINDING_PROFILE).read_bytes()).hexdigest())
+            self.assertEqual(curation['reviewedBinding']['versionStatus'],
+                             'current-document-not-independently-version-matched')
+        profile = M.read(ROOT / M.BINDING_PROFILE)
+        self.assertLessEqual((ROOT / M.BINDING_PROFILE).stat().st_size, 16384)
+        self.assertIn('identical schemas', profile['bindings'][0]['reason'])
+
+    def test_reviewed_curation_rejects_changed_snapshot_hash(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            profile = M.read(ROOT / M.BINDING_PROFILE)
+            evidence = profile['bindings'][0]['sources'][0]
+            source = root / evidence['snapshot']
+            source.parent.mkdir(parents=True)
+            source.write_bytes((ROOT / evidence['snapshot']).read_bytes())
+            evidence['snapshotSha256'] = '0' * 64
+            target = root / M.BINDING_PROFILE
+            target.parent.mkdir(parents=True)
+            target.write_bytes(M.canonical(profile))
+            with self.assertRaisesRegex(ValueError, 'snapshot checksum'):
+                M.reviewed_bindings(root, {'asu-gbpcd-postcodeunitpoint-1': {}})
+
+    def test_reviewed_profile_missing_malformed_or_unreviewed_url_fails_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            with self.assertRaises(FileNotFoundError):
+                M.reviewed_bindings(root, {})
+            path = root / M.BINDING_PROFILE
+            path.parent.mkdir(parents=True)
+            for profile in [{}, {'@type': 'okfp:ReviewedCandidateDocumentBindings',
+                'policy': {'executionAdmitted': False}, 'bindings': []},
+                {'@type': 'okfp:ReviewedCandidateDocumentBindings',
+                 'policy': {'executionAdmitted': False}, 'bindings': [{
+                    'collectionId': 'asu-gbpcd-postcodeunitpoint-1',
+                    'documentUrl': M.BASE + 'administrative-and-statistical-units/ni-postcodes/postcode-unit-point.md'}]}]:
+                path.write_bytes(M.canonical(profile))
+                with self.assertRaises(ValueError):
+                    M.reviewed_bindings(root, {'asu-gbpcd-postcodeunitpoint-1': {}})
 
     def test_exact_title_candidates_strip_only_explicit_version_and_keep_ambiguity(self):
         with tempfile.TemporaryDirectory() as tmp:

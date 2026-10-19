@@ -19,6 +19,7 @@ import argparse
 import itertools
 import json
 from pathlib import Path
+from urllib.parse import parse_qsl, urlsplit
 
 from .retrieval_plan import _number, _range
 
@@ -26,6 +27,34 @@ MAX_ROUTES = 16
 MAX_FIELDS = 256
 MAX_INPUT_BYTES = 1024 * 1024
 OUTPUT_CAPABILITIES = {'native-values', 'geometry', 'portrayal'}
+
+
+CREDENTIAL_NAMES = {'key', 'apikey', 'token', 'accesstoken', 'authorization',
+                    'password', 'secret', 'clientsecret', 'signature', 'sig', 'sastoken', 'credential'}
+
+
+def _credential_free(value, depth=0):
+    """Request descriptors and evidence may retain binding names, never credentials."""
+    if depth > 32: raise ValueError('Query metadata depth ceiling')
+    if isinstance(value, dict):
+        for key, item in value.items():
+            if not isinstance(key, str) or ''.join(c for c in key.lower() if c.isalnum()) in CREDENTIAL_NAMES:
+                raise ValueError('Credential metadata is forbidden; use a binding name')
+            _credential_free(item, depth + 1)
+    elif isinstance(value, list):
+        for item in value: _credential_free(item, depth + 1)
+    elif isinstance(value, str):
+        if value.lstrip().lower().startswith(('bearer ', 'basic ')):
+            raise ValueError('Credential text is forbidden')
+        if '://' in value:
+            try:
+                parsed = urlsplit(value)
+                unsafe = parsed.username or parsed.password or any(
+                    ''.join(c for c in key.lower() if c.isalnum()) in CREDENTIAL_NAMES
+                    for key, _ in parse_qsl(parsed.query))
+            except ValueError:
+                raise ValueError('Invalid metadata URL') from None
+            if unsafe: raise ValueError('Credential URL metadata is forbidden')
 
 
 def _identity(field):
@@ -52,6 +81,7 @@ def _proven(value):
 def plan_query(spec):
     if not isinstance(spec, dict) or set(spec) - {'coverage_id', 'requested_fields', 'routes', 'merge_capability', 'output_requirement'}:
         raise ValueError('Unknown planner input')
+    _credential_free(spec)
     coverage = _text(spec.get('coverage_id'))
     requirement = spec.get('output_requirement')
     if requirement is not None:

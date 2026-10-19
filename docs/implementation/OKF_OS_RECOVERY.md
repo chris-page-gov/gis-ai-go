@@ -223,6 +223,18 @@ It creates candidate links rather than asserting current documentation applies t
 older collection versions. Every explanation reference file is bounded to 16 KB,
 with lossless manifests when references span multiple files.
 
+Two title exceptions have explicit source-reviewed candidate bindings in the
+[small binding registry](../../okf-plus/profile/os-collection-document-bindings.json):
+GB Postcode Unit Point is distinguished from the identically schemed NI source by
+native collection and documented geographic/API scope; RoutingStructure is matched
+to Routing Structure using the source definition. Neither curation asserts
+version equivalence. Registry bytes, source records and receipt hashes are checked.
+
+Query planning refuses credential-bearing request descriptors or evidence URLs.
+Availability receipt adapters bind every response, including failures, to the
+requested collection and selection digest before using it. Known failed capture
+receipts cannot be hidden by later pending ledger entries and retried blindly.
+
 ## Unattended continuation
 
 The owner explicitly authorised continuation through the night. The

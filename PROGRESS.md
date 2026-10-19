@@ -58,8 +58,11 @@ with 840 small property cards plus 94 collection cards. Current schema capture a
 successful metadata requests, complete native definitions retained, with 3,755
 small property cards across the two lanes. Comparable retained definitions did
 not change against the 2 October baseline. All-collection explanation candidates now cover all 2,915 fields;
-initial results retain missing documents/headings, ambiguous routes and version
-uncertainty explicitly, pending the finished documentation run.
+all 94 collections now have candidate document routes, including two explicit
+source-reviewed curations. Missing documents/headings and documentation-version
+uncertainty remain explicit pending the finished capture. The latest affected
+suite passes all 346 tests, including receipt-scope, credential-metadata and
+known-failure retry regressions.
 
 New [availability reporting](docs/implementation/OS_DATA_AVAILABILITY.md) keeps
 request access, expected presence, observations and retrieval completion separate.
