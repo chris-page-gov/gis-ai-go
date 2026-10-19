@@ -155,6 +155,56 @@ queries or server-side joins. This absence is not universal proof of rejection:
 an unknown parameter may simply be ignored. WFS separately documents
 `propertyName` field projection; do not transfer that parameter to NGD.
 
+The WFS spatial/attribute rule is different from NGD: the
+[OS filtering guide](https://docs.os.uk/os-apis/accessing-os-apis/os-features-api/technical-specification/filtering.md)
+states that a separate `bbox` parameter takes precedence over a purely
+attribute-based XML `filter`, which is then ignored. Put spatial and attribute
+conditions together in one XML filter. Evidence: committed API-contract snapshot
+`/records/67`; fresh source SHA256
+`bddec074009554c5217c60106b1f1b0860c281c8b21288de451707d7339792d9`,
+lines 23–25 of that fresh body, retrieved 19 October 2026. The committed record
+binds the earlier catalogue capture; it is not the hash for these fresh line
+references. The private documentation checkpoint binds the fresh capture.
+The guide treats fields returned by DescribeFeatureType as attribute-filter
+candidates; that does not validate every operator or complex path.
+
+The captured capabilities response explicitly advertises standard, spatial and
+temporal joins, remote resolution, feature versioning and stored-query management
+as **false**. Sorting, resource IDs and minimum XPath are advertised true but have
+not been validated as arbitrary retrieval methods. These are source assertions,
+not live tests of every path. Evidence: capabilities SHA256
+`7bb714cb6471633a8d53fb436907143141361ad439de89f0c918311c789bc687`, named
+`ows:Constraint` values; private `wfs-capabilities-receipt.json` binds the capture.
+Multi-type union remains a separate undocumented question.
+
+| Advertised WFS operation | Bounded evidence status |
+| --- | --- |
+| GetCapabilities | HTTP 200 metadata observed: 44 types, seven operation advertisements. |
+| DescribeFeatureType | All 44 advertised native schemas captured; external imports not followed. |
+| GetFeature | OS contract and bounded Road Link GET controls; generic product/format/POST coverage unproven. |
+| GetPropertyValue | A controlled HTTP 200 reproduction again returned 682 bytes of malformed XML at line 11, column 24. Failed input retained; successful value retrieval unverified. |
+| GetGmlObject | Advertised only; no invocation or captured OS-specific contract. Object identity/protocol/parameters and field-extraction utility remain unknown. |
+| ListStoredQueries | One GET returned HTTP 200 with an empty native query list; no stored-query retrieval established. |
+| DescribeStoredQueries | One GET returned HTTP 200 with no query definitions; no arbitrary query contract established. |
+
+Four bounded operation calls were made on 19 October 2026. The two stored-query
+responses were valid empty metadata. The initial GetPropertyValue body failed XML
+parsing before its HTTP status was persisted, then was prematurely deleted after
+diagnostic text profiling; this was not successful native value processing.
+One authorised controlled reproduction persisted status, headers and the body
+before parsing: HTTP 200, the same byte count and parser position, but a different
+response hash. Its failed raw input remains private. It does not reconstruct the
+lost original bytes or status. Native value/record counts remain unknown.
+Private receipts under `private-wfs-operations/` preserve this distinction.
+Empty stored-query responses do not establish a reusable query route.
+No GetGmlObject request was made. These findings leave property-value identity,
+output type/null handling and any efficiency advantage unresolved.
+
+GET and POST links in a capabilities document do not prove that the OS gateway
+accepts both encodings for every operation. The
+[WFS capability profile](../../okf-plus/profile/os-wfs-query-capabilities.json)
+keeps source assertions, observations and unknowns separate and grants no execution.
+
 Live WFS metadata requests returned HTTP 200. The `Highways_RoadLink` schema
 exposes `RoadWidthAverage`, `RoadWidthMinimum` and `RoadWidthConfidenceLevel`;
 `Topography_TopographicArea` exposes `TOID`, BHA version/process date, absolute
