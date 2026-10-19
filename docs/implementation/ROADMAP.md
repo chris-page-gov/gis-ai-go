@@ -102,8 +102,10 @@ collections yielded 186 records and 3,968 field knowledge cards; verified dispos
 left no raw payloads in that workset. The final explanation export matches all
 2,915 field candidates with no missing or ambiguous links across 3,347 files
 (maximum 16,383 bytes); documentation-version matching remains unverified.
-All 353 affected tests pass locally, with final canonical CI pending before
-integration. Continue towards measured entitlement coverage, version-matched
+All 353 affected tests and final-source CI/CodeQL passed; the initial increment
+merged through PR #154. Its protected-main acceptance and subsequent bounded WFS
+operation review are recorded in issue #153. Continue towards measured entitlement
+coverage, version-matched
 semantic links and resumable transient feature processing with reproducible
 retrieval recipes and verified disposal. This pass does not establish national
 feature traversal, all PSGA coverage or answers to every question. Bulk archive

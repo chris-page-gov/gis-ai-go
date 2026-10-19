@@ -53,9 +53,17 @@ ambiguities remain explicit. Private unsent support drafts retain sanitised call
 and hashes for NGD IN/OR differences and malformed WFS GeoJSON when geometry is
 omitted from projection. No support ticket was sent.
 
-All 353 affected tests pass locally; final canonical CI remains pending before
-integration. No full national acquisition, complete PSGA coverage, feature archive,
-new service, deployment or installed connector admission is claimed.
+All 353 affected tests and final-source CI/CodeQL passed; the initial recovery
+increment merged through [PR #154](https://github.com/chris-page-gov/gis-ai-go/pull/154)
+as `9a492dba`. Protected-main CI/CodeQL, independent image derivation and
+provenance all passed; results are recorded on that PR and issue #153.
+A bounded follow-up reviews all seven advertised WFS operations, including
+property-value retrieval and stored queries, and records the documented precedence
+of `bbox` over a separately supplied attribute filter. Combined WFS conditions
+must use a single XML filter. Advertised capabilities and validated behaviour
+remain separate. The follow-up requires its own canonical assurance.
+No full national acquisition, complete PSGA coverage, feature archive, new live
+OS connector or installed-client admission is claimed.
 
 New [availability reporting](docs/implementation/OS_DATA_AVAILABILITY.md) keeps
 request access, expected presence, observations and retrieval completion separate.
