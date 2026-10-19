@@ -1,6 +1,7 @@
 """Synthetic capability-evidence planning, with no provider calls."""
 import copy
 import unittest
+from urllib.parse import urlencode
 from scripts.okf_plus.query_planner import plan_query
 
 
@@ -224,7 +225,7 @@ class QueryPlannerTests(unittest.TestCase):
                  ({'url':'https://storage.invalid/file?sig='+secret}, None),
                  ({'url':'https://api.os.uk/synthetic?key='+secret}, None),
                  ({'url':'https://user:'+secret+'@api.os.uk/synthetic'}, None),
-                 ({'path':'/synthetic'}, 'https://evidence.invalid/?client_secret='+secret)]
+                 ({'path':'/synthetic'}, 'https://evidence.invalid/?'+urlencode({'client_secret':secret}))]
         for request, evidence in cases:
             spec = self.fixture(); spec['routes'][0]['request'] = request
             if evidence:

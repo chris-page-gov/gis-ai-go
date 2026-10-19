@@ -93,15 +93,22 @@ Acceptance separates catalogue traversal, metadata evidence, schema validation,
 semantic curation, retrieval and live Ask OKF admission. Unknown completeness
 denominators remain open; a large record count does not close them.
 
-The 19 October [OS recovery increment](OKF_OS_RECOVERY.md) adds independently
-retrievable field cards, lossless private documentation passages, explicit
-package-version inventory and evidence-input acquisition estimates. Continue
-towards measured entitlement/catalogue coverage, source-version-matched semantic
-links and resumable private feature acquisition. Process payloads transiently,
-retain semantic knowledge and reproducible retrieval recipes, and verify disposal;
-permanent national storage is not required. Archive transfers are deferred pending
-the recorded one-host network adjustment. Complete accessible documentation and
-collection-specific queryability/schema evidence independently.
+The 19 October [OS recovery increment](OKF_OS_RECOVERY.md) completed its accessible
+bounded pass: 2,302 of 2,303 frozen documentation pages were captured, with one
+recorded HTTP 307 gap and no unresolved targets; 216,765 passages passed audit,
+and six newer pages were captured separately. All 94 NGD schema/queryables pairs
+and 44 WFS feature-type schemas were retained. First pages from all 94 NGD
+collections yielded 186 records and 3,968 field knowledge cards; verified disposal
+left no raw payloads in that workset. The final explanation export matches all
+2,915 field candidates with no missing or ambiguous links across 3,347 files
+(maximum 16,383 bytes); documentation-version matching remains unverified.
+All 353 affected tests pass locally, with final canonical CI pending before
+integration. Continue towards measured entitlement coverage, version-matched
+semantic links and resumable transient feature processing with reproducible
+retrieval recipes and verified disposal. This pass does not establish national
+feature traversal, all PSGA coverage or answers to every question. Bulk archive
+transfers remain deferred pending the recorded exact Azure host adjustment;
+source ambiguities and unsent support drafts remain explicit.
 
 The owner extended this work with [presentation-aware retrieval research](OS_RETRIEVAL_PRESENTATION_RESEARCH.md)
 and [scoped availability reporting](OS_DATA_AVAILABILITY.md). Map/table/analysis

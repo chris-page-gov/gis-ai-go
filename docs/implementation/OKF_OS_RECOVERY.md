@@ -74,7 +74,7 @@ complete graph traversal and installed Ask OKF admission remain separate work.
 | Existing build/search | Retains and searches complete `okfp:field` metadata with the parent record. | Whole-record retrieval can still omit an oversized collection explicitly. |
 | `field_cards.py` | Exports 2,915 independent JSON-LD field cards, about 3–12 KB each, with parent/schema/source hashes, rights and limitations. Bounded search returns whole cards. | Evidence derives from retained schemas; no missing definitions, units or datum are invented. The optional machine index is larger than an individual card. |
 | `passages.py` | Splits original Markdown losslessly into bounded JSON-LD passages with source digest, heading context, line and byte/character offsets. Reconstruction is exact, including Unicode and original line endings. | Private original text remains untrusted evidence. A manifest is an ordered index and may exceed the individual-passage ceiling. |
-| `field_passages.py` | Creates private candidate links from exact native headings to full explanatory section passages for three explicitly bound collection versions. Actual export: 178 matches and 19 missing headings across 197 fields. | Route review and exact-heading matching do not independently establish documentation-version equivalence. Ambiguous headings are refused. |
+| `field_passages.py` | Creates private candidate explanation links for all 2,915 retained fields across 94 collection versions, using source-bound headings and explicitly reviewed exceptions. All candidates matched in the final export; its 3,347 indexed files are at most 16,383 bytes. | A navigation match does not establish documentation-version or semantic equivalence. Source-explicit former names remain evidence, never executable query aliases. Ambiguous matches are refused. |
 | `os_document_sync.py` | Captures only the 2,303 exact URLs in three frozen committed documentation indexes, with separate private ledger, one-writer lock, budgets, failures and resumable passage verification. | The frozen October index may omit later pages. A bounded batch is not full documentation coverage. No page-discovered links are followed. |
 | `os_private_inventory.py` | Retrieves fixed catalogue and validated native package-version metadata routes, retaining private checksum-backed receipts. | File URLs are recorded privately, never executed. Inventory is not feature acquisition or proof of complete entitlement. |
 | `retrieval_plan.py` | Compares acquisition and processing estimates from explicit counts, page sizes, rate ceilings, latency, archive sizes and measured throughput. | Missing measurements yield unknown estimates. Comparison requires matching coverage. It does not execute a provider call. |
@@ -231,6 +231,15 @@ native collection and documented geographic/API scope; RoutingStructure is match
 to Routing Structure using the source definition. Neither curation asserts
 version equivalence. Registry bytes, source records and receipt hashes are checked.
 
+Six checksum-and-line-bound primary-heading reviews resolve repeated `osid` and
+`usrn` headings. Source-explicit former-name annotations and native array/container
+labels provide additional candidate navigation, preserving original labels,
+definitions, source hashes and the matching method. Whitespace removal and
+casefolding for container labels require a checksum-matched top-level array/items
+definition; no general synonym or cross-field equivalence is inferred. The final
+export has no missing or ambiguous candidate headings. Historical-version
+alignment and source meanings that the provider has not documented remain open.
+
 Query planning refuses credential-bearing request descriptors or evidence URLs.
 Availability receipt adapters bind every response, including failures, to the
 requested collection and selection digest before using it. Known failed capture
@@ -254,6 +263,49 @@ collection card for each response. Comparable retained definitions match the
 2 October baseline. There are 2,075 returned-field entries outside the current
 queryables catalogue; this limits filtering, not returned-value availability.
 Provider-native schema IDs are preserved separately from endpoint URLs.
+
+## Completed accessible pass and retained evidence
+
+The documentation traversal and subsequent offline exports have finished. No
+documentation or feature-acquisition job remains active at this checkpoint.
+`finished_partial` deliberately retains the one original redirect failure.
+
+| Evidence lane | Verified result | Scope and remaining limit |
+| --- | --- | --- |
+| Frozen documentation | All 2,303 targets accounted for: 2,302 captured, one HTTP 307, zero unresolved; 216,765 bounded passages reconstruct 17,481,795 source bytes exactly. | The old Sites known-issues URL redirects to a newer page captured in the separate six-page current-navigation supplement. The frozen denominator is preserved. |
+| NGD metadata | All 94 queryables and 94 schema responses captured; 840 queryable and 2,915 returned-property cards, with complete native annotations. | Same-version comparable retained structural definitions match the earlier snapshot; this does not prove unchanged unretained historical prose. |
+| Field explanations | All 2,915 fields have matched candidate explanation navigation; all 3,347 output files hash-verified and bounded to 16 KB. | Candidate navigation is complete for these retained fields; documentation-version and semantic equivalence are not independently proven. |
+| NGD response structures | All 94 first-page responses fully processed: 186 records, one empty page, 3,968 observed/declared structure cards; all raw feature payloads disposed and no feature files remain. | Ninety-three pages advertised more data. No subsequent page was requested in this sampling lane, and no complete area or national selection is claimed. |
+| WFS schemas | All 44 advertised type schemas retained: 42 fresh requests and two verified reused schemas; 1,728 declaration cards, 606 element declarations and 172 lossless XML parts. | No feature calls in this lane. Imported GML definitions were not followed; zero declared enumeration constraints is not proof of unconstrained real-world values. |
+| Configured downloads | All 47 packages and 374 version references inventoried: 4,973 file entries, 1,812,526,102,609 compressed bytes including history/repetition. | Configured packages do not establish the full PSGA entitlement denominator. Archive payload processing remains deferred. |
+
+The native schema audit retained 2,899 non-empty description strings and 16 null
+descriptions on array-parent definitions; nested descriptions remain intact. It
+also retained 883 direct enum definitions and all source-native constraints. A
+missing direct unit keyword does not mean that prose contains no unit information.
+
+The broader sample review separates 80 optional enum fields observed as null,
+two Water Link `primacy` string/integer differences and one non-standard declared
+`long` type whose compatibility is unknown. These are scoped observations, not
+complete JSON Schema conformance findings. A third private, unsent support draft
+records the Water Link calls, schema definitions, hashes and methodology. The
+existing IN/OR and WFS serialisation drafts remain unsent. No numerical confidence
+or cross-product equivalence has been invented from these samples.
+
+Private receipts and small knowledge files remain under ignored paths:
+
+- `artifacts/okf-plus/private-os-documents/diagnostics/followthrough-final-integrity.json`
+- `artifacts/okf-plus/private-current-documentation-supplement/`
+- `artifacts/okf-plus/private-ngd-queryables/` and `private-ngd-schemas/`
+- `artifacts/okf-plus/private-ngd-collection-samples/coverage.json` and `offline-verification.json`
+- `artifacts/okf-plus/private-wfs-schemas/coverage.json`
+- `artifacts/okf-plus/private-recovery-supervisor/checkpoint.json`
+
+The supervisor checkpoint identifies the latest immutable export and source HEAD.
+Read its receipt before claiming an exact committed producer: earlier local runs
+can predate the commit containing their working-tree changes. Source and public
+methodology are synced to GitHub; private account metadata and licensed evidence
+are not a GitHub backup. Their workspace lifetime is a separate operational limit.
 
 ## Run and resume
 
@@ -301,20 +353,27 @@ capacity and a verified disposal path. Permanent national storage is not require
 An archive host remains deferred unless a concrete operation needs one; do not
 buy storage or select a cloud account implicitly.
 
-## Remaining completion gates
+## Remaining work and separate acceptance gates
 
-1. The configured package-version inventory is complete. Finish the frozen
-   documentation traversal; retain exact coverage, failures and unknown
-   denominators in their checkpoints.
-2. Establish useful current-release coverage separately from historical and
-   repeated package entries; size bounded transient staging and processing,
-   retain semantic findings/recipes and verify feature-payload disposal.
-3. Complete source/version-matched field-to-explanation and code-list links,
-   including the three examples above and explicit evidence for absent answers.
-4. Implement and validate resumable feature/archive retrieval and processing,
-   with integrity, coverage, rights, spatial/vertical reference and quality checks.
-5. Verify connected runtime/consumer behaviour and mandatory repository assurance
-   before claiming deployment or accepted integration.
+1. Deferred archive fill-in requires adding only
+   `omseprd3ngdenginestore.blob.core.windows.net` to the existing network allowlist.
+   The local `artifacts/okf-plus/OS-archive-network-change.json` preserves other
+   domains. The earlier draft save was rejected as uneditable; no environment
+   change was applied. This addition permits archive reads, introduces no storage
+   service or new spending, and must not forward the OS key to Azure.
+2. After that change, process bounded representative archive formats and structures
+   transiently; preserve complete selected-input knowledge, FULL/COU dependencies,
+   coverage and disposal evidence. Measure equivalent API/download throughput
+   before promising an efficient national or arbitrary-area recovery time.
+3. Full PSGA entitlement discovery, independently version-matched historical
+   semantics and unpublished provider definitions remain unproven. The completed
+   catalogue, schemas, documentation and samples do not certify every possible
+   value or every conceivable question. Use the retained unknown states and
+   support drafts when the available evidence cannot answer a request.
+4. Hosted Ask OKF/installed-client acceptance and any new visualisation service
+   remain separate roadmap gates. Local maintenance tools do not activate them.
+   Complete canonical repository assurance before integration; do not infer a
+   deployment from a merged source change.
 
 No finite question set proves that every conceivable question can be answered.
 The measurable goal is complete retained-source coverage, precise discovery,
@@ -322,14 +381,17 @@ source-backed explanations and honest retrieval/derivation limits.
 
 ## Local verification and integration
 
-The affected Python discovery run passed all 306 tests. Complete offline OKF+
+The final affected Python discovery run passed all 353 tests. Complete offline OKF+
 verification passed source/import consistency, the 30,833-record build, the declared
 retrieval corpus, all-record consumer-schema validation, whole-corpus audit and
 four pinned-engine cases. Four existing context-required questions remain
 unassessed. Its retained report is
-`artifacts/okf-plus/recovery-verification/verification.json`; the report's source
-revision and exact input digest distinguish this working-tree observation from
-later producer-integrity/schema edits and canonical final-source acceptance.
+`artifacts/okf-plus/recovery-b68d8674-verification/verification.json`; the report's
+source revision and exact input digest distinguish the retained-input observation
+from later helper/schema changes and canonical final-source acceptance. The final
+helper changes are covered by the affected suite, an independent all-output audit
+and an actual complete offline export. Canonical GitHub checks are tracked on
+[PR #154](https://github.com/chris-page-gov/gis-ai-go/pull/154).
 
 The existing public OKF build and repository contract checks also passed. Link,
 secret and changelog checks are separate from feature or hosted acceptance.
@@ -340,4 +402,5 @@ fail closed and preserve the input. The optional transient and route-comparison
 schemas validate the corresponding producer outputs and refuse authority claims.
 
 No required CI gate, independent image derivation or deployment criterion was
-relaxed. The private acquisition continues independently of integration checks.
+relaxed. Acquisition has stopped at its recorded scope; integration assurance is
+tracked separately from the deferred archive work and semantic unknowns.

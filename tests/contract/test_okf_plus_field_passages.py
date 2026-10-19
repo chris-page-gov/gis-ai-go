@@ -57,6 +57,59 @@ class FieldPassageTests(unittest.TestCase):
             self.assertTrue(all(p['sha256'] and p['position'] and p['@id'] for p in row['passages']))
             self.assertFalse(row['rights']['publicationAdmitted'])
 
+    def test_harmless_heading_decorations_preserve_original_source_context(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            original = ':new: `height\\_m` <a href="#height" id="height"></a> (formerly oldheight)'
+            cards, private, _ = self.fixture(root, '# Building\n## ' + original + '\nDefinition\n')
+            row = M.overlays(cards, private)[0]
+            self.assertEqual(row['status'], 'matched')
+            self.assertEqual(row['passages'][0]['headingBreadcrumb'][-1]['text'], original)
+            self.assertEqual(row['binding']['nativeField'], 'height_m')
+            self.assertTrue(row['source']['sha256'])
+
+    def test_explicit_former_name_links_keep_native_identity_and_version_uncertainty(self):
+        for heading, statement in [('height_m (formerly oldheight)', 'Definition'),
+                                   ('height_m (formerly old height)',
+                                    'This attribute was called `oldheight` in data schema version 1.0 and was renamed `height_m` from version 2.0 onward.')]:
+            with self.subTest(heading=heading), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                cards, private, _ = self.fixture(root, '# Building\n## ' + heading + '\n' + statement + '\n', native='oldheight')
+                row = M.overlays(cards, private)[0]
+                self.assertEqual(row['status'], 'matched')
+                self.assertEqual(row['binding']['method'], 'source-explicit-former-name-heading-candidate')
+                self.assertEqual(row['binding']['nativeField'], 'oldheight')
+                self.assertEqual(row['binding']['versionStatus'], 'current-document-not-independently-version-matched')
+                self.assertTrue(row['binding']['formerNameEvidence'])
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            cards, private, _ = self.fixture(root, '# Building\n## height_m\nOld height resembles this.\n', native='oldheight')
+            self.assertEqual(M.overlays(cards, private)[0]['status'], 'heading-not-found')
+
+    def test_reviewed_primary_heading_pins_source_and_line_instead_of_first_match(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            cards, private, url = self.fixture(root, '# Building\n## Nested reference\n### osid\nNested definition\n## Primary section\n### osid\nPrimary definition\n', native='osid')
+            self.frozen_sources(root, [{'id': 'bld-fts-building-4', 'title': 'Building v4'}],
+                                [{'title': 'Building', 'url': url}])
+            self.assertEqual(M.overlays(cards, private, all_collections=True, root=root)[0]['status'], 'ambiguous-heading')
+            profile_path = root / M.BINDING_PROFILE
+            profile = M.read(profile_path)
+            state = M.read(private / 'checkpoint.json')
+            profile['headingBindings'] = [{'collectionIds': ['bld-fts-building-4'], 'nativeField': 'osid',
+                'documentUrl': url, 'sourceSha256': state['records'][url]['receipt']['sha256'],
+                'headingLine': 6, 'headingText': 'osid',
+                'versionStatus': 'current-document-not-independently-version-matched'}]
+            profile_path.write_bytes(M.canonical(profile))
+            row = M.overlays(cards, private, all_collections=True, root=root)[0]
+            self.assertEqual(row['status'], 'matched')
+            self.assertEqual(row['passages'][0]['position']['lineStart'], 6)
+            self.assertEqual(row['binding']['method'], 'reviewed-primary-field-heading-candidate')
+            profile['headingBindings'][0]['sourceSha256'] = '0' * 64
+            profile_path.write_bytes(M.canonical(profile))
+            with self.assertRaisesRegex(ValueError, 'source checksum'):
+                M.overlays(cards, private, all_collections=True, root=root)
+
     def test_unicode_exact_match_and_substring_refusal(self):
         for native, expected in [('hauteur_é', 'matched'), ('hauteur', 'heading-not-found'),
                                  ('HAUTEUR_É', 'heading-not-found')]:
@@ -105,6 +158,43 @@ class FieldPassageTests(unittest.TestCase):
         profile = M.read(ROOT / M.BINDING_PROFILE)
         self.assertLessEqual((ROOT / M.BINDING_PROFILE).stat().st_size, 16384)
         self.assertIn('identical schemas', profile['bindings'][0]['reason'])
+
+    def test_container_label_format_candidates_require_native_array_items_and_unique_label(self):
+        examples = [('sitereference', 'array', 'Site Reference', 'matched'),
+                    ('sitereference', 'string', 'Site Reference', 'heading-not-found'),
+                    ('site_reference', 'array', 'Site Reference', 'heading-not-found'),
+                    ('site-reference', 'array', 'Site Reference', 'heading-not-found'),
+                    ('sitereference', 'array', 'Site Reference\nDefinition\n## SITE REFERENCE', 'ambiguous-heading')]
+        for native, kind, heading, expected in examples:
+            with self.subTest(native=native, kind=kind, expected=expected), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                cards, private, url = self.fixture(root, '# Building\n## ' + heading + '\nDefinition\n', native=native)
+                definition = {'type': kind, 'items': {'properties': {'siteid': {'type': 'string'}}}}
+                collection = {'id': 'bld-fts-building-4', 'title': 'Building v4',
+                    'schemas': {'schema': {'properties': {native: definition}, 'sha256': 'b' * 64}}}
+                self.frozen_sources(root, [collection], [{'title': 'Building', 'url': url}])
+                cardpath = cards / 'card.jsonld'
+                card = M.read(cardpath)
+                card['field']['okfp:schemaDefinition'] = {'@type': '@json', '@value': definition}
+                raw = M.canonical(card)
+                cardpath.write_bytes(raw)
+                index = M.read(cards / 'index.json')
+                index['cards'][0]['sha256'] = hashlib.sha256(raw).hexdigest()
+                (cards / 'index.json').write_bytes(M.canonical(index))
+                row = M.overlays(cards, private, all_collections=True, root=root)[0]
+                self.assertEqual(row['status'], expected)
+                self.assertEqual(row['binding']['nativeField'], native)
+                if expected != 'heading-not-found':
+                    self.assertEqual(row['binding']['method'], 'source-container-label-heading-candidate')
+                    evidence = row['binding']['containerEvidence']
+                    self.assertEqual(evidence['definitionSha256'], hashlib.sha256(M.canonical(definition)).hexdigest())
+                    self.assertEqual(evidence['schemaResponseSha256'], 'b' * 64)
+                if expected == 'matched':
+                    self.assertEqual(row['passages'][0]['headingBreadcrumb'][-1]['text'], heading)
+                    collection['schemas']['schema']['properties'][native] = {'type': 'string'}
+                    (root / 'okf-plus/source/os-ngd-collections.json').write_bytes(M.canonical({'records': [collection]}))
+                    with self.assertRaisesRegex(ValueError, 'definition checksum'):
+                        M.overlays(cards, private, all_collections=True, root=root)
 
     def test_reviewed_curation_rejects_changed_snapshot_hash(self):
         with tempfile.TemporaryDirectory() as tmp:

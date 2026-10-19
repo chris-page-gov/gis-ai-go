@@ -38,8 +38,16 @@ def read(path, expected=None):
     return load_json(raw.decode())
 
 
+def heading_details(text):
+    visible = text.replace('\\_', '_').replace('`', '')
+    visible = re.sub(r'<a\b[^>]*>\s*</a>', '', visible).strip()
+    visible = re.sub(r'^:new:\s*', '', visible)
+    match = re.fullmatch(r'(.*?)\s+\(formerly\s+(.*?)\s*\)', visible)
+    return (match[1].strip(), match[2].strip()) if match else (visible, None)
+
+
 def heading_text(text):
-    return text.replace('\\_', '_').replace('`', '')
+    return heading_details(text)[0]
 
 
 def document_sections(private, entry, url):
@@ -49,7 +57,7 @@ def document_sections(private, entry, url):
     source = manifest['source']
     if source['url'] != url or source['sha256'] != entry['receipt']['sha256']:
         raise ValueError('Document source binding mismatch')
-    sections = {}
+    sections, former_names, heading_evidence = {}, {}, {}
     reconstructed = hashlib.sha256()
     reconstructed_bytes = 0
     for segment in manifest['segments']:
@@ -63,8 +71,21 @@ def document_sections(private, entry, url):
         if payload['source'] != source or payload['position'] != segment['position']:
             raise ValueError('Passage source or position mismatch')
         for heading in payload['headingBreadcrumb']:
-            name = heading_text(heading['text'])
+            name, former = heading_details(heading['text'])
             key = (heading['line'], heading['level'])
+            heading_evidence[key] = heading
+            if former and re.fullmatch(r'[A-Za-z0-9_]+', former):
+                former_names.setdefault(former, {})[key] = {'kind': 'explicit-former-heading-annotation',
+                    'sourceText': heading['text'], 'position': {'lineStart': heading['line']}}
+            # A source-authored rename statement gives an exact old native name;
+            # it does not make old/new fields interchangeable in a live query.
+            if heading is payload['headingBreadcrumb'][-1]:
+                prose = payload['text'].replace('\\_', '_')
+                rename = re.match(r'^This attribute (?:was |is )?called\s+`([A-Za-z0-9_]+)`', prose)
+                if rename and former:
+                    former_names.setdefault(rename[1], {})[key] = {'kind': 'explicit-former-name-prose',
+                        'sourceText': payload['text'], 'position': payload['position'],
+                        'passageId': payload['@id'], 'sha256': segment['sha256']}
             sections.setdefault(name, {}).setdefault(key, []).append({
                 '@id': payload['@id'], 'path': path.relative_to(Path(private).absolute()).as_posix(),
                 'sha256': segment['sha256'], 'bytes': segment['bytes'],
@@ -75,7 +96,13 @@ def document_sections(private, entry, url):
             manifest['reconstruction']['bytes'] != reconstructed_bytes or
             ('bytes' in entry['receipt'] and entry['receipt']['bytes'] != reconstructed_bytes)):
         raise ValueError('Document reconstruction checksum or byte length mismatch')
-    return source, sections, hashlib.sha256(manifest_path.read_bytes()).hexdigest()
+    former_sections = {}
+    for native, matches in former_names.items():
+        for key, evidence in matches.items():
+            current = heading_text(heading_evidence[key]['text'])
+            former_sections.setdefault(native, {})[key] = {
+                'passages': sections[current][key], 'evidence': evidence}
+    return source, sections, hashlib.sha256(manifest_path.read_bytes()).hexdigest(), former_sections
 
 
 REVIEWED_ROUTES = {
@@ -144,6 +171,30 @@ def reviewed_bindings(root, native_collections):
             'pointer': '/bindings/' + str(index), 'reviewedBinding': binding}}
     if (set(REVIEWED_ROUTES) & set(native_collections)) - set(result):
         raise ValueError('Missing reviewed collection binding')
+    return result
+
+
+def reviewed_heading_bindings(root):
+    path = checked(root, BINDING_PROFILE)
+    raw = path.read_bytes()
+    profile = load_json(raw.decode())
+    bindings = profile.get('headingBindings', [])
+    if not isinstance(bindings, list): raise ValueError('Malformed reviewed heading bindings')
+    result = {}
+    for number, binding in enumerate(bindings):
+        if (not isinstance(binding, dict) or not isinstance(binding.get('collectionIds'), list) or
+                not binding['collectionIds'] or binding.get('nativeField') not in {'osid', 'usrn'} or
+                not re.fullmatch(r'[a-f0-9]{64}', binding.get('sourceSha256', '')) or
+                type(binding.get('headingLine')) is not int or binding['headingLine'] < 1 or
+                binding.get('headingText') != binding['nativeField'] or
+                binding.get('versionStatus') != 'current-document-not-independently-version-matched' or
+                not isinstance(binding.get('documentUrl'), str)):
+            raise ValueError('Malformed reviewed primary heading binding')
+        for native in binding['collectionIds']:
+            key = (native, binding['nativeField'])
+            if key in result: raise ValueError('Duplicate reviewed primary heading binding')
+            result[key] = {**binding, 'profile': BINDING_PROFILE,
+                'profileSha256': hashlib.sha256(raw).hexdigest(), 'pointer': '/headingBindings/' + str(number)}
     return result
 
 
@@ -228,7 +279,9 @@ def overlays(cards_root, private, *, all_collections=False, root=ROOT):
     index = read(checked(cards_root, 'index.json'))
     checkpoint = read(checked(private, 'checkpoint.json'))
     registry = discover_bindings(root) if all_collections else {}
+    heading_bindings = reviewed_heading_bindings(root) if all_collections else {}
     documents = {}
+    collection_cache = None
     results = []
     for item in index['cards']:
         native_parent = item.get('parentNativeIdentifier', item['parent'].rsplit('/', 1)[-1])
@@ -261,9 +314,56 @@ def overlays(cards_root, private, *, all_collections=False, root=ROOT):
         else:
             if url not in documents:
                 documents[url] = document_sections(private, entry, url)
-            source, sections, manifest_hash = documents[url]
+            source, sections, manifest_hash, former_sections = documents[url]
             row['source'] = {**source, 'manifestSha256': manifest_hash, 'receipt': entry['receipt']}
-            matches = sections.get(card['field']['dcterms:identifier'], {})
+            field = card['field']['dcterms:identifier']
+            matches = sections.get(field, {})
+            reviewed = heading_bindings.get((native_parent, field))
+            if len(matches) > 1 and reviewed:
+                if reviewed['documentUrl'] != url or reviewed['sourceSha256'] != source['sha256']:
+                    raise ValueError('Reviewed primary heading source checksum mismatch')
+                chosen = {key: refs for key, refs in matches.items() if key[0] == reviewed['headingLine']}
+                if len(chosen) != 1: raise ValueError('Reviewed primary heading position mismatch')
+                matches = chosen
+                row['binding']['routeMethod'] = row['binding']['method']
+                row['binding']['method'] = 'reviewed-primary-field-heading-candidate'
+                row['binding']['headingEvidence'] = reviewed
+            if not matches and field in former_sections:
+                aliases = former_sections[field]
+                matches = {key: value['passages'] for key,value in aliases.items()}
+                row['binding']['routeMethod'] = row['binding']['method']
+                row['binding']['method'] = 'source-explicit-former-name-heading-candidate'
+                row['binding']['formerNameEvidence'] = [value['evidence'] for value in aliases.values()]
+            if not matches and all_collections:
+                retained = card['field'].get('okfp:schemaDefinition', {}).get('@value', {})
+                if retained.get('type') == 'array' and isinstance(retained.get('items'), dict):
+                    if collection_cache is None:
+                        source_path = checked(root, 'okf-plus/source/os-ngd-collections.json')
+                        raw = source_path.read_bytes()
+                        snapshot = load_json(raw.decode())
+                        collection_cache = (hashlib.sha256(raw).hexdigest(), {
+                            value['id']: (number, value) for number, value in enumerate(snapshot['records'])})
+                    snapshot_hash, native_sources = collection_cache
+                    number, native_collection = native_sources[native_parent]
+                    definition = native_collection['schemas']['schema']['properties'][field]
+                    if canonical(definition) != canonical(retained):
+                        raise ValueError('Native container definition checksum mismatch')
+                    normalised = ''.join(field.split()).casefold()
+                    label_matches = [(name, candidates) for name, candidates in sections.items()
+                        if ''.join(name.split()).casefold() == normalised]
+                    matches = {key: refs for _, candidates in label_matches for key, refs in candidates.items()}
+                    if matches:
+                        row['binding']['routeMethod'] = row['binding']['method']
+                        row['binding']['method'] = 'source-container-label-heading-candidate'
+                        row['binding']['containerEvidence'] = {
+                            'snapshot': 'okf-plus/source/os-ngd-collections.json',
+                            'snapshotSha256': snapshot_hash,
+                            'pointer': '/records/' + str(number) + '/schemas/schema/properties/' +
+                                field.replace('~', '~0').replace('/', '~1'),
+                            'definitionSha256': hashlib.sha256(canonical(definition)).hexdigest(),
+                            'schemaResponseSha256': native_collection['schemas']['schema']['sha256'],
+                            'normalisation': 'Whitespace removal and casefold only; native top-level array/items required.',
+                            'originalLabels': [name for name, _ in label_matches]}
             if len(matches) > 1:
                 row['status'] = 'ambiguous-heading'
             elif not matches:

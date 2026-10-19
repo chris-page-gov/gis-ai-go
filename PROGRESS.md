@@ -6,63 +6,56 @@ Last updated: 19 October 2026
 
 The owner authorised unattended OS/PSGA recovery on 19 October. Work is tracked
 in [issue #153](https://github.com/chris-page-gov/gis-ai-go/issues/153) and the
-[recovery record](docs/implementation/OKF_OS_RECOVERY.md). Live access succeeded
-for the 94-collection NGD catalogue and 47 configured download packages with
-374 version references. This does not establish the full entitlement denominator.
-The existing key remains private; configured account metadata and any licensed
-contents are excluded from Git and public publication.
+[recovery record](docs/implementation/OKF_OS_RECOVERY.md). The accessible bounded
+pass is complete: all 2,303 frozen documentation targets are accounted for,
+with 2,302 captured and one documented HTTP 307 redirect gap. All captured pages
+passed an independent audit of 216,765 lossless private passages, including exact
+reconstruction, checksums and the 16 KiB passage ceiling. Six newer documentation
+pages were captured and audited separately; the redirect target is recorded
+without asserting source equivalence. No frozen targets remain unresolved.
 
 The local build reproduces 30,833 metadata records and 2,915 native field nodes.
-New small field cards retain exact definitions and provenance; lossless private
-documentation passages retain the explanatory evidence. Candidate exact-heading
-links cover 178 of 197 fields in three selected collection versions, with
-19 missing headings and documentation-version matching explicitly unverified.
-The owner clarified that full payloads are for temporary processing and disposal,
-not a permanent national store. Query capability profiles and a field-coverage
-planner now distinguish server/local projection, separate response bundles and
-reviewed equivalent fields. Live Road Link v5 equality-OR batching succeeded;
-documented IN requests failed and `properties` was explicitly rejected.
+The verified private export `run-d78f08085053400e9475393f0b4aaaa6` provides matched
+explanation candidates for all 2,915 fields, with zero missing or ambiguous
+matches. Its 3,347 files are at most 16,383 bytes each. These are candidate links
+to source explanations; documentation versions have not been independently
+matched to every collection version, and universal question-answering coverage
+has not been established. Small cards and explanatory passages retain native
+definitions, schema nuances, provenance and explicit observed scope.
 
-Private acquisition checkpoints record the actual completed work and outstanding
-targets. All 374 configured package versions were inventoried, listing 4,973 file
-entries and about 1.81 TB compressed, including history/repetition; largest file
-about 15.6 GB. Streaming/transient workset limits matter, not storage for the whole
-collection. The frozen documentation scope is still being traversed. OS archive
-downloads redirect to an Azure host absent from the current allowlist; the draft
-save was rejected as uneditable and the proposed one-host change remains local.
+Fresh schema and queryables capture completed for all 94 current NGD collections:
+188 successful metadata requests retained complete native definitions and 3,755
+small property cards across the two lanes. All 44 WFS feature-type schemas were
+also captured. Bounded first pages from all 94 NGD collections returned 186
+records in total, completely profiled into 3,968 small field knowledge cards.
+Their temporary raw payloads were disposed after verification, with zero remaining
+in that workset. This completes those selected first pages, not national feature
+traversal or all PSGA data. The existing key, configured account metadata and
+licensed payloads remain excluded from Git and public publication.
 
-A complete bounded two-ID Road Link extraction returned both records in one
-request with verified EPSG:7405, then profiled all records into 90 small field
-knowledge files. Raw pages and NDJSON were removed only after profile/hash
-verification. This is a complete selected extraction, not a national full scan.
-A live refresh independently reacquired that selection and verified disposal.
-All three original example samples were completely profiled into small cards and
-their raw bodies disposed. Oversized nested schema definitions are split
-losslessly with checksum-backed manifests and child navigation. All 306 affected
-tests pass.
+All 374 configured download-package versions were inventoried, listing 4,973 file
+entries and about 1.81 TB compressed, including history and repetition; the
+largest file is about 15.6 GB. Live access identified 47 configured packages,
+which does not establish the full entitlement denominator. Bulk archive transfers
+remain deferred pending the exact Azure host network adjustment. The draft save
+was rejected as uneditable; the proposed one-host change remains local.
+The owner requires transient processing and verified disposal, not permanent
+national storage. Retrieval recipes and knowledge can persist after raw disposal.
 
-A same-identity WFS comparison matched three width fields on both sampled roads
-between full/projected requests, reducing response bytes from 4,668 to 2,084.
-WFS-to-NGD measurement equivalence remains unassessed. Private unsent support
-drafts retain exact sanitised calls and hashes for NGD IN/OR status differences
-and malformed WFS GeoJSON when geometry is omitted from projection. No ticket was
-sent. No feature archive, new service, deployment or installed connector admission
-is claimed by this increment.
+Query capability profiles and a field-coverage planner distinguish server/local
+projection, separate response bundles and reviewed equivalent fields. Live Road
+Link v5 equality-OR batching succeeded; documented IN requests failed and
+`properties` was explicitly rejected. A bounded two-ID extraction and a fresh
+repeat verified both records, EPSG:7405 and disposal. A same-identity WFS comparison
+matched three width fields on both sampled roads, reducing response bytes from
+4,668 to 2,084. WFS-to-NGD measurement equivalence remains unassessed. Source
+ambiguities remain explicit. Private unsent support drafts retain sanitised calls
+and hashes for NGD IN/OR differences and malformed WFS GeoJSON when geometry is
+omitted from projection. No support ticket was sent.
 
-The owner has asked this pass to continue unattended, preserving the original
-objective alongside annotations. Accessible documentation traversal, fresh
-collection queryability/schema checks, broad explanation linking and canonical
-assurance remain active; this checkpoint does not mark those tasks complete.
-All 94 current queryables endpoints were freshly captured as private metadata,
-with 840 small property cards plus 94 collection cards. Current schema capture also completed for all 94 collections: 188 total
-successful metadata requests, complete native definitions retained, with 3,755
-small property cards across the two lanes. Comparable retained definitions did
-not change against the 2 October baseline. All-collection explanation candidates now cover all 2,915 fields;
-all 94 collections now have candidate document routes, including two explicit
-source-reviewed curations. Missing documents/headings and documentation-version
-uncertainty remain explicit pending the finished capture. The latest affected
-suite passes all 349 tests, including receipt-scope, credential-metadata and
-known-failure retry regressions.
+All 353 affected tests pass locally; final canonical CI remains pending before
+integration. No full national acquisition, complete PSGA coverage, feature archive,
+new service, deployment or installed connector admission is claimed.
 
 New [availability reporting](docs/implementation/OS_DATA_AVAILABILITY.md) keeps
 request access, expected presence, observations and retrieval completion separate.

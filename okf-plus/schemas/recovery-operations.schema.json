@@ -962,7 +962,10 @@
               "enum": [
                 "curated-route-exact-heading-match",
                 "frozen-exact-title-exact-heading-candidate",
-                "reviewed-route-exact-heading-candidate"
+                "reviewed-route-exact-heading-candidate",
+                "reviewed-primary-field-heading-candidate",
+                "source-explicit-former-name-heading-candidate",
+                "source-container-label-heading-candidate"
               ]
             },
             "versionStatus": {
