@@ -1,8 +1,19 @@
 # Current context
 
-Last updated: 17 October 2026
+Last updated: 19 October 2026
 
 ## Authority and reading order
+
+On 19 October the owner requested recovery of the OS knowledge/acquisition task,
+retaining small OKF+ files, rich metadata and Linked Data. The owner confirmed
+government PSGA rights and authorised the existing OS API key for private retrieval
+within documented rate limits, including assessing all available data and API
+versus download acquisition times. Continue unattended without repeating this
+authorisation. Keep keys and account/licensed payloads outside Git and public
+outputs. Existing no-new-service/no-chargeable-overage limits remain. Bulk storage
+is a capacity prerequisite, not a reason to pause metadata work. The
+[recovery record](docs/implementation/OKF_OS_RECOVERY.md) separates observed access,
+coverage, private evidence, implementation and remaining storage requirements.
 
 On 17 October the owner authorised continuing the repository review and four
 repairs towards release, including assessing the updated OpenAI Sites hosting

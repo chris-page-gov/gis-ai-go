@@ -93,6 +93,14 @@ Acceptance separates catalogue traversal, metadata evidence, schema validation,
 semantic curation, retrieval and live Ask OKF admission. Unknown completeness
 denominators remain open; a large record count does not close them.
 
+The 19 October [OS recovery increment](OKF_OS_RECOVERY.md) adds independently
+retrievable field cards, lossless private documentation passages, explicit
+package-version inventory and evidence-input acquisition estimates. Continue
+towards measured entitlement/catalogue coverage, source-version-matched semantic
+links and resumable private feature acquisition. National bulk recovery requires
+sufficient approved storage; a partial catalogue or a successful sample is not
+completion of that objective.
+
 ## Learning and feature evaluation
 
 [EXPERIENCE-221](EXPERIENCE-221_LEARNING_AND_EVALUATION.md) was authorised on

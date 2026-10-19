@@ -22,13 +22,13 @@ FIELDS = (
     "id", "title", "description", "text", "type", "sourceFamily",
     "nativeIdentifier", "sources", "temporal", "update", "details", "tags",
     "resource", "route", "rights", "limitations", "schemaEvidence",
-    "assertionStatus", "reviewStatus", "status",
+    "assertionStatus", "reviewStatus", "status", "okfp:field",
 )
 WEIGHTS = {
     "id": 20, "nativeIdentifier": 25, "title": 12, "description": 5,
     "text": 2, "type": 3, "sourceFamily": 6, "tags": 7,
     "temporal": 4, "update": 4, "details": 3, "rights": 1,
-    "limitations": 1, "schemaEvidence": 2,
+    "limitations": 1, "schemaEvidence": 2, "okfp:field": 7,
 }
 # Qualifying words such as not, before, after and without deliberately survive.
 STOP_WORDS = frozenset({

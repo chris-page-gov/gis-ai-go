@@ -1,0 +1,1100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:okf-plus:recovery-operations:v1",
+  "title": "Internal OKF+ recovery operation outputs",
+  "description": "Optional offline structural assurance only. Owned by GIS AI GO repository owner. Source content remains untrusted evidence; this schema grants no retrieval, publication or execution authority. Evidence checksums require separate byte verification. Planner uses existing metadata_only/execution discriminator fields; no schema identifier is added to its output. Coverage supports stored output and the public summary that omits versions.",
+  "anyOf": [
+    {
+      "$ref": "#/$defs/fieldIndex"
+    },
+    {
+      "$ref": "#/$defs/fieldCard"
+    },
+    {
+      "$ref": "#/$defs/privateManifest"
+    },
+    {
+      "$ref": "#/$defs/retrievalPlan"
+    },
+    {
+      "$ref": "#/$defs/inventoryCoverage"
+    },
+    {
+      "$ref": "#/$defs/documentCheckpoint"
+    },
+    {
+      "$ref": "#/$defs/candidateFieldOverlay"
+    },
+    {
+      "$ref": "#/$defs/candidateFieldIndex"
+    }
+  ],
+  "$defs": {
+    "fieldIndex": {
+      "type": "object",
+      "required": [
+        "schema",
+        "cards"
+      ],
+      "properties": {
+        "schema": {
+          "const": "gis-ai-go.okf-plus-field-index.v1"
+        },
+        "cards": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "parent",
+              "path",
+              "sha256",
+              "bytes",
+              "parentNativeIdentifier",
+              "tokens"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "parent": {
+                "type": "string",
+                "minLength": 1
+              },
+              "path": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}\\.jsonld$"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "bytes": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "parentNativeIdentifier": {
+                "type": "string",
+                "minLength": 1
+              },
+              "tokens": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "fieldCard": {
+      "type": "object",
+      "required": [
+        "@id",
+        "@type",
+        "@context",
+        "field",
+        "parent",
+        "provenance",
+        "rights",
+        "limitations"
+      ],
+      "properties": {
+        "@id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "@type": {
+          "const": "okfp:FieldEvidenceCard"
+        },
+        "@context": {},
+        "field": {
+          "type": "object",
+          "required": [
+            "@id"
+          ],
+          "properties": {
+            "@id": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "parent": {
+          "type": "object",
+          "required": [
+            "@id",
+            "nativeIdentifier",
+            "resource"
+          ],
+          "properties": {
+            "@id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "nativeIdentifier": {
+              "type": "string",
+              "minLength": 1
+            },
+            "resource": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "provenance": {
+          "type": "object",
+          "required": [
+            "parentPath",
+            "parentSha256",
+            "fieldSha256",
+            "sources",
+            "snapshotFiles",
+            "schemaEvidence"
+          ],
+          "properties": {
+            "parentPath": {
+              "type": "string",
+              "minLength": 1
+            },
+            "parentSha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "fieldSha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "sources": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "snapshotFiles": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "path",
+                  "sha256"
+                ],
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "sha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  }
+                }
+              }
+            },
+            "schemaEvidence": {
+              "type": "object"
+            }
+          }
+        },
+        "rights": {
+          "type": "object"
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "privateManifest": {
+      "type": "object",
+      "required": [
+        "@id",
+        "@type",
+        "@context",
+        "source",
+        "trust",
+        "distribution",
+        "maxPassageBytes",
+        "segments",
+        "reconstruction"
+      ],
+      "properties": {
+        "@id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "@type": {
+          "const": "okfp:PrivateEvidenceManifest"
+        },
+        "@context": {},
+        "source": {
+          "type": "object",
+          "required": [
+            "url",
+            "sha256",
+            "bytes",
+            "encoding"
+          ],
+          "properties": {
+            "url": {
+              "type": "string",
+              "minLength": 1
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "bytes": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "encoding": {
+              "const": "UTF-8"
+            }
+          }
+        },
+        "trust": {
+          "type": "object",
+          "required": [
+            "status",
+            "executionAdmitted"
+          ],
+          "properties": {
+            "status": {
+              "const": "untrusted-source-evidence"
+            },
+            "executionAdmitted": {
+              "const": false
+            }
+          }
+        },
+        "distribution": {
+          "type": "object",
+          "required": [
+            "audience",
+            "publicationAdmitted"
+          ],
+          "properties": {
+            "audience": {
+              "const": "private"
+            },
+            "publicationAdmitted": {
+              "const": false
+            }
+          }
+        },
+        "maxPassageBytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "segments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "file",
+              "part",
+              "sha256",
+              "bytes",
+              "position"
+            ],
+            "properties": {
+              "file": {
+                "type": "string",
+                "pattern": "^part-[0-9]{8}\\.jsonld$"
+              },
+              "part": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "bytes": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "position": {
+                "type": "object",
+                "required": [
+                  "lineStart",
+                  "lineEnd",
+                  "byteStart",
+                  "byteEnd",
+                  "characterStart",
+                  "characterEnd",
+                  "lineCharacterStart",
+                  "lineCharacterEnd",
+                  "lineByteStart",
+                  "lineByteEnd"
+                ],
+                "properties": {
+                  "lineStart": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "lineEnd": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "byteStart": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "byteEnd": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "characterStart": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "characterEnd": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "lineCharacterStart": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "lineCharacterEnd": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "lineByteStart": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "lineByteEnd": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "reconstruction": {
+          "type": "object",
+          "required": [
+            "verified",
+            "sha256",
+            "bytes",
+            "rule"
+          ],
+          "properties": {
+            "verified": {
+              "const": true
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "bytes": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "rule": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "retrievalPlan": {
+      "type": "object",
+      "required": [
+        "metadata_only",
+        "execution",
+        "routes",
+        "comparison"
+      ],
+      "properties": {
+        "metadata_only": {
+          "const": true
+        },
+        "execution": {
+          "const": false
+        },
+        "routes": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "api": {
+              "type": "object",
+              "required": [
+                "acquisition_seconds",
+                "processing_seconds",
+                "total_seconds",
+                "coverage",
+                "unknowns",
+                "assumptions"
+              ],
+              "properties": {
+                "acquisition_seconds": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "min",
+                        "max"
+                      ],
+                      "properties": {
+                        "min": {
+                          "type": "number",
+                          "minimum": 0
+                        },
+                        "max": {
+                          "type": "number",
+                          "minimum": 0
+                        }
+                      }
+                    }
+                  ]
+                },
+                "processing_seconds": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "min",
+                        "max"
+                      ],
+                      "properties": {
+                        "min": {
+                          "type": "number",
+                          "minimum": 0
+                        },
+                        "max": {
+                          "type": "number",
+                          "minimum": 0
+                        }
+                      }
+                    }
+                  ]
+                },
+                "total_seconds": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "min",
+                        "max"
+                      ],
+                      "properties": {
+                        "min": {
+                          "type": "number",
+                          "minimum": 0
+                        },
+                        "max": {
+                          "type": "number",
+                          "minimum": 0
+                        }
+                      }
+                    }
+                  ]
+                },
+                "coverage": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "unknowns": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "assumptions": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            },
+            "bulk": {
+              "type": "object",
+              "required": [
+                "acquisition_seconds",
+                "processing_seconds",
+                "total_seconds",
+                "coverage",
+                "unknowns",
+                "assumptions"
+              ],
+              "properties": {
+                "acquisition_seconds": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "min",
+                        "max"
+                      ],
+                      "properties": {
+                        "min": {
+                          "type": "number",
+                          "minimum": 0
+                        },
+                        "max": {
+                          "type": "number",
+                          "minimum": 0
+                        }
+                      }
+                    }
+                  ]
+                },
+                "processing_seconds": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "min",
+                        "max"
+                      ],
+                      "properties": {
+                        "min": {
+                          "type": "number",
+                          "minimum": 0
+                        },
+                        "max": {
+                          "type": "number",
+                          "minimum": 0
+                        }
+                      }
+                    }
+                  ]
+                },
+                "total_seconds": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "min",
+                        "max"
+                      ],
+                      "properties": {
+                        "min": {
+                          "type": "number",
+                          "minimum": 0
+                        },
+                        "max": {
+                          "type": "number",
+                          "minimum": 0
+                        }
+                      }
+                    }
+                  ]
+                },
+                "coverage": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "unknowns": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "assumptions": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "comparison": {
+          "type": "object",
+          "required": [
+            "preferred",
+            "reason"
+          ],
+          "properties": {
+            "preferred": {
+              "enum": [
+                "api",
+                "bulk",
+                null
+              ]
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "inventoryCoverage": {
+      "type": "object",
+      "required": [
+        "schema",
+        "distribution",
+        "packageCount",
+        "versionCount",
+        "ngdCollectionCount",
+        "openProductCount",
+        "globalEntitlementCompleteness",
+        "featureDataDownloaded",
+        "limits"
+      ],
+      "properties": {
+        "schema": {
+          "const": "gis-ai-go.os-private-package-coverage.v1"
+        },
+        "distribution": {
+          "const": "owner-private"
+        },
+        "packageCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "versionCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "ngdCollectionCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "openProductCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "globalEntitlementCompleteness": {
+          "const": "not-established"
+        },
+        "featureDataDownloaded": {
+          "const": false
+        },
+        "limits": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "versions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "packageId",
+              "versionId",
+              "detail"
+            ],
+            "properties": {
+              "packageId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "versionId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "detail": {}
+            }
+          }
+        }
+      }
+    },
+    "documentCheckpoint": {
+      "type": "object",
+      "required": [
+        "profile",
+        "distribution",
+        "executionAdmitted",
+        "scope",
+        "records",
+        "stopReason",
+        "counts",
+        "requestCount",
+        "scopeComplete"
+      ],
+      "properties": {
+        "profile": {
+          "const": "okf-plus-private-os-document-sync.v1"
+        },
+        "distribution": {
+          "const": "private"
+        },
+        "executionAdmitted": {
+          "const": false
+        },
+        "scope": {
+          "type": "object",
+          "required": [
+            "sources",
+            "targetCount",
+            "targets",
+            "discoveredLinksFollowed"
+          ],
+          "properties": {
+            "sources": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "file",
+                  "sha256",
+                  "count"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "sha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  },
+                  "count": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                }
+              }
+            },
+            "targetCount": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "targets": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "discoveredLinksFollowed": {
+              "const": false
+            }
+          }
+        },
+        "records": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "status"
+            ],
+            "properties": {
+              "status": {
+                "enum": [
+                  "captured",
+                  "failed"
+                ]
+              }
+            }
+          }
+        },
+        "stopReason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "counts": {
+          "type": "object",
+          "required": [
+            "target",
+            "captured",
+            "failed",
+            "unknown"
+          ],
+          "properties": {
+            "target": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "captured": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "failed": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "unknown": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "requestCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "scopeComplete": {
+          "type": "boolean"
+        }
+      }
+    },
+    "candidateFieldOverlay": {
+      "type": "object",
+      "required": [
+        "@id",
+        "@type",
+        "@context",
+        "card",
+        "parent",
+        "source",
+        "binding",
+        "rights",
+        "limitations",
+        "passages",
+        "status"
+      ],
+      "properties": {
+        "@id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "@type": {
+          "const": "okfp:CandidateFieldPassageOverlay"
+        },
+        "@context": {},
+        "card": {
+          "type": "object",
+          "required": [
+            "@id",
+            "path",
+            "sha256"
+          ],
+          "properties": {
+            "@id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "path": {
+              "type": "string",
+              "minLength": 1
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          }
+        },
+        "parent": {
+          "type": "object",
+          "required": [
+            "@id",
+            "nativeIdentifier",
+            "resource"
+          ],
+          "properties": {
+            "@id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "nativeIdentifier": {
+              "type": "string",
+              "minLength": 1
+            },
+            "resource": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "source": {
+          "type": "object",
+          "required": [
+            "url"
+          ],
+          "properties": {
+            "url": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "binding": {
+          "type": "object",
+          "required": [
+            "method",
+            "versionStatus",
+            "nativeField"
+          ],
+          "properties": {
+            "method": {
+              "const": "curated-route-exact-heading-match"
+            },
+            "versionStatus": {
+              "const": "current-document-not-independently-version-matched"
+            },
+            "nativeField": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "rights": {
+          "type": "object",
+          "required": [
+            "audience",
+            "publicationAdmitted",
+            "executionAdmitted"
+          ],
+          "properties": {
+            "audience": {
+              "const": "private"
+            },
+            "publicationAdmitted": {
+              "const": false
+            },
+            "executionAdmitted": {
+              "const": false
+            }
+          }
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "passages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "@id",
+              "path",
+              "sha256",
+              "bytes",
+              "position",
+              "headingBreadcrumb"
+            ],
+            "properties": {
+              "@id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "path": {
+                "type": "string",
+                "minLength": 1
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "bytes": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "position": {
+                "type": "object"
+              },
+              "headingBreadcrumb": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "status": {
+          "enum": [
+            "document-not-captured",
+            "ambiguous-heading",
+            "heading-not-found",
+            "matched"
+          ]
+        }
+      }
+    },
+    "candidateFieldIndex": {
+      "type": "object",
+      "required": [
+        "schema",
+        "candidateOnly",
+        "counts",
+        "bindings",
+        "files"
+      ],
+      "properties": {
+        "schema": {
+          "const": "gis-ai-go.okf-plus-field-passages.v1"
+        },
+        "candidateOnly": {
+          "const": true
+        },
+        "counts": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "bindings": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "path",
+              "sha256"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "minLength": 1
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

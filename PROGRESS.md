@@ -1,6 +1,32 @@
 # Current progress
 
-Last updated: 17 October 2026
+Last updated: 19 October 2026
+
+## OS small-file knowledge and acquisition recovery
+
+The owner authorised unattended OS/PSGA recovery on 19 October. Work is tracked
+in [issue #153](https://github.com/chris-page-gov/gis-ai-go/issues/153) and the
+[recovery record](docs/implementation/OKF_OS_RECOVERY.md). Live access succeeded
+for the 94-collection NGD catalogue and 47 configured download packages with
+374 version references. This does not establish the full entitlement denominator.
+The existing key remains private; configured account metadata and any licensed
+contents are excluded from Git and public publication.
+
+The local build reproduces 30,833 metadata records and 2,915 native field nodes.
+New small field cards retain exact definitions and provenance; lossless private
+documentation passages retain the explanatory evidence. Candidate exact-heading
+links cover 178 of 197 fields in three selected collection versions, with
+19 missing headings and documentation-version matching explicitly unverified.
+Bounded package/document inventories and evidence-input API/download estimates
+are implemented separately from live feature execution.
+
+Private acquisition checkpoints record the actual completed work and outstanding
+targets. The first 100 documentation pages were captured without failure and the
+remaining frozen scope is being traversed. The first 34 package versions alone
+listed about 328 GB of compressed file entries, including history; the local
+workspace had about 30 GB available. Full feature/archive acquisition requires
+sufficient approved private storage. No feature archive, new service, deployment
+or installed connector admission is claimed by this increment.
 
 Latest implementation checkpoint: bounded dependency security repairs under
 [issue #142](https://github.com/chris-page-gov/gis-ai-go/issues/142), following

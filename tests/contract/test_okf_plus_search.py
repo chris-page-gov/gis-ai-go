@@ -31,6 +31,44 @@ def index(records):
 
 
 class OkfPlusSearchTests(unittest.TestCase):
+    def test_native_field_definitions_are_searchable_and_retained_with_parent(self):
+        # Synthetic schema evidence: no claim about actual OS field availability.
+        examples = [("pavementWidth", "Pavement width in metres", "width"),
+                    ("buildingHeight", "Building height above ground in metres", "height"),
+                    ("roadElevation", "Road elevation above the stated vertical datum", "elevation")]
+        rows = []
+        for native, definition, _ in examples:
+            parent = "https://example.org/collection/" + native
+            field = {"@id": parent + "/field/" + native,
+                     "@type": "rdf:Property", "dcterms:identifier": native,
+                     "rdfs:label": native,
+                     "okfp:schemaDefinition": {"@value": {"description": definition,
+                         "type": "number"}, "@type": "@json"},
+                     "okfp:queryable": False,
+                     "prov:wasDerivedFrom": {"@id": parent + "/schema"}}
+            rows.append(record(parent, nativeIdentifier=native, title="Collection",
+                               description="", **{"okfp:field": [field]}))
+        for row, (_, _, term) in zip(rows, examples):
+            with self.subTest(term=term):
+                found = SEARCH.search(index(rows), term, max_records=1)
+                hit = found["results"][0]
+                self.assertEqual(hit["record"]["id"], row["id"])
+                self.assertEqual(hit["record"]["okfp:field"], row["okfp:field"])
+                self.assertEqual(hit["matchedFields"]["okfp:field"], [term])
+                self.assertFalse(hit["record"]["okfp:field"][0]["okfp:queryable"])
+        self.assertEqual(SEARCH.search(index(rows), "altitude")["results"], [])
+
+    def test_complete_native_field_evidence_obeys_byte_budget(self):
+        row = record(**{"okfp:field": [{"@id": "https://example.org/field/width",
+            "dcterms:identifier": "width", "okfp:schemaDefinition": {
+                "@type": "@json", "@value": {"description": "width " * 3000}}}]})
+        full = SEARCH.search(index([row]), "width", max_bytes=65536)
+        self.assertEqual(full["results"][0]["record"]["okfp:field"], row["okfp:field"])
+        bounded = SEARCH.search(index([row]), "width", max_bytes=2000)
+        self.assertEqual(bounded["results"], [])
+        self.assertIn("byte-limit", bounded["omissions"])
+        self.assertLessEqual(len(SEARCH.render(bounded)), 2000)
+
     def test_identifier_beyond_old_sixteen_candidate_boundary_is_selected(self):
         rows = [record(f"os:other-{n}", title="Names catalogue") for n in range(25)]
         rows.append(record("nomis:NM_1_1", title="Jobseeker's Allowance"))

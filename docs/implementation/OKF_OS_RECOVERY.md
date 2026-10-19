@@ -1,0 +1,204 @@
+# OS knowledge and acquisition recovery
+
+Tracking: [issue #153](https://github.com/chris-page-gov/gis-ai-go/issues/153).
+Owner instruction and observation date: 19 October 2026. Local implementation
+from `f8292cbb`; no deployment, installed connector registration or protected-main
+acceptance is implied. The initial working tree was clean. No execution log for
+the quoted failed prompt was supplied, so its precise failure cause is unknown.
+
+## Objective and authority
+
+Preserve small, rich OKF+ evidence files with Linked Data. A question should locate
+the relevant native field and its explanatory evidence without requiring the
+model to consume a whole catalogue. Keep source identifiers, version, units,
+nulls, quality, measurement methods, datum, applicability, rights and provenance
+distinct. Missing explanations remain missing rather than being inferred.
+
+The owner confirmed government PSGA rights and authorised the existing key for
+private retrieval. This authority persists during unattended execution. It does
+not require another approval for each request. Existing restrictions on public
+licensed payloads, new services and chargeable overage remain. No secret value
+was printed or placed in a URL, source file or receipt.
+
+## Confirmed starting point
+
+- The last accepted metadata checkpoint reports 30,833 Markdown/Linked Data
+  records. The recovery build reproduced that count and retained 2,915 NGD field
+  nodes; its 12 known schema findings remain visible.
+- Live NGD discovery returned 94 versioned collections. This is the returned API
+  catalogue, not all OS data or the complete PSGA entitlement.
+- Authenticated Downloads discovery returned 47 configured packages containing
+  374 version references. Configured packages do not enumerate every product the
+  government can order or every API operation the key can invoke.
+- The official [rate policy](https://docs.os.uk/os-apis/core-concepts/rate-limiting-policy)
+  states 600 transactions/minute for live projects and 50 for development
+  projects, per API and project. Project mode is unconfirmed. The private API
+  inventory uses at most about 30 starts/minute, no redirects or automatic retries,
+  and stops on 429. Other consumers of the same project can still consume capacity.
+- About 30 GB was available locally. The first 34 inspected versions alone listed
+  about 328 GB of compressed file entries. This includes historical releases and
+  is not a deduplicated current national-data requirement. A full bulk harvest
+  cannot fit here; no feature archives were downloaded by this increment.
+
+The initial documentation requests returned HTTP 403 with the default client
+user agent. The documented metadata client identity then succeeded normally;
+no proxy, access check or TLS verification was bypassed.
+
+## Implemented evidence path
+
+```mermaid
+flowchart LR
+  Q[Question] --> I[Deterministic discovery]
+  I --> F[Small native field card]
+  F --> S[Collection and schema provenance]
+  F --> P[Private explanatory passages]
+  S --> R[API or download plan]
+  R --> E[Measured acquisition and processing estimate]
+  R --> C[Capacity and resumable acquisition checkpoint]
+```
+
+The diagram describes the intended connected evidence path. The tools below are
+local maintenance operations, not new hosted MCP tools. Live feature execution,
+complete graph traversal and installed Ask OKF admission remain separate work.
+
+| Operation | Concrete behaviour | Material limit |
+| --- | --- | --- |
+| Existing build/search | Retains and searches complete `okfp:field` metadata with the parent record. | Whole-record retrieval can still omit an oversized collection explicitly. |
+| `field_cards.py` | Exports 2,915 independent JSON-LD field cards, about 3–12 KB each, with parent/schema/source hashes, rights and limitations. Bounded search returns whole cards. | Evidence derives from retained schemas; no missing definitions, units or datum are invented. The optional machine index is larger than an individual card. |
+| `passages.py` | Splits original Markdown losslessly into bounded JSON-LD passages with source digest, heading context, line and byte/character offsets. Reconstruction is exact, including Unicode and original line endings. | Private original text remains untrusted evidence. A manifest is an ordered index and may exceed the individual-passage ceiling. |
+| `field_passages.py` | Creates private candidate links from exact native headings to full explanatory section passages for three explicitly bound collection versions. Actual export: 178 matches and 19 missing headings across 197 fields. | Route review and exact-heading matching do not independently establish documentation-version equivalence. Ambiguous headings are refused. |
+| `os_document_sync.py` | Captures only the 2,303 exact URLs in three frozen committed documentation indexes, with separate private ledger, one-writer lock, budgets, failures and resumable passage verification. | The frozen October index may omit later pages. A bounded batch is not full documentation coverage. No page-discovered links are followed. |
+| `os_private_inventory.py` | Retrieves fixed catalogue and validated native package-version metadata routes, retaining private checksum-backed receipts. | File URLs are recorded privately, never executed. Inventory is not feature acquisition or proof of complete entitlement. |
+| `retrieval_plan.py` | Compares acquisition and processing estimates from explicit counts, page sizes, rate ceilings, latency, archive sizes and measured throughput. | Missing measurements yield unknown estimates. Comparison requires matching coverage. It does not execute a provider call. |
+
+The operation-output contract is
+[`recovery-operations.schema.json`](../../okf-plus/schemas/recovery-operations.schema.json).
+It provides optional structural assurance, not upstream byte verification or
+execution permission. Owner: repository owner. Threats include source instructions,
+credential leakage, redirects, unsafe paths, checksum substitution, oversized
+responses, rate exhaustion and false completeness. Policy: fixed routes and source
+scope, private evidence, whole-evidence byte limits, no source execution and no
+public account/licensed data. Synthetic tests exercise refusal and preservation.
+
+## User example acceptance boundaries
+
+- **Pavement width:** actual native fields include
+  `presenceofpavement_averagewidth_m` and
+  `presenceofpavement_minimumwidth_m`. Road Link and Pavement Link are distinct
+  parents; source attribution must establish which is appropriate.
+- **Building height:** `height_absolutemax_m`, `height_absolutemin_m` and
+  `height_absoluteroofbase_m` differ from relative heights. Absolute maximum can
+  include a chimney; absolute minimum describes underlying ground. Do not replace
+  the documented datum with an assumed sea-level reference.
+- **Road height above sea level:** `elevationgain_indirection` and
+  `elevationgain_againstdirection` describe gain, not absolute elevation. Finding
+  them is useful discovery, not a successful answer to the original question.
+  Geometry dimension, heighting method, datum, bridge/tunnel behaviour, accuracy
+  and any terrain-derived estimate need their own source-backed checks.
+
+A private bounded Road Link v5 request subsequently returned HTTP 200 in about
+1.0 second with two finite 3D LineStrings and a matching EPSG:7405 response header.
+The official CRS guidance defines this as British National Grid plus ODN Height.
+Both sampled methods were Interpolated Bridge. This demonstrates an ODN-height
+retrieval route, not direct survey accuracy, bridge clearance, instantaneous sea
+level or a complete area dataset. Building v4 and Pavement Link v1 requests also
+returned two features each, with the selected height/quality/date and width fields
+present and non-null. All three had next-page links. Their bodies and receipts
+remain private under `artifacts/okf-plus/private-ngd-samples/`.
+
+The captured Road Link definition confirms non-null 3D LineString geometry.
+`heightingmethod` describes its origin and derivation; the separate code list
+currently lists DTM, Interpolated Bridge and Interpolated Tunnel with no definitions
+for the values. The presence of a method label does not establish its algorithm.
+Pavement guidance distinguishes algorithmically derived Road Link attribution
+(including both sides) from the separate Pavement Link features for each side.
+Those links coincide with the road geometry and are not pavement centre lines or
+a routable pavement network. These distinctions must survive an answer.
+
+Do not silently transfer legacy Building Height Attribute rules into NGD Building.
+The legacy product documents excluded residential chimneys from its maximum-height
+rule, whereas the NGD Building description says maximum height can include a chimney.
+Product, version and provenance must qualify a seemingly identical measurement.
+
+Literal substring matching of native compounds supports “pavement width”,
+“building height” and “road elevation”; it adds no synonyms or physical inference.
+Definitions in the private documentation are richer than the public structural
+schema projection. Linking each field/version to the correct passage is a separate
+semantic assertion and must remain distinguishable from lexical discovery.
+
+## Run and resume
+
+From the checkout root, with locked development dependencies:
+
+```sh
+uv sync --locked --group dev --cache-dir .uv-cache
+uv run --locked --cache-dir .uv-cache python -m scripts.okf_plus.field_cards \
+  --question 'pavement width' --max-records 3 --max-bytes 16384
+uv run --locked --cache-dir .uv-cache python -m scripts.okf_plus.field_passages
+uv run --locked --cache-dir .uv-cache python -m scripts.okf_plus.os_private_inventory \
+  --max-requests 500 --wall-seconds 1800
+uv run --locked --cache-dir .uv-cache python scripts/okf_plus/os_document_sync.py \
+  --max-requests 3000 --max-documents 100 --deadline-seconds 1800
+```
+
+Private outputs remain under ignored `artifacts/okf-plus/private-os-inventory/`
+and `artifacts/okf-plus/private-os-documents/`. Repeat the same commands to reuse
+verified successes and continue. Never launch competing writers. The package
+inventory's exclusive lock is removed on ordinary completion; after a hard crash,
+prove no writer remains before removing a stale lock. A prior 429 requires a
+separately reviewed capture after the provider's retry window; do not erase the
+receipt to force continuation. A changed frozen documentation scope requires a
+new preserved capture lane. Local files are not a durable off-machine backup.
+
+The package inventory's ceilings are cumulative: 500 attempts in the command
+above, 128 MiB total, 8 MiB per response and 25-second per-request wall limit.
+Documentation uses the existing capture bounds: 256 MiB total, 16 MiB per response,
+0.75-second pacing, stop on 429 and a between-document run deadline. One in-flight
+request can finish after the documentation run deadline.
+
+The live navigation comparison found unchanged API (152) and NGD (478) URL sets,
+but the Downloads index now contains 1,678 URLs: six added and one removed against
+the frozen 1,673-target snapshot. Preserve the frozen run and record the six new
+pages separately under `private-current-documentation-supplement/`; do not silently
+change its denominator or treat a removed navigation link as deletion authority.
+This comparison alone does not prove that unchanged URLs have unchanged content.
+
+Before fulfilling a dataset request, state its geographical, temporal, version,
+field and format coverage; estimate acquisition and processing separately; compare
+the equivalent download where available; and label unknowns. Metadata timings
+alone are not feature-transfer throughput. A large national request needs a known
+archive size or feature count and an approved storage destination with enough
+capacity. Do not buy storage or select a cloud account implicitly.
+
+## Remaining completion gates
+
+1. Finish the configured package-version and frozen documentation inventories;
+   retain exact coverage, failures and unknown denominators in their checkpoints.
+2. Establish the useful current-release size separately from historical and
+   repeated package entries, then select sufficient approved private storage.
+3. Complete source/version-matched field-to-explanation and code-list links,
+   including the three examples above and explicit evidence for absent answers.
+4. Implement and validate resumable feature/archive retrieval and processing,
+   with integrity, coverage, rights, spatial/vertical reference and quality checks.
+5. Verify connected runtime/consumer behaviour and mandatory repository assurance
+   before claiming deployment or accepted integration.
+
+No finite question set proves that every conceivable question can be answered.
+The measurable goal is complete retained-source coverage, precise discovery,
+source-backed explanations and honest retrieval/derivation limits.
+
+## Local verification and integration
+
+The affected Python discovery run passed all 240 tests. Complete offline OKF+
+verification passed source/import consistency, the 30,833-record build, the declared
+retrieval corpus, all-record consumer-schema validation, whole-corpus audit and
+four pinned-engine cases. Four existing context-required questions remain
+unassessed. Its retained report is
+`artifacts/okf-plus/recovery-verification/verification.json`; the report's source
+revision and exact input digest distinguish this working-tree observation from
+later producer-integrity/schema edits and canonical final-source acceptance.
+
+The existing public OKF build and repository contract checks also passed. Link,
+secret and changelog checks are separate from feature or hosted acceptance.
+No required CI gate, independent image derivation or deployment criterion was
+relaxed. The private acquisition continues independently of integration checks.
