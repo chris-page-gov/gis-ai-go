@@ -34,6 +34,24 @@ material, semantics and access boundaries. The [implementation checkpoint](../do
 records current acceptance and gaps. Read generated coverage from the build for
 current counts; the directory size is not a count of unique datasets.
 
+## Private OS knowledge and retrieval
+
+The [recovery record](../docs/implementation/OKF_OS_RECOVERY.md) adds small native
+field cards, bounded explanatory passages and candidate field-to-passage links.
+The current objective is transient feature processing: retain semantic knowledge
+and reproducible methods, verify processing, then discard feature payloads.
+Permanent national storage is not required; an archive host remains deferred.
+This work does not establish a complete national scan or hosted execution.
+
+Consult the small [NGD](profile/os-ngd-query-capabilities.json),
+[WFS](profile/os-wfs-query-capabilities.json) and
+[Downloads](profile/os-download-query-capabilities.json) capability registries.
+NGD CQL-text selects rows; WFS `propertyName` projects fields. Do not transfer
+capabilities or measurement meanings across services. Live WFS schemas include
+road widths and Topographic Area BHA heights, while equivalence with NGD remains
+unproven. Query recipes and route comparisons are candidates; any support note
+is a draft requiring review before external submission.
+
 ## Find the right evidence
 
 | Need | Starting point | Check before using the result |

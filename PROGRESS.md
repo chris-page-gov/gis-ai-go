@@ -17,16 +17,26 @@ New small field cards retain exact definitions and provenance; lossless private
 documentation passages retain the explanatory evidence. Candidate exact-heading
 links cover 178 of 197 fields in three selected collection versions, with
 19 missing headings and documentation-version matching explicitly unverified.
-Bounded package/document inventories and evidence-input API/download estimates
-are implemented separately from live feature execution.
+The owner clarified that full payloads are for temporary processing and disposal,
+not a permanent national store. Query capability profiles and a field-coverage
+planner now distinguish server/local projection, separate response bundles and
+reviewed equivalent fields. Live Road Link v5 equality-OR batching succeeded;
+documented IN requests failed and `properties` was explicitly rejected.
 
 Private acquisition checkpoints record the actual completed work and outstanding
-targets. The first 100 documentation pages were captured without failure and the
-remaining frozen scope is being traversed. The first 34 package versions alone
-listed about 328 GB of compressed file entries, including history; the local
-workspace had about 30 GB available. Full feature/archive acquisition requires
-sufficient approved private storage. No feature archive, new service, deployment
-or installed connector admission is claimed by this increment.
+targets. All 374 configured package versions were inventoried, listing 4,973 file
+entries and about 1.81 TB compressed, including history/repetition; largest file
+about 15.6 GB. Streaming/transient workset limits matter, not storage for the whole
+collection. The frozen documentation scope is still being traversed. OS archive
+downloads redirect to an Azure host absent from the current allowlist; the draft
+save was rejected as uneditable and the proposed one-host change remains local.
+
+A complete bounded two-ID Road Link extraction returned both records in one
+request with verified EPSG:7405, then profiled all records into 90 small field
+knowledge files. Raw pages and NDJSON were removed only after profile/hash
+verification. This is a complete selected extraction, not a national full scan.
+No feature archive, new service, deployment or installed connector admission is
+claimed by this increment.
 
 Latest implementation checkpoint: bounded dependency security repairs under
 [issue #142](https://github.com/chris-page-gov/gis-ai-go/issues/142), following

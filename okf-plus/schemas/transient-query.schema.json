@@ -1,0 +1,1113 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "urn:gis-ai-go:okf-plus:transient-query:v1",
+ "title": "Optional private transient extraction and candidate query outputs v1",
+ "description": "Repository-owner structural assurance only; grants no retrieval, publication or execution rights. Hash syntax is checked, not byte integrity. scanComplete covers the supplied input only; receipt complete covers one selection only. Neither establishes national/provider-universe completeness. NGD receipts have no native version discriminator; the selection/snapshotIsolation shape identifies that branch without adding producer keys.",
+ "anyOf": [
+  {
+   "$ref": "#/$defs/query"
+  },
+  {
+   "$ref": "#/$defs/featureProfile"
+  },
+  {
+   "$ref": "#/$defs/knowledgeIndex"
+  },
+  {
+   "$ref": "#/$defs/knowledgeCard"
+  },
+  {
+   "$ref": "#/$defs/ngdReceipt"
+  }
+ ],
+ "$defs": {
+  "query": {
+   "type": "object",
+   "required": [
+    "profile",
+    "execution",
+    "candidateOnly",
+    "coverage_id",
+    "joins",
+    "selected",
+    "alternatives",
+    "omitted_alternatives",
+    "missing_fields",
+    "rejected_routes",
+    "rationale",
+    "unproven"
+   ],
+   "properties": {
+    "profile": {
+     "const": "okf-plus-offline-query-plan.v1"
+    },
+    "execution": {
+     "const": false
+    },
+    "candidateOnly": {
+     "const": true
+    },
+    "coverage_id": {
+     "type": "string",
+     "minLength": 1
+    },
+    "joins": {
+     "const": false
+    },
+    "selected": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "$ref": "#/$defs/cover"
+      }
+     ]
+    },
+    "alternatives": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/cover"
+     }
+    },
+    "omitted_alternatives": {
+     "type": "integer",
+     "minimum": 0
+    },
+    "missing_fields": {
+     "type": "array",
+     "items": {
+      "type": "object",
+      "required": [
+       "stable_id",
+       "native_field",
+       "collection_id"
+      ],
+      "properties": {
+       "stable_id": {
+        "type": "string",
+        "minLength": 1
+       },
+       "native_field": {
+        "type": "string",
+        "minLength": 1
+       },
+       "collection_id": {
+        "type": "string",
+        "minLength": 1
+       }
+      },
+      "additionalProperties": false
+     }
+    },
+    "rejected_routes": {
+     "type": "array",
+     "items": {
+      "type": "object",
+      "required": [
+       "route_id",
+       "reason"
+      ],
+      "properties": {
+       "route_id": {
+        "type": "string",
+        "minLength": 1
+       },
+       "reason": {
+        "type": "string",
+        "minLength": 1
+       }
+      }
+     }
+    },
+    "rationale": {
+     "type": "string",
+     "minLength": 1
+    },
+    "unproven": {
+     "type": "array",
+     "items": {
+      "type": "string",
+      "minLength": 1
+     }
+    }
+   },
+   "additionalProperties": false
+  },
+  "featureProfile": {
+   "type": "object",
+   "required": [
+    "profile",
+    "scanComplete",
+    "recordCount",
+    "inputBytes",
+    "inputSha256",
+    "format",
+    "declaredSchema",
+    "declaredSchemaSha256",
+    "retrievalRecipe",
+    "retrievalRecipeSha256",
+    "fields",
+    "geometryStructure",
+    "distribution",
+    "executionAdmitted",
+    "limitations"
+   ],
+   "properties": {
+    "profile": {
+     "const": "okf-plus-transient-feature-profile.v1"
+    },
+    "scanComplete": {
+     "const": true
+    },
+    "recordCount": {
+     "type": "integer",
+     "minimum": 0
+    },
+    "inputBytes": {
+     "type": "integer",
+     "minimum": 0
+    },
+    "inputSha256": {
+     "type": "string",
+     "pattern": "^[a-f0-9]{64}$"
+    },
+    "format": {
+     "enum": [
+      "ndjson",
+      "geojson"
+     ]
+    },
+    "declaredSchema": {
+     "type": "object"
+    },
+    "declaredSchemaSha256": {
+     "type": "string",
+     "pattern": "^[a-f0-9]{64}$"
+    },
+    "retrievalRecipe": {
+     "type": "object"
+    },
+    "retrievalRecipeSha256": {
+     "type": "string",
+     "pattern": "^[a-f0-9]{64}$"
+    },
+    "fields": {
+     "type": "array",
+     "items": {
+      "type": "object",
+      "required": [
+       "path",
+       "present",
+       "null",
+       "types",
+       "cardinalityComplete",
+       "cardinalityLowerBound",
+       "cardinalityScope"
+      ],
+      "properties": {
+       "path": {
+        "type": "array",
+        "items": {
+         "type": "string",
+         "minLength": 1
+        }
+       },
+       "present": {
+        "type": "integer",
+        "minimum": 0
+       },
+       "null": {
+        "type": "integer",
+        "minimum": 0
+       },
+       "types": {
+        "type": "object"
+       },
+       "cardinalityComplete": {
+        "type": "boolean"
+       },
+       "cardinalityLowerBound": {
+        "anyOf": [
+         {
+          "type": "null"
+         },
+         {
+          "type": "integer",
+          "minimum": 0
+         }
+        ]
+       },
+       "cardinalityScope": {
+        "type": "string",
+        "minLength": 1
+       }
+      }
+     }
+    },
+    "geometryStructure": {
+     "type": "object",
+     "required": [
+      "types",
+      "coordinateDimensions"
+     ],
+     "properties": {
+      "types": {
+       "type": "object"
+      },
+      "coordinateDimensions": {
+       "type": "object"
+      }
+     }
+    },
+    "distribution": {
+     "const": "private"
+    },
+    "executionAdmitted": {
+     "const": false
+    },
+    "limitations": {
+     "type": "array",
+     "items": {
+      "type": "string",
+      "minLength": 1
+     }
+    }
+   },
+   "additionalProperties": false
+  },
+  "knowledgeIndex": {
+   "type": "object",
+   "required": [
+    "profile",
+    "profileSha256",
+    "inputSha256",
+    "maxCardBytes",
+    "fieldCount",
+    "distribution",
+    "executionAdmitted",
+    "fields"
+   ],
+   "properties": {
+    "profile": {
+     "const": "okf-plus-private-field-knowledge-index.v1"
+    },
+    "profileSha256": {
+     "type": "string",
+     "pattern": "^[a-f0-9]{64}$"
+    },
+    "inputSha256": {
+     "type": "string",
+     "pattern": "^[a-f0-9]{64}$"
+    },
+    "maxCardBytes": {
+     "type": "integer",
+     "minimum": 1
+    },
+    "fieldCount": {
+     "type": "integer",
+     "minimum": 0
+    },
+    "distribution": {
+     "const": "private"
+    },
+    "executionAdmitted": {
+     "const": false
+    },
+    "fields": {
+     "type": "array",
+     "items": {
+      "type": "object",
+      "required": [
+       "path",
+       "file",
+       "sha256",
+       "bytes",
+       "fieldIdentity",
+       "structuralField",
+       "collection"
+      ],
+      "properties": {
+       "path": {
+        "type": "array",
+        "items": {
+         "type": "string",
+         "minLength": 1
+        }
+       },
+       "file": {
+        "type": "string",
+        "minLength": 1
+       },
+       "sha256": {
+        "type": "string",
+        "pattern": "^[a-f0-9]{64}$"
+       },
+       "bytes": {
+        "type": "integer",
+        "minimum": 0
+       },
+       "fieldIdentity": {
+        "anyOf": [
+         {
+          "type": "null"
+         },
+         {
+          "type": "string",
+          "minLength": 1
+         }
+        ]
+       },
+       "structuralField": {
+        "anyOf": [
+         {
+          "type": "null"
+         },
+         {
+          "type": "string",
+          "minLength": 1
+         }
+        ]
+       },
+       "collection": {
+        "anyOf": [
+         {
+          "type": "null"
+         },
+         {
+          "type": "string",
+          "minLength": 1
+         }
+        ]
+       }
+      },
+      "additionalProperties": false
+     }
+    }
+   },
+   "additionalProperties": false
+  },
+  "knowledgeCard": {
+   "type": "object",
+   "required": [
+    "@context",
+    "@id",
+    "@type",
+    "nativePath",
+    "statistics",
+    "declaredFieldDefinition",
+    "evidenceHashes",
+    "prov:wasDerivedFrom",
+    "observedScope",
+    "rights"
+   ],
+   "properties": {
+    "@context": {
+     "type": "object"
+    },
+    "@id": {
+     "type": "string",
+     "minLength": 1
+    },
+    "@type": {
+     "const": "okfp:PrivateObservedFieldProfile"
+    },
+    "nativePath": {
+     "type": "array",
+     "items": {
+      "type": "string",
+      "minLength": 1
+     }
+    },
+    "statistics": {
+     "type": "object"
+    },
+    "declaredFieldDefinition": {},
+    "evidenceHashes": {
+     "type": "object",
+     "required": [
+      "inputSha256",
+      "profileSha256",
+      "schemaSha256",
+      "recipeSha256"
+     ],
+     "properties": {
+      "inputSha256": {
+       "type": "string",
+       "pattern": "^[a-f0-9]{64}$"
+      },
+      "profileSha256": {
+       "type": "string",
+       "pattern": "^[a-f0-9]{64}$"
+      },
+      "schemaSha256": {
+       "type": "string",
+       "pattern": "^[a-f0-9]{64}$"
+      },
+      "recipeSha256": {
+       "type": "string",
+       "pattern": "^[a-f0-9]{64}$"
+      }
+     },
+     "additionalProperties": false
+    },
+    "prov:wasDerivedFrom": {
+     "type": "object",
+     "required": [
+      "@id"
+     ],
+     "properties": {
+      "@id": {
+       "type": "string",
+       "pattern": "^urn:sha256:[a-f0-9]{64}$"
+      }
+     }
+    },
+    "observedScope": {
+     "type": "object",
+     "required": [
+      "recordCount",
+      "inputBytes",
+      "scanComplete",
+      "providerUniverseComplete",
+      "enumerationScope",
+      "cardinalityScope",
+      "cardinalityComplete"
+     ],
+     "properties": {
+      "recordCount": {
+       "type": "integer",
+       "minimum": 0
+      },
+      "inputBytes": {
+       "type": "integer",
+       "minimum": 0
+      },
+      "scanComplete": {
+       "const": true
+      },
+      "providerUniverseComplete": {
+       "const": false
+      },
+      "enumerationScope": {
+       "type": "string",
+       "minLength": 1
+      },
+      "cardinalityScope": {
+       "anyOf": [
+        {
+         "type": "null"
+        },
+        {
+         "type": "string",
+         "minLength": 1
+        }
+       ]
+      },
+      "cardinalityComplete": {
+       "type": "boolean"
+      }
+     }
+    },
+    "rights": {
+     "type": "object",
+     "required": [
+      "distribution",
+      "executionAdmitted"
+     ],
+     "properties": {
+      "distribution": {
+       "const": "private"
+      },
+      "executionAdmitted": {
+       "const": false
+      }
+     },
+     "additionalProperties": false
+    },
+    "dcterms:references": {
+     "type": "object",
+     "required": [
+      "@id"
+     ],
+     "properties": {
+      "@id": {
+       "type": "string",
+       "minLength": 1
+      }
+     }
+    },
+    "dcterms:isPartOf": {
+     "type": "object",
+     "required": [
+      "@id"
+     ],
+     "properties": {
+      "@id": {
+       "type": "string",
+       "minLength": 1
+      }
+     }
+    }
+   },
+   "additionalProperties": false
+  },
+  "ngdReceipt": {
+   "type": "object",
+   "required": [
+    "selection",
+    "complete",
+    "snapshotIsolation",
+    "requests",
+    "bytes",
+    "wallSeconds",
+    "pages",
+    "reason"
+   ],
+   "properties": {
+    "selection": {
+     "type": "object",
+     "required": [
+      "collection",
+      "bbox",
+      "bboxCrs",
+      "crs",
+      "osids",
+      "idFilterOperator",
+      "queryablesSha256",
+      "limit"
+     ],
+     "properties": {
+      "collection": {
+       "type": "string",
+       "minLength": 1
+      },
+      "bbox": {
+       "type": "array",
+       "minItems": 4,
+       "maxItems": 4,
+       "items": {
+        "type": "number"
+       }
+      },
+      "bboxCrs": {
+       "type": "string",
+       "minLength": 1
+      },
+      "crs": {
+       "type": "string",
+       "minLength": 1
+      },
+      "osids": {
+       "type": "array",
+       "items": {
+        "type": "string",
+        "minLength": 1
+       }
+      },
+      "idFilterOperator": {
+       "enum": [
+        "or",
+        "in"
+       ]
+      },
+      "queryablesSha256": {
+       "anyOf": [
+        {
+         "type": "null"
+        },
+        {
+         "type": "string",
+         "pattern": "^[a-f0-9]{64}$"
+        }
+       ]
+      },
+      "limit": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 100
+      }
+     },
+     "additionalProperties": false
+    },
+    "complete": {
+     "type": "boolean"
+    },
+    "snapshotIsolation": {
+     "const": false
+    },
+    "requests": {
+     "type": "integer",
+     "minimum": 0
+    },
+    "bytes": {
+     "type": "integer",
+     "minimum": 0
+    },
+    "wallSeconds": {
+     "type": "number",
+     "minimum": 0
+    },
+    "pages": {
+     "type": "array",
+     "items": {
+      "type": "object",
+      "required": [
+       "file",
+       "sha256",
+       "bytes",
+       "offset",
+       "contentCrs"
+      ],
+      "properties": {
+       "file": {
+        "type": "string",
+        "pattern": "^page-[0-9]{6}\\.json$"
+       },
+       "sha256": {
+        "type": "string",
+        "pattern": "^[a-f0-9]{64}$"
+       },
+       "bytes": {
+        "type": "integer",
+        "minimum": 0
+       },
+       "offset": {
+        "type": "integer",
+        "minimum": 0
+       },
+       "contentCrs": {
+        "anyOf": [
+         {
+          "type": "null"
+         },
+         {
+          "type": "string",
+          "minLength": 1
+         }
+        ]
+       },
+       "responseTruncated": {
+        "type": "boolean"
+       }
+      },
+      "additionalProperties": false
+     }
+    },
+    "reason": {
+     "type": "string",
+     "minLength": 1
+    },
+    "featureCount": {
+     "type": "integer",
+     "minimum": 0
+    },
+    "ndjson": {
+     "const": "features.ndjson"
+    },
+    "ndjsonSha256": {
+     "type": "string",
+     "pattern": "^[a-f0-9]{64}$"
+    },
+    "payloadDiscarded": {
+     "type": "boolean"
+    },
+    "profilePath": {
+     "type": "string",
+     "pattern": "^artifacts/.+"
+    },
+    "profileSha256": {
+     "type": "string",
+     "pattern": "^[a-f0-9]{64}$"
+    },
+    "responseByteCeiling": {
+     "type": "integer",
+     "minimum": 1
+    }
+   },
+   "additionalProperties": false,
+   "allOf": [
+    {
+     "if": {
+      "required": [
+       "payloadDiscarded"
+      ],
+      "properties": {
+       "payloadDiscarded": {
+        "const": true
+       }
+      }
+     },
+     "then": {
+      "required": [
+       "profilePath",
+       "profileSha256",
+       "featureCount",
+       "ndjsonSha256"
+      ]
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "complete": {
+        "const": true
+       }
+      }
+     },
+     "then": {
+      "required": [
+       "featureCount",
+       "ndjson",
+       "ndjsonSha256"
+      ],
+      "properties": {
+       "pages": {
+        "items": {
+         "properties": {
+          "responseTruncated": {
+           "const": false
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   ]
+  },
+  "routeRecipe": {
+   "type": "object",
+   "required": [
+    "route_id",
+    "collection_id",
+    "kind",
+    "request",
+    "execution",
+    "field_mapping",
+    "serverProjection",
+    "localProjection",
+    "mode",
+    "unproven",
+    "estimated_requests",
+    "estimated_bytes",
+    "acquisition_seconds",
+    "processing_seconds"
+   ],
+   "properties": {
+    "route_id": {
+     "type": "string",
+     "minLength": 1
+    },
+    "collection_id": {
+     "type": "string",
+     "minLength": 1
+    },
+    "kind": {
+     "enum": [
+      "api",
+      "download"
+     ]
+    },
+    "request": {
+     "type": "object"
+    },
+    "execution": {
+     "const": false
+    },
+    "field_mapping": {
+     "type": "array",
+     "items": {
+      "type": "object",
+      "required": [
+       "requested",
+       "route_field",
+       "method",
+       "evidence"
+      ],
+      "properties": {
+       "requested": {
+        "type": "object",
+        "required": [
+         "stable_id",
+         "native_field",
+         "collection_id"
+        ],
+        "properties": {
+         "stable_id": {
+          "type": "string",
+          "minLength": 1
+         },
+         "native_field": {
+          "type": "string",
+          "minLength": 1
+         },
+         "collection_id": {
+          "type": "string",
+          "minLength": 1
+         }
+        },
+        "additionalProperties": false
+       },
+       "route_field": {
+        "type": "object",
+        "required": [
+         "stable_id",
+         "native_field",
+         "collection_id"
+        ],
+        "properties": {
+         "stable_id": {
+          "type": "string",
+          "minLength": 1
+         },
+         "native_field": {
+          "type": "string",
+          "minLength": 1
+         },
+         "collection_id": {
+          "type": "string",
+          "minLength": 1
+         }
+        },
+        "additionalProperties": false
+       },
+       "method": {
+        "enum": [
+         "exact-identity",
+         "reviewed-equivalence"
+        ]
+       },
+       "evidence": {
+        "anyOf": [
+         {
+          "type": "null"
+         },
+         {
+          "type": "string",
+          "minLength": 1
+         }
+        ]
+       }
+      },
+      "allOf": [
+       {
+        "if": {
+         "properties": {
+          "method": {
+           "const": "reviewed-equivalence"
+          }
+         }
+        },
+        "then": {
+         "properties": {
+          "evidence": {
+           "type": "string",
+           "minLength": 1
+          }
+         }
+        }
+       }
+      ]
+     }
+    },
+    "serverProjection": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "object",
+       "required": [
+        "parameter",
+        "values",
+        "evidence"
+       ],
+       "properties": {
+        "parameter": {
+         "type": "string",
+         "minLength": 1
+        },
+        "values": {
+         "type": "array",
+         "items": {
+          "type": "string",
+          "minLength": 1
+         }
+        },
+        "evidence": {
+         "type": "string",
+         "minLength": 1
+        }
+       }
+      }
+     ]
+    },
+    "localProjection": {
+     "type": "array",
+     "items": {
+      "type": "string",
+      "minLength": 1
+     }
+    },
+    "mode": {
+     "enum": [
+      "server-projection",
+      "download-local-projection",
+      "full-record-local-projection"
+     ]
+    },
+    "unproven": {
+     "type": "array",
+     "items": {
+      "type": "string",
+      "minLength": 1
+     }
+    },
+    "estimated_requests": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "integer",
+       "minimum": 0
+      }
+     ]
+    },
+    "estimated_bytes": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "integer",
+       "minimum": 0
+      }
+     ]
+    },
+    "acquisition_seconds": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "object",
+       "required": [
+        "min",
+        "max"
+       ],
+       "properties": {
+        "min": {
+         "type": "number",
+         "minimum": 0
+        },
+        "max": {
+         "type": "number",
+         "minimum": 0
+        }
+       }
+      }
+     ]
+    },
+    "processing_seconds": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "object",
+       "required": [
+        "min",
+        "max"
+       ],
+       "properties": {
+        "min": {
+         "type": "number",
+         "minimum": 0
+        },
+        "max": {
+         "type": "number",
+         "minimum": 0
+        }
+       }
+      }
+     ]
+    }
+   },
+   "additionalProperties": false
+  },
+  "cover": {
+   "type": "object",
+   "required": [
+    "recipes",
+    "result_mode",
+    "joins",
+    "total_seconds",
+    "estimated_requests",
+    "estimated_bytes"
+   ],
+   "properties": {
+    "recipes": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/routeRecipe"
+     }
+    },
+    "result_mode": {
+     "const": "bundled-independent-results"
+    },
+    "joins": {
+     "const": false
+    },
+    "total_seconds": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "object",
+       "required": [
+        "min",
+        "max"
+       ],
+       "properties": {
+        "min": {
+         "type": "number",
+         "minimum": 0
+        },
+        "max": {
+         "type": "number",
+         "minimum": 0
+        }
+       }
+      }
+     ]
+    },
+    "estimated_requests": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "integer",
+       "minimum": 0
+      }
+     ]
+    },
+    "estimated_bytes": {
+     "anyOf": [
+      {
+       "type": "null"
+      },
+      {
+       "type": "integer",
+       "minimum": 0
+      }
+     ]
+    }
+   },
+   "additionalProperties": false
+  }
+ }
+}

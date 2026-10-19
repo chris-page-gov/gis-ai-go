@@ -48,6 +48,35 @@ borrow an HTTP response hash. An agent's source review is not independent human
 acceptance. Captured contacts, account fields, secrets and licensed feature or
 statistical payloads are excluded from public records.
 
+## Private OS recovery and transient processing
+
+The [OS recovery record](../docs/implementation/OKF_OS_RECOVERY.md) describes the
+owner-authorised private PSGA work. Its objective is to process feature data
+transiently, retain rich semantic knowledge and reproducible efficient methods,
+and discard feature payloads after verified processing. Permanent national
+storage is not a prerequisite; an archive host is deferred if later needed.
+No complete national scan or hosted runtime acceptance is claimed.
+
+`field_cards.py` exports small source-native JSON-LD evidence units;
+`passages.py` and `os_document_sync.py` retain bounded private documentation
+passages; `field_passages.py` supplies exact-heading candidate links with explicit
+version-matching gaps. `os_private_inventory.py` inventories configured packages.
+`retrieval_plan.py` estimates acquisition and processing; `query_planner.py`
+prepares source-evidenced candidate recipes. `ngd_extract.py` supports bounded
+resumable selections and verified disposal; `transient_profile.py` retains
+non-payload profiles, with opt-in input deletion only after complete success.
+These are local operations, not newly admitted hosted tools.
+
+Small capability profiles record [NGD](profile/os-ngd-query-capabilities.json),
+[WFS](profile/os-wfs-query-capabilities.json) and
+[Downloads](profile/os-download-query-capabilities.json) behaviour and limits.
+NGD documents CQL-text row filtering against collection queryables, without
+advertised field projection or cross-collection joins. WFS documents
+`propertyName` field projection. Live WFS schemas expose Road Link widths and
+Topographic Area BHA heights, but equivalent NGD semantics are unproven.
+`route_comparison.py` checks supplied observations and produces review drafts;
+it neither establishes equivalence automatically nor sends OS support messages.
+
 ## Build and search offline
 
 Run commands from the repository root, using the repository's locked development

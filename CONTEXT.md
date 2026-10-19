@@ -10,10 +10,20 @@ government PSGA rights and authorised the existing OS API key for private retrie
 within documented rate limits, including assessing all available data and API
 versus download acquisition times. Continue unattended without repeating this
 authorisation. Keep keys and account/licensed payloads outside Git and public
-outputs. Existing no-new-service/no-chargeable-overage limits remain. Bulk storage
-is a capacity prerequisite, not a reason to pause metadata work. The
+outputs. Existing no-new-service/no-chargeable-overage limits remain.
+
+The owner clarified that payloads are temporary: download/process the complete
+selected data, retain the metadata, structures, controlled values, interpretation
+and reproducible retrieval methods required to understand it, then discard the
+payload. Do not build a permanent national data store. Plan arbitrary field and
+spatial selections across available APIs/downloads, coalescing requests only when
+field identity, collection/version, coverage and documented capability permit it.
+Compare time, transferred bytes and processing rather than assuming fewer API
+calls is always faster. Native field projection, filtering and local projection
+are different capabilities; unsupported query parameters must not be invented.
+Temporary workset/streaming limits still apply. The
 [recovery record](docs/implementation/OKF_OS_RECOVERY.md) separates observed access,
-coverage, private evidence, implementation and remaining storage requirements.
+coverage, private evidence, implementation and remaining execution prerequisites.
 
 On 17 October the owner authorised continuing the repository review and four
 repairs towards release, including assessing the updated OpenAI Sites hosting

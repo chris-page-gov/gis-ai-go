@@ -14,6 +14,13 @@ model to consume a whole catalogue. Keep source identifiers, version, units,
 nulls, quality, measurement methods, datum, applicability, rights and provenance
 distinct. Missing explanations remain missing rather than being inferred.
 
+The owner clarified the objective: process available feature data transiently,
+retain semantic knowledge and reproducible efficient methods, then discard feature
+payloads after verified processing. Permanent national feature storage is not a
+prerequisite. Bounded staging capacity, complete processing evidence and verified
+cleanup are required for each selected acquisition. An archive host is a deferred
+fill-in if a later operation needs it; no new storage service is selected here.
+
 The owner confirmed government PSGA rights and authorised the existing key for
 private retrieval. This authority persists during unattended execution. It does
 not require another approval for each request. Existing restrictions on public
@@ -37,8 +44,9 @@ was printed or placed in a URL, source file or receipt.
   and stops on 429. Other consumers of the same project can still consume capacity.
 - About 30 GB was available locally. The first 34 inspected versions alone listed
   about 328 GB of compressed file entries. This includes historical releases and
-  is not a deduplicated current national-data requirement. A full bulk harvest
-  cannot fit here; no feature archives were downloaded by this increment.
+  is not a deduplicated current national-data requirement. Keeping that archive
+  cohort locally would exceed available capacity. Transient processing can use
+  bounded selections and staging; these counts do not prove a national scan.
 
 The initial documentation requests returned HTTP 403 with the default client
 user agent. The documented metadata client identity then succeeded normally;
@@ -70,6 +78,11 @@ complete graph traversal and installed Ask OKF admission remain separate work.
 | `os_document_sync.py` | Captures only the 2,303 exact URLs in three frozen committed documentation indexes, with separate private ledger, one-writer lock, budgets, failures and resumable passage verification. | The frozen October index may omit later pages. A bounded batch is not full documentation coverage. No page-discovered links are followed. |
 | `os_private_inventory.py` | Retrieves fixed catalogue and validated native package-version metadata routes, retaining private checksum-backed receipts. | File URLs are recorded privately, never executed. Inventory is not feature acquisition or proof of complete entitlement. |
 | `retrieval_plan.py` | Compares acquisition and processing estimates from explicit counts, page sizes, rate ceilings, latency, archive sizes and measured throughput. | Missing measurements yield unknown estimates. Comparison requires matching coverage. It does not execute a provider call. |
+| `query_planner.py` | Builds offline candidate recipes from explicit native field identities, coverage and evidenced mappings/capabilities. | No inferred join, cross-collection capability, field equivalence or execution grant. |
+| `ngd_extract.py` | Acquires bounded NGD selections with checkpoints and integrity checks; disposal requires a complete selection-bound profile. | Pagination and a complete bounded selection do not establish a full national scan. |
+| `transient_profile.py` | Profiles bounded GeoJSON or streaming NDJSON without retaining feature contents in its report. | Input deletion is opt-in after complete success and restricted to ignored artefacts; retention intent alone does not prove cleanup. |
+| `route_comparison.py` | Compares supplied route observations with explicit identity paths, context and reviewed mappings; prepares candidate support drafts. | Draft only: no automatic OS support submission, semantic equivalence decision or source-independence guarantee. |
+| Query capability profiles | Small source-bound [NGD](../../okf-plus/profile/os-ngd-query-capabilities.json), [WFS](../../okf-plus/profile/os-wfs-query-capabilities.json) and [Downloads](../../okf-plus/profile/os-download-query-capabilities.json) registries. | Documented, observed and unverified claims remain separate; profiles grant no execution authority. |
 
 The operation-output contract is
 [`recovery-operations.schema.json`](../../okf-plus/schemas/recovery-operations.schema.json).
@@ -132,6 +145,30 @@ Definitions in the private documentation are richer than the public structural
 schema projection. Linking each field/version to the correct passage is a separate
 semantic assertion and must remain distinguishable from lexical discovery.
 
+## Query capabilities and route comparisons
+
+The captured NGD contract documents `filter-lang=cql-text` for row selection,
+with collection-specific queryables, at most 100 features per page and one
+collection per items path. It does not advertise field projection, multi-collection
+queries or server-side joins. This absence is not universal proof of rejection:
+an unknown parameter may simply be ignored. WFS separately documents
+`propertyName` field projection; do not transfer that parameter to NGD.
+
+Live WFS metadata requests returned HTTP 200. The `Highways_RoadLink` schema
+exposes `RoadWidthAverage`, `RoadWidthMinimum` and `RoadWidthConfidenceLevel`;
+`Topography_TopographicArea` exposes `TOID`, BHA version/process date, absolute
+and relative height fields and confidence. These observations correct the earlier
+uncertainty about their presence, but do not prove equality with NGD measurements.
+Private schema receipts remain under `private-route-comparisons/`.
+
+NGD Road Link `toid` explicitly refers to the MasterMap feature identifier and
+is a candidate identity bridge. OSID is not a TOID; NGD Building has no established
+direct TOID mapping in this review. Compare exact identity, feature grain, source
+version/time, CRS, units, datum, measurement definitions and quality before
+claiming agreement or disagreement. Legacy and NGD chimney rules already differ.
+Route comparisons and candidate OS support notes are drafts for review; no
+external message or definitive cross-product equivalence is implied.
+
 ## Run and resume
 
 From the checkout root, with locked development dependencies:
@@ -172,16 +209,19 @@ This comparison alone does not prove that unchanged URLs have unchanged content.
 Before fulfilling a dataset request, state its geographical, temporal, version,
 field and format coverage; estimate acquisition and processing separately; compare
 the equivalent download where available; and label unknowns. Metadata timings
-alone are not feature-transfer throughput. A large national request needs a known
-archive size or feature count and an approved storage destination with enough
-capacity. Do not buy storage or select a cloud account implicitly.
+alone are not feature-transfer throughput. A large request needs a known archive
+size or feature count, a bounded processing plan, sufficient transient staging
+capacity and a verified disposal path. Permanent national storage is not required.
+An archive host remains deferred unless a concrete operation needs one; do not
+buy storage or select a cloud account implicitly.
 
 ## Remaining completion gates
 
 1. Finish the configured package-version and frozen documentation inventories;
    retain exact coverage, failures and unknown denominators in their checkpoints.
-2. Establish the useful current-release size separately from historical and
-   repeated package entries, then select sufficient approved private storage.
+2. Establish useful current-release coverage separately from historical and
+   repeated package entries; size bounded transient staging and processing,
+   retain semantic findings/recipes and verify feature-payload disposal.
 3. Complete source/version-matched field-to-explanation and code-list links,
    including the three examples above and explicit evidence for absent answers.
 4. Implement and validate resumable feature/archive retrieval and processing,
