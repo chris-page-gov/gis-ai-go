@@ -48,6 +48,49 @@ borrow an HTTP response hash. An agent's source review is not independent human
 acceptance. Captured contacts, account fields, secrets and licensed feature or
 statistical payloads are excluded from public records.
 
+## Private OS recovery and transient processing
+
+The [OS recovery record](../docs/implementation/OKF_OS_RECOVERY.md) describes the
+owner-authorised private PSGA work. Its objective is to process feature data
+transiently, retain rich semantic knowledge and reproducible efficient methods,
+and discard feature payloads after verified processing. Permanent national
+storage is not a prerequisite; an archive host is deferred if later needed.
+No complete national scan or hosted runtime acceptance is claimed.
+
+`field_cards.py` exports small source-native JSON-LD evidence units;
+`passages.py` and `os_document_sync.py` retain bounded private documentation
+passages; `field_passages.py` supplies exact-heading candidate links with explicit
+version-matching gaps. `os_private_inventory.py` inventories configured packages.
+`retrieval_plan.py` estimates acquisition and processing; `query_planner.py`
+prepares source-evidenced candidate recipes. `ngd_extract.py` supports bounded
+resumable selections and verified disposal; `transient_profile.py` retains
+non-payload profiles, with opt-in input deletion only after complete success.
+These are local operations, not newly admitted hosted tools.
+
+Small capability profiles record [NGD](profile/os-ngd-query-capabilities.json),
+[WFS](profile/os-wfs-query-capabilities.json) and
+[Downloads](profile/os-download-query-capabilities.json) behaviour and limits.
+NGD documents CQL-text row filtering against collection queryables, without
+advertised field projection or cross-collection joins. WFS documents
+`propertyName` field projection. Live WFS schemas expose Road Link widths and
+Topographic Area BHA heights, but equivalent NGD semantics are unproven.
+`route_comparison.py` checks supplied observations and produces review drafts;
+it neither establishes equivalence automatically nor sends OS support messages.
+
+[Presentation research](../docs/implementation/OS_RETRIEVAL_PRESENTATION_RESEARCH.md)
+and the small [output-intent profile](profile/os-output-intents.json) record map,
+table and analytical requirements, visualisation metadata and the VizQL research
+backlog. Optional planner output requirements admit only routes with explicit
+native-value, geometry or portrayal capability evidence before comparing cost.
+A map label or tile attribute cannot establish native measurement suitability.
+
+[Availability reporting](../docs/implementation/OS_DATA_AVAILABILITY.md) uses
+`availability.py` and its [optional schema](schemas/data-availability.schema.json)
+to keep permission, expectation, observation and retrieval completion separate.
+A null or zero is distinct from a missing property. Incomplete retrieval and
+missing planner candidates leave data presence unknown. These are offline private
+assessments and do not add a hosted provider or renderer.
+
 ## Build and search offline
 
 Run commands from the repository root, using the repository's locked development

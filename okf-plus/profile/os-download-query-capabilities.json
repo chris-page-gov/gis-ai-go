@@ -1,0 +1,222 @@
+{
+  "@context": {
+    "okfp": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/vocab/",
+    "dcat": "http://www.w3.org/ns/dcat#",
+    "status": {
+      "@id": "okfp:status",
+      "@type": "@json"
+    },
+    "owner": {
+      "@id": "okfp:owner",
+      "@type": "@json"
+    },
+    "policy": {
+      "@id": "okfp:policy",
+      "@type": "@json"
+    },
+    "threats": {
+      "@id": "okfp:threats",
+      "@type": "@json"
+    },
+    "rights": {
+      "@id": "okfp:rights",
+      "@type": "@json"
+    },
+    "evidence": {
+      "@id": "okfp:evidence",
+      "@type": "@json"
+    },
+    "capabilities": {
+      "@id": "okfp:capabilities",
+      "@type": "@json"
+    },
+    "limitations": {
+      "@id": "okfp:limitations",
+      "@type": "@json"
+    },
+    "retentionIntent": {
+      "@id": "okfp:retentionIntent",
+      "@type": "@json"
+    },
+    "unverified": {
+      "@id": "okfp:unverified",
+      "@type": "@json"
+    }
+  },
+  "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/profile/os-download-query-capabilities",
+  "@type": "okfp:QueryCapabilityProfile",
+  "dcat:endpointURL": {
+    "@id": "https://api.os.uk/downloads/v1"
+  },
+  "status": {
+    "documented": "captured-contract-not-live-conformance",
+    "observed": "no-live-behaviour-claimed",
+    "unverified": "current-endpoint-and-project-entitlement"
+  },
+  "owner": "GIS AI GO repository owner",
+  "policy": {
+    "executionAdmitted": false,
+    "purpose": "Planning evidence; no provider, tool or entitlement grant. Use existing runtime admission and source-specific rights."
+  },
+  "threats": [
+    "Credential leakage in URLs or logs",
+    "Untrusted provider text or links treated as instructions",
+    "Payload retention beyond the owner-selected transient purpose",
+    "Unbounded retrieval, unsupported parameters or false source-equivalence claims"
+  ],
+  "rights": {
+    "metadata": "Source rights retained; factual capability description.",
+    "featurePayload": "PSGA/project entitlement and recipient rights checked separately; this file does not grant redistribution."
+  },
+  "retentionIntent": {
+    "ownerInstruction": "Process feature data transiently; discard feature payload after processing.",
+    "retain": [
+      "Semantic metadata and source-grounded knowledge",
+      "Reproducible query/processing methods and non-payload evidence receipts"
+    ],
+    "status": "policy-intent-not-proof-of-implemented-cleanup"
+  },
+  "evidence": [
+    {
+      "snapshot": "okf-plus/source/os-api-contracts.json",
+      "pointer": "/records/128",
+      "sourceUrl": "https://docs.os.uk/os-apis/accessing-os-apis/os-downloads-api/technical-specification/data-packages.md",
+      "sourceSha256": "01eee7620652ebbf8156676346585b600636226d638cb98e77c89815dfa50078",
+      "retrievedAt": "2026-10-02T07:28:38.417316Z",
+      "status": "documented"
+    },
+    {
+      "snapshot": "okf-plus/source/os-api-contracts.json",
+      "pointer": "/records/129",
+      "sourceUrl": "https://docs.os.uk/os-apis/accessing-os-apis/os-downloads-api/technical-specification/data-package-id.md",
+      "sourceSha256": "abdfb320215e7ec9a3fe89a221e69a08fa2aa87ef11fd3c743aaae73e8da92fd",
+      "retrievedAt": "2026-10-02T07:28:39.578710Z",
+      "status": "documented"
+    },
+    {
+      "snapshot": "okf-plus/source/os-api-contracts.json",
+      "pointer": "/records/130",
+      "sourceUrl": "https://docs.os.uk/os-apis/accessing-os-apis/os-downloads-api/technical-specification/data-package-version.md",
+      "sourceSha256": "3a539428f8d251e5c37a0997d5d6d0fccc15c965d14a388ae9a7e3500c2e1893",
+      "retrievedAt": "2026-10-02T07:28:41.797179Z",
+      "status": "documented"
+    },
+    {
+      "snapshot": "okf-plus/source/os-api-contracts.json",
+      "pointer": "/records/131",
+      "sourceUrl": "https://docs.os.uk/os-apis/accessing-os-apis/os-downloads-api/technical-specification/data-package-version-id.md",
+      "sourceSha256": "a392c23c13a64adaa7d9370debe588965d5b1f85380ef5ca9d19eea2bf1796d9",
+      "retrievedAt": "2026-10-02T07:28:44.001591Z",
+      "status": "documented"
+    },
+    {
+      "snapshot": "okf-plus/source/os-api-contracts.json",
+      "pointer": "/records/132",
+      "sourceUrl": "https://docs.os.uk/os-apis/accessing-os-apis/os-downloads-api/technical-specification/download-a-data-package.md",
+      "sourceSha256": "e5c4fc0f00f32efcef65c148155528fea1a6d8cb6bf9d0b9fcf74b7557f233a4",
+      "retrievedAt": "2026-10-02T07:28:46.194221Z",
+      "status": "documented"
+    }
+  ],
+  "capabilities": {
+    "operations": [
+      {
+        "method": "GET",
+        "path": "/dataPackages",
+        "evidence": {
+          "snapshot": "okf-plus/source/os-api-contracts.json",
+          "pointer": "/records/128/contracts/0/operations/0",
+          "sourceUrl": "https://docs.os.uk/os-apis/accessing-os-apis/os-downloads-api/technical-specification/data-packages.md",
+          "sourceSha256": "01eee7620652ebbf8156676346585b600636226d638cb98e77c89815dfa50078",
+          "retrievedAt": "2026-10-02T07:28:38.417316Z",
+          "status": "documented"
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/dataPackages/{dataPackageId}",
+        "evidence": {
+          "snapshot": "okf-plus/source/os-api-contracts.json",
+          "pointer": "/records/129/contracts/0/operations/0",
+          "sourceUrl": "https://docs.os.uk/os-apis/accessing-os-apis/os-downloads-api/technical-specification/data-package-id.md",
+          "sourceSha256": "abdfb320215e7ec9a3fe89a221e69a08fa2aa87ef11fd3c743aaae73e8da92fd",
+          "retrievedAt": "2026-10-02T07:28:39.578710Z",
+          "status": "documented"
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/dataPackages/{dataPackageId}/versions",
+        "evidence": {
+          "snapshot": "okf-plus/source/os-api-contracts.json",
+          "pointer": "/records/130/contracts/0/operations/0",
+          "sourceUrl": "https://docs.os.uk/os-apis/accessing-os-apis/os-downloads-api/technical-specification/data-package-version.md",
+          "sourceSha256": "3a539428f8d251e5c37a0997d5d6d0fccc15c965d14a388ae9a7e3500c2e1893",
+          "retrievedAt": "2026-10-02T07:28:41.797179Z",
+          "status": "documented"
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/dataPackages/{dataPackageId}/versions/{versionId}",
+        "evidence": {
+          "snapshot": "okf-plus/source/os-api-contracts.json",
+          "pointer": "/records/131/contracts/0/operations/0",
+          "sourceUrl": "https://docs.os.uk/os-apis/accessing-os-apis/os-downloads-api/technical-specification/data-package-version-id.md",
+          "sourceSha256": "a392c23c13a64adaa7d9370debe588965d5b1f85380ef5ca9d19eea2bf1796d9",
+          "retrievedAt": "2026-10-02T07:28:44.001591Z",
+          "status": "documented"
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/dataPackages/{dataPackageId}/versions/{versionId}/downloads",
+        "evidence": {
+          "snapshot": "okf-plus/source/os-api-contracts.json",
+          "pointer": "/records/132/contracts/0/operations/0",
+          "sourceUrl": "https://docs.os.uk/os-apis/accessing-os-apis/os-downloads-api/technical-specification/download-a-data-package.md",
+          "sourceSha256": "e5c4fc0f00f32efcef65c148155528fea1a6d8cb6bf9d0b9fcf74b7557f233a4",
+          "retrievedAt": "2026-10-02T07:28:46.194221Z",
+          "status": "documented"
+        }
+      }
+    ],
+    "supplyTypes": {
+      "values": [
+        "FULL",
+        "COU"
+      ],
+      "evidence": {
+        "snapshot": "okf-plus/source/os-api-contracts.json",
+        "pointer": "/records/131/contracts/0/schemas/DataPackageVersionSummary/properties/supplyType/enum",
+        "sourceUrl": "https://docs.os.uk/os-apis/accessing-os-apis/os-downloads-api/technical-specification/data-package-version-id.md",
+        "sourceSha256": "a392c23c13a64adaa7d9370debe588965d5b1f85380ef5ca9d19eea2bf1796d9",
+        "retrievedAt": "2026-10-02T07:28:44.001591Z",
+        "status": "documented"
+      }
+    },
+    "versionMetadata": [
+      "id",
+      "createdOn",
+      "reason",
+      "supplyType",
+      "productVersion",
+      "format"
+    ],
+    "delivery": "Discover actual entitled packages and version metadata, then listed files; no package contents or account identifiers retained in this registry."
+  },
+  "limitations": [
+    "Package discovery is not a complete inventory of all products the organisation could order.",
+    "COU must not be treated as a complete standalone current dataset; establish baseline and change ordering using product-specific guidance.",
+    "Pin a concrete version and source checksum for reproducibility; a moving latest/current selection is not an immutable reference.",
+    "A FULL supply label does not establish current temporal truth, geographic completeness or equivalence with live NGD.",
+    "Large files can be transiently streamed and processed outside the model context; this intent does not implement or verify payload cleanup.",
+    "Compare API paging and download acquisition plus processing estimates using actual sizes and observed throughput; no universal ETA stated."
+  ],
+  "unverified": [
+    "Current account package availability and formats",
+    "Product-specific FULL/COU reconstruction rules",
+    "Whether a latest alias is accepted by current project endpoint",
+    "Rate limits and download throughput"
+  ]
+}

@@ -158,6 +158,10 @@ def _build_into(root,output,revision):
         identities.add(row['@id']);records.append(row)
         route=path.relative_to(root/'okf-plus').as_posix()
         projected={'id':row['@id'],'title':row['title'],'description':row['description'],'type':row['type'],'sourceFamily':row['sourceFamily'],'nativeIdentifier':row['nativeIdentifier'],'sources':row['sources'],'temporal':row['temporal'],'update':row['update'],'details':row['details'],'tags':row['tags'],'text':body,'resource':row['resource'],'rights':row['rights'],'limitations':row['limitations'],'schemaEvidence':row.get('schemaEvidence',{}),'route':route,'assertionStatus':row['assertionStatus'],'reviewStatus':row['reviewStatus'],'status':row['status']}
+        # Retain complete source-native field nodes with their parent collection.
+        # Search may rank their labels/definitions, but must not invent aliases.
+        if "okfp:field" in row:
+            projected["okfp:field"] = row["okfp:field"]
         search.append(projected)
     if not records:raise ValueError('No records')
     for path in sorted((root/'okf-plus/source').glob('*.json')):

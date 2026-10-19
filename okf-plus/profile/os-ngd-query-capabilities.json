@@ -1,0 +1,256 @@
+{
+  "@context": {
+    "okfp": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/vocab/",
+    "dcat": "http://www.w3.org/ns/dcat#",
+    "status": {
+      "@id": "okfp:status",
+      "@type": "@json"
+    },
+    "owner": {
+      "@id": "okfp:owner",
+      "@type": "@json"
+    },
+    "policy": {
+      "@id": "okfp:policy",
+      "@type": "@json"
+    },
+    "threats": {
+      "@id": "okfp:threats",
+      "@type": "@json"
+    },
+    "rights": {
+      "@id": "okfp:rights",
+      "@type": "@json"
+    },
+    "evidence": {
+      "@id": "okfp:evidence",
+      "@type": "@json"
+    },
+    "capabilities": {
+      "@id": "okfp:capabilities",
+      "@type": "@json"
+    },
+    "limitations": {
+      "@id": "okfp:limitations",
+      "@type": "@json"
+    },
+    "retentionIntent": {
+      "@id": "okfp:retentionIntent",
+      "@type": "@json"
+    },
+    "unverified": {
+      "@id": "okfp:unverified",
+      "@type": "@json"
+    },
+    "observations": {
+      "@id": "okfp:observations",
+      "@type": "@json"
+    }
+  },
+  "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/profile/os-ngd-query-capabilities",
+  "@type": "okfp:QueryCapabilityProfile",
+  "dcat:endpointURL": {
+    "@id": "https://api.os.uk/features/ngd/ofa/v1"
+  },
+  "status": {
+    "documented": "captured-contract-not-live-conformance",
+    "observed": "bounded Road Link v5 observations on 19 October 2026; not universal conformance",
+    "unverified": "current-endpoint-and-project-entitlement"
+  },
+  "owner": "GIS AI GO repository owner",
+  "policy": {
+    "executionAdmitted": false,
+    "purpose": "Planning evidence; no provider, tool or entitlement grant. Use existing runtime admission and source-specific rights."
+  },
+  "threats": [
+    "Credential leakage in URLs or logs",
+    "Untrusted provider text or links treated as instructions",
+    "Payload retention beyond the owner-selected transient purpose",
+    "Unbounded retrieval, unsupported parameters or false source-equivalence claims"
+  ],
+  "rights": {
+    "metadata": "Source rights retained; factual capability description.",
+    "featurePayload": "PSGA/project entitlement and recipient rights checked separately; this file does not grant redistribution."
+  },
+  "retentionIntent": {
+    "ownerInstruction": "Process feature data transiently; discard feature payload after processing.",
+    "retain": [
+      "Semantic metadata and source-grounded knowledge",
+      "Reproducible query/processing methods and non-payload evidence receipts"
+    ],
+    "status": "policy-intent-not-proof-of-implemented-cleanup"
+  },
+  "evidence": [
+    {
+      "snapshot": "okf-plus/source/os-api-contracts.json",
+      "pointer": "/records/31",
+      "sourceUrl": "https://docs.os.uk/os-apis/accessing-os-apis/os-ngd-api-features/technical-specification/features.md",
+      "sourceSha256": "c2b126fcbb5d412b4e0e93f6858e7258a6a511b8d313330669c1a237699a0059",
+      "retrievedAt": "2026-10-02T07:26:32.239880Z",
+      "status": "documented"
+    },
+    {
+      "snapshot": "okf-plus/source/os-api-contracts.json",
+      "pointer": "/records/32",
+      "sourceUrl": "https://docs.os.uk/os-apis/accessing-os-apis/os-ngd-api-features/technical-specification/feature.md",
+      "sourceSha256": "a8c52eb2acad6d610b1690672df0a46622358f88518906219d81a22ed67e9fd5",
+      "retrievedAt": "2026-10-02T07:26:33.489360Z",
+      "status": "documented"
+    },
+    {
+      "snapshot": "okf-plus/source/os-api-contracts.json",
+      "pointer": "/records/30",
+      "sourceUrl": "https://docs.os.uk/os-apis/accessing-os-apis/os-ngd-api-features/technical-specification/queryables.md",
+      "sourceSha256": "caeda8ae4c45480643c7acd9721df0dd93b1bb1e83d31ae0578815c8090908ef",
+      "retrievedAt": "2026-10-02T07:26:30.992877Z",
+      "status": "documented"
+    },
+    {
+      "snapshot": "okf-plus/source/os-api-contracts.json",
+      "pointer": "/records/24",
+      "sourceUrl": "https://docs.os.uk/os-apis/accessing-os-apis/os-ngd-api-features/technical-specification.md",
+      "sourceSha256": "d98edd2ab4b4c82266bd1d3c83f449cc6373b33ab7fd563487889e057b43d434",
+      "retrievedAt": "2026-10-02T07:26:24.014582Z",
+      "status": "documented"
+    }
+  ],
+  "capabilities": {
+    "items": {
+      "method": "GET",
+      "path": "/collections/{collectionId}/items",
+      "parameters": [
+        "collectionId",
+        "bbox",
+        "bbox-crs",
+        "crs",
+        "datetime",
+        "limit",
+        "offset",
+        "filter",
+        "filter-crs",
+        "filter-lang"
+      ],
+      "evidence": {
+        "snapshot": "okf-plus/source/os-api-contracts.json",
+        "pointer": "/records/31/contracts/0/operations/0/parameters",
+        "sourceUrl": "https://docs.os.uk/os-apis/accessing-os-apis/os-ngd-api-features/technical-specification/features.md",
+        "sourceSha256": "c2b126fcbb5d412b4e0e93f6858e7258a6a511b8d313330669c1a237699a0059",
+        "retrievedAt": "2026-10-02T07:26:32.239880Z",
+        "status": "documented"
+      }
+    },
+    "filter": {
+      "languages": [
+        "cql-text"
+      ],
+      "default": "cql-text",
+      "restriction": "Use each collection queryables; schema fields are not automatically filterable.",
+      "operators": [
+        "=",
+        "<",
+        "<=",
+        ">",
+        ">=",
+        "ISNULL",
+        "LIKE",
+        "IN",
+        "BETWEEN",
+        "AND",
+        "OR",
+        "NOT",
+        "AEQUALS",
+        "ACONTAINS",
+        "ACONTAINEDBY",
+        "AOVERLAPS",
+        "INTERSECTS"
+      ],
+      "operatorStatus": "documented-in-technical-specification; see linked public source",
+      "evidence": {
+        "snapshot": "okf-plus/source/os-api-contracts.json",
+        "pointer": "/records/31/contracts/0/operations/0/parameters/9",
+        "sourceUrl": "https://docs.os.uk/os-apis/accessing-os-apis/os-ngd-api-features/technical-specification/features.md",
+        "sourceSha256": "c2b126fcbb5d412b4e0e93f6858e7258a6a511b8d313330669c1a237699a0059",
+        "retrievedAt": "2026-10-02T07:26:32.239880Z",
+        "status": "documented"
+      },
+      "operatorEvidence": {
+        "snapshot": "okf-plus/source/os-api-contracts.json",
+        "pointer": "/records/24",
+        "sourceUrl": "https://docs.os.uk/os-apis/accessing-os-apis/os-ngd-api-features/technical-specification.md",
+        "sourceSha256": "d98edd2ab4b4c82266bd1d3c83f449cc6373b33ab7fd563487889e057b43d434",
+        "retrievedAt": "2026-10-02T07:26:24.014582Z",
+        "status": "documented"
+      }
+    },
+    "limits": {
+      "minFeatures": 1,
+      "maxFeatures": 100,
+      "defaultFeatures": 100,
+      "offsetMinimum": 0,
+      "evidence": {
+        "snapshot": "okf-plus/source/os-api-contracts.json",
+        "pointer": "/records/31/contracts/0/operations/0/parameters/5",
+        "sourceUrl": "https://docs.os.uk/os-apis/accessing-os-apis/os-ngd-api-features/technical-specification/features.md",
+        "sourceSha256": "c2b126fcbb5d412b4e0e93f6858e7258a6a511b8d313330669c1a237699a0059",
+        "retrievedAt": "2026-10-02T07:26:32.239880Z",
+        "status": "documented"
+      }
+    },
+    "feature": {
+      "path": "/collections/{collectionId}/items/{featureId}",
+      "identity": "feature id; do not assume equality with osid or TOID"
+    },
+    "coalescing": {
+      "withinCollection": "Use documented predicates only after collection/queryables validation; equality OR succeeded for tested Road Link v5. IN remained documented but failed in the bounded live probes.",
+      "acrossCollections": "Separate requests then explicit transient deterministic processing.",
+      "status": "planning-method; identifier semantics and live behaviour require validation"
+    },
+    "notAdvertised": [
+      "Field projection via properties, select or propertyName",
+      "Multiple collections in one items request",
+      "Server-side joins",
+      "cql2-json or cql2-text filter languages"
+    ]
+  },
+  "limitations": [
+    "Absence from captured contract is not proof the server universally rejects a capability.",
+    "Unknown query parameters can be ignored: HTTP 200 does not establish projection.",
+    "One enumerated collectionId per items path; no cross-product equivalence inferred.",
+    "Pagination does not itself guarantee a consistent snapshot during concurrent source updates."
+  ],
+  "unverified": [
+    "Identity batching, predicates and operator combinations beyond the specific Road Link v5 observations",
+    "Any unadvertised field projection",
+    "Per-project rate limits; do not derive request throughput from the 100-feature page ceiling"
+  ],
+  "observations": [
+    {
+      "date": "2026-10-19",
+      "collection": "trn-ntwk-roadlink-5",
+      "operation": "field projection via properties",
+      "status": "observed-rejected",
+      "httpStatus": 400,
+      "interpretation": "Server explicitly rejected properties and listed supported query parameters. No field projection is claimed.",
+      "scope": "One documented collection and the tested request shape."
+    },
+    {
+      "date": "2026-10-19",
+      "collection": "trn-ntwk-roadlink-5",
+      "operation": "osid IN batch",
+      "status": "observed-failure",
+      "httpStatus": 500,
+      "interpretation": "Tested two-native-ID IN requests failed with and without bbox. Do not treat documented syntax as current successful execution."
+    },
+    {
+      "date": "2026-10-19",
+      "collection": "trn-ntwk-roadlink-5",
+      "operation": "OR of osid equality predicates",
+      "status": "observed-success",
+      "httpStatus": 200,
+      "features": 2,
+      "returnedPropertyCountPerFeature": 78,
+      "responseCrs": "http://www.opengis.net/def/crs/EPSG/0/7405",
+      "interpretation": "The two requested native identities matched. One request returned both complete records; local field selection remains necessary."
+    }
+  ]
+}

@@ -289,6 +289,12 @@
           },
           "text": {
             "type": "string"
+          },
+          "okfp:field": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
           }
         },
         "additionalProperties": false

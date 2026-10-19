@@ -1,0 +1,587 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "urn:gis-ai-go:okf-plus:route-comparison:v1",
+ "title": "Private candidate route observations and OS support cases v1",
+ "description": "Optional structural assurance owned by the repository owner. Source evidence is untrusted. No provider execution, publication or sending authority is granted. Hash syntax and non-comparable observation flags are checked; hash bytes, source independence, semantic equivalence, count arithmetic and concordance calculations require separate verification. No statistical confidence is established.",
+ "anyOf": [
+  {
+   "$ref": "#/$defs/comparison"
+  },
+  {
+   "$ref": "#/$defs/case"
+  }
+ ],
+ "$defs": {
+  "comparison": {
+   "type": "object",
+   "required": [
+    "profile",
+    "distribution",
+    "execution",
+    "candidateOnly",
+    "observations",
+    "support_case",
+    "limitations",
+    "source_independence_claims"
+   ],
+   "properties": {
+    "profile": {
+     "const": "okf-plus-private-route-comparison.v1"
+    },
+    "distribution": {
+     "const": "private"
+    },
+    "execution": {
+     "const": false
+    },
+    "candidateOnly": {
+     "const": true
+    },
+    "observations": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/pair"
+     },
+     "maxItems": 7
+    },
+    "support_case": {
+     "anyOf": [
+      {
+       "const": null
+      },
+      {
+       "$ref": "#/$defs/case"
+      }
+     ]
+    },
+    "limitations": {
+     "type": "array",
+     "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 8192
+     },
+     "maxItems": 128
+    },
+    "source_independence_claims": {
+     "type": "object",
+     "minProperties": 2,
+     "maxProperties": 8,
+     "additionalProperties": {
+      "type": "boolean"
+     }
+    }
+   },
+   "additionalProperties": false
+  },
+  "case": {
+   "type": "object",
+   "required": [
+    "profile",
+    "distribution",
+    "candidateOnly",
+    "execution",
+    "sendingAdmitted",
+    "methodology",
+    "code_reference",
+    "discrepancies",
+    "calls",
+    "mapping_evidence",
+    "normalization_evidence",
+    "tolerances",
+    "observations"
+   ],
+   "properties": {
+    "profile": {
+     "const": "okf-plus-private-os-support-case.v1"
+    },
+    "distribution": {
+     "const": "private"
+    },
+    "candidateOnly": {
+     "const": true
+    },
+    "execution": {
+     "const": false
+    },
+    "sendingAdmitted": {
+     "const": false
+    },
+    "methodology": {
+     "type": "string",
+     "minLength": 1,
+     "maxLength": 8192
+    },
+    "code_reference": {
+     "type": "string",
+     "minLength": 1,
+     "maxLength": 8192
+    },
+    "discrepancies": {
+     "type": "array",
+     "items": {
+      "type": "object",
+      "required": [
+       "kind",
+       "routes"
+      ],
+      "properties": {
+       "kind": {
+        "enum": [
+         "http-status",
+         "http-error",
+         "field-observation"
+        ]
+       },
+       "routes": {
+        "type": "array",
+        "items": {
+         "type": "string",
+         "minLength": 1,
+         "maxLength": 8192
+        },
+        "minItems": 2,
+        "maxItems": 2,
+        "uniqueItems": true
+       },
+       "field": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 8192
+       }
+      },
+      "additionalProperties": false,
+      "allOf": [
+       {
+        "if": {
+         "properties": {
+          "kind": {
+           "const": "field-observation"
+          }
+         }
+        },
+        "then": {
+         "required": [
+          "field"
+         ]
+        }
+       }
+      ]
+     },
+     "maxItems": 1792,
+     "minItems": 1
+    },
+    "calls": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/call"
+     },
+     "maxItems": 8,
+     "minItems": 2
+    },
+    "mapping_evidence": {
+     "type": "array",
+     "items": {
+      "type": "object",
+      "required": [
+       "field",
+       "evidence"
+      ],
+      "properties": {
+       "field": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 8192
+       },
+       "evidence": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 8192
+       }
+      },
+      "additionalProperties": false
+     },
+     "maxItems": 128
+    },
+    "normalization_evidence": {
+     "type": "object"
+    },
+    "tolerances": {
+     "type": "object"
+    },
+    "observations": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/pair"
+     },
+     "maxItems": 7
+    }
+   },
+   "additionalProperties": false
+  },
+  "call": {
+   "type": "object",
+   "required": [
+    "route_id",
+    "call",
+    "context",
+    "receipt_sha256",
+    "http_status",
+    "selector_id",
+    "expected_behavior_refs"
+   ],
+   "properties": {
+    "route_id": {
+     "type": "string",
+     "minLength": 1,
+     "maxLength": 8192
+    },
+    "call": {
+     "type": "object",
+     "required": [
+      "method",
+      "url",
+      "params",
+      "key_binding"
+     ],
+     "properties": {
+      "method": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 8192
+      },
+      "url": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 8192
+      },
+      "params": {
+       "type": "object"
+      },
+      "key_binding": {
+       "type": "string",
+       "pattern": "^[A-Z][A-Z0-9_]{0,127}$"
+      }
+     },
+     "additionalProperties": false
+    },
+    "context": {
+     "type": "object",
+     "required": [
+      "collection",
+      "version",
+      "crs",
+      "time",
+      "units"
+     ],
+     "properties": {
+      "collection": {},
+      "version": {},
+      "crs": {},
+      "time": {},
+      "units": {}
+     },
+     "additionalProperties": false
+    },
+    "receipt_sha256": {
+     "type": "string",
+     "pattern": "^[a-f0-9]{64}$"
+    },
+    "http_status": {
+     "type": [
+      "integer",
+      "null"
+     ],
+     "minimum": 100,
+     "maximum": 599
+    },
+    "selector_id": {},
+    "expected_behavior_refs": {}
+   },
+   "additionalProperties": false
+  },
+  "pair": {
+   "type": "object",
+   "required": [
+    "routes",
+    "comparable",
+    "not_comparable",
+    "fields",
+    "http_status_discrepancy"
+   ],
+   "properties": {
+    "routes": {
+     "type": "array",
+     "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 8192
+     },
+     "minItems": 2,
+     "maxItems": 2,
+     "uniqueItems": true
+    },
+    "comparable": {
+     "type": "boolean"
+    },
+    "not_comparable": {
+     "type": "array",
+     "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 8192
+     },
+     "maxItems": 129
+    },
+    "fields": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/fieldObservation"
+     },
+     "maxItems": 128
+    },
+    "http_status_discrepancy": {
+     "type": "boolean"
+    }
+   },
+   "additionalProperties": false,
+   "allOf": [
+    {
+     "if": {
+      "properties": {
+       "comparable": {
+        "const": false
+       }
+      }
+     },
+     "then": {
+      "properties": {
+       "not_comparable": {
+        "minItems": 1
+       },
+       "fields": {
+        "items": {
+         "properties": {
+          "comparable": {
+           "const": false
+          }
+         }
+        }
+       },
+       "http_status_discrepancy": {
+        "const": false
+       }
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "not_comparable": {
+        "contains": {
+         "const": "Context mismatch without reviewed normalization"
+        }
+       }
+      }
+     },
+     "then": {
+      "properties": {
+       "comparable": {
+        "const": false
+       }
+      }
+     }
+    }
+   ]
+  },
+  "fieldObservation": {
+   "type": "object",
+   "required": [
+    "field",
+    "comparable",
+    "matched_records",
+    "missing_left_records",
+    "missing_right_records",
+    "missing_left_values",
+    "missing_right_values",
+    "null_observations",
+    "type_differences",
+    "N",
+    "equal",
+    "unequal",
+    "concordance_fraction"
+   ],
+   "properties": {
+    "field": {
+     "type": "string",
+     "minLength": 1,
+     "maxLength": 8192
+    },
+    "comparable": {
+     "type": "boolean"
+    },
+    "matched_records": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 10000
+    },
+    "missing_left_records": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 10000
+    },
+    "missing_right_records": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 10000
+    },
+    "missing_left_values": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 10000
+    },
+    "missing_right_values": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 10000
+    },
+    "null_observations": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 10000
+    },
+    "type_differences": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 10000
+    },
+    "N": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 10000
+    },
+    "equal": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 10000
+    },
+    "unequal": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 10000
+    },
+    "concordance_fraction": {
+     "type": [
+      "number",
+      "null"
+     ],
+     "minimum": 0,
+     "maximum": 1
+    },
+    "reason": {
+     "const": "Unknown field equivalence or mismatched context"
+    },
+    "private_differences": {
+     "type": "array",
+     "items": {
+      "type": "object",
+      "required": [
+       "identity",
+       "left",
+       "right"
+      ],
+      "properties": {
+       "identity": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 8192
+       },
+       "left": {},
+       "right": {}
+      },
+      "additionalProperties": false
+     },
+     "maxItems": 10000
+    }
+   },
+   "additionalProperties": false,
+   "allOf": [
+    {
+     "if": {
+      "properties": {
+       "comparable": {
+        "const": false
+       }
+      }
+     },
+     "then": {
+      "required": [
+       "reason"
+      ],
+      "properties": {
+       "N": {
+        "const": 0
+       },
+       "equal": {
+        "const": 0
+       },
+       "unequal": {
+        "const": 0
+       },
+       "null_observations": {
+        "const": 0
+       },
+       "type_differences": {
+        "const": 0
+       },
+       "missing_left_values": {
+        "const": 0
+       },
+       "missing_right_values": {
+        "const": 0
+       },
+       "concordance_fraction": {
+        "const": null
+       }
+      },
+      "not": {
+       "required": [
+        "private_differences"
+       ]
+      }
+     }
+    },
+    {
+     "if": {
+      "required": [
+       "reason"
+      ]
+     },
+     "then": {
+      "properties": {
+       "comparable": {
+        "const": false
+       }
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "N": {
+        "const": 0
+       }
+      }
+     },
+     "then": {
+      "properties": {
+       "concordance_fraction": {
+        "const": null
+       }
+      }
+     }
+    }
+   ]
+  }
+ }
+}

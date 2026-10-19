@@ -1,6 +1,71 @@
 # Current progress
 
-Last updated: 17 October 2026
+Last updated: 19 October 2026
+
+## OS small-file knowledge and acquisition recovery
+
+The owner authorised unattended OS/PSGA recovery on 19 October. Work is tracked
+in [issue #153](https://github.com/chris-page-gov/gis-ai-go/issues/153) and the
+[recovery record](docs/implementation/OKF_OS_RECOVERY.md). The accessible bounded
+pass is complete: all 2,303 frozen documentation targets are accounted for,
+with 2,302 captured and one documented HTTP 307 redirect gap. All captured pages
+passed an independent audit of 216,765 lossless private passages, including exact
+reconstruction, checksums and the 16 KiB passage ceiling. Six newer documentation
+pages were captured and audited separately; the redirect target is recorded
+without asserting source equivalence. No frozen targets remain unresolved.
+
+The local build reproduces 30,833 metadata records and 2,915 native field nodes.
+The verified private export `run-d78f08085053400e9475393f0b4aaaa6` provides matched
+explanation candidates for all 2,915 fields, with zero missing or ambiguous
+matches. Its 3,347 files are at most 16,383 bytes each. These are candidate links
+to source explanations; documentation versions have not been independently
+matched to every collection version, and universal question-answering coverage
+has not been established. Small cards and explanatory passages retain native
+definitions, schema nuances, provenance and explicit observed scope.
+
+Fresh schema and queryables capture completed for all 94 current NGD collections:
+188 successful metadata requests retained complete native definitions and 3,755
+small property cards across the two lanes. All 44 WFS feature-type schemas were
+also captured. Bounded first pages from all 94 NGD collections returned 186
+records in total, completely profiled into 3,968 small field knowledge cards.
+Their temporary raw payloads were disposed after verification, with zero remaining
+in that workset. This completes those selected first pages, not national feature
+traversal or all PSGA data. The existing key, configured account metadata and
+licensed payloads remain excluded from Git and public publication.
+
+All 374 configured download-package versions were inventoried, listing 4,973 file
+entries and about 1.81 TB compressed, including history and repetition; the
+largest file is about 15.6 GB. Live access identified 47 configured packages,
+which does not establish the full entitlement denominator. Bulk archive transfers
+remain deferred pending the exact Azure host network adjustment. The draft save
+was rejected as uneditable; the proposed one-host change remains local.
+The owner requires transient processing and verified disposal, not permanent
+national storage. Retrieval recipes and knowledge can persist after raw disposal.
+
+Query capability profiles and a field-coverage planner distinguish server/local
+projection, separate response bundles and reviewed equivalent fields. Live Road
+Link v5 equality-OR batching succeeded; documented IN requests failed and
+`properties` was explicitly rejected. A bounded two-ID extraction and a fresh
+repeat verified both records, EPSG:7405 and disposal. A same-identity WFS comparison
+matched three width fields on both sampled roads, reducing response bytes from
+4,668 to 2,084. WFS-to-NGD measurement equivalence remains unassessed. Source
+ambiguities remain explicit. Private unsent support drafts retain sanitised calls
+and hashes for NGD IN/OR differences and malformed WFS GeoJSON when geometry is
+omitted from projection. No support ticket was sent.
+
+All 353 affected tests pass locally; final canonical CI remains pending before
+integration. No full national acquisition, complete PSGA coverage, feature archive,
+new service, deployment or installed connector admission is claimed.
+
+New [availability reporting](docs/implementation/OS_DATA_AVAILABILITY.md) keeps
+request access, expected presence, observations and retrieval completion separate.
+Null, zero, missing properties, empty selections, incomplete pages and denied
+requests have distinct outcomes. [Presentation research](docs/implementation/OS_RETRIEVAL_PRESENTATION_RESEARCH.md)
+and a small output-intent profile record map/table/analysis requirements and
+VizQL research. Optional planner constraints require explicit native-value,
+geometry or portrayal evidence before cost comparison. Tableau-hosted pages remain blocked, but its vendor GitHub OpenAPI contract
+was inspected at a pinned commit. It documents data/model queries rather than a
+rendering endpoint; no Tableau service integration is claimed.
 
 Latest implementation checkpoint: bounded dependency security repairs under
 [issue #142](https://github.com/chris-page-gov/gis-ai-go/issues/142), following

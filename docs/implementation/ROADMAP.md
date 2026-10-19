@@ -93,6 +93,33 @@ Acceptance separates catalogue traversal, metadata evidence, schema validation,
 semantic curation, retrieval and live Ask OKF admission. Unknown completeness
 denominators remain open; a large record count does not close them.
 
+The 19 October [OS recovery increment](OKF_OS_RECOVERY.md) completed its accessible
+bounded pass: 2,302 of 2,303 frozen documentation pages were captured, with one
+recorded HTTP 307 gap and no unresolved targets; 216,765 passages passed audit,
+and six newer pages were captured separately. All 94 NGD schema/queryables pairs
+and 44 WFS feature-type schemas were retained. First pages from all 94 NGD
+collections yielded 186 records and 3,968 field knowledge cards; verified disposal
+left no raw payloads in that workset. The final explanation export matches all
+2,915 field candidates with no missing or ambiguous links across 3,347 files
+(maximum 16,383 bytes); documentation-version matching remains unverified.
+All 353 affected tests pass locally, with final canonical CI pending before
+integration. Continue towards measured entitlement coverage, version-matched
+semantic links and resumable transient feature processing with reproducible
+retrieval recipes and verified disposal. This pass does not establish national
+feature traversal, all PSGA coverage or answers to every question. Bulk archive
+transfers remain deferred pending the recorded exact Azure host adjustment;
+source ambiguities and unsent support drafts remain explicit.
+
+The owner extended this work with [presentation-aware retrieval research](OS_RETRIEVAL_PRESENTATION_RESEARCH.md)
+and [scoped availability reporting](OS_DATA_AVAILABILITY.md). Map/table/analysis
+requirements must be explicit when comparing cost; portrayal alone cannot satisfy
+native-value questions. Investigate VizQL and related declarative visualisation
+approaches and retain the underlying units, grain, geometry/CRS/datum, time,
+aggregation and quality. Track missing data using separate access, expectation,
+observation and retrieval states; missing route evidence is unknown data presence.
+A completed selected retrieval closes that selector only; report the requested
+scope directly and leave unproven source/version assertions visible.
+
 ## Learning and feature evaluation
 
 [EXPERIENCE-221](EXPERIENCE-221_LEARNING_AND_EVALUATION.md) was authorised on
