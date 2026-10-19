@@ -80,6 +80,12 @@ responses, rate exhaustion and false completeness. Policy: fixed routes and sour
 scope, private evidence, whole-evidence byte limits, no source execution and no
 public account/licensed data. Synthetic tests exercise refusal and preservation.
 
+Passage directories are staged and verified before atomic publication, so an
+interrupted write does not publish a partial final directory. Existing destinations
+are preserved even if created concurrently. This publication currently requires
+Linux `renameat2`; unsupported hosts fail closed. The managed acquisition host
+passed these checks. This does not establish a cross-platform capture guarantee.
+
 ## User example acceptance boundaries
 
 - **Pavement width:** actual native fields include

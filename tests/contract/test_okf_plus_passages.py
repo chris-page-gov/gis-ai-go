@@ -76,6 +76,47 @@ class PrivatePassageTests(unittest.TestCase):
         with self.assertRaises(UnicodeDecodeError):
             passages.split_document(b'\xff', URL)
 
+    def test_interrupted_staging_leaves_no_final_and_retry_succeeds(self):
+        with tempfile.TemporaryDirectory() as directory, patch.object(passages, 'ROOT', Path(directory)):
+            root = Path(directory)
+            source = root / 'source.md'
+            original = b'# Synthetic\r\nEvidence\n'
+            source.write_bytes(original)
+            output = root / 'artifacts/private/evidence'
+            real_write = Path.write_bytes
+            def failing_write(path, payload):
+                if path.name == 'manifest.jsonld':
+                    raise OSError('Injected disk failure after writing passages')
+                return real_write(path, payload)
+            with patch.object(Path, 'write_bytes', failing_write), self.assertRaises(OSError):
+                passages.write_document(source, URL, output)
+            self.assertFalse(output.exists())
+            self.assertEqual(list(output.parent.iterdir()), [])
+            self.assertEqual(source.read_bytes(), original)
+            passages.write_document(source, URL, output)
+            before = {p.name: p.read_bytes() for p in output.iterdir()}
+            with self.assertRaises(ValueError):
+                passages.write_document(source, URL, output)
+            self.assertEqual(before, {p.name: p.read_bytes() for p in output.iterdir()})
+
+    def test_concurrent_empty_final_directory_is_never_replaced(self):
+        with tempfile.TemporaryDirectory() as directory, patch.object(passages, 'ROOT', Path(directory)):
+            root = Path(directory)
+            source = root / 'source.md'
+            source.write_bytes(b'Example')
+            output = root / 'artifacts/private/evidence'
+            real_write = Path.write_bytes
+            def racing_write(path, payload):
+                result = real_write(path, payload)
+                if path.name == 'manifest.jsonld':
+                    output.mkdir()
+                return result
+            with patch.object(Path, 'write_bytes', racing_write), self.assertRaises(FileExistsError):
+                passages.write_document(source, URL, output)
+            self.assertTrue(output.is_dir())
+            self.assertEqual(list(output.iterdir()), [])
+            self.assertEqual(list(output.parent.iterdir()), [output])
+
     def test_private_output_refuses_symlinks_overwrites_and_public_paths(self):
         with tempfile.TemporaryDirectory() as directory, patch.object(passages, 'ROOT', Path(directory)):
             root = Path(directory)

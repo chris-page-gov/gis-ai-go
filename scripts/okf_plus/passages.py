@@ -7,6 +7,10 @@ The manifest is an index and is not subject to the individual passage byte limit
 from __future__ import annotations
 
 import argparse
+import ctypes
+import os
+import shutil
+import tempfile
 import hashlib
 import re
 from pathlib import Path
@@ -123,10 +127,39 @@ def write_document(source_path, url, output, *, max_bytes=DEFAULT_MAX_BYTES):
     if output.exists():
         raise ValueError('Output already exists; preserve the previous evidence')
     manifest, passages = split_document(source_path.read_bytes(), url, max_bytes=max_bytes)
-    output.mkdir(parents=True, exist_ok=False)
-    for segment, payload in zip(manifest['segments'], passages):
-        (output / segment['file']).write_bytes(payload)
-    (output / 'manifest.jsonld').write_bytes(canonical(manifest))
+    output.parent.mkdir(parents=True, exist_ok=True)
+    no_symlinks(output.parent)
+    stage = Path(tempfile.mkdtemp(prefix='.' + output.name + '-staging-', dir=output.parent))
+    try:
+        for segment, payload in zip(manifest['segments'], passages):
+            (stage / segment['file']).write_bytes(payload)
+        (stage / 'manifest.jsonld').write_bytes(canonical(manifest))
+        # Verify persisted bytes before publishing the complete directory.
+        persisted = load_json((stage / 'manifest.jsonld').read_text(encoding='utf-8'))
+        restored = []
+        for segment in persisted['segments']:
+            payload = (stage / segment['file']).read_bytes()
+            if sha256(payload) != segment['sha256'] or len(payload) != segment['bytes']:
+                raise ValueError('Staged passage checksum mismatch')
+            restored.append(load_json(payload.decode())['text'].encode())
+        if sha256(b''.join(restored)) != persisted['source']['sha256']:
+            raise ValueError('Staged source reconstruction mismatch')
+        no_symlinks(output)
+        # Linux renameat2 provides atomic publication with a kernel-enforced
+        # no-replace condition, including a concurrently created empty directory.
+        # Fail closed if unavailable; ordinary rename can overwrite that directory.
+        libc = ctypes.CDLL(None, use_errno=True)
+        rename = getattr(libc, 'renameat2', None)
+        if rename is None:
+            raise OSError('Atomic no-replace directory publication requires renameat2')
+        rename.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint]
+        rename.restype = ctypes.c_int
+        if rename(-100, os.fsencode(stage), -100, os.fsencode(output), 1):
+            error = ctypes.get_errno()
+            raise OSError(error, os.strerror(error), str(output))
+    finally:
+        if stage.exists():
+            shutil.rmtree(stage)
     return manifest
 
 
