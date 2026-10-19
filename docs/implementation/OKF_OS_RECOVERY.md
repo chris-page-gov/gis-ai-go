@@ -122,8 +122,9 @@ Both sampled methods were Interpolated Bridge. This demonstrates an ODN-height
 retrieval route, not direct survey accuracy, bridge clearance, instantaneous sea
 level or a complete area dataset. Building v4 and Pavement Link v1 requests also
 returned two features each, with the selected height/quality/date and width fields
-present and non-null. All three had next-page links. Their bodies and receipts
-remain private under `artifacts/okf-plus/private-ngd-samples/`.
+present and non-null. All three had next-page links. Their receipts remain private under `artifacts/okf-plus/private-ngd-samples/`;
+raw bodies are disposed only after complete sample profiling and verified
+knowledge-file publication, or preserved when publication cannot complete.
 
 The captured Road Link definition confirms non-null 3D LineString geometry.
 `heightingmethod` describes its origin and derivation; the separate code list
@@ -166,8 +167,28 @@ is a candidate identity bridge. OSID is not a TOID; NGD Building has no establis
 direct TOID mapping in this review. Compare exact identity, feature grain, source
 version/time, CRS, units, datum, measurement definitions and quality before
 claiming agreement or disagreement. Legacy and NGD chimney rules already differ.
-Route comparisons and candidate OS support notes are drafts for review; no
-external message or definitive cross-product equivalence is implied.
+A bounded live comparison retrieved two identical native WFS road IDs through
+full-record and projected requests. `RoadWidthAverage`, `RoadWidthMinimum` and
+`RoadWidthConfidenceLevel` agreed for both records. Including `SHAPE` in the
+projection reduced the response from 4,668 to 2,084 bytes; mandatory extra fields
+remained. This is measured agreement within WFS, not statistical confidence or
+proof of WFS/NGD semantic equivalence. WFS numeric widths were strings, reinforcing
+the need to preserve native types.
+
+The same-bbox WFS projection omitting `SHAPE` returned HTTP 200 but malformed
+GeoJSON; full-record and geometry-including controls parsed normally. Separately,
+NGD `IN` returned 500 while equivalent equality-OR selection returned both records.
+Private unsent support drafts preserve sanitised exact calls, source references,
+response hashes, parser/status observations and methodology. These are candidate
+issues with bounded reproduction, not a conclusion that every collection fails.
+Valid comparison payloads were fully profiled and discarded; evidence receipts,
+small knowledge files and minimum diagnostic excerpts remain private.
+
+Use evidence status rather than an invented numerical confidence: documented
+capability, observed behaviour, corroborated within a controlled comparison, or
+unresolved equivalence. Agreement from a shared provider backend is not independent
+validation. Route comparisons and candidate OS support notes are drafts for review;
+no external message or definitive cross-product equivalence is implied.
 
 ## Run and resume
 
@@ -217,8 +238,9 @@ buy storage or select a cloud account implicitly.
 
 ## Remaining completion gates
 
-1. Finish the configured package-version and frozen documentation inventories;
-   retain exact coverage, failures and unknown denominators in their checkpoints.
+1. The configured package-version inventory is complete. Finish the frozen
+   documentation traversal; retain exact coverage, failures and unknown
+   denominators in their checkpoints.
 2. Establish useful current-release coverage separately from historical and
    repeated package entries; size bounded transient staging and processing,
    retain semantic findings/recipes and verify feature-payload disposal.
@@ -235,7 +257,7 @@ source-backed explanations and honest retrieval/derivation limits.
 
 ## Local verification and integration
 
-The affected Python discovery run passed all 240 tests. Complete offline OKF+
+The affected Python discovery run passed all 306 tests. Complete offline OKF+
 verification passed source/import consistency, the 30,833-record build, the declared
 retrieval corpus, all-record consumer-schema validation, whole-corpus audit and
 four pinned-engine cases. Four existing context-required questions remain
@@ -246,5 +268,11 @@ later producer-integrity/schema edits and canonical final-source acceptance.
 
 The existing public OKF build and repository contract checks also passed. Link,
 secret and changelog checks are separate from feature or hosted acceptance.
+Oversized nested field definitions are retained as bounded, lossless canonical-JSON
+text fragments with checksum-backed manifests and child-card navigation; the full
+definition can be reconstructed exactly. Oversized statistics/navigation still
+fail closed and preserve the input. The optional transient and route-comparison
+schemas validate the corresponding producer outputs and refuse authority claims.
+
 No required CI gate, independent image derivation or deployment criterion was
 relaxed. The private acquisition continues independently of integration checks.

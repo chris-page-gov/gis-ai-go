@@ -242,6 +242,45 @@ def profile(source, output, *, format='ndjson', schema=None, recipe=None,
     return result
 
 
+def _definition_fragments(definition, path, limit):
+    """Lossless canonical JSON text parts; an oversized manifest fails closed."""
+    raw = canonical(definition)
+    whole_hash = hashlib.sha256(raw).hexdigest()
+    text = raw.decode('utf-8')
+    files, parts, start = {}, [], 0
+    while start < len(text):
+        number = len(parts) + 1
+        name = 'definition-' + whole_hash + '-part-' + str(number) + '.jsonld'
+        def encoded(end):
+            return canonical({'@context': {'okfp': PREFIXES['okfp'],
+                'text': {'@id': 'okfp:canonicalJsonText', '@type': '@json'}},
+                '@id': 'urn:sha256:' + whole_hash + ':part:' + str(number),
+                '@type': 'okfp:PrivateSchemaDefinitionPart', 'text': text[start:end]})
+        low, high, best = start + 1, len(text), None
+        while low <= high:
+            middle = (low + high) // 2
+            payload = encoded(middle)
+            if len(payload) <= limit:
+                best = middle, payload
+                low = middle + 1
+            else: high = middle - 1
+        if best is None: raise ValueError('Definition fragment cannot fit byte ceiling')
+        end, payload = best
+        files[name] = payload
+        parts.append({'file': name, 'sha256': hashlib.sha256(payload).hexdigest(), 'bytes': len(payload)})
+        start = end
+    manifest_name = 'definition-' + whole_hash + '-manifest.json'
+    manifest = {'profile': 'okf-plus-lossless-schema-definition.v1',
+        'sha256': whole_hash, 'bytes': len(raw), 'encoding': 'UTF-8',
+        'reconstruction': 'Concatenate text from ordered parts without a delimiter; parse complete JSON.',
+        'parts': parts}
+    payload = canonical(manifest)
+    if len(payload) > limit: raise ValueError('Definition manifest exceeds byte ceiling; nothing published')
+    files[manifest_name] = payload
+    return {'manifest': manifest_name, 'manifestSha256': hashlib.sha256(payload).hexdigest(),
+            'sha256': whole_hash, 'bytes': len(raw), 'nativePath': list(path)}, files
+
+
 def export_field_knowledge(profile_path, output_dir, field_identities=None, max_card_bytes=16384):
     """Publish bounded private JSON-LD cards from a complete machine profile.
 
@@ -278,8 +317,8 @@ def export_field_knowledge(profile_path, output_dir, field_identities=None, max_
     if any(not path or any(not isinstance(part,str) for part in path) for path in paths):
         raise ValueError('Invalid native field path')
     context = {**PREFIXES, **{key:{'@id':'okfp:'+key,'@type':'@json'} for key in
-        ('nativePath','statistics','declaredFieldDefinition','evidenceHashes','observedScope','rights')}}
-    payloads, entries = [], []
+        ('nativePath','statistics','declaredFieldDefinition','declaredFieldDefinitionRef','childCards','evidenceHashes','observedScope','rights')}}
+    payloads, entries, definition_files = [], [], {}
     for row, path in zip(snapshot['fields'], paths):
         mapping = identities.get(path, {})
         if isinstance(mapping,str): mapping = {'@id':mapping}
@@ -302,6 +341,15 @@ def export_field_knowledge(profile_path, output_dir, field_identities=None, max_
         if 'structuralField' in mapping: card['dcterms:references'] = {'@id':mapping['structuralField']}
         if 'collection' in mapping: card['dcterms:isPartOf'] = {'@id':mapping['collection']}
         payload = canonical(card)
+        if len(payload) > max_card_bytes and definitions.get(path) is not None:
+            reference, fragments = _definition_fragments(definitions[path], path, max_card_bytes)
+            card.pop('declaredFieldDefinition')
+            card['declaredFieldDefinitionRef'] = reference
+            card['childCards'] = [{'nativePath': list(child),
+                'file': 'field-' + hashlib.sha256(canonical(list(child))).hexdigest() + '.jsonld'}
+                for child in paths if len(child) == len(path) + 1 and child[:len(path)] == path]
+            definition_files.update(fragments)
+            payload = canonical(card)
         if len(payload) > max_card_bytes:
             raise ValueError('Complete field card exceeds byte ceiling; nothing published')
         filename = 'field-' + path_hash + '.jsonld'
@@ -312,13 +360,18 @@ def export_field_knowledge(profile_path, output_dir, field_identities=None, max_
     # The entire cohort is validated and serialised before any output is created.
     index = {'profile':'okf-plus-private-field-knowledge-index.v1','profileSha256':profile_hash,
         'inputSha256':snapshot['inputSha256'],'maxCardBytes':max_card_bytes,'fieldCount':len(entries),
-        'distribution':'private','executionAdmitted':False,'fields':entries}
+        'distribution':'private','executionAdmitted':False,'fields':entries,
+        'definitionFiles':[{'file': name, 'sha256': hashlib.sha256(payload).hexdigest(), 'bytes': len(payload)}
+            for name,payload in sorted(definition_files.items())]}
     output_dir.parent.mkdir(parents=True,exist_ok=True)
     no_symlinks(output_dir.parent)
     staged = Path(tempfile.mkdtemp(dir=output_dir.parent,prefix='.'+output_dir.name+'-staging-'))
     try:
         for entry,payload in zip(entries,payloads):
             with (staged / entry['file']).open('wb') as stream:
+                stream.write(payload);stream.flush();os.fsync(stream.fileno())
+        for name,payload in definition_files.items():
+            with (staged / name).open('wb') as stream:
                 stream.write(payload);stream.flush();os.fsync(stream.fileno())
         with (staged / 'index.json').open('wb') as stream:
             stream.write(canonical(index));stream.flush();os.fsync(stream.fileno())

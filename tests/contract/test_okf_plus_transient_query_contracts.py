@@ -55,7 +55,7 @@ class TransientQueryContracts(unittest.TestCase):
                 'receipt': before_discard, 'discarded': discarded}
 
     def test_real_synthetic_producer_outputs_and_compact_schema(self):
-        self.assertLess(self.path.stat().st_size, 24 * 1024)
+        self.assertLess(self.path.stat().st_size, 32 * 1024)
         for name, output in self.outputs().items():
             with self.subTest(producer=name):
                 self.validator.validate(output)
@@ -106,3 +106,26 @@ class TransientQueryContracts(unittest.TestCase):
             del target[keys[-1]]
             with self.subTest(producer=name, keys=keys), self.assertRaises(ValidationError):
                 self.validator.validate(output)
+
+    def test_large_schema_definition_parts_and_navigation_validate(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            with patch.object(transient_profile, 'ROOT', root):
+                source = root / 'input.ndjson'
+                source.write_text(json.dumps({'type':'Feature','properties':{'width':3}})+'\n')
+                profile_path = root / 'artifacts/profile.json'
+                transient_profile.profile(source, profile_path, schema={'properties': {
+                    'properties': {'type':'object','description':'rich definition ' * 2000,
+                        'properties':{'width':{'type':'number'}}}}})
+                destination = root / 'artifacts/knowledge'
+                index = transient_profile.export_field_knowledge(profile_path, destination)
+                self.validator.validate(index)
+                self.assertTrue(index['definitionFiles'])
+                for output_path in destination.iterdir():
+                    self.validator.validate(json.loads(output_path.read_text()))
+                parent = next(json.loads((destination / item['file']).read_text())
+                    for item in index['fields'] if item['path'] == ['properties'])
+                self.assertTrue(parent['childCards'])
+                bad = copy.deepcopy(parent)
+                del bad['declaredFieldDefinitionRef']['sha256']
+                with self.assertRaises(ValidationError): self.validator.validate(bad)

@@ -170,8 +170,39 @@
     "propertyName projection is documented here and must not be transferred to NGD without evidence."
   ],
   "unverified": [
-    "Live projection behaviour",
     "Multiple feature types in one request",
-    "Current feature type entitlement and availability"
+    "Current feature type entitlement and availability",
+    "Projection behaviour outside the bounded Road Link sample; WFS-to-NGD measurement equivalence"
+  ],
+  "liveObservations": [
+    {
+      "date": "2026-10-19",
+      "status": "observed-bounded-selection",
+      "operation": "Highways_RoadLink propertyName including SHAPE",
+      "matchedNativeIdentities": 2,
+      "fields": [
+        "RoadWidthAverage",
+        "RoadWidthMinimum",
+        "RoadWidthConfidenceLevel"
+      ],
+      "withinServiceAgreement": "2/2 exact typed values for each field against full response",
+      "fullResponseBytes": 4668,
+      "projectedResponseBytes": 2084,
+      "mandatoryExtraFieldsRetained": true,
+      "crossProductEquivalence": "not-established",
+      "privateEvidenceSha256": "af0b786abb6429af58aa6d011fd64861d8c1cfd2a6c42c966f8ec9bda0691348",
+      "limits": "Descriptive same-provider agreement only; no national coverage, independent validation or statistical confidence."
+    },
+    {
+      "date": "2026-10-19",
+      "status": "candidate-serialization-issue",
+      "operation": "Same-bbox GEOJSON projection omitting SHAPE",
+      "httpStatus": 200,
+      "jsonValid": false,
+      "controls": "Full-record and SHAPE-including projected responses parsed normally.",
+      "supportCase": "private-unsent-draft",
+      "responseSha256": "8f96146152e7f704cfe3777d4ef5255134d7f88fa9992b97e42a2a2228b6ba10",
+      "limits": "One request per variant; do not assume all products or geometries fail."
+    }
   ]
 }

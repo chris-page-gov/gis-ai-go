@@ -160,6 +160,49 @@ class TransientProfileTests(unittest.TestCase):
                 self.assertEqual(card['dcterms:references']['@id'],'https://example.org/knowledge/width')
                 self.assertEqual(card['declaredFieldDefinition'],{'type':['number','null']})
         with self.assertRaises(ValueError):module.export_field_knowledge(self.output,destination)
+    def test_oversized_container_definition_is_lossless_and_children_navigable(self):
+        import hashlib
+        self.write([self.feature(width=2)])
+        properties = {'width': {'type': 'number'}}
+        properties.update({f'absent_{n}': {'type': 'string', 'description': 'Définition précise ' * 100}
+                           for n in range(24)})
+        definition = {'type': 'object', 'properties': properties}
+        schema = {'properties': {'properties': definition}}
+        self.run_profile(schema=schema)
+        output = self.root / 'artifacts/private/cards'
+        index = module.export_field_knowledge(self.output, output, max_card_bytes=8000)
+        entry = next(x for x in index['fields'] if x['path'] == ['properties'])
+        parent = json.loads((output / entry['file']).read_text())
+        self.assertNotIn('declaredFieldDefinition', parent)
+        reference = parent['declaredFieldDefinitionRef']
+        manifest_raw = (output / reference['manifest']).read_bytes()
+        self.assertEqual(hashlib.sha256(manifest_raw).hexdigest(), reference['manifestSha256'])
+        manifest = json.loads(manifest_raw)
+        reconstructed = []
+        for part in manifest['parts']:
+            raw = (output / part['file']).read_bytes()
+            self.assertLessEqual(len(raw), 8000)
+            self.assertEqual(hashlib.sha256(raw).hexdigest(), part['sha256'])
+            reconstructed.append(json.loads(raw)['text'])
+        raw = ''.join(reconstructed).encode()
+        self.assertEqual(raw, module.canonical(definition))
+        self.assertEqual(hashlib.sha256(raw).hexdigest(), manifest['sha256'])
+        self.assertEqual(len(raw), manifest['bytes'])
+        self.assertEqual(len(parent['childCards']), len(properties))
+        width_ref = next(x for x in parent['childCards'] if x['nativePath'] == ['properties', 'width'])
+        width = json.loads((output / width_ref['file']).read_text())
+        self.assertEqual(width['declaredFieldDefinition'], properties['width'])
+        self.assertTrue(all(x['bytes'] <= 8000 for x in index['definitionFiles']))
+        self.assertTrue(self.source.exists())
+
+    def test_large_scalar_definition_fragments_preserve_order_and_enum_values(self):
+        definition = {'type': 'string', 'enum': ['value_' + str(n) + '_é' * 30 for n in range(300)]}
+        reference, files = module._definition_fragments(definition, ('status',), 4000)
+        manifest = json.loads(files[reference['manifest']])
+        text = ''.join(json.loads(files[part['file']])['text'] for part in manifest['parts'])
+        self.assertEqual(json.loads(text), definition)
+        self.assertTrue(all(len(raw) <= 4000 for raw in files.values()))
+
     def test_field_card_budget_or_bad_identity_publishes_nothing_and_preserves_profile(self):
         self.write([self.feature(width=2)])
         self.run_profile()

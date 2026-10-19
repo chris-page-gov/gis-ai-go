@@ -35,8 +35,19 @@ A complete bounded two-ID Road Link extraction returned both records in one
 request with verified EPSG:7405, then profiled all records into 90 small field
 knowledge files. Raw pages and NDJSON were removed only after profile/hash
 verification. This is a complete selected extraction, not a national full scan.
-No feature archive, new service, deployment or installed connector admission is
-claimed by this increment.
+A live refresh independently reacquired that selection and verified disposal.
+All three original example samples were completely profiled into small cards and
+their raw bodies disposed. Oversized nested schema definitions are split
+losslessly with checksum-backed manifests and child navigation. All 306 affected
+tests pass.
+
+A same-identity WFS comparison matched three width fields on both sampled roads
+between full/projected requests, reducing response bytes from 4,668 to 2,084.
+WFS-to-NGD measurement equivalence remains unassessed. Private unsent support
+drafts retain exact sanitised calls and hashes for NGD IN/OR status differences
+and malformed WFS GeoJSON when geometry is omitted from projection. No ticket was
+sent. No feature archive, new service, deployment or installed connector admission
+is claimed by this increment.
 
 Latest implementation checkpoint: bounded dependency security repairs under
 [issue #142](https://github.com/chris-page-gov/gis-ai-go/issues/142), following
