@@ -198,8 +198,9 @@ The owner extended the same recovery objective with
 [output-intent profile](../../okf-plus/profile/os-output-intents.json) records
 required geometry, units, datum, time, grain, aggregation, quality and portrayal
 understanding. VizQL and related visual query approaches are research leads,
-separate from OS NGD CQL-text and WFS; current Tableau contracts remain unverified
-because the official pages were blocked by the network tunnel.
+separate from OS NGD CQL-text and WFS; Tableau-hosted pages remain blocked, but a vendor-published OpenAPI contract
+was verified through the official GitHub repository at a pinned commit. It
+documents data/model queries; deployed service access remains unverified.
 
 `query_planner.py` accepts optional output requirements for table, map or analysis
 with explicit `native-values`, `geometry` and/or `portrayal` capability evidence.

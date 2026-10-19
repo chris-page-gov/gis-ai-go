@@ -61,7 +61,7 @@ not change against the 2 October baseline. All-collection explanation candidates
 all 94 collections now have candidate document routes, including two explicit
 source-reviewed curations. Missing documents/headings and documentation-version
 uncertainty remain explicit pending the finished capture. The latest affected
-suite passes all 346 tests, including receipt-scope, credential-metadata and
+suite passes all 349 tests, including receipt-scope, credential-metadata and
 known-failure retry regressions.
 
 New [availability reporting](docs/implementation/OS_DATA_AVAILABILITY.md) keeps
@@ -70,8 +70,9 @@ Null, zero, missing properties, empty selections, incomplete pages and denied
 requests have distinct outcomes. [Presentation research](docs/implementation/OS_RETRIEVAL_PRESENTATION_RESEARCH.md)
 and a small output-intent profile record map/table/analysis requirements and
 VizQL research. Optional planner constraints require explicit native-value,
-geometry or portrayal evidence before cost comparison. Tableau documentation was
-blocked by the current network policy; no Tableau integration is claimed.
+geometry or portrayal evidence before cost comparison. Tableau-hosted pages remain blocked, but its vendor GitHub OpenAPI contract
+was inspected at a pinned commit. It documents data/model queries rather than a
+rendering endpoint; no Tableau service integration is claimed.
 
 Latest implementation checkpoint: bounded dependency security repairs under
 [issue #142](https://github.com/chris-page-gov/gis-ai-go/issues/142), following

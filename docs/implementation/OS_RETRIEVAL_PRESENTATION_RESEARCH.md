@@ -39,7 +39,7 @@ chart, query arbitrary OS APIs, or expose an OS endpoint called VizQL. A Tableau
 integration would introduce its own deployed datasource, authentication,
 permissions, semantic model and possible licensing constraints.
 
-Current official documentation could not be inspected in this environment.
+The initial official Tableau-hosted documentation requests could not be inspected.
 Three bounded unauthenticated requests to official Tableau locations were
 rejected by the network tunnel with HTTP 403 before content retrieval:
 
@@ -47,10 +47,68 @@ rejected by the network tunnel with HTTP 403 before content retrieval:
 - `https://help.tableau.com/current/api/vizql-data-service/en-us/docs/vds_get_started.html`
 - `https://help.tableau.com/current/api/vizql-data-service/en-us/docs/vds_overview.html`
 
-These are research leads, not verified current documentation URLs or captured
-API contracts. The working description above is not implementation authority.
-Do not infer product availability, request shape, feature access or entitlement
-from it. No credential, Tableau account, paid service or connector was used.
+These remain unverified Tableau-hosted URL leads. The follow-up vendor GitHub
+review below supplies a published API contract; it does not verify those URLs or
+any deployed service. No Tableau credential, account, paid service or connector
+was used.
+
+### Vendor GitHub follow-up: inspected contract
+
+Eight bounded public GitHub read calls identified the Tableau-owned
+[tableau/VizQL-Data-Service](https://github.com/tableau/VizQL-Data-Service) repository.
+The inspected commit is
+[`f0ec79951be3d0c59dbc2e9503fdcc453530c8d9`](https://github.com/tableau/VizQL-Data-Service/commit/f0ec79951be3d0c59dbc2e9503fdcc453530c8d9).
+The commit's tree was checked against the inspected blob identities. Files were
+read as evidence; no SDK, sample, repository instruction or remote code ran. Decoded
+blob bytes and a retrieval/verification record are retained privately under
+`artifacts/okf-plus/private-vizql-research/20261019/`, including the licence.
+The record distinguishes decoded blob evidence from an unretained HTTP envelope.
+
+| Pinned file | Git blob SHA1 | Body SHA256 |
+| --- | --- | --- |
+| [README.md](https://github.com/tableau/VizQL-Data-Service/blob/f0ec79951be3d0c59dbc2e9503fdcc453530c8d9/README.md) | `da7f1a25da497ffdd02c9085d7fccc3d633a80f2` | `b914c078a3ef3d75c10ae5f89b7a96eb800794c21780947e8e89444fb5b374ac` |
+| [VizQLDataServiceOpenAPISchema.json](https://github.com/tableau/VizQL-Data-Service/blob/f0ec79951be3d0c59dbc2e9503fdcc453530c8d9/VizQLDataServiceOpenAPISchema.json) | `1b4e2c12a30b678f4a97c259785cf143aa0c94c5` | `12d5d7f2f54c2eed7b66b0f0d049ff750c3b46c0e650893c779516a249016247` |
+| [LICENSE.txt](https://github.com/tableau/VizQL-Data-Service/blob/f0ec79951be3d0c59dbc2e9503fdcc453530c8d9/LICENSE.txt) | `63cbbd63f3d03c5187c9ee1258333d423596d8e3` | `a0f6ca149df543190889494675b6da6794bfdd13c23782297eb5797842c00faa` |
+| [python_sdk/src/api/client.py](https://github.com/tableau/VizQL-Data-Service/blob/f0ec79951be3d0c59dbc2e9503fdcc453530c8d9/python_sdk/src/api/client.py) | `59262e215d5767a1c353c7024b03d2f284c6c569` | `447ba9dc5a84ef03c51f33ad9830adc1663145f150302a4e4aac4b0726890641` |
+
+The README explicitly identifies the vendor-published schema and SDK. The licence
+is Apache 2.0, copyright Salesforce; this record paraphrases source facts without
+copying implementation code. Repository licensing does not supply a Tableau
+service licence, OS data entitlement or recipient permission.
+
+The schema `/info` describes an API for Tableau published data sources, version
+`20263.0`; `/servers/0/url` is `/api/v1/vizql-data-service`. Relevant JSON pointers:
+
+| Method and relative path | Request/response contract |
+| --- | --- |
+| `POST /read-metadata` | `ReadMetadataRequest` requires `datasource`; optional `options`. Response `MetadataOutput` has `data` field metadata and optional `extraData` for parameters/calendar properties. |
+| `POST /query-datasource` | `QueryRequest` requires `datasource` and `query`; optional `options`. `Query` requires `fields`; optional `filters` and `parameters`. JSON response `QueryOutput` advertises `data` array and `error` object; the operation also advertises `text/event-stream` with `SseResultStream`. |
+| `POST /get-datasource-model` | Returns `DatasourceModelOutput`: logical tables and their relationships. This is model metadata, not an OS identity crosswalk. |
+| `POST /list-supported-functions` | Requires `ListSupportedFunctionRequest`; response is an array of supported functions. |
+| `POST /user-has-query-permissions` | Checks the calling user's datasource query permissions; response `QueryPermissionsOutput`. |
+| `GET /simple-request` | Advertises a string JSON response and an empty operation security array. This exception is not anonymous datasource query access. |
+
+Operation pointers are `/paths/~1read-metadata/post`,
+`/paths/~1query-datasource/post` and corresponding escaped paths; definitions are
+under `/components/schemas/<name>`. `/components/securitySchemes/XTableauAuth`
+defines the `X-Tableau-Auth` header, inherited through top-level `/security` except
+where overridden. Reading this contract did not authenticate to Tableau.
+
+`Datasource` advertises `datasourceLuid`, `workbookDatasourceId` and connections;
+the LUID description includes published or workbook data sources. Do not reduce
+the inspected version to only one source mode. `FieldMetadata` distinguishes
+logical `fieldName`, presentation `fieldCaption`, datatype, role/type, default
+aggregation, formulas, logical-table identity, formatting, hidden state and other
+metadata. Options can request remote database names. These are useful modelling
+lessons: retain logical/native identity separately from labels and aggregation.
+They do not establish geographic CRS, vertical datum or OS field equivalence.
+
+No image, map-tile or chart-rendering operation is advertised by this schema.
+The defensible conclusion is a documented data/model query service with structured
+fields and filters, not a demonstrated renderer. The contract is stronger evidence
+than the earlier background description, but actual deployed versions, permissions,
+licensing, source connections and geospatial behaviour remain unverified. No
+VizQL service endpoint was called.
 
 The useful architectural question is whether a declarative output intent can
 help the existing planner select a source route and deterministic transformations.
@@ -101,10 +159,10 @@ families, not claims of identical source coverage or fields.
 
 ## Research backlog and acceptance
 
-1. Inspect accessible official Tableau documentation and pin product/version,
-   endpoint and response contracts, including rendering versus data-query scope.
-   Acceptance: retrievable official evidence, source hashes and an explicit
-   decision whether Tableau adds value without a new paid dependency.
+1. Vendor GitHub contract inspection is complete for the pinned version above.
+   Review deployment/licensing and the architectural value before proposing any
+   Tableau route. Acceptance: explicit decision whether it adds value without a
+   new paid dependency; no OS API equivalence or renderer inferred from the schema.
 2. Extend the initial evidence-constrained planner output-intent contract: map, table, chart, profile and machine export;
    requested fields, population, transformations, fidelity and rights. Acceptance:
    planner fixtures show different route candidates for the same question's map

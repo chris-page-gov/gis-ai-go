@@ -195,6 +195,56 @@ class TransientProfileTests(unittest.TestCase):
         self.assertTrue(all(x['bytes'] <= 8000 for x in index['definitionFiles']))
         self.assertTrue(self.source.exists())
 
+    def test_native_http_schema_iris_and_link_prose_are_inert_lossless_metadata(self):
+        self.write([self.feature(width=2)])
+        description = ('Definition refers to http://www.opengis.net/def/crs/EPSG/0/27700 '
+                       'and https://example.org/guide?section=width for context. ' * 180)
+        definition = {'type': 'number', 'description': description,
+                      '$schema': 'http://json-schema.org/draft-07/schema#'}
+        schema = {'$schema': 'http://json-schema.org/draft-07/schema#',
+                  'description': 'Basic properties: read https://example.org/schema and retain the native definition.',
+                  'properties': {'properties': {'type': 'object', 'properties': {'width': definition}}}}
+        result = self.run_profile(schema=schema)
+        self.assertEqual(result['declaredSchema'], schema)
+        output = self.root / 'artifacts/private/cards'
+        index = module.export_field_knowledge(self.output, output, max_card_bytes=8000)
+        entry = next(x for x in index['fields'] if x['path'] == ['properties', 'width'])
+        card = json.loads((output / entry['file']).read_text())
+        manifest = json.loads((output / card['declaredFieldDefinitionRef']['manifest']).read_text())
+        restored = ''.join(json.loads((output / part['file']).read_text())['text']
+                           for part in manifest['parts'])
+        self.assertEqual(restored.encode(), module.canonical(definition))
+        self.assertEqual(json.loads(restored)['description'], description)
+        self.assertTrue(all(item['bytes'] <= 8000 for item in index['definitionFiles']))
+        self.assertTrue(self.source.exists())
+
+    def test_embedded_credentials_are_rejected_without_echoing_material(self):
+        self.write([self.feature(width=2)])
+        secret = 'SYNTHETIC-CREDENTIAL-NEVER-ECHO'
+        hostile = [
+            'See https://example.org/path?key=' + secret + ' for notes.',
+            'See http://user:' + secret + '@example.org/path.',
+            'See https://example.org/path?a=1&amp;X-Amz-Signature=' + secret,
+            'See https://example.org/path?%256bey=' + secret,
+            'Authorization: Bearer ' + secret,
+            'Authorization: Basic U1lOVEhFVElDOkNSRURFTlRJQUw=',
+        ]
+        for text in hostile:
+            with self.subTest(case=hostile.index(text)):
+                with self.assertRaises(ValueError) as caught:
+                    self.run_profile(schema={'description': text})
+                self.assertNotIn(secret, str(caught.exception))
+                self.assertNotIn('U1lOVEhFVElDOkNSRURFTlRJQUw=', str(caught.exception))
+                self.assertFalse(self.output.exists())
+                self.assertTrue(self.source.exists())
+        with self.assertRaises(ValueError):
+            module.checked_metadata({'access_token': secret})
+        # Metadata support for HTTP does not relax executable identity mappings.
+        self.run_profile(schema={'$schema': 'http://json-schema.org/draft-07/schema#'})
+        with self.assertRaises(ValueError):
+            module.export_field_knowledge(self.output, self.root / 'artifacts/private/unsafe-map',
+                {('properties', 'width'): 'http://example.org/field'})
+
     def test_large_scalar_definition_fragments_preserve_order_and_enum_values(self):
         definition = {'type': 'string', 'enum': ['value_' + str(n) + '_é' * 30 for n in range(300)]}
         reference, files = module._definition_fragments(definition, ('status',), 4000)

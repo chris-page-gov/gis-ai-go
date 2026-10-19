@@ -179,14 +179,127 @@
   ],
   "research": {
     "VizQL": "Tableau visual-query technology; conceptual background, current official documentation not verified.",
-    "VizQLDataService": "Separate Tableau data-query facility; not an OS API or an assumed renderer.",
-    "officialFetchStatus": "Three unauthenticated Tableau research leads blocked by network tunnel HTTP403 before content retrieval.",
-    "nextEvidence": "Pin accessible official documentation/contracts before any product-specific integration.",
-    "record": "docs/implementation/OS_RETRIEVAL_PRESENTATION_RESEARCH.md"
+    "VizQLDataService": "Vendor-published Tableau data/model query contract inspected; no renderer operation advertised, no OS API relationship inferred.",
+    "officialFetchStatus": "Tableau-hosted leads blocked by tunnel HTTP403; official Tableau GitHub contract read successfully in eight public read calls.",
+    "nextEvidence": "Evaluate deployment/version/licensing and architectural benefit before any service integration.",
+    "record": "docs/implementation/OS_RETRIEVAL_PRESENTATION_RESEARCH.md",
+    "vendorSources": [
+      {
+        "repository": "tableau/VizQL-Data-Service",
+        "commit": "f0ec79951be3d0c59dbc2e9503fdcc453530c8d9",
+        "path": "README.md",
+        "gitBlobSha1": "da7f1a25da497ffdd02c9085d7fccc3d633a80f2",
+        "bodySha256": "b914c078a3ef3d75c10ae5f89b7a96eb800794c21780947e8e89444fb5b374ac",
+        "url": "https://github.com/tableau/VizQL-Data-Service/blob/f0ec79951be3d0c59dbc2e9503fdcc453530c8d9/README.md",
+        "status": "vendor-source-inspected-no-service-invocation"
+      },
+      {
+        "repository": "tableau/VizQL-Data-Service",
+        "commit": "f0ec79951be3d0c59dbc2e9503fdcc453530c8d9",
+        "path": "LICENSE.txt",
+        "gitBlobSha1": "63cbbd63f3d03c5187c9ee1258333d423596d8e3",
+        "bodySha256": "a0f6ca149df543190889494675b6da6794bfdd13c23782297eb5797842c00faa",
+        "url": "https://github.com/tableau/VizQL-Data-Service/blob/f0ec79951be3d0c59dbc2e9503fdcc453530c8d9/LICENSE.txt",
+        "status": "vendor-source-inspected-no-service-invocation"
+      },
+      {
+        "repository": "tableau/VizQL-Data-Service",
+        "commit": "f0ec79951be3d0c59dbc2e9503fdcc453530c8d9",
+        "path": "VizQLDataServiceOpenAPISchema.json",
+        "gitBlobSha1": "1b4e2c12a30b678f4a97c259785cf143aa0c94c5",
+        "bodySha256": "12d5d7f2f54c2eed7b66b0f0d049ff750c3b46c0e650893c779516a249016247",
+        "url": "https://github.com/tableau/VizQL-Data-Service/blob/f0ec79951be3d0c59dbc2e9503fdcc453530c8d9/VizQLDataServiceOpenAPISchema.json",
+        "status": "vendor-source-inspected-no-service-invocation"
+      },
+      {
+        "repository": "tableau/VizQL-Data-Service",
+        "commit": "f0ec79951be3d0c59dbc2e9503fdcc453530c8d9",
+        "path": "python_sdk/src/api/client.py",
+        "gitBlobSha1": "59262e215d5767a1c353c7024b03d2f284c6c569",
+        "bodySha256": "447ba9dc5a84ef03c51f33ad9830adc1663145f150302a4e4aac4b0726890641",
+        "url": "https://github.com/tableau/VizQL-Data-Service/blob/f0ec79951be3d0c59dbc2e9503fdcc453530c8d9/python_sdk/src/api/client.py",
+        "status": "vendor-source-inspected-no-service-invocation"
+      }
+    ],
+    "vendorContract": {
+      "schemaPath": "VizQLDataServiceOpenAPISchema.json",
+      "version": "20263.0",
+      "basePath": "/api/v1/vizql-data-service",
+      "auth": {
+        "pointer": "/components/securitySchemes/XTableauAuth",
+        "header": "X-Tableau-Auth",
+        "scope": "Inherited top-level security; simple-request explicitly overrides to anonymous."
+      },
+      "operations": [
+        {
+          "method": "POST",
+          "path": "/read-metadata",
+          "pointer": "/paths/~1read-metadata/post"
+        },
+        {
+          "method": "POST",
+          "path": "/query-datasource",
+          "pointer": "/paths/~1query-datasource/post"
+        },
+        {
+          "method": "POST",
+          "path": "/get-datasource-model",
+          "pointer": "/paths/~1get-datasource-model/post"
+        },
+        {
+          "method": "POST",
+          "path": "/list-supported-functions",
+          "pointer": "/paths/~1list-supported-functions/post"
+        },
+        {
+          "method": "POST",
+          "path": "/user-has-query-permissions",
+          "pointer": "/paths/~1user-has-query-permissions/post"
+        },
+        {
+          "method": "GET",
+          "path": "/simple-request",
+          "pointer": "/paths/~1simple-request/get"
+        }
+      ],
+      "query": {
+        "required": [
+          "datasource",
+          "query"
+        ],
+        "queryRequired": [
+          "fields"
+        ],
+        "queryOptional": [
+          "filters",
+          "parameters"
+        ],
+        "requestDefinition": "/components/schemas/QueryRequest",
+        "responseDefinition": "/components/schemas/QueryOutput",
+        "responseMediaTypes": [
+          "application/json",
+          "text/event-stream"
+        ],
+        "scope": "Tableau published/workbook datasource model, fields and data; no advertised rendering operation."
+      },
+      "license": "Apache-2.0; source facts paraphrased; service and OS licensing independent.",
+      "understandingLessons": [
+        "Separate fieldName from fieldCaption",
+        "Preserve datatype, role/type, default aggregation and formulas",
+        "Preserve logical-table relationships without inferring OS identity equivalence"
+      ],
+      "unverified": [
+        "Deployed service version",
+        "Actual authentication and project permissions",
+        "Datasource connections",
+        "Service licence",
+        "Geospatial/CRS/height handling"
+      ]
+    }
   },
   "limitations": [
     "Recommendations are not tested renderers or executable provider grants.",
-    "No Tableau account, entitlement, paid service or current API contract established.",
-    "No finite visualisation list proves every conceivable question answerable."
+    "No finite visualisation list proves every conceivable question answerable.",
+    "Vendor API contract inspected; no deployed Tableau service, account, entitlement or geospatial conformance established."
   ]
 }

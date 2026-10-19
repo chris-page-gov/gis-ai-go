@@ -219,6 +219,9 @@ class QueryPlannerTests(unittest.TestCase):
         secret = 'SYNTHETIC-CREDENTIAL-NOT-A-REAL-KEY'
         cases = [({'headers':{'key':secret}}, None),
                  ({'headers':{'Authorization':'Bearer '+secret}}, None),
+                 ({'headers':{'X-Tableau-Auth':secret}}, None),
+                 ({'headers':{'X-API-Key':secret}}, None),
+                 ({'url':'https://storage.invalid/file?sig='+secret}, None),
                  ({'url':'https://api.os.uk/synthetic?key='+secret}, None),
                  ({'url':'https://user:'+secret+'@api.os.uk/synthetic'}, None),
                  ({'path':'/synthetic'}, 'https://evidence.invalid/?client_secret='+secret)]

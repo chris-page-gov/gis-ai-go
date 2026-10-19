@@ -30,7 +30,8 @@ OUTPUT_CAPABILITIES = {'native-values', 'geometry', 'portrayal'}
 
 
 CREDENTIAL_NAMES = {'key', 'apikey', 'token', 'accesstoken', 'authorization',
-                    'password', 'secret', 'clientsecret', 'signature', 'sig', 'sastoken', 'credential'}
+                    'password', 'secret', 'clientsecret', 'signature', 'sig', 'sastoken', 'credential',
+                    'xapikey', 'xtableauauth', 'xauthtoken', 'cookie', 'setcookie'}
 
 
 def _credential_free(value, depth=0):

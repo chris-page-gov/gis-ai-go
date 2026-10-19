@@ -20,6 +20,29 @@ class OutputIntentTests(unittest.TestCase):
         self.assertTrue(all(item['status'] == 'recommendation' and item['requires'] and
                             item['rejectAssumption'] for item in intents.values()))
 
+    def test_tableau_research_uses_pinned_vendor_sources_without_service_grant(self):
+        profile = json.loads((ROOT / 'okf-plus/profile/os-output-intents.json').read_text())
+        research = profile['research']
+        sources = research['vendorSources']
+        self.assertEqual(len(sources), 4)
+        commits = {source['commit'] for source in sources}
+        self.assertEqual(len(commits), 1)
+        for source in sources:
+            self.assertEqual(source['repository'], 'tableau/VizQL-Data-Service')
+            self.assertRegex(source['commit'], r'^[a-f0-9]{40}$')
+            self.assertRegex(source['gitBlobSha1'], r'^[a-f0-9]{40}$')
+            self.assertRegex(source['bodySha256'], r'^[a-f0-9]{64}$')
+            self.assertEqual(source['url'], 'https://github.com/' + source['repository'] +
+                '/blob/' + source['commit'] + '/' + source['path'])
+            self.assertEqual(source['status'], 'vendor-source-inspected-no-service-invocation')
+        contract = research['vendorContract']
+        self.assertEqual(contract['auth']['header'], 'X-Tableau-Auth')
+        self.assertIn('text/event-stream', contract['query']['responseMediaTypes'])
+        self.assertIn('fields', contract['query']['queryRequired'])
+        self.assertTrue(contract['unverified'])
+        self.assertFalse(profile['policy']['executionAdmitted'])
+        self.assertFalse(profile['policy']['rendererImplemented'])
+
     def test_evidence_matches_committed_source_and_successful_capture_receipt(self):
         profile = json.loads((ROOT / 'okf-plus/profile/os-output-intents.json').read_text())
         for item in profile['evidence']:

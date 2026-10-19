@@ -5,14 +5,18 @@ Input deletion is opt-in, restricted to ignored artefacts, after complete succes
 """
 from __future__ import annotations
 import argparse
+import base64
 import ctypes
 import hashlib
+import html
 import json
 import math
 import os
+import re
 import shutil
 import tempfile
 from pathlib import Path
+from urllib.parse import parse_qsl, unquote, urlsplit
 
 try:
     from .model import canonical, load_json, safe_reference, PREFIXES
@@ -24,18 +28,55 @@ except ImportError:
 ROOT = Path(__file__).resolve().parents[2]
 
 
+CREDENTIAL_NAMES = {'key', 'apikey', 'token', 'accesstoken', 'authorization',
+    'password', 'secret', 'clientsecret', 'signature', 'sig', 'credential',
+    'xamzsignature', 'xamzcredential', 'xgoogsignature', 'xgoogcredential', 'awsaccesskeyid'}
+
+
+def _credential_name(value):
+    return re.sub('[^a-z0-9]', '', unquote(unquote(value)).lower())
+
+
 def checked_metadata(value):
-    """Recipes/schema are metadata, never credentials or executable instructions."""
+    """Keep native IRIs/prose inert and intact; reject embedded credentials.
+
+    This check admits no retrieval. Strict HTTPS safe_reference remains separate
+    for field identity mappings. HTTP schema/ontology IRIs are metadata only.
+    """
     if isinstance(value, dict):
         for key, item in value.items():
-            if ''.join(c for c in key.lower() if c.isalnum()) in {
-                'key', 'apikey', 'token', 'authorization', 'password', 'secret', 'clientsecret'}:
+            if _credential_name(key) in CREDENTIAL_NAMES:
                 raise ValueError('Credential metadata is forbidden')
             checked_metadata(item)
     elif isinstance(value, list):
         for item in value: checked_metadata(item)
-    elif isinstance(value, str) and '://' in value:
-        safe_reference(value)
+    elif isinstance(value, str):
+        for authentication in re.finditer(r'\b(Bearer|Basic)\s+([A-Za-z0-9._~+/=-]+)', value, re.I):
+            scheme, material = authentication.groups()
+            explicit_header = re.search(r'authorization\s*:\s*$', value[:authentication.start()], re.I)
+            basic_credentials = False
+            if scheme.lower() == 'basic':
+                try:
+                    basic_credentials = b':' in base64.b64decode(material, validate=True)
+                except ValueError:
+                    pass
+            if scheme.lower() == 'bearer' or explicit_header or basic_credentials:
+                raise ValueError('Credential authentication text is forbidden')
+        # Inspect URL tokens, not the entire annotation. HTML decoding is only
+        # for inspection; callers receive the exact original metadata unchanged.
+        text = html.unescape(value)
+        for match in re.finditer(r'[A-Za-z][A-Za-z0-9+.-]*://[^\s<>"\'`]+', text):
+            token = match.group().rstrip('.,;)]}')
+            try:
+                parsed = urlsplit(token)
+                if parsed.username is not None or parsed.password is not None:
+                    raise ValueError('Credential URL metadata is forbidden')
+                if any(_credential_name(key) in CREDENTIAL_NAMES
+                       for key, _ in parse_qsl(parsed.query, keep_blank_values=True)):
+                    raise ValueError('Credential URL metadata is forbidden')
+            except ValueError:
+                # Parser errors can include input text; never propagate them.
+                raise ValueError('Unsafe or credential-bearing metadata URL') from None
     return value
 
 
