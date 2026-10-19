@@ -54,8 +54,10 @@ objective alongside annotations. Accessible documentation traversal, fresh
 collection queryability/schema checks, broad explanation linking and canonical
 assurance remain active; this checkpoint does not mark those tasks complete.
 All 94 current queryables endpoints were freshly captured as private metadata,
-with 840 small property cards plus 94 collection cards. Current schema capture
-is in progress. All-collection explanation candidates now cover all 2,915 fields;
+with 840 small property cards plus 94 collection cards. Current schema capture also completed for all 94 collections: 188 total
+successful metadata requests, complete native definitions retained, with 3,755
+small property cards across the two lanes. Comparable retained definitions did
+not change against the 2 October baseline. All-collection explanation candidates now cover all 2,915 fields;
 initial results retain missing documents/headings, ambiguous routes and version
 uncertainty explicitly, pending the finished documentation run.
 

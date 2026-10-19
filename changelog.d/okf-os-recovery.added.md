@@ -1,12 +1,10 @@
-- Added private resumable OS package/documentation inventory, lossless small
-  explanatory passages, independently retrievable native field cards and explicit
-  API-versus-download estimates. Existing OKF+ search now retains native field
-  metadata. Catalogue coverage, semantic completeness and live retrieval remain
-  separate evidence gates; licensed/account payloads remain outside publication.
-  Added bounded transient extraction, complete-selection profiling and verified
-  disposal, field-aware query planning and private route-comparison support
-  drafts. Query capability evidence distinguishes NGD filtering from WFS field
-  projection; national archive processing remains a separate fill-in scope.
-  Added evidence-based scoped availability reporting and presentation constraints
-  for map, table and analytical retrieval; logged VizQL research and required
-  geometry, field, temporal, aggregation, quality and portrayal metadata.
+- Added small native field cards and lossless explanatory passages, retaining
+  field metadata in OKF+ search. Added bounded private OS inventory and transient
+  extraction, complete-selection profiling, verified payload disposal, field-aware
+  API/download planning and acquisition/processing estimates. Query evidence
+  distinguishes NGD filtering from WFS projection; scoped availability separates
+  access, expectation, observations and completion. Added map/table constraints,
+  VizQL research, all-field candidate explanation links and private unsent support
+  drafts. A bounded unattended supervisor verifies frozen sources and captured
+  evidence before final exports. Missing semantics, known failures and archive
+  fill-in remain explicit; credentials and licensed payloads remain unpublished.

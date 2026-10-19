@@ -1,0 +1,267 @@
+{
+ "type": "object",
+ "required": [
+  "profile",
+  "distribution",
+  "execution",
+  "sourceHEAD",
+  "status",
+  "counts",
+  "phases",
+  "outputDirectory",
+  "maxWallSeconds",
+  "workspaceSurvivalGuaranteed",
+  "elapsedSeconds"
+ ],
+ "properties": {
+  "profile": {
+   "const": "okf-plus-private-recovery-supervisor.v1"
+  },
+  "distribution": {
+   "const": "private"
+  },
+  "execution": {
+   "const": "fixed-documentation-recovery-only"
+  },
+  "sourceHEAD": {
+   "type": "string",
+   "pattern": "^[a-f0-9]{40,64}$"
+  },
+  "status": {
+   "enum": [
+    "starting",
+    "waiting_writer",
+    "capturing",
+    "capture",
+    "auditing",
+    "audit",
+    "exporting_field_cards",
+    "field_cards",
+    "exporting_field_passages",
+    "field_passages",
+    "finished_partial",
+    "finished_complete",
+    "blocked",
+    "failed",
+    "wall_budget"
+   ]
+  },
+  "counts": {
+   "anyOf": [
+    {
+     "type": "null"
+    },
+    {
+     "type": "object",
+     "required": [
+      "requested",
+      "processed",
+      "captured",
+      "failed",
+      "unresolved"
+     ],
+     "properties": {
+      "requested": {
+       "type": "integer",
+       "minimum": 0
+      },
+      "processed": {
+       "type": "integer",
+       "minimum": 0
+      },
+      "captured": {
+       "type": "integer",
+       "minimum": 0
+      },
+      "failed": {
+       "type": "integer",
+       "minimum": 0
+      },
+      "unresolved": {
+       "type": "integer",
+       "minimum": 0
+      }
+     }
+    }
+   ]
+  },
+  "phases": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "phase",
+     "sourceHEAD"
+    ],
+    "properties": {
+     "phase": {
+      "enum": [
+       "capture",
+       "audit",
+       "field_cards",
+       "field_passages"
+      ]
+     },
+     "sourceHEAD": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{40,64}$"
+     },
+     "counts": {
+      "type": "object",
+      "required": [
+       "requested",
+       "processed",
+       "captured",
+       "failed",
+       "unresolved"
+      ],
+      "properties": {
+       "requested": {
+        "type": "integer",
+        "minimum": 0
+       },
+       "processed": {
+        "type": "integer",
+        "minimum": 0
+       },
+       "captured": {
+        "type": "integer",
+        "minimum": 0
+       },
+       "failed": {
+        "type": "integer",
+        "minimum": 0
+       },
+       "unresolved": {
+        "type": "integer",
+        "minimum": 0
+       }
+      }
+     },
+     "stopReason": {
+      "type": [
+       "string",
+       "null"
+      ]
+     },
+     "verifiedCaptured": {
+      "type": "integer",
+      "minimum": 0
+     },
+     "rawChecksumsVerified": {
+      "const": true
+     },
+     "passageReconstructionVerified": {
+      "const": true
+     },
+     "cards": {
+      "type": "integer",
+      "minimum": 0
+     },
+     "indexSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+     },
+     "candidateOnly": {
+      "const": true
+     },
+     "allCollections": {
+      "const": true
+     }
+    }
+   }
+  },
+  "outputDirectory": {
+   "type": "string",
+   "pattern": "^artifacts/okf-plus/private-recovery-supervisor/run-[a-f0-9]{32}$"
+  },
+  "maxWallSeconds": {
+   "type": "integer",
+   "minimum": 1,
+   "maximum": 86400
+  },
+  "workspaceSurvivalGuaranteed": {
+   "const": false
+  },
+  "elapsedSeconds": {
+   "type": "number",
+   "minimum": 0
+  },
+  "stopReason": {
+   "type": "string",
+   "minLength": 1
+  },
+  "errorType": {
+   "type": "string",
+   "minLength": 1
+  },
+  "sourceScopeComplete": {
+   "type": "boolean"
+  }
+ },
+ "additionalProperties": false,
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "urn:gis-ai-go:okf-plus:recovery-supervisor:v1",
+ "title": "Private bounded recovery supervisor receipt v1",
+ "description": "Optional structural assurance only. Fixed approved documentation capture and metadata export are execution scope; no source execution, feature acquisition, publication or workspace survival is granted.",
+ "allOf": [
+  {
+   "if": {
+    "properties": {
+     "status": {
+      "const": "finished_complete"
+     }
+    }
+   },
+   "then": {
+    "properties": {
+     "counts": {
+      "type": "object",
+      "properties": {
+       "failed": {
+        "const": 0
+       },
+       "unresolved": {
+        "const": 0
+       }
+      }
+     }
+    },
+    "required": [
+     "sourceScopeComplete"
+    ]
+   }
+  },
+  {
+   "if": {
+    "properties": {
+     "status": {
+      "const": "finished_partial"
+     }
+    }
+   },
+   "then": {
+    "properties": {
+     "counts": {
+      "type": "object",
+      "properties": {
+       "failed": {
+        "type": "integer",
+        "minimum": 1
+       },
+       "unresolved": {
+        "const": 0
+       }
+      }
+     },
+     "sourceScopeComplete": {
+      "const": false
+     }
+    },
+    "required": [
+     "sourceScopeComplete"
+    ]
+   }
+  }
+ ]
+}

@@ -223,6 +223,25 @@ It creates candidate links rather than asserting current documentation applies t
 older collection versions. Every explanation reference file is bounded to 16 KB,
 with lossless manifests when references span multiple files.
 
+## Unattended continuation
+
+The owner explicitly authorised continuation through the night. The
+[bounded supervisor](../operations/OS_UNATTENDED_RECOVERY.md) waits for an existing
+document writer, resumes unresolved targets under the same cumulative request
+ceiling, audits captured checksums and passage reconstruction, and exports final
+all-field candidate links. It records partial completion when a known redirect
+failure remains. Its default wall budget is eight hours and it does not guarantee
+workspace lifetime. Closing the laptop should not itself stop cloud processes,
+but a saved status is not proof that a process survives or is still running.
+
+The current metadata refresh captured all 94 collection queryables and all 94
+schemas in 188 successful bounded requests. It retained complete native schema
+metadata, 840 queryable-property cards, 2,915 returned-property cards and a
+collection card for each response. Comparable retained definitions match the
+2 October baseline. There are 2,075 returned-field entries outside the current
+queryables catalogue; this limits filtering, not returned-value availability.
+Provider-native schema IDs are preserved separately from endpoint URLs.
+
 ## Run and resume
 
 From the checkout root, with locked development dependencies:
