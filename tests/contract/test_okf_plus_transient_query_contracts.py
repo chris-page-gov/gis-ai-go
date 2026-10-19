@@ -129,3 +129,19 @@ class TransientQueryContracts(unittest.TestCase):
                 bad = copy.deepcopy(parent)
                 del bad['declaredFieldDefinitionRef']['sha256']
                 with self.assertRaises(ValidationError): self.validator.validate(bad)
+
+    def test_output_fit_producer_and_missing_candidate_schema(self):
+        identity = {'stable_id':'urn:synthetic:width','native_field':'width','collection_id':'synthetic-v1'}
+        spec = {'coverage_id':'synthetic-selection','requested_fields':[identity],
+            'output_requirement':{'kind':'map','required_capabilities':['native-values','geometry']},
+            'routes':[{'route_id':'synthetic-api','coverage_id':'synthetic-selection',
+                'collection_id':'synthetic-v1','fields':[identity],'kind':'api','request':{},
+                'output_capabilities':{name:{'supported':True,'evidence':'urn:synthetic:'+name}
+                    for name in ['native-values','geometry']}}]}
+        result = plan_query(spec)
+        self.validator.validate(result)
+        del spec['routes'][0]['output_capabilities']['geometry']
+        missing = plan_query(spec)
+        self.validator.validate(missing)
+        missing['outputFitEstablished'] = True
+        with self.assertRaises(ValidationError): self.validator.validate(missing)

@@ -235,5 +235,16 @@ class ExtractTests(unittest.TestCase):
             self.assertEqual(self.run_extract(max_bytes=2000)['reason'], 'response-byte-budget')
             self.assertEqual(len(self.calls), 1)
 
+    def test_http_status_survives_without_provider_error_body(self):
+        self.responses = [(403,b'PRIVATE provider diagnostic',{})]
+        denied = self.run_extract()
+        self.assertEqual(denied['lastHttpStatus'],403)
+        self.assertEqual(denied['reason'],'http-failed')
+        self.assertNotIn('PRIVATE provider diagnostic',self.receipt_path().read_text())
+        self.responses = [(500,b'PRIVATE service diagnostic',{})]
+        failed = self.run_extract(max_requests=2)
+        self.assertEqual(failed['lastHttpStatus'],500)
+        self.assertEqual(len(self.calls),2)
+
 
 if __name__ == '__main__': unittest.main()

@@ -190,6 +190,39 @@ unresolved equivalence. Agreement from a shared provider backend is not independ
 validation. Route comparisons and candidate OS support notes are drafts for review;
 no external message or definitive cross-product equivalence is implied.
 
+## Output intent and scoped availability
+
+The owner extended the same recovery objective with
+[presentation-aware retrieval research](OS_RETRIEVAL_PRESENTATION_RESEARCH.md) and
+[availability reporting](OS_DATA_AVAILABILITY.md). The small
+[output-intent profile](../../okf-plus/profile/os-output-intents.json) records
+required geometry, units, datum, time, grain, aggregation, quality and portrayal
+understanding. VizQL and related visual query approaches are research leads,
+separate from OS NGD CQL-text and WFS; current Tableau contracts remain unverified
+because the official pages were blocked by the network tunnel.
+
+`query_planner.py` accepts optional output requirements for table, map or analysis
+with explicit `native-values`, `geometry` and/or `portrayal` capability evidence.
+It filters unsuitable or unproven candidates before comparing acquisition and
+processing costs. A map intent alone implies neither a renderer nor geometry
+fidelity; portrayal-only evidence cannot satisfy native-value requirements.
+
+`availability.py` produces private, offline per-source/version/selector/field
+assessments with evidence hashes. Access, expected presence, observed presence and
+retrieval completion are separate. Null, zero, absent property, outside coverage,
+complete empty filtering, uncollected data, unavailable product, incomplete paging
+and request failure remain distinct. Missing planner candidates leave data presence
+unknown. Request-level HTTP 401/403 rejection is retained separately from PSGA
+licence rights. Source claims are evidence, not independently established facts.
+Normal responses describe the exact requested scope, avoiding irrelevant coverage
+boilerplate.
+
+All-collection explanation linking uses exact frozen collection/document titles
+and native field headings, retaining every field's match or unresolved reason.
+It creates candidate links rather than asserting current documentation applies to
+older collection versions. Every explanation reference file is bounded to 16 KB,
+with lossless manifests when references span multiple files.
+
 ## Run and resume
 
 From the checkout root, with locked development dependencies:

@@ -163,3 +163,53 @@ class QueryPlannerTests(unittest.TestCase):
             mutate(spec)
             with self.subTest(spec=spec), self.assertRaises(ValueError):
                 plan_query(spec)
+
+
+    def test_output_requirements_exclude_cheaper_portrayal_for_native_table(self):
+        spec = self.fixture(); fields = spec['requested_fields']
+        spec['output_requirement'] = {'kind':'table','required_capabilities':['native-values']}
+        spec['routes'] = [route('tiles', fields, estimated_requests=0,
+            output_capabilities={'portrayal': {'supported':True,'evidence':'urn:synthetic:tile-style'}}),
+            route('features', fields, estimated_requests=2,
+            output_capabilities={'native-values': {'supported':True,'evidence':'urn:synthetic:native'}})]
+        result = plan_query(spec)
+        self.assertEqual(result['selected']['recipes'][0]['route_id'], 'features')
+        self.assertTrue(result['outputFitEstablished'])
+        self.assertEqual(result['rejected_routes'][0]['reason'], 'output-capability-unproven')
+        self.assertEqual(result['rejected_routes'][0]['required_capabilities'], ['native-values'])
+        self.assertEqual(result['selected']['recipes'][0]['outputCapabilityEvidence'],
+                         {'native-values':'urn:synthetic:native'})
+
+    def test_analytical_map_requires_explicit_geometry_and_values_evidence(self):
+        spec = self.fixture(); fields = spec['requested_fields']
+        spec['output_requirement'] = {'kind':'map','required_capabilities':['native-values','geometry']}
+        spec['routes'] = [route('features', fields, output_capabilities={
+            'native-values': {'supported':True,'evidence':'urn:synthetic:attributes'},
+            'geometry': {'supported':True,'evidence':'urn:synthetic:geometry'}})]
+        self.assertTrue(plan_query(spec)['outputFitEstablished'])
+        del spec['routes'][0]['output_capabilities']['geometry']['evidence']
+        result = plan_query(spec)
+        self.assertFalse(result['outputFitEstablished'])
+        self.assertIsNone(result['selected'])
+        self.assertEqual(result['rejected_routes'][0]['required_capabilities'], ['geometry'])
+
+    def test_map_kind_does_not_infer_renderer_or_native_attributes(self):
+        spec = self.fixture(); fields = spec['requested_fields']
+        spec['output_requirement'] = {'kind':'map','required_capabilities':['portrayal']}
+        spec['routes'] = [route('context', fields, output_capabilities={
+            'portrayal': {'supported':True,'evidence':'urn:synthetic:portrayal'}})]
+        result = plan_query(spec)
+        self.assertTrue(result['outputFitEstablished'])
+        self.assertEqual(set(result['selected']['recipes'][0]['outputCapabilityEvidence']), {'portrayal'})
+        spec['output_requirement'] = {'kind':'analysis','required_capabilities':['native-values']}
+        self.assertIsNone(plan_query(spec)['selected'])
+
+    def test_unknown_or_ambiguous_output_capabilities_are_rejected(self):
+        for requirement in [{'kind':'map','required_capabilities':[]},
+                            {'kind':'map','required_capabilities':['geometry','geometry']},
+                            {'kind':'map','required_capabilities':['measure-from-pixels']},
+                            {'kind':'table'}]:
+            spec = self.fixture(); spec['output_requirement'] = requirement
+            with self.subTest(requirement=requirement), self.assertRaises(ValueError): plan_query(spec)
+        spec = self.fixture(); spec['routes'][0]['output_capabilities']={'invented':{}}
+        with self.assertRaises(ValueError): plan_query(spec)

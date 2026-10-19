@@ -52,6 +52,13 @@ road widths and Topographic Area BHA heights, while equivalence with NGD remains
 unproven. Query recipes and route comparisons are candidates; any support note
 is a draft requiring review before external submission.
 
+For maps, tables or analytical output, consult the
+[presentation research](../docs/implementation/OS_RETRIEVAL_PRESENTATION_RESEARCH.md)
+and [small output-intent profile](profile/os-output-intents.json) before comparing
+routes. [Availability guidance](../docs/implementation/OS_DATA_AVAILABILITY.md)
+explains scoped outcomes including null, absent, expected absence, denied access
+and unresolved retrieval; a missing route is not proof that data is absent.
+
 ## Find the right evidence
 
 | Need | Starting point | Check before using the result |

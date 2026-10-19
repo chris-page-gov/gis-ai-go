@@ -942,7 +942,10 @@
           ],
           "properties": {
             "url": {
-              "type": "string",
+              "type": [
+                "string",
+                "null"
+              ],
               "minLength": 1
             }
           }
@@ -956,7 +959,10 @@
           ],
           "properties": {
             "method": {
-              "const": "curated-route-exact-heading-match"
+              "enum": [
+                "curated-route-exact-heading-match",
+                "frozen-exact-title-exact-heading-candidate"
+              ]
             },
             "versionStatus": {
               "const": "current-document-not-independently-version-matched"
@@ -1039,8 +1045,38 @@
             "document-not-captured",
             "ambiguous-heading",
             "heading-not-found",
-            "matched"
+            "matched",
+            "route-not-found",
+            "ambiguous-route"
           ]
+        },
+        "passageManifest": {
+          "type": "object",
+          "required": [
+            "path",
+            "sha256",
+            "bytes",
+            "referenceCount"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "bytes": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 16384
+            },
+            "referenceCount": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
         }
       }
     },

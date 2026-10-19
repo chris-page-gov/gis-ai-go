@@ -1,0 +1,192 @@
+{
+  "@context": {
+    "okfp": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/vocab/",
+    "owner": {
+      "@id": "okfp:owner",
+      "@type": "@json"
+    },
+    "status": {
+      "@id": "okfp:status",
+      "@type": "@json"
+    },
+    "policy": {
+      "@id": "okfp:policy",
+      "@type": "@json"
+    },
+    "threats": {
+      "@id": "okfp:threats",
+      "@type": "@json"
+    },
+    "rights": {
+      "@id": "okfp:rights",
+      "@type": "@json"
+    },
+    "evidence": {
+      "@id": "okfp:evidence",
+      "@type": "@json"
+    },
+    "requiredUnderstanding": {
+      "@id": "okfp:requiredUnderstanding",
+      "@type": "@json"
+    },
+    "intents": {
+      "@id": "okfp:intents",
+      "@type": "@json"
+    },
+    "research": {
+      "@id": "okfp:research",
+      "@type": "@json"
+    },
+    "limitations": {
+      "@id": "okfp:limitations",
+      "@type": "@json"
+    }
+  },
+  "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/profile/os-output-intents/v1",
+  "@type": "okfp:OutputIntentResearchProfile",
+  "owner": "GIS AI GO repository owner",
+  "status": "candidate-research-2026-10-19",
+  "policy": {
+    "executionAdmitted": false,
+    "rendererImplemented": false,
+    "routeUrlsExecutable": false,
+    "purpose": "Recommend evidence requirements and candidate route families; no field equivalence inferred."
+  },
+  "threats": [
+    "Tile attribute omissions mistaken for missing source data",
+    "Visual generalisation mistaken for measurement geometry",
+    "Unit/datum/time/grain or aggregation mismatch",
+    "Styles or source text treated as executable instructions",
+    "Credential leakage and unauthorised recipient distribution"
+  ],
+  "rights": {
+    "sourceRightsRetained": true,
+    "audience": "Apply product-specific licence and recipient rules",
+    "featureRetention": "Transient processing; retain semantic knowledge and methods; verify disposal"
+  },
+  "evidence": [
+    {
+      "snapshot": "okf-plus/source/os-api-contracts.json",
+      "pointer": "/records/6",
+      "sourceUrl": "https://docs.os.uk/os-apis/core-concepts/styling-os-ngd-data.md",
+      "sourceSha256": "7602de9e6f53f88809689e157393340d18db32157b5d1003cb2b3331a3895a44",
+      "status": "documented-historical-capture"
+    },
+    {
+      "snapshot": "okf-plus/source/os-api-contracts.json",
+      "pointer": "/records/8",
+      "sourceUrl": "https://docs.os.uk/os-apis/core-concepts/faqs.md",
+      "sourceSha256": "c6bcb81ec2366aafb2731ba6aa230c145ba54295ee1eaea82b503bda67ded594",
+      "status": "documented-historical-capture"
+    },
+    {
+      "snapshot": "okf-plus/source/os-api-contracts.json",
+      "pointer": "/records/70",
+      "sourceUrl": "https://docs.os.uk/os-apis/accessing-os-apis/os-vector-tile-api.md",
+      "sourceSha256": "c029764e745394764c47313516cd564c443e844c931addefe773287a69928ca2",
+      "status": "documented-historical-capture"
+    },
+    {
+      "snapshot": "okf-plus/source/os-api-contracts.json",
+      "pointer": "/records/90",
+      "sourceUrl": "https://docs.os.uk/os-apis/accessing-os-apis/os-maps-api/technical-specification.md",
+      "sourceSha256": "a814305165b41da9040b8d1bc78d3eb361dde584f33b8472056cccd2e9aafeb8",
+      "status": "documented-historical-capture"
+    }
+  ],
+  "requiredUnderstanding": [
+    "Native field/collection/version and definition",
+    "Entity grain and explicit identity/relationship mapping",
+    "Unit, nulls, quality, precision and derivation",
+    "Population/selection/denominator and aggregation/weighting",
+    "Validity/reference/capture/publication time and data cut",
+    "Geometry dimensionality and horizontal CRS/axis order",
+    "Vertical datum/heighting method and transformation provenance",
+    "Portrayal scale, classification, legend and accessibility",
+    "Estimated acquisition/processing/output size and permitted audience"
+  ],
+  "intents": [
+    {
+      "id": "exact-table",
+      "status": "recommendation",
+      "candidateRoutes": [
+        "Raw NGD features",
+        "Legacy WFS with documented propertyName projection",
+        "Download plus transient processing"
+      ],
+      "requires": [
+        "Exact required attributes",
+        "Native types/units/nulls",
+        "Complete selected population or visible sample scope"
+      ],
+      "rejectAssumption": "Raster pixels or tile subsets supply complete native attributes."
+    },
+    {
+      "id": "contextual-map",
+      "status": "recommendation",
+      "candidateRoutes": [
+        "Raster WMTS/ZXY",
+        "Vector tiles with evidenced styles"
+      ],
+      "requires": [
+        "Scale/zoom and tile matrix",
+        "Style/layer/data-cut/source/attribution",
+        "Geometry and attribute fidelity limitations"
+      ],
+      "rejectAssumption": "Interactive vector attributes establish full analytic coverage."
+    },
+    {
+      "id": "analytical-map",
+      "status": "recommendation",
+      "candidateRoutes": [
+        "Evidenced feature selection plus contextual basemap",
+        "Download plus transient analysis and portrayal"
+      ],
+      "requires": [
+        "Exact field semantics",
+        "Geometry suitability and CRS",
+        "Legend/units/classification and missing-value display"
+      ],
+      "rejectAssumption": "Basemap and feature route have identical refresh, grain or identifiers."
+    },
+    {
+      "id": "chart-or-summary",
+      "status": "recommendation",
+      "candidateRoutes": [
+        "Transient deterministic aggregation over complete selected features"
+      ],
+      "requires": [
+        "Explicit population/denominator",
+        "Aggregation/grouping/weighting",
+        "Time, units and quality"
+      ],
+      "rejectAssumption": "One API page represents the whole population."
+    },
+    {
+      "id": "vertical-route-profile",
+      "status": "recommendation",
+      "candidateRoutes": [
+        "Heighted ordered line geometry with source evidence"
+      ],
+      "requires": [
+        "Vertical datum",
+        "Heighting method",
+        "Ordering/distance calculation",
+        "Bridge/tunnel and uncertainty interpretation"
+      ],
+      "rejectAssumption": "Elevation gain is absolute height or proves survey accuracy."
+    }
+  ],
+  "research": {
+    "VizQL": "Tableau visual-query technology; conceptual background, current official documentation not verified.",
+    "VizQLDataService": "Separate Tableau data-query facility; not an OS API or an assumed renderer.",
+    "officialFetchStatus": "Three unauthenticated Tableau research leads blocked by network tunnel HTTP403 before content retrieval.",
+    "nextEvidence": "Pin accessible official documentation/contracts before any product-specific integration.",
+    "record": "docs/implementation/OS_RETRIEVAL_PRESENTATION_RESEARCH.md"
+  },
+  "limitations": [
+    "Recommendations are not tested renderers or executable provider grants.",
+    "No Tableau account, entitlement, paid service or current API contract established.",
+    "No finite visualisation list proves every conceivable question answerable."
+  ]
+}

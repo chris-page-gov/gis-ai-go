@@ -97,9 +97,21 @@ The 19 October [OS recovery increment](OKF_OS_RECOVERY.md) adds independently
 retrievable field cards, lossless private documentation passages, explicit
 package-version inventory and evidence-input acquisition estimates. Continue
 towards measured entitlement/catalogue coverage, source-version-matched semantic
-links and resumable private feature acquisition. National bulk recovery requires
-sufficient approved storage; a partial catalogue or a successful sample is not
-completion of that objective.
+links and resumable private feature acquisition. Process payloads transiently,
+retain semantic knowledge and reproducible retrieval recipes, and verify disposal;
+permanent national storage is not required. Archive transfers are deferred pending
+the recorded one-host network adjustment. Complete accessible documentation and
+collection-specific queryability/schema evidence independently.
+
+The owner extended this work with [presentation-aware retrieval research](OS_RETRIEVAL_PRESENTATION_RESEARCH.md)
+and [scoped availability reporting](OS_DATA_AVAILABILITY.md). Map/table/analysis
+requirements must be explicit when comparing cost; portrayal alone cannot satisfy
+native-value questions. Investigate VizQL and related declarative visualisation
+approaches and retain the underlying units, grain, geometry/CRS/datum, time,
+aggregation and quality. Track missing data using separate access, expectation,
+observation and retrieval states; missing route evidence is unknown data presence.
+A completed selected retrieval closes that selector only; report the requested
+scope directly and leave unproven source/version assertions visible.
 
 ## Learning and feature evaluation
 

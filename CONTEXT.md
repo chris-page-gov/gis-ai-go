@@ -25,6 +25,17 @@ Temporary workset/streaming limits still apply. The
 [recovery record](docs/implementation/OKF_OS_RECOVERY.md) separates observed access,
 coverage, private evidence, implementation and remaining execution prerequisites.
 
+The owner also asked that map, table and other presentation requirements guide
+retrieval choices, with VizQL and related visual query approaches investigated
+without assuming an OS VizQL endpoint. Record the underlying geometry, field,
+unit, temporal, aggregation and portrayal semantics in small linked evidence.
+Report requested-data availability within its exact scope: permission, expected
+presence, observed presence and retrieval completion are separate. Null, zero,
+missing property, no matching records, incomplete paging and access denial must
+remain distinguishable. Continue the original recovery objective alongside these
+annotations, keep reviewed source changes pushed to GitHub, and do not mistake
+completion of an annotation for completion of the whole pass.
+
 On 17 October the owner authorised continuing the repository review and four
 repairs towards release, including assessing the updated OpenAI Sites hosting
 path. [REVIEW-222](https://github.com/chris-page-gov/gis-ai-go/issues/151) tracks

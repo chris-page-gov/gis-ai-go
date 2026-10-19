@@ -77,6 +77,20 @@ Topographic Area BHA heights, but equivalent NGD semantics are unproven.
 `route_comparison.py` checks supplied observations and produces review drafts;
 it neither establishes equivalence automatically nor sends OS support messages.
 
+[Presentation research](../docs/implementation/OS_RETRIEVAL_PRESENTATION_RESEARCH.md)
+and the small [output-intent profile](profile/os-output-intents.json) record map,
+table and analytical requirements, visualisation metadata and the VizQL research
+backlog. Optional planner output requirements admit only routes with explicit
+native-value, geometry or portrayal capability evidence before comparing cost.
+A map label or tile attribute cannot establish native measurement suitability.
+
+[Availability reporting](../docs/implementation/OS_DATA_AVAILABILITY.md) uses
+`availability.py` and its [optional schema](schemas/data-availability.schema.json)
+to keep permission, expectation, observation and retrieval completion separate.
+A null or zero is distinct from a missing property. Incomplete retrieval and
+missing planner candidates leave data presence unknown. These are offline private
+assessments and do not add a hosted provider or renderer.
+
 ## Build and search offline
 
 Run commands from the repository root, using the repository's locked development

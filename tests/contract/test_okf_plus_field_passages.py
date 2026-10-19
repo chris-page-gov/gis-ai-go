@@ -78,6 +78,80 @@ class FieldPassageTests(unittest.TestCase):
             self.assertEqual(row['status'], 'document-not-captured')
             self.assertEqual(row['passages'], [])
 
+    def frozen_sources(self, root, collections, documents):
+        source = root / 'okf-plus/source'
+        source.mkdir(parents=True)
+        for name, rows in [('os-ngd-collections', collections), ('osngd-documentation', documents)]:
+            (source / (name + '.json')).write_bytes(M.canonical({'records': rows}))
+
+    def test_exact_title_candidates_strip_only_explicit_version_and_keep_ambiguity(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            collections = [{'id': 'building-1', 'title': 'Building v1'},
+                           {'id': 'building-4', 'title': 'Building v4'},
+                           {'id': 'point', 'title': 'Point v2'},
+                           {'id': 'unknown', 'title': 'Building version 4'},
+                           {'id': 'accent', 'title': 'Étage v1'}]
+            documents = [{'title': 'Building', 'url': M.BASE + 'building.md'},
+                         {'title': 'Point', 'url': M.BASE + 'one/point.md'},
+                         {'title': 'Point', 'url': M.BASE + 'two/point.md'},
+                         {'title': 'Étage', 'url': M.BASE + 'etage.md'},
+                         {'title': 'Building version 4', 'url': 'https://example.org/outside.md'}]
+            self.frozen_sources(root, collections, documents)
+            registry = M.discover_bindings(root)
+            self.assertEqual(registry['building-1']['url'], registry['building-4']['url'])
+            self.assertEqual(registry['building-4']['evidence']['collectionTitle'], 'Building v4')
+            self.assertEqual(registry['point']['status'], 'ambiguous-route')
+            self.assertIsNone(registry['point']['url'])
+            self.assertEqual(registry['unknown']['status'], 'route-not-found')
+            self.assertEqual(registry['accent']['status'], 'unique-route')
+            for binding in registry.values():
+                evidence = binding['evidence']
+                self.assertEqual(evidence['collectionSnapshotSha256'], hashlib.sha256(
+                    (root / evidence['collectionSnapshot']).read_bytes()).hexdigest())
+
+    def test_all_fields_keep_missing_and_ambiguous_routes_and_version_uncertainty(self):
+        for titles, status in [([], 'route-not-found'),
+                              ([{'title': 'Building', 'url': M.BASE + 'a.md'},
+                                {'title': 'Building', 'url': M.BASE + 'b.md'}], 'ambiguous-route'),
+                              ([{'title': 'Building', 'url': M.BINDINGS['bld-fts-building-4']}], 'matched')]:
+            with self.subTest(status=status), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                cards, private, _ = self.fixture(root, '# Building\n## height_m\nDefinition\n')
+                self.frozen_sources(root, [{'id': 'bld-fts-building-4', 'title': 'Building v4'}], titles)
+                row = M.overlays(cards, private, all_collections=True, root=root)[0]
+                self.assertEqual(row['status'], status)
+                self.assertEqual(row['binding']['versionStatus'], 'current-document-not-independently-version-matched')
+                self.assertEqual(row['binding']['method'], 'frozen-exact-title-exact-heading-candidate')
+                self.assertEqual(row['binding']['routeEvidence']['collectionTitle'], 'Building v4')
+                output = root / 'artifacts/all-fields'
+                summary = M.export(root, cards, private, output, all_collections=True)
+                self.assertTrue(summary['allCollections'])
+                self.assertTrue(all((output / item['path']).stat().st_size <= 16384 for item in summary['files']))
+                with self.assertRaisesRegex(ValueError, 'new directory'):
+                    M.export(root, cards, private, output, all_collections=True)
+
+    def test_oversized_reference_list_is_lossless_in_bounded_parts_and_manifest(self):
+        row = {'@id': 'https://example.org/field', 'passages': [
+            {'@id': 'urn:part:' + str(n), 'headingBreadcrumb': [{'text': 'é' * 120}],
+             'path': 'part-' + str(n), 'sha256': 'a' * 64} for n in range(160)]}
+        bounded, files = M.bounded_overlay(row, 4096)
+        self.assertEqual(bounded['passages'], [])
+        reference = bounded['passageManifest']
+        manifest_raw = files[reference['path']]
+        self.assertEqual(hashlib.sha256(manifest_raw).hexdigest(), reference['sha256'])
+        manifest = M.load_json(manifest_raw.decode())
+        restored = []
+        for part in manifest['parts']:
+            raw = files[part['path']]
+            self.assertEqual(hashlib.sha256(raw).hexdigest(), part['sha256'])
+            self.assertEqual(len(raw), part['bytes'])
+            restored.extend(M.load_json(raw.decode())['references'])
+        self.assertEqual(restored, row['passages'])
+        self.assertEqual(hashlib.sha256(M.canonical(restored)).hexdigest(), manifest['sha256'])
+        self.assertTrue(all(len(raw) <= 4096 for raw in files.values()))
+        self.assertLessEqual(len(M.canonical(bounded)), 4096)
+
     def test_rehashed_modified_passage_cannot_keep_original_source_digest(self):
         with tempfile.TemporaryDirectory() as tmp:
             cards, private, _ = self.fixture(Path(tmp), '# Building\n## height_m\nDefinition\n')

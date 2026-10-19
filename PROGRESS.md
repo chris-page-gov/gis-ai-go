@@ -49,6 +49,25 @@ and malformed WFS GeoJSON when geometry is omitted from projection. No ticket wa
 sent. No feature archive, new service, deployment or installed connector admission
 is claimed by this increment.
 
+The owner has asked this pass to continue unattended, preserving the original
+objective alongside annotations. Accessible documentation traversal, fresh
+collection queryability/schema checks, broad explanation linking and canonical
+assurance remain active; this checkpoint does not mark those tasks complete.
+All 94 current queryables endpoints were freshly captured as private metadata,
+with 840 small property cards plus 94 collection cards. Current schema capture
+is in progress. All-collection explanation candidates now cover all 2,915 fields;
+initial results retain missing documents/headings, ambiguous routes and version
+uncertainty explicitly, pending the finished documentation run.
+
+New [availability reporting](docs/implementation/OS_DATA_AVAILABILITY.md) keeps
+request access, expected presence, observations and retrieval completion separate.
+Null, zero, missing properties, empty selections, incomplete pages and denied
+requests have distinct outcomes. [Presentation research](docs/implementation/OS_RETRIEVAL_PRESENTATION_RESEARCH.md)
+and a small output-intent profile record map/table/analysis requirements and
+VizQL research. Optional planner constraints require explicit native-value,
+geometry or portrayal evidence before cost comparison. Tableau documentation was
+blocked by the current network policy; no Tableau integration is claimed.
+
 Latest implementation checkpoint: bounded dependency security repairs under
 [issue #142](https://github.com/chris-page-gov/gis-ai-go/issues/142), following
 [REVIEW-222 issue #151](https://github.com/chris-page-gov/gis-ai-go/issues/151).

@@ -306,6 +306,7 @@ def _run(directory, selected, key, request_cap, byte_cap, wall_cap, rate, transp
             return save('transport-failed')
         last_request = clock()
         receipt['bytes'] += len(raw)
+        receipt['lastHttpStatus'] = status
         if status != 200:
             return save('rate-limited' if status == 429 else 'http-failed')
         filename = f'page-{len(receipt["pages"]):06d}.json'

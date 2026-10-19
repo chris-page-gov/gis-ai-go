@@ -7,3 +7,6 @@
   disposal, field-aware query planning and private route-comparison support
   drafts. Query capability evidence distinguishes NGD filtering from WFS field
   projection; national archive processing remains a separate fill-in scope.
+  Added evidence-based scoped availability reporting and presentation constraints
+  for map, table and analytical retrieval; logged VizQL research and required
+  geometry, field, temporal, aggregation, quality and portrayal metadata.

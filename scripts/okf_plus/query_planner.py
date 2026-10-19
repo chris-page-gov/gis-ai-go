@@ -9,7 +9,10 @@ Optional route field_mappings [{requested_stable_id,route_field:{stable_id,
 native_field,collection_id},equivalent:true,evidence}] supply reviewed physical
 mappings. Multiple independent requests need no join capability; a single route
 with fields from multiple collections requires cross_collection_capability evidence.
-No result joins are inferred.
+No result joins are inferred. Optional output_requirement {kind:table|map|analysis,
+required_capabilities:[native-values|geometry|portrayal]} filters routes using
+explicit output_capabilities {capability:{supported,evidence}} before costing.
+Kind is descriptive; portrayal never implies native values or renderer admission.
 """
 from __future__ import annotations
 import argparse
@@ -22,6 +25,7 @@ from .retrieval_plan import _number, _range
 MAX_ROUTES = 16
 MAX_FIELDS = 256
 MAX_INPUT_BYTES = 1024 * 1024
+OUTPUT_CAPABILITIES = {'native-values', 'geometry', 'portrayal'}
 
 
 def _identity(field):
@@ -46,9 +50,20 @@ def _proven(value):
 
 
 def plan_query(spec):
-    if not isinstance(spec, dict) or set(spec) - {'coverage_id', 'requested_fields', 'routes', 'merge_capability'}:
+    if not isinstance(spec, dict) or set(spec) - {'coverage_id', 'requested_fields', 'routes', 'merge_capability', 'output_requirement'}:
         raise ValueError('Unknown planner input')
     coverage = _text(spec.get('coverage_id'))
+    requirement = spec.get('output_requirement')
+    if requirement is not None:
+        if (not isinstance(requirement, dict) or set(requirement) != {'kind', 'required_capabilities'}
+                or not isinstance(requirement['kind'], str)
+                or requirement['kind'] not in {'table', 'map', 'analysis'}):
+            raise ValueError('Output requirement needs explicit kind and required capabilities')
+        required = requirement['required_capabilities']
+        if (not isinstance(required, list) or not 1 <= len(required) <= 3
+                or any(not isinstance(item, str) or item not in OUTPUT_CAPABILITIES for item in required)
+                or len(set(required)) != len(required)):
+            raise ValueError('Output capabilities must be unique native-values, geometry or portrayal')
     fields, routes = spec.get('requested_fields'), spec.get('routes')
     if not isinstance(fields, list) or not 1 <= len(fields) <= MAX_FIELDS:
         raise ValueError('Requested field count must be 1..256')
@@ -61,7 +76,7 @@ def plan_query(spec):
     allowed = {'route_id', 'coverage_id', 'collection_id', 'fields', 'kind', 'request',
                'projection', 'estimated_requests', 'estimated_bytes',
                'acquisition_seconds', 'processing_seconds', 'field_mappings',
-               'cross_collection_capability'}
+               'cross_collection_capability', 'output_capabilities'}
     for route in routes:
         if not isinstance(route, dict) or set(route) - allowed:
             raise ValueError('Unknown route fields')
@@ -69,6 +84,17 @@ def plan_query(spec):
         if rid in ids:
             raise ValueError('Duplicate route_id')
         ids.add(rid)
+        output_capabilities = route.get('output_capabilities', {})
+        if (not isinstance(output_capabilities, dict)
+                or set(output_capabilities) - OUTPUT_CAPABILITIES):
+            raise ValueError('Unknown output capability')
+        if requirement is not None:
+            missing_capabilities = [name for name in requirement['required_capabilities']
+                if not _proven(output_capabilities.get(name))]
+            if missing_capabilities:
+                rejected.append({'route_id': rid, 'reason': 'output-capability-unproven',
+                                 'required_capabilities': missing_capabilities})
+                continue
         rcoverage, collection = _text(route.get('coverage_id')), _text(route.get('collection_id'))
         available = route.get('fields')
         if not isinstance(available, list) or len(available) > MAX_FIELDS:
@@ -135,6 +161,9 @@ def plan_query(spec):
                   'mode': 'server-projection' if server else 'download-local-projection' if route['kind'] == 'download' else 'full-record-local-projection',
                   'unproven': ['Provider request descriptor, rights and capabilities require separate verification.'] +
                     ([] if server else ['Server-side field projection is not established; no parameter generated.']), **costs}
+        if requirement is not None:
+            recipe['outputCapabilityEvidence'] = {name: output_capabilities[name]['evidence']
+                for name in requirement['required_capabilities']}
         candidates.append((set(matched), recipe))
     feasible = []
     for size in range(1, len(candidates) + 1):
@@ -162,7 +191,7 @@ def plan_query(spec):
         key = lambda item: len(item['recipes'])
     feasible.sort(key=key)
     covered = set().union(*(item[0] for item in candidates)) if candidates else set()
-    return {'profile': 'okf-plus-offline-query-plan.v1', 'execution': False,
+    result = {'profile': 'okf-plus-offline-query-plan.v1', 'execution': False,
             'candidateOnly': True, 'coverage_id': coverage, 'joins': False,
             'selected': feasible[0] if feasible else None, 'alternatives': feasible[:20],
             'omitted_alternatives': max(0, len(feasible) - 20),
@@ -172,6 +201,11 @@ def plan_query(spec):
                 'Independent request results are bundled without joins; a single route across collections requires explicit capability evidence and coverage identifiers must match exactly.',
                 'No complete executable request or retrieval authority is established.'] +
                 (['Fields exist but no complete cover is available.'] if not feasible and not (wanted.keys() - covered) else [])}
+
+    if requirement is not None:
+        result['output_requirement'] = requirement
+        result['outputFitEstablished'] = bool(feasible)
+    return result
 
 
 def main(argv=None):
