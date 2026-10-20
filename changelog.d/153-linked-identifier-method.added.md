@@ -1,0 +1,1 @@
+- Add bounded private Linked Identifiers capture and source-backed relationship planning with immutable deadlines, durable request reservations and synthetic semantic/security contracts.
