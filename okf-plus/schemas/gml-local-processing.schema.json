@@ -1,0 +1,165 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/schemas/gml-local-processing.schema.json",
+  "title": "Private local GML archive descriptor and completion candidate",
+  "description": "Structural assurance only. Checksums, paths and complete traversal require the independent runtime verifier.",
+  "oneOf": [
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema": {
+          "const": "gis-ai-go.gml-selected-archive.v1"
+        },
+        "payload": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "file": {
+              "type": "string",
+              "minLength": 1
+            },
+            "bytes": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "md5": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string",
+                  "pattern": "^[0-9a-fA-F]{32}$"
+                }
+              ]
+            }
+          },
+          "required": [
+            "bytes",
+            "sha256"
+          ]
+        },
+        "selection": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "deliveryMode": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            }
+          },
+          "required": [
+            "id",
+            "deliveryMode"
+          ]
+        },
+        "selectionEvidence": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "file": {
+              "type": "string",
+              "minLength": 1
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "jsonPointer": {
+              "type": "string",
+              "pattern": "^(?:/.*)?$"
+            }
+          },
+          "required": [
+            "file",
+            "sha256",
+            "jsonPointer"
+          ]
+        },
+        "classifications": {
+          "type": "array",
+          "maxItems": 10000,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "path": {
+                "type": "string",
+                "minLength": 1
+              },
+              "kind": {
+                "enum": [
+                  "documentation",
+                  "schema"
+                ]
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            },
+            "required": [
+              "path",
+              "kind",
+              "sha256"
+            ]
+          }
+        }
+      },
+      "required": [
+        "payload",
+        "selection",
+        "selectionEvidence"
+      ]
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema": {
+          "const": "gis-ai-go.gml-archive-completion.candidate.v1"
+        },
+        "complete": {
+          "const": true
+        },
+        "summaryRootSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "inputSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "conversionSuccess": {
+          "const": false
+        },
+        "rawPayloadDisposed": {
+          "const": false
+        },
+        "schemaMappingComplete": {
+          "const": false
+        }
+      },
+      "required": [
+        "schema",
+        "complete",
+        "summaryRootSha256",
+        "inputSha256",
+        "conversionSuccess",
+        "rawPayloadDisposed",
+        "schemaMappingComplete"
+      ]
+    }
+  ]
+}
