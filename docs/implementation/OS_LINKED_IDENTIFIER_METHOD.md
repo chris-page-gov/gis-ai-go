@@ -61,7 +61,14 @@ match the complete body. Conflicting length/transfer headers are refused; chunke
 bodies require their terminating framing, and unframed bodies must reach EOF
 within the byte/deadline bounds. TLS uses the standard verified HTTPS transport; this is not an
 independent pinned-DNS transport. Provider error bodies and headers are not saved.
-Raw or JSON-escaped credential reflections prevent response retention.
+Raw, JSON-escaped and percent-encoded credential reflections prevent response
+retention. Every JSON property name and string value is checked through at most
+three strict UTF-8 percent-decoding rounds. A remaining encoded sequence after
+that bound, or invalid encoded UTF-8, fails closed. The checks inspect decoded
+views without changing retained native text. Literal percent signs without a
+hexadecimal escape remain ordinary text. Both successful and diagnostic cached
+responses undergo the same check before replay; refusal preserves existing files
+and never triggers another request.
 
 Hard ceilings are 20 cumulative attempts, 8 MiB of charged body bytes, 300 seconds,
 1 MiB per response and at least 2.05 seconds between sequential starts. A concrete

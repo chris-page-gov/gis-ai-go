@@ -159,6 +159,69 @@ class LinkedIdentifiersTests(unittest.TestCase):
             self.assertFalse(self.run_capture()['complete'])
             self.assertFalse((self.output / 'response-0000.json').exists())
             self.assertNotIn(KEY, (self.output / 'receipt.json').read_text())
+    def test_percent_encoded_names_and_values_never_reach_retention(self):
+        reflected = ''.join('%%%02x' % ord(c) for c in KEY)
+        for rounds in range(1, 4):
+            for location in ('valid-value', 'diagnostic-value', 'diagnostic-name'):
+                with self.subTest(rounds=rounds, location=location):
+                    self.output = self.parent / f'encoded-{rounds}-{location}'
+                    body = response()
+                    if location == 'valid-value':
+                        body['correlations'][0]['correlatedIdentifiers'][0]['confidence'] = reflected
+                    elif location == 'diagnostic-value': body['newProviderField'] = {'nested': [reflected]}
+                    else: body['newProviderField'] = {reflected: 'synthetic'}
+                    raw = m.encoded(body)
+                    # JSON escaping and percent encoding may be combined.
+                    if rounds == 2: raw = raw.replace(b'%', b'\\u0025')
+                    self.results = [(200, raw, None)]
+                    result = self.run_capture()
+                    self.assertEqual(result['reason'], 'malformed-or-reflected-response-refused')
+                    self.assertEqual(result['attempts'][0]['chargedBytes'], self.spec['limits']['responseBytes'])
+                    self.assertEqual({p.name for p in self.output.iterdir()}, {'receipt.json', 'writer.lock'})
+                    before = (self.output / 'receipt.json').read_bytes(); count = len(self.calls)
+                    self.run_capture(); self.assertEqual(count, len(self.calls))
+                    self.assertNotIn(KEY.encode(), before); self.assertNotIn(reflected.encode(), before)
+            reflected = reflected.replace('%', '%25')
+
+    def test_percent_decoding_exhaustion_and_invalid_utf8_stop_before_retention(self):
+        for index, value in enumerate(('%25252541', '%ff')):
+            self.output = self.parent / f'undecodable-{index}'
+            body = response(); body['newProviderField'] = value
+            self.results = [(200, m.encoded(body), None)]
+            self.assertEqual(self.run_capture()['reason'], 'malformed-or-reflected-response-refused')
+            self.assertEqual({p.name for p in self.output.iterdir()}, {'receipt.json', 'writer.lock'})
+
+    def test_benign_percent_text_preserves_native_success_and_diagnostic_bytes(self):
+        for status in ('success', 'diagnostic'):
+            self.output = self.parent / status
+            body = response()
+            native = '50% complete; % literal; %20; caf%C3%A9; %252541'
+            if status == 'success': body['correlations'][0]['correlatedIdentifiers'][0]['confidence'] = native
+            else: body['new%20field'] = native
+            raw = m.encoded(body); self.results = [(200, raw, None)]
+            result = self.run_capture(); self.assertEqual(result['complete'], status == 'success')
+            name = 'response' if status == 'success' else 'diagnostic'
+            self.assertEqual((self.output / f'{name}-0000.json').read_bytes(), raw)
+            count = len(self.calls); self.run_capture(); self.assertEqual(count, len(self.calls))
+            if status == 'success':
+                observed = json.loads((self.output / 'observation-0000.json').read_bytes())
+                self.assertEqual(observed['edges'][0]['confidence'], native)
+
+    def test_cached_encoded_success_and_diagnostic_refused_without_request(self):
+        for status in ('success', 'diagnostic'):
+            self.output = self.parent / f'old-{status}'
+            reflected = ''.join('%%%02X' % ord(c) for c in KEY)
+            body = response()
+            if status == 'success': body['correlations'][0]['correlatedIdentifiers'][0]['confidence'] = reflected
+            else: body[reflected] = 'synthetic'
+            self.results = [(200, m.encoded(body), None)]
+            # Reproduce a checksum-consistent cache created before this guard.
+            with patch.object(m, 'reject_reflection', return_value=None): self.run_capture()
+            before = {p.name: p.read_bytes() for p in self.output.iterdir()}; count = len(self.calls)
+            with self.assertRaisesRegex(ValueError, 'Credential reflection refused'): self.run_capture()
+            self.assertEqual(count, len(self.calls))
+            self.assertEqual(before, {p.name: p.read_bytes() for p in self.output.iterdir()})
+
     def test_contract_mismatch_retains_private_diagnostic_without_success(self):
         body = response(); body['newProviderField'] = 'synthetic-new-value'
         raw = m.encoded(body); self.results = [(200, raw, None)]

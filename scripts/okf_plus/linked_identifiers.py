@@ -18,6 +18,7 @@ import stat
 import tempfile
 import time
 from urllib.error import HTTPError
+from urllib.parse import unquote
 from urllib.request import Request, build_opener, HTTPRedirectHandler, ProxyHandler
 
 from .harvest import deadline
@@ -251,8 +252,16 @@ def reject_reflection(value, key):
             reject_reflection(name, key); reject_reflection(item, key)
     elif isinstance(value, list):
         for item in value: reject_reflection(item, key)
-    elif isinstance(value, str) and key in value:
-        raise ValueError('Credential reflection refused')
+    elif isinstance(value, str):
+        # Inspect decoded views only: native response names/values stay unchanged.
+        for round_index in range(4):
+            if key in value:
+                raise ValueError('Credential reflection refused')
+            if not re.search(r'%[0-9A-Fa-f]{2}', value):
+                return
+            if round_index == 3:
+                raise ValueError('Percent-decoding bound exceeded')
+            value = unquote(value, encoding='utf-8', errors='strict')
 
 
 def graph(operation, value, response_sha256, observed_at):
@@ -438,7 +447,9 @@ def capture(selection, output, *, key, transport=fetch, clock=time.monotonic,
             raw = read_regular(directory / f'response-{index:04}.json', limits['responseBytes'])
             if sha(raw) != attempt.get('responseSha256') or len(raw) != attempt.get('responseBytes') or len(raw) != attempt['chargedBytes']:
                 raise ValueError('Retained response checksum or charge differs')
-            expected = graph(selection['operations'][attempt['operationIndex']], strict_json(raw), sha(raw), attempt['observedAt'])
+            value = strict_json(raw)
+            reject_reflection(value, key)
+            expected = graph(selection['operations'][attempt['operationIndex']], value, sha(raw), attempt['observedAt'])
             observed = read_regular(directory / f'observation-{index:04}.json')
             if sha(observed) != attempt.get('observationSha256') or observed != encoded(expected):
                 raise ValueError('Retained observation differs from full response')
