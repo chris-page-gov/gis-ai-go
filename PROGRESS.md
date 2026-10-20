@@ -2,6 +2,18 @@
 
 Last updated: 20 October 2026
 
+## Linked Identifiers encoded credential refusal
+
+The [local method](docs/implementation/OS_LINKED_IDENTIFIER_METHOD.md) now checks
+JSON property names and values for the current credential through bounded strict
+percent decoding before retaining responses or diagnostics and during cache
+replay. Native benign text remains unchanged; unresolved encoding fails closed.
+Synthetic regression tests exercise nested and combined encodings, conservative
+charges, successful and diagnostic replay, and refusal without another request.
+This [issue #153](https://github.com/chris-page-gov/gis-ai-go/issues/153) repair
+changes no admitted route or private frozen runtime. At preparation, canonical
+source assurance remained pending; no new provider call or deployment is added.
+
 ## Bounded Linked Identifiers candidate
 
 The [local method](docs/implementation/OS_LINKED_IDENTIFIER_METHOD.md) adds typed,
