@@ -122,6 +122,15 @@ observation and retrieval states; missing route evidence is unknown data presenc
 A completed selected retrieval closes that selector only; report the requested
 scope directly and leave unproven source/version assertions visible.
 
+The [bounded Linked Identifiers method](OS_LINKED_IDENTIFIER_METHOD.md) adds local
+typed lookups and relationship-first candidate planning. Preserve correlation
+methods, source versions, confidence meanings and set-valued cardinality before
+considering a separately justified spatial fallback. Native references and API
+links need compatible scope/version evidence; neither establishes transitive
+identity. Current planner namespaces do not admit NGD Building/OSID or ONS GSS
+bridges. Live selection evidence, those bridges and geographic rendering retain
+separate acceptance gates; no new hosted tool is admitted.
+
 ## Learning and feature evaluation
 
 [EXPERIENCE-221](EXPERIENCE-221_LEARNING_AND_EVALUATION.md) was authorised on

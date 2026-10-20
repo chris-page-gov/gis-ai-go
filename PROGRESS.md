@@ -2,6 +2,20 @@
 
 Last updated: 20 October 2026
 
+## Bounded Linked Identifiers candidate
+
+The [local method](docs/implementation/OS_LINKED_IDENTIFIER_METHOD.md) adds typed,
+source-bound relationship capture and offline relationship-first planning for
+[issue #153](https://github.com/chris-page-gov/gis-ai-go/issues/153). Fixed routes,
+header-only credentials, immutable budgets/deadlines and durable attempt
+reservations bound private execution. Native and API relationship candidates keep
+separate scope/version evidence; road surfaces are not relabelled as buildings.
+The planner currently uses only Linked Identifiers endpoint namespaces; NGD
+Building/OSID and ONS geography bridges remain unsupported. Synthetic tests cover
+transport refusal, interruption, replay, schema/source binding and semantic limits.
+At preparation, live observations and canonical source assurance remained pending.
+No hosted MCP tool, map, entitlement or full-coverage claim is added.
+
 ## OS API coverage and usage interpretation
 
 The [coverage and usage guide](docs/implementation/OS_API_COVERAGE_AND_USAGE.md)
