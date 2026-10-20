@@ -2,6 +2,23 @@
 
 Last updated: 20 October 2026
 
+## Repository assurance time allowance
+
+The post-merge [CI run](https://github.com/chris-page-gov/gis-ai-go/actions/runs/39431969961)
+for `9f2ab130` and its ordinary retry both reached a cancelled repository-assurance
+result around the 20-minute job limit. Both completed the assurance tests, clean
+source-archive journey and evidence uploads successfully, but the aggregate gate
+failed and downstream provenance and attestation jobs were skipped. On retry,
+assurance took 18 minutes 1 second, the archive journey 71 seconds and evidence
+upload 31 seconds, leaving insufficient time for setup and cleanup.
+
+The [issue #153](https://github.com/chris-page-gov/gis-ai-go/issues/153)
+maintenance follow-up raises this job's bounded allowance to 30 minutes and
+updates its exact workflow contract. The five-minute archive step cap, all checks,
+permissions and mandatory gates remain in force. At preparation, canonical
+acceptance of this repair and the resulting main-commit provenance remained
+pending; no deployment is included.
+
 ## Local GML recovery method
 
 The owner authorised continuing [issue #153](https://github.com/chris-page-gov/gis-ai-go/issues/153)

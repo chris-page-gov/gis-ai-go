@@ -158,7 +158,7 @@ class PagesWorkflowTests(unittest.TestCase):
         self.assertNotIn("needs.ci_impact_shadow.outputs", CI_WORKFLOW)
         self.assertNotIn("needs.ci_impact_candidate.outputs", CI_WORKFLOW)
         self.assertIn("name: Repository assurance", repository)
-        self.assertIn("timeout-minutes: 20", repository)
+        self.assertIn("timeout-minutes: 30", repository)
         self.assertIn("name: Gateway image assurance", gateway)
         self.assertNotIn("needs: repository_assurance", gateway)
         self.assertIn("timeout-minutes: 50", gateway)
