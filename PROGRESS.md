@@ -1,6 +1,23 @@
 # Current progress
 
-Last updated: 20 October 2026
+Last updated: 21 October 2026
+
+## Geography and identifier bridge acceptance
+
+The [bridge method](docs/implementation/OS_IDENTIFIER_GEOGRAPHY_BRIDGES.md)
+defines the proposed authority-to-statistical-area-to-property, road and building
+journey for [issue #153](https://github.com/chris-page-gov/gis-ai-go/issues/153).
+Published memberships and typed identifier relationships guide each bridge;
+versions, cardinality, containment, native feature identity and height meaning
+remain separate checks. Complete selected processing, independent small-knowledge
+verification and raw-disposal dependencies have explicit acceptance criteria.
+This documentation increment adds no provider executor or live coverage claim.
+Canonical source assurance for this increment remains pending at preparation.
+
+The preceding encoded-credential repair is accepted on `main` at `157219e6`:
+all nine [CI jobs](https://github.com/chris-page-gov/gis-ai-go/actions/runs/39509922313)
+and three [CodeQL analyses](https://github.com/chris-page-gov/gis-ai-go/actions/runs/39509922004)
+passed. Earlier dated preparation statements below remain historical.
 
 ## Linked Identifiers encoded credential refusal
 

@@ -1,0 +1,1 @@
+- Document source-backed geography and identifier bridge acceptance, preserving membership, relationship, native-feature, height and retention semantics for issue #153.
