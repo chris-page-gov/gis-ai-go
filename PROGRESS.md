@@ -1,6 +1,22 @@
 # Current progress
 
-Last updated: 19 October 2026
+Last updated: 20 October 2026
+
+## Local GML recovery method
+
+The owner authorised continuing [issue #153](https://github.com/chris-page-gov/gis-ai-go/issues/153)
+on the existing local Docker installation and external drives. The
+[generic GML method](docs/implementation/OS_LOCAL_GML_PROCESSING.md) adds
+provider-free complete selected-input traversal, bounded archive admission and
+small source-bound JSON-LD field cards. Independent feature-membership counts
+remain distinct from conversion success. Raw payloads are retained; schema
+closure, format-mapping completeness and authoritative PSGA coverage remain open.
+Only generic methods and synthetic tests belong in this increment. Private
+restoration, source selections and operating state remain outside the repository.
+All 36 affected synthetic tests passed in the pinned Python 3.12 Linux runtime.
+Local links, changelog fragments and secret/machine-path checks passed. Canonical
+source assurance remains pending; no public deployment, installed connector or
+full-coverage claim follows.
 
 ## OS small-file knowledge and acquisition recovery
 
