@@ -2,6 +2,18 @@
 
 Last updated: 20 October 2026
 
+## OS API coverage and usage interpretation
+
+The [coverage and usage guide](docs/implementation/OS_API_COVERAGE_AND_USAGE.md)
+uses the dated public PSGA product table as a coverage basis and distinguishes
+documented services, admitted MCP routes, observed requests, complete selected
+processing and account reporting. It explains the Linked Identifiers and tile
+route gaps, keyless Downloads metadata, authenticated package operations and
+separate payload delivery. Zero or missing usage does not establish absent data
+or entitlement. Package-creation requirements follow proven edition, format or
+area gaps. This prose-only increment adds no provider call, runtime admission or
+deployment; account-specific decisions and evidence remain private.
+
 ## Repository assurance time allowance
 
 The post-merge [CI run](https://github.com/chris-page-gov/gis-ai-go/actions/runs/39431969961)

@@ -6,6 +6,10 @@ from `f8292cbb`; no deployment, installed connector registration or protected-ma
 acceptance is implied. The initial working tree was clean. No execution log for
 the quoted failed prompt was supplied, so its precise failure cause is unknown.
 
+The [API coverage and usage guide](OS_API_COVERAGE_AND_USAGE.md) explains the
+public PSGA product-table basis, service execution gaps and usage-accounting
+boundaries. Read it before interpreting a zero or missing API usage figure.
+
 ## Objective and authority
 
 Preserve small, rich OKF+ evidence files with Linked Data. A question should locate

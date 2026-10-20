@@ -1,0 +1,1 @@
+- Clarify OS API coverage and usage for issue #153, distinguishing documented services, admitted MCP routes, selected processing and account reporting; use the dated public PSGA product table as the coverage basis and require a proven edition, format or area gap before a package-creation requirement report.
