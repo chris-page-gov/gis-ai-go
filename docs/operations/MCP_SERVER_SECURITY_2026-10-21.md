@@ -54,8 +54,10 @@ extend earlier host observations or attestations.
 ## Acceptance limits
 
 Gateway regression tests and the pinned dependency assertions are required locally.
-Fresh canonical assurance, independent image derivation and the unchanged
-vulnerability-policy gate remain required before merge. This source repair does
-not prove that any previously deployed private Site or service contains these
+Fresh canonical PR assurance, including gateway image verification and the unchanged
+vulnerability-policy gate, remains required before merge. On pushes to `main`,
+independent image derivation, attestation verification and provenance jobs provide
+the additional evidence required for acceptance and release. This source repair
+does not prove that any previously deployed private Site or service contains these
 bytes. It changes no tool registration, provider authority, entitlement, retry
 policy or deployment state.
