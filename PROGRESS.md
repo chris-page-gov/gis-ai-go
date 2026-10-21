@@ -2,6 +2,16 @@
 
 Last updated: 21 October 2026
 
+## MCP server security bounds
+
+The [21 October security record](docs/operations/MCP_SERVER_SECURITY_2026-10-21.md)
+updates the gateway server SDK to `2.3.0`, explicitly caps tool argument elements
+and preserves the existing HTTP byte ceilings and per-request server factories.
+Synthetic regressions cover oversized arrays and records, the exact element
+boundary and concurrent calls with colliding JSON-RPC IDs. Local gateway tests,
+input-bound proofs, dependency contracts and editorial checks passed. Canonical
+assurance remains pending at preparation; no deployment is claimed.
+
 ## Geography explanation and chart-suggestion rules
 
 The [geography explanation guide](docs/implementation/GEOGRAPHY_DATES_AND_CLASSIFICATIONS.md)

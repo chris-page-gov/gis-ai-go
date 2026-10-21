@@ -1,0 +1,1 @@
+- Patch the MCP server SDK to 2.3.0, enable bounded argument validation and retain explicit HTTP byte ceilings and per-request server isolation, with synthetic regression coverage ([#153](https://github.com/chris-page-gov/gis-ai-go/issues/153)).
