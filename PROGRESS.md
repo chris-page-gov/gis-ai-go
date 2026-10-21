@@ -2,6 +2,21 @@
 
 Last updated: 21 October 2026
 
+## Shared local geography actions
+
+The [shared action contract](examples/geography-task-experience/SHARED-ACTIONS.md)
+now supplies the task navigator, reference tabs and explicit pin control with
+one validated local implementation. It rejects unknown IDs before UI setters,
+returns only four bounded routing fields and distinguishes late cancellation
+from rollback. Manual controls remain available when the optional module is absent;
+history and keyboard behaviour retain their existing paths.
+
+The affected synthetic checks cover the browser-global loader, closed schemas,
+changing inputs, finite error projection, overlay integration and fallback.
+At preparation, canonical source assurance and exact-host browser acceptance
+remained pending. No page tool, provider connection, Site deployment or audience
+change is included.
+
 ## Further selected Census and ONSUD vocabulary evidence
 
 The [classification findings](docs/research/2026-10-21/CLASSIFICATION_RELEASE_FINDINGS.md)

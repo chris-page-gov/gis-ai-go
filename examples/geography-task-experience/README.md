@@ -24,6 +24,9 @@ Docker/storage infrastructure are different things.
    search-variant authority; a retrieval alias is not an equivalence assertion.
 3. Load the host's base stylesheet before `experience.css`. The overlay expects
    the documented class structure; review its interaction with the host CSS.
+   Load `shared_actions.js` as a classic script before `experience.js` to enable
+   the [validated local actions](SHARED-ACTIONS.md). The module exposes
+   `OverlaySharedActions` on the browser global; it registers no tools.
 4. Once the host has loaded its model and built the DOM, call
    `initialiseExperience()` once. Existing cross-task selection handlers should
    call `experienceShow()` and, where relevant, `experienceFeatureView()`.
@@ -35,6 +38,8 @@ Run the source-only synthetic contract checks with:
 
 ```sh
 node test_overlay_contract.cjs
+node --test test_shared_actions.cjs test_shared_actions_adverse.cjs
+SHARED_ACTIONS_OFF=1 node test_overlay_contract.cjs
 ```
 
 These tests use synthetic terms and DOM objects. They test state transitions,

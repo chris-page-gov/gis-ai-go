@@ -84,14 +84,33 @@ function experienceSearch(){
  if(!terms.length){box.append(el('p','No matching definition. Try a shorter term or an identifier such as UPRN. Search does not query a provider.'));return;}
  for(const term of terms){const d=el('details',undefined,'definition');d.open=terms.length===1;d.append(el('summary',term.label+(term.helpStatus==='source-only'?' · source guidance':'')),el('p',term.definition));if(term.domainContext)d.append(el('p','Context: '+term.domainContext,'muted'));if(term.scopeNote)d.append(el('p',term.scopeNote,'scope-note'));if(term.example?.kind==='authored-synthetic-example')d.append(el('h4','Illustrative example'),el('p',term.example.text));if(term.aliases?.length){const list=el('ul');for(const alias of term.aliases)list.append(el('li',`${alias.value} — ${alias.kind||'search variant'}${alias.authority?' · '+alias.authority:''}${alias.language?' · '+alias.language:''}`));d.append(el('h4','Labels and search variants'),list);}experienceSources(d,term.sourceRefs);if(typeof window.classificationTermAction==='function')window.classificationTermAction(term,d);box.append(d);}
 }
+let experienceSharedActions;
+function experienceSetPinned(pinned){
+ experiencePinned=pinned;$('reference-pin').setAttribute('aria-pressed',String(experiencePinned));$('reference-pin').textContent=experiencePinned?'Unpin reference':'Pin this reference';$('reference-pin-status').textContent=experiencePinned?'Pinned: changing tasks keeps this reference. You can still choose another reference tab.':'Follows the current task until pinned.';if(!experiencePinned){experienceContext(experienceTask);experienceReferenceTab('context');}
+}
+// Manual fallback remains available when the optional action module is absent.
+// Once present, a refusal never falls back to an unvalidated action.
+function experienceManualAction(action,input){
+ if(experienceSharedActions)return experienceSharedActions.execute(action,input);
+ if(action==='open-task')experienceShow(input.taskId,input.focus);
+ else if(action==='open-reference'){experienceFold('reference',true);experienceReferenceTab(input.referenceId,input.focus);}
+ else if(action==='set-pinned')experienceSetPinned(input.pinned);
+}
 function initialiseExperience(){
+ if(typeof OverlaySharedActions!=='undefined')experienceSharedActions=OverlaySharedActions.create({
+  ready:()=>experienceReady,
+  snapshot:()=>({taskId:experienceTask,referenceId:experienceReference,pinned:experiencePinned,referenceOpen:!$('reference-inspector').hidden}),
+  openTask:(id,focus)=>{experienceShow(id,focus,true);},
+  openReference:(id,focus)=>{experienceFold('reference',true);experienceReferenceTab(id,focus);},
+  setPinned:(pinned)=>{experienceSetPinned(pinned);}
+ });
  experienceReady=true;$('journey-slot').append($('journey'));
- for(const button of document.querySelectorAll('[data-task]'))button.addEventListener('click',()=>experienceShow(button.dataset.task));
- for(const button of document.querySelectorAll('[data-reference]')){button.addEventListener('click',()=>experienceReferenceTab(button.dataset.reference));button.addEventListener('keydown',event=>{const ids=['context','glossary','dates','codelists'],i=ids.indexOf(button.dataset.reference);let next;if(event.key==='ArrowRight')next=(i+1)%ids.length;else if(event.key==='ArrowLeft')next=(i+ids.length-1)%ids.length;else if(event.key==='Home')next=0;else if(event.key==='End')next=ids.length-1;else return;event.preventDefault();experienceReferenceTab(ids[next],true);});}
+ for(const button of document.querySelectorAll('[data-task]'))button.addEventListener('click',()=>experienceManualAction('open-task',{taskId:button.dataset.task,focus:true}));
+ for(const button of document.querySelectorAll('[data-reference]')){button.addEventListener('click',()=>experienceManualAction('open-reference',{referenceId:button.dataset.reference,focus:false}));button.addEventListener('keydown',event=>{const ids=['context','glossary','dates','codelists'],i=ids.indexOf(button.dataset.reference);let next;if(event.key==='ArrowRight')next=(i+1)%ids.length;else if(event.key==='ArrowLeft')next=(i+ids.length-1)%ids.length;else if(event.key==='Home')next=0;else if(event.key==='End')next=ids.length-1;else return;event.preventDefault();experienceManualAction('open-reference',{referenceId:ids[next],focus:true});});}
  const navButtons=[...document.querySelectorAll('#task-navigator [data-task]')];navButtons.forEach((button,i)=>button.addEventListener('keydown',event=>{let next;if(event.key==='ArrowDown')next=(i+1)%navButtons.length;else if(event.key==='ArrowUp')next=(i+navButtons.length-1)%navButtons.length;else if(event.key==='Home')next=0;else if(event.key==='End')next=navButtons.length-1;else return;event.preventDefault();navButtons[next].focus();}));
  $('navigator-toggle').onclick=()=>experienceFold('navigator',$('task-navigator').hidden);
  $('reference-toggle').onclick=()=>experienceFold('reference',$('reference-inspector').hidden);
- $('reference-pin').onclick=()=>{experiencePinned=!experiencePinned;$('reference-pin').setAttribute('aria-pressed',String(experiencePinned));$('reference-pin').textContent=experiencePinned?'Unpin reference':'Pin this reference';$('reference-pin-status').textContent=experiencePinned?'Pinned: changing tasks keeps this reference. You can still choose another reference tab.':'Follows the current task until pinned.';if(!experiencePinned){experienceContext(experienceTask);experienceReferenceTab('context');}};
+ $('reference-pin').onclick=()=>experienceManualAction('set-pinned',{pinned:!experiencePinned});
  $('reference-inspector').addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();experienceFold('reference',false,true);}});
  $('task-navigator').addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();experienceFold('navigator',false,true);}});
  $('task-help').onclick=()=>{experienceFold('reference',true);experienceContext(experienceTask);experienceReferenceTab('context',true);};

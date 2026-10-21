@@ -1,0 +1,216 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gis-ai-go:candidate:overlay-shared-actions:v1",
+  "title": "Candidate local overlay action envelope",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "action": {
+          "const": "read-state"
+        },
+        "input": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "action",
+        "input"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "action": {
+          "const": "open-task"
+        },
+        "input": {
+          "type": "object",
+          "properties": {
+            "taskId": {
+              "enum": [
+                "learn",
+                "areas",
+                "groups",
+                "features",
+                "settlements",
+                "history",
+                "sources"
+              ]
+            },
+            "focus": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "taskId",
+            "focus"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "action",
+        "input"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "action": {
+          "const": "open-reference"
+        },
+        "input": {
+          "type": "object",
+          "properties": {
+            "referenceId": {
+              "enum": [
+                "context",
+                "glossary",
+                "dates",
+                "codelists"
+              ]
+            },
+            "focus": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "referenceId",
+            "focus"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "action",
+        "input"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "action": {
+          "const": "set-pinned"
+        },
+        "input": {
+          "type": "object",
+          "properties": {
+            "pinned": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "pinned"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "action",
+        "input"
+      ],
+      "additionalProperties": false
+    }
+  ],
+  "$defs": {
+    "result": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "ok": {
+              "const": true
+            },
+            "action": {
+              "enum": [
+                "read-state",
+                "open-task",
+                "open-reference",
+                "set-pinned"
+              ]
+            },
+            "state": {
+              "type": "object",
+              "properties": {
+                "taskId": {
+                  "enum": [
+                    "learn",
+                    "areas",
+                    "groups",
+                    "features",
+                    "settlements",
+                    "history",
+                    "sources"
+                  ]
+                },
+                "referenceId": {
+                  "enum": [
+                    "context",
+                    "glossary",
+                    "dates",
+                    "codelists"
+                  ]
+                },
+                "pinned": {
+                  "type": "boolean"
+                },
+                "referenceOpen": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "taskId",
+                "referenceId",
+                "pinned",
+                "referenceOpen"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "ok",
+            "action",
+            "state"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "ok": {
+              "const": false
+            },
+            "code": {
+              "enum": [
+                "invalid-input",
+                "invalid-action",
+                "not-ready",
+                "invalid-host-state",
+                "invalid-host-adapter",
+                "cancelled",
+                "postcondition-refused",
+                "host-action-failed"
+              ]
+            },
+            "mutationMayHaveOccurred": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "ok",
+            "code",
+            "mutationMayHaveOccurred"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  }
+}
