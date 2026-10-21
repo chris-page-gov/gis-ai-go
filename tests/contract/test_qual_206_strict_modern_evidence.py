@@ -49,8 +49,11 @@ EXACT_RESOURCES = [
 # The 21 October MCP SDK repair refreshes three source hashes and the lockfile,
 # plus their derived identities, after all 87 selected tests pass. Historical pins
 # and every assertion, test count, outcome and non-live boundary remain unchanged.
+# The geography learning overlay adds its synthetic contract check to package.json.
+# The passing generator changes only that package hash and the derived set ID;
+# every suite, receipt, assertion, outcome and historical pin is unchanged.
 REGENERABLE_LOCAL_RECEIPT_SHA256 = (
-    "08de3c41267f568522dea919b93b306e5c1b80ee47f16b6b74f4b50f70c29b6c"
+    "40dd5cec981f4d6588062f3cef70b99b464b60542d27e1a013bc59deed362b40"
 )
 HISTORICAL_V1_SHA256 = {
     "evaluation/qual-206-local-protocol-evidence-matrix.v1.json": (
