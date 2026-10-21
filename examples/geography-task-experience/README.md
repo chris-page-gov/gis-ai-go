@@ -51,3 +51,15 @@ source-owned; their mere presence does not mean their complete semantics have
 been explained. The task composition does not assert universal containment,
 common source epochs or a navigable network. Practice ticks are in memory and
 are not an assessment.
+
+## Selected source code lists
+
+The fourth Reference tab is **Code lists**. It preserves selected supplier lists
+separately from the learning glossary. The [code-list integration guide](CLASSIFICATION-BROWSER.md)
+defines its reviewed data contract, bounded rendering, safe source links, source
+dates, explicit gaps and exact-code comparison limits. No supplier lists are
+embedded in these public source assets. A complete selected list is not a
+claim of complete product or vocabulary coverage.
+
+The existing test entry point also runs the fictional code-list contract suite;
+no additional package or network access is required.

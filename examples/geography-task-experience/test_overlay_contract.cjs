@@ -42,5 +42,9 @@ check(()=>{for(const task of contract.taskIds){run(`experienceContext('${task}')
 check(()=>{run("experienceShow('groups')");nodes.workspace.focus();context.location.hash='#workspace';events.hashchange();assert.equal(run('experienceTask'),'groups');assert.equal(focused,nodes.workspace)});
 check(()=>{run("experienceFold('reference',false)");skipReference.listeners.click();nodes['reference-heading'].focus();context.location.hash='#reference-heading';events.hashchange();assert.equal(run('experienceTask'),'groups');assert.equal(nodes['reference-inspector'].hidden,false);assert.equal(focused,nodes['reference-heading'])});
 check(()=>{context.location.hash='#task/areas';events.popstate();assert.equal(run('experienceTask'),'areas');context.location.hash='';events.popstate();assert.equal(run('experienceTask'),'learn')});
+check(()=>{let prevented=false;nodes['ref-tab-context'].listeners.keydown({key:'End',preventDefault(){prevented=true}});assert.equal(focused,nodes['ref-tab-codelists']);assert.ok(prevented);nodes['ref-tab-codelists'].listeners.keydown({key:'ArrowRight',preventDefault(){}});assert.equal(focused,nodes['ref-tab-context']);});
+check(()=>{nodes['ref-tab-codelists'].listeners.click();nodes['reference-pin'].onclick();run("experienceShow('areas')");assert.equal(nodes['ref-tab-codelists'].attributes['aria-selected'],'true');run("experienceFold('reference',false)");run("experienceFold('reference',true)");assert.equal(nodes['ref-tab-codelists'].attributes['aria-selected'],'true');});
 check(()=>assert.equal(requests,0));
 console.log(JSON.stringify({passed:true,syntheticChecks:checks,networkRequests:requests,privateModelUsed:false,limits:['Synthetic DOM contract checks, not rendered browser or human evaluation.']},null,2));
+
+require('./test_classification_browser.cjs');

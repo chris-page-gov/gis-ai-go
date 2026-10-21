@@ -48,7 +48,7 @@ function experienceFold(kind,open,focusReturn=false){
  $('app-shell').classList.toggle(nav?'tasks-folded':'reference-folded',!open);if(focusReturn)button.focus();
 }
 function experienceReferenceTab(id,focus=false){
- if(!['context','glossary','dates'].includes(id))return;experienceReference=id;
+ if(!['context','glossary','dates','codelists'].includes(id))return;experienceReference=id;
  for(const tab of document.querySelectorAll('[data-reference]')){const active=tab.dataset.reference===id;tab.setAttribute('aria-selected',String(active));tab.tabIndex=active?0:-1;$('ref-panel-'+tab.dataset.reference).hidden=!active;}
  if(focus)$('ref-tab-'+id).focus();
 }
@@ -82,12 +82,12 @@ function experienceSearch(){
  $('glossary-count').textContent=`${terms.length} ${terms.length===1?'entry':'entries'}${query?' matching your search':''}.`;
  const box=$('glossary-results');box.replaceChildren();
  if(!terms.length){box.append(el('p','No matching definition. Try a shorter term or an identifier such as UPRN. Search does not query a provider.'));return;}
- for(const term of terms){const d=el('details',undefined,'definition');d.open=terms.length===1;d.append(el('summary',term.label+(term.helpStatus==='source-only'?' · source guidance':'')),el('p',term.definition));if(term.domainContext)d.append(el('p','Context: '+term.domainContext,'muted'));if(term.scopeNote)d.append(el('p',term.scopeNote,'scope-note'));if(term.example?.kind==='authored-synthetic-example')d.append(el('h4','Illustrative example'),el('p',term.example.text));if(term.aliases?.length){const list=el('ul');for(const alias of term.aliases)list.append(el('li',`${alias.value} — ${alias.kind||'search variant'}${alias.authority?' · '+alias.authority:''}${alias.language?' · '+alias.language:''}`));d.append(el('h4','Labels and search variants'),list);}experienceSources(d,term.sourceRefs);box.append(d);}
+ for(const term of terms){const d=el('details',undefined,'definition');d.open=terms.length===1;d.append(el('summary',term.label+(term.helpStatus==='source-only'?' · source guidance':'')),el('p',term.definition));if(term.domainContext)d.append(el('p','Context: '+term.domainContext,'muted'));if(term.scopeNote)d.append(el('p',term.scopeNote,'scope-note'));if(term.example?.kind==='authored-synthetic-example')d.append(el('h4','Illustrative example'),el('p',term.example.text));if(term.aliases?.length){const list=el('ul');for(const alias of term.aliases)list.append(el('li',`${alias.value} — ${alias.kind||'search variant'}${alias.authority?' · '+alias.authority:''}${alias.language?' · '+alias.language:''}`));d.append(el('h4','Labels and search variants'),list);}experienceSources(d,term.sourceRefs);if(typeof window.classificationTermAction==='function')window.classificationTermAction(term,d);box.append(d);}
 }
 function initialiseExperience(){
  experienceReady=true;$('journey-slot').append($('journey'));
  for(const button of document.querySelectorAll('[data-task]'))button.addEventListener('click',()=>experienceShow(button.dataset.task));
- for(const button of document.querySelectorAll('[data-reference]')){button.addEventListener('click',()=>experienceReferenceTab(button.dataset.reference));button.addEventListener('keydown',event=>{const ids=['context','glossary','dates'],i=ids.indexOf(button.dataset.reference);let next;if(event.key==='ArrowRight')next=(i+1)%3;else if(event.key==='ArrowLeft')next=(i+2)%3;else if(event.key==='Home')next=0;else if(event.key==='End')next=2;else return;event.preventDefault();experienceReferenceTab(ids[next],true);});}
+ for(const button of document.querySelectorAll('[data-reference]')){button.addEventListener('click',()=>experienceReferenceTab(button.dataset.reference));button.addEventListener('keydown',event=>{const ids=['context','glossary','dates','codelists'],i=ids.indexOf(button.dataset.reference);let next;if(event.key==='ArrowRight')next=(i+1)%ids.length;else if(event.key==='ArrowLeft')next=(i+ids.length-1)%ids.length;else if(event.key==='Home')next=0;else if(event.key==='End')next=ids.length-1;else return;event.preventDefault();experienceReferenceTab(ids[next],true);});}
  const navButtons=[...document.querySelectorAll('#task-navigator [data-task]')];navButtons.forEach((button,i)=>button.addEventListener('keydown',event=>{let next;if(event.key==='ArrowDown')next=(i+1)%navButtons.length;else if(event.key==='ArrowUp')next=(i+navButtons.length-1)%navButtons.length;else if(event.key==='Home')next=0;else if(event.key==='End')next=navButtons.length-1;else return;event.preventDefault();navButtons[next].focus();}));
  $('navigator-toggle').onclick=()=>experienceFold('navigator',$('task-navigator').hidden);
  $('reference-toggle').onclick=()=>experienceFold('reference',$('reference-inspector').hidden);

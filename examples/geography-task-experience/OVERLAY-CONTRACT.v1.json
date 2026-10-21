@@ -14,7 +14,8 @@
   "referenceIds": [
     "context",
     "glossary",
-    "dates"
+    "dates",
+    "codelists"
   ],
   "requiredHostFunctions": [
     "$(id): existing element",
@@ -116,5 +117,8 @@
   ],
   "optionalSelectors": [
     ".skip-link[href=\"#reference-heading\"]"
+  ],
+  "optionalHostCallbacks": [
+    "window.classificationTermAction(term, card): append a text-only contextual action for an explicitly configured term-to-list search; no equivalence assertion"
   ]
 }
