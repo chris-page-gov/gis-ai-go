@@ -2,6 +2,26 @@
 
 Last updated: 21 October 2026
 
+## Further selected Census and ONSUD vocabulary evidence
+
+The [classification findings](docs/research/2026-10-21/CLASSIFICATION_RELEASE_FINDINGS.md)
+now distinguish the retained ONSUD OAC and national rural/urban domains from the
+separate `RUC21CD` field, and add tenure, sex and disability dictionary/Nomis
+contexts. The latter capture contains 16 public metadata responses, no statistical
+observations and no credential use. All nine selected ONS tables and complete
+Nomis category lists are retained; population, date and aggregate semantics stay
+explicit. Repeated `hh_tenure` mnemonics on different ONS pages remain a source
+clarification question. No full-coverage or provider-defect claim follows.
+
+The Code lists view folds scheme-wide sources and limits into one optional
+disclosure when all schemes are selected. Individual entry limits remain visible,
+and paging preserves an opened disclosure. The 53 widget and 22 overlay synthetic
+checks pass; the private browser check confirms the folded view and selected lists.
+
+This increment publishes methods, the presentation change and concise findings only. Private list payloads,
+local receipts and the supplier-review pack remain outside Git. Source assurance
+is pending at preparation; no deployment or supplier message is added.
+
 ## Selected classification lists and demo access
 
 The [classification discovery method](docs/implementation/CLASSIFICATION_RELEASE_DISCOVERY.md)

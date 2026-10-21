@@ -182,7 +182,7 @@
     }
     function scopeCard(s) {
       const card = el('details', undefined, 'classification-scheme');
-      card.open = Boolean(state.schemeId);
+      card.open = false;
       const c = s.coverage;
       const status = {'complete-selected-list': 'Complete selected source list', partial: 'Partial selected list', 'not-captured': 'List not captured'}[c.status];
       card.append(el('summary', s.title + ': ' + status + ' — ' + c.retainedEntries + ' retained / ' + (c.expectedEntries === null ? 'unknown expected count' : c.expectedEntries + ' expected') + '; ' + s.gaps.length + ' scope notes'));
@@ -244,7 +244,15 @@
       const pages = Math.max(1, Math.ceil(matches.length / PAGE_SIZE)); state.page = Math.min(state.page, pages - 1);
       const start = state.page * PAGE_SIZE, visible = matches.slice(start, start + PAGE_SIZE);
       count.textContent = matches.length + ' matching entries / ' + total + ' retained in ' + (state.schemeId ? 'this scheme' : 'the supplied schemes') + '. ' + (matches.length ? 'Showing ' + (start + 1) + '–' + (start + visible.length) + '.' : 'No matching source entries.');
-      scopeBox.replaceChildren(...payload.schemes.filter(s => !state.schemeId || s.id === state.schemeId).map(scopeCard));
+      if (resetSelection || scopeBox.children.length === 0) {
+        const schemes = payload.schemes.filter(s => !state.schemeId || s.id === state.schemeId);
+        if (schemes.length === 1) scopeBox.replaceChildren(scopeCard(schemes[0]));
+        else {
+          const group = el('details', undefined, 'classification-scheme'); group.open = false;
+          group.append(el('summary', 'Coverage, sources and limits for ' + schemes.length + ' supplied schemes'));
+          group.append(...schemes.map(scopeCard)); scopeBox.replaceChildren(group);
+        }
+      }
       list.replaceChildren(); list.start = start + 1;
       for (const row of visible) {
         const item = el('li'), button = el('button', display(row.entry.code, 'No code supplied') + ' — ' + display(row.entry.label)); button.type = 'button';

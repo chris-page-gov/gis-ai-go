@@ -10,6 +10,11 @@ The browser keeps selected source lists separate from the learning glossary. It
 shows 20 results per page, with scheme and entry identity preserved. A matching
 code in another scheme is an exact text comparison, not an equivalence assertion.
 Source dates, list coverage and definition coverage remain separate.
+The all-schemes view folds scope summaries into one native disclosure, keeping
+search results near the controls as the catalogue grows. Selecting a scheme
+shows its own initially folded scope summary. Paging preserves an opened scope
+disclosure; deliberate filter changes reset it. Entry-specific limits remain
+visible in the selected entry, independently of this disclosure.
 
 ## Host integration
 

@@ -1,0 +1,1 @@
+- Fold code-list scope summaries so search results remain accessible as lists grow; extend guidance with retained ONSUD OAC/rural-urban domains and further Census/Nomis population, date, alias and aggregate context, preserving unresolved mappings without asserting full coverage or supplier defects.
