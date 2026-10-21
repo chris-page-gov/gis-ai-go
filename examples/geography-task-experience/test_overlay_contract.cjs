@@ -19,8 +19,9 @@ const el=(tag,text,cls)=>{const e=new E(tag);if(text!==undefined)e.textContent=t
 const tree=e=>[e,...e.children.flatMap(tree)],text=e=>tree(e).map(x=>x.textContent).join(' ');
 const registry={terms:[{id:'synthetic-a',label:'Example area',definition:'A synthetic area definition.',aliases:[{value:'EA','kind':'project-search-variant','authority':'project','language':'en-GB'}],sourceRefs:['safe','unsafe']},{id:'synthetic-b',label:'Source term',definition:'Definition still to be reviewed.',domainContext:'Synthetic test context',example:{kind:'authored-synthetic-example',text:'Fictional example, not a native data observation.'},helpStatus:'source-only',sourceRefs:['safe']}],sources:[{id:'safe',title:'Synthetic reference',url:'https://example.invalid/reference',reviewState:'official-search-result-extract-reviewed'},{id:'unsafe',title:'Unsafe scheme',url:'javascript:alert(1)'}]};
 const doc={body:{dataset:{}},createElement:t=>new E(t),querySelectorAll:s=>({'.task-panel':panels,'[data-task]':nav,'#task-navigator [data-task]':nav,'[data-reference]':tabs,'.skip-link[href="#reference-heading"]':[skipReference]}[s]||[])};
-const context=vm.createContext({$:get,el,document:doc,URL,Set,window:{addEventListener:(k,v)=>events[k]=v,matchMedia:()=>({matches:false})},location:{hash:''},history:{pushState(_a,_b,h){context.location.hash=h}},fetch(){requests++;throw Error('No request admitted')}});
-let source=fs.readFileSync(path.join(root,'experience.js'),'utf8');assert.equal(source.split('__VOCABULARY_REGISTRY__').length,2);source=source.replace('__VOCABULARY_REGISTRY__',JSON.stringify(registry));vm.runInContext(source,context);
+const context=vm.createContext({$:get,el,document:doc,URL,Set,window:{addEventListener:(k,v)=>events[k]=v,matchMedia:()=>({matches:false})},location:{hash:''},history:{pushState(_a,_b,h){context.location.hash=h}},AbortSignal,fetch(){requests++;throw Error('No request admitted')}});
+if(process.env.SHARED_ACTIONS_OFF!=='1')vm.runInContext(fs.readFileSync(path.join(__dirname,'shared_actions.js'),'utf8'),context);
+let source=fs.readFileSync(path.join(__dirname,'experience.js'),'utf8');assert.equal(source.split('__VOCABULARY_REGISTRY__').length,2);source=source.replace('__VOCABULARY_REGISTRY__',JSON.stringify(registry));vm.runInContext(source,context);
 const run=s=>vm.runInContext(s,context);nodes['learning-persona'].value='resident';run('initialiseExperience()');
 let checks=0;function check(fn){fn();checks++}
 check(()=>assert.equal(panels.filter(x=>!x.hidden).length,1));
@@ -45,6 +46,19 @@ check(()=>{context.location.hash='#task/areas';events.popstate();assert.equal(ru
 check(()=>{let prevented=false;nodes['ref-tab-context'].listeners.keydown({key:'End',preventDefault(){prevented=true}});assert.equal(focused,nodes['ref-tab-codelists']);assert.ok(prevented);nodes['ref-tab-codelists'].listeners.keydown({key:'ArrowRight',preventDefault(){}});assert.equal(focused,nodes['ref-tab-context']);});
 check(()=>{nodes['ref-tab-codelists'].listeners.click();nodes['reference-pin'].onclick();run("experienceShow('areas')");assert.equal(nodes['ref-tab-codelists'].attributes['aria-selected'],'true');run("experienceFold('reference',false)");run("experienceFold('reference',true)");assert.equal(nodes['ref-tab-codelists'].attributes['aria-selected'],'true');});
 check(()=>assert.equal(requests,0));
-console.log(JSON.stringify({passed:true,syntheticChecks:checks,networkRequests:requests,privateModelUsed:false,limits:['Synthetic DOM contract checks, not rendered browser or human evaluation.']},null,2));
 
-require('./test_classification_browser.cjs');
+if(process.env.SHARED_ACTIONS_OFF!=='1'){
+ const invoke=(name,value)=>run(`experienceSharedActions.execute(${JSON.stringify(name)},${JSON.stringify(value)})`);
+ check(()=>{const before=run('experienceTask');for(const taskId of ['unknown','__proto__','constructor','toString']){assert.equal(invoke('open-task',{taskId,focus:true}).ok,false);assert.equal(run('experienceTask'),before);}});
+ check(()=>{nav.find(x=>x.dataset.task==='history').listeners.click();assert.equal(run('experienceTask'),'history');assert.equal(context.location.hash,'#task/history');assert.equal(focused,nodes['title-history']);});
+ check(()=>{invoke('set-pinned',{pinned:true});invoke('open-reference',{referenceId:'codelists',focus:true});invoke('open-task',{taskId:'sources',focus:false});assert.equal(run('experienceReference'),'codelists');assert.equal(focused,nodes['ref-tab-codelists']);});
+ check(()=>{invoke('set-pinned',{pinned:false});assert.equal(run('experienceReference'),'context');assert.equal(nodes['reference-pin'].attributes['aria-pressed'],'false');});
+ check(()=>{context.location.hash='#task/groups';events.popstate();const result=invoke('read-state',{});assert.equal(result.state.taskId,'groups');assert.deepEqual(Object.keys(result.state),['taskId','referenceId','pinned','referenceOpen']);});
+ check(()=>{nodes['reference-inspector'].hidden=true;assert.equal(invoke('open-reference',{referenceId:'dates',focus:true}).ok,true);assert.equal(nodes['reference-inspector'].hidden,false);assert.equal(focused,nodes['ref-tab-dates']);});
+ check(()=>{const result=invoke('read-state',{});assert.ok(Buffer.byteLength(JSON.stringify(result))<=512);assert.ok(Object.isFrozen(result));assert.ok(Object.isFrozen(result.state));});
+}
+assert.equal(requests,0);
+console.log(JSON.stringify({passed:true,syntheticChecks:checks,sharedActionsEnabled:process.env.SHARED_ACTIONS_OFF!=='1',privateModelUsed:false,networkRequests:requests,limits:['Synthetic DOM contract checks, not rendered browser or human evaluation.']}));
+
+
+if(process.env.SHARED_ACTIONS_OFF!=='1')require('./test_classification_browser.cjs');

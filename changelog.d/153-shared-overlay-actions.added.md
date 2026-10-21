@@ -1,0 +1,1 @@
+- Add validated local task, reference and pin actions shared by the geography overlay controls, with bounded state results, cancellation, hostile-input regressions and a manual fallback; no page-tool registration or deployment is added.

@@ -52,8 +52,10 @@ EXACT_RESOURCES = [
 # The geography learning overlay adds its synthetic contract check to package.json.
 # The passing generator changes only that package hash and the derived set ID;
 # every suite, receipt, assertion, outcome and historical pin is unchanged.
+# The shared local action checks extend that package script. The passing generator
+# again changes only the package binding and set ID, preserving all case evidence.
 REGENERABLE_LOCAL_RECEIPT_SHA256 = (
-    "40dd5cec981f4d6588062f3cef70b99b464b60542d27e1a013bc59deed362b40"
+    "5486f2fb3f48045fde3e0f552116c6169f45070a2bbd1300b4d0e313b8f1e268"
 )
 HISTORICAL_V1_SHA256 = {
     "evaluation/qual-206-local-protocol-evidence-matrix.v1.json": (
