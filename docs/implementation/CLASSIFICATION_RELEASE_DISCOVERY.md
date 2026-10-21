@@ -55,6 +55,19 @@ concepts; their original null, empty or whitespace code is preserved.
 The identities also bind the source snapshot hashes, so an unknown supplier
 edition cannot silently merge two different captured lists.
 
+A repeated mnemonic can identify different tables on different source pages.
+Retain the page, named table and snapshot identity before suggesting a join.
+Similarly, a native child-count annotation need not describe the same relation
+as an explicit parent-code field: overlapping statistical aggregates may require
+separate membership evidence. Preserve both declarations and the unresolved
+interpretation. Source `DisplayName` text may be exposed as a qualified
+alternative label; it does not create an alias for a provider request parameter.
+
+For OAC and rural/urban domains, keep native hierarchy-label columns and national
+variants separate. A guide's complete set of names is not a proved dictionary for
+another product's field. In the Census journey, introduce the statistical unit
+(for example, households or persons) before asking the reader to compare codes.
+
 ```sh
 uv run --locked python scripts/okf_plus/classification_release.py \
   --input /private/location/reviewed-classifications.json \

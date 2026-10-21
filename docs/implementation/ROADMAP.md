@@ -89,6 +89,13 @@ backlog remains edition-matched definitions, source discrepancy resolution,
 complete national variants and independently reviewed mappings; a passed list
 traversal is not full domain coverage.
 
+The later selected Census and ONSUD pass expands retained code-list contexts
+while keeping source-page mnemonic conflicts, overlapping aggregate semantics
+and missing revision metadata explicit. The authoritative product denominator,
+technical route/format/edition cells and independent acceptance are separate
+closure requirements. Supplier clarification material is prepared privately;
+recorded differences must be classified before treating them as defects.
+
 The owner authorised [OKF-220](OKF-220_METADATA_KNOWLEDGE_FRAMEWORK.md) on
 2 October 2026. It extends metadata discovery through OKF+ without changing the
 existing runtime or supported-release gates. Deliver measured source inventories,
