@@ -11,6 +11,10 @@ its underlying evidence is a graph: geography membership, property lookups,
 closest-road associations and building references have different meanings.
 The same UPRN can have several relationships. A UI must preserve those differences.
 
+The companion [geography, dates and classifications guide](GEOGRAPHY_DATES_AND_CLASSIFICATIONS.md)
+explains direct and best-fit lookups, code history, settlement selections and
+source-linked chart suggestions for readers who are new to these distinctions.
+
 ## Establish identifier relationships first
 
 Investigate the [Linked Identifiers contracts](OS_LINKED_IDENTIFIER_METHOD.md)
