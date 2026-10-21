@@ -43,6 +43,14 @@ This structure is preserved. An overlapping two-request test uses the same
 JSON-RPC ID and verifies that each caller receives its own result; normal
 sequential requests continue to use fresh instances.
 
+The current source-compatibility record has an additive
+[V4 successor](../../tests/interoperability/evidence/qual-206-web216-current-runtime-compatibility.v4.json).
+It binds the same three current runtime paths and one explicitly named successor
+for the extended transport regression source. The historical matrix and V1 to V3
+records retain their exact bytes. Regenerated local receipts bind the changed
+source and lockfile after the selected tests pass; these source records do not
+extend earlier host observations or attestations.
+
 ## Acceptance limits
 
 Gateway regression tests and the pinned dependency assertions are required locally.
