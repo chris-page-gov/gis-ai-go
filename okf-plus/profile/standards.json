@@ -3,6 +3,15 @@
   "status": "applicability-register-not-certification",
   "standards": [
     {
+      "prefix": "okfp",
+      "title": "OKF+ project lexical-form profile",
+      "source": "https://github.com/chris-page-gov/gis-ai-go/blob/main/okf-plus/profile/README.md#source-positioned-term-discovery",
+      "terms": ["LexicalForm", "lexicalForm", "formKind", "authority"],
+      "application": "Project-owned qualified lexical forms; remaining project terms are reported independently as used but unregistered.",
+      "mappingReview": "usage-reported-at-build-not-semantic-certification",
+      "sourceStatus": "Candidate project definitions; no external standard or semantic equivalence is claimed."
+    },
+    {
       "prefix": "dcat",
       "title": "DCAT 3",
       "source": "https://www.w3.org/TR/2024/REC-vocab-dcat-3-20240822/",

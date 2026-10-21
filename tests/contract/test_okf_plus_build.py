@@ -29,7 +29,8 @@ SPEC.loader.exec_module(BUILD)
 REVISION = "c" * 40
 SOURCE_URL = "https://example.org/synthetic-catalogue"
 CAPTURE_TIME = "2026-10-02T00:00:00Z"
-SCHEMA_NAMES = ("record.schema.json", "source-snapshot.schema.json", "search-index.schema.json")
+SCHEMA_NAMES = ("record.schema.json", "source-snapshot.schema.json", "search-index.schema.json",
+                "term-discovery.schema.json", "lexical-form.schema.json")
 
 
 def fixture(root: Path, *, include_schemas: bool = True):

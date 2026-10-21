@@ -30,11 +30,33 @@
       "referenceTitle": "OGC GeoSPARQL 1.1",
       "reviewedOn": "2026-10-02",
       "reviewMethod": "agent-read-primary-source"
+    },
+    {
+      "resource": "https://www.ordnancesurvey.co.uk/documents/resources/guide-coordinate-systems-great-britain.pdf",
+      "evidenceKind": "official-reference",
+      "referenceTitle": "OS guide to coordinate systems in Great Britain",
+      "reviewedOn": "2026-10-21",
+      "reviewMethod": "official-search-result-extract-reviewed"
+    },
+    {
+      "resource": "https://www.ordnancesurvey.co.uk/geodesy-positioning/coordinate-transformations",
+      "evidenceKind": "official-reference",
+      "referenceTitle": "OS coordinate transformations",
+      "reviewedOn": "2026-10-21",
+      "reviewMethod": "official-search-result-extract-reviewed"
     }
   ],
-  "prov:wasDerivedFrom": {
-    "@id": "https://docs.ogc.org/is/22-047r1/22-047r1.html"
-  },
+  "prov:wasDerivedFrom": [
+    {
+      "@id": "https://docs.ogc.org/is/22-047r1/22-047r1.html"
+    },
+    {
+      "@id": "https://www.ordnancesurvey.co.uk/documents/resources/guide-coordinate-systems-great-britain.pdf"
+    },
+    {
+      "@id": "https://www.ordnancesurvey.co.uk/geodesy-positioning/coordinate-transformations"
+    }
+  ],
   "dcterms:conformsTo": {
     "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/profile/v1"
   },
@@ -73,7 +95,15 @@
     "scopeBoundary": "Preserve datum when transforming coordinates.",
     "topic": "geospatial representation",
     "mappingInterpretation": "No direct external ontology term is asserted. The source-reviewed definition and internal concept relationships are retained without a guessed mapping.",
-    "reviewedOn": "2026-10-02"
+    "reviewedOn": "2026-10-02",
+    "learningGlossary": {
+      "termId": "datum",
+      "definition": "A reference that connects a coordinate system to the Earth.",
+      "scopeNote": "Keep geodetic and height datums separate; neither is merely a map projection.",
+      "definitionAuthority": "project-paraphrase",
+      "reviewedOn": "2026-10-21",
+      "currentSchemeCoverageComplete": false
+    }
   },
   "skos:prefLabel": {
     "@value": "Geodetic datum",
@@ -99,3 +129,13 @@ The definition and interpretation boundary are in the inspectable front matter.
 [Official reference](https://docs.ogc.org/is/22-047r1/22-047r1.html) · reviewed 2 October 2026.
 
 Related concept records: [coordinate transformation](coordinate-transformation.md).
+
+## Learning terms and search forms
+
+A reference that connects a coordinate system to the Earth.
+
+Keep geodetic and height datums separate; neither is merely a map projection.
+
+Definitions are project paraphrases. Native forms, source abbreviations and project search variants retain separate authority. No equivalence is inferred.
+
+[OS guide to coordinate systems in Great Britain](https://www.ordnancesurvey.co.uk/documents/resources/guide-coordinate-systems-great-britain.pdf) · [OS coordinate transformations](https://www.ordnancesurvey.co.uk/geodesy-positioning/coordinate-transformations)

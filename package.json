@@ -59,7 +59,7 @@
     "check": "pnpm run typecheck && pnpm run test && pnpm run test:browser && pnpm run validate:release-reproducibility && pnpm run validate:versions && pnpm run validate:changelog-fragments && pnpm run validate:public-read-v2 && pnpm run validate:contracts && pnpm run validate:links && pnpm run validate:secrets && pnpm run render:diagrams && pnpm run sbom && pnpm run check:okf-plus && pnpm run check:experience-browser",
     "build:okf-plus": "uv run --locked --cache-dir .uv-cache python scripts/okf_plus/build.py",
     "check:okf-plus": "uv run --locked --cache-dir .uv-cache python scripts/okf_plus/verify.py",
-    "test:experience": "node scripts/experience_evaluate.mjs && node --test tests/test_experience_evaluate.mjs && pnpm --filter @gis-ai-go/experience-intake run test && node scripts/experience_evaluate.mjs --run-local-fixtures --output artifacts/experience/coverage.json",
+    "test:experience": "node examples/geography-task-experience/test_overlay_contract.cjs && node scripts/experience_evaluate.mjs && node --test tests/test_experience_evaluate.mjs && pnpm --filter @gis-ai-go/experience-intake run test && node scripts/experience_evaluate.mjs --run-local-fixtures --output artifacts/experience/coverage.json",
     "build:experience-offline": "pnpm --filter @gis-ai-go/public-data-workbench exec vite build --mode experience-offline && node scripts/package_experience_offline.mjs",
     "check:experience-browser": "pnpm run build:experience-offline && node scripts/check_experience_browser.mjs"
   },

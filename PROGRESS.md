@@ -2,6 +2,31 @@
 
 Last updated: 21 October 2026
 
+## Geography learning and vocabulary discovery
+
+The [task experience overlay](examples/geography-task-experience/README.md)
+provides source assets for folding navigation, one active workspace and a pinned
+reference inspector. Seven authored personas and five practice stages apply
+learning paths and just-in-time explanations. Its 20 synthetic checks run in the
+canonical experience suite. The combined glossary has 77 explanations;
+private selected-data models and browser receipts are excluded from this source
+increment. Human comprehension and assistive-technology acceptance remain open.
+
+The [task composition guide](docs/implementation/GEOGRAPHY_TASK_COMPOSITION.md)
+separates screen panes, conceptual evidence groups and execution containers, and
+shows which dated sources each geography task needs. The
+[term discovery method](docs/implementation/GEOSPATIAL_TERM_DISCOVERY.md) adds a
+source-positioned offline index of retained labels, qualified search forms,
+native fields, typed values and semantic vocabulary IRIs. Search collisions do
+not create equivalence, geographic membership or executable field aliases.
+
+The candidate keeps all retained records in scope while exposing unknown
+vocabulary editions and external coverage. The [33-family investigation matrix](docs/research/2026-10-21/VOCABULARY_FAMILY_MATRIX.md)
+records review depth, editions and remaining work. Synthetic tests cover provenance,
+language, source positions, schema keyword handling, ambiguous names and bounded
+input reads. Repository assurance is pending at preparation. No provider request,
+new public data service or full-coverage claim is added by this increment.
+
 ## Built-up area product and boundary explanations
 
 The [geography explanation guide](docs/implementation/GEOGRAPHY_DATES_AND_CLASSIFICATIONS.md)
