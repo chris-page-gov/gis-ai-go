@@ -7,6 +7,8 @@ The immediate recommendation is to keep five things distinct: a scheme and its r
 The [family matrix](VOCABULARY_FAMILY_MATRIX.md) lists all 33 investigated families,
 their recorded versions, source-review depth and remaining work in one table.
 
+The later [selected-list follow-up](CLASSIFICATION_RELEASE_FINDINGS.md) closes bounded address and Census lists and records source discrepancies. Earlier statements below about lists not yet fetched describe the initial investigation, not the later capture.
+
 ## What the retained inventory covers
 
 `vocabulary-retained-scope.json` records the dated source inventory. The baseline contained 30,833 Markdown records at commit `c1d16db0aabeb613505536e6af9bdb02f84b9bfb`. The inspected record/profile paths were unchanged from the earlier inspected `d7fa5048bccecd0be7e630f96a2f378721aa5b91`. Every record frontmatter was parsed with duplicate-key and non-finite-number refusal, and every recognised structure was visited. The reproducible inventory method emits exact record IDs, repository-relative paths, record hashes and JSON pointers into a chosen local output directory. Large generated inventories are not committed.

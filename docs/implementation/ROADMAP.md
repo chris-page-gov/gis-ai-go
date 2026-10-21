@@ -83,6 +83,12 @@ roadmap.
 
 ## Additive OS and ONS knowledge framework
 
+The [selected classification increment](CLASSIFICATION_RELEASE_DISCOVERY.md) adds
+source-scoped code-list access and private small-knowledge exports. The durable
+backlog remains edition-matched definitions, source discrepancy resolution,
+complete national variants and independently reviewed mappings; a passed list
+traversal is not full domain coverage.
+
 The owner authorised [OKF-220](OKF-220_METADATA_KNOWLEDGE_FRAMEWORK.md) on
 2 October 2026. It extends metadata discovery through OKF+ without changing the
 existing runtime or supported-release gates. Deliver measured source inventories,

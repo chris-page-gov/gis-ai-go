@@ -2,6 +2,23 @@
 
 Last updated: 21 October 2026
 
+## Selected classification lists and demo access
+
+The [classification discovery method](docs/implementation/CLASSIFICATION_RELEASE_DISCOVERY.md)
+adds a separate Code lists reference tab, source-scoped search, native-field
+inspection and explicit lexical comparisons. The private selected lists retain
+AddressBase/NGD address categories and three Census dictionary/Nomis pairs;
+public fixtures remain synthetic. The [dated findings](docs/research/2026-10-21/CLASSIFICATION_RELEASE_FINDINGS.md)
+record six OS label differences and dataset-specific Census category-code differences.
+No semantic crosswalk, current-release adoption or full vocabulary coverage is claimed.
+
+The offline exporter writes source-bound Markdown/YAML-LD cards and the existing
+term-discovery format, preserving uncoded explanatory rows as documentation.
+Edition, definition and jurisdiction gaps stay visible in each scheme. Synthetic
+and source-reconstruction checks are recorded separately from human learning
+and assistive-technology acceptance. Canonical assurance is pending at preparation.
+No hosted deployment or authenticated feature/statistical-observation call is added.
+
 ## Geography learning and vocabulary discovery
 
 The [task experience overlay](examples/geography-task-experience/README.md)
