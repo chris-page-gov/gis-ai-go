@@ -1,6 +1,6 @@
 # Explain geography, dates and classifications
 
-Method version: 1. Reviewed: 21 October 2026.
+Method version: 2. Reviewed: 21 October 2026.
 This guide defines proposed explanation and chart-suggestion rules. It adds no
 executor, dataset, provider request or claim about an implemented service.
 
@@ -99,9 +99,34 @@ exception and is not directly comparable with the 2011 BUA geography. The
 and [May 2026 towns analysis](https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates/articles/understandingtownsinenglandandwalesinvestigatingsocioeconomictrends/may2026)
 state their geography and analysis scopes.
 
-An ONS boundary product and an OS BUA product need their own release evidence.
-An update schedule is not proof that a new release exists. An amalgamated BUA
-also has a specific published method; do not infer one merely from nearby shapes.
+OS Open Built Up Areas covers Great Britain and offers three feature types:
+Built Up Areas, Built Up Extents and Non Built Up Extents. These describe
+settlements and their components, not individual building footprints. The
+[product overview](https://docs.os.uk/os-downloads/products/areas-and-zones-portfolio/os-open-built-up-areas/os-open-built-up-areas-overview)
+sets a minimum area of 20 hectares. The
+[feature definition](https://docs.os.uk/os-downloads/products/areas-and-zones-portfolio/os-open-built-up-areas/os-open-built-up-areas-technical-specification/feature-types/built-up-areas)
+describes notional polygons derived from a 25 m by 25 m grid. A drawn settlement
+edge therefore has a different meaning from a property or administrative boundary.
+
+Use a confirmed release as well as the published schedule. The
+[public product catalogue](https://api.os.uk/downloads/v1/products/BuiltUpAreas)
+advertised version `2026-04` on 21 October 2026. The
+[download catalogue](https://api.os.uk/downloads/v1/products/BuiltUpAreas/downloads)
+provides CSV and GeoPackage options through the public product route; this route
+does not require a custom download package. The
+[product supply guidance](https://docs.os.uk/os-downloads/products/areas-and-zones-portfolio/os-open-built-up-areas/os-open-built-up-areas-overview/product-supply)
+states a two-year release schedule. A schedule alone does not prove that a new
+release exists, and an advertised checksum is a transfer check, not semantic or
+geometry validation.
+
+Retain the product, edition, native code and allocation method in comparisons.
+A GSS code or matching area name alone does not establish a join between a lookup
+and a different boundary edition. Prefer a documented identifier or lookup
+relationship when it answers the question; explain unmatched codes and any
+required dated correspondence. Keep settlement extent separate from local-authority
+responsibility. ONS boundary products and OS products require their own release
+evidence. An amalgamated BUA also has a specific published method; do not infer
+one merely from nearby shapes.
 The [Rural Urban Classification method](https://www.ons.gov.uk/methodology/geography/geographicalproducts/ruralurbanclassifications/2021ruralurbanclassification)
 explains its use of these settlements.
 
