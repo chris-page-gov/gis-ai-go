@@ -324,6 +324,7 @@
       "id": "experience-learning-and-intake",
       "description": "Learning examples, local file intake and evaluation require full assurance.",
       "patterns": [
+        "examples/geography-task-experience/**",
         "packages/experience-intake/**"
       ],
       "lanes": [
