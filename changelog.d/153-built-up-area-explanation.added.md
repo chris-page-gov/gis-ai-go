@@ -1,0 +1,1 @@
+- Explain built-up area components, grid-derived boundaries, confirmed releases and the public download route, with dated code joins for comparisons.

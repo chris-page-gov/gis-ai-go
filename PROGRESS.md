@@ -2,6 +2,20 @@
 
 Last updated: 21 October 2026
 
+## Built-up area product and boundary explanations
+
+The [geography explanation guide](docs/implementation/GEOGRAPHY_DATES_AND_CLASSIFICATIONS.md)
+now distinguishes OS settlement components from building footprints, explains the
+20-hectare minimum and grid-derived boundaries, and links the observed public
+release and download route. Dated identifier correspondence remains necessary
+when lookup and boundary editions differ. This source-only increment adds no
+executor or data fixture; canonical assurance remains pending at preparation.
+
+The preceding geography explanation increment is accepted on `main` at `1668cdf4`:
+all nine [CI jobs](https://github.com/chris-page-gov/gis-ai-go/actions/runs/39527270069)
+and three [CodeQL analyses](https://github.com/chris-page-gov/gis-ai-go/actions/runs/39527270420)
+passed. Earlier dated preparation statements below remain historical.
+
 ## MCP server security bounds
 
 The [21 October security record](docs/operations/MCP_SERVER_SECURITY_2026-10-21.md)
