@@ -2,6 +2,16 @@
 
 Last updated: 21 October 2026
 
+## Geography explanation and chart-suggestion rules
+
+The [geography explanation guide](docs/implementation/GEOGRAPHY_DATES_AND_CLASSIFICATIONS.md)
+sets out proposed rules for identifier-first joins, direct and best-fit geography
+lookups, four separate dates, code history and local government reorganisation.
+It explains settlement selection, area classifications, jurisdiction-specific
+deprivation ranks and Census availability, with source-linked chart acceptance
+rules. This documentation adds no executor, dataset, provider request or claim
+about an implemented service. Repository assurance remains pending at preparation.
+
 ## Geography and identifier bridge acceptance
 
 The [bridge method](docs/implementation/OS_IDENTIFIER_GEOGRAPHY_BRIDGES.md)
