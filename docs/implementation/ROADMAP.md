@@ -93,6 +93,14 @@ Acceptance separates catalogue traversal, metadata evidence, schema validation,
 semantic curation, retrieval and live Ask OKF admission. Unknown completeness
 denominators remain open; a large record count does not close them.
 
+The 21 October learning increment adds a
+[task composition model](GEOGRAPHY_TASK_COMPOSITION.md) and
+[source-positioned term discovery](GEOSPATIAL_TERM_DISCOVERY.md). Task-specific
+definitions and just-in-time help must preserve provider vocabulary, edition,
+jurisdiction and provenance. An accessible search alias does not establish a
+semantic mapping. Human learning, accessibility and complete external vocabulary
+coverage remain separate acceptance gates.
+
 The 19 October [OS recovery increment](OKF_OS_RECOVERY.md) completed its accessible
 bounded pass: 2,302 of 2,303 frozen documentation pages were captured, with one
 recorded HTTP 307 gap and no unresolved targets; 216,765 passages passed audit,

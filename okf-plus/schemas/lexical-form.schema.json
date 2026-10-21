@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OKF+ qualified lexical form",
+  "description": "Closed syntax for qualified source forms and project search variants. Semantic assertions require separate review.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "@id",
+    "@type",
+    "rdf:value",
+    "okfp:formKind",
+    "okfp:authority",
+    "prov:wasDerivedFrom"
+  ],
+  "properties": {
+    "@id": {
+      "type": "string",
+      "pattern": "^https://"
+    },
+    "@type": {
+      "const": "okfp:LexicalForm"
+    },
+    "rdf:value": {
+      "type": "object",
+      "required": [
+        "@value"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "@value": {
+          "type": "string",
+          "minLength": 1
+        },
+        "@language": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "okfp:formKind": {
+      "enum": [
+        "abbreviation",
+        "search-variant",
+        "native-field-form",
+        "native-type-form",
+        "historical-label",
+        "source-alternative-label",
+        "notation",
+        "full-iri",
+        "compact-iri"
+      ]
+    },
+    "okfp:authority": {
+      "enum": [
+        "source-stated",
+        "project-search-variant"
+      ]
+    },
+    "prov:wasDerivedFrom": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "required": [
+          "@id"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "@id": {
+            "type": "string",
+            "pattern": "^https://"
+          }
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "okfp:authority": {
+            "const": "project-search-variant"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "okfp:formKind": {
+            "enum": [
+              "search-variant"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

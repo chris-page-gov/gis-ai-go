@@ -40,6 +40,30 @@ external concepts. The profile does not invent those identifiers or treat an
 internal record-kind label as a `dcterms:type` resource. The cited ADMS source is
 the retired W3C Note; the register does not claim a current SEMIC version.
 
+## Source-positioned term discovery
+
+The project namespace defines four additive terms, constrained by the required
+[lexical-form schema](../schemas/lexical-form.schema.json):
+
+| Term | Meaning in this profile |
+| --- | --- |
+| `okfp:LexicalForm` | A separately identified expression used to find a scoped concept |
+| `okfp:lexicalForm` | A record's array of those expressions |
+| `okfp:formKind` | The role of the expression, such as abbreviation, native field spelling or search variant |
+| `okfp:authority` | Whether the expression is source-stated or an authored project search variant |
+
+Each expression has its literal in `rdf:value` and cited derivation in
+`prov:wasDerivedFrom`. A form's identifier identifies the expression, not a new
+geographic feature or a cross-scheme equivalence. Unknown language stays absent.
+
+The build also emits `term-discovery.json`, a revision-bound, checksummed index
+of retained labels, identifiers, field names, typed enum values and native
+code-list label positions. Full and compact semantic IRIs remain linked to the
+vocabulary-usage report. Ambiguous matches stay separate. See the
+[discovery method](../../docs/implementation/GEOSPATIAL_TERM_DISCOVERY.md) for
+source pointers, qualified YAML-LD lexical forms, search bounds and coverage limits.
+This index does not infer synonyms, equivalence, valid joins or API query aliases.
+
 ## Source and generated material
 
 `source/` contains captured, normalised factual metadata and receipts. Full raw

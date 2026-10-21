@@ -30,11 +30,23 @@
       "referenceTitle": "SDMX glossary 2.1, December 2020",
       "reviewedOn": "2026-10-02",
       "reviewMethod": "agent-read-primary-source"
+    },
+    {
+      "resource": "https://www.qudt.org/",
+      "evidenceKind": "official-reference",
+      "referenceTitle": "QUDT units, quantity kinds and dimensions",
+      "reviewedOn": "2026-10-21",
+      "reviewMethod": "official-page-opened-text-reviewed"
     }
   ],
-  "prov:wasDerivedFrom": {
-    "@id": "https://sdmx.org/wp-content/uploads/SDMX_Glossary_Version_2_1_December_2020.htm"
-  },
+  "prov:wasDerivedFrom": [
+    {
+      "@id": "https://sdmx.org/wp-content/uploads/SDMX_Glossary_Version_2_1_December_2020.htm"
+    },
+    {
+      "@id": "https://www.qudt.org/"
+    }
+  ],
   "dcterms:conformsTo": {
     "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/profile/v1"
   },
@@ -73,7 +85,15 @@
     "scopeBoundary": "Counts, percentages and index values are not interchangeable.",
     "topic": "statistics",
     "mappingInterpretation": "Associative link to a standard term; no identity or conformance claim.",
-    "reviewedOn": "2026-10-02"
+    "reviewedOn": "2026-10-02",
+    "learningGlossary": {
+      "termId": "unit",
+      "definition": "A defined quantity standard used to express a measurement value.",
+      "scopeNote": "Preserve quantity kind, unit identity and conversion basis. A bare number, rank or code is not automatically a physical measurement.",
+      "definitionAuthority": "project-paraphrase",
+      "reviewedOn": "2026-10-21",
+      "currentSchemeCoverageComplete": false
+    }
   },
   "skos:prefLabel": {
     "@value": "Unit of measure",
@@ -91,7 +111,24 @@
       "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/geospatial-concepts/statistical-measure"
     }
   ],
-  "okfp:machineImported": false
+  "okfp:machineImported": false,
+  "okfp:lexicalForm": [
+    {
+      "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/geospatial-concepts/unit-of-measure/lexical-form/1",
+      "@type": "okfp:LexicalForm",
+      "rdf:value": {
+        "@value": "measurement unit",
+        "@language": "en-GB"
+      },
+      "okfp:formKind": "search-variant",
+      "okfp:authority": "project-search-variant",
+      "prov:wasDerivedFrom": [
+        {
+          "@id": "https://www.qudt.org/"
+        }
+      ]
+    }
+  ]
 }
 ---
 
@@ -102,3 +139,15 @@ The definition and interpretation boundary are in the inspectable front matter.
 [Official reference](https://sdmx.org/wp-content/uploads/SDMX_Glossary_Version_2_1_December_2020.htm) · reviewed 2 October 2026.
 
 Related concept records: [statistical measure](statistical-measure.md).
+
+## Learning terms and search forms
+
+A defined quantity standard used to express a measurement value.
+
+Preserve quantity kind, unit identity and conversion basis. A bare number, rank or code is not automatically a physical measurement.
+
+Definitions are project paraphrases. Native forms, source abbreviations and project search variants retain separate authority. No equivalence is inferred.
+
+[QUDT units, quantity kinds and dimensions](https://www.qudt.org/)
+
+Project search variants: measurement unit (search-variant; language en-GB).
