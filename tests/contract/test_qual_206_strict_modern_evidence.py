@@ -46,8 +46,11 @@ EXACT_RESOURCES = [
 # material hashes and derived identities change; assertions and limits are retained.
 # DEP-142 refreshes the patched package/source-lock bindings and derived identities
 # after executing the selected suites; assertions, outcomes and historical pins remain.
+# The 21 October MCP SDK repair refreshes three source hashes and the lockfile,
+# plus their derived identities, after all 87 selected tests pass. Historical pins
+# and every assertion, test count, outcome and non-live boundary remain unchanged.
 REGENERABLE_LOCAL_RECEIPT_SHA256 = (
-    "f99c1aa9fdcb4f2e555c50ceac9172bd44e3f012959d3f82edfa5b37a59300b6"
+    "08de3c41267f568522dea919b93b306e5c1b80ee47f16b6b74f4b50f70c29b6c"
 )
 HISTORICAL_V1_SHA256 = {
     "evaluation/qual-206-local-protocol-evidence-matrix.v1.json": (
