@@ -109,3 +109,13 @@ The second tests the existing overlay's task, pin, fold, skip-link and learning
 behaviour with the fourth tab. Rendered browser checks and actual source-data
 integration are separate acceptance steps; human comprehension and assistive
 technology evaluation are not implied by these tests.
+
+## Several separately reviewed collections
+
+Use the optional [collection selector](COLLECTION-SELECTION.md) when a host has
+more than one independently admitted projection. Each keeps this widget's limits,
+schemes and source context. All-schemes search and exact-code comparisons then
+mean all schemes in the active collection, not all supplied collections. The
+host binds exact IDs to reviewed data; it must not concatenate collections or
+infer equivalence from equal identifiers. The selector leaves task, reference,
+pin and fold controls with the existing overlay.
