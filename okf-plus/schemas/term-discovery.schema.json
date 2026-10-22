@@ -207,6 +207,12 @@
           "type": "string",
           "pattern": "^/details/entry/native/",
           "maxLength": 526
+        },
+        "labelOrigin": {
+          "enum": [
+            "source-native",
+            "project-display-fallback"
+          ]
         }
       },
       "additionalProperties": false,
@@ -257,6 +263,23 @@
               "required": [
                 "sourcePointer"
               ]
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "labelOrigin"
+            ]
+          },
+          "then": {
+            "properties": {
+              "kind": {
+                "const": "record-title"
+              },
+              "pointer": {
+                "const": "/title"
+              }
             }
           }
         }

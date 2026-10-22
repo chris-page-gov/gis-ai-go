@@ -21,10 +21,12 @@ try:
     from .model import canonical, digest, identifier, load_json, markdown_text, record, safe_reference
     from .term_discovery import build_discovery
     from .native_search import validate_native_search, qualified_form
+    from .label_origin import validate_label_origin, label_assertions
 except ImportError:
     from model import canonical, digest, identifier, load_json, markdown_text, record, safe_reference
     from term_discovery import build_discovery
     from native_search import validate_native_search, qualified_form
+    from label_origin import validate_label_origin, label_assertions
 
 SCHEMA = 'gis-ai-go.classification-browser.v1'
 MAX_BYTES = 16 * 1024 * 1024
@@ -83,6 +85,7 @@ def validate(payload):
             if entry['sourceId'] not in sources:
                 raise ValueError('Unresolved entry source')
             validate_native_search(entry, sources)
+            validate_label_origin(entry, sources)
             for alias in entry['aliases']:
                 if alias['sourceId'] not in sources:
                     raise ValueError('Unresolved lexical-form source')
@@ -115,9 +118,8 @@ def concept_record(scheme, entry, payload_digest):
         'The exporter validates structure, counts and source bindings, not the truth of source interpretations.',
         'Source code equality does not establish equivalence or a join across schemes or editions.',
         'Native parent/level values are retained; no inferred SKOS hierarchy is emitted.']
-    row['skos:prefLabel' if coded else 'rdfs:label'] = (
-        {'@value': entry['label'], '@language': entry['labelLanguage']}
-        if entry.get('labelLanguage') else entry['label'])
+    row.update(label_assertions(entry,
+        {s['id']: s for s in scheme['sources']}, coded))
     if coded:
         row['skos:notation'] = entry['code']
     if coded and definition is not None:
@@ -140,7 +142,10 @@ def concept_record(scheme, entry, payload_digest):
     return row
 
 
-def export(payload, output, raw_digest):
+def export(payload, output, raw_digest, *, source_revision):
+    # This is the reviewed producer source commit, not a truncated payload hash.
+    if not isinstance(source_revision, str) or not re.fullmatch('[a-f0-9]{40}', source_revision):
+        raise ValueError('Reviewed producer source revision must be 40 lowercase hexadecimal characters')
     validate(payload)
     if not re.fullmatch('[a-f0-9]{64}', raw_digest):
         raise ValueError('Input SHA-256 required')
@@ -152,6 +157,11 @@ def export(payload, output, raw_digest):
     payload_digest = digest(payload)
     rows = [concept_record(scheme, entry, payload_digest)
             for scheme in payload['schemes'] for entry in scheme['entries']]
+    record_schema = load_json((ROOT / 'okf-plus/schemas/record.schema.json').read_text())
+    Draft202012Validator.check_schema(record_schema)
+    record_validator = Draft202012Validator(record_schema)
+    for row in rows:
+        record_validator.validate(row)
     files = {}
     for row in rows:
         name = 'cards/' + hashlib.sha256(row['@id'].encode()).hexdigest() + '.md'
@@ -160,16 +170,25 @@ def export(payload, output, raw_digest):
         if len(raw) > MAX_CARD_BYTES:
             raise ValueError('Classification card exceeds the small-knowledge ceiling')
         files[name] = raw
-    index = build_discovery(rows, {'namespaces': []}, 'reviewed-classification-payload', payload_digest)
+    index = build_discovery(rows, {'namespaces': []}, source_revision, payload_digest)
+    index_schema = load_json((ROOT / 'okf-plus/schemas/term-discovery.schema.json').read_text())
+    Draft202012Validator.check_schema(index_schema)
+    Draft202012Validator(index_schema).validate(index)
     files['term-discovery.json'] = canonical(index)
     files['classification-browser.json'] = canonical(payload)
     manifest = {'schema': 'gis-ai-go.classification-export.v1', 'inputSha256': raw_digest,
+                'producerSourceRevision': source_revision,
                 'canonicalPayloadSha256': payload_digest, 'schemes': len(payload['schemes']),
                 'records': len(rows), 'conceptRecords': sum(r['type'] == 'Concept' for r in rows),
                 'uncodedSourceRecords': sum(r['type'] != 'Concept' for r in rows),
                 'globalComplete': False, 'providerCalls': 0,
                 'files': [{'path': name, 'bytes': len(raw), 'sha256': hashlib.sha256(raw).hexdigest()}
             for name, raw in sorted(files.items())]}
+    if any('labelOrigin' in entry for scheme in payload['schemes'] for entry in scheme['entries']):
+        manifest['labelOrigins'] = {kind: sum(
+            entry.get('labelOrigin', {}).get('kind', 'legacy-unqualified') == kind
+            for scheme in payload['schemes'] for entry in scheme['entries'])
+            for kind in ('source-native', 'project-display-fallback', 'legacy-unqualified')}
     # Exclusive creation preserves previous outputs. A failed write leaves an
     # incomplete directory without COMPLETE.json, never a false success receipt.
     output.mkdir(mode=0o700)
@@ -194,9 +213,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--input', required=True, type=Path)
     parser.add_argument('--output', required=True, type=Path)
+    parser.add_argument('--source-revision', required=True,
+                        help='Exact reviewed producer source commit; not a payload hash')
     args = parser.parse_args()
     payload, sha = read_payload(args.input)
-    result = export(payload, args.output, sha)
+    result = export(payload, args.output, sha, source_revision=args.source_revision)
     print(json.dumps({'schemes': result['schemes'], 'records': result['records'],
                       'conceptRecords': result['conceptRecords'], 'uncodedSourceRecords': result['uncodedSourceRecords'],
                       'globalComplete': False, 'providerCalls': 0}))

@@ -2,6 +2,21 @@
 
 Last updated: 22 October 2026
 
+## Classification label origin
+
+The optional [label-origin contract](examples/geography-task-experience/LABEL-ORIGIN.md)
+coordinates browser, exporter and discovery behaviour. Project display fallbacks
+remain readable titles without being promoted to supplier labels, aliases or
+source-native forms. Native codes, missing/null/empty values, exact pointers and
+separate language evidence remain intact. Legacy payload behaviour is unchanged;
+it does not gain a new claim of source authenticity. New exports require an explicit
+producer source revision, record and whole-index schema validation, correcting the older
+non-Git revision sentinel without altering historical outputs.
+
+This increment uses synthetic tests and adds no supplier payload, acquisition,
+deployment or publication. Canonical assurance, independent source reconstruction
+and rendered-host acceptance remain separate gates.
+
 ## Selected field documentary references
 
 The optional [field-link panel](examples/geography-task-experience/FIELD-DOCUMENTARY-LINKS.md)

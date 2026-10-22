@@ -85,3 +85,10 @@ code-list links. It retains source names, versions, missing matches and native
 constraints. Folded learning help distinguishes documentary candidates from
 proven API adoption. The public fixture is fictional; the panel changes no
 collection, task, reference, pin or history state and makes no provider request.
+
+## Optional label provenance
+
+The [label-origin contract](LABEL-ORIGIN.md) keeps a project display fallback
+separate from a supplier label. It preserves native absence, null and empty text,
+with exact pointers and separate language roles. Browser, exporter and discovery
+checks use fictional inputs; no supplier payload or provider transport is added.

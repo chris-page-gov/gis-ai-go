@@ -37,7 +37,7 @@ class NativeSearchTests(unittest.TestCase):
     def test_actual_export_retains_whole_native_context_and_searches_full_value(self):
         p = source(); before = copy.deepcopy(p)
         with tempfile.TemporaryDirectory() as tmp:
-            out = Path(tmp)/'new'; release.export(p, out, 'b'*64)
+            out = Path(tmp)/'new'; release.export(p, out, 'b'*64, source_revision='4'*40)
             rows = [read_markdown(f)[0] for f in (out/'cards').glob('*.md')]
             r = next(r for r in rows if r['details']['entry']['code'] is None)
             self.assertEqual(r['type'], 'Documentation')

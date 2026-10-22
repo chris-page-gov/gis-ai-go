@@ -354,6 +354,98 @@
                     "unresolved-native-value",
                     "no-separate-code-assertion"
                   ]
+                },
+                "labelOrigin": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "kind",
+                    "sourceId",
+                    "sourceLocator",
+                    "nativePointer",
+                    "nativeState",
+                    "languagePointer",
+                    "displayLanguage"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "enum": [
+                        "source-native",
+                        "project-display-fallback"
+                      ]
+                    },
+                    "sourceId": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,159}$"
+                    },
+                    "sourceLocator": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 10000
+                    },
+                    "nativePointer": {
+                      "type": "string",
+                      "minLength": 8,
+                      "maxLength": 512,
+                      "pattern": "^/native/(?:[^~]|~[01])*$"
+                    },
+                    "nativeState": {
+                      "enum": [
+                        "absent",
+                        "null",
+                        "empty-string",
+                        "string"
+                      ]
+                    },
+                    "languagePointer": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "minLength": 8,
+                      "maxLength": 512,
+                      "pattern": "^/native/(?:[^~]|~[01])*$"
+                    },
+                    "displayLanguage": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "minLength": 1,
+                      "maxLength": 80
+                    }
+                  },
+                  "allOf": [
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "source-native"
+                          }
+                        }
+                      },
+                      "then": {
+                        "properties": {
+                          "nativeState": {
+                            "enum": [
+                              "empty-string",
+                              "string"
+                            ]
+                          }
+                        }
+                      },
+                      "else": {
+                        "properties": {
+                          "nativeState": {
+                            "enum": [
+                              "absent",
+                              "null"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ]
                 }
               },
               "additionalProperties": false

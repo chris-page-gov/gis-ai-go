@@ -2,6 +2,14 @@
 
 Last updated: 22 October 2026
 
+## Classification display provenance
+
+Optional [label-origin metadata](examples/geography-task-experience/LABEL-ORIGIN.md)
+separates authored display text from source-native labels. A fallback may remain a
+human-facing title; it must not become a supplier preferred label, alias or
+source-native form. Structural pointer checks do not prove source authenticity,
+field meaning or rights. Legacy omission adds no retrospective provenance claim.
+
 ## Authority and reading order
 
 On 19 October the owner requested recovery of the OS knowledge/acquisition task,

@@ -135,4 +135,49 @@ check('own and inherited custom serialisation never executes',()=>{for(const inh
 check('inert native snapshot keeps display and search pointer identical',()=>{const d=withNativeForm(),e=d.schemes[0].entries[0],before=JSON.stringify(d),row=api.validate(d).rows[0];assert.equal(JSON.stringify(d),before);e.native.value='changed';e.nativeSearchForms[0].text='changed';assert.equal(row.entry.native.value,'🆕ZZ13SA');assert.equal(row.nativeSearchForms[0].text,row.entry.native.value);assert.equal(JSON.parse(row.nativeDisplay).value,row.entry.native.value);assert.ok(Object.isFrozen(row.entry.native));assert.equal(api.matchRows([row],'','ZZ13SA').length,1);});
 check('escaped lone surrogate values and native keys refuse at UTF-8 boundary',()=>{for(const bad of ['\ud800','\udfff']){const d=withNativeForm(),e=d.schemes[0].entries[0];e.native.value=e.nativeSearchForms[0].text=bad;assert.throws(()=>api.validate(d),/unpaired surrogate/);const k=withNativeForm();k.schemes[0].entries[0].native[bad]='value';assert.throws(()=>api.validate(k),/unpaired surrogate/);}});
 check('literal native toJSON string is retained without being a hook',()=>{const d=withNativeForm();d.schemes[0].entries[0].native.toJSON='source-owned text';const row=api.validate(d).rows[0];assert.equal(JSON.parse(row.nativeDisplay).toJSON,'source-owned text');});
+function withLabelOrigin(native = {description: {lang: 'cy'}}, pointer = '/native/description/value', state = 'absent', kind = 'project-display-fallback', label = 'Label not supplied · 000') {
+  const d=fixture(),e=d.schemes[0].entries[0];
+  Object.assign(e,{native,label,labelLanguage:null,aliases:[],nativeSearchForms:[],labelOrigin:{kind,sourceId:e.sourceId,sourceLocator:e.sourceLocator,nativePointer:pointer,nativeState:state,languagePointer:null,displayLanguage:kind==='source-native'?null:'en-GB'}});
+  return d;
+}
+function selectOrigin(ui) { ui.setFilter('','fictional-a');ui.elements.list.children[0].children[0].listeners.click();return text(ui.elements.detail); }
+check('project fallback retains code and source absence while remaining discoverable',()=>{
+  const d=withLabelOrigin(),before=JSON.stringify(d),{ui}=mount(d);ui.setFilter('Label not supplied');assert.equal(ui.elements.list.children.length,1);
+  const shown=selectOrigin(ui);assert.match(shown,/Label \(project display fallback\)/);assert.match(shown,/no supplier label assertion/);assert.match(shown,/absent at \/native\/description\/value/);assert.equal(JSON.stringify(d),before);assert.equal(d.schemes[0].entries[0].code,'000');
+});
+check('missing and null description or value remain separate source states',()=>{
+  for(const [native,pointer,state]of [[{},'/native/description','absent'],[{description:null},'/native/description','null'],[{description:{}},'/native/description/value','absent'],[{description:{value:null}},'/native/description/value','null']]){
+    const {ui}=mount(withLabelOrigin(native,pointer,state));const shown=selectOrigin(ui);assert.ok(shown.includes(state+' at '+pointer));assert.deepEqual(JSON.parse(tree(ui.elements.detail).find(x=>x.tag==='pre').textContent),native);
+  }
+});
+check('explicit empty and whitespace native labels never become project fallbacks',()=>{
+  for(const label of ['', ' \t ']){const {ui}=mount(withLabelOrigin({description:{value:label}},'/native/description/value',label===''?'empty-string':'string','source-native',label));const shown=selectOrigin(ui);assert.match(shown,/Exact source-native string/);assert.ok(!shown.includes('Label (project display fallback)'));}
+});
+check('source language evidence and project display language remain distinct',()=>{
+  const d=withLabelOrigin(),e=d.schemes[0].entries[0];e.labelOrigin.languagePointer='/native/description/lang';const {ui}=mount(d),shown=selectOrigin(ui);assert.match(shown,/string: "cy"/);assert.match(shown,/Display text language en-GB/);assert.match(shown,/Source-declared label language Not supplied \(explicit null\)/);
+});
+check('ordinary native label and declared language match the exact source pointer',()=>{
+  const d=withLabelOrigin({description:{value:'Fictional term',lang:'cy'}},'/native/description/value','string','source-native','Fictional term'),e=d.schemes[0].entries[0];e.labelLanguage='cy';Object.assign(e.labelOrigin,{languagePointer:'/native/description/lang',displayLanguage:'cy'});const {ui}=mount(d);assert.match(selectOrigin(ui),/Exact source-native string/);
+});
+check('origin source, locator, state and parent-pointer mismatches refuse',()=>{
+  for(const [key,value]of [['sourceId','missing'],['sourceLocator','/other'],['nativeState','null'],['nativePointer','/native/missing/value']]){const d=withLabelOrigin();d.schemes[0].entries[0].labelOrigin[key]=value;assert.throws(()=>mount(d),/source|locator|state|pointer/);}
+});
+check('display fallback cannot inherit label language or become a source alias',()=>{
+  const d=withLabelOrigin();d.schemes[0].entries[0].labelLanguage='cy';assert.throws(()=>mount(d),/inherit source label language/);
+  const a=withLabelOrigin(),e=a.schemes[0].entries[0];e.aliases=[{text:e.label,kind:'source-alternative-label',authority:'source-stated',sourceId:e.sourceId}];assert.throws(()=>mount(a),/fallback must not be an alias/);
+});
+check('fallback cannot be a declared source-native form even at another native pointer',()=>{
+  const d=withLabelOrigin(),e=d.schemes[0].entries[0];e.native.other=e.label;e.nativeSearchForms=[{text:e.label,kind:'source-native-value',authority:'source-stated',sourceId:e.sourceId,sourceLocator:e.sourceLocator,nativePointer:'/native/other',language:null}];assert.throws(()=>mount(d),/fallback must not be a native search form/);
+});
+check('label-origin and unrelated native accessors refuse without executing callbacks',()=>{
+  for(const locate of [e=>e.labelOrigin,e=>e.native]){const d=withLabelOrigin(),e=d.schemes[0].entries[0];let reads=0;Object.defineProperty(locate(e),'extra',{enumerable:true,get(){reads++;return'changed';}});assert.throws(()=>mount(d),/own data property/);assert.equal(reads,0);}
+});
+check('origin admission charges exact escaped JSON bytes and numeric token overhead',()=>{
+  const d=withLabelOrigin();d.schemes[0].entries[0].native.padding='\u0000'.repeat(25000);assert.throws(()=>mount(d),/entry byte bound/);
+  const n=withLabelOrigin();n.schemes[0].entries[0].native.padding=Array.from({length:3990},()=>1.2345678901234567e200);n.schemes[0].entries[0].native.text='x'.repeat(50000);assert.throws(()=>mount(n),/entry byte bound/);
+});
+check('caller mutations after origin validation cannot change native display or alias search',()=>{
+  const d=withLabelOrigin(),e=d.schemes[0].entries[0];e.aliases=[{text:'Project shortcut',kind:'search-variant',authority:'project-search-variant',sourceId:e.sourceId}];const {ui}=mount(d);e.native.description.value='changed';e.labelOrigin.nativeState='string';e.aliases[0].text='Changed shortcut';ui.setFilter('Project shortcut');assert.equal(ui.elements.list.children.length,1);const shown=selectOrigin(ui);assert.match(shown,/absent at/);assert.ok(!shown.includes('Changed shortcut'));
+});
+check('legacy payload has no new label-origin assertion or visible origin claim',()=>{const {ui}=mount();assert.ok(!selectOrigin(ui).includes('Label origin'));assert.equal(api.validate(fixture()).rows[0].labelOrigin,null);});
 console.log(JSON.stringify({passed:true,syntheticChecks:checks,privateModelUsed:false,limits:['Synthetic DOM and contract checks; rendered browser and human evaluation are separate.']}));
