@@ -62,6 +62,14 @@ qualified lexical forms are searchable without creating `sameAs`, `exactMatch`
 or a provider query alias. Each card preserves the complete native entry and
 the scheme's explicit scope and gaps. Codes shared by different schemes or
 entries remain distinct identities.
+Optional [label-origin metadata](../../examples/geography-task-experience/LABEL-ORIGIN.md)
+distinguishes exact source labels from project display fallbacks. An explicit
+fallback remains a readable record title but emits neither `skos:prefLabel` nor
+`rdfs:label`. Its title occurrence carries an origin marker in discovery; no
+supplier alias or source-native lexical form is inferred. Native code, absent or
+null value, language evidence and exact source pointer remain available. Legacy
+payloads retain their earlier behaviour, not retrospective source attestation.
+
 Uncoded explanatory rows remain documentation records, not additional coded
 concepts; their original null, empty or whitespace code is preserved.
 The identities also bind the source snapshot hashes, so an unknown supplier
@@ -83,8 +91,25 @@ another product's field. In the Census journey, introduce the statistical unit
 ```sh
 uv run --locked python scripts/okf_plus/classification_release.py \
   --input /private/location/reviewed-classifications.json \
-  --output /private/location/new-export
+  --output /private/location/new-export \
+  --source-revision REVIEWED_PRODUCER_COMMIT
 ```
+
+Replace `REVIEWED_PRODUCER_COMMIT` with the exact reviewed 40-character lowercase
+Git commit for the producer source. The exporter records it as the discovery
+index revision and `producerSourceRevision` in its receipt. The payload remains
+separately bound by its original and canonical SHA-256 values. Syntax validation
+does not establish that a supplied commit is authentic, clean or reviewed: the
+caller must bind the executed source and its acceptance evidence. The exporter
+does not invent a commit from a payload hash or run Git/provider commands.
+
+Every generated record and the complete discovery index must pass their canonical
+schemas before any output directory is created. A native empty label remains valid
+in the source/UI projection but cannot satisfy the record schema’s non-empty title;
+export refuses it rather than inventing a title or losing the empty string. Earlier exports used a non-Git revision sentinel
+that did not satisfy that schema; those historical files remain unchanged and
+must not be described as passing this new admission. Existing callers must now
+supply the explicit producer revision. Legacy label interpretation is unchanged.
 
 Use an existing private parent directory and a new output name. The exporter
 refuses overwrite, links and special input files, bounds the input to 16 MiB and

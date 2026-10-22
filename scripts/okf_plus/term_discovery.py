@@ -19,11 +19,13 @@ try:
     from .vocabulary_usage import expanded_iri
     from .vocabulary_inventory import schema_constraints, schema_roots
     from .native_search import validate_qualified_form
+    from .label_origin import qualify_title_form
 except ImportError:
     from model import CTX, PREFIXES, canonical, digest, load_json, safe_reference
     from vocabulary_usage import expanded_iri
     from vocabulary_inventory import schema_constraints, schema_roots
     from native_search import validate_qualified_form
+    from label_origin import qualify_title_form
 
 SCHEMA = 'gis-ai-go.okf-plus-term-discovery.v1'
 LABELS = {PREFIXES['skos'] + name: kind for name, kind in (
@@ -124,6 +126,8 @@ def _forms(row):
                       ('nativeIdentifier', 'native-identifier')):
         if key in row:
             add(row[key], kind, '/' + key)
+            if kind == 'record-title':
+                forms[-1] = qualify_title_form(row, forms[-1])
     semantic(row)
     native_pointers = set()
     for i, form in enumerate(row.get('okfp:lexicalForm', [])):

@@ -89,6 +89,11 @@ backlog remains edition-matched definitions, source discrepancy resolution,
 complete national variants and independently reviewed mappings; a passed list
 traversal is not full domain coverage.
 
+The optional [label-origin contract](../../examples/geography-task-experience/LABEL-ORIGIN.md)
+keeps project display fallbacks out of supplier-label assertions. Source-specific
+label-field interpretation and independent reconstruction remain prerequisites;
+structural validation alone does not close authoritative vocabulary coverage.
+
 The later selected Census and ONSUD pass expands retained code-list contexts
 while keeping source-page mnemonic conflicts, overlapping aggregate semantics
 and missing revision metadata explicit. The authoritative product denominator,

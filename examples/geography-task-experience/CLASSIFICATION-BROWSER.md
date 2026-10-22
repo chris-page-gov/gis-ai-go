@@ -119,3 +119,12 @@ mean all schemes in the active collection, not all supplied collections. The
 host binds exact IDs to reviewed data; it must not concatenate collections or
 infer equivalence from equal identifiers. The selector leaves task, reference,
 pin and fold controls with the existing overlay.
+
+## Optional label origin
+
+The [label-origin guide](LABEL-ORIGIN.md) defines optional source-pointer metadata
+for a native label or an explicitly authored display fallback. A fallback remains
+searchable and visibly qualified; it does not become a supplier label or alias in
+YAML-LD. Native absence, null, empty text and language evidence stay separate.
+Existing payloads without the metadata keep their previous behaviour, without
+a new assertion of supplier origin.

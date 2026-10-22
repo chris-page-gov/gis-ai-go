@@ -40,7 +40,7 @@ class ClassificationReleaseTests(unittest.TestCase):
         source = payload()
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp) / 'new'
-            receipt = release.export(source, out, 'b' * 64)
+            receipt = release.export(source, out, 'b' * 64, source_revision='4' * 40)
             rows = [read_markdown(p)[0] for p in (out / 'cards').glob('*.md')]
             self.assertEqual(len(rows), 2)
             self.assertEqual({r['details']['entry']['id']: r['details']['entry'] for r in rows},
@@ -58,7 +58,7 @@ class ClassificationReleaseTests(unittest.TestCase):
         second = copy.deepcopy(source['schemes'][0]); second['id'] = 'synthetic-b'
         source['schemes'].append(second)
         with tempfile.TemporaryDirectory() as tmp:
-            out = Path(tmp) / 'new'; release.export(source, out, 'b' * 64)
+            out = Path(tmp) / 'new'; release.export(source, out, 'b' * 64, source_revision='4' * 40)
             index = json.loads((out / 'term-discovery.json').read_text())
             self.assertEqual(index['recordCount'], 4)
             hits = search_discovery(index, '01')['hits']
@@ -140,7 +140,7 @@ class ClassificationReleaseTests(unittest.TestCase):
     def test_no_overwrite_and_no_success_after_write_failure(self):
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp) / 'exists'; out.mkdir(); (out / 'user').write_text('keep')
-            with self.assertRaises(ValueError): release.export(payload(), out, 'b' * 64)
+            with self.assertRaises(ValueError): release.export(payload(), out, 'b' * 64, source_revision='4' * 40)
             self.assertEqual((out / 'user').read_text(), 'keep')
             new = Path(tmp) / 'new'
             original = Path.open
@@ -148,7 +148,7 @@ class ClassificationReleaseTests(unittest.TestCase):
                 if path.name == 'term-discovery.json': raise OSError('Synthetic disk failure')
                 return original(path, *args, **kwargs)
             with patch.object(Path, 'open', fail), self.assertRaises(OSError):
-                release.export(payload(), new, 'b' * 64)
+                release.export(payload(), new, 'b' * 64, source_revision='4' * 40)
             self.assertFalse((new / 'COMPLETE.json').exists())
 
     def test_bounded_reader_rejects_duplicate_keys_symlink_fifo_and_oversize(self):
@@ -175,22 +175,67 @@ class ClassificationReleaseTests(unittest.TestCase):
                 if calls == 5: raise OSError('Synthetic marker flush failure')
                 return original(fd)
             with patch.object(release.os, 'fsync', fail_last), self.assertRaises(OSError):
-                release.export(payload(), out, 'b' * 64)
+                release.export(payload(), out, 'b' * 64, source_revision='4' * 40)
             self.assertFalse((out / 'COMPLETE.json').exists())
 
     def test_payload_digest_is_computed_once_for_export(self):
         p = payload()
         with tempfile.TemporaryDirectory() as tmp, patch.object(release, 'digest', wraps=release.digest) as spy:
-            release.export(p, Path(tmp) / 'new', 'b' * 64)
+            release.export(p, Path(tmp) / 'new', 'b' * 64, source_revision='4' * 40)
             self.assertEqual(sum(call.args[0] is p for call in spy.call_args_list), 1)
 
     def test_oversized_card_refused_before_any_output(self):
         p = payload(); p['schemes'][0]['entries'][0]['native']['large'] = 'x' * 17000
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp) / 'new'
-            with self.assertRaises(ValueError): release.export(p, out, 'b' * 64)
+            with self.assertRaises(ValueError): release.export(p, out, 'b' * 64, source_revision='4' * 40)
             self.assertFalse(out.exists())
 
+
+    def test_source_revision_is_explicit_and_whole_index_is_schema_valid(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / 'new'
+            receipt = release.export(payload(), out, 'b' * 64, source_revision='4' * 40)
+            index = json.loads((out / 'term-discovery.json').read_text())
+            schema = json.loads((release.ROOT / 'okf-plus/schemas/term-discovery.schema.json').read_text())
+            Draft202012Validator(schema).validate(index)
+            self.assertEqual(index['revision'], '4' * 40)
+            self.assertEqual(receipt['producerSourceRevision'], index['revision'])
+            self.assertEqual(index['inputDigest'], receipt['canonicalPayloadSha256'])
+
+    def test_missing_or_invalid_source_revision_refuses_before_output(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / 'new'
+            with self.assertRaises(TypeError):
+                release.export(payload(), out, 'b' * 64)
+            for revision in (None, '', 'reviewed-classification-payload', 'b' * 64, 'A' * 40):
+                with self.assertRaises(ValueError):
+                    release.export(payload(), out, 'b' * 64, source_revision=revision)
+                self.assertFalse(out.exists())
+
+    def test_invalid_record_schema_refuses_before_output(self):
+        original = release.concept_record
+        def invalid(*args, **kwargs):
+            result = original(*args, **kwargs)
+            result['title'] = ''
+            return result
+        with tempfile.TemporaryDirectory() as tmp, patch.object(release, 'concept_record', invalid):
+            out = Path(tmp) / 'new'
+            with self.assertRaises(ValidationError):
+                release.export(payload(), out, 'b' * 64, source_revision='4' * 40)
+            self.assertFalse(out.exists())
+
+    def test_any_invalid_discovery_projection_refuses_before_output(self):
+        original = release.build_discovery
+        def invalid(*args, **kwargs):
+            result = original(*args, **kwargs)
+            result['records'][0]['forms'][0]['unexpected'] = 'synthetic-invalid-field'
+            return result
+        with tempfile.TemporaryDirectory() as tmp, patch.object(release, 'build_discovery', invalid):
+            out = Path(tmp) / 'new'
+            with self.assertRaises(ValidationError):
+                release.export(payload(), out, 'b' * 64, source_revision='4' * 40)
+            self.assertFalse(out.exists())
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,0 +1,2 @@
+- Add optional source-bound classification label origin across the browser, exporter and discovery index, preserving project display fallbacks without supplier-label or alias promotion; include synthetic preservation and adverse checks.
+  Require an explicit reviewed producer revision for new classification exports and validate every record and the complete discovery index before writing output; retain historical exports unchanged.

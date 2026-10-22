@@ -129,6 +129,66 @@
         (['unresolved-native-value', 'no-separate-code-assertion'].includes(role) && entry.code !== null)) fail('native code role conflict');
     return {forms: Object.freeze(forms), role};
   }
+function labelPointerState(entry,pointer) {
+  if(typeof pointer!=='string'||!pointer.startsWith('/native/')||[...pointer].length>512||/~(?![01])/u.test(pointer))fail('pointer syntax');
+  const parts=pointer.split('/').slice(1);if(parts.length>16)fail('pointer depth');let value=entry;
+  for(let i=0;i<parts.length;i++) {
+    const key=parts[i].replace(/~1/gu,'/').replace(/~0/gu,'~'),last=i===parts.length-1;
+    if(Array.isArray(value)) {
+      if(!/^(?:0|[1-9][0-9]*)$/u.test(key)||!Number.isSafeInteger(Number(key))||Number(key)>=value.length)fail('array index');
+      value=value[Number(key)];
+    } else if(plain(value)) {
+      if(!has(value,key)){if(!last)fail('pointer parent absent; point to actual missing field');return {state:'absent',value:null};}
+      value=value[key];
+    } else fail('pointer parent is not a container');
+  }
+  if(value===null)return {state:'null',value:null};
+  if(typeof value!=='string')fail('pointed value is not a string/null');
+  return {state:value===''?'empty-string':'string',value};
+}
+function compactEntryBytes(value) {
+  let bytes=0;
+  const charge=text=>{bytes+=new TextEncoder().encode(text).length;if(bytes>131072)fail('entry byte bound');};
+  function visit(x) {
+    if(x===null||typeof x!=='object'){charge(JSON.stringify(x));return;}
+    const array=Array.isArray(x),keys=Object.keys(x);charge(array?'[':'{');
+    keys.forEach((key,index)=>{if(index)charge(',');if(!array){charge(JSON.stringify(key));charge(':');}visit(x[key]);});
+    charge(array?']':'}');
+  }
+  visit(value);return bytes;
+}
+function validateLabelOrigin(supplied, suppliedSources) {
+  suppliedSources=Object.fromEntries(suppliedSources);
+  if(!plain(supplied)||!plain(suppliedSources))fail('entry/source objects');
+  if(!has(supplied,'labelOrigin'))return null;
+  const entry=nativeSnapshot(supplied),sources=nativeSnapshot(suppliedSources),o=entry.labelOrigin;
+  compactEntryBytes(entry);
+  const keys=['kind','sourceId','sourceLocator','nativePointer','nativeState','languagePointer','displayLanguage'];
+  if(!plain(o)||Object.keys(o).length!==keys.length||keys.some(k=>!has(o,k)))fail('closed origin metadata');
+  if(new TextEncoder().encode(JSON.stringify(o)).length>8192)fail('origin byte bound');
+  if(!['source-native','project-display-fallback'].includes(o.kind)||!['absent','null','empty-string','string'].includes(o.nativeState))fail('origin role/state');
+  if(typeof entry.label!=='string'||[...entry.label].length>10000)fail('label string');
+  if(o.sourceId!==entry.sourceId||!has(sources,o.sourceId)||!plain(sources[o.sourceId])||sources[o.sourceId].id!==o.sourceId||typeof sources[o.sourceId].sha256!=='string'||!/^[0-9a-f]{64}$/u.test(sources[o.sourceId].sha256))fail('source binding');
+  if(typeof o.sourceLocator!=='string'||![...o.sourceLocator].length||[...o.sourceLocator].length>10000||o.sourceLocator!==entry.sourceLocator)fail('locator binding');
+  const native=labelPointerState(entry,o.nativePointer);if(native.state!==o.nativeState)fail('native state differs');
+  const language=o.languagePointer===null?{state:'not-asserted',value:null}:labelPointerState(entry,o.languagePointer);
+  const sourceLanguage=language.state==='string'?language.value:null;
+  if(sourceLanguage!==null&&[...sourceLanguage].length>80)fail('native language bound');
+  if(o.displayLanguage!==null&&(typeof o.displayLanguage!=='string'||![...o.displayLanguage].length||[...o.displayLanguage].length>80))fail('display language');
+  const asserted=has(entry,'labelLanguage')?entry.labelLanguage:null;
+  if(o.kind==='source-native') {
+    if(!['empty-string','string'].includes(native.state)||entry.label!==native.value)fail('native label differs');
+    if(asserted!==sourceLanguage||o.displayLanguage!==sourceLanguage)fail('source label language differs');
+  } else {
+    if(!['absent','null'].includes(native.state)||!entry.label)fail('fallback requires absent/null label');
+    if(asserted!==null)fail('fallback must not inherit source label language');
+    for(const a of entry.aliases||[])if(a.text===entry.label)fail('fallback must not be an alias');
+    for(const f of entry.nativeSearchForms||[])if(f.text===entry.label)fail('fallback must not be a native search form');
+  }
+  return Object.freeze({kind:o.kind,nativeState:native.state,nativePointer:o.nativePointer,sourceId:o.sourceId,
+    sourceSha256:sources[o.sourceId].sha256,sourceLocator:o.sourceLocator,nativeLanguage:language,displayLanguage:o.displayLanguage});
+}
+
   function codeDisplay(entry, role = 'unknown') {
     if (entry.code !== null) return display(entry.code);
     if (role === 'unresolved-native-value') return 'Code interpretation unresolved';
@@ -175,7 +235,8 @@
       for (const suppliedEntry of s.entries) {
         const e = Object.create(null);
         for (const key of Object.keys(suppliedEntry)) e[key] = ownData(suppliedEntry, key);
-        fields(e, ['id', 'code', 'label', 'definition', 'level', 'parentCode', 'aliases', 'sourceId', 'sourceLocator', 'native'], 'entry', ['labelLanguage', 'nativeSearchForms', 'codeRole']);
+        fields(e, ['id', 'code', 'label', 'definition', 'level', 'parentCode', 'aliases', 'sourceId', 'sourceLocator', 'native'], 'entry', ['labelLanguage', 'nativeSearchForms', 'codeRole', 'labelOrigin']);
+        if (has(e, 'labelOrigin')) { const stable = nativeSnapshot(e); compactEntryBytes(stable); for (const key of Object.keys(e)) e[key] = stable[key]; }
         if (has(e, 'labelLanguage')) { text(e.labelLanguage, 'entry.labelLanguage', true); if (e.labelLanguage !== null && (e.labelLanguage.length < 1 || e.labelLanguage.length > 80)) fail('labelLanguage length'); }
         for (const k of ['id', 'label', 'sourceId', 'sourceLocator']) text(e[k], 'entry.' + k);
         identity(e.id, 'entry'); identity(e.sourceId, 'entry source');
@@ -197,11 +258,13 @@
         }
         e.native = nativeSnapshot(e.native);
         const admittedSearch = nativeSearch(e, sources);
+        const admittedOrigin = validateLabelOrigin(e, sources);
+        if (has(e, 'labelOrigin')) e.labelOrigin = nativeSnapshot(e.labelOrigin);
         if (has(e, 'nativeSearchForms')) e.nativeSearchForms = admittedSearch.forms;
         const nativeDisplayText = nativeDisplay(e.native);
         displayBytes += new TextEncoder().encode(nativeDisplayText).length;
         if (displayBytes > 16777216) fail('total native display exceeds 16 MiB');
-        rows.push({scheme: s, entry: e, sources, nativeDisplay: nativeDisplayText, nativeSearchForms: admittedSearch.forms, codeRole: admittedSearch.role});
+        rows.push({scheme: s, entry: e, sources, nativeDisplay: nativeDisplayText, nativeSearchForms: admittedSearch.forms, codeRole: admittedSearch.role, labelOrigin: admittedOrigin});
       }
     }
     return {payload, rows};
@@ -296,7 +359,15 @@
       const title = el('h4', codeDisplay(e, row.codeRole) + ' — ' + display(e.label)); title.tabIndex = -1;
       const dl = el('dl'); pair(dl, 'Scheme', s.title); pair(dl, 'Entry identity within scheme', e.id);
       pair(dl, 'Code', codeDisplay(e, row.codeRole));
-      pair(dl, 'Code role (reviewed projection)', row.codeRole); pair(dl, 'Label', display(e.label));
+      pair(dl, 'Code role (reviewed projection)', row.codeRole);
+      pair(dl, row.labelOrigin && row.labelOrigin.kind === 'project-display-fallback' ? 'Label (project display fallback)' : 'Label', display(e.label));
+      if (row.labelOrigin) {
+        const origin = row.labelOrigin;
+        pair(dl, 'Label origin', origin.kind === 'project-display-fallback' ? 'Project display text; no supplier label assertion.' : 'Exact source-native string at the declared pointer.');
+        pair(dl, 'Native label state and pointer', origin.nativeState + ' at ' + origin.nativePointer);
+        pair(dl, 'Display text language', display(origin.displayLanguage, 'Not asserted'));
+        pair(dl, 'Retained native language evidence', origin.nativeLanguage.state + (origin.nativeLanguage.value === null ? '' : ': ' + JSON.stringify(origin.nativeLanguage.value)));
+      }
       if (has(e, 'labelLanguage')) pair(dl, 'Source-declared label language', display(e.labelLanguage, 'Not supplied (explicit null)'));
       pair(dl, 'Source definition', display(e.definition, 'No definition supplied (null); a label is not a definition.'));
       pair(dl, 'Source level', display(e.level, 'No level supplied (null); none is inferred.'));
