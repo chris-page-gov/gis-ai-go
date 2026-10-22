@@ -54,8 +54,10 @@ EXACT_RESOURCES = [
 # every suite, receipt, assertion, outcome and historical pin is unchanged.
 # The shared local action checks extend that package script. The passing generator
 # again changes only the package binding and set ID, preserving all case evidence.
+# The bounded collection selector extends the same script. Its reviewed refresh
+# changes only the package binding and set ID; all observed-host pins stay fixed.
 REGENERABLE_LOCAL_RECEIPT_SHA256 = (
-    "5486f2fb3f48045fde3e0f552116c6169f45070a2bbd1300b4d0e313b8f1e268"
+    "68f8fe048b474b5db2448d9881508bd45dae199e08f3c9a08fc7966b73ddeedf"
 )
 HISTORICAL_V1_SHA256 = {
     "evaluation/qual-206-local-protocol-evidence-matrix.v1.json": (

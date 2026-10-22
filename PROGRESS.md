@@ -2,6 +2,37 @@
 
 Last updated: 22 October 2026
 
+## Bounded collection selection and documentary source context
+
+The active collection and counts stay visible. Native scope disclosures keep the
+complete source and global-search limitations available without placing the
+entire paragraph before the search control.
+
+The optional [collection selector](examples/geography-task-experience/COLLECTION-SELECTION.md)
+keeps separately reviewed code-list projections accessible through a closed
+host catalogue. Search and code comparisons explicitly cover the active
+collection. Existing widget limits are unchanged. Failed, stale or cancelled
+loads preserve the current display, and task, reference, pin and fold controls
+retain their existing ownership. The public source uses fictional fixtures and
+contains no transport, supplier lists or private demo catalogue.
+
+The [dated documentary findings](docs/research/2026-10-22/NGD_RAMI_DOCUMENTARY_METHOD.md)
+distinguish native table rows, labels, versions and field mappings from coded
+concepts and proven conversions. Retained NGD and RAMI source reconstruction
+closes those selected documentary inventories while leaving ambiguity, missing
+definitions, current field adoption and paired conversion evidence explicit.
+No universal vocabulary or product coverage is claimed.
+
+Affected synthetic source checks passed at preparation. Canonical repository
+assurance, host integration and real-browser acceptance remain separate gates.
+This increment does not deploy, acquire provider data, send supplier questions
+or publish private payloads.
+
+The preceding folded-reference increment is accepted on `main` at
+`e6065d5cdd2b`: all nine [CI jobs](https://github.com/chris-page-gov/gis-ai-go/actions/runs/39709786775)
+and three [CodeQL analyses](https://github.com/chris-page-gov/gis-ai-go/actions/runs/39709786892)
+passed at that exact commit. Earlier preparation statements below remain historical.
+
 ## Folded entry references and selected Sites/VectorMap context
 
 The Code lists reference now folds lengthy scheme limits and repeated-code

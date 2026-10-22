@@ -68,3 +68,11 @@ claim of complete product or vocabulary coverage.
 
 The existing test entry point also runs the fictional code-list contract suite;
 no additional package or network access is required.
+
+## Optional collection selection
+
+The [collection selection guide](COLLECTION-SELECTION.md) describes an optional
+closed, exact-ID host interface around the existing code-list widget. It keeps
+separately reviewed projections distinct and states that search covers the active
+collection. The source includes fictional data and asynchronous failure tests;
+it provides no provider or file transport and raises no widget limits.
