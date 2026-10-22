@@ -1,10 +1,55 @@
-# Selected address and Census classification lists
+# Selected address, Census and map classification lists
 
 Review updated: 22 October 2026. This follows the initial
 [33-family investigation](VOCABULARY_FAMILY_MATRIX.md). Complete selected-list
 traversal is separate from definitions, edition adoption, mapping and whole-domain
 coverage. Full source bodies and lists are retained privately; this public note
 contains findings and methods, not licensed payloads.
+
+## Sites and VectorMap documentary scope
+
+Complete traversal of 17 retained OS MasterMap Sites Layer documents yields
+47 field definitions, 50 documented GML-to-GeoPackage name mappings and 11
+selected lists with 81 entries. Sixty entries have source definitions; 21 are
+literal valid-combination strings. Grouped function values are not silently
+split into invented atomic codes. This is documentary coverage, not validation
+of delivered geometry, identifier joins or an actual format conversion.
+
+The Sites field definitions distinguish an AccessPoint's site reference from
+its optional routing references. A FunctionalSite's optional primary AddressBase
+UPRN refers to its primary building; it does not enumerate all addresses.
+Native field names containing `ITN` and prose referring to Highways are both
+preserved, without assuming a dataset substitution. A documented `1900-01-01`
+placeholder for a referenced road version is not treated as the road's creation
+date. See the [Sites technical specification](https://docs.os.uk/os-downloads/products/land-and-terrain-portfolio/os-mastermap-sites-layer/os-mastermap-sites-layer-technical-specification)
+and [access-direction definitions](https://docs.os.uk/os-downloads/products/land-and-terrain-portfolio/os-mastermap-sites-layer/os-mastermap-sites-layer-technical-specification/enumerations/accessdirectionvalue.md).
+
+The selected VectorMap context contains 21 retained documents, 39 field
+definitions and 32 tile-attribute rows. Six selected documentary lists retain
+221 entries, including 67 uncoded Important Buildings names. One figure is
+withheld from retained text, with its exact span and hash recorded privately;
+its meaning has not been inspected. The [Important Buildings list](https://docs.os.uk/os-downloads/products/maps-and-imagery-portfolio/os-vectormap-local/os-vectormap-local-technical-specification/important-buildings-classification.md)
+provides source groups and names, not invented numeric codes or coded parents.
+
+The selected index points to an OpenMap Local draw-level list, whereas a
+VectorMap field points to its separate product list. The domains remain distinct.
+The [TextFont list](https://docs.os.uk/os-downloads/products/maps-and-imagery-portfolio/os-vectormap-local/os-vectormap-local-technical-specification/code-lists/textfontvalue.md)
+retains two explicitly obsolete values that the structured font field excludes.
+This can reflect version history; no supplier error or effective date is inferred.
+Likewise, text-rendering height measures map text in ground-distance units, not
+physical building height. Tile and GML coordinate-system declarations do not
+prove coordinate transformation or attribute equivalence.
+
+The private demonstration now exposes 50 selected schemes and 1,805 entries.
+Separate YAML-LD exports of the added lists preserve uncoded names as
+documentation records and retain source definitions, nulls, qualified lexical
+forms and ambiguity.
+These counts are a selected demonstration denominator, not a catalogue of every
+domain vocabulary. Linked schema and XML code-list dependencies, actual payload
+applicability, historical base/change chains and paired supplier conversions
+remain open. A change-only deletion may mean leaving the selected area; it does
+not by itself establish demolition. No private list or feature payload is added
+to the repository by this source increment.
 
 ## AddressBase and NGD
 

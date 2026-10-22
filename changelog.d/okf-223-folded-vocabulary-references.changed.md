@@ -1,0 +1,1 @@
+- Fold long entry limits and same-code comparisons while keeping definitions and sources visible. Record selected Sites and VectorMap vocabulary contexts, uncoded labels and open schema/conversion gaps.

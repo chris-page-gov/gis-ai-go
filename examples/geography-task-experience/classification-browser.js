@@ -211,16 +211,20 @@
       pair(dl, 'Source level', display(e.level, 'No level supplied (null); none is inferred.'));
       pair(dl, 'Source locator', display(e.sourceLocator));
       detail.append(title, dl);
-      const limits = el('ul'); s.gaps.forEach(gap => limits.append(el('li', gap))); detail.append(el('h5', 'Limits for this entry’s scheme'), limits);
+      const limitDetails = el('details'); limitDetails.open = false;
+      limitDetails.append(el('summary', 'Limits for this entry’s scheme (' + s.gaps.length + ')'));
+      const limits = el('ul'); s.gaps.forEach(gap => limits.append(el('li', gap))); limitDetails.append(limits); detail.append(limitDetails);
       if (e.code !== null && e.code !== '') {
         const other = rows.filter(r => r.entry.code === e.code && !(r.scheme.id === s.id && r.entry.id === e.id));
-        detail.append(el('h5', 'Other occurrences of this code'), el('p', 'Exact text comparison only. Equal codes do not establish equivalent concepts, and different labels must remain source-owned.', 'muted'));
         if (!other.length) detail.append(el('p', 'No other occurrence in these supplied lists. This is not a global absence claim.'));
         else {
-          detail.append(el('p', other.length + ' other occurrence' + (other.length === 1 ? '' : 's') + (other.length > 20 ? '; showing the first 20.' : '.')));
+          const comparisons = el('details'); comparisons.open = false;
+          comparisons.append(el('summary', 'Other occurrences of this code (' + other.length + ') — equivalence not established'),
+            el('p', 'Exact text comparison only. Equal codes do not establish equivalent concepts, and different labels must remain source-owned.', 'muted'));
+          if (other.length > 20) comparisons.append(el('p', 'Showing the first 20 of ' + other.length + ' other occurrences.'));
           const occurrences = el('ul');
           for (const r of other.slice(0, 20)) { const item = el('li'), button = el('button', r.scheme.title + ': ' + display(r.entry.code) + ' — ' + display(r.entry.label)); button.type = 'button'; button.addEventListener('click', () => showDetail(r, true)); item.append(button); occurrences.append(item); }
-          detail.append(occurrences);
+          comparisons.append(occurrences); detail.append(comparisons);
         }
       }
       const relationship = parentOf(s, e);

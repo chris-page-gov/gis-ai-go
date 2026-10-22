@@ -81,6 +81,10 @@ an entry or a supplied parent moves focus to the detail heading.
   and locators point to the separate provenance.
 - The selected entry can show up to 20 other exact-code occurrences, with their
   total count and an explicit limit if more exist. No supplier crosswalk is inferred.
+  A native disclosure folds these comparisons by default and says that equivalence
+  is not established. The selected definition and source link stay outside it.
+  A second disclosure holds the entry's scheme limits. Enter or Space toggles
+  either disclosure; paging preserves it, while selecting a different entry resets it.
 
 ## Admission and bounds
 

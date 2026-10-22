@@ -2,6 +2,32 @@
 
 Last updated: 22 October 2026
 
+## Folded entry references and selected Sites/VectorMap context
+
+The Code lists reference now folds lengthy scheme limits and repeated-code
+comparisons into native disclosures. The definition, locator and source remain
+outside these sections; the comparison count stays visible and equivalence is
+explicitly unestablished. Keyboard toggling and pinned reference navigation
+passed real-browser checks in the private host. The affected source suite has
+56 checks, with ten additional independent presentation checks.
+
+The [dated findings](docs/research/2026-10-21/CLASSIFICATION_RELEASE_FINDINGS.md)
+add selected Sites and VectorMap documentary scope. Independent reconstruction
+accepted 17 additional lists and 302 entries, bringing the private demonstration
+to 50 selected schemes and 1,805 entries. All earlier schemes and the geography
+model are unchanged. Null codes, obsolete values, product-specific lists and
+remaining schema/conversion dependencies stay explicit; full coverage is open.
+
+This source increment contains presentation, fictional tests and concise
+findings. Private payloads, receipts and local paths remain outside Git.
+Canonical source assurance is pending at preparation. There is no deployment,
+supplier communication or claim of delivered feature conformance.
+
+The preceding AddressBase/Nomis increment is accepted on `main` at
+`c2fdc94c53da`: all nine [CI jobs](https://github.com/chris-page-gov/gis-ai-go/actions/runs/39704431857)
+and three [CodeQL analyses](https://github.com/chris-page-gov/gis-ai-go/actions/runs/39704432092)
+passed at that exact commit. Earlier preparation statements below remain historical.
+
 ## Additional AddressBase and Nomis vocabulary contexts
 
 The [dated classification findings](docs/research/2026-10-21/CLASSIFICATION_RELEASE_FINDINGS.md)

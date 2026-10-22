@@ -1,5 +1,17 @@
 # Explore a classification without losing its context
 
+For long reference entries, expand **Limits for this entry's scheme** or
+**Other occurrences of this code** when needed. Definitions and source links
+remain available without expanding either section. The comparison count is
+visible while folded; equal code text does not establish equivalent concepts.
+
+When exploring access to a site, introduce direction, mechanism and restrictions
+before following an identifier. A site's primary-building UPRN does not enumerate
+every address on the site. When reading a map label, check whether a field measures
+the text's rendering height or a physical building: these answer different questions.
+The [dated findings](../research/2026-10-21/CLASSIFICATION_RELEASE_FINDINGS.md)
+record the selected Sites and VectorMap source distinctions and open dependencies.
+
 Tracking: [issue #153](https://github.com/chris-page-gov/gis-ai-go/issues/153).
 Owner request: 21 October 2026. This increment closes selected list traversal,
 not the whole vocabulary domain. It adds no network executor or hosted API.
