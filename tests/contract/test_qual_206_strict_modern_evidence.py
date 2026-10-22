@@ -60,8 +60,10 @@ EXACT_RESOURCES = [
 # the package binding and derived set ID change; historical pins remain unchanged.
 # Field documentary references add synthetic widget checks to the same script.
 # Only the package binding and derived set ID change; historical pins stay fixed.
+# Dated coverage navigation extends the same synthetic experience script.
+# Only its package binding and set ID change; historical evidence stays fixed.
 REGENERABLE_LOCAL_RECEIPT_SHA256 = (
-    "c8e35a106e051c729117b4956fa7e7f1ee5f00404a147368f870327468a7acc3"
+    "069b0b3b367de90be63f9c7f7f7cf93745575e2099a7fef35fc16e232e1fac23"
 )
 HISTORICAL_V1_SHA256 = {
     "evaluation/qual-206-local-protocol-evidence-matrix.v1.json": (

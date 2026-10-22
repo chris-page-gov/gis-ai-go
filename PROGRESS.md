@@ -2,6 +2,19 @@
 
 Last updated: 22 October 2026
 
+## Dated coverage navigation
+
+The optional [coverage navigator](examples/geography-task-experience/COVERAGE-NAVIGATOR.md)
+uses a closed, bounded host-supplied statement with explicit date and counts.
+Rows, scoped evidence gates and directed relationships remain distinct. Folded
+learning help explains documentary denominators, tested evidence and unresolved
+limits without claiming a completion percentage or source acceptance.
+
+Synthetic checks cover validation, paging, filtering, focus and disclosure state.
+The outer reference selector is constrained to its pane width. Rendered-host
+layout, keyboard and assistive-technology acceptance remain separate; this source
+increment adds no supplier payload, provider transport or deployment.
+
 ## Classification label origin
 
 The optional [label-origin contract](examples/geography-task-experience/LABEL-ORIGIN.md)

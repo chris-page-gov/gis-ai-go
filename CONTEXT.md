@@ -2,6 +2,14 @@
 
 Last updated: 22 October 2026
 
+## Coverage presentation boundaries
+
+The optional [coverage navigator](examples/geography-task-experience/COVERAGE-NAVIGATOR.md)
+displays a dated host-provided statement. Catalogue inclusion, completed selected
+processing, technical tests and whole-product coverage are separate claims.
+Structural validation and displayed hashes do not authenticate the underlying
+evidence, grant rights or authorise acquisition.
+
 ## Classification display provenance
 
 Optional [label-origin metadata](examples/geography-task-experience/LABEL-ORIGIN.md)

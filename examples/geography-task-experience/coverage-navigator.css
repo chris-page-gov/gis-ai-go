@@ -1,0 +1,18 @@
+.coverage-disclosure { border: 1px solid #b9c8d2; border-radius: .4rem; padding: .7rem; margin: .7rem 0 1rem; }
+.coverage-disclosure > summary { cursor: pointer; font-weight: 700; }
+.coverage-navigator label { display: block; font-weight: 600; margin-top: .7rem; }
+.coverage-navigator input, .coverage-navigator select { width: 100%; max-width: 100%; box-sizing: border-box; }
+.coverage-navigator ul { list-style: none; padding: 0; }
+.coverage-navigator li { margin: .3rem 0; }
+.coverage-navigator li button { text-align: left; width: 100%; }
+.coverage-navigator [aria-pressed="true"] { border-color: #005ea5; background: #e7f3ff; }
+.coverage-navigator h5 { font-size: 1rem; margin-bottom: .2rem; }
+.coverage-navigator details { margin: .7rem 0; }
+.coverage-navigator code { display: block; overflow-wrap: anywhere; font-size: .78rem; }
+.coverage-route { display: flex; align-items: center; flex-wrap: wrap; gap: .6rem; padding: .7rem; background: #f2f6f8; }
+.coverage-route strong { flex: 1 1 10rem; }
+
+.coverage-navigator { min-width: 0; overflow-wrap: anywhere; }
+.coverage-navigator button { min-height: 2.75rem; white-space: normal; font: inherit; }
+.coverage-navigator :focus-visible { outline: 3px solid #ffbf47; outline-offset: 2px; }
+.coverage-navigator [hidden] { display: none !important; }
