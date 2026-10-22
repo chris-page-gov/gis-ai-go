@@ -58,8 +58,10 @@ EXACT_RESOURCES = [
 # changes only the package binding and set ID; all observed-host pins stay fixed.
 # Native source search adds the bounded widget checks to the same script. Only
 # the package binding and derived set ID change; historical pins remain unchanged.
+# Field documentary references add synthetic widget checks to the same script.
+# Only the package binding and derived set ID change; historical pins stay fixed.
 REGENERABLE_LOCAL_RECEIPT_SHA256 = (
-    "0db7a4b6d546cc72b1ac9fc8826548803a621412360af7a3f268da346fd2903e"
+    "c8e35a106e051c729117b4956fa7e7f1ee5f00404a147368f870327468a7acc3"
 )
 HISTORICAL_V1_SHA256 = {
     "evaluation/qual-206-local-protocol-evidence-matrix.v1.json": (

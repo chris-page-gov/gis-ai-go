@@ -76,3 +76,12 @@ closed, exact-ID host interface around the existing code-list widget. It keeps
 separately reviewed projections distinct and states that search covers the active
 collection. The source includes fictional data and asynchronous failure tests;
 it provides no provider or file transport and raises no widget limits.
+
+## Optional field documentary links
+
+The [field-link guide](FIELD-DOCUMENTARY-LINKS.md) describes a separate, initially
+folded panel for selected schema/queryable properties and explicit documentary
+code-list links. It retains source names, versions, missing matches and native
+constraints. Folded learning help distinguishes documentary candidates from
+proven API adoption. The public fixture is fictional; the panel changes no
+collection, task, reference, pin or history state and makes no provider request.

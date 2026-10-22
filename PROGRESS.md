@@ -2,6 +2,20 @@
 
 Last updated: 22 October 2026
 
+## Selected field documentary references
+
+The optional [field-link panel](examples/geography-task-experience/FIELD-DOCUMENTARY-LINKS.md)
+provides bounded discovery of selected schema/queryable fields and explicit
+documentation links, with native pointers, version context and unresolved
+categories. Folded help explains schema, queryable, documentary candidate and
+API adoption. Historical nullability wording is qualified without changing
+source evidence. Former-name text is not promoted to an alias.
+
+This source increment includes fictional fixtures and checks only. It adds no
+provider transport, supplier payload, remote tool or Site deployment. The host
+retains collection, task, reference, pin, fold and browser-history ownership.
+Canonical repository assurance and rendered-host acceptance are separate gates.
+
 ## Source-native lexical search and schema interpretation
 
 Coordinated optional browser and lexical schema extensions preserve exact native

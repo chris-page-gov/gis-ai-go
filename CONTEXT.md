@@ -1,6 +1,6 @@
 # Current context
 
-Last updated: 19 October 2026
+Last updated: 22 October 2026
 
 ## Authority and reading order
 
@@ -504,6 +504,15 @@ host was exercised, and this explained variance does not widen the production
 protocol boundary or complete the independent-host gate.
 
 ## Non-negotiable boundaries
+
+The 22 October field-documentary reference component is an optional, bounded
+source interface within the geography experience. Its public fixture and tests
+are fictional. The [integration guide](examples/geography-task-experience/FIELD-DOCUMENTARY-LINKS.md)
+separates native field/version evidence, explicit documentary links, unresolved
+matches and API adoption. It adds no provider transport, data publication, tool
+registration or Site change. The host owns rights, selected-source review and
+rendered accessibility acceptance; existing task and reference controls retain
+their ownership.
 
 - Keep `docs/research/2026-08-19/` byte-for-byte unchanged.
 - Commit only public, publishable or clearly synthetic data and fixtures.
