@@ -56,8 +56,10 @@ EXACT_RESOURCES = [
 # again changes only the package binding and set ID, preserving all case evidence.
 # The bounded collection selector extends the same script. Its reviewed refresh
 # changes only the package binding and set ID; all observed-host pins stay fixed.
+# Native source search adds the bounded widget checks to the same script. Only
+# the package binding and derived set ID change; historical pins remain unchanged.
 REGENERABLE_LOCAL_RECEIPT_SHA256 = (
-    "68f8fe048b474b5db2448d9881508bd45dae199e08f3c9a08fc7966b73ddeedf"
+    "0db7a4b6d546cc72b1ac9fc8826548803a621412360af7a3f268da346fd2903e"
 )
 HISTORICAL_V1_SHA256 = {
     "evaluation/qual-206-local-protocol-evidence-matrix.v1.json": (

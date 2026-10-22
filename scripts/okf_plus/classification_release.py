@@ -20,9 +20,11 @@ from jsonschema import Draft202012Validator
 try:
     from .model import canonical, digest, identifier, load_json, markdown_text, record, safe_reference
     from .term_discovery import build_discovery
+    from .native_search import validate_native_search, qualified_form
 except ImportError:
     from model import canonical, digest, identifier, load_json, markdown_text, record, safe_reference
     from term_discovery import build_discovery
+    from native_search import validate_native_search, qualified_form
 
 SCHEMA = 'gis-ai-go.classification-browser.v1'
 MAX_BYTES = 16 * 1024 * 1024
@@ -80,6 +82,7 @@ def validate(payload):
         for entry in entries:
             if entry['sourceId'] not in sources:
                 raise ValueError('Unresolved entry source')
+            validate_native_search(entry, sources)
             for alias in entry['aliases']:
                 if alias['sourceId'] not in sources:
                     raise ValueError('Unresolved lexical-form source')
@@ -130,6 +133,10 @@ def concept_record(scheme, entry, payload_digest):
              'okfp:authority': alias['authority'],
              'prov:wasDerivedFrom': [{'@id': by_id[alias['sourceId']]['url']}]}
             for i, alias in enumerate(entry['aliases'])]
+    native_forms = validate_native_search(entry, {s['id']: s for s in scheme['sources']})
+    if native_forms:
+        row.setdefault('okfp:lexicalForm', []).extend(
+            qualified_form(row['@id'], form, source['url']) for form in native_forms)
     return row
 
 

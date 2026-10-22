@@ -2,6 +2,18 @@
 
 Last updated: 22 October 2026
 
+## Source-native lexical search and schema interpretation
+
+Coordinated optional browser and lexical schema extensions preserve exact native
+value strings and provenance pointers, with distinct unresolved, unasserted and
+legacy-unknown code roles. Synthetic source values remain Documentation where
+no code is admitted. The widget, exporter and discovery path are checked together;
+repository assurance and actual browser acceptance remain separate release gates.
+No provider retrieval, payload publication or Site change is included.
+The [schema interpretation guide](docs/implementation/NGD_SCHEMA_INTERPRETATION.md) explains nullable/enumerated values, object-only constraint conflicts and metaschema diagnostics with fictional checked examples. Retained evidence and current-service validation remain distinct.
+
+The preceding collection-selector increment is accepted on `main` at `c1b6bb80ea56`: all nine [CI jobs](https://github.com/chris-page-gov/gis-ai-go/actions/runs/39718046896) and three [CodeQL analyses](https://github.com/chris-page-gov/gis-ai-go/actions/runs/39718047051) passed at that exact commit.
+
 ## Bounded collection selection and documentary source context
 
 The active collection and counts stay visible. Native scope disclosures keep the

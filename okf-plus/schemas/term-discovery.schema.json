@@ -202,6 +202,11 @@
             "string",
             "null"
           ]
+        },
+        "sourcePointer": {
+          "type": "string",
+          "pattern": "^/details/entry/native/",
+          "maxLength": 526
         }
       },
       "additionalProperties": false,
@@ -221,6 +226,38 @@
               "sources",
               "formId"
             ]
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "formKind"
+            ],
+            "properties": {
+              "formKind": {
+                "const": "source-native-value"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "sourcePointer"
+            ],
+            "properties": {
+              "kind": {
+                "const": "qualified-lexical-form"
+              },
+              "authority": {
+                "const": "source-stated"
+              }
+            }
+          },
+          "else": {
+            "not": {
+              "required": [
+                "sourcePointer"
+              ]
+            }
           }
         }
       ]

@@ -297,6 +297,63 @@
                   ],
                   "minLength": 1,
                   "maxLength": 80
+                },
+                "nativeSearchForms": {
+                  "type": "array",
+                  "maxItems": 8,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "text",
+                      "kind",
+                      "authority",
+                      "sourceId",
+                      "sourceLocator",
+                      "nativePointer",
+                      "language"
+                    ],
+                    "properties": {
+                      "text": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1000
+                      },
+                      "kind": {
+                        "const": "source-native-value"
+                      },
+                      "authority": {
+                        "const": "source-stated"
+                      },
+                      "sourceId": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,159}$"
+                      },
+                      "sourceLocator": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 10000
+                      },
+                      "nativePointer": {
+                        "type": "string",
+                        "minLength": 8,
+                        "maxLength": 512,
+                        "pattern": "^/native/"
+                      },
+                      "language": {
+                        "type": "null"
+                      }
+                    }
+                  }
+                },
+                "codeRole": {
+                  "enum": [
+                    "unknown",
+                    "source-code-retained",
+                    "explicit-empty-code",
+                    "unresolved-native-value",
+                    "no-separate-code-assertion"
+                  ]
                 }
               },
               "additionalProperties": false

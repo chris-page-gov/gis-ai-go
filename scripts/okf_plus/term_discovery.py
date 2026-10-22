@@ -18,10 +18,12 @@ try:
     from .model import CTX, PREFIXES, canonical, digest, load_json, safe_reference
     from .vocabulary_usage import expanded_iri
     from .vocabulary_inventory import schema_constraints, schema_roots
+    from .native_search import validate_qualified_form
 except ImportError:
     from model import CTX, PREFIXES, canonical, digest, load_json, safe_reference
     from vocabulary_usage import expanded_iri
     from vocabulary_inventory import schema_constraints, schema_roots
+    from native_search import validate_qualified_form
 
 SCHEMA = 'gis-ai-go.okf-plus-term-discovery.v1'
 LABELS = {PREFIXES['skos'] + name: kind for name, kind in (
@@ -123,6 +125,7 @@ def _forms(row):
         if key in row:
             add(row[key], kind, '/' + key)
     semantic(row)
+    native_pointers = set()
     for i, form in enumerate(row.get('okfp:lexicalForm', [])):
         if (not isinstance(form, dict) or not isinstance(form.get('okfp:formKind'), str)
                 or not form['okfp:formKind']
@@ -137,11 +140,21 @@ def _forms(row):
         value = form.get('rdf:value')
         if not isinstance(value, dict) or not isinstance(value.get('@value'), str):
             raise ValueError('Lexical forms require a literal string value')
+        source_pointer = None
+        if form['okfp:formKind'] == 'source-native-value':
+            source_pointer = validate_qualified_form(row, form)
+            if source_pointer in native_pointers:
+                raise ValueError('Duplicate source-native lexical pointer')
+            native_pointers.add(source_pointer)
+        elif 'okfp:sourcePointer' in form:
+            raise ValueError('Source pointer requires a source-native-value form')
         labels(value, 'qualified-lexical-form', '/okfp:lexicalForm/' + str(i) + '/rdf:value', row['@id'])
         forms[-1]['formKind'] = form['okfp:formKind']
         forms[-1]['authority'] = form['okfp:authority']
         forms[-1]['sources'] = [source['@id'] for source in sources]
         forms[-1]['formId'] = form.get('@id')
+        if source_pointer is not None:
+            forms[-1]['sourcePointer'] = source_pointer
     for i, field in enumerate(row.get('okfp:field', [])):
         pointer = '/okfp:field/' + str(i)
         node_id = field['@id']
