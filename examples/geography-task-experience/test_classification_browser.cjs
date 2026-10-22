@@ -46,6 +46,24 @@ check('unsafe source links are not anchor targets', () => { for (const url of ['
 check('safe links only follow explicit anchors', () => { const {root} = mount(); const links = tree(root).filter(x => x.tag === 'a'); assert.ok(links.length); for (const a of links) { assert.equal(a.href, 'https://example.invalid/source'); assert.equal(a.rel, 'noopener noreferrer'); assert.equal(a.target, '_blank'); } });
 check('sourced parent only and keyboard focus on details', () => { const {ui} = mount(); ui.setFilter('001'); ui.elements.list.children[0].children[0].listeners.click(); assert.equal(focused.tag, 'h4'); assert.match(text(ui.elements.detail), /Source-supplied parent: 000/); const button = tree(ui.elements.detail).find(x => x.tag === 'button' && x.textContent === 'Inspect source-supplied parent'); button.listeners.click(); assert.deepEqual(localValue(ui.snapshot().selected), {schemeId: 'fictional-a', entryId: 'entry-0'}); });
 check('other exact-code occurrences are lexical comparisons with source identity', () => { const {ui} = mount(); ui.setFilter('000', 'fictional-a'); ui.elements.list.children[0].children[0].listeners.click(); assert.match(text(ui.elements.detail), /Equal codes do not establish equivalent concepts/); const button = tree(ui.elements.detail).find(x => x.tag === 'button' && x.textContent.startsWith('Fictional scheme B:')); button.listeners.click(); assert.deepEqual(localValue(ui.snapshot().selected), {schemeId:'fictional-b',entryId:'entry-0'}); assert.match(text(ui.elements.detail), /Different meaning/); });
+check('entry limits and code comparisons start folded with visible counts and caveat', () => {
+  const {ui}=mount();ui.setFilter('000','fictional-a');ui.elements.list.children[0].children[0].listeners.click();
+  const disclosures=ui.elements.detail.children.filter(x=>x.tag==='details');
+  const limits=disclosures.find(x=>x.children[0].textContent.startsWith('Limits for this'));
+  const comparisons=disclosures.find(x=>x.children[0].textContent.startsWith('Other occurrences'));
+  assert.equal(limits.open,false);assert.match(limits.children[0].textContent,/\(1\)/);assert.ok(text(limits).includes(fixture().schemes[0].gaps[0]));
+  assert.equal(comparisons.open,false);assert.match(comparisons.children[0].textContent,/\(1\) — equivalence not established/);
+  assert.ok(ui.elements.detail.children.some(x=>x.tag==='dl'&&text(x).includes('Source definition')));
+  assert.ok(ui.elements.detail.children.some(x=>x.tag==='a'&&x.href==='https://example.invalid/source'));
+});
+check('paging preserves an opened entry disclosure and its selected term', () => {
+  const {ui}=mount();ui.elements.list.children[0].children[0].listeners.click();const limits=ui.elements.detail.children.find(x=>x.tag==='details');limits.open=true;const selected=localValue(ui.snapshot().selected);
+  ui.elements.next.listeners.click();assert.equal(ui.elements.detail.children.find(x=>x.tag==='details'),limits);assert.equal(limits.open,true);assert.deepEqual(localValue(ui.snapshot().selected),selected);
+});
+check('following a comparison resets disclosures for the new entry and focuses its title', () => {
+  const {ui}=mount();ui.setFilter('000','fictional-a');ui.elements.list.children[0].children[0].listeners.click();const comparisons=ui.elements.detail.children.find(x=>x.tag==='details'&&x.children[0].textContent.startsWith('Other occurrences'));comparisons.open=true;
+  tree(comparisons).find(x=>x.tag==='button').listeners.click();assert.deepEqual(localValue(ui.snapshot().selected),{schemeId:'fictional-b',entryId:'entry-0'});assert.equal(focused.tag,'h4');assert.match(focused.textContent,/Different meaning/);assert.equal(ui.elements.detail.children.find(x=>x.tag==='details').open,false);
+});
 check('no prefix hierarchy inferred', () => { const s = fixture().schemes[0]; assert.equal(api.parentOf(s, s.entries[0]).state, 'not-supplied'); assert.equal(api.parentOf(s, s.entries[2]).state, 'unresolved'); });
 check('ambiguous and self parent unresolved', () => { const s = fixture().schemes[0]; s.entries[2].code = '000'; assert.equal(api.parentOf(s, s.entries[1]).state, 'unresolved'); s.entries[0].parentCode = '000'; assert.equal(api.parentOf(s, s.entries[0]).state, 'unresolved'); });
 check('empty parent is explicit, not null or root', () => { const s = fixture().schemes[0]; s.entries[0].parentCode = ''; assert.equal(api.parentOf(s, s.entries[0]).state, 'empty'); });
