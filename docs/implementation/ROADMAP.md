@@ -114,6 +114,13 @@ jurisdiction and provenance. An accessible search alias does not establish a
 semantic mapping. Human learning, accessibility and complete external vocabulary
 coverage remain separate acceptance gates.
 
+The optional [field-documentary panel](../../examples/geography-task-experience/FIELD-DOCUMENTARY-LINKS.md)
+adds a bounded source interface for native property/version context and explicit
+attribute-level documentation links. It preserves missing and ambiguous matches
+without asserting API adoption or vocabulary equivalence. Public checks use
+fictional fixtures; source acceptance and rendered-host acceptance remain
+separate requirements.
+
 The 19 October [OS recovery increment](OKF_OS_RECOVERY.md) completed its accessible
 bounded pass: 2,302 of 2,303 frozen documentation pages were captured, with one
 recorded HTTP 307 gap and no unresolved targets; 216,765 passages passed audit,

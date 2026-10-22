@@ -1,0 +1,13 @@
+/* Scoped optional field-reference panel. Existing collection styles stay unchanged. */
+.field-documentary-disclosure { margin: .5rem 0; border: 1px solid #b1b4b6; border-radius: .25rem; padding: .5rem; }
+.field-documentary-disclosure > summary { cursor: pointer; font-weight: 650; }
+.field-documentary-browser label { display: block; margin: .45rem 0; }
+.field-documentary-browser input, .field-documentary-browser select { display: block; box-sizing: border-box; width: 100%; min-height: 2.5rem; margin-top: .2rem; }
+.field-documentary-browser ul { padding-left: 1.1rem; }
+.field-documentary-browser li { margin: .35rem 0; }
+.field-documentary-browser button { max-width: 100%; min-height: 2.5rem; overflow-wrap: anywhere; white-space: normal; }
+.field-documentary-browser > button { margin-right: .5rem; }
+.field-documentary-browser pre { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 20rem; overflow: auto; }
+.field-documentary-browser details { margin: .5rem 0; }
+.field-documentary-browser p, .field-documentary-browser a { overflow-wrap: anywhere; }
+.field-documentary-browser :focus-visible, .field-documentary-disclosure > summary:focus-visible { outline: 3px solid #ffdd00; outline-offset: 2px; box-shadow: 0 0 0 5px #0b0c0c; }
