@@ -95,6 +95,21 @@ explain a selected code alongside its scheme, without requiring the reader to
 read the whole dictionary first. A source definition or source label must remain
 distinguishable from authored teaching guidance.
 
+A useful next activity is to compare the same code in two schemes, then explain
+why matching text is insufficient. For representative point codes, read the full
+source definition, including any alternatives, before describing accuracy. For
+age or occupation, identify the population, reference date and comparison limits
+before choosing a chart. For economic activity, check whether rows are totals,
+components or overlapping categories before summing them. These are authored
+learning prompts, not assessed learning outcomes.
+
+Complete selected documentation also needs a field-level gap record. A name in a
+summary table may lack a definition section; an empty CSV/GML mapping cell does
+not prove that the other format lacks the property. Keep source tables, native
+schemas, observed headers and tested conversions as separate evidence. Preserve
+GML-only metadata and change-delivery requirements rather than silently dropping
+them when proposing another format.
+
 The [family matrix](../research/2026-10-21/VOCABULARY_FAMILY_MATRIX.md) retains the
 larger denominator. Complete authoritative releases, all definitions, translations,
 deprecations, cross-scheme mappings and national variants remain separate gaps.

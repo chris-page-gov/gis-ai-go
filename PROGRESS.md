@@ -1,6 +1,29 @@
 # Current progress
 
-Last updated: 21 October 2026
+Last updated: 22 October 2026
+
+## Additional AddressBase and Nomis vocabulary contexts
+
+The [dated classification findings](docs/research/2026-10-21/CLASSIFICATION_RELEASE_FINDINGS.md)
+now cover four selected AddressBase ancillary code lists and three more Nomis
+Census lists: age, occupation and economic activity. Independent reconstruction
+accepted 71 additional entries and their source context. The private demo exposes
+33 selected schemes and 1,503 entries; all earlier entries and local actions are
+preserved. Source definitions, aliases, date roles, statistical populations,
+comparison limits and unresolved field mappings are accessible in Code lists.
+Private YAML-LD exports retain the same contexts and qualified search forms.
+
+This source increment records concise findings and learning guidance only.
+Complete selected lists do not establish full domain coverage, current adoption
+in every product, valid cross-scheme mappings or observed conversion behaviour.
+No private payload or machine path is published. Local source reconstruction,
+export and real-browser checks passed; canonical source assurance is pending at
+preparation. No deployment or supplier communication is included.
+
+The preceding shared-action increment is accepted on `main` at `16fcfb1445ea`:
+all nine [CI jobs](https://github.com/chris-page-gov/gis-ai-go/actions/runs/39692658315)
+and three [CodeQL analyses](https://github.com/chris-page-gov/gis-ai-go/actions/runs/39692658412)
+passed. Earlier preparation statements below remain historical.
 
 ## Shared local geography actions
 

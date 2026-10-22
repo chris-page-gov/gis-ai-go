@@ -1,6 +1,6 @@
 # Selected address and Census classification lists
 
-Review date: 21 October 2026. This follows the initial
+Review updated: 22 October 2026. This follows the initial
 [33-family investigation](VOCABULARY_FAMILY_MATRIX.md). Complete selected-list
 traversal is separate from definitions, edition adoption, mapping and whole-domain
 coverage. Full source bodies and lists are retained privately; this public note
@@ -139,6 +139,79 @@ Nomis disability time list has no explicit Census-date or revision annotations,
 while its dataset description separately states 21 March 2021. Missing revision
 dates remain unknown. A preparation timestamp is neither a publication date nor
 the period measured.
+
+## AddressBase field definitions and four ancillary lists
+
+A complete traversal of six retained AddressBase pages, with two separate
+classification/format context pages, yields 26 field definitions, 18 code-list
+entries and a 27-row CSV/GML name mapping. The four selected lists are
+[change type](https://docs.os.uk/os-downloads/products/addresses-and-names-portfolio/addressbase-fundamentals/code-lists-and-enumerations/changetypecode.md),
+[country](https://docs.os.uk/os-downloads/products/addresses-and-names-portfolio/addressbase-fundamentals/code-lists-and-enumerations/countrycode.md),
+[postcode type](https://docs.os.uk/os-downloads/products/addresses-and-names-portfolio/addressbase-fundamentals/code-lists-and-enumerations/postcodetypecode.md)
+and [representative point code](https://docs.os.uk/os-downloads/products/addresses-and-names-portfolio/addressbase-fundamentals/code-lists-and-enumerations/rpccode.md).
+Their respective counts are three, seven, two and six. Fifteen entries have
+source descriptions or implementation notes; the three change-type entries have
+labels only. Language, effective edition, aliases and hierarchy remain unknown
+where the source does not declare them.
+
+A representative point code describes the address seed's placement and related
+caveats. It is a category, not a numeric confidence score or an unconditional
+accuracy guarantee. The full alternative clauses remain in the retained
+source definitions. Postcode type distinguishes small and large postal users;
+it is not a residential/commercial or household-size classification. A shared
+country code list does not establish each product's coverage or valid subset.
+
+The retained CSV/GML name-mapping table includes `DEPENDENT_THOROUGHFARE`,
+but the selected Address feature page has no corresponding definition section. Two CSV/GML mapping cells are
+empty, for `Y_COORDINATE` and `LONGITUDE`; empty documentation is not proof of
+absent GML properties. SupplySet is described for GML only. The mapping is a
+source name table, not an observed lossless conversion. Full schema, payload,
+product-specific adoption and edition correspondence remain separate checks.
+
+## Age, occupation and economic activity in Nomis
+
+Twelve additional public metadata responses cover category, dataset, time and
+measure context for these complete selected lists:
+
+| Topic | Dataset and dimension | Retained entries | Statistical population |
+| --- | --- | --- | --- |
+| Age bands | TS007B, `NM_2018_1`, `C2021_AGE_12A` | 12 | All usual residents |
+| Occupation | TS063, `NM_2080_1`, `C2021_OCC_10` | 10 | Usual residents aged 16 and over, employed in the week before the Census |
+| Economic activity | TS066, `NM_2083_1`, `C2021_EASTAT_20` | 31 | All usual residents aged 16 and over |
+
+Sources: Nomis [age categories](https://www.nomisweb.co.uk/api/v01/dataset/NM_2018_1/c2021_age_12a.def.sdmx.json),
+[occupation categories](https://www.nomisweb.co.uk/api/v01/dataset/NM_2080_1/c2021_occ_10.def.sdmx.json)
+and [economic-activity categories](https://www.nomisweb.co.uk/api/v01/dataset/NM_2083_1/c2021_eastat_20.def.sdmx.json).
+These 53 entries contain 27 source-stated alternative labels. Scheme-level
+explanatory text is retained, but separate category definitions are not supplied.
+No statistical observations or geography-member lists were requested.
+
+The age category definition states Census Day, 21 March 2021, for England and
+Wales, although its selected time list does not repeat that annotation. The
+occupation context uses SOC 2020 and the employment reference week of 15 to
+21 March 2021; it explicitly warns against comparison with 2011. This selected
+major-group list does not close the full SOC coding index or all SOC mappings.
+
+Census economic activity uses a different definition from the International
+Labour Organization definition used by the Labour Force Survey. Derived totals
+and student categories do not form an automatically disjoint partition. The
+`20` suffix in the dimension identifier is not a row-count rule: the complete
+observed list contains 31 rows, including aggregates. Source hierarchy and
+annotations are retained without inventing aggregate membership.
+
+The occupation and economic-activity dataset notes describe UPRN or postcode
+plotting into December 2022 National Park boundaries, and OA best fit for other
+geographic levels. Neither a universal OA roll-up nor a person-to-UPRN join
+follows. Census reference, dataset release/revision, response preparation and
+retrieval dates remain separately labelled. The observed preparation timestamps
+need clarification; they are not silently converted into publication dates.
+
+Across the three successive selections, nine Nomis category lists now contain
+116 entries. The private demo exposes 33 selected schemes and 1,503 entries
+across all currently accepted sources. This is a dated local projection count,
+not a count of unique universal concepts or full domain coverage. The seven new
+schemes preserve their complete entries and context in small YAML-LD cards;
+search collisions remain explicit.
 
 ## What is now accessible, and what remains open
 
