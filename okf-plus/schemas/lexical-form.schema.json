@@ -47,7 +47,8 @@
         "source-alternative-label",
         "notation",
         "full-iri",
-        "compact-iri"
+        "compact-iri",
+        "source-native-value"
       ]
     },
     "okfp:authority": {
@@ -73,6 +74,12 @@
           }
         }
       }
+    },
+    "okfp:sourcePointer": {
+      "type": "string",
+      "minLength": 22,
+      "maxLength": 526,
+      "pattern": "^/details/entry/native/"
     }
   },
   "allOf": [
@@ -91,6 +98,39 @@
               "search-variant"
             ]
           }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "okfp:formKind": {
+            "const": "source-native-value"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "okfp:sourcePointer"
+        ],
+        "properties": {
+          "okfp:authority": {
+            "const": "source-stated"
+          },
+          "rdf:value": {
+            "not": {
+              "required": [
+                "@language"
+              ]
+            }
+          }
+        }
+      },
+      "else": {
+        "not": {
+          "required": [
+            "okfp:sourcePointer"
+          ]
         }
       }
     }

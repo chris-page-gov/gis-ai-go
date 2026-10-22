@@ -16,27 +16,63 @@
     for (const k of Object.keys(x)) if (!required.includes(k) && !optional.includes(k)) fail(name + ' has an unexpected property');
   }
   const identity = (value, name) => { if (typeof value !== 'string' || !/^[A-Za-z0-9][A-Za-z0-9_.:-]{0,159}$/u.test(value)) fail(name + ' identity'); };
-  function nativeText(value) {
+  function nativeSnapshot(value) {
     let nodes = 0, scalarBytes = 0;
     const seen = new Set();
-    const charge = x => { if (x.length > 131072) fail('native field display exceeds 128 KiB'); scalarBytes += new TextEncoder().encode(x).length; if (scalarBytes > 131072) fail('native field display exceeds 128 KiB'); };
+    const charge = x => {
+      if (/[\uD800-\uDFFF]/u.test(x)) fail('native text contains an unpaired surrogate');
+      if (x.length > 131072) fail('native field display exceeds 128 KiB');
+      scalarBytes += new TextEncoder().encode(x).length;
+      if (scalarBytes > 131072) fail('native field display exceeds 128 KiB');
+    };
     function visit(x, depth) {
       if (++nodes > 4096 || depth > 16) fail('native field display bound exceeded');
-      if (typeof x === 'string') { charge(x); return; }
-      if (x === null || typeof x === 'boolean') return;
-      if (typeof x === 'number' && Number.isFinite(x)) return;
+      if (typeof x === 'string') { charge(x); return x; }
+      if (x === null || typeof x === 'boolean') return x;
+      if (typeof x === 'number' && Number.isFinite(x)) return x;
       if (!plain(x) && !Array.isArray(x)) fail('native value is not JSON');
       if (seen.has(x)) fail('native value contains a cycle');
       seen.add(x);
-      for (const [key, child] of Object.entries(x)) { charge(key); visit(child, depth + 1); }
-      seen.delete(x);
+      // Never execute custom serialisation or accessor hooks, including inherited ones.
+      let proto = x, hops = 0;
+      while (proto !== null) {
+        if (++hops > 16) fail('native prototype bound');
+        const hook = Object.getOwnPropertyDescriptor(proto, 'toJSON');
+        if (hook && (!has(hook, 'value') || typeof hook.value === 'function')) fail('native custom serialisation is not JSON data');
+        proto = Object.getPrototypeOf(proto);
+      }
+      const array = Array.isArray(x), result = array ? [] : Object.create(null);
+      const descriptors = Object.getOwnPropertyDescriptors(x);
+      for (const key of Reflect.ownKeys(descriptors)) {
+        if (array && key === 'length') continue;
+        if (typeof key !== 'string') fail('native symbol key is not JSON');
+        const descriptor = descriptors[key];
+        if (!has(descriptor, 'value') || !descriptor.enumerable) fail('native pointer requires an own data property');
+        if (array && (!/^(?:0|[1-9][0-9]*)$/u.test(key) || Number(key) >= x.length)) fail('native array property is not JSON');
+        charge(key); result[key] = visit(descriptor.value, depth + 1);
+      }
+      if (array && result.length !== x.length) fail('native sparse array is not JSON');
+      if (array) for (let i = 0; i < result.length; i++) if (!has(result, String(i))) fail('native sparse array is not JSON');
+      seen.delete(x); return Object.freeze(result);
     }
     if (!plain(value)) fail('native must be an object');
-    visit(value, 0);
-    const encoded = JSON.stringify(value, null, 2);
+    return visit(value, 0);
+  }
+  function nativeDisplay(snapshot) {
+    // Format only the inert snapshot. No object is passed to JSON.stringify.
+    function encode(x, depth) {
+      if (x === null || typeof x !== 'object') return JSON.stringify(x);
+      const array = Array.isArray(x), keys = Object.keys(x);
+      if (!keys.length) return array ? '[]' : '{}';
+      const indent = '  '.repeat(depth + 1), closing = '  '.repeat(depth);
+      const members = keys.map(k => indent + (array ? '' : JSON.stringify(k) + ': ') + encode(x[k], depth + 1));
+      return (array ? '[' : '{') + '\n' + members.join(',\n') + '\n' + closing + (array ? ']' : '}');
+    }
+    const encoded = encode(snapshot, 0);
     if (new TextEncoder().encode(encoded).length > 131072) fail('native field display exceeds 128 KiB');
     return encoded;
   }
+  function nativeText(value) { return nativeDisplay(nativeSnapshot(value)); }
   function safeSourceURL(value) {
     try {
       if (typeof value !== 'string' || value.length > 2048 || /[\s\\]/u.test(value)) return null;
@@ -49,6 +85,55 @@
       }
       return u.href;
     } catch (_) { return null; }
+  }
+  function ownData(value, key) {
+    const descriptor = Object.getOwnPropertyDescriptor(value, key);
+    if (!descriptor || !has(descriptor, 'value')) fail('native pointer requires an own data property');
+    return descriptor.value;
+  }
+  function nativePointer(entry, pointer) {
+    if (typeof pointer !== 'string' || !pointer.startsWith('/native/') || [...pointer].length > 512 || /~(?![01])/u.test(pointer)) fail('native pointer syntax');
+    const parts = pointer.split('/').slice(1);
+    if (parts.length > 16) fail('native pointer depth');
+    let value = entry;
+    for (const part of parts) {
+      const key = part.replace(/~1/gu, '/').replace(/~0/gu, '~');
+      if (Array.isArray(value)) {
+        if (!/^(?:0|[1-9][0-9]*)$/u.test(key) || Number(key) >= value.length) fail('native array pointer');
+      } else if (!plain(value)) fail('native pointer container');
+      value = ownData(value, key);
+    }
+    return value;
+  }
+  function nativeSearch(entry, sources) {
+    const supplied = has(entry, 'nativeSearchForms') ? ownData(entry, 'nativeSearchForms') : [];
+    if (!Array.isArray(supplied) || supplied.length > 8) fail('native search form count');
+    const forms = [], seen = new Set();
+    for (let i = 0; i < supplied.length; i++) {
+      const item = ownData(supplied, String(i));
+      const keys = ['text', 'kind', 'authority', 'sourceId', 'sourceLocator', 'nativePointer', 'language'];
+      fields(item, keys, 'native search form');
+      const f = Object.fromEntries(keys.map(k => [k, ownData(item, k)]));
+      if (typeof f.text !== 'string' || [...f.text].length < 1 || [...f.text].length > 1000) fail('native search text bound');
+      for (const key of ['text', 'sourceLocator', 'nativePointer']) if (typeof f[key] === 'string' && /[\uD800-\uDFFF]/u.test(f[key])) fail('native search contains an unpaired surrogate');
+      if (f.kind !== 'source-native-value' || f.authority !== 'source-stated' || f.language !== null) fail('native search role or language');
+      if (f.sourceId !== entry.sourceId || !sources.has(f.sourceId) || f.sourceLocator !== entry.sourceLocator) fail('native search source or locator');
+      if (nativePointer(entry, f.nativePointer) !== f.text || seen.has(f.nativePointer)) fail('native search string or duplicate pointer');
+      seen.add(f.nativePointer); forms.push(Object.freeze(f));
+    }
+    if (new TextEncoder().encode(JSON.stringify(forms)).length > 8192) fail('native search byte bound');
+    const role = has(entry, 'codeRole') ? ownData(entry, 'codeRole') : 'unknown';
+    if (!['unknown', 'source-code-retained', 'explicit-empty-code', 'unresolved-native-value', 'no-separate-code-assertion'].includes(role)) fail('native code role');
+    if ((role === 'source-code-retained' && (typeof entry.code !== 'string' || !entry.code.trim())) ||
+        (role === 'explicit-empty-code' && entry.code !== '') ||
+        (['unresolved-native-value', 'no-separate-code-assertion'].includes(role) && entry.code !== null)) fail('native code role conflict');
+    return {forms: Object.freeze(forms), role};
+  }
+  function codeDisplay(entry, role = 'unknown') {
+    if (entry.code !== null) return display(entry.code);
+    if (role === 'unresolved-native-value') return 'Code interpretation unresolved';
+    if (role === 'no-separate-code-assertion') return 'No separate code assertion';
+    return 'Code role not specified';
   }
   function validate(payload) {
     fields(payload, ['schema', 'reviewedOn', 'globalComplete', 'schemes'], 'payload');
@@ -87,8 +172,10 @@
       if (!Array.isArray(s.gaps) || !s.gaps.length || s.gaps.length > 100) fail('explicit scope gaps are required');
       s.gaps.forEach(gap => text(gap, 'gap'));
       const ids = new Set();
-      for (const e of s.entries) {
-        fields(e, ['id', 'code', 'label', 'definition', 'level', 'parentCode', 'aliases', 'sourceId', 'sourceLocator', 'native'], 'entry', ['labelLanguage']);
+      for (const suppliedEntry of s.entries) {
+        const e = Object.create(null);
+        for (const key of Object.keys(suppliedEntry)) e[key] = ownData(suppliedEntry, key);
+        fields(e, ['id', 'code', 'label', 'definition', 'level', 'parentCode', 'aliases', 'sourceId', 'sourceLocator', 'native'], 'entry', ['labelLanguage', 'nativeSearchForms', 'codeRole']);
         if (has(e, 'labelLanguage')) { text(e.labelLanguage, 'entry.labelLanguage', true); if (e.labelLanguage !== null && (e.labelLanguage.length < 1 || e.labelLanguage.length > 80)) fail('labelLanguage length'); }
         for (const k of ['id', 'label', 'sourceId', 'sourceLocator']) text(e[k], 'entry.' + k);
         identity(e.id, 'entry'); identity(e.sourceId, 'entry source');
@@ -108,10 +195,13 @@
           if (!['source-stated', 'project-search-variant'].includes(a.authority) || (a.authority === 'project-search-variant' && a.kind !== 'search-variant')) fail('alias authority');
           if (!sources.has(a.sourceId)) fail('unresolved alias source');
         }
-        const nativeDisplay = nativeText(e.native);
-        displayBytes += new TextEncoder().encode(nativeDisplay).length;
+        e.native = nativeSnapshot(e.native);
+        const admittedSearch = nativeSearch(e, sources);
+        if (has(e, 'nativeSearchForms')) e.nativeSearchForms = admittedSearch.forms;
+        const nativeDisplayText = nativeDisplay(e.native);
+        displayBytes += new TextEncoder().encode(nativeDisplayText).length;
         if (displayBytes > 16777216) fail('total native display exceeds 16 MiB');
-        rows.push({scheme: s, entry: e, sources, nativeDisplay});
+        rows.push({scheme: s, entry: e, sources, nativeDisplay: nativeDisplayText, nativeSearchForms: admittedSearch.forms, codeRole: admittedSearch.role});
       }
     }
     return {payload, rows};
@@ -124,8 +214,8 @@
   }
   function matchRows(rows, schemeId, query) {
     const q = query.trim().toLocaleLowerCase('en-GB');
-    return rows.filter(({scheme: s, entry: e}) => (!schemeId || schemeId === s.id) &&
-      (!q || [s.id, s.title, e.code, e.label, ...e.aliases.map(a => a.text)]
+    return rows.filter(({scheme: s, entry: e, nativeSearchForms = []}) => (!schemeId || schemeId === s.id) &&
+      (!q || [s.id, s.title, e.code, e.label, ...e.aliases.map(a => a.text), ...nativeSearchForms.map(f => f.text)]
         .some(v => v !== null && v.toLocaleLowerCase('en-GB').includes(q))));
   }
   function parentOf(scheme, entry) {
@@ -161,10 +251,10 @@
     const select = el('select'); select.id = schemeLabel.htmlFor;
     const all = el('option', 'All supplied schemes'); all.value = ''; select.append(all);
     for (const s of payload.schemes) { const option = el('option', s.title + ' — ' + display(s.edition, 'edition not supplied')); option.value = s.id; select.append(option); }
-    const searchLabel = el('label', 'Find a code, label or alias'); searchLabel.htmlFor = prefix + '-search';
+    const searchLabel = el('label', 'Find a code, label or source form'); searchLabel.htmlFor = prefix + '-search';
     const search = el('input'); search.id = searchLabel.htmlFor; search.type = 'search'; search.maxLength = 500; search.autocomplete = 'off';
     search.setAttribute('aria-describedby', prefix + '-search-help');
-    const help = el('p', 'Search includes scheme names. Search is text matching; it does not infer equivalent concepts.', 'muted'); help.id = prefix + '-search-help';
+    const help = el('p', 'Search includes scheme names and declared source-native forms in this collection. Text matching does not infer codes, aliases or equivalent concepts.', 'muted'); help.id = prefix + '-search-help';
     controls.append(schemeLabel, select, searchLabel, search, help);
     const scopeBox = el('div', undefined, 'classification-scope');
     const count = el('p'); count.id = prefix + '-count'; count.setAttribute('role', 'status'); count.setAttribute('aria-live', 'polite'); count.setAttribute('aria-atomic', 'true');
@@ -203,9 +293,10 @@
       detail.replaceChildren();
       if (!row) { detail.append(el('p', 'Choose a source entry to inspect its definition, relationships and native fields.')); return; }
       const {scheme: s, entry: e} = row;
-      const title = el('h4', display(e.code, 'No code supplied') + ' — ' + display(e.label)); title.tabIndex = -1;
+      const title = el('h4', codeDisplay(e, row.codeRole) + ' — ' + display(e.label)); title.tabIndex = -1;
       const dl = el('dl'); pair(dl, 'Scheme', s.title); pair(dl, 'Entry identity within scheme', e.id);
-      pair(dl, 'Code', display(e.code)); pair(dl, 'Label', display(e.label));
+      pair(dl, 'Code', codeDisplay(e, row.codeRole));
+      pair(dl, 'Code role (reviewed projection)', row.codeRole); pair(dl, 'Label', display(e.label));
       if (has(e, 'labelLanguage')) pair(dl, 'Source-declared label language', display(e.labelLanguage, 'Not supplied (explicit null)'));
       pair(dl, 'Source definition', display(e.definition, 'No definition supplied (null); a label is not a definition.'));
       pair(dl, 'Source level', display(e.level, 'No level supplied (null); none is inferred.'));
@@ -238,6 +329,15 @@
       const aliases = el('ul');
       for (const a of e.aliases) { const item = el('li', display(a.text) + ' — ' + a.kind + '; ' + a.authority + '. '); item.append(sourceLink(row.sources.get(a.sourceId))); aliases.append(item); }
       detail.append(el('h5', 'Aliases and search forms'), e.aliases.length ? aliases : el('p', 'No aliases supplied.'));
+      if (row.nativeSearchForms.length) {
+        const nativeForms = el('ul');
+        for (const f of row.nativeSearchForms) {
+          const item = el('li', f.text + ' — source-native-value; source-stated; language not specified. ' + f.nativePointer + '. ');
+          item.append(sourceLink(row.sources.get(f.sourceId))); nativeForms.append(item);
+        }
+        detail.append(el('h5', 'Exact source-native search forms'),
+          el('p', 'These forms support text discovery. They do not add a code, alias or equivalence assertion.'), nativeForms);
+      }
       detail.append(el('h5', 'Source'), sourceLink(row.sources.get(e.sourceId)));
       const native = el('details'); native.append(el('summary', 'All native fields for this entry'), el('p', 'Exact supplied JSON types are retained: null, an empty string, zero and false remain different. Native field names are source-owned; their presence does not prove their complete meaning.', 'muted'), el('pre', row.nativeDisplay)); detail.append(native);
       if (moveFocus) title.focus();
@@ -259,7 +359,7 @@
       }
       list.replaceChildren(); list.start = start + 1;
       for (const row of visible) {
-        const item = el('li'), button = el('button', display(row.entry.code, 'No code supplied') + ' — ' + display(row.entry.label)); button.type = 'button';
+        const item = el('li'), button = el('button', codeDisplay(row.entry, row.codeRole) + ' — ' + display(row.entry.label)); button.type = 'button';
         button.addEventListener('click', () => showDetail(row, true));
         item.append(button, el('small', row.scheme.title + ' · ' + display(row.scheme.edition, 'edition unknown'))); list.append(item);
       }

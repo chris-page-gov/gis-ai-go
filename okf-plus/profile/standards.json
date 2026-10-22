@@ -6,7 +6,7 @@
       "prefix": "okfp",
       "title": "OKF+ project lexical-form profile",
       "source": "https://github.com/chris-page-gov/gis-ai-go/blob/main/okf-plus/profile/README.md#source-positioned-term-discovery",
-      "terms": ["LexicalForm", "lexicalForm", "formKind", "authority"],
+      "terms": ["LexicalForm", "lexicalForm", "formKind", "authority", "sourcePointer"],
       "application": "Project-owned qualified lexical forms; remaining project terms are reported independently as used but unregistered.",
       "mappingReview": "usage-reported-at-build-not-semantic-certification",
       "sourceStatus": "Candidate project definitions; no external standard or semantic equivalence is claimed."
