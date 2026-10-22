@@ -92,3 +92,11 @@ The [label-origin contract](LABEL-ORIGIN.md) keeps a project display fallback
 separate from a supplier label. It preserves native absence, null and empty text,
 with exact pointers and separate language roles. Browser, exporter and discovery
 checks use fictional inputs; no supplier payload or provider transport is added.
+
+## Optional dated coverage navigation
+
+The [coverage navigator](COVERAGE-NAVIGATOR.md) explains supplied basis rows,
+separate evidence gates and directed relationships. Its folded help distinguishes
+documentary counts from tested evidence and scoped statuses. It preserves native
+labels and limits, provides no completion percentage and verifies no supplier
+claim. The public fixture is fictional; no provider data or transport is added.
