@@ -2,6 +2,17 @@
 
 Last updated: 24 October 2026
 
+## Existing Explorer learning integration
+
+The [review implementation](docs/implementation/OKF_EXPLORER_REVIEW.md) adds a
+complete lazy Reader projection beside the existing full context corpus, using
+the separate canonical Explorer application. Three small linked learning-path
+records preserve source definitions, concept identities and unassessed practice.
+The consumer presents exact native field context, sources and explicit gaps.
+Focused source, projection and consumer checks pass; complete candidate browser
+review is being recorded separately. No geographic feature payload or hosted
+service admission is added.
+
 ## Cloud continuation for OKF Explorer
 
 The owner agreed to extend the existing, separate `chris-page-gov/okf-explorer`

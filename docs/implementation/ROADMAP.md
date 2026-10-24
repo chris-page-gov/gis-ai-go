@@ -118,6 +118,12 @@ the earlier richer request estimator is a separate offline contract. Shared
 project pacing, exact schema preflight and cross-format evidence mapping remain
 explicit integration work rather than implicit effects of merging source.
 
+The [existing Explorer integration](OKF_EXPLORER_REVIEW.md) projects all retained
+metadata into bounded Reader/search/context files and derives the existing
+learning presentation from small linked records. Continue through complete
+candidate browser and accessibility review without promoting practice ticks,
+catalogue inclusion or metadata access to learning or data-retrieval acceptance.
+
 The 21 October learning increment adds a
 [task composition model](GEOGRAPHY_TASK_COMPOSITION.md) and
 [source-positioned term discovery](GEOSPATIAL_TERM_DISCOVERY.md). Task-specific
