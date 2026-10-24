@@ -48,6 +48,49 @@ borrow an HTTP response hash. An agent's source review is not independent human
 acceptance. Captured contacts, account fields, secrets and licensed feature or
 statistical payloads are excluded from public records.
 
+## Private OS recovery and transient processing
+
+The [OS recovery record](../docs/implementation/OKF_OS_RECOVERY.md) describes the
+owner-authorised private PSGA work. Its objective is to process feature data
+transiently, retain rich semantic knowledge and reproducible efficient methods,
+and discard feature payloads after verified processing. Permanent national
+storage is not a prerequisite; an archive host is deferred if later needed.
+No complete national scan or hosted runtime acceptance is claimed.
+
+`field_cards.py` exports small source-native JSON-LD evidence units;
+`passages.py` and `os_document_sync.py` retain bounded private documentation
+passages; `field_passages.py` supplies exact-heading candidate links with explicit
+version-matching gaps. `os_private_inventory.py` inventories configured packages.
+`retrieval_plan.py` estimates acquisition and processing; `query_planner.py`
+prepares source-evidenced candidate recipes. `ngd_extract.py` supports bounded
+resumable selections and verified disposal; `transient_profile.py` retains
+non-payload profiles, with opt-in input deletion only after complete success.
+These are local operations, not newly admitted hosted tools.
+
+Small capability profiles record [NGD](profile/os-ngd-query-capabilities.json),
+[WFS](profile/os-wfs-query-capabilities.json) and
+[Downloads](profile/os-download-query-capabilities.json) behaviour and limits.
+NGD documents CQL-text row filtering against collection queryables, without
+advertised field projection or cross-collection joins. WFS documents
+`propertyName` field projection. Live WFS schemas expose Road Link widths and
+Topographic Area BHA heights, but equivalent NGD semantics are unproven.
+`route_comparison.py` checks supplied observations and produces review drafts;
+it neither establishes equivalence automatically nor sends OS support messages.
+
+[Presentation research](../docs/implementation/OS_RETRIEVAL_PRESENTATION_RESEARCH.md)
+and the small [output-intent profile](profile/os-output-intents.json) record map,
+table and analytical requirements, visualisation metadata and the VizQL research
+backlog. Optional planner output requirements admit only routes with explicit
+native-value, geometry or portrayal capability evidence before comparing cost.
+A map label or tile attribute cannot establish native measurement suitability.
+
+[Availability reporting](../docs/implementation/OS_DATA_AVAILABILITY.md) uses
+`availability.py` and its [optional schema](schemas/data-availability.schema.json)
+to keep permission, expectation, observation and retrieval completion separate.
+A null or zero is distinct from a missing property. Incomplete retrieval and
+missing planner candidates leave data presence unknown. These are offline private
+assessments and do not add a hosted provider or renderer.
+
 ## Build and search offline
 
 Run commands from the repository root, using the repository's locked development
@@ -194,7 +237,7 @@ uv run --locked --cache-dir .uv-cache python scripts/okf_plus/import_sources.py
 
 No schedule or background refresh is created by these commands.
 
-## Small linked OS records and on-demand data
+## Additional atomic OS evidence and broader metadata capture
 
 The [OKF-223 extension](../docs/implementation/OKF-223_ATOMIC_OS_KNOWLEDGE.md)
 builds an additional small-record view of the retained OS sources. It keeps
@@ -203,6 +246,12 @@ sections separately addressable. Version-specific links preserve source schemas,
 controlled values and related qualifications. Each Markdown/YAML-LD card is at
 most 16 KiB. A SQLite index serves bounded searches and reads; it is a machine
 index, not a document that an AI must ingest.
+
+This view complements the recovery path above. Its frozen-source records and 48
+reviewed field interpretations are not the private, newer explanation export
+reported on main. The two formats have different identities and evidence scopes;
+matching a name is not an equivalence or version match. See the
+[reconciliation record](../docs/implementation/OKF-223_RECONCILIATION.md).
 
 Build and independently verify the atomic view:
 
@@ -256,9 +305,12 @@ documentation, lifecycle, implemented subsets, test contracts and live access.
 These commands make no provider requests and never execute a retained route.
 Their implementation statuses apply to the local private retrieval profile;
 the experimental Sites adapters have separate scope and evidence.
+The reconciled registry uses format v2. Rebuild older v1 bundles into a new
+directory; all readers refuse them because they describe the retired executor.
 
-The owner chose all metadata now and geographic records on demand. Inspect the
-resumable metadata queue without making any provider request:
+The owner chose metadata acquisition and geographic data on demand, with complete
+selected processing and verified disposal of temporary feature payloads. Inspect
+the broader metadata queue without making any provider request:
 
 ```sh
 pnpm run plan:os-metadata
@@ -291,7 +343,7 @@ private output. Captured schemas and queryables also become individual field,
 code-list and code-value cards, preserving complete source descriptions, units,
 nullability and constraints. Oversized declarations have complete linked parts;
 local schema references remain traversable. These private imports do not silently
-change the pinned public catalogue used by the geographic-data fetcher.
+change any pinned source catalogue or execution binding.
 Run `semantic_search.py --root
 artifacts/okf-plus/metadata-refresh index` after acquisition to index those private
 cards separately. A stopped run checkpoints incomplete work; it does not report
@@ -300,28 +352,28 @@ search and four documentation indexes, including More Than Maps. Browser-only
 product supplementation, other specialist projects and linked attachments retain
 explicit refresh gaps.
 
-For a dataset request, `scripts/okf_plus/retrieval_plan.py --request request.json`
+Keep this capture's directory and ledger separate from the fixed documentation
+recovery outputs. It resumes successful captures without expiry; it is not a
+scheduled freshness updater. The main inventory/extraction tools have separate
+per-process pacing. Do not run them concurrently against the same OS project and
+service with this capture: the limiters are not yet shared across both pipelines.
+
+For the richer offline request contract,
+`scripts/okf_plus/request_retrieval_plan.py --request request.json`
 validates a request against `schemas/retrieval-request.schema.json`, compares the
 API with evidenced equivalent downloads, and returns a conditional duration range
 or the missing measurements. It never fabricates a package, throughput benchmark,
-entitlement or precise completion time.
+entitlement or precise completion time. It has no execution adapter. Main's
+`retrieval_plan.py request.json` retains its separate `{api, bulk}` measurement
+contract, used by `query_planner.py`. Do not pass one planner's request to the other.
 
-`scripts/okf_plus/os_retrieve.py request.json` plans a specifically scoped NGD
-request; `--fetch` performs that request when the configured credential and
-network are available. Its separate request contract is
-`schemas/os-retrieve-request.schema.json`. It preserves native fields and CRS,
-verifies source-bound pagination and writes private resumable outputs. Current
-execution covers NGD feature retrieval; the planner also describes WFS and
-available download alternatives. These local commands do not register new tools
-with the hosted gateway or installed Ask OKF connector.
-
-Use a new `--run-id` for a fresh dataset capture and keep that ID when resuming
-an interrupted capture. Completed captures require explicit `--reuse-complete`
-before being reused, and retain their original retrieval time. The executor
-defaults to at most 40 requests/minute across this workspace's shared service
-limiter; reserve capacity for independent clients using the same OS project.
-The estimate records the separate schema-preflight overhead and any unknown
-measurements. Dataset volume is not limited by an invented licence allowance.
+The earlier `os_retrieve.py` persistent fetcher is retired. Use `ngd_extract.py`,
+then `transient_profile.py` and verified `discard_payloads` through the
+[recovery workflow](../docs/implementation/OKF_OS_RECOVERY.md). These are separate
+steps; extraction does not automatically dispose its payloads. Specify the needed
+CRS explicitly, including `--crs 7405` for suitable native 3D collections. Main's
+executor does not inherit the retired fetcher's schema-hash preflight or shared
+limiter. This reconciliation performs no provider request or hosted admission.
 
 ## Ask OKF integration boundary
 

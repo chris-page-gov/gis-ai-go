@@ -39,7 +39,7 @@ class ServiceRegistryTests(unittest.TestCase):
         return next(c for c in self.cards if c['kind'] == 'operation' and c['service'] == service and c['native']['operation']['path'] == path)
 
     def _repository(self, path):
-        for relative in [registry.SOURCE, registry.SCHEMA, *[p for pair in registry.EVIDENCE_FILES.values() for p in pair]]:
+        for relative in [registry.SOURCE, registry.SCHEMA, *[p for entries in registry.EVIDENCE_FILES.values() for _, p in entries]]:
             target = path / relative
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(ROOT / relative, target)
@@ -126,13 +126,39 @@ class ServiceRegistryTests(unittest.TestCase):
         self.assertEqual(download['statuses']['metadataCaptureImplemented'], 'not-implemented-in-profile')
         self.assertEqual(download['statuses']['dataExecutorImplemented'], 'not-implemented-in-profile')
 
+    def test_data_support_binds_canonical_extraction_and_verified_profiling_contracts(self):
+        from scripts.okf_plus import ngd_extract
+        card = self._operation('os-ngd-api-features', '/collections/{collectionId}/items')
+        self.assertEqual({(row['kind'], row['path']) for row in card['implementationEvidence']}, {
+            ('implementation', 'scripts/okf_plus/ngd_extract.py'),
+            ('implementation', 'scripts/okf_plus/transient_profile.py'),
+            ('synthetic-test-contract', 'tests/contract/test_okf_plus_ngd_extract.py'),
+            ('synthetic-test-contract', 'tests/contract/test_okf_plus_transient_profile.py'),
+        })
+        self.assertEqual(card['scope']['executionProfile'], 'private-ngd-extract-with-transient-profile')
+        self.assertIn('requires a collection identifier and bbox', card['scope']['supportedData'])
+        self.assertIn('complete selection-bound profiling', card['scope']['supportedData'])
+        self.assertTrue(any('arbitrary CQL, datetime, a whole-collection option' in gap for gap in card['gaps']))
+        self.assertNotIn('os_retrieve', json.dumps(card))
+        # The advertised identifier subset requires matching collection evidence;
+        # documentation of a wider API filter does not authorise it in this executor.
+        queryables = {'collectionId': 'synthetic-1', 'properties': {'osid': {'type': 'string'}}}
+        for operator in ('or', 'in'):
+            selected = ngd_extract.selection('synthetic-1', [0, 0, 1, 1], 'CRS84', '7405',
+                                             ['synthetic-id'], queryables, operator)
+            self.assertEqual(selected['idFilterOperator'], operator)
+            self.assertIsNotNone(selected['queryablesSha256'])
+        with self.assertRaisesRegex(ValueError, 'Collection-bound queryables'):
+            ngd_extract.selection('different-1', [0, 0, 1, 1], 'CRS84', '7405',
+                                  ['synthetic-id'], queryables)
+
     def test_no_false_live_or_synthetic_execution_claims_and_no_secret_access(self):
         with patch('socket.socket', side_effect=AssertionError('offline registry used network')), patch('os.getenv', side_effect=AssertionError('registry read a credential environment')):
             cards, summary = registry.project()
         self.assertEqual(summary['providerRequestsMade'], 0)
         for card in cards:
             self.assertEqual(card['statuses']['liveAccess'], 'not-tested')
-            self.assertEqual(card['scope']['executionProfile'], 'local-private-os-retrieval')
+            self.assertEqual(card['scope']['executionProfile'], 'private-ngd-extract-with-transient-profile')
             self.assertIn('outside', card['scope']['otherImplementations'])
             self.assertIn(card['statuses']['syntheticValidation'], ['not-evidenced', 'test-contracts-present-not-executed-by-registry'])
 
@@ -232,6 +258,18 @@ class ServiceRegistryTests(unittest.TestCase):
             linked.symlink_to(self.bundle, target_is_directory=True)
             with self.assertRaisesRegex(ValueError, 'symlinks'):
                 registry.query(linked)
+
+    def test_old_execution_profile_requires_explicit_bundle_regeneration(self):
+        with tempfile.TemporaryDirectory() as directory:
+            bundle = Path(directory) / 'bundle'
+            shutil.copytree(self.bundle, bundle)
+            summary_path = bundle / 'summary.json'
+            summary = json.loads(summary_path.read_text())
+            summary['schemaVersion'] = 'gis-ai-go.okf-plus-service-registry.v1'
+            summary_path.write_bytes(canonical(summary))
+            for query in ({}, {'service': 'os-ngd-api-features'}, {'key': 'os-ngd-api-features'}):
+                with self.subTest(query=query), self.assertRaisesRegex(ValueError, 'rebuild for the current execution profile'):
+                    registry.query(bundle, **query)
 
     def test_cli_build_list_routes_and_read(self):
         with tempfile.TemporaryDirectory() as directory:

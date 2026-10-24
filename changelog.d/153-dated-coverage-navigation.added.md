@@ -1,0 +1,1 @@
+- Add a bounded optional coverage navigator with dated supplied counts, scoped evidence and relationship explanations, fictional tests and reference-selector width constraints.

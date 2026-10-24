@@ -31,8 +31,8 @@ ROOT = Path(__file__).resolve().parents[2]
 SOURCE = 'okf-plus/source/os-api-contracts.json'
 SCHEMA = 'okf-plus/schemas/service-registry-card.schema.json'
 MAX_CARD_BYTES = 16 * 1024
-PROFILE = 'local-private-os-retrieval'
-VERSION = 'gis-ai-go.okf-plus-service-registry.v1'
+PROFILE = 'private-ngd-extract-with-transient-profile'
+VERSION = 'gis-ai-go.okf-plus-service-registry.v2'
 CONTEXT_URL = BASE + 'service-registry/context.jsonld'
 CONTEXT = {'@version': 1.1, 'okfp': BASE + 'vocab/',
            'dcterms': 'http://purl.org/dc/terms/', 'dcat': 'http://www.w3.org/ns/dcat#',
@@ -71,8 +71,12 @@ METADATA_PATHS = {
                          '/dataPackages/{dataPackageId}/versions/{versionId}'},
 }
 EVIDENCE_FILES = {
-    'metadata': ('scripts/okf_plus/metadata_refresh.py', 'tests/contract/test_okf_plus_metadata_refresh.py'),
-    'data': ('scripts/okf_plus/os_retrieve.py', 'tests/contract/test_okf_plus_os_retrieve.py'),
+    'metadata': (('implementation', 'scripts/okf_plus/metadata_refresh.py'),
+                 ('synthetic-test-contract', 'tests/contract/test_okf_plus_metadata_refresh.py')),
+    'data': (('implementation', 'scripts/okf_plus/ngd_extract.py'),
+             ('implementation', 'scripts/okf_plus/transient_profile.py'),
+             ('synthetic-test-contract', 'tests/contract/test_okf_plus_ngd_extract.py'),
+             ('synthetic-test-contract', 'tests/contract/test_okf_plus_transient_profile.py')),
 }
 
 
@@ -104,8 +108,7 @@ def _path(card_id, kind):
 
 def _evidence(root, category):
     return [{'path': p, 'sha256': _sha(_file(root, p).read_bytes()),
-             'kind': 'implementation' if n == 0 else 'synthetic-test-contract'}
-            for n, p in enumerate(EVIDENCE_FILES[category])]
+             'kind': kind} for kind, p in EVIDENCE_FILES[category]]
 
 
 def _source(snapshot, snapshot_hash, index, suffix=''):
@@ -147,7 +150,7 @@ def _base(slug, title, kind, source, lifecycle):
             'gaps': [], 'scope': {'executionProfile': PROFILE,
                 'metadataProfile': 'closed-os-metadata-refresh', 'providerRequestsMade': 0,
                 'authority': 'documentation-and-code-inventory-only',
-                'otherImplementations': 'Experimental Sites adapters are outside this local private retrieval profile; these statuses are not whole-repository claims.'}}
+                'otherImplementations': 'Other executors and experimental Sites adapters are outside the named NGD extraction and transient profiling profile; these statuses are not whole-repository claims.'}}
 
 
 def project(root=ROOT, *, snapshot=None):
@@ -213,9 +216,18 @@ def project(root=ROOT, *, snapshot=None):
                         card['scope']['supportedMetadata'] = 'GET with substituted native identifiers and no query; downloads lists metadata only, with no fileName or redirect parameters.'
                     if data:
                         card['implementationEvidence'] += _evidence(root, 'data')
-                        card['scope']['supportedData'] = 'Bounded NGD FeatureCollection GET; exact collection and schema hash, bbox or supported scalar CQL or explicit whole collection, datetime and CRS; private resumable pages and receipts. Use os_retrieve.py validation and planning before execution.'
+                        card['scope']['supportedData'] = (
+                            'ngd_extract.py requires a collection identifier and bbox in CRS84 or EPSG:27700; '
+                            'output CRS is EPSG:27700, EPSG:7405, EPSG:4326 or EPSG:3857. '
+                            'Optional native osid selection uses OR or IN with collection-bound queryables evidence. '
+                            'Requests, bytes, elapsed time and rate are bounded; private pages, NDJSON and receipts support resumption. '
+                            'transient_profile.py creates a separate local profile; ngd_extract.discard_payloads requires '
+                            'complete selection-bound profiling, matching payload hashes and complete field cardinalities before disposal.')
+                        card['gaps'].append(
+                            'The named executor requires bbox; arbitrary CQL, datetime, a whole-collection option and '
+                            'returned-schema validation are outside its implemented selection contract.')
                     if not data:
-                        card['gaps'].append('No geographic-data executor in the named local private retrieval profile for this operation.')
+                        card['gaps'].append('No geographic-data executor in the named NGD extraction and transient profiling profile for this operation.')
                     if any('${' in server for server in contract['servers']):
                         card['gaps'].append('Retained server contains an unresolved variable; no endpoint has been invented.')
                     if contract.get('unresolvedComponentClasses'):
@@ -312,6 +324,8 @@ def query(bundle, *, service=None, key=None, max_records=12, max_bytes=64 * 1024
     if summary_path.stat().st_size > MAX_CARD_BYTES:
         raise ValueError('Oversized registry summary')
     summary = load_json(summary_path.read_text())
+    if summary.get('schemaVersion') != VERSION:
+        raise ValueError('Registry bundle version is unsupported; rebuild for the current execution profile')
     if _sha(index.read_bytes()) != summary['indexSha256']:
         raise ValueError('Registry index integrity mismatch')
     db = sqlite3.connect(index.as_uri() + '?mode=ro', uri=True)

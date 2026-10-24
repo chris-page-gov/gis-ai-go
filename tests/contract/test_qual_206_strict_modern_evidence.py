@@ -46,11 +46,26 @@ EXACT_RESOURCES = [
 # material hashes and derived identities change; assertions and limits are retained.
 # DEP-142 refreshes the patched package/source-lock bindings and derived identities
 # after executing the selected suites; assertions, outcomes and historical pins remain.
-# OKF-223 re-executed all selected suites after adding metadata package scripts.
-# Only package_json_sha256 and the derived set ID changed; suite/receipt bodies,
-# assertions, outcomes and the historical evidence pins below remain unchanged.
+# The 21 October MCP SDK repair refreshes three source hashes and the lockfile,
+# plus their derived identities, after all 87 selected tests pass. Historical pins
+# and every assertion, test count, outcome and non-live boundary remain unchanged.
+# The geography learning overlay adds its synthetic contract check to package.json.
+# The passing generator changes only that package hash and the derived set ID;
+# every suite, receipt, assertion, outcome and historical pin is unchanged.
+# The shared local action checks extend that package script. The passing generator
+# again changes only the package binding and set ID, preserving all case evidence.
+# The bounded collection selector extends the same script. Its reviewed refresh
+# changes only the package binding and set ID; all observed-host pins stay fixed.
+# Native source search adds the bounded widget checks to the same script. Only
+# the package binding and derived set ID change; historical pins remain unchanged.
+# Field documentary references add synthetic widget checks to the same script.
+# Only the package binding and derived set ID change; historical pins stay fixed.
+# Dated coverage navigation extends the same synthetic experience script.
+# Only its package binding and set ID change; historical evidence stays fixed.
+# OS branch reconciliation adds atomic assurance and distinct offline commands.
+# The canonical generator changes only the package binding and derived set ID.
 REGENERABLE_LOCAL_RECEIPT_SHA256 = (
-    "f590d20a30ccf193d60b535eeeb9ad98fcc1cca59ec6a53d4b31a1c5546b2b69"
+    "46760cbcae78d37400366587b83ec72758419f3ed3290b2bfee80de388ea7843"
 )
 HISTORICAL_V1_SHA256 = {
     "evaluation/qual-206-local-protocol-evidence-matrix.v1.json": (

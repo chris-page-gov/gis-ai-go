@@ -1,0 +1,910 @@
+{
+  "schema": "gis-ai-go.ui-help-supplement.v2",
+  "createdOn": "2026-10-21",
+  "scope": "Selected visible terms with 13 audited gaps closed; not complete technical or native-attribute vocabulary coverage.",
+  "sources": [
+    {
+      "id": "help-record-feature",
+      "title": "OGC GeoSPARQL 1.1",
+      "url": "https://docs.ogc.org/is/22-047r1/22-047r1.html",
+      "reviewState": "source-reviewed-project-record-reused",
+      "reviewedOn": "2026-10-02"
+    },
+    {
+      "id": "help-record-geometry",
+      "title": "OGC GeoSPARQL 1.1",
+      "url": "https://docs.ogc.org/is/22-047r1/22-047r1.html",
+      "reviewState": "source-reviewed-project-record-reused",
+      "reviewedOn": "2026-10-02"
+    },
+    {
+      "id": "help-record-schema-version",
+      "title": "OS NGD schema versioning",
+      "url": "https://docs.os.uk/osngd/getting-started/os-ngd-fundamentals/data-schema-versioning",
+      "reviewState": "source-reviewed-project-record-reused",
+      "reviewedOn": "2026-10-02"
+    },
+    {
+      "id": "help-record-dataset",
+      "title": "W3C DCAT 3",
+      "url": "https://www.w3.org/TR/vocab-dcat-3/",
+      "reviewState": "source-reviewed-project-record-reused",
+      "reviewedOn": "2026-10-02"
+    },
+    {
+      "id": "help-record-classification-scheme",
+      "title": "W3C SKOS reference",
+      "url": "https://www.w3.org/TR/skos-reference/",
+      "reviewState": "source-reviewed-project-record-reused",
+      "reviewedOn": "2026-10-02"
+    },
+    {
+      "id": "help-record-queryable-field",
+      "title": "OS NGD queryables contract",
+      "url": "https://docs.os.uk/os-apis/accessing-os-apis/os-ngd-api-features/technical-specification/queryables",
+      "reviewState": "source-reviewed-project-record-reused",
+      "reviewedOn": "2026-10-02"
+    },
+    {
+      "id": "help-record-polygon",
+      "title": "IETF RFC 7946",
+      "url": "https://www.rfc-editor.org/rfc/rfc7946",
+      "reviewState": "source-reviewed-project-record-reused",
+      "reviewedOn": "2026-10-02"
+    },
+    {
+      "id": "help-record-line-string",
+      "title": "IETF RFC 7946",
+      "url": "https://www.rfc-editor.org/rfc/rfc7946",
+      "reviewState": "source-reviewed-project-record-reused",
+      "reviewedOn": "2026-10-02"
+    },
+    {
+      "id": "help-record-geography-lookup",
+      "title": "ONS names, codes and lookups",
+      "url": "https://www.ons.gov.uk/methodology/geography/geographicalproducts/namescodesandlookups",
+      "reviewState": "source-reviewed-project-record-reused",
+      "reviewedOn": "2026-10-02"
+    },
+    {
+      "id": "help-record-best-fit-geography",
+      "title": "ONS postcode products",
+      "url": "https://www.ons.gov.uk/methodology/geography/geographicalproducts/postcodeproducts",
+      "reviewState": "source-reviewed-project-record-reused",
+      "reviewedOn": "2026-10-02"
+    },
+    {
+      "id": "help-record-exact-fit-geography",
+      "title": "ONS population-estimate geography methodology",
+      "url": "https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates/methodologies/methodologynoteonproductionofpopulationestimatesbyoutputareaselectoralhealthandothergeographiesenglandandwales",
+      "reviewState": "source-reviewed-project-record-reused",
+      "reviewedOn": "2026-10-02"
+    },
+    {
+      "id": "help-record-spatial-containment",
+      "title": "OGC GeoSPARQL 1.1",
+      "url": "https://docs.ogc.org/is/22-047r1/22-047r1.html",
+      "reviewState": "source-reviewed-project-record-reused",
+      "reviewedOn": "2026-10-02"
+    },
+    {
+      "id": "help-onsud-guide",
+      "title": "ONSUD September 2026, Epoch 128 user guide (ZIP)",
+      "url": "https://www.arcgis.com/sharing/rest/content/items/be9d01d5afd7444c90a4dff39088df15/data",
+      "reviewState": "retained-guide-excerpt-reviewed",
+      "reviewedOn": "2026-10-21"
+    },
+    {
+      "id": "gap-rfc4180",
+      "title": "Common Format and MIME Type for Comma-Separated Values (CSV) Files",
+      "url": "https://www.rfc-editor.org/rfc/rfc4180",
+      "versionNote": "RFC 4180; October 2005; Informational, updated by RFC 7111",
+      "reviewLocator": "Section 2: records, optional header, quoting; status of this memo",
+      "reviewState": "opened-primary-source-text",
+      "reviewedOn": "2026-10-21",
+      "rawSourceBytesRetained": false
+    },
+    {
+      "id": "gap-rfc8259",
+      "title": "The JavaScript Object Notation (JSON) Data Interchange Format",
+      "url": "https://www.rfc-editor.org/rfc/rfc8259",
+      "versionNote": "RFC 8259; December 2017; Internet Standard",
+      "reviewLocator": "Section 1: values, unordered objects and ordered arrays",
+      "reviewState": "opened-primary-source-text",
+      "reviewedOn": "2026-10-21",
+      "rawSourceBytesRetained": false
+    },
+    {
+      "id": "gap-rfc7946",
+      "title": "The GeoJSON Format",
+      "url": "https://www.rfc-editor.org/rfc/rfc7946",
+      "versionNote": "RFC 7946; August 2016; Proposed Standard",
+      "reviewLocator": "Sections 3 and 4: geometry, feature, FeatureCollection and coordinate reference system",
+      "reviewState": "opened-primary-source-text",
+      "reviewedOn": "2026-10-21",
+      "rawSourceBytesRetained": false
+    },
+    {
+      "id": "gap-xml10",
+      "title": "Extensible Markup Language (XML) 1.0 (Fifth Edition)",
+      "url": "https://www.w3.org/TR/xml/",
+      "versionNote": "XML 1.0 fifth edition; W3C Recommendation, 26 November 2008",
+      "reviewLocator": "Sections 2 and 3: document structure, elements and attributes; well-formed versus valid",
+      "reviewState": "opened-primary-source-text",
+      "reviewedOn": "2026-10-21",
+      "rawSourceBytesRetained": false
+    },
+    {
+      "id": "gap-rdf11",
+      "title": "RDF 1.1 Concepts and Abstract Syntax",
+      "url": "https://www.w3.org/TR/rdf11-concepts/",
+      "versionNote": "RDF 1.1; W3C Recommendation",
+      "reviewLocator": "Sections 1.1, 1.2 and 1.8: graph, statements and serialisations",
+      "reviewState": "opened-primary-source-text",
+      "reviewedOn": "2026-10-21",
+      "rawSourceBytesRetained": false
+    },
+    {
+      "id": "gap-rfc3986",
+      "title": "Uniform Resource Identifier (URI): Generic Syntax",
+      "url": "https://www.rfc-editor.org/rfc/rfc3986",
+      "versionNote": "RFC 3986; January 2005; Internet Standard, updated by RFCs 7320 and 8820",
+      "reviewLocator": "Sections 1.1 and 1.2.2: identification and interaction are separate",
+      "reviewState": "opened-primary-source-text",
+      "reviewedOn": "2026-10-21",
+      "rawSourceBytesRetained": false
+    },
+    {
+      "id": "gap-rfc3987",
+      "title": "Internationalized Resource Identifiers (IRIs)",
+      "url": "https://www.rfc-editor.org/rfc/rfc3987",
+      "versionNote": "RFC 3987; January 2005; Proposed Standard",
+      "reviewLocator": "Abstract and sections 1 to 3: Unicode identifiers and mapping to URIs",
+      "reviewState": "opened-primary-source-text",
+      "reviewedOn": "2026-10-21",
+      "rawSourceBytesRetained": false
+    },
+    {
+      "id": "gap-geopackage",
+      "title": "GeoPackage Standard",
+      "url": "https://www.ogc.org/standards/geopackage/",
+      "versionNote": "Official standards catalogue lists GeoPackage 1.4.0, OGC 12-128r19",
+      "reviewLocator": "Overview and standards table: SQLite container, features, tiles, tables and extensions",
+      "reviewState": "opened-primary-source-text",
+      "reviewedOn": "2026-10-21",
+      "rawSourceBytesRetained": false
+    },
+    {
+      "id": "gap-shacl",
+      "title": "Shapes Constraint Language (SHACL)",
+      "url": "https://www.w3.org/TR/shacl/",
+      "versionNote": "W3C Recommendation; SHACL Core",
+      "reviewLocator": "Section 4.2: cardinality, sh:minCount and sh:maxCount",
+      "reviewState": "opened-primary-source-text",
+      "reviewedOn": "2026-10-21",
+      "rawSourceBytesRetained": false
+    },
+    {
+      "id": "gap-ogc-features",
+      "title": "OGC API - Features - Part 1: Core corrigendum",
+      "url": "https://docs.ogc.org/is/17-069r4/17-069r4.html",
+      "versionNote": "Version 1.0.1; OGC 17-069r4; published 11 May 2022",
+      "reviewLocator": "Sections 4.1.4, 7.13 and 7.15: feature collection, metadata and feature results",
+      "reviewState": "opened-primary-source-text",
+      "reviewedOn": "2026-10-21",
+      "rawSourceBytesRetained": false
+    },
+    {
+      "id": "gap-os-road-link",
+      "title": "OS NGD Road Link",
+      "url": "https://docs.os.uk/osngd/data-structure/transport/transport-network/road-link",
+      "versionNote": "Current documentation reviewed on 21 October 2026; schema table includes Road Link 5.0",
+      "reviewLocator": "Opening definition: links, connectivity and start/end Road Nodes; schema version table",
+      "reviewState": "opened-primary-source-text",
+      "reviewedOn": "2026-10-21",
+      "rawSourceBytesRetained": false
+    },
+    {
+      "id": "gap-iogp-geodesy",
+      "title": "IOGP Geodesy: EPSG Dataset",
+      "url": "https://www.iogp.org/workstreams/engineering/geomatics/geodesy/",
+      "versionNote": "Current custodian page; dataset release number not established by this page",
+      "reviewLocator": "EPSG Dataset section: coordinate reference systems, transformations and IOGP maintenance",
+      "reviewState": "opened-primary-source-text",
+      "reviewedOn": "2026-10-21",
+      "rawSourceBytesRetained": false
+    },
+    {
+      "id": "gap-geosparql",
+      "title": "OGC GeoSPARQL - A Geographic Query Language for RDF Data",
+      "url": "https://docs.ogc.org/is/22-047r1/22-047r1.html",
+      "versionNote": "Version 1.1; OGC 22-047r1",
+      "reviewLocator": "Sections 9.1 and 9.2: topological relations, interiors, boundaries, exteriors and Simple Features relations",
+      "reviewState": "opened-primary-source-text",
+      "reviewedOn": "2026-10-21",
+      "rawSourceBytesRetained": false
+    }
+  ],
+  "terms": [
+    {
+      "id": "help-feature",
+      "label": "Spatial feature",
+      "definition": "A distinguishable real-world phenomenon represented in a spatial dataset.",
+      "scopeNote": "Its identity is separate from geometry. Project explanation linked to the standard; no identity or conformance claim.",
+      "aliases": [
+        {
+          "value": "feature",
+          "kind": "project-search-variant",
+          "authority": "project",
+          "language": "en-GB",
+          "sourceRefs": [
+            "help-record-feature"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "help-record-feature"
+      ],
+      "helpStatus": "explained-glossary"
+    },
+    {
+      "id": "help-geometry",
+      "label": "Geometry",
+      "definition": "A spatial representation describing a feature using a stated reference system.",
+      "scopeNote": "One feature may have several representations. Project explanation linked to the standard; no identity or conformance claim.",
+      "aliases": [
+        {
+          "value": "geometry",
+          "kind": "project-search-variant",
+          "authority": "project",
+          "language": "en-GB",
+          "sourceRefs": [
+            "help-record-geometry"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "help-record-geometry"
+      ],
+      "helpStatus": "explained-glossary"
+    },
+    {
+      "id": "help-schema-version",
+      "label": "Schema version",
+      "definition": "An identified revision of the contract defining a feature type and its fields.",
+      "scopeNote": "Maintained older schemas may still receive current data. Project explanation linked to the standard; no identity or conformance claim.",
+      "aliases": [
+        {
+          "value": "schema version",
+          "kind": "project-search-variant",
+          "authority": "project",
+          "language": "en-GB",
+          "sourceRefs": [
+            "help-record-schema-version"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "help-record-schema-version"
+      ],
+      "helpStatus": "explained-glossary"
+    },
+    {
+      "id": "help-dataset",
+      "label": "Dataset",
+      "definition": "A collection of data described as a coherent resource.",
+      "scopeNote": "A dataset can have several distributions. Project explanation linked to the standard; no identity or conformance claim.",
+      "aliases": [
+        {
+          "value": "dataset",
+          "kind": "project-search-variant",
+          "authority": "project",
+          "language": "en-GB",
+          "sourceRefs": [
+            "help-record-dataset"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "help-record-dataset"
+      ],
+      "helpStatus": "explained-glossary"
+    },
+    {
+      "id": "help-classification-scheme",
+      "label": "Classification scheme",
+      "definition": "An organised set of concepts supporting categorisation and retrieval.",
+      "scopeNote": "Similar labels do not establish equivalent concepts. Project explanation linked to the standard; no identity or conformance claim.",
+      "aliases": [
+        {
+          "value": "classification scheme",
+          "kind": "project-search-variant",
+          "authority": "project",
+          "language": "en-GB",
+          "sourceRefs": [
+            "help-record-classification-scheme"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "help-record-classification-scheme"
+      ],
+      "helpStatus": "explained-glossary"
+    },
+    {
+      "id": "help-queryable-field",
+      "label": "Queryable field",
+      "definition": "A field advertised by a service as available for supported filtering.",
+      "scopeNote": "Returned fields are not necessarily queryable. Project explanation linked to the standard; no identity or conformance claim.",
+      "aliases": [
+        {
+          "value": "queryable field",
+          "kind": "project-search-variant",
+          "authority": "project",
+          "language": "en-GB",
+          "sourceRefs": [
+            "help-record-queryable-field"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "help-record-queryable-field"
+      ],
+      "helpStatus": "explained-glossary"
+    },
+    {
+      "id": "help-polygon",
+      "label": "Polygon geometry",
+      "definition": "An area geometry described by an exterior ring and optional interior rings.",
+      "scopeNote": "A bounding box does not preserve its shape. Project explanation linked to the standard; no identity or conformance claim.",
+      "aliases": [
+        {
+          "value": "polygon",
+          "kind": "project-search-variant",
+          "authority": "project",
+          "language": "en-GB",
+          "sourceRefs": [
+            "help-record-polygon"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "help-record-polygon"
+      ],
+      "helpStatus": "explained-glossary"
+    },
+    {
+      "id": "help-line-string",
+      "label": "LineString geometry",
+      "definition": "An ordered coordinate sequence forming connected line segments.",
+      "scopeNote": "A line need not define a traversable route. Project explanation linked to the standard; no identity or conformance claim.",
+      "aliases": [
+        {
+          "value": "line string",
+          "kind": "project-search-variant",
+          "authority": "project",
+          "language": "en-GB",
+          "sourceRefs": [
+            "help-record-line-string"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "help-record-line-string"
+      ],
+      "helpStatus": "explained-glossary"
+    },
+    {
+      "id": "help-geography-lookup",
+      "label": "Geography lookup",
+      "definition": "A published relationship between identified geographic entities.",
+      "scopeNote": "Inspect relationship method and geography vintages before joining. Project explanation linked to the standard; no identity or conformance claim.",
+      "aliases": [
+        {
+          "value": "geography lookup",
+          "kind": "project-search-variant",
+          "authority": "project",
+          "language": "en-GB",
+          "sourceRefs": [
+            "help-record-geography-lookup"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "help-record-geography-lookup"
+      ],
+      "helpStatus": "explained-glossary"
+    },
+    {
+      "id": "help-best-fit-geography",
+      "label": "Best-fit geography lookup",
+      "definition": "An allocation associating source areas with target geographies using a specified fitting methodology.",
+      "scopeNote": "Best fit need not preserve exact boundary containment. Project explanation linked to the standard; no identity or conformance claim.",
+      "aliases": [
+        {
+          "value": "best fit geography",
+          "kind": "project-search-variant",
+          "authority": "project",
+          "language": "en-GB",
+          "sourceRefs": [
+            "help-record-best-fit-geography"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "help-record-best-fit-geography"
+      ],
+      "helpStatus": "explained-glossary"
+    },
+    {
+      "id": "help-exact-fit-geography",
+      "label": "Exact-fit geography statistics",
+      "definition": "Statistics allocated to the specified boundary rather than approximated using whole source areas.",
+      "scopeNote": "Availability differs by statistical product and method. Project explanation linked to the standard; no identity or conformance claim.",
+      "aliases": [
+        {
+          "value": "exact fit geography",
+          "kind": "project-search-variant",
+          "authority": "project",
+          "language": "en-GB",
+          "sourceRefs": [
+            "help-record-exact-fit-geography"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "help-record-exact-fit-geography"
+      ],
+      "helpStatus": "explained-glossary"
+    },
+    {
+      "id": "help-spatial-containment",
+      "label": "Spatial containment",
+      "definition": "A defined topological relation concerning one geometry within another.",
+      "scopeNote": "Boundary treatment depends on the predicate. Project explanation linked to the standard; no identity or conformance claim.",
+      "aliases": [
+        {
+          "value": "spatial containment",
+          "kind": "project-search-variant",
+          "authority": "project",
+          "language": "en-GB",
+          "sourceRefs": [
+            "help-record-spatial-containment"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "help-record-spatial-containment"
+      ],
+      "helpStatus": "explained-glossary"
+    },
+    {
+      "id": "help-ons",
+      "label": "Office for National Statistics",
+      "definition": "Office for National Statistics is the organisation abbreviated as ONS.",
+      "scopeNote": "An organisation is distinct from its publications, code systems and geographic areas.",
+      "aliases": [
+        {
+          "value": "ONS",
+          "kind": "project-search-variant",
+          "authority": "project",
+          "language": "en-GB",
+          "sourceRefs": [
+            "ons-census"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "ons-census"
+      ],
+      "helpStatus": "explained-glossary"
+    },
+    {
+      "id": "help-os",
+      "label": "Ordnance Survey",
+      "definition": "Ordnance Survey is the organisation abbreviated as OS.",
+      "scopeNote": "A product name or an OS identifier does not itself establish access rights, version alignment or an equivalent feature.",
+      "aliases": [
+        {
+          "value": "OS",
+          "kind": "project-search-variant",
+          "authority": "project",
+          "language": "en-GB",
+          "sourceRefs": [
+            "os-road-link"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "os-road-link"
+      ],
+      "helpStatus": "explained-glossary"
+    },
+    {
+      "id": "help-pcon",
+      "label": "Westminster parliamentary constituency code",
+      "definition": "PCON24CD identifies the Westminster parliamentary constituency assigned to a UPRN in the ONSUD source.",
+      "scopeNote": "The field is tied to the July 2024 geography; a later lookup publication is not a new boundary edition. PCON is a project search abbreviation, not a claim that all similarly named fields have this contract.",
+      "aliases": [
+        {
+          "value": "PCON",
+          "kind": "project-search-variant",
+          "authority": "project",
+          "language": "en-GB",
+          "sourceRefs": [
+            "help-onsud-guide"
+          ]
+        },
+        {
+          "value": "PCON24CD",
+          "kind": "project-search-variant",
+          "authority": "project",
+          "language": "en-GB",
+          "sourceRefs": [
+            "help-onsud-guide"
+          ]
+        },
+        {
+          "value": "parliamentary constituency",
+          "kind": "project-search-variant",
+          "authority": "project",
+          "language": "en-GB",
+          "sourceRefs": [
+            "help-onsud-guide"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "help-onsud-guide"
+      ],
+      "helpStatus": "explained-glossary"
+    },
+    {
+      "id": "help-parish",
+      "label": "Parish, community and unparished-area codes",
+      "definition": "The ONSUD field PARNCP26CD distinguishes civil parishes and unparished areas in England, communities in Wales, and a pseudo-code for Scotland.",
+      "scopeNote": "An unparished area is not a civil parish. Do not treat this field as one interchangeable geography type across Great Britain.",
+      "aliases": [
+        {
+          "value": "parish",
+          "kind": "project-search-variant",
+          "authority": "project",
+          "language": "en-GB",
+          "sourceRefs": [
+            "help-onsud-guide"
+          ]
+        },
+        {
+          "value": "civil parish",
+          "kind": "project-search-variant",
+          "authority": "project",
+          "language": "en-GB",
+          "sourceRefs": [
+            "help-onsud-guide"
+          ]
+        },
+        {
+          "value": "community",
+          "kind": "project-search-variant",
+          "authority": "project",
+          "language": "en-GB",
+          "sourceRefs": [
+            "help-onsud-guide"
+          ]
+        },
+        {
+          "value": "unparished",
+          "kind": "project-search-variant",
+          "authority": "project",
+          "language": "en-GB",
+          "sourceRefs": [
+            "help-onsud-guide"
+          ]
+        },
+        {
+          "value": "PARNCP26CD",
+          "kind": "project-search-variant",
+          "authority": "project",
+          "language": "en-GB",
+          "sourceRefs": [
+            "help-onsud-guide"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "help-onsud-guide"
+      ],
+      "helpStatus": "explained-glossary"
+    },
+    {
+      "id": "help-api",
+      "label": "Application programming interface",
+      "definition": "An application programming interface (API) lets software request data or functions through a defined interface.",
+      "scopeNote": "Each service has its own routes, inputs, outputs and access conditions. This local demonstration makes no API requests.",
+      "aliases": [
+        {
+          "value": "API",
+          "kind": "project-search-variant",
+          "authority": "project",
+          "language": "en-GB",
+          "sourceRefs": [
+            "nomis-api"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "nomis-api",
+        "os-li"
+      ],
+      "helpStatus": "explained-glossary"
+    },
+    {
+      "id": "help-skos",
+      "label": "Simple Knowledge Organization System",
+      "definition": "SKOS is a W3C vocabulary for representing concepts, their labels and relationships in knowledge organisation systems.",
+      "scopeNote": "The official standard title uses “Organization”. A relationship in SKOS does not automatically establish that two concepts are identical.",
+      "aliases": [
+        {
+          "value": "SKOS",
+          "kind": "project-search-variant",
+          "authority": "project",
+          "language": "en-GB",
+          "sourceRefs": [
+            "w3c-skos"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "w3c-skos"
+      ],
+      "helpStatus": "explained-glossary"
+    },
+    {
+      "id": "help-csv",
+      "label": "CSV",
+      "domainContext": "Tabular data exchange",
+      "definition": "A text format for rows of data, with fields separated by commas. A first row may name the columns; quoted fields can contain commas or line breaks.",
+      "scopeNote": "CSV files vary. Check the declared encoding, delimiter, header and quoting rules. The format alone does not establish column meanings, data types, date formats or whether an empty field means missing data. RFC 4180 documents a common form and is informational.",
+      "aliases": [
+        {
+          "value": "Comma-Separated Values",
+          "kind": "expanded-form",
+          "authority": "source-stated",
+          "language": "en",
+          "sourceRefs": [
+            "gap-rfc4180"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "gap-rfc4180"
+      ],
+      "reviewState": "primary-source-text-reviewed",
+      "reviewedOn": "2026-10-21",
+      "helpStatus": "explained-glossary"
+    },
+    {
+      "id": "help-json",
+      "label": "JSON",
+      "domainContext": "Structured data exchange",
+      "definition": "A text format for structured values. Objects pair names with values; arrays keep values in order. Values can include text, numbers, true or false, null, objects and arrays.",
+      "scopeNote": "JSON syntax does not establish what a field means or whether a response meets its schema. An absent field and a field containing null are different. Object member order has no semantic significance in the JSON standard; array order does.",
+      "aliases": [
+        {
+          "value": "JavaScript Object Notation",
+          "kind": "expanded-form",
+          "authority": "source-stated",
+          "language": "en",
+          "sourceRefs": [
+            "gap-rfc8259"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "gap-rfc8259"
+      ],
+      "reviewState": "primary-source-text-reviewed",
+      "reviewedOn": "2026-10-21",
+      "helpStatus": "explained-glossary"
+    },
+    {
+      "id": "help-geopackage",
+      "label": "GeoPackage",
+      "domainContext": "Geospatial file storage and exchange",
+      "definition": "An OGC format that packages geospatial information in a SQLite database file. It can hold vector features, map or imagery tiles, and non-spatial tables under defined rules.",
+      "scopeNote": "Inspect the file's declared version, tables, coordinate reference systems and extensions. The format name does not prove that a conversion preserved every source field or relationship, or that this viewer reads all GeoPackage content.",
+      "aliases": [],
+      "sourceRefs": [
+        "gap-geopackage"
+      ],
+      "reviewState": "primary-source-text-reviewed",
+      "reviewedOn": "2026-10-21",
+      "helpStatus": "explained-glossary"
+    },
+    {
+      "id": "help-cardinality",
+      "label": "Cardinality",
+      "domainContext": "Data relationships and validation rules",
+      "definition": "The number of distinct values or records connected by a specified relationship. A rule may require exactly one, allow none or one, or allow several. State the direction of the relationship and whether the count is observed or required.",
+      "scopeNote": "A one-to-many possibility does not mean every record has several matches. Zero observed matches can reflect a selection or missing data; it does not prove no real-world relationship exists. The example is illustrative, not an OS rule. SHACL counts distinct value nodes; repeated row occurrences need a separate count.",
+      "aliases": [],
+      "sourceRefs": [
+        "gap-shacl"
+      ],
+      "reviewState": "primary-source-text-reviewed",
+      "reviewedOn": "2026-10-21",
+      "helpStatus": "explained-glossary",
+      "example": {
+        "kind": "authored-synthetic-example",
+        "text": "In a fictional dataset, building A links to address records 1, 2 and 3: one building has three linked address records. Read the reverse direction separately; do not assume each address links to only one building. This is a one-to-many example, not a claim about any selected building."
+      }
+    },
+    {
+      "id": "help-geojson",
+      "label": "GeoJSON",
+      "domainContext": "Geographic data exchange using JSON",
+      "definition": "A JSON-based format for geometries, features with properties, and groups of features. Examples include points, lines and polygons.",
+      "scopeNote": "RFC 7946 uses WGS 84 longitude then latitude in decimal degrees. A provider-specific JSON response using another coordinate reference system must be interpreted under its own declared contract, not silently called RFC 7946-conformant. The format does not prove identity, topology or lossless conversion.",
+      "aliases": [],
+      "sourceRefs": [
+        "gap-rfc7946"
+      ],
+      "reviewState": "primary-source-text-reviewed",
+      "reviewedOn": "2026-10-21",
+      "helpStatus": "explained-glossary"
+    },
+    {
+      "id": "help-xml",
+      "label": "XML",
+      "domainContext": "Structured document and data syntax",
+      "definition": "A text syntax that uses nested elements, attributes and text to represent structured information. The document's tags and ordering describe its structure.",
+      "scopeNote": "Well-formed XML satisfies XML syntax; that alone does not validate a GML schema or explain the meaning of a native field. Element names, namespace context, attributes and order can matter. This explanation does not authorise following external entities or schema links.",
+      "aliases": [
+        {
+          "value": "Extensible Markup Language",
+          "kind": "expanded-form",
+          "authority": "source-stated",
+          "language": "en",
+          "sourceRefs": [
+            "gap-xml10"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "gap-xml10"
+      ],
+      "reviewState": "primary-source-text-reviewed",
+      "reviewedOn": "2026-10-21",
+      "helpStatus": "explained-glossary"
+    },
+    {
+      "id": "help-rdf",
+      "label": "RDF",
+      "domainContext": "Linked-data statements",
+      "definition": "A data model for statements expressed as subject, relationship and object. Together these statements form a graph: for example, a record can point to the source that describes it.",
+      "scopeNote": "RDF is a model, with several file syntaxes. A graph can express an assertion without proving it true. Identifier links, search variants and formal equivalence are different relationships; the graph model does not make them interchangeable.",
+      "aliases": [
+        {
+          "value": "Resource Description Framework",
+          "kind": "expanded-form",
+          "authority": "source-stated",
+          "language": "en",
+          "sourceRefs": [
+            "gap-rdf11"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "gap-rdf11"
+      ],
+      "reviewState": "primary-source-text-reviewed",
+      "reviewedOn": "2026-10-21",
+      "helpStatus": "explained-glossary"
+    },
+    {
+      "id": "help-iri",
+      "label": "IRI",
+      "domainContext": "Web and linked-data identifiers",
+      "definition": "An identifier for a resource that can use a wider range of Unicode characters than a URI. A defined mapping allows an IRI to be represented as a URI when needed.",
+      "scopeNote": "An IRI identifies something; it need not lead to a retrievable web page. Similar-looking spellings are not automatically equivalent identifiers. A native code is not an IRI unless the source explicitly supplies or defines that representation.",
+      "aliases": [
+        {
+          "value": "Internationalized Resource Identifier",
+          "kind": "expanded-form",
+          "authority": "source-stated",
+          "language": "en",
+          "sourceRefs": [
+            "gap-rfc3987"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "gap-rfc3987"
+      ],
+      "reviewState": "primary-source-text-reviewed",
+      "reviewedOn": "2026-10-21",
+      "helpStatus": "explained-glossary"
+    },
+    {
+      "id": "help-uri",
+      "label": "URI",
+      "domainContext": "Web and linked-data identifiers",
+      "definition": "A structured identifier for a resource, using a scheme such as https. A URL is a kind of URI used to locate a resource.",
+      "scopeNote": "Identifying a resource does not guarantee that it can be retrieved, is current or is authoritative. Keep the exact identifier and scheme. A shared label or number does not establish that two URIs identify the same thing.",
+      "aliases": [
+        {
+          "value": "Uniform Resource Identifier",
+          "kind": "expanded-form",
+          "authority": "source-stated",
+          "language": "en",
+          "sourceRefs": [
+            "gap-rfc3986"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "gap-rfc3986"
+      ],
+      "reviewState": "primary-source-text-reviewed",
+      "reviewedOn": "2026-10-21",
+      "helpStatus": "explained-glossary"
+    },
+    {
+      "id": "help-collection",
+      "label": "Collection",
+      "domainContext": "OGC feature APIs",
+      "definition": "In an OGC feature API, a collection is a set of features from a dataset. The API describes the collection and provides routes to its feature items.",
+      "scopeNote": "This is the feature-API meaning, not every use of the everyday word collection. A returned page or filtered result may contain only part of the collection. Its name does not prove a common observation date, complete coverage or equivalent fields in another collection.",
+      "aliases": [],
+      "sourceRefs": [
+        "gap-ogc-features"
+      ],
+      "reviewState": "primary-source-text-reviewed",
+      "reviewedOn": "2026-10-21",
+      "helpStatus": "explained-glossary"
+    },
+    {
+      "id": "help-network",
+      "label": "Network",
+      "domainContext": "Transport feature modelling",
+      "definition": "A model of connected links and nodes. In OS NGD road data, Road Links describe road sections and refer to the Road Nodes at their start and end.",
+      "scopeNote": "This transport-data meaning is separate from computer networks or an RDF knowledge graph. Lines drawn together do not prove a traversable route. Direction, access restrictions, missing links and source versions need their own evidence; the viewer does not establish routing or complete connectivity.",
+      "aliases": [],
+      "sourceRefs": [
+        "gap-os-road-link"
+      ],
+      "reviewState": "primary-source-text-reviewed",
+      "reviewedOn": "2026-10-21",
+      "helpStatus": "explained-glossary"
+    },
+    {
+      "id": "help-epsg",
+      "label": "EPSG",
+      "domainContext": "Coordinate reference definitions and codes",
+      "definition": "The EPSG Geodetic Parameter Dataset is a maintained reference source for coordinate reference systems and transformations. An EPSG code identifies an entry in that dataset.",
+      "scopeNote": "EPSG is not one projection or one coordinate system. Check the exact entry, axes, units, area of use and any relevant epoch before combining coordinates. A displayed code does not prove that coordinates were transformed correctly. No current dataset release or individual code definition was verified for this explanation.",
+      "aliases": [],
+      "sourceRefs": [
+        "gap-iogp-geodesy"
+      ],
+      "reviewState": "primary-source-text-reviewed",
+      "reviewedOn": "2026-10-21",
+      "helpStatus": "explained-glossary"
+    },
+    {
+      "id": "help-topology",
+      "label": "Topology",
+      "domainContext": "Spatial relationships and connectivity",
+      "definition": "How spatial objects relate through their interiors, boundaries and surroundings: for example, whether they touch, overlap, are separate or lie within one another. Network topology describes how nodes and links connect.",
+      "scopeNote": "A visual overlap or an identifier association is not a tested topological relationship. Use an explicit relation definition, suitable geometries, coordinate reference systems and a verified method. These definitions do not claim that the viewer validates topology, legal access or complete network connectivity.",
+      "aliases": [],
+      "sourceRefs": [
+        "gap-geosparql",
+        "gap-os-road-link"
+      ],
+      "reviewState": "primary-source-text-reviewed",
+      "reviewedOn": "2026-10-21",
+      "helpStatus": "explained-glossary"
+    }
+  ]
+}

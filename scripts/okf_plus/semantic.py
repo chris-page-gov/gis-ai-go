@@ -204,7 +204,9 @@ def _schema_facts(schema, parent_schema, name):
     return {'constraints': {k: v for k, v in schema.items() if k != 'enum'} if isinstance(schema, dict) else schema,
             'required': name in parent_schema['required'] if isinstance(parent_schema.get('required'), list) else None,
             'nullable': nullable,
-            'nullabilityScope': 'Direct type or nullable declaration only; referenced/composed schemas are not inferred.'}
+            'nullabilityScope': ('Direct type or legacy nullable declaration only, not effective null acceptance. '
+                                 'enum, const, referenced or composed constraints may still reject null; '
+                                 'the source schema dialect governs whether nullable has meaning.')}
 
 
 def collection_cards(source, supplements):

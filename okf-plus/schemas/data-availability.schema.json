@@ -1,0 +1,319 @@
+{
+ "type": "object",
+ "required": [
+  "profile",
+  "distribution",
+  "execution",
+  "source",
+  "selector",
+  "field",
+  "evidence",
+  "access",
+  "expected_presence",
+  "observed_presence",
+  "retrieval",
+  "observation_detail",
+  "status",
+  "summary",
+  "next_action",
+  "expectation_gap",
+  "denominator_known",
+  "failure_reason"
+ ],
+ "properties": {
+  "profile": {
+   "const": "okf-plus-private-data-availability.v1"
+  },
+  "distribution": {
+   "const": "private"
+  },
+  "execution": {
+   "const": false
+  },
+  "source": {
+   "type": "object",
+   "required": [
+    "id",
+    "version"
+   ],
+   "properties": {
+    "id": {
+     "type": "string",
+     "minLength": 1,
+     "maxLength": 2048
+    },
+    "version": {
+     "anyOf": [
+      {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 2048
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "additionalProperties": false
+  },
+  "selector": {
+   "type": "object",
+   "required": [
+    "id",
+    "spatial",
+    "time"
+   ],
+   "properties": {
+    "id": {
+     "type": "string",
+     "minLength": 1,
+     "maxLength": 2048
+    },
+    "spatial": {
+     "anyOf": [
+      {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 2048
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "time": {
+     "anyOf": [
+      {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 2048
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "additionalProperties": false
+  },
+  "field": {
+   "type": "object",
+   "required": [
+    "id",
+    "path"
+   ],
+   "properties": {
+    "id": {
+     "type": "string",
+     "minLength": 1,
+     "maxLength": 2048
+    },
+    "path": {
+     "type": "array",
+     "minItems": 1,
+     "maxItems": 16,
+     "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2048
+     }
+    }
+   },
+   "additionalProperties": false
+  },
+  "evidence": {
+   "type": "array",
+   "minItems": 1,
+   "maxItems": 64,
+   "items": {
+    "type": "object",
+    "required": [
+     "reference",
+     "receipt_sha256"
+    ],
+    "properties": {
+     "reference": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2048
+     },
+     "receipt_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+     }
+    },
+    "additionalProperties": false
+   }
+  },
+  "access": {
+   "enum": [
+    "allowed",
+    "denied",
+    "unknown"
+   ]
+  },
+  "expected_presence": {
+   "enum": [
+    "expected",
+    "not_expected",
+    "unknown"
+   ]
+  },
+  "observed_presence": {
+   "enum": [
+    "present",
+    "absent",
+    "unknown"
+   ]
+  },
+  "retrieval": {
+   "enum": [
+    "complete",
+    "incomplete",
+    "not_attempted",
+    "failed"
+   ]
+  },
+  "observation_detail": {
+   "enum": [
+    "null",
+    "zero",
+    "value",
+    "property_missing",
+    "outside_coverage",
+    "filtered_empty",
+    "not_collected",
+    "unavailable_product",
+    "unknown"
+   ]
+  },
+  "status": {
+   "enum": [
+    "permission_denied",
+    "retrieval_failed",
+    "transient_failure",
+    "present_null",
+    "present_zero",
+    "present_value",
+    "retrieval_incomplete",
+    "property_missing",
+    "outside_coverage",
+    "filtered_empty",
+    "not_collected",
+    "unavailable_product",
+    "unknown"
+   ]
+  },
+  "summary": {
+   "type": "string",
+   "minLength": 1,
+   "maxLength": 2048
+  },
+  "next_action": {
+   "type": "string",
+   "minLength": 1,
+   "maxLength": 2048
+  },
+  "expectation_gap": {
+   "type": "boolean"
+  },
+  "denominator_known": {
+   "type": "boolean"
+  },
+  "failure_reason": {
+   "enum": [
+    "transient_failure",
+    "permission_denial",
+    "unknown"
+   ]
+  }
+ },
+ "additionalProperties": false,
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "urn:gis-ai-go:okf-plus:data-availability:v1",
+ "title": "Private evidence-bound data availability v1",
+ "description": "Optional output assurance; access decisions, expectations and observations remain separate evidence claims. This contract grants no execution or publication authority and checks hash syntax, not receipt integrity.",
+ "allOf": [
+  {
+   "if": {
+    "properties": {
+     "observed_presence": {
+      "const": "absent"
+     }
+    }
+   },
+   "then": {
+    "properties": {
+     "retrieval": {
+      "const": "complete"
+     }
+    }
+   }
+  },
+  {
+   "if": {
+    "properties": {
+     "expectation_gap": {
+      "const": true
+     }
+    }
+   },
+   "then": {
+    "properties": {
+     "expected_presence": {
+      "const": "expected"
+     },
+     "observed_presence": {
+      "const": "absent"
+     },
+     "retrieval": {
+      "const": "complete"
+     }
+    }
+   }
+  },
+  {
+   "if": {
+    "properties": {
+     "observed_presence": {
+      "const": "present"
+     }
+    }
+   },
+   "then": {
+    "properties": {
+     "observation_detail": {
+      "enum": [
+       "null",
+       "zero",
+       "value"
+      ]
+     }
+    }
+   }
+  },
+  {
+   "if": {
+    "properties": {
+     "observed_presence": {
+      "const": "absent"
+     }
+    }
+   },
+   "then": {
+    "properties": {
+     "observation_detail": {
+      "enum": [
+       "property_missing",
+       "outside_coverage",
+       "filtered_empty",
+       "not_collected",
+       "unavailable_product"
+      ]
+     }
+    }
+   }
+  }
+ ]
+}

@@ -83,6 +83,24 @@ roadmap.
 
 ## Additive OS and ONS knowledge framework
 
+The [selected classification increment](CLASSIFICATION_RELEASE_DISCOVERY.md) adds
+source-scoped code-list access and private small-knowledge exports. The durable
+backlog remains edition-matched definitions, source discrepancy resolution,
+complete national variants and independently reviewed mappings; a passed list
+traversal is not full domain coverage.
+
+The optional [label-origin contract](../../examples/geography-task-experience/LABEL-ORIGIN.md)
+keeps project display fallbacks out of supplier-label assertions. Source-specific
+label-field interpretation and independent reconstruction remain prerequisites;
+structural validation alone does not close authoritative vocabulary coverage.
+
+The later selected Census and ONSUD pass expands retained code-list contexts
+while keeping source-page mnemonic conflicts, overlapping aggregate semantics
+and missing revision metadata explicit. The authoritative product denominator,
+technical route/format/edition cells and independent acceptance are separate
+closure requirements. Supplier clarification material is prepared privately;
+recorded differences must be classified before treating them as defects.
+
 The owner authorised [OKF-220](OKF-220_METADATA_KNOWLEDGE_FRAMEWORK.md) on
 2 October 2026. It extends metadata discovery through OKF+ without changing the
 existing runtime or supported-release gates. Deliver measured source inventories,
@@ -93,15 +111,65 @@ Acceptance separates catalogue traversal, metadata evidence, schema validation,
 semantic curation, retrieval and live Ask OKF admission. Unknown completeness
 denominators remain open; a large record count does not close them.
 
-The owner authorised [OKF-223](OKF-223_ATOMIC_OS_KNOWLEDGE.md) on 18 October:
-small linked field/value/operation/evidence records, indexed selective reads,
-complete metadata acquisition and geographic data on demand under the stated
-PSGA authority. Dataset requests compare API and download duration using explicit
-measurements and unknowns. Complete acquisition requires working OS network and
-credential bindings; semantic and live-execution coverage remain measured gates.
-The [coverage matrix](OKF-223_COVERAGE_GAPS.md) separates service roles, acquired
-sources, field interpretation and executable routes, with explicit work remaining
-for other service metadata, attachments and bulk downloads.
+The 24 October [branch reconciliation](OKF-223_RECONCILIATION.md) retains the
+additional small linked atomic view and broader metadata capture alongside the
+accepted recovery path. Main's transient processing lifecycle remains canonical;
+the earlier richer request estimator is a separate offline contract. Shared
+project pacing, exact schema preflight and cross-format evidence mapping remain
+explicit integration work rather than implicit effects of merging source.
+
+The 21 October learning increment adds a
+[task composition model](GEOGRAPHY_TASK_COMPOSITION.md) and
+[source-positioned term discovery](GEOSPATIAL_TERM_DISCOVERY.md). Task-specific
+definitions and just-in-time help must preserve provider vocabulary, edition,
+jurisdiction and provenance. An accessible search alias does not establish a
+semantic mapping. Human learning, accessibility and complete external vocabulary
+coverage remain separate acceptance gates.
+
+The optional [field-documentary panel](../../examples/geography-task-experience/FIELD-DOCUMENTARY-LINKS.md)
+adds a bounded source interface for native property/version context and explicit
+attribute-level documentation links. It preserves missing and ambiguous matches
+without asserting API adoption or vocabulary equivalence. Public checks use
+fictional fixtures; source acceptance and rendered-host acceptance remain
+separate requirements.
+
+The 19 October [OS recovery increment](OKF_OS_RECOVERY.md) completed its accessible
+bounded pass: 2,302 of 2,303 frozen documentation pages were captured, with one
+recorded HTTP 307 gap and no unresolved targets; 216,765 passages passed audit,
+and six newer pages were captured separately. All 94 NGD schema/queryables pairs
+and 44 WFS feature-type schemas were retained. First pages from all 94 NGD
+collections yielded 186 records and 3,968 field knowledge cards; verified disposal
+left no raw payloads in that workset. The final explanation export matches all
+2,915 field candidates with no missing or ambiguous links across 3,347 files
+(maximum 16,383 bytes); documentation-version matching remains unverified.
+All 353 affected tests and final-source CI/CodeQL passed; the initial increment
+merged through PR #154. Its protected-main acceptance and subsequent bounded WFS
+operation review are recorded in issue #153. Continue towards measured entitlement
+coverage, version-matched
+semantic links and resumable transient feature processing with reproducible
+retrieval recipes and verified disposal. This pass does not establish national
+feature traversal, all PSGA coverage or answers to every question. Bulk archive
+transfers remain deferred pending the recorded exact Azure host adjustment;
+source ambiguities and unsent support drafts remain explicit.
+
+The owner extended this work with [presentation-aware retrieval research](OS_RETRIEVAL_PRESENTATION_RESEARCH.md)
+and [scoped availability reporting](OS_DATA_AVAILABILITY.md). Map/table/analysis
+requirements must be explicit when comparing cost; portrayal alone cannot satisfy
+native-value questions. Investigate VizQL and related declarative visualisation
+approaches and retain the underlying units, grain, geometry/CRS/datum, time,
+aggregation and quality. Track missing data using separate access, expectation,
+observation and retrieval states; missing route evidence is unknown data presence.
+A completed selected retrieval closes that selector only; report the requested
+scope directly and leave unproven source/version assertions visible.
+
+The [bounded Linked Identifiers method](OS_LINKED_IDENTIFIER_METHOD.md) adds local
+typed lookups and relationship-first candidate planning. Preserve correlation
+methods, source versions, confidence meanings and set-valued cardinality before
+considering a separately justified spatial fallback. Native references and API
+links need compatible scope/version evidence; neither establishes transitive
+identity. Current planner namespaces do not admit NGD Building/OSID or ONS GSS
+bridges. Live selection evidence, those bridges and geographic rendering retain
+separate acceptance gates; no new hosted tool is admitted.
 
 ## Learning and feature evaluation
 

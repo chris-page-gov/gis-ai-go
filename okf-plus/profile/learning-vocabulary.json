@@ -1,0 +1,2176 @@
+{
+  "schema": "gis-ai-go.vocabulary-learning-registry.v1",
+  "reviewedOn": "2026-10-21",
+  "scope": "Authored, public-source learning vocabulary and scoped scheme discovery; no provider payloads or complete-domain claim. Definitions are project paraphrases. Alias authority describes the exact lexical form, not the definition.",
+  "globalComplete": false,
+  "sources": [
+    {
+      "id": "ons-census",
+      "title": "ONS Census 2021 geographies",
+      "url": "https://www.ons.gov.uk/methodology/geography/ukgeographies/censusgeographies/census2021geographies",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "ons-admin",
+      "title": "ONS administrative geographies",
+      "url": "https://www.ons.gov.uk/methodology/geography/ukgeographies/administrativegeography",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "ons-codes",
+      "title": "ONS names, codes and lookups",
+      "url": "https://www.ons.gov.uk/methodology/geography/geographicalproducts/namescodesandlookups",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "ons-chd",
+      "title": "ONS Code History Database",
+      "url": "https://www.ons.gov.uk/methodology/geography/geographicalproducts/namescodesandlookups/codehistorydatabasechd",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "ons-portal",
+      "title": "ONS Open Geography Portal",
+      "url": "https://geoportal.statistics.gov.uk/",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "ons-uprn",
+      "title": "ONS National Statistics UPRN Products",
+      "url": "https://www.ons.gov.uk/methodology/geography/geographicalproducts/nationalstatisticsaddressproducts",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "ons-oac",
+      "title": "ONS 2021 and 2022 residential-based area classifications",
+      "url": "https://www.ons.gov.uk/methodology/geography/geographicalproducts/areaclassifications/2021and2022residentialbasedareaclassifications",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "ons-ruc",
+      "title": "ONS 2021 Rural Urban Classification",
+      "url": "https://www.ons.gov.uk/methodology/geography/geographicalproducts/ruralurbanclassifications/2021ruralurbanclassification",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "scotland-ruc",
+      "title": "Scottish Government Urban Rural Classification 2022",
+      "url": "https://www.gov.scot/publications/scottish-government-urban-rural-classification-2022/pages/overview/",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "england-imd",
+      "title": "English indices of deprivation 2025: statistical release",
+      "url": "https://www.gov.uk/government/statistics/english-indices-of-deprivation-2025/english-indices-of-deprivation-2025-statistical-release",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "wales-imd",
+      "title": "Welsh Index of Multiple Deprivation: 2025",
+      "url": "https://www.gov.wales/welsh-index-multiple-deprivation-2025",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "scotland-imd",
+      "title": "Scottish Index of Multiple Deprivation: data and resources",
+      "url": "https://www.gov.scot/collections/scottish-index-of-multiple-deprivation-2020/",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "ni-mdm",
+      "title": "Northern Ireland Multiple Deprivation Measure 2017",
+      "url": "https://www.nisra.gov.uk/statistics/deprivation-and-poverty/northern-ireland-multiple-deprivation-measure-2017-nimdm2017",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "os-ids",
+      "title": "OS NGD unique identifiers",
+      "url": "https://docs.os.uk/osngd/getting-started/os-ngd-fundamentals/unique-identifiers",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "os-address",
+      "title": "OS NGD Address theme",
+      "url": "https://docs.os.uk/osngd/data-structure/address",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "os-codelists",
+      "title": "OS NGD code lists overview",
+      "url": "https://docs.os.uk/osngd/code-lists/code-lists-overview",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "os-address-class",
+      "title": "OS NGD addressclassificationcodevalue",
+      "url": "https://docs.os.uk/osngd/code-lists/code-lists-overview/addressclassificationcodevalue",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "os-building-use",
+      "title": "OS NGD buildingusevalue",
+      "url": "https://docs.os.uk/osngd/code-lists/code-lists-overview/buildingusevalue",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "os-language",
+      "title": "OS NGD languagevalue",
+      "url": "https://docs.os.uk/osngd/code-lists/code-lists-overview/languagevalue",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "os-build-status",
+      "title": "OS NGD buildstatusvalue",
+      "url": "https://docs.os.uk/osngd/code-lists/code-lists-overview/buildstatuscode",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "os-accuracy",
+      "title": "OS NGD positionalaccuracyvalue",
+      "url": "https://docs.os.uk/osngd/code-lists/code-lists-overview/positionalaccuracyvalue",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "os-road-class",
+      "title": "OS NGD roadclassificationvalue",
+      "url": "https://docs.os.uk/osngd/code-lists/code-lists-overview/roadclassificationvalue",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "os-access-level",
+      "title": "OS NGD accesslevelvalue",
+      "url": "https://docs.os.uk/osngd/code-lists/code-lists-overview/accesslevelvalue",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "os-li",
+      "title": "OS Linked Identifiers API technical specification",
+      "url": "https://docs.os.uk/os-apis/accessing-os-apis/os-linked-identifiers-api/technical-specification",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "os-road-link",
+      "title": "OS NGD Road Link",
+      "url": "https://docs.os.uk/osngd/data-structure/transport/transport-network/road-link",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "os-path-link",
+      "title": "OS NGD Path Link",
+      "url": "https://docs.os.uk/osngd/data-structure/transport/transport-network/path-link",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "os-psga",
+      "title": "OS government and public sector",
+      "url": "https://www.ordnancesurvey.co.uk/customers/public-sector",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "os-cou",
+      "title": "OS NGD change only updates",
+      "url": "https://docs.os.uk/more-than-maps/data-demonstrators/os-ngd-data/change-only-updates",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "os-epoch",
+      "title": "AddressBase products November 2025 – Epoch 123",
+      "url": "https://docs.os.uk/os-downloads/products/addresses-and-names-portfolio/addressbase-fundamentals/release-notes/addressbase-products-november-2025-epoch-123",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "os-crs",
+      "title": "OS NGD coordinate reference systems",
+      "url": "https://docs.os.uk/osngd/getting-started/os-ngd-fundamentals/coordinate-reference-systems",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "os-geodesy",
+      "title": "OS guide to coordinate systems in Great Britain",
+      "url": "https://www.ordnancesurvey.co.uk/documents/resources/guide-coordinate-systems-great-britain.pdf",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "os-transform",
+      "title": "OS coordinate transformations",
+      "url": "https://www.ordnancesurvey.co.uk/geodesy-positioning/coordinate-transformations",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "ogc-gml",
+      "title": "OGC Geography Markup Language",
+      "url": "https://www.ogc.org/standards/gml/",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "ogc-geosparql",
+      "title": "OGC GeoSPARQL 1.1",
+      "url": "https://docs.ogc.org/is/22-047r1/22-047r1.html",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "w3c-yaml-ld",
+      "title": "YAML-LD final Community Group report, 6 December 2023",
+      "url": "https://www.w3.org/community/reports/json-ld/CG-FINAL-yaml-ld-20231206/",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "w3c-skos",
+      "title": "SKOS reference, 18 August 2009",
+      "url": "https://www.w3.org/TR/2009/REC-skos-reference-20090818/",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "w3c-dcat",
+      "title": "DCAT 3, 22 August 2024",
+      "url": "https://www.w3.org/TR/2024/REC-vocab-dcat-3-20240822/",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "w3c-prov",
+      "title": "PROV-O, 30 April 2013",
+      "url": "https://www.w3.org/TR/2013/REC-prov-o-20130430/",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "w3c-owl",
+      "title": "OWL 2 Primer, second edition",
+      "url": "https://www.w3.org/TR/2012/REC-owl2-primer-20121211/",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "w3c-sosa",
+      "title": "W3C Semantic Sensor Network Ontology",
+      "url": "https://www.w3.org/TR/vocab-ssn/",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "qudt",
+      "title": "QUDT units, quantity kinds and dimensions",
+      "url": "https://www.qudt.org/",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "project-context",
+      "title": "GIS AI GO OKF-220 context integration, inspected commit",
+      "url": "https://github.com/chris-page-gov/gis-ai-go/blob/d7fa5048bccecd0be7e630f96a2f378721aa5b91/docs/implementation/OKF-220_ASK_OKF_INTEGRATION.md",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "local-pinned-project-file-read",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "wales-imd-children",
+      "title": "WIMD 2025: deprivation relating to children, 7 October 2026",
+      "url": "https://www.gov.wales/welsh-index-multiple-deprivation-2025-deprivation-relating-children",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "ons-sic2026",
+      "title": "UK SIC 2026 revision process",
+      "url": "https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2026revisionprocess",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "ons-soc2020",
+      "title": "SOC 2020",
+      "url": "https://www.ons.gov.uk/methodology/classificationsandstandards/standardoccupationalclassificationsoc/soc2020",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "ni-ruc",
+      "title": "NISRA Urban – Rural Classification",
+      "url": "https://www.nisra.gov.uk/support/geography/urban-rural-classification",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "addressbase-class",
+      "title": "AddressBase classification scheme",
+      "url": "https://docs.os.uk/os-downloads/products/addresses-and-names-portfolio/addressbase-fundamentals/classification-scheme",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "nomis-api",
+      "title": "Nomis API discovery documentation",
+      "url": "https://www.nomisweb.co.uk/api/v01/help",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "ons-ethnic",
+      "title": "Ethnic group variable: Census 2021",
+      "url": "https://www.ons.gov.uk/census/census2021dictionary/variablesbytopic/ethnicgroupnationalidentitylanguageandreligionvariablescensus2021/ethnicgroup",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "ons-bua",
+      "title": "Towns and cities, characteristics of built-up areas, England and Wales: Census 2021",
+      "url": "https://www.ons.gov.uk/peoplepopulationandcommunity/housing/articles/townsandcitiescharacteristicsofbuiltupareasenglandandwales/census2021",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    }
+  ],
+  "terms": [
+    {
+      "id": "la",
+      "label": "Local authority",
+      "definition": "A local-government organisation; its administrative area is a separate geographic object.",
+      "aliases": [
+        {
+          "value": "LA",
+          "kind": "abbreviation",
+          "authority": "source-stated",
+          "language": null,
+          "sourceRefs": [
+            "ons-admin"
+          ]
+        },
+        {
+          "value": "council",
+          "kind": "search-variant",
+          "authority": "project-authored",
+          "language": "en-GB",
+          "sourceRefs": [
+            "ons-admin"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "ons-admin"
+      ],
+      "scopeNote": "The local-government structure and relevant tier depend on nation and date. A council and a local authority district are not interchangeable identities.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/vocabulary-learning/la",
+      "recordDisposition": "authored-draft-concept",
+      "recordFile": "okf-plus/records/vocabulary-learning/la.md"
+    },
+    {
+      "id": "lad",
+      "label": "Local authority district",
+      "definition": "An administrative geography used in names, codes and statistical products.",
+      "aliases": [
+        {
+          "value": "LAD",
+          "kind": "abbreviation",
+          "authority": "source-stated",
+          "language": null,
+          "sourceRefs": [
+            "ons-admin",
+            "ons-codes"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "ons-admin",
+        "ons-codes"
+      ],
+      "scopeNote": "Keep the nation, geography code and boundary date; a district label does not identify every local-government tier.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/vocabulary-learning/lad",
+      "recordDisposition": "authored-draft-concept",
+      "recordFile": "okf-plus/records/vocabulary-learning/lad.md"
+    },
+    {
+      "id": "oa",
+      "label": "Output Area",
+      "definition": "A small area used to publish Census statistics.",
+      "aliases": [
+        {
+          "value": "OA",
+          "kind": "abbreviation",
+          "authority": "source-stated",
+          "language": null,
+          "sourceRefs": [
+            "ons-census"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "ons-census"
+      ],
+      "scopeNote": "Select the nation and Census geography vintage. An area describes a population aggregate, not an individual.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/vocabulary-learning/oa",
+      "recordDisposition": "authored-draft-concept",
+      "recordFile": "okf-plus/records/vocabulary-learning/oa.md"
+    },
+    {
+      "id": "lsoa",
+      "label": "Lower layer Super Output Area",
+      "definition": "A statistical geography made from groups of Output Areas in England and Wales.",
+      "aliases": [
+        {
+          "value": "LSOA",
+          "kind": "abbreviation",
+          "authority": "source-stated",
+          "language": null,
+          "sourceRefs": [
+            "ons-census"
+          ]
+        },
+        {
+          "value": "Lower-layer Super Output Area",
+          "kind": "search-variant",
+          "authority": "project-authored",
+          "language": "en-GB",
+          "sourceRefs": [
+            "ons-census"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "ons-census"
+      ],
+      "scopeNote": "A 2011 code or boundary cannot silently stand in for a 2021 one.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/vocabulary-learning/lsoa",
+      "recordDisposition": "authored-draft-concept",
+      "recordFile": "okf-plus/records/vocabulary-learning/lsoa.md"
+    },
+    {
+      "id": "msoa",
+      "label": "Middle layer Super Output Area",
+      "definition": "A statistical geography made from groups of Lower layer Super Output Areas in England and Wales.",
+      "aliases": [
+        {
+          "value": "MSOA",
+          "kind": "abbreviation",
+          "authority": "source-stated",
+          "language": null,
+          "sourceRefs": [
+            "ons-census"
+          ]
+        },
+        {
+          "value": "Middle-layer Super Output Area",
+          "kind": "search-variant",
+          "authority": "project-authored",
+          "language": "en-GB",
+          "sourceRefs": [
+            "ons-census"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "ons-census"
+      ],
+      "scopeNote": "A hierarchy join needs the matching published lookup and vintage.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/vocabulary-learning/msoa",
+      "recordDisposition": "authored-draft-concept",
+      "recordFile": "okf-plus/records/vocabulary-learning/msoa.md"
+    },
+    {
+      "id": "bua",
+      "label": "Built-up area",
+      "definition": "A geography representing an area of built development.",
+      "aliases": [
+        {
+          "value": "BUA",
+          "kind": "abbreviation",
+          "authority": "source-stated",
+          "language": null,
+          "sourceRefs": [
+            "ons-bua"
+          ]
+        },
+        {
+          "value": "built up area",
+          "kind": "search-variant",
+          "authority": "project-authored",
+          "language": "en-GB",
+          "sourceRefs": [
+            "ons-bua"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "ons-bua"
+      ],
+      "scopeNote": "State the provider, definition and edition. ONS statistical BUAs and OS product features must not be treated as identical from their name alone.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/vocabulary-learning/bua",
+      "recordDisposition": "authored-draft-concept",
+      "recordFile": "okf-plus/records/vocabulary-learning/bua.md"
+    },
+    {
+      "id": "uprn",
+      "label": "Unique Property Reference Number",
+      "definition": "A persistent identifier for an addressable location.",
+      "aliases": [
+        {
+          "value": "UPRN",
+          "kind": "abbreviation",
+          "authority": "source-stated",
+          "language": null,
+          "sourceRefs": [
+            "os-address"
+          ]
+        },
+        {
+          "value": "uprn",
+          "kind": "native-field-form",
+          "authority": "source-stated",
+          "language": null,
+          "sourceRefs": [
+            "os-address"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "os-address"
+      ],
+      "scopeNote": "An addressable location need not be a building; the number is not a geometry or a household count.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/geospatial-concepts/uprn",
+      "recordDisposition": "existing-concept",
+      "recordFile": "okf-plus/records/geospatial-concepts/uprn.md"
+    },
+    {
+      "id": "usrn",
+      "label": "Unique Street Reference Number",
+      "definition": "A persistent identifier for a street curated by local-authority custodians.",
+      "aliases": [
+        {
+          "value": "USRN",
+          "kind": "abbreviation",
+          "authority": "source-stated",
+          "language": null,
+          "sourceRefs": [
+            "os-address"
+          ]
+        },
+        {
+          "value": "usrn",
+          "kind": "native-field-form",
+          "authority": "source-stated",
+          "language": null,
+          "sourceRefs": [
+            "os-address"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "os-address"
+      ],
+      "scopeNote": "A street record is not the same object as a Road Link or Path Link.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/geospatial-concepts/usrn",
+      "recordDisposition": "existing-concept",
+      "recordFile": "okf-plus/records/geospatial-concepts/usrn.md"
+    },
+    {
+      "id": "toid",
+      "label": "Topographic Identifier",
+      "definition": "An OS feature identifier also supplied as an optional secondary identifier in much of NGD.",
+      "aliases": [
+        {
+          "value": "TOID",
+          "kind": "abbreviation",
+          "authority": "source-stated",
+          "language": null,
+          "sourceRefs": [
+            "os-ids"
+          ]
+        },
+        {
+          "value": "toid",
+          "kind": "native-field-form",
+          "authority": "source-stated",
+          "language": null,
+          "sourceRefs": [
+            "os-ids"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "os-ids"
+      ],
+      "scopeNote": "Its presence is not guaranteed on every NGD feature. A TOID lookup needs an identified feature type and source version.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/geospatial-concepts/toid",
+      "recordDisposition": "existing-concept",
+      "recordFile": "okf-plus/records/geospatial-concepts/toid.md"
+    },
+    {
+      "id": "osid",
+      "label": "OS Identifier",
+      "definition": "The primary persistent identifier used for many OS NGD features.",
+      "aliases": [
+        {
+          "value": "OSID",
+          "kind": "abbreviation",
+          "authority": "source-stated",
+          "language": null,
+          "sourceRefs": [
+            "os-ids"
+          ]
+        },
+        {
+          "value": "osid",
+          "kind": "native-field-form",
+          "authority": "source-stated",
+          "language": null,
+          "sourceRefs": [
+            "os-ids"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "os-ids"
+      ],
+      "scopeNote": "Uniqueness is at feature-type level: the same OSID may identify related representations in different feature types.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/vocabulary-learning/osid",
+      "recordDisposition": "authored-draft-concept",
+      "recordFile": "okf-plus/records/vocabulary-learning/osid.md"
+    },
+    {
+      "id": "ngd",
+      "label": "OS National Geographic Database",
+      "definition": "OS data organised into themes, collections and feature types.",
+      "aliases": [
+        {
+          "value": "NGD",
+          "kind": "abbreviation",
+          "authority": "source-stated",
+          "language": null,
+          "sourceRefs": [
+            "os-codelists",
+            "os-ids"
+          ]
+        },
+        {
+          "value": "OS NGD",
+          "kind": "search-variant",
+          "authority": "project-authored",
+          "language": "en-GB",
+          "sourceRefs": [
+            "os-codelists",
+            "os-ids"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "os-codelists",
+        "os-ids"
+      ],
+      "scopeNote": "Feature type, schema version, collection and data release are separate identifiers.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/vocabulary-learning/ngd",
+      "recordDisposition": "authored-draft-concept",
+      "recordFile": "okf-plus/records/vocabulary-learning/ngd.md"
+    },
+    {
+      "id": "psga",
+      "label": "Public Sector Geospatial Agreement",
+      "definition": "The agreement under which OS provides geospatial data and services to eligible public-sector organisations.",
+      "aliases": [
+        {
+          "value": "PSGA",
+          "kind": "abbreviation",
+          "authority": "source-stated",
+          "language": null,
+          "sourceRefs": [
+            "os-psga"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "os-psga"
+      ],
+      "scopeNote": "This glossary does not establish an account entitlement, licence permission or authority for a provider request.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/vocabulary-learning/psga",
+      "recordDisposition": "authored-draft-concept",
+      "recordFile": "okf-plus/records/vocabulary-learning/psga.md"
+    },
+    {
+      "id": "linked-identifiers",
+      "label": "OS Linked Identifiers",
+      "definition": "An OS service and product family describing typed relationships between identifiers.",
+      "aliases": [
+        {
+          "value": "linked IDs",
+          "kind": "search-variant",
+          "authority": "project-authored",
+          "language": "en-GB",
+          "sourceRefs": [
+            "os-li"
+          ]
+        },
+        {
+          "value": "identifier links",
+          "kind": "search-variant",
+          "authority": "project-authored",
+          "language": "en-GB",
+          "sourceRefs": [
+            "os-li"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "os-li"
+      ],
+      "scopeNote": "A correlation is not identity, containment or a claim that an address is a building. Preserve method, direction, source and target versions.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/vocabulary-learning/linked-identifiers",
+      "recordDisposition": "authored-draft-concept",
+      "recordFile": "okf-plus/records/vocabulary-learning/linked-identifiers.md"
+    },
+    {
+      "id": "road-link",
+      "label": "Road Link",
+      "definition": "A linear feature representing a section of a road network between network points.",
+      "aliases": [
+        {
+          "value": "RoadLink",
+          "kind": "native-type-form",
+          "authority": "source-stated",
+          "language": null,
+          "sourceRefs": [
+            "os-road-link",
+            "os-li"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "os-road-link",
+        "os-li"
+      ],
+      "scopeNote": "Read the feature schema and network references; a line on a map alone does not prove routability.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/vocabulary-learning/road-link",
+      "recordDisposition": "authored-draft-concept",
+      "recordFile": "okf-plus/records/vocabulary-learning/road-link.md"
+    },
+    {
+      "id": "path-link",
+      "label": "Path Link",
+      "definition": "A linear feature representing a section of the Path Network between network points.",
+      "aliases": [
+        {
+          "value": "PathLink",
+          "kind": "native-type-form",
+          "authority": "source-stated",
+          "language": null,
+          "sourceRefs": [
+            "os-path-link"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "os-path-link"
+      ],
+      "scopeNote": "Coverage has documented inclusion and exclusion rules. The name alone does not establish a public right of way.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/vocabulary-learning/path-link",
+      "recordDisposition": "authored-draft-concept",
+      "recordFile": "okf-plus/records/vocabulary-learning/path-link.md"
+    },
+    {
+      "id": "chd",
+      "label": "Code History Database",
+      "definition": "ONS reference data about geography codes, relationships, hierarchies and archived geographies.",
+      "aliases": [
+        {
+          "value": "CHD",
+          "kind": "abbreviation",
+          "authority": "source-stated",
+          "language": null,
+          "sourceRefs": [
+            "ons-chd"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "ons-chd"
+      ],
+      "scopeNote": "A successor relationship or equivalence must be evidenced by its own source row; it is not inferred from a similar name.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/vocabulary-learning/chd",
+      "recordDisposition": "authored-draft-concept",
+      "recordFile": "okf-plus/records/vocabulary-learning/chd.md"
+    },
+    {
+      "id": "rgc",
+      "label": "Register of Geographic Codes",
+      "definition": "An ONS published register of geography codes.",
+      "aliases": [
+        {
+          "value": "RGC",
+          "kind": "abbreviation",
+          "authority": "source-stated",
+          "language": null,
+          "sourceRefs": [
+            "ons-portal",
+            "ons-codes"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "ons-portal",
+        "ons-codes"
+      ],
+      "scopeNote": "Use the selected edition and documented entity/instance fields. This glossary does not enumerate the register or infer a code’s current validity.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/vocabulary-learning/rgc",
+      "recordDisposition": "authored-draft-concept",
+      "recordFile": "okf-plus/records/vocabulary-learning/rgc.md"
+    },
+    {
+      "id": "gss-code",
+      "label": "GSS geography code",
+      "definition": "A code used under the Government Statistical Service geography coding and naming policy.",
+      "aliases": [
+        {
+          "value": "GSS code",
+          "kind": "search-variant",
+          "authority": "project-authored",
+          "language": "en-GB",
+          "sourceRefs": [
+            "ons-codes"
+          ]
+        },
+        {
+          "value": "geography code",
+          "kind": "search-variant",
+          "authority": "project-authored",
+          "language": "en-GB",
+          "sourceRefs": [
+            "ons-codes"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "ons-codes"
+      ],
+      "scopeNote": "Retain entity family, instance, nation and date. Similar strings in another provider’s field do not prove the same coding scheme.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/vocabulary-learning/gss-code",
+      "recordDisposition": "authored-draft-concept",
+      "recordFile": "okf-plus/records/vocabulary-learning/gss-code.md"
+    },
+    {
+      "id": "onsud",
+      "label": "ONS UPRN Directory",
+      "definition": "A directory allocating UPRNs to administrative and other geographies using their positions.",
+      "aliases": [
+        {
+          "value": "ONSUD",
+          "kind": "abbreviation",
+          "authority": "source-stated",
+          "language": null,
+          "sourceRefs": [
+            "ons-uprn"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "ons-uprn"
+      ],
+      "scopeNote": "Consult the edition guide for allocation exceptions and derived fields; do not replace it with NSUL best-fit memberships.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/vocabulary-learning/onsud",
+      "recordDisposition": "authored-draft-concept",
+      "recordFile": "okf-plus/records/vocabulary-learning/onsud.md"
+    },
+    {
+      "id": "nsul",
+      "label": "National Statistics UPRN Lookup",
+      "definition": "A lookup allocating source UPRNs to Output Areas and higher statistical geographies by best fit.",
+      "aliases": [
+        {
+          "value": "NSUL",
+          "kind": "abbreviation",
+          "authority": "source-stated",
+          "language": null,
+          "sourceRefs": [
+            "ons-uprn"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "ons-uprn"
+      ],
+      "scopeNote": "The higher-area assignment is an OA-based statistical method, not necessarily direct point-in-polygon membership. Check the edition and lifecycle scope; this explanation does not establish counts of current or terminated properties in a retained selection.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/vocabulary-learning/nsul",
+      "recordDisposition": "authored-draft-concept",
+      "recordFile": "okf-plus/records/vocabulary-learning/nsul.md"
+    },
+    {
+      "id": "oac",
+      "label": "Output Area Classification",
+      "definition": "A classification grouping areas with similar demographic and socioeconomic characteristics.",
+      "aliases": [
+        {
+          "value": "OAC",
+          "kind": "abbreviation",
+          "authority": "source-stated",
+          "language": null,
+          "sourceRefs": [
+            "ons-oac"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "ons-oac"
+      ],
+      "scopeNote": "Preserve the classification edition, nation, tier and native labels. Categories describe areas, not individual residents.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/vocabulary-learning/oac",
+      "recordDisposition": "authored-draft-concept",
+      "recordFile": "okf-plus/records/vocabulary-learning/oac.md"
+    },
+    {
+      "id": "ruc",
+      "label": "Rural Urban Classification",
+      "definition": "A statistical classification of areas by settlement and accessibility characteristics.",
+      "aliases": [
+        {
+          "value": "RUC",
+          "kind": "abbreviation",
+          "authority": "source-stated",
+          "language": null,
+          "sourceRefs": [
+            "ons-ruc",
+            "scotland-ruc",
+            "ni-ruc"
+          ]
+        },
+        {
+          "value": "rural–urban classification",
+          "kind": "search-variant",
+          "authority": "project-authored",
+          "language": "en-GB",
+          "sourceRefs": [
+            "ons-ruc",
+            "scotland-ruc",
+            "ni-ruc"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "ons-ruc",
+        "scotland-ruc",
+        "ni-ruc"
+      ],
+      "scopeNote": "England/Wales, Scotland and Northern Ireland use distinct products, editions and geographic units. Codes and labels are not shared aliases across these schemes.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/vocabulary-learning/ruc",
+      "recordDisposition": "authored-draft-concept",
+      "recordFile": "okf-plus/records/vocabulary-learning/ruc.md"
+    },
+    {
+      "id": "imd",
+      "label": "Index of Multiple Deprivation",
+      "definition": "A relative area-level measure combining several domains of deprivation.",
+      "aliases": [
+        {
+          "value": "IMD",
+          "kind": "abbreviation",
+          "authority": "source-stated",
+          "language": null,
+          "sourceRefs": [
+            "england-imd"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "england-imd"
+      ],
+      "scopeNote": "Name the national scheme and edition. A rank is neither an amount of deprivation nor an individual characteristic.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/vocabulary-learning/imd",
+      "recordDisposition": "authored-draft-concept",
+      "recordFile": "okf-plus/records/vocabulary-learning/imd.md"
+    },
+    {
+      "id": "wimd",
+      "label": "Welsh Index of Multiple Deprivation",
+      "definition": "The Welsh Government’s measure of relative deprivation for small areas in Wales.",
+      "aliases": [
+        {
+          "value": "WIMD",
+          "kind": "abbreviation",
+          "authority": "source-stated",
+          "language": null,
+          "sourceRefs": [
+            "wales-imd"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "wales-imd"
+      ],
+      "scopeNote": "WIMD 2025 is a distinct scheme; do not compare its ranks directly with ranks from another nation.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/vocabulary-learning/wimd",
+      "recordDisposition": "authored-draft-concept",
+      "recordFile": "okf-plus/records/vocabulary-learning/wimd.md"
+    },
+    {
+      "id": "simd",
+      "label": "Scottish Index of Multiple Deprivation",
+      "definition": "Scotland’s area-based measure of multiple deprivation.",
+      "aliases": [
+        {
+          "value": "SIMD",
+          "kind": "abbreviation",
+          "authority": "source-stated",
+          "language": null,
+          "sourceRefs": [
+            "scotland-imd"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "scotland-imd"
+      ],
+      "scopeNote": "Identify the edition and revision. Data-zone ranks are not English LSOA ranks.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/vocabulary-learning/simd",
+      "recordDisposition": "authored-draft-concept",
+      "recordFile": "okf-plus/records/vocabulary-learning/simd.md"
+    },
+    {
+      "id": "nimdm",
+      "label": "Northern Ireland Multiple Deprivation Measure",
+      "definition": "Northern Ireland’s measure ranking areas by multiple deprivation.",
+      "aliases": [
+        {
+          "value": "NIMDM",
+          "kind": "abbreviation",
+          "authority": "source-stated",
+          "language": null,
+          "sourceRefs": [
+            "ni-mdm"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "ni-mdm"
+      ],
+      "scopeNote": "The cited NIMDM 2017 scheme uses its own SOAs and seven domains; it is not an alias for the English IMD.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/vocabulary-learning/nimdm",
+      "recordDisposition": "authored-draft-concept",
+      "recordFile": "okf-plus/records/vocabulary-learning/nimdm.md"
+    },
+    {
+      "id": "gml",
+      "label": "Geography Markup Language",
+      "definition": "An OGC XML encoding for geographic information.",
+      "aliases": [
+        {
+          "value": "GML",
+          "kind": "abbreviation",
+          "authority": "source-stated",
+          "language": null,
+          "sourceRefs": [
+            "ogc-gml"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "ogc-gml"
+      ],
+      "scopeNote": "GML version and application schema determine field meaning; converting geometry does not prove all attributes survive.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/vocabulary-learning/gml",
+      "recordDisposition": "authored-draft-concept",
+      "recordFile": "okf-plus/records/vocabulary-learning/gml.md"
+    },
+    {
+      "id": "yaml-ld",
+      "label": "YAML-LD",
+      "definition": "Conventions for representing Linked Data in YAML using JSON-LD semantics.",
+      "aliases": [
+        {
+          "value": "YAML linked data",
+          "kind": "search-variant",
+          "authority": "project-authored",
+          "language": "en-GB",
+          "sourceRefs": [
+            "w3c-yaml-ld"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "w3c-yaml-ld"
+      ],
+      "scopeNote": "The cited 2023 document is a final Community Group report, not a W3C Recommendation. Project safe-parser restrictions remain additional.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/vocabulary-learning/yaml-ld",
+      "recordDisposition": "authored-draft-concept",
+      "recordFile": "okf-plus/records/vocabulary-learning/yaml-ld.md"
+    },
+    {
+      "id": "jit",
+      "label": "Just-in-time learning",
+      "definition": "Project shorthand for explaining relevant concepts, evidence and choices when a task needs them.",
+      "aliases": [
+        {
+          "value": "JIT",
+          "kind": "search-variant",
+          "authority": "project-authored",
+          "language": "en-GB",
+          "sourceRefs": [
+            "project-context"
+          ]
+        },
+        {
+          "value": "just in time",
+          "kind": "search-variant",
+          "authority": "project-authored",
+          "language": "en-GB",
+          "sourceRefs": [
+            "project-context"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "project-context"
+      ],
+      "scopeNote": "A project learning term, not an OS/ONS code list or a claim that a live retrieval took place.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/vocabulary-learning/jit",
+      "recordDisposition": "authored-draft-concept",
+      "recordFile": "okf-plus/records/vocabulary-learning/jit.md"
+    },
+    {
+      "id": "epoch",
+      "label": "Epoch",
+      "definition": "A time reference whose meaning depends on the source system.",
+      "aliases": [],
+      "sourceRefs": [
+        "os-geodesy",
+        "os-epoch"
+      ],
+      "scopeNote": "A geodetic reference epoch and an AddressBase numbered release epoch are different roles. Never merge them merely because the word matches.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/vocabulary-learning/epoch",
+      "recordDisposition": "authored-draft-concept",
+      "recordFile": "okf-plus/records/vocabulary-learning/epoch.md"
+    },
+    {
+      "id": "datum",
+      "label": "Geodetic datum",
+      "definition": "A reference that connects a coordinate system to the Earth.",
+      "aliases": [],
+      "sourceRefs": [
+        "os-geodesy",
+        "os-transform"
+      ],
+      "scopeNote": "Keep geodetic and height datums separate; neither is merely a map projection.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/geospatial-concepts/datum",
+      "recordDisposition": "existing-concept",
+      "recordFile": "okf-plus/records/geospatial-concepts/datum.md"
+    },
+    {
+      "id": "crs",
+      "label": "Coordinate reference system",
+      "definition": "A system relating coordinate values to locations through specified reference and coordinate-system definitions.",
+      "aliases": [
+        {
+          "value": "CRS",
+          "kind": "abbreviation",
+          "authority": "source-stated",
+          "language": null,
+          "sourceRefs": [
+            "os-crs",
+            "os-geodesy"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "os-crs",
+        "os-geodesy"
+      ],
+      "scopeNote": "Preserve axes, units, dimensionality, datum and identifier. EPSG:27700 and EPSG:7405 are distinct.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/geospatial-concepts/coordinate-reference-system",
+      "recordDisposition": "existing-concept",
+      "recordFile": "okf-plus/records/geospatial-concepts/coordinate-reference-system.md"
+    },
+    {
+      "id": "full",
+      "label": "Full supply",
+      "definition": "A supply mode providing the selected product’s full content for the stated delivery.",
+      "aliases": [
+        {
+          "value": "FULL",
+          "kind": "search-variant",
+          "authority": "project-authored",
+          "language": null,
+          "sourceRefs": [
+            "os-cou"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "os-cou"
+      ],
+      "scopeNote": "Full applies to the declared selection and product; it is not proof of national coverage or all product families.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/vocabulary-learning/full",
+      "recordDisposition": "authored-draft-concept",
+      "recordFile": "okf-plus/records/vocabulary-learning/full.md"
+    },
+    {
+      "id": "cou",
+      "label": "Change-only update",
+      "definition": "A supply containing changes since a preceding product version.",
+      "aliases": [
+        {
+          "value": "COU",
+          "kind": "abbreviation",
+          "authority": "source-stated",
+          "language": null,
+          "sourceRefs": [
+            "os-cou"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "os-cou"
+      ],
+      "scopeNote": "Interpret insert, update/replace and delete under the product specification and ordered baseline; do not treat a change file as a standalone complete holding.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/vocabulary-learning/cou",
+      "recordDisposition": "authored-draft-concept",
+      "recordFile": "okf-plus/records/vocabulary-learning/cou.md"
+    },
+    {
+      "id": "controlled-vocabulary",
+      "label": "Controlled vocabulary",
+      "definition": "A managed set of terms, labels or codes within a stated scheme.",
+      "aliases": [
+        {
+          "value": "code list",
+          "kind": "search-variant",
+          "authority": "project-authored",
+          "language": "en-GB",
+          "sourceRefs": [
+            "os-codelists",
+            "w3c-skos"
+          ]
+        },
+        {
+          "value": "codelist",
+          "kind": "search-variant",
+          "authority": "project-authored",
+          "language": "en-GB",
+          "sourceRefs": [
+            "os-codelists",
+            "w3c-skos"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "os-codelists",
+        "w3c-skos"
+      ],
+      "scopeNote": "The permitted labels in one field are not automatically the permitted labels in another.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/vocabulary-learning/controlled-vocabulary",
+      "recordDisposition": "authored-draft-concept",
+      "recordFile": "okf-plus/records/vocabulary-learning/controlled-vocabulary.md"
+    },
+    {
+      "id": "native-field",
+      "label": "Native field",
+      "definition": "A source’s own named attribute or property.",
+      "aliases": [
+        {
+          "value": "source field",
+          "kind": "search-variant",
+          "authority": "project-authored",
+          "language": "en-GB",
+          "sourceRefs": [
+            "os-road-link"
+          ]
+        },
+        {
+          "value": "attribute",
+          "kind": "search-variant",
+          "authority": "project-authored",
+          "language": "en-GB",
+          "sourceRefs": [
+            "os-road-link"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "os-road-link"
+      ],
+      "scopeNote": "Retain spelling, case, type, owner feature/schema and nullability. A friendly display label does not change the native identifier.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/vocabulary-learning/native-field",
+      "recordDisposition": "authored-draft-concept",
+      "recordFile": "okf-plus/records/vocabulary-learning/native-field.md"
+    },
+    {
+      "id": "preferred-label",
+      "label": "Preferred label",
+      "definition": "A selected lexical label for a concept in a specified language.",
+      "aliases": [],
+      "sourceRefs": [
+        "w3c-skos"
+      ],
+      "scopeNote": "Project display labels and source-authoritative labels must have separate provenance; unknown language stays unknown.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/vocabulary-learning/preferred-label",
+      "recordDisposition": "authored-draft-concept",
+      "recordFile": "okf-plus/records/vocabulary-learning/preferred-label.md"
+    },
+    {
+      "id": "lexical-alias",
+      "label": "Search variant",
+      "definition": "An alternative text form used to help find an existing term.",
+      "aliases": [
+        {
+          "value": "alias",
+          "kind": "search-variant",
+          "authority": "project-authored",
+          "language": "en-GB",
+          "sourceRefs": [
+            "w3c-skos",
+            "project-context"
+          ]
+        },
+        {
+          "value": "synonym",
+          "kind": "search-variant",
+          "authority": "project-authored",
+          "language": "en-GB",
+          "sourceRefs": [
+            "w3c-skos",
+            "project-context"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "w3c-skos",
+        "project-context"
+      ],
+      "scopeNote": "A search match is not an identity assertion. Project variants are labelled as such and never generate equivalence.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/vocabulary-learning/lexical-alias",
+      "recordDisposition": "authored-draft-concept",
+      "recordFile": "okf-plus/records/vocabulary-learning/lexical-alias.md"
+    },
+    {
+      "id": "exact-match",
+      "label": "Exact concept mapping",
+      "definition": "A strong SKOS mapping between concepts in different schemes.",
+      "aliases": [
+        {
+          "value": "exactMatch",
+          "kind": "search-variant",
+          "authority": "project-authored",
+          "language": "en-GB",
+          "sourceRefs": [
+            "w3c-skos"
+          ]
+        },
+        {
+          "value": "skos:exactMatch",
+          "kind": "search-variant",
+          "authority": "project-authored",
+          "language": "en-GB",
+          "sourceRefs": [
+            "w3c-skos"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "w3c-skos"
+      ],
+      "scopeNote": "Requires reviewed evidence and scope. SKOS exactMatch is transitive; shared strings do not justify it.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/vocabulary-learning/exact-match",
+      "recordDisposition": "authored-draft-concept",
+      "recordFile": "okf-plus/records/vocabulary-learning/exact-match.md"
+    },
+    {
+      "id": "skos-xl",
+      "label": "SKOS-XL",
+      "definition": "The SKOS extension that represents lexical labels as resources.",
+      "aliases": [],
+      "sourceRefs": [
+        "w3c-skos"
+      ],
+      "scopeNote": "Useful when labels need their own provenance or history. Each label has one literal form; identical text does not identify one label resource.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/vocabulary-learning/skos-xl",
+      "recordDisposition": "authored-draft-concept",
+      "recordFile": "okf-plus/records/vocabulary-learning/skos-xl.md"
+    },
+    {
+      "id": "dcat",
+      "label": "Data Catalog Vocabulary",
+      "definition": "An RDF vocabulary for describing datasets, distributions and data services.",
+      "aliases": [
+        {
+          "value": "DCAT",
+          "kind": "abbreviation",
+          "authority": "source-stated",
+          "language": null,
+          "sourceRefs": [
+            "w3c-dcat"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "w3c-dcat"
+      ],
+      "scopeNote": "DCAT 3 describes catalogue resources; it does not establish semantic equivalence between their values.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/vocabulary-learning/dcat",
+      "recordDisposition": "authored-draft-concept",
+      "recordFile": "okf-plus/records/vocabulary-learning/dcat.md"
+    },
+    {
+      "id": "prov",
+      "label": "Provenance",
+      "definition": "Information about the entities, activities and agents involved in producing something.",
+      "aliases": [
+        {
+          "value": "PROV",
+          "kind": "abbreviation",
+          "authority": "source-stated",
+          "language": null,
+          "sourceRefs": [
+            "w3c-prov"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "w3c-prov"
+      ],
+      "scopeNote": "A derivation relation does not certify correctness, rights or independent review.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/vocabulary-learning/prov",
+      "recordDisposition": "authored-draft-concept",
+      "recordFile": "okf-plus/records/vocabulary-learning/prov.md"
+    },
+    {
+      "id": "owl",
+      "label": "Web Ontology Language",
+      "definition": "A language for expressing formal classes, properties, individuals and logical relationships.",
+      "aliases": [
+        {
+          "value": "OWL",
+          "kind": "abbreviation",
+          "authority": "source-stated",
+          "language": null,
+          "sourceRefs": [
+            "w3c-owl"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "w3c-owl"
+      ],
+      "scopeNote": "OWL identity or class-equivalence assertions are stronger than navigation and should not be generated from label similarity.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/vocabulary-learning/owl",
+      "recordDisposition": "authored-draft-concept",
+      "recordFile": "okf-plus/records/vocabulary-learning/owl.md"
+    },
+    {
+      "id": "sosa",
+      "label": "Sensor, Observation, Sample, and Actuator",
+      "definition": "A vocabulary for observations, their features of interest, properties, procedures and results.",
+      "aliases": [
+        {
+          "value": "SOSA",
+          "kind": "abbreviation",
+          "authority": "source-stated",
+          "language": null,
+          "sourceRefs": [
+            "w3c-sosa"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "w3c-sosa"
+      ],
+      "scopeNote": "An observation event is not a code-list concept or a Census area classification. Keep phenomenon time and result time distinct.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/vocabulary-learning/sosa",
+      "recordDisposition": "authored-draft-concept",
+      "recordFile": "okf-plus/records/vocabulary-learning/sosa.md"
+    },
+    {
+      "id": "unit",
+      "label": "Unit of measure",
+      "definition": "A defined quantity standard used to express a measurement value.",
+      "aliases": [
+        {
+          "value": "measurement unit",
+          "kind": "search-variant",
+          "authority": "project-authored",
+          "language": "en-GB",
+          "sourceRefs": [
+            "qudt"
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "qudt"
+      ],
+      "scopeNote": "Preserve quantity kind, unit identity and conversion basis. A bare number, rank or code is not automatically a physical measurement.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/geospatial-concepts/unit-of-measure",
+      "recordDisposition": "existing-concept",
+      "recordFile": "okf-plus/records/geospatial-concepts/unit-of-measure.md"
+    },
+    {
+      "id": "geosparql",
+      "label": "GeoSPARQL",
+      "definition": "An OGC vocabulary and query standard for geographic information represented in RDF.",
+      "aliases": [],
+      "sourceRefs": [
+        "ogc-geosparql"
+      ],
+      "scopeNote": "Using a term from the standard does not establish engine conformance or geometric equivalence.",
+      "recordId": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/vocabulary-learning/geosparql",
+      "recordDisposition": "authored-draft-concept",
+      "recordFile": "okf-plus/records/vocabulary-learning/geosparql.md"
+    }
+  ],
+  "schemes": [
+    {
+      "id": "ngd-address",
+      "label": "NGD Address Classification Scheme",
+      "role": "hierarchical-code-list",
+      "sourceRefs": [
+        "os-address-class"
+      ],
+      "edition": null,
+      "status": "source-reviewed-partial",
+      "gap": "Four documented levels; complete edition-bound code/definition enumeration and AddressBase correspondence not assessed here.",
+      "sourceReviewStates": {
+        "os-address-class": "official-search-result-extract-reviewed"
+      }
+    },
+    {
+      "id": "ngd-building-use",
+      "label": "NGD Building Use",
+      "role": "field-code-list",
+      "sourceRefs": [
+        "os-building-use"
+      ],
+      "edition": null,
+      "status": "source-reviewed-partial",
+      "gap": "Pipe-delimited up-to-two values and Mixed Use require a field representation rule, not a new fused concept.",
+      "sourceReviewStates": {
+        "os-building-use": "official-search-result-extract-reviewed"
+      }
+    },
+    {
+      "id": "ngd-language",
+      "label": "NGD name language",
+      "role": "field-code-list",
+      "sourceRefs": [
+        "os-language"
+      ],
+      "edition": null,
+      "status": "source-reviewed-partial",
+      "gap": "eng/gla/cym are ISO639-2 source codes; no automatic BCP47 conversion is asserted.",
+      "sourceReviewStates": {
+        "os-language": "official-search-result-extract-reviewed"
+      }
+    },
+    {
+      "id": "ngd-build-status",
+      "label": "NGD Build Status",
+      "role": "field-code-list",
+      "sourceRefs": [
+        "os-build-status"
+      ],
+      "edition": "2.0; released 2025-09-30",
+      "status": "source-reviewed-partial",
+      "gap": "Preserve v1 and v2 separately; actual feature-schema adoption must be checked.",
+      "sourceReviewStates": {
+        "os-build-status": "official-search-result-extract-reviewed"
+      }
+    },
+    {
+      "id": "ngd-position-quality",
+      "label": "NGD Positional Accuracy",
+      "role": "field-code-list",
+      "sourceRefs": [
+        "os-accuracy"
+      ],
+      "edition": "2.0; released 2025-09-30",
+      "status": "source-reviewed-partial",
+      "gap": "Low accuracy → Low Accuracy is a documented lexical change; preserve both edition-scoped forms.",
+      "sourceReviewStates": {
+        "os-accuracy": "official-search-result-extract-reviewed"
+      }
+    },
+    {
+      "id": "ngd-road-class",
+      "label": "NGD Road Classification",
+      "role": "field-code-list",
+      "sourceRefs": [
+        "os-road-class"
+      ],
+      "edition": null,
+      "status": "source-reviewed-partial",
+      "gap": "Unofficial C-road wording is not an official replacement for Classified Unnumbered.",
+      "sourceReviewStates": {
+        "os-road-class": "official-search-result-extract-reviewed"
+      }
+    },
+    {
+      "id": "ngd-access-level",
+      "label": "NGD Access Level",
+      "role": "field-code-list",
+      "sourceRefs": [
+        "os-access-level"
+      ],
+      "edition": null,
+      "status": "source-reviewed-partial",
+      "gap": "Surface Level has a documented contextual difference from physicalLevel; do not merge concepts.",
+      "sourceReviewStates": {
+        "os-access-level": "official-search-result-extract-reviewed"
+      }
+    },
+    {
+      "id": "linked-methods",
+      "label": "OS Linked Identifiers correlation methods",
+      "role": "relationship-method-registry",
+      "sourceRefs": [
+        "os-li"
+      ],
+      "edition": null,
+      "status": "source-reviewed-partial",
+      "gap": "Eleven method identifiers documented; source/target type/version and method-specific meaning remain required.",
+      "sourceReviewStates": {
+        "os-li": "official-search-result-extract-reviewed"
+      }
+    },
+    {
+      "id": "gss-geography",
+      "label": "GSS geography entities and instances",
+      "role": "geography-register",
+      "sourceRefs": [
+        "ons-codes",
+        "ons-chd",
+        "ons-portal"
+      ],
+      "edition": "June 2026 catalogue entries observed; release/reference roles separate",
+      "status": "source-reviewed-partial",
+      "gap": "No whole-register code count or complete history claim; membership, successor and equivalence rows need their own evidence.",
+      "sourceReviewStates": {
+        "ons-codes": "official-page-opened-text-reviewed",
+        "ons-chd": "official-search-result-extract-reviewed",
+        "ons-portal": "official-search-result-extract-reviewed"
+      }
+    },
+    {
+      "id": "oac-2021-2022",
+      "label": "UK Output Area Classification",
+      "role": "statistical-classification",
+      "sourceRefs": [
+        "ons-oac"
+      ],
+      "edition": "2021/2022 Census; ONS methodology released 2026-04-02",
+      "status": "source-reviewed-partial",
+      "gap": "Separate OAC, SOAC and LAD classification tiers and earlier OAC editions.",
+      "sourceReviewStates": {
+        "ons-oac": "official-page-opened-text-reviewed"
+      }
+    },
+    {
+      "id": "ruc-ew-2021",
+      "label": "England and Wales Rural Urban Classification",
+      "role": "statistical-classification",
+      "sourceRefs": [
+        "ons-ruc"
+      ],
+      "edition": "2021; supplementary metadata updated 2026-03-31",
+      "status": "source-reviewed-partial",
+      "gap": "Full native code/label lookup not acquired; not equivalent to 2011 or Scotland2022.",
+      "sourceReviewStates": {
+        "ons-ruc": "official-page-opened-text-reviewed"
+      }
+    },
+    {
+      "id": "ruc-scotland-2022",
+      "label": "Scottish Government Urban Rural Classification",
+      "role": "statistical-classification",
+      "sourceRefs": [
+        "scotland-ruc"
+      ],
+      "edition": "2022; published 2024-12-16",
+      "status": "source-reviewed-partial",
+      "gap": "Preserve 2/3/6/8-fold scheme variants, geographic units and accessibility definitions.",
+      "sourceReviewStates": {
+        "scotland-ruc": "official-search-result-extract-reviewed"
+      }
+    },
+    {
+      "id": "imd-england-2025",
+      "label": "English Indices of Deprivation",
+      "role": "statistical-classification",
+      "sourceRefs": [
+        "england-imd"
+      ],
+      "edition": "2025",
+      "status": "source-reviewed-partial",
+      "gap": "Domain, rank, score, decile and population are distinct; no cross-nation or cross-edition rank equivalence.",
+      "sourceReviewStates": {
+        "england-imd": "official-search-result-extract-reviewed"
+      }
+    },
+    {
+      "id": "wimd-2025",
+      "label": "Welsh Index of Multiple Deprivation",
+      "role": "statistical-classification",
+      "sourceRefs": [
+        "wales-imd",
+        "wales-imd-children"
+      ],
+      "edition": "2025; results released 2025-11-27; child-deprivation analysis released 2026-10-07",
+      "status": "source-reviewed-partial",
+      "gap": "The later series release is child-deprivation analysis, not evidence of a new classification edition. Full classification tables not acquired.",
+      "sourceReviewStates": {
+        "wales-imd": "official-page-opened-text-reviewed",
+        "wales-imd-children": "official-page-opened-text-reviewed"
+      }
+    },
+    {
+      "id": "simd-2020",
+      "label": "Scottish Index of Multiple Deprivation",
+      "role": "statistical-classification",
+      "sourceRefs": [
+        "scotland-imd"
+      ],
+      "edition": "2020; revised income-domain version noted",
+      "status": "source-reviewed-partial",
+      "gap": "Pin exact revision before use; statistics remain tied to their source geography.",
+      "sourceReviewStates": {
+        "scotland-imd": "official-search-result-extract-reviewed"
+      }
+    },
+    {
+      "id": "nimdm-2017",
+      "label": "Northern Ireland Multiple Deprivation Measure",
+      "role": "statistical-classification",
+      "sourceRefs": [
+        "ni-mdm"
+      ],
+      "edition": "2017; released 2017-11-23",
+      "status": "source-reviewed-partial",
+      "gap": "SOA and other output geographies are distinct. This review does not prove no future replacement exists.",
+      "sourceReviewStates": {
+        "ni-mdm": "official-page-opened-text-reviewed"
+      }
+    },
+    {
+      "id": "crs-register",
+      "label": "Coordinate reference systems and datums",
+      "role": "reference-system-registry",
+      "sourceRefs": [
+        "os-crs",
+        "os-geodesy",
+        "os-transform"
+      ],
+      "edition": null,
+      "status": "source-reviewed-partial",
+      "gap": "EPSG register edition and individual definition bytes not captured; named mappings need exact axis/unit/datum evidence.",
+      "sourceReviewStates": {
+        "os-crs": "official-page-opened-text-reviewed",
+        "os-geodesy": "official-search-result-extract-reviewed",
+        "os-transform": "official-search-result-extract-reviewed"
+      }
+    },
+    {
+      "id": "units",
+      "label": "QUDT units and quantity kinds",
+      "role": "measurement-vocabulary",
+      "sourceRefs": [
+        "qudt"
+      ],
+      "edition": null,
+      "status": "candidate",
+      "gap": "Maintainer source checked, release not pinned; no field-level unit or conversion mapping admitted.",
+      "sourceReviewStates": {
+        "qudt": "official-page-opened-text-reviewed"
+      }
+    },
+    {
+      "id": "rdf-geospatial",
+      "label": "GeoSPARQL",
+      "role": "ontology",
+      "sourceRefs": [
+        "ogc-geosparql"
+      ],
+      "edition": "1.1; document22-047r1",
+      "status": "source-reviewed-partial",
+      "gap": "No reasoner or engine conformance tested.",
+      "sourceReviewStates": {
+        "ogc-geosparql": "official-page-opened-text-reviewed"
+      }
+    },
+    {
+      "id": "skos",
+      "label": "SKOS and SKOS-XL",
+      "role": "knowledge-organisation-vocabulary",
+      "sourceRefs": [
+        "w3c-skos"
+      ],
+      "edition": "W3C Recommendation2009-08-18",
+      "status": "source-reviewed-partial",
+      "gap": "A proposed label-provenance profile is separate from the current repository context.",
+      "sourceReviewStates": {
+        "w3c-skos": "official-page-opened-text-reviewed"
+      }
+    },
+    {
+      "id": "dcat3",
+      "label": "DCAT",
+      "role": "catalogue-vocabulary",
+      "sourceRefs": [
+        "w3c-dcat"
+      ],
+      "edition": "3; W3C Recommendation2024-08-22",
+      "status": "source-reviewed-partial",
+      "gap": "Use for datasets/distributions/services; not concept identity.",
+      "sourceReviewStates": {
+        "w3c-dcat": "official-page-opened-text-reviewed"
+      }
+    },
+    {
+      "id": "prov-o",
+      "label": "PROV-O",
+      "role": "provenance-vocabulary",
+      "sourceRefs": [
+        "w3c-prov"
+      ],
+      "edition": "W3C Recommendation2013-04-30",
+      "status": "source-reviewed-partial",
+      "gap": "Evidence assertions need exact locators; vocabulary adoption is not verification.",
+      "sourceReviewStates": {
+        "w3c-prov": "official-page-opened-text-reviewed"
+      }
+    },
+    {
+      "id": "owl2",
+      "label": "OWL2",
+      "role": "ontology-language",
+      "sourceRefs": [
+        "w3c-owl"
+      ],
+      "edition": "Second edition2012-12-11",
+      "status": "candidate",
+      "gap": "No equivalentClass/sameAs inference admitted by this registry.",
+      "sourceReviewStates": {
+        "w3c-owl": "official-page-opened-text-reviewed"
+      }
+    },
+    {
+      "id": "sosa-ssn",
+      "label": "SOSA/SSN",
+      "role": "observation-vocabulary",
+      "sourceRefs": [
+        "w3c-sosa"
+      ],
+      "edition": "2017 Recommendation baseline; later evolution not evaluated",
+      "status": "candidate",
+      "gap": "Use only for an evidenced observation model; not every data row is a sensor observation.",
+      "sourceReviewStates": {
+        "w3c-sosa": "official-page-opened-text-reviewed"
+      }
+    },
+    {
+      "id": "addressbase-classification",
+      "label": "AddressBase classification scheme",
+      "role": "hierarchical-code-list",
+      "sourceRefs": [
+        "addressbase-class"
+      ],
+      "edition": "Source page says updated 2025-01-17",
+      "status": "source-reviewed-partial",
+      "gap": "Product-specific depth differs. Full CSV/XLSX release was not downloaded. Shared example codes do not prove complete equivalence with a particular NGD schema/release.",
+      "sourceReviewStates": {
+        "addressbase-class": "official-page-opened-text-reviewed"
+      }
+    },
+    {
+      "id": "sic-2007-2026",
+      "label": "UK Standard Industrial Classification",
+      "role": "statistical-classification",
+      "sourceRefs": [
+        "ons-sic2026"
+      ],
+      "edition": "SIC 2026 effective 2026-04-14; source updated 2026-06-09",
+      "status": "source-reviewed-partial",
+      "gap": "Published framework is not yet operational across ONS systems; earliest planned use is 2031 Blue Book. Retained sic/sic-unofficial nodes do not specify complete edition/code adoption. Pin each dataset and correlation table separately.",
+      "sourceReviewStates": {
+        "ons-sic2026": "official-page-opened-text-reviewed"
+      }
+    },
+    {
+      "id": "soc-2020",
+      "label": "Standard Occupational Classification",
+      "role": "statistical-classification",
+      "sourceRefs": [
+        "ons-soc2020"
+      ],
+      "edition": "SOC 2020; page updated 2026-05-05",
+      "status": "source-reviewed-partial",
+      "gap": "Three volumes and related SOC 2010/ISCO/NS-SEC mappings are distinct. Job-title coding-index entries are not automatic synonyms for occupation concepts. Full code tables not downloaded.",
+      "sourceReviewStates": {
+        "ons-soc2020": "official-page-opened-text-reviewed"
+      }
+    },
+    {
+      "id": "ruc-ni",
+      "label": "Northern Ireland settlement and urban/rural classifications",
+      "role": "statistical-classification",
+      "sourceRefs": [
+        "ni-ruc"
+      ],
+      "edition": "2015 and 2005 products described; different Census references",
+      "status": "source-reviewed-partial",
+      "gap": "Do not reuse England/Wales RUC2021 or Scottish2022 codes. Complete settlement bands, lookups and any later replacement need separate review.",
+      "sourceReviewStates": {
+        "ni-ruc": "official-page-opened-text-reviewed"
+      }
+    },
+    {
+      "id": "nomis-sdmx",
+      "label": "Nomis dataset-specific SDMX code lists",
+      "role": "referenced-code-list-family",
+      "sourceRefs": [
+        "nomis-api"
+      ],
+      "edition": null,
+      "status": "retained-reference-inventory",
+      "gap": "Every retained component codelist reference is enumerated separately. Geography, time, measure and attribute lists have different roles. Target category lists were not all followed; code-list IDs carry dataset context.",
+      "sourceReviewStates": {
+        "nomis-api": "official-page-opened-text-reviewed"
+      }
+    },
+    {
+      "id": "ons-census-variables",
+      "label": "ONS Census variable and category classifications",
+      "role": "referenced-code-list-family",
+      "sourceRefs": [
+        "ons-ethnic",
+        "ons-census"
+      ],
+      "edition": "Census2021 England and Wales; variable revisions separate",
+      "status": "source-reviewed-partial",
+      "gap": "Variable, classification variant, category code and population applicability are separate. All retained dimension references are enumerated; they do not close all categories or Census nations.",
+      "sourceReviewStates": {
+        "ons-ethnic": "official-page-opened-text-reviewed",
+        "ons-census": "official-page-opened-text-reviewed"
+      }
+    },
+    {
+      "id": "census-ethnicity",
+      "label": "Census ethnic-group classifications",
+      "role": "statistical-classification",
+      "sourceRefs": [
+        "ons-ethnic"
+      ],
+      "edition": "Census2021; cited variable page updated2023-11-28",
+      "status": "source-reviewed-partial",
+      "gap": "Self-identified response and derived classification differ. The cited 20-category variable includes not-applicable; detailed and grouped classifications, 2011, Scotland and NI require separate sources. No ethnicity inferred from another field.",
+      "sourceReviewStates": {
+        "ons-ethnic": "official-page-opened-text-reviewed"
+      }
+    },
+    {
+      "id": "census-religion",
+      "label": "Census religion classification family",
+      "role": "referenced-code-list-family",
+      "sourceRefs": [
+        "nomis-api"
+      ],
+      "edition": null,
+      "status": "retained-references-only",
+      "gap": "Retained Nomis religion dimension identifiers and dataset titles are discovery evidence only. Exact question wording, voluntary/not-stated categories, code meanings, nation and edition need authoritative dictionary review before interpretation.",
+      "sourceReviewStates": {
+        "nomis-api": "official-page-opened-text-reviewed"
+      }
+    },
+    {
+      "id": "census-other-categories",
+      "label": "Other retained Census and labour-market categories",
+      "role": "referenced-code-list-family",
+      "sourceRefs": [
+        "nomis-api"
+      ],
+      "edition": null,
+      "status": "retained-references-only",
+      "gap": "Inventory includes age, sex, disability, economic activity, qualifications, household, language, nationality and other native dimension names. Names alone are not full definitions or cross-dataset equivalence.",
+      "sourceReviewStates": {
+        "nomis-api": "official-page-opened-text-reviewed"
+      }
+    }
+  ],
+  "collisions": [
+    {
+      "text": "epoch",
+      "termIds": [
+        "epoch"
+      ],
+      "distinction": "Geodetic reference instant versus product release sequence."
+    },
+    {
+      "text": "RoadLink / Road Link",
+      "termIds": [
+        "road-link"
+      ],
+      "distinction": "Source/API feature-type forms are scoped to provider and version; matching spelling is not cross-product identity."
+    },
+    {
+      "text": "BUA",
+      "termIds": [
+        "bua"
+      ],
+      "distinction": "Provider product, statistical edition and geometry must remain explicit."
+    },
+    {
+      "text": "IMD",
+      "termIds": [
+        "imd",
+        "wimd",
+        "simd",
+        "nimdm"
+      ],
+      "distinction": "National schemes and editions are separate; ranks are not directly comparable."
+    },
+    {
+      "text": "Surface Level",
+      "termIds": [],
+      "distinction": "NGD Access Level differs from physicalLevel despite identical text.",
+      "sourceRefs": [
+        "os-access-level"
+      ]
+    },
+    {
+      "text": "language",
+      "termIds": [
+        "preferred-label"
+      ],
+      "distinction": "Native ISO639-2 code, BCP47 display-language tag, unknown and absent are different representations.",
+      "sourceRefs": [
+        "os-language",
+        "w3c-skos"
+      ]
+    }
+  ],
+  "retainedInventory": "docs/research/2026-10-21/vocabulary-retained-scope.json",
+  "schemeInventoryScope": "Scoped authored families plus separately enumerated retained nodes/routes; the family count is not a domain denominator."
+}

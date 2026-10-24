@@ -1,0 +1,1 @@
+- Add source-positioned OKF+ term discovery and task-based geography learning design, preserving native lexical forms, ambiguous meanings and explicit coverage limits.

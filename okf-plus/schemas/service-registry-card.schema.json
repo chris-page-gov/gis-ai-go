@@ -20,7 +20,7 @@
       ]
     },
     "schemaVersion": {
-      "const": "gis-ai-go.okf-plus-service-registry.v1"
+      "const": "gis-ai-go.okf-plus-service-registry.v2"
     },
     "kind": {
       "enum": [
@@ -190,7 +190,7 @@
       "additionalProperties": false,
       "properties": {
         "executionProfile": {
-          "const": "local-private-os-retrieval"
+          "const": "private-ngd-extract-with-transient-profile"
         },
         "metadataProfile": {
           "const": "closed-os-metadata-refresh"

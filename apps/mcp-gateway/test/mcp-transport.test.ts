@@ -8,7 +8,7 @@ import {
   Client,
   StreamableHTTPClientTransport,
 } from "@modelcontextprotocol/client";
-import { McpServer, type McpHttpHandler } from "@modelcontextprotocol/server";
+import { McpServer, fromJsonSchema, type McpHttpHandler } from "@modelcontextprotocol/server";
 
 import {
   verifyInlineReceipt,
@@ -1203,4 +1203,78 @@ test("interoperates through the real bounded loopback Node ingress", async () =>
   }
   assert.equal(server.listening, false);
   assert.deepEqual(reported, []);
+});
+
+
+test("SDK argument element limit precedes validation for nested arrays and records", async (t) => {
+  const handler = enabledHandler();
+  t.after(() => handler.close());
+  for (const args of [{ query: Array.from({ length: 1_024 }, () => 0) },
+    { query: Object.fromEntries(Array.from({ length: 1_024 }, (_, i) => [`k${i}`, 0])) }]) {
+    const exchange = await rawExchange(handler, rawBody(7, "tools/call", {
+      name: "catalogue.search", arguments: args,
+    }), { nameHeader: "catalogue.search" });
+    assert.equal(exchange.response.status, 200);
+    const result = exchange.message.result as { isError: boolean; content: { text: string }[] };
+    assert.equal(result.isError, true);
+    assert.match(result.content[0]!.text, /maximum of 1024 elements/u);
+  }
+});
+
+test("per-request servers isolate concurrent calls with colliding JSON-RPC IDs", { timeout: 5_000 }, async (t) => {
+  const { createBoundedJsonOnlyMcpHttpHandler } = await import("../src/mcp-http-core.js");
+  const factory = createCatalogueMcpServerFactory({ application: APPLICATION, snapshot: SNAPSHOT });
+  const instances = new Set<McpServer>();
+  let arrived = 0;
+  let release!: () => void;
+  const both = new Promise<void>((resolve) => { release = resolve; });
+  // A broken isolation path must fail rather than leave one callback waiting.
+  const barrierTimeout = setTimeout(() => release(), 2_000);
+  t.after(() => clearTimeout(barrierTimeout));
+  const handler = createBoundedJsonOnlyMcpHttpHandler(async (context) => {
+    const server = await factory(context);
+    assert(server instanceof McpServer);
+    assert(!instances.has(server)); instances.add(server);
+    server.registerTool("synthetic_echo", { inputSchema: fromJsonSchema({ type: "object",
+      properties: { label: { type: "string" } }, required: ["label"], additionalProperties: false }) },
+    async (args) => { if (++arrived === 2) release(); await both;
+      return { content: [{ type: "text", text: (args as { label: string }).label }] }; });
+    return server;
+  });
+  t.after(() => handler.close());
+  const exchanges = await Promise.all(["first", "second"].map((label) => rawExchange(handler,
+    rawBody(0, "tools/call", { name: "synthetic_echo", arguments: { label } }), { nameHeader: "synthetic_echo" })));
+  assert.equal(instances.size, 2);
+  assert.equal(arrived, 2);
+  for (const [index, exchange] of exchanges.entries()) {
+    assert.equal(exchange.response.status, 200); assert.equal(exchange.message.id, 0);
+    const result = exchange.message.result as { content: { text: string }[] };
+    assert.equal(result.content[0]!.text, index === 0 ? "first" : "second");
+  }
+});
+
+
+test("SDK counts argument object keys and array entries at the exact configured boundary", async (t) => {
+  const { createBoundedJsonOnlyMcpHttpHandler } = await import("../src/mcp-http-core.js");
+  const factory = createCatalogueMcpServerFactory({ application: APPLICATION, snapshot: SNAPSHOT });
+  let calls = 0;
+  const handler = createBoundedJsonOnlyMcpHttpHandler(async (context) => {
+    const server = await factory(context);
+    assert(server instanceof McpServer);
+    server.registerTool("synthetic_count", { inputSchema: fromJsonSchema({ type: "object",
+      properties: { values: { type: "array", items: { type: "integer" } } }, required: ["values"], additionalProperties: false }) },
+    async () => { calls += 1; return { content: [{ type: "text", text: "accepted" }] }; });
+    return server;
+  });
+  t.after(() => handler.close());
+  for (const count of [1_023, 1_024]) {
+    const exchange = await rawExchange(handler, rawBody(0, "tools/call", {
+      name: "synthetic_count", arguments: { values: Array(count).fill(0) },
+    }), { nameHeader: "synthetic_count" });
+    assert.equal(exchange.response.status, 200);
+    const result = exchange.message.result as { isError?: boolean; content: { text: string }[] };
+    if (count === 1_023) { assert.notEqual(result.isError, true); assert.equal(result.content[0]!.text, "accepted"); }
+    else { assert.equal(result.isError, true); assert.match(result.content[0]!.text, /maximum of 1024 elements/u); }
+  }
+  assert.equal(calls, 1);
 });

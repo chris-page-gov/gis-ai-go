@@ -1,0 +1,1 @@
+- Reconcile the local atomic OS evidence view and broader metadata capture with main's recovery workflow, preserve both planner contracts under distinct names, retire persistent feature acquisition and bind API capability records to transient processing.

@@ -10,7 +10,7 @@ import shutil
 import sys
 import tempfile
 import unittest
-from jsonschema import Draft202012Validator
+from jsonschema import Draft7Validator, Draft202012Validator
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'scripts/okf_plus'))
@@ -161,6 +161,28 @@ class SemanticCardTests(unittest.TestCase):
         self.assertNotIn('verticalDatum', absolute)
         self.assertNotEqual(self.fields['bld-fts-buildingpart-1', 'absoluteheightmaximum']['@id'],
                             self.fields['bld-fts-buildingpart-2', 'height_absolutemax_m']['@id'])
+
+    def test_direct_null_declaration_does_not_claim_effective_schema_acceptance(self):
+        for schema in (
+            {'type': ['string', 'null'], 'enum': ['Example']},
+            {'type': ['string', 'null'], 'const': 'Example'},
+            {'type': ['string', 'null'], 'allOf': [{'type': 'string'}]},
+            {'nullable': True, 'const': 'Example'},
+        ):
+            with self.subTest(schema=schema):
+                facts = semantic._schema_facts(schema, {'required': ['value']}, 'value')
+                self.assertTrue(facts['nullable'])
+                self.assertTrue(facts['required'])
+                self.assertFalse(Draft7Validator(schema).is_valid(None))
+                self.assertEqual(facts['constraints'], {key: value for key, value in schema.items() if key != 'enum'})
+                self.assertIn('not effective null acceptance', facts['nullabilityScope'])
+                self.assertIn('enum, const, referenced or composed', facts['nullabilityScope'])
+                self.assertIn('source schema dialect', facts['nullabilityScope'])
+        # No direct declaration is unknown, including a schema that accepts null
+        # through a branch: do not silently add an inferred source assertion.
+        inferred = {'anyOf': [{'type': 'string'}, {'type': 'null'}]}
+        self.assertTrue(Draft7Validator(inferred).is_valid(None))
+        self.assertIsNone(semantic._schema_facts(inferred, {}, 'value')['nullable'])
 
     def test_road_3d_geometry_is_distinct_from_ascent_and_grade_separation(self):
         geometry = self.fields['trn-ntwk-roadlink-5', 'geometry']

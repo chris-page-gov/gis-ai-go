@@ -1,12 +1,21 @@
-# OKF-223: priority OS semantic sources
+# OKF-223: priority OS semantic sources — 18 October review
 
 Reviewed on 18 October 2026 using the official documentation through the web
 connector. This is a bounded, authored research supplement, not a full-page
 capture, new API observation or entitlement determination. The accompanying
 `okf-plus/source/os-field-semantics.json` contains 48 reviewed field statements
 bound to six exact collection IDs in the retained NGD schema snapshot. Its hashes
-cover the short displayed excerpts, explicitly not entire responses. Existing
-source snapshots remain unchanged.
+cover the short displayed excerpts, explicitly not entire responses. This work
+did not change the retained 2 October source snapshots.
+
+Reconciled on 24 October: preserve these meanings, exact collection bindings and
+excerpt-only provenance as the original branch's reviewed supplement. Later
+[OS recovery](OKF_OS_RECOVERY.md) captured complete source passages, richer native
+schema annotations and scoped live observations; those have separate receipts
+and do not retroactively turn this supplement's hashes into full-response
+evidence. Use [API coverage and usage](OS_API_COVERAGE_AND_USAGE.md) for current
+service, product and access distinctions. No new live check was made for this
+documentation reconciliation.
 
 ## Pavement width
 
@@ -68,10 +77,10 @@ facts are not silently attached to NGD fields: the reviewed NGD field pages say
 
 ## Road height above sea level
 
-Use Road Link's 3D `geometry`, retaining `heightingmethod`. The documented method
-labels are `DTM`, `Interpolated Bridge` and `Interpolated Tunnel`; their code-list
-page supplies no more detailed definitions. `elevationgain_indirection` and
-`elevationgain_againstdirection` are cumulative ascent, while
+Use Road Link's 3D `geometry`, retaining `heightingmethod`. The method labels
+reviewed on 18 October were `DTM`, `Interpolated Bridge` and `Interpolated Tunnel`;
+the reviewed code-list page supplied no more detailed definitions.
+`elevationgain_indirection` and `elevationgain_againstdirection` are cumulative ascent, while
 `startgradeseparation` and `endgradeseparation` are relative network levels.
 Neither is an absolute elevation.
 [Road Link specification](https://docs.os.uk/osngd/data-structure/transport/transport-network/road-link),
@@ -92,10 +101,10 @@ removes supported bridges and other overhead structures. It must not silently
 replace a requested road-deck height.
 [OS Terrain source modelling](https://docs.os.uk/os-downloads/products/land-and-terrain-portfolio/os-terrain-5/os-terrain-5-overview/source-data).
 
-## Retrieval and completeness
+## Retrieval principles and evidence scope
 
-Recommended implementation: resolve the exact collection and schema first, use
-the collection's `/schema` for available output and `/queryables` for permitted
+The 18 October review recommended resolving the exact collection and schema first:
+use the collection's `/schema` for available output and `/queryables` for permitted
 filters, then retrieve bounded `/collections/{collectionId}/items` on demand.
 The API defaults to CRS84; `crs` controls output and `bbox-crs` independently
 controls the input box. A schema field's existence does not prove it is
@@ -107,8 +116,9 @@ the request's spatial/time scope in the retrieval evidence.
 Metadata coverage must reconcile three separate documentation families: API
 capabilities, NGD feature/attribute/code-list definitions, and downloadable
 product specifications and lifecycle notices. An index URL is not captured
-page content; retained table headings and labels omit explanatory prose and
-derivation guidance demonstrated above. NGD Features also excludes some NGD
+page content; the original public table projections omitted explanatory prose and
+derivation guidance demonstrated above. Later private recovery captured that
+prose separately. NGD Features also excludes some NGD
 collections, so its collection inventory is not the whole NGD catalogue.
 [Current API catalogue](https://docs.os.uk/os-apis),
 [NGD Features exclusions](https://docs.os.uk/os-apis/accessing-os-apis/os-ngd-api-features),
@@ -134,8 +144,8 @@ limits or a verified Downloads-specific exemption. Use bounded retries and
 request ceilings, and retain failures as incomplete acquisition.
 [Official throttling FAQ](https://osdatahub.os.uk/support/plans?lang=en).
 
-The live catalogue now includes OS Net API. OS Match & Cleanse was withdrawn on
-31 March 2026. Historical documentation and search results can still contain
+The catalogue reviewed on 18 October included OS Net API. OS Match & Cleanse was
+withdrawn on 31 March 2026. Historical documentation and search results can still contain
 withdrawn services; lifecycle status needs its own evidence.
 [OS Net](https://docs.os.uk/os-apis/accessing-os-apis/os-net-api),
 [withdrawal notice](https://docs.os.uk/os-apis/accessing-os-apis/os-match-and-cleanse-api).

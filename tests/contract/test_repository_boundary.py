@@ -62,7 +62,7 @@ class RepositoryBoundaryTests(unittest.TestCase):
             )
         )
         self.assertEqual(
-            package["dependencies"]["@modelcontextprotocol/server"], "2.0.0"
+            package["dependencies"]["@modelcontextprotocol/server"], "2.3.0"
         )
         self.assertEqual(
             package["dependencies"]["@modelcontextprotocol/node"], "2.0.0"

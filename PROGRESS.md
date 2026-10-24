@@ -1,55 +1,427 @@
 # Current progress
 
-Last updated: 18 October 2026
+Last updated: 24 October 2026
 
-## Small linked OS metadata and on-demand retrieval
+## Reconciled local OS extension
 
-The owner authorised [OKF-223](docs/implementation/OKF-223_ATOMIC_OS_KNOWLEDGE.md),
-preserving small Markdown/YAML-LD records with rich linked metadata. The chosen
-scope is all metadata now and geographic records on demand, under the owner's
-stated Government PSGA authority and published rate limits. The new implementation
-provides bounded atomic OS cards, SQLite discovery and linked reads, a private
-resumable metadata capture queue, dataset retrieval estimates and a private NGD
-fetcher. Existing frozen source snapshots remain unchanged; 48 reviewed field
-interpretations have separate, explicitly partial source evidence.
+The owner requested [reconciliation](docs/implementation/OKF-223_RECONCILIATION.md)
+of local `a4e66e1a` with main `59ba0dd1`. Both histories and the original handoff
+are preserved. Main's measurement planner, accepted recovery methods and current
+experience/security changes remain. The older request-contract estimator has its
+own filename; the persistent feature fetcher is retired in favour of extraction,
+profiling and verified disposal. Small atomic records, bounded explanations and
+broader metadata capture complement the frozen recovery outputs.
 
-Local implementation is available on `codex/okf-223-semantic-retrieval`: 32,596
-atomic records, at most 14,711 bytes each, with 92 version-scoped companion links.
-The initial affected suite passed 152 tests and the complete atomic audit passed.
-The metadata queue starts with 2,554 routes, including four documentation indexes,
-GEMINI and public product search. Source capture, field extraction and semantic
-acceptance remain distinct. QUAL-206 source-bound receipts were regenerated after
-the package-script change; 33 related tests pass and historical evidence is intact.
-The full repository gate remains incomplete, including environment-dependent
-Python checks and unavailable Chrome; see the implementation record.
+The old branch's no-access observations describe that environment on 18 October;
+they do not invalidate the later successful captures recorded below. No private
+provider data was copied into the reconciled checkout. Verification and remaining
+integration limits are recorded separately; no new live acceptance is claimed.
 
-The running task lacks an OS credential binding and blocks all four required
-metadata hosts. Four actual HTTPS probes on 18 October at 20:00 UTC failed with
-proxy CONNECT 403 status hints before reaching OS; no credential was sent.
-The owner's screenshot shows a newly published configuration containing eight
-additional domains and the `OS_API_KEY` environment variable. This running task
-still reports the original five domains and no variable or secret. New tasks use
-the published setup; an environment variable also needs an explicit `api.os.uk`
-host allowance. The owner's `~/.secrets/os_api_key` is absent from this cloud
-home. Both metadata and geographic execution now accept `OS_API_KEY` or that
-private dedicated file; they never source `ai.env`. Cloud configuration must
-supply the credential and host access before new live acquisition. No geographic
-features have been requested; fetch tests use synthetic fixtures. No complete
-OS knowledge, fresh catalogue, live retrieval, hosted admission or publication
-claim follows from this local work. Publication of a tracking issue was rejected
-by automatic approval review; no issue or pull request was created for this work.
+## Dated coverage navigation
 
-The [coverage matrix](docs/implementation/OKF-223_COVERAGE_GAPS.md) records eleven
-documented current service families and the remaining metadata, interpretation
-and execution gaps. A bounded `explain` command collects linked field evidence
-and reports missing qualifications; returned evidence is explicitly unassessed.
-The separate registry contains twelve service cards, including withdrawn material,
-and sixty operation cards, each at most 12,012 bytes. It preserves native contracts
-and distinguishes the local private metadata/data implementations from untested
-live access. This explanation/registry increment passes 53 focused tests and
-independent review; registry generation makes no provider requests.
+The optional [coverage navigator](examples/geography-task-experience/COVERAGE-NAVIGATOR.md)
+uses a closed, bounded host-supplied statement with explicit date and counts.
+Rows, scoped evidence gates and directed relationships remain distinct. Folded
+learning help explains documentary denominators, tested evidence and unresolved
+limits without claiming a completion percentage or source acceptance.
 
-Earlier release checkpoint:
+Synthetic checks cover validation, paging, filtering, focus and disclosure state.
+The outer reference selector is constrained to its pane width. Rendered-host
+layout, keyboard and assistive-technology acceptance remain separate; this source
+increment adds no supplier payload, provider transport or deployment.
+
+## Classification label origin
+
+The optional [label-origin contract](examples/geography-task-experience/LABEL-ORIGIN.md)
+coordinates browser, exporter and discovery behaviour. Project display fallbacks
+remain readable titles without being promoted to supplier labels, aliases or
+source-native forms. Native codes, missing/null/empty values, exact pointers and
+separate language evidence remain intact. Legacy payload behaviour is unchanged;
+it does not gain a new claim of source authenticity. New exports require an explicit
+producer source revision, record and whole-index schema validation, correcting the older
+non-Git revision sentinel without altering historical outputs.
+
+This increment uses synthetic tests and adds no supplier payload, acquisition,
+deployment or publication. Canonical assurance, independent source reconstruction
+and rendered-host acceptance remain separate gates.
+
+## Selected field documentary references
+
+The optional [field-link panel](examples/geography-task-experience/FIELD-DOCUMENTARY-LINKS.md)
+provides bounded discovery of selected schema/queryable fields and explicit
+documentation links, with native pointers, version context and unresolved
+categories. Folded help explains schema, queryable, documentary candidate and
+API adoption. Historical nullability wording is qualified without changing
+source evidence. Former-name text is not promoted to an alias.
+
+This source increment includes fictional fixtures and checks only. It adds no
+provider transport, supplier payload, remote tool or Site deployment. The host
+retains collection, task, reference, pin, fold and browser-history ownership.
+Canonical repository assurance and rendered-host acceptance are separate gates.
+
+## Source-native lexical search and schema interpretation
+
+Coordinated optional browser and lexical schema extensions preserve exact native
+value strings and provenance pointers, with distinct unresolved, unasserted and
+legacy-unknown code roles. Synthetic source values remain Documentation where
+no code is admitted. The widget, exporter and discovery path are checked together;
+repository assurance and actual browser acceptance remain separate release gates.
+No provider retrieval, payload publication or Site change is included.
+The [schema interpretation guide](docs/implementation/NGD_SCHEMA_INTERPRETATION.md) explains nullable/enumerated values, object-only constraint conflicts and metaschema diagnostics with fictional checked examples. Retained evidence and current-service validation remain distinct.
+
+The preceding collection-selector increment is accepted on `main` at `c1b6bb80ea56`: all nine [CI jobs](https://github.com/chris-page-gov/gis-ai-go/actions/runs/39718046896) and three [CodeQL analyses](https://github.com/chris-page-gov/gis-ai-go/actions/runs/39718047051) passed at that exact commit.
+
+## Bounded collection selection and documentary source context
+
+The active collection and counts stay visible. Native scope disclosures keep the
+complete source and global-search limitations available without placing the
+entire paragraph before the search control.
+
+The optional [collection selector](examples/geography-task-experience/COLLECTION-SELECTION.md)
+keeps separately reviewed code-list projections accessible through a closed
+host catalogue. Search and code comparisons explicitly cover the active
+collection. Existing widget limits are unchanged. Failed, stale or cancelled
+loads preserve the current display, and task, reference, pin and fold controls
+retain their existing ownership. The public source uses fictional fixtures and
+contains no transport, supplier lists or private demo catalogue.
+
+The [dated documentary findings](docs/research/2026-10-22/NGD_RAMI_DOCUMENTARY_METHOD.md)
+distinguish native table rows, labels, versions and field mappings from coded
+concepts and proven conversions. Retained NGD and RAMI source reconstruction
+closes those selected documentary inventories while leaving ambiguity, missing
+definitions, current field adoption and paired conversion evidence explicit.
+No universal vocabulary or product coverage is claimed.
+
+Affected synthetic source checks passed at preparation. Canonical repository
+assurance, host integration and real-browser acceptance remain separate gates.
+This increment does not deploy, acquire provider data, send supplier questions
+or publish private payloads.
+
+The preceding folded-reference increment is accepted on `main` at
+`e6065d5cdd2b`: all nine [CI jobs](https://github.com/chris-page-gov/gis-ai-go/actions/runs/39709786775)
+and three [CodeQL analyses](https://github.com/chris-page-gov/gis-ai-go/actions/runs/39709786892)
+passed at that exact commit. Earlier preparation statements below remain historical.
+
+## Folded entry references and selected Sites/VectorMap context
+
+The Code lists reference now folds lengthy scheme limits and repeated-code
+comparisons into native disclosures. The definition, locator and source remain
+outside these sections; the comparison count stays visible and equivalence is
+explicitly unestablished. Keyboard toggling and pinned reference navigation
+passed real-browser checks in the private host. The affected source suite has
+56 checks, with ten additional independent presentation checks.
+
+The [dated findings](docs/research/2026-10-21/CLASSIFICATION_RELEASE_FINDINGS.md)
+add selected Sites and VectorMap documentary scope. Independent reconstruction
+accepted 17 additional lists and 302 entries, bringing the private demonstration
+to 50 selected schemes and 1,805 entries. All earlier schemes and the geography
+model are unchanged. Null codes, obsolete values, product-specific lists and
+remaining schema/conversion dependencies stay explicit; full coverage is open.
+
+This source increment contains presentation, fictional tests and concise
+findings. Private payloads, receipts and local paths remain outside Git.
+Canonical source assurance is pending at preparation. There is no deployment,
+supplier communication or claim of delivered feature conformance.
+
+The preceding AddressBase/Nomis increment is accepted on `main` at
+`c2fdc94c53da`: all nine [CI jobs](https://github.com/chris-page-gov/gis-ai-go/actions/runs/39704431857)
+and three [CodeQL analyses](https://github.com/chris-page-gov/gis-ai-go/actions/runs/39704432092)
+passed at that exact commit. Earlier preparation statements below remain historical.
+
+## Additional AddressBase and Nomis vocabulary contexts
+
+The [dated classification findings](docs/research/2026-10-21/CLASSIFICATION_RELEASE_FINDINGS.md)
+now cover four selected AddressBase ancillary code lists and three more Nomis
+Census lists: age, occupation and economic activity. Independent reconstruction
+accepted 71 additional entries and their source context. The private demo exposes
+33 selected schemes and 1,503 entries; all earlier entries and local actions are
+preserved. Source definitions, aliases, date roles, statistical populations,
+comparison limits and unresolved field mappings are accessible in Code lists.
+Private YAML-LD exports retain the same contexts and qualified search forms.
+
+This source increment records concise findings and learning guidance only.
+Complete selected lists do not establish full domain coverage, current adoption
+in every product, valid cross-scheme mappings or observed conversion behaviour.
+No private payload or machine path is published. Local source reconstruction,
+export and real-browser checks passed; canonical source assurance is pending at
+preparation. No deployment or supplier communication is included.
+
+The preceding shared-action increment is accepted on `main` at `16fcfb1445ea`:
+all nine [CI jobs](https://github.com/chris-page-gov/gis-ai-go/actions/runs/39692658315)
+and three [CodeQL analyses](https://github.com/chris-page-gov/gis-ai-go/actions/runs/39692658412)
+passed. Earlier preparation statements below remain historical.
+
+## Shared local geography actions
+
+The [shared action contract](examples/geography-task-experience/SHARED-ACTIONS.md)
+now supplies the task navigator, reference tabs and explicit pin control with
+one validated local implementation. It rejects unknown IDs before UI setters,
+returns only four bounded routing fields and distinguishes late cancellation
+from rollback. Manual controls remain available when the optional module is absent;
+history and keyboard behaviour retain their existing paths.
+
+The affected synthetic checks cover the browser-global loader, closed schemas,
+changing inputs, finite error projection, overlay integration and fallback.
+At preparation, canonical source assurance and exact-host browser acceptance
+remained pending. No page tool, provider connection, Site deployment or audience
+change is included.
+
+## Further selected Census and ONSUD vocabulary evidence
+
+The [classification findings](docs/research/2026-10-21/CLASSIFICATION_RELEASE_FINDINGS.md)
+now distinguish the retained ONSUD OAC and national rural/urban domains from the
+separate `RUC21CD` field, and add tenure, sex and disability dictionary/Nomis
+contexts. The latter capture contains 16 public metadata responses, no statistical
+observations and no credential use. All nine selected ONS tables and complete
+Nomis category lists are retained; population, date and aggregate semantics stay
+explicit. Repeated `hh_tenure` mnemonics on different ONS pages remain a source
+clarification question. No full-coverage or provider-defect claim follows.
+
+The Code lists view folds scheme-wide sources and limits into one optional
+disclosure when all schemes are selected. Individual entry limits remain visible,
+and paging preserves an opened disclosure. The 53 widget and 22 overlay synthetic
+checks pass; the private browser check confirms the folded view and selected lists.
+
+This increment publishes methods, the presentation change and concise findings only. Private list payloads,
+local receipts and the supplier-review pack remain outside Git. Source assurance
+is pending at preparation; no deployment or supplier message is added.
+
+## Selected classification lists and demo access
+
+The [classification discovery method](docs/implementation/CLASSIFICATION_RELEASE_DISCOVERY.md)
+adds a separate Code lists reference tab, source-scoped search, native-field
+inspection and explicit lexical comparisons. The private selected lists retain
+AddressBase/NGD address categories and three Census dictionary/Nomis pairs;
+public fixtures remain synthetic. The [dated findings](docs/research/2026-10-21/CLASSIFICATION_RELEASE_FINDINGS.md)
+record six OS label differences and dataset-specific Census category-code differences.
+No semantic crosswalk, current-release adoption or full vocabulary coverage is claimed.
+
+The offline exporter writes source-bound Markdown/YAML-LD cards and the existing
+term-discovery format, preserving uncoded explanatory rows as documentation.
+Edition, definition and jurisdiction gaps stay visible in each scheme. Synthetic
+and source-reconstruction checks are recorded separately from human learning
+and assistive-technology acceptance. Canonical assurance is pending at preparation.
+No hosted deployment or authenticated feature/statistical-observation call is added.
+
+## Geography learning and vocabulary discovery
+
+The [task experience overlay](examples/geography-task-experience/README.md)
+provides source assets for folding navigation, one active workspace and a pinned
+reference inspector. Seven authored personas and five practice stages apply
+learning paths and just-in-time explanations. Its 20 synthetic checks run in the
+canonical experience suite. The combined glossary has 77 explanations;
+private selected-data models and browser receipts are excluded from this source
+increment. Human comprehension and assistive-technology acceptance remain open.
+
+The [task composition guide](docs/implementation/GEOGRAPHY_TASK_COMPOSITION.md)
+separates screen panes, conceptual evidence groups and execution containers, and
+shows which dated sources each geography task needs. The
+[term discovery method](docs/implementation/GEOSPATIAL_TERM_DISCOVERY.md) adds a
+source-positioned offline index of retained labels, qualified search forms,
+native fields, typed values and semantic vocabulary IRIs. Search collisions do
+not create equivalence, geographic membership or executable field aliases.
+
+The candidate keeps all retained records in scope while exposing unknown
+vocabulary editions and external coverage. The [33-family investigation matrix](docs/research/2026-10-21/VOCABULARY_FAMILY_MATRIX.md)
+records review depth, editions and remaining work. Synthetic tests cover provenance,
+language, source positions, schema keyword handling, ambiguous names and bounded
+input reads. Repository assurance is pending at preparation. No provider request,
+new public data service or full-coverage claim is added by this increment.
+
+## Built-up area product and boundary explanations
+
+The [geography explanation guide](docs/implementation/GEOGRAPHY_DATES_AND_CLASSIFICATIONS.md)
+now distinguishes OS settlement components from building footprints, explains the
+20-hectare minimum and grid-derived boundaries, and links the observed public
+release and download route. Dated identifier correspondence remains necessary
+when lookup and boundary editions differ. This source-only increment adds no
+executor or data fixture; canonical assurance remains pending at preparation.
+
+The preceding geography explanation increment is accepted on `main` at `1668cdf4`:
+all nine [CI jobs](https://github.com/chris-page-gov/gis-ai-go/actions/runs/39527270069)
+and three [CodeQL analyses](https://github.com/chris-page-gov/gis-ai-go/actions/runs/39527270420)
+passed. Earlier dated preparation statements below remain historical.
+
+## MCP server security bounds
+
+The [21 October security record](docs/operations/MCP_SERVER_SECURITY_2026-10-21.md)
+updates the gateway server SDK to `2.3.0`, explicitly caps tool argument elements
+and preserves the existing HTTP byte ceilings and per-request server factories.
+Synthetic regressions cover oversized arrays and records, the exact element
+boundary and concurrent calls with colliding JSON-RPC IDs. Local gateway tests,
+input-bound proofs, dependency contracts and editorial checks passed. Canonical
+assurance remains pending at preparation; no deployment is claimed.
+
+## Geography explanation and chart-suggestion rules
+
+The [geography explanation guide](docs/implementation/GEOGRAPHY_DATES_AND_CLASSIFICATIONS.md)
+sets out proposed rules for identifier-first joins, direct and best-fit geography
+lookups, four separate dates, code history and local government reorganisation.
+It explains settlement selection, area classifications, jurisdiction-specific
+deprivation ranks and Census availability, with source-linked chart acceptance
+rules. This documentation adds no executor, dataset, provider request or claim
+about an implemented service. Repository assurance remains pending at preparation.
+
+## Geography and identifier bridge acceptance
+
+The [bridge method](docs/implementation/OS_IDENTIFIER_GEOGRAPHY_BRIDGES.md)
+defines the proposed authority-to-statistical-area-to-property, road and building
+journey for [issue #153](https://github.com/chris-page-gov/gis-ai-go/issues/153).
+Published memberships and typed identifier relationships guide each bridge;
+versions, cardinality, containment, native feature identity and height meaning
+remain separate checks. Complete selected processing, independent small-knowledge
+verification and raw-disposal dependencies have explicit acceptance criteria.
+This documentation increment adds no provider executor or live coverage claim.
+Canonical source assurance for this increment remains pending at preparation.
+
+The preceding encoded-credential repair is accepted on `main` at `157219e6`:
+all nine [CI jobs](https://github.com/chris-page-gov/gis-ai-go/actions/runs/39509922313)
+and three [CodeQL analyses](https://github.com/chris-page-gov/gis-ai-go/actions/runs/39509922004)
+passed. Earlier dated preparation statements below remain historical.
+
+## Linked Identifiers encoded credential refusal
+
+The [local method](docs/implementation/OS_LINKED_IDENTIFIER_METHOD.md) now checks
+JSON property names and values for the current credential through bounded strict
+percent decoding before retaining responses or diagnostics and during cache
+replay. Native benign text remains unchanged; unresolved encoding fails closed.
+Synthetic regression tests exercise nested and combined encodings, conservative
+charges, successful and diagnostic replay, and refusal without another request.
+This [issue #153](https://github.com/chris-page-gov/gis-ai-go/issues/153) repair
+changes no admitted route or private frozen runtime. At preparation, canonical
+source assurance remained pending; no new provider call or deployment is added.
+
+## Bounded Linked Identifiers candidate
+
+The [local method](docs/implementation/OS_LINKED_IDENTIFIER_METHOD.md) adds typed,
+source-bound relationship capture and offline relationship-first planning for
+[issue #153](https://github.com/chris-page-gov/gis-ai-go/issues/153). Fixed routes,
+header-only credentials, immutable budgets/deadlines and durable attempt
+reservations bound private execution. Native and API relationship candidates keep
+separate scope/version evidence; road surfaces are not relabelled as buildings.
+The planner currently uses only Linked Identifiers endpoint namespaces; NGD
+Building/OSID and ONS geography bridges remain unsupported. Synthetic tests cover
+transport refusal, interruption, replay, schema/source binding and semantic limits.
+At preparation, live observations and canonical source assurance remained pending.
+No hosted MCP tool, map, entitlement or full-coverage claim is added.
+
+## OS API coverage and usage interpretation
+
+The [coverage and usage guide](docs/implementation/OS_API_COVERAGE_AND_USAGE.md)
+uses the dated public PSGA product table as a coverage basis and distinguishes
+documented services, admitted MCP routes, observed requests, complete selected
+processing and account reporting. It explains the Linked Identifiers and tile
+route gaps, keyless Downloads metadata, authenticated package operations and
+separate payload delivery. Zero or missing usage does not establish absent data
+or entitlement. Package-creation requirements follow proven edition, format or
+area gaps. This prose-only increment adds no provider call, runtime admission or
+deployment; account-specific decisions and evidence remain private.
+
+## Repository assurance time allowance
+
+The post-merge [CI run](https://github.com/chris-page-gov/gis-ai-go/actions/runs/39431969961)
+for `9f2ab130` and its ordinary retry both reached a cancelled repository-assurance
+result around the 20-minute job limit. Both completed the assurance tests, clean
+source-archive journey and evidence uploads successfully, but the aggregate gate
+failed and downstream provenance and attestation jobs were skipped. On retry,
+assurance took 18 minutes 1 second, the archive journey 71 seconds and evidence
+upload 31 seconds, leaving insufficient time for setup and cleanup.
+
+The [issue #153](https://github.com/chris-page-gov/gis-ai-go/issues/153)
+maintenance follow-up raises this job's bounded allowance to 30 minutes and
+updates its exact workflow contract. The five-minute archive step cap, all checks,
+permissions and mandatory gates remain in force. At preparation, canonical
+acceptance of this repair and the resulting main-commit provenance remained
+pending; no deployment is included.
+
+## Local GML recovery method
+
+The owner authorised continuing [issue #153](https://github.com/chris-page-gov/gis-ai-go/issues/153)
+on the existing local Docker installation and external drives. The
+[generic GML method](docs/implementation/OS_LOCAL_GML_PROCESSING.md) adds
+provider-free complete selected-input traversal, bounded archive admission and
+small source-bound JSON-LD field cards. Independent feature-membership counts
+remain distinct from conversion success. Raw payloads are retained; schema
+closure, format-mapping completeness and authoritative PSGA coverage remain open.
+Only generic methods and synthetic tests belong in this increment. Private
+restoration, source selections and operating state remain outside the repository.
+All 36 affected synthetic tests passed in the pinned Python 3.12 Linux runtime.
+Local links, changelog fragments and secret/machine-path checks passed. Canonical
+source assurance remains pending; no public deployment, installed connector or
+full-coverage claim follows.
+
+## OS small-file knowledge and acquisition recovery
+
+The owner authorised unattended OS/PSGA recovery on 19 October. Work is tracked
+in [issue #153](https://github.com/chris-page-gov/gis-ai-go/issues/153) and the
+[recovery record](docs/implementation/OKF_OS_RECOVERY.md). The accessible bounded
+pass is complete: all 2,303 frozen documentation targets are accounted for,
+with 2,302 captured and one documented HTTP 307 redirect gap. All captured pages
+passed an independent audit of 216,765 lossless private passages, including exact
+reconstruction, checksums and the 16 KiB passage ceiling. Six newer documentation
+pages were captured and audited separately; the redirect target is recorded
+without asserting source equivalence. No frozen targets remain unresolved.
+
+The local build reproduces 30,833 metadata records and 2,915 native field nodes.
+The verified private export `run-d78f08085053400e9475393f0b4aaaa6` provides matched
+explanation candidates for all 2,915 fields, with zero missing or ambiguous
+matches. Its 3,347 files are at most 16,383 bytes each. These are candidate links
+to source explanations; documentation versions have not been independently
+matched to every collection version, and universal question-answering coverage
+has not been established. Small cards and explanatory passages retain native
+definitions, schema nuances, provenance and explicit observed scope.
+
+Fresh schema and queryables capture completed for all 94 current NGD collections:
+188 successful metadata requests retained complete native definitions and 3,755
+small property cards across the two lanes. All 44 WFS feature-type schemas were
+also captured. Bounded first pages from all 94 NGD collections returned 186
+records in total, completely profiled into 3,968 small field knowledge cards.
+Their temporary raw payloads were disposed after verification, with zero remaining
+in that workset. This completes those selected first pages, not national feature
+traversal or all PSGA data. The existing key, configured account metadata and
+licensed payloads remain excluded from Git and public publication.
+
+All 374 configured download-package versions were inventoried, listing 4,973 file
+entries and about 1.81 TB compressed, including history and repetition; the
+largest file is about 15.6 GB. Live access identified 47 configured packages,
+which does not establish the full entitlement denominator. Bulk archive transfers
+remain deferred pending the exact Azure host network adjustment. The draft save
+was rejected as uneditable; the proposed one-host change remains local.
+The owner requires transient processing and verified disposal, not permanent
+national storage. Retrieval recipes and knowledge can persist after raw disposal.
+
+Query capability profiles and a field-coverage planner distinguish server/local
+projection, separate response bundles and reviewed equivalent fields. Live Road
+Link v5 equality-OR batching succeeded; documented IN requests failed and
+`properties` was explicitly rejected. A bounded two-ID extraction and a fresh
+repeat verified both records, EPSG:7405 and disposal. A same-identity WFS comparison
+matched three width fields on both sampled roads, reducing response bytes from
+4,668 to 2,084. WFS-to-NGD measurement equivalence remains unassessed. Source
+ambiguities remain explicit. Private unsent support drafts retain sanitised calls
+and hashes for NGD IN/OR differences and malformed WFS GeoJSON when geometry is
+omitted from projection. No support ticket was sent.
+
+All 353 affected tests and final-source CI/CodeQL passed; the initial recovery
+increment merged through [PR #154](https://github.com/chris-page-gov/gis-ai-go/pull/154)
+as `9a492dba`. Protected-main CI/CodeQL, independent image derivation and
+provenance all passed; results are recorded on that PR and issue #153.
+A bounded follow-up reviews all seven advertised WFS operations, including
+property-value retrieval and stored queries, and records the documented precedence
+of `bbox` over a separately supplied attribute filter. Combined WFS conditions
+must use a single XML filter. Advertised capabilities and validated behaviour
+remain separate. The follow-up requires its own canonical assurance.
+No full national acquisition, complete PSGA coverage, feature archive, new live
+OS connector or installed-client admission is claimed.
+
+New [availability reporting](docs/implementation/OS_DATA_AVAILABILITY.md) keeps
+request access, expected presence, observations and retrieval completion separate.
+Null, zero, missing properties, empty selections, incomplete pages and denied
+requests have distinct outcomes. [Presentation research](docs/implementation/OS_RETRIEVAL_PRESENTATION_RESEARCH.md)
+and a small output-intent profile record map/table/analysis requirements and
+VizQL research. Optional planner constraints require explicit native-value,
+geometry or portrayal evidence before cost comparison. Tableau-hosted pages remain blocked, but its vendor GitHub OpenAPI contract
+was inspected at a pinned commit. It documents data/model queries rather than a
+rendering endpoint; no Tableau service integration is claimed.
 
 Latest implementation checkpoint: bounded dependency security repairs under
 [issue #142](https://github.com/chris-page-gov/gis-ai-go/issues/142), following

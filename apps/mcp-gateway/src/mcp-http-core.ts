@@ -343,6 +343,7 @@ function createBoundedHttpHandler(
 ): McpHttpHandler {
   const handler = createMcpHandler(factory, {
     legacy: "reject",
+    maxRequestBodySize: MCP_HTTP_MAX_STANDALONE_BODY_BYTES,
     responseMode,
     ...(onerror === undefined ? {} : { onerror }),
   });

@@ -1,0 +1,41 @@
+'use strict';
+const assert=require('node:assert/strict'),test=require('node:test');
+const fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
+// Exercise the browser-global branch in the repository's type=module package.
+vm.runInThisContext('(function(module){'+fs.readFileSync(path.join(__dirname,'shared_actions.js'),'utf8')+'\n})(undefined);',{filename:'shared_actions.js'});
+const api=globalThis.OverlaySharedActions;delete globalThis.OverlaySharedActions;
+test('published schema and implementation share exact IDs, action fields and closed result projection',()=>{
+ const schema=JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname,'shared-actions.schema.json'),'utf8'));
+ assert.deepEqual(schema.oneOf.map(x=>x.properties.action.const),api.ACTIONS);
+ for(const branch of schema.oneOf){assert.equal(branch.additionalProperties,false);assert.equal(branch.properties.input.additionalProperties,false);assert.deepEqual(branch.properties.input.required,Object.keys(branch.properties.input.properties));}
+ assert.deepEqual(schema.oneOf[1].properties.input.properties.taskId.enum,api.TASKS);
+ assert.deepEqual(schema.oneOf[2].properties.input.properties.referenceId.enum,api.REFERENCES);
+ const success=schema.$defs.result.oneOf[0];assert.equal(success.additionalProperties,false);
+ assert.deepEqual(success.properties.state.required,['taskId','referenceId','pinned','referenceOpen']);
+ assert.equal(success.properties.state.additionalProperties,false);
+});
+function fixture(){
+ const native={taskId:'learn',referenceId:'context',pinned:false,referenceOpen:true};const calls=[];
+ const host={ready:()=>true,snapshot:()=>({...native}),openTask(id,focus){calls.push(['task',id,focus]);native.taskId=id;if(!native.pinned)native.referenceId='context';},openReference(id,focus){calls.push(['reference',id,focus]);native.referenceId=id;native.referenceOpen=true;},setPinned(value){calls.push(['pin',value]);native.pinned=value;if(!value)native.referenceId='context';}};
+ return {native,calls,host,actions:api.create(host)};
+}
+test('read-only state is exact, frozen and does not call a setter',()=>{const f=fixture(),r=f.actions.execute('read-state',{});assert.equal(r.ok,true);assert.deepEqual(r.state,f.native);assert.equal(f.calls.length,0);assert.ok(Object.isFrozen(r.state));assert.ok(Buffer.byteLength(JSON.stringify(r))<=512);});
+for(const id of ['unknown','__proto__','constructor','toString','hasOwnProperty','areas\u0000',null,{},42])test('unknown task refuses before the host: '+JSON.stringify(id),()=>{const f=fixture();assert.equal(f.actions.execute('open-task',{taskId:id,focus:true}).code,'invalid-input');assert.deepEqual(f.calls,[]);assert.equal(f.native.taskId,'learn');});
+test('all seven exact tasks use the same action',()=>{const f=fixture();for(const taskId of api.TASKS){const r=f.actions.execute('open-task',{taskId,focus:true});assert.equal(r.state.taskId,taskId);}assert.equal(f.calls.length,7);});
+test('four references remain distinct and open the inspector',()=>{const f=fixture();for(const referenceId of api.REFERENCES){f.native.referenceOpen=false;assert.equal(f.actions.execute('open-reference',{referenceId,focus:false}).state.referenceId,referenceId);assert.equal(f.native.referenceOpen,true);}});
+test('unknown reference and pin coercion refuse',()=>{const f=fixture();assert.equal(f.actions.execute('open-reference',{referenceId:'constructor',focus:true}).ok,false);assert.equal(f.actions.execute('set-pinned',{pinned:'true'}).ok,false);assert.deepEqual(f.calls,[]);});
+test('pin is explicit and repeated setting is idempotent',()=>{const f=fixture();f.actions.execute('set-pinned',{pinned:true});f.actions.execute('set-pinned',{pinned:true});f.actions.execute('open-reference',{referenceId:'glossary',focus:false});assert.equal(f.actions.execute('open-task',{taskId:'areas',focus:false}).state.referenceId,'glossary');assert.equal(f.actions.execute('set-pinned',{pinned:false}).state.referenceId,'context');});
+test('additional fields and missing focus refuse',()=>{const f=fixture();for(const x of [{taskId:'areas'},{taskId:'areas',focus:true,url:'https://example.invalid'},{taskId:'areas',focus:1}])assert.equal(f.actions.execute('open-task',x).ok,false);assert.equal(f.actions.execute('read-state',{model:true}).ok,false);assert.deepEqual(f.calls,[]);});
+test('prototype, accessor and symbol input refuse without getter evaluation',()=>{const f=fixture();let reads=0;const getter={focus:true};Object.defineProperty(getter,'taskId',{get(){reads++;return 'areas';},enumerable:true});for(const v of [getter,Object.create({taskId:'areas',focus:true}),{taskId:'areas',focus:true,[Symbol('extra')]:1}])assert.equal(f.actions.execute('open-task',v).ok,false);assert.equal(reads,0);assert.deepEqual(f.calls,[]);});
+test('unknown action cannot expose arbitrary host methods',()=>{const f=fixture();for(const name of ['snapshot','constructor','__proto__','fetch'])assert.equal(f.actions.execute(name,{}).code,'invalid-action');assert.deepEqual(f.calls,[]);});
+test('not-ready host refuses before mutation',()=>{const f=fixture();f.host.ready=()=>false;assert.equal(f.actions.execute('open-task',{taskId:'areas',focus:true}).code,'not-ready');assert.deepEqual(f.calls,[]);});
+test('early cancellation performs no snapshot or mutation',()=>{const f=fixture(),c=new AbortController();c.abort();f.host.snapshot=()=>{throw Error('must not read');};assert.deepEqual(f.actions.execute('open-task',{taskId:'areas',focus:true},{signal:c.signal}),{ok:false,code:'cancelled',mutationMayHaveOccurred:false});assert.deepEqual(f.calls,[]);});
+test('cancellation during pre-mutation snapshot refuses without setter',()=>{const f=fixture(),c=new AbortController();f.host.snapshot=()=>{c.abort();return {...f.native};};assert.equal(f.actions.execute('open-task',{taskId:'areas',focus:true},{signal:c.signal}).mutationMayHaveOccurred,false);assert.deepEqual(f.calls,[]);});
+test('late cancellation does not pretend to roll back UI changes',()=>{const f=fixture(),c=new AbortController();f.host.openTask=(id)=>{f.native.taskId=id;c.abort();};assert.deepEqual(f.actions.execute('open-task',{taskId:'areas',focus:false},{signal:c.signal}),{ok:false,code:'cancelled',mutationMayHaveOccurred:true});assert.equal(f.native.taskId,'areas');});
+test('bad host state refuses before mutation without leaking extras',()=>{const f=fixture();f.host.snapshot=()=>({...f.native,secret:'synthetic-do-not-output'});const r=f.actions.execute('open-task',{taskId:'areas',focus:false});assert.equal(r.ok,false);assert.equal(r.mutationMayHaveOccurred,false);assert.ok(!JSON.stringify(r).includes('synthetic'));assert.deepEqual(f.calls,[]);});
+test('host exception text is withheld',()=>{const f=fixture();f.host.openTask=()=>{throw Error('synthetic-secret');};const r=f.actions.execute('open-task',{taskId:'areas',focus:false});assert.deepEqual(r,{ok:false,code:'host-action-failed',mutationMayHaveOccurred:true});});
+test('visible state must match the requested result',()=>{const f=fixture();f.host.openTask=()=>{};assert.equal(f.actions.execute('open-task',{taskId:'areas',focus:true}).code,'postcondition-refused');});
+test('asynchronous adapter is outside the closed contract',()=>{const f=fixture();f.host.setPinned=()=>Promise.resolve();assert.equal(f.actions.execute('set-pinned',{pinned:true}).code,'invalid-host-adapter');});
+test('options do not accept arbitrary inputs or fake cancellation objects',()=>{const f=fixture();for(const opts of [null,42,{signal:{aborted:false}},{timeout:1}])assert.equal(f.actions.execute('read-state',{},opts).ok,false);});
+test('read state follows manual or history changes without stale cached identity',()=>{const f=fixture();f.native.taskId='history';f.native.referenceId='dates';assert.equal(f.actions.execute('read-state',{}).state.taskId,'history');});
+test('all legal states and results fit the declared 512-byte ceiling',()=>{const f=fixture();for(const taskId of api.TASKS)for(const referenceId of api.REFERENCES)for(const pinned of [true,false])for(const referenceOpen of [true,false]){Object.assign(f.native,{taskId,referenceId,pinned,referenceOpen});const r=f.actions.execute('read-state',{});assert.equal(r.ok,true);assert.ok(Buffer.byteLength(JSON.stringify(r))<=512);}});

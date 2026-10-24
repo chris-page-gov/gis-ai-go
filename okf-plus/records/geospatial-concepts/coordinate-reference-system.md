@@ -30,11 +30,33 @@
       "referenceTitle": "OGC GeoSPARQL 1.1",
       "reviewedOn": "2026-10-02",
       "reviewMethod": "agent-read-primary-source"
+    },
+    {
+      "resource": "https://docs.os.uk/osngd/getting-started/os-ngd-fundamentals/coordinate-reference-systems",
+      "evidenceKind": "official-reference",
+      "referenceTitle": "OS NGD coordinate reference systems",
+      "reviewedOn": "2026-10-21",
+      "reviewMethod": "official-page-opened-text-reviewed"
+    },
+    {
+      "resource": "https://www.ordnancesurvey.co.uk/documents/resources/guide-coordinate-systems-great-britain.pdf",
+      "evidenceKind": "official-reference",
+      "referenceTitle": "OS guide to coordinate systems in Great Britain",
+      "reviewedOn": "2026-10-21",
+      "reviewMethod": "official-search-result-extract-reviewed"
     }
   ],
-  "prov:wasDerivedFrom": {
-    "@id": "https://docs.ogc.org/is/22-047r1/22-047r1.html"
-  },
+  "prov:wasDerivedFrom": [
+    {
+      "@id": "https://docs.ogc.org/is/22-047r1/22-047r1.html"
+    },
+    {
+      "@id": "https://docs.os.uk/osngd/getting-started/os-ngd-fundamentals/coordinate-reference-systems"
+    },
+    {
+      "@id": "https://www.ordnancesurvey.co.uk/documents/resources/guide-coordinate-systems-great-britain.pdf"
+    }
+  ],
   "dcterms:conformsTo": {
     "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/profile/v1"
   },
@@ -74,7 +96,15 @@
     "topic": "geospatial representation",
     "mappingInterpretation": "Associative link to the GeoSPARQL function that retrieves a geometry CRS identifier; this concept is not the function and does not assert class equivalence.",
     "reviewedOn": "2026-10-02",
-    "mappingReference": "https://docs.ogc.org/is/22-047r1/22-047r1.html"
+    "mappingReference": "https://docs.ogc.org/is/22-047r1/22-047r1.html",
+    "learningGlossary": {
+      "termId": "crs",
+      "definition": "A system relating coordinate values to locations through specified reference and coordinate-system definitions.",
+      "scopeNote": "Preserve axes, units, dimensionality, datum and identifier. EPSG:27700 and EPSG:7405 are distinct.",
+      "definitionAuthority": "project-paraphrase",
+      "reviewedOn": "2026-10-21",
+      "currentSchemeCoverageComplete": false
+    }
   },
   "skos:prefLabel": {
     "@value": "Coordinate reference system",
@@ -95,7 +125,31 @@
       "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/geospatial-concepts/axis-order"
     }
   ],
-  "okfp:machineImported": false
+  "okfp:machineImported": false,
+  "okfp:lexicalForm": [
+    {
+      "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/id/geospatial-concepts/coordinate-reference-system/lexical-form/1",
+      "@type": "okfp:LexicalForm",
+      "rdf:value": {
+        "@value": "CRS"
+      },
+      "okfp:formKind": "abbreviation",
+      "okfp:authority": "source-stated",
+      "prov:wasDerivedFrom": [
+        {
+          "@id": "https://docs.os.uk/osngd/getting-started/os-ngd-fundamentals/coordinate-reference-systems"
+        },
+        {
+          "@id": "https://www.ordnancesurvey.co.uk/documents/resources/guide-coordinate-systems-great-britain.pdf"
+        }
+      ]
+    }
+  ],
+  "skos:altLabel": [
+    {
+      "@value": "CRS"
+    }
+  ]
 }
 ---
 
@@ -106,3 +160,15 @@ The definition and interpretation boundary are in the inspectable front matter.
 [Official reference](https://docs.ogc.org/is/22-047r1/22-047r1.html) · reviewed 2 October 2026.
 
 Related concept records: [datum](datum.md), [axis order](axis-order.md).
+
+## Learning terms and search forms
+
+A system relating coordinate values to locations through specified reference and coordinate-system definitions.
+
+Preserve axes, units, dimensionality, datum and identifier. EPSG:27700 and EPSG:7405 are distinct.
+
+Definitions are project paraphrases. Native forms, source abbreviations and project search variants retain separate authority. No equivalence is inferred.
+
+[OS NGD coordinate reference systems](https://docs.os.uk/osngd/getting-started/os-ngd-fundamentals/coordinate-reference-systems) · [OS guide to coordinate systems in Great Britain](https://www.ordnancesurvey.co.uk/documents/resources/guide-coordinate-systems-great-britain.pdf)
+
+Source-stated forms: CRS (abbreviation; language unknown).

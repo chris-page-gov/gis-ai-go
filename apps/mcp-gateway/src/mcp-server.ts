@@ -57,7 +57,7 @@ import {
   type CatalogueProblemContext,
 } from "./problem.js";
 import { haveExactlyLinkedReconciliationApplications } from "./reconciliation-applications.js";
-import { MCP_MAX_TOOL_RESULT_BYTES, MCP_PROTOCOL_VERSION } from "./mcp-constants.js";
+import { MCP_MAX_TOOL_INPUT_ELEMENTS, MCP_MAX_TOOL_RESULT_BYTES, MCP_PROTOCOL_VERSION } from "./mcp-constants.js";
 export { MCP_MAX_TOOL_RESULT_BYTES, MCP_PROTOCOL_VERSION } from "./mcp-constants.js";
 import { containsRawIdempotencyKeyInMcpResourceUri } from "./mcp-wire-guards.js";
 export {
@@ -921,6 +921,7 @@ function createCatalogueMcpServerFactoryForPolicy(
         version: gatewayMetadata.version,
       },
       {
+        maxToolInputElements: MCP_MAX_TOOL_INPUT_ELEMENTS,
         supportedProtocolVersions: [protocolVersion],
         ...(Object.keys(capabilities).length === 0 ? {} : { capabilities }),
         instructions: serverInstructions(operations, resources),

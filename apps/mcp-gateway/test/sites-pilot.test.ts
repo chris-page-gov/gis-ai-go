@@ -541,3 +541,22 @@ for (const protocol of ["2025-11-25", "2026-07-28"] as const) {
     } finally { clearTimeout(deadline); controller.abort(); }
   });
 }
+
+
+test("private pilot limits tool arguments on modern and legacy HTTP without provider calls", async (t) => {
+  const s = scenario(t);
+  for (const protocol of ["2025-11-25", "2026-07-28"]) {
+    const modern = protocol === "2026-07-28";
+    const response = await s.handler.fetch(request({ jsonrpc: "2.0", id: 0, method: "tools/call", params: {
+      name: "sites_ons_cpih", arguments: { periods: Array(1_024).fill(0) },
+      ...(modern ? { _meta: { "io.modelcontextprotocol/protocolVersion": protocol,
+        "io.modelcontextprotocol/clientCapabilities": {} } } : {}),
+    } }, { headers: { "mcp-protocol-version": protocol,
+      ...(modern ? { "mcp-method": "tools/call", "mcp-name": "sites_ons_cpih" } : {}) } }));
+    assert.equal(response.status, 200);
+    const value = await response.json() as { result: { isError: boolean; content: { text: string }[] } };
+    assert.equal(value.result.isError, true);
+    assert.match(value.result.content[0]!.text, /maximum of 1024 elements/u);
+  }
+  assert.equal(s.outgoing.length, 0); assert.equal(s.db.used("ons-cpih"), 0);
+});

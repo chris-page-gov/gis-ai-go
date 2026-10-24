@@ -285,3 +285,13 @@ test("output schema rejects substituted scientific content and unknown nested ev
   assert.throws(() => createWeb216CpihMcpServerFactory(fake as Web216CpihApplication), /genuine/u);
   assert.equal(touched, false);
 });
+
+
+test("captured CPIH rejects excessive SDK argument elements before application validation", async (t) => {
+  const s = scenario(t);
+  const response = await s.handler.fetch(raw("web216_cpih_select", { period: Array(1_024).fill(0) }));
+  assert.equal(response.status, 200);
+  const value = await response.json() as { result: { isError: boolean; content: { text: string }[] } };
+  assert.equal(value.result.isError, true);
+  assert.match(value.result.content[0]!.text, /maximum of 1024 elements/u);
+});

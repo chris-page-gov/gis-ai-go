@@ -1,7 +1,16 @@
-# OKF-223: small linked OS knowledge records and data retrieval
+# OKF-223: small linked OS knowledge records — 18 October branch record
 
-Owner instruction: 18 October 2026. Local implementation is available; fresh
-acquisition and live retrieval remain blocked by environment configuration.
+Historical implementation and validation evidence from the 18 October 2026
+branch, completed at `a4e66e1a7cee56b30238760502f0bd5633374cdb`. Reconciled on
+24 October with the recovery work from main at `59ba0dd1`. Counts, test results
+and environment observations below retain their original scope; they are not
+validation of the reconciled checkout.
+
+For subsequent acquisition and current work, read [OS recovery](OKF_OS_RECOVERY.md)
+and [API coverage and usage](OS_API_COVERAGE_AND_USAGE.md). The recovery records
+successful documentation and authenticated catalogue capture, bounded NGD feature
+retrieval, WFS metadata and selected feature observations. The original task's
+network/credential blocker is historical, not a repository-wide access state.
 
 ## Outcome and scope
 
@@ -10,12 +19,17 @@ Linked Data relationships. A question about one attribute must retrieve its
 definition and relevant qualifications without placing a complete catalogue,
 schema, code list or product guide in the AI's context.
 
-The owner chose **all metadata now, geographic data on demand**. The owner states
-Government PSGA rights and authorises the existing OS credential without a volume
-cap, subject to OS's documented rate limits. This supersedes the earlier
-metadata-only acquisition authority for this local work. It does not publish
+On 18 October the owner chose **all metadata now, geographic data on demand**,
+stated Government PSGA rights and authorised the existing OS credential without a
+volume cap, subject to OS's documented rate limits. This superseded the earlier
+metadata-only acquisition authority for that local work. It did not publish
 licensed feature contents, secrets or private documentation originals, or change
 the separate hosted gateway's admission state.
+
+The subsequent recovery clarified transient processing: acquire and completely
+process the selected payload, retain the required knowledge and reproducible
+method, then verify disposal. The [recovery authority and retention
+requirements](OKF_OS_RECOVERY.md#objective-and-authority) govern that later work.
 
 The objective is evidence for every discoverable data item and question. No finite
 question suite proves every conceivable answer. Missing definitions, unknown
@@ -52,8 +66,8 @@ complete records with a total byte/node budget. Expansion follows bounded linked
 relationships and reports omitted or unresolved evidence. A byte budget must
 never silently cut off a qualification and present the result as complete.
 
-The `explain` command builds this packet from exact linked cards and identifies
-literal evidence pointers for each interpretation facet. It labels every facet
+The original atomic `explain` command builds this packet from exact linked cards
+and identifies literal evidence pointers for each interpretation facet. It labels every facet
 unassessed, with absent evidence explicit. It performs no generated explanation,
 live access check or implicit inference from a field name or horizontal CRS.
 
@@ -113,22 +127,25 @@ Required checks include source and record integrity; strict record/context byte
 limits; deterministic generation; selective search without source scans;
 ambiguous native identifiers; complete linked qualifications; route and cursor
 validation; rate-limit/checkpoint handling; and private-output/credential handling.
-All examples use public metadata or synthetic feature fixtures.
+The original branch's tests used public metadata or synthetic feature fixtures.
+Later live observations belong to the separate recovery record.
 
-New live OS acquisition requires a usable secret binding for authenticated routes
-and network access to the official hosts. The current task environment has neither
-the OS binding nor the OS host allowance. Public documentation acquisition needs
-network access but no OS key. This is a technical setup gap, not a request for
-licensing authority already supplied by the owner.
+## Original environment and publication observations
+
+On 18 October the original running task lacked both an OS credential binding and
+the required host allowances. Public documentation needed network access but no
+OS key. This was a task-specific setup gap, not missing licensing authority.
+It does not describe the subsequently successful recovery environment or prove
+the access state of a newly started task.
 
 The owner identified `~/.secrets/os_api_key` (mode `0600`) inside `~/.secrets`
-(mode `0700`). That directory is absent in this cloud workspace's home. Both
-capture and retrieval support the dedicated file after it is mounted here;
-`OS_API_KEY` takes precedence. They do not read or execute the neighbouring
-`ai.env`. Configure the file or environment secret through the environment's
-supported settings, without exposing its value in chat or repository content.
+(mode `0700`). That directory was absent from the original task's home. Its
+capture and retrieval implementation supported the dedicated file when mounted;
+`OS_API_KEY` took precedence. It did not read or execute the neighbouring `ai.env`.
+Those loader details describe the original implementation. Follow the selected
+current method's credential contract and never expose its value in chat or Git.
 
-The known metadata routes require these HTTPS hosts:
+The original metadata profile identified these HTTPS hosts:
 
 | Host | Purpose |
 | --- | --- |
@@ -137,52 +154,57 @@ The known metadata routes require these HTTPS hosts:
 | `osmetadata.astuntechnology.com` | OS's published GEMINI metadata catalogue. |
 | `www.ordnancesurvey.co.uk` | Public product-search catalogue. |
 
-The managed environment exposes policy inspection, not a configuration mutation
-tool. Its supported configuration workflow must apply the host allowances and
-credential binding; editing a policy snapshot would not change enforcement.
+That task exposed policy inspection, not a configuration mutation tool. Host
+allowances and credential bindings required the supported configuration workflow;
+editing a policy snapshot would not change enforcement.
 Linked attachments and future bulk-download file hosts need evidence from the
 returned metadata before extending this inventory.
 
 On 18 October at 20:00 UTC, one unauthenticated HTTPS request to each of the four
 hosts failed during proxy CONNECT with a 403 status hint, before reaching OS.
-No credential or geographic request was sent. The private observation is retained
+No credential or geographic request was sent. The private observation was recorded
 in `artifacts/okf-plus/access-validation/latest.json`. The owner's subsequent
 screenshot shows a published configuration with eight additional domains and
-`OS_API_KEY` as an environment variable. The running task still reports the
-original five domains and no runtime variable or secret binding. These are
-different configuration observations, not evidence that the entered key is bad.
+`OS_API_KEY` as an environment variable. The original running task still reported
+the original five domains and no runtime variable or secret binding. These are
+different dated configuration observations, not evidence that the entered key
+was bad.
 The [cloud environment guide](https://learn.chatgpt.com/docs/environments/cloud-environments)
 states that newly started tasks use published changes while existing tasks retain
 their state. An environment variable does not add its service's domain permission;
 `api.os.uk` must appear explicitly among allowed hosts for that configuration.
 
-Repository publication was rejected by automatic approval review because external
-disclosure was not explicitly authorised. Local implementation and validation
-continue. Publication, live data execution and hosted connector acceptance must
-be reported separately from the local build.
+In that session, repository publication was rejected by automatic approval review
+because external disclosure was not explicitly authorised for the proposed action.
+That historical decision does not describe later authorised reconciliation or
+publication. Publication, live data execution and hosted connector acceptance
+must still be reported separately from a local build.
 
-## Local evidence and remaining work
+## Original branch evidence and limits
 
-The [coverage matrix](OKF-223_COVERAGE_GAPS.md) records known missing metadata,
-semantic interpretations and executors. The retained catalogue documents eleven
-current service families plus withdrawn material. Its sixty extracted operation
+The [historical coverage matrix](OKF-223_COVERAGE_GAPS.md) records the original
+profile's missing metadata, semantic interpretations and executors, with links to
+later recovery. Its retained catalogue documents eleven service families current
+at the review date plus withdrawn material. Its sixty extracted operation
 fragments are an extraction denominator, not an exhaustive API operation count.
-Only 48 reviewed field interpretations have a curated semantic supplement;
-schema metadata for the remaining fields must not be described as full meaning.
+The original supplement contains 48 reviewed field interpretations. Later recovery
+captured richer native schema annotations and candidate passage links for all
+2,915 retained fields; neither source presence nor navigation proves full meaning.
 
-The offline service registry emits one bounded service or operation record per
-identity, preserving native methods, paths, servers and exact contract hashes.
+The original offline service registry emits one bounded service or operation
+record per identity, preserving native methods, paths, servers and exact contract hashes.
 Each operation links to the corresponding atomic operation and contract cards.
-Its local private retrieval profile separates metadata capture, data execution,
-synthetic test contracts and live access; withdrawn routes remain ineligible.
+Its original local private retrieval profile separates metadata capture, data
+execution, synthetic test contracts and live access; withdrawn routes remain ineligible.
 It does not execute operations, resolve remote references or expand authority.
 The retained projection contains twelve service cards (ten current data services,
 OAuth and one withdrawn service) and sixty operation cards, at most 12,012 bytes
-each. Ten operations have implemented metadata subsets and one has a local NGD
-data executor. OAuth's missing extracted contract remains explicit.
+each. In that profile, ten operations had implemented metadata subsets and one had
+a local NGD data executor. These flags do not enumerate later recovery executors.
+OAuth's missing extracted contract remains explicit.
 
-The independently audited retained-source build contains 32,596 atomic records,
-including 2,915 fields, 188 schema definitions and 60 API operations. Its largest
+The independently audited original retained-source build contained 32,596 atomic
+records, including 2,915 fields, 188 schema definitions and 60 API operations. Its largest
 record is 14,711 bytes, below the 16 KiB limit. Ninety-two reviewed companion links
 stay within their exact collection version. The three ordinary-language discovery
 probes return five summaries within 7,484 bytes; complete selected records and
@@ -196,24 +218,27 @@ local references can be followed without resolving external schemas. Reindex
 after acquisition. This private view does not silently replace the public,
 pinned schema catalogue used by the feature executor.
 
-The metadata preflight starts with 2,554 source routes and expands from four
-documentation indexes, NGD collections, download-package metadata and the GEMINI
+The original metadata preflight starts with 2,554 source routes and expands from
+four documentation indexes, NGD collections, download-package metadata and the GEMINI
 catalogue. Public product search is parsed without executing its scripts. It
 makes no requests in planning mode. This is not a global OS denominator. Browser
 product supplementation, other specialist projects and linked attachments retain
 separate refresh gaps. Source text capture, field extraction and semantic
 interpretation have separate coverage statuses.
 
-Geographic execution currently supports specifically scoped NGD feature requests.
-Planning also compares WFS and evidenced equivalent download packages; this work
-does not implement every OS service executor or automatic bulk-package downloads.
-All live acquisition, exact project entitlements and throughput observations still
-need validation in an environment with the authorised OS credential and hosts.
+The original geographic executor supported specifically scoped NGD feature
+requests. Its planner compared WFS and evidenced equivalent download packages,
+but this branch did not implement every OS executor or automatic bulk transfer.
+Its tests established no live acquisition. Subsequent recovery separately records
+live NGD/WFS observations, configured package inventory and a bounded local
+[Linked Identifiers method](OS_LINKED_IDENTIFIER_METHOD.md). Keep those methods'
+implementation, observed requests and remaining limits separate from this branch's
+validation; they do not establish universal access or complete data coverage.
 
 The initial affected suite passed 152 tests. The subsequent explanation and
-registry increment passes 53 focused tests, including the independent verifier
+registry increment passed 53 focused tests, including the independent verifier
 suite. Independent review checked all sixty registry operations against their
-native contracts and exercised bounded reads. All 32,596 generated cards pass the
+native contracts and exercised bounded reads. All 32,596 generated cards passed the
 independent strict schema, source-pointer/digest and byte-bound audit. The prior
 OKF+ importer, build, retrieval, whole-corpus projection, schema and pinned-engine
 verification also passed for the unchanged frozen source corpus. Link, contract,
@@ -225,12 +250,14 @@ package hash and derived set identity changed. The explicitly regenerable test
 pin was updated, and 33 receipt/strict-modern tests passed. Immutable historical
 evidence remains unchanged.
 
-The full repository gate is not passed. Canonical attempts exposed checkout
-executable permissions and mismatched pnpm/uv prerequisites, which were corrected,
+The full repository gate had not passed for the original branch. Its canonical
+attempts exposed checkout executable permissions and mismatched pnpm/uv
+prerequisites, which were corrected,
 then the receipt identity drift described above. A broader Python run overlapped
 the metadata extension and is not a final-source acceptance result; existing
-observer/runtime and private-output checks also failed in this environment.
+observer/runtime and private-output checks also failed in that environment.
 Private-output tests passed separately outside the filesystem sandbox. Browser
-verification is blocked because the required Chrome distribution is absent.
-These gaps preclude a release or merge claim; the focused OS tests and source
-audit are separate evidence.
+verification was blocked because the required Chrome distribution was absent.
+Those results did not establish release or merge acceptance. The reconciled
+checkout requires its own checks; neither these historical failures nor later
+recovery successes substitute for that validation.

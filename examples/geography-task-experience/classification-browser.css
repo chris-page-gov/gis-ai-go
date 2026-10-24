@@ -1,0 +1,18 @@
+.classification-browser { min-width: 0; }
+.classification-browser label { display: block; font-weight: 650; margin-block: .6rem .2rem; }
+.classification-browser input, .classification-browser select { width: 100%; min-width: 0; max-width: 100%; font: inherit; padding: .55rem; }
+.classification-browser button { font: inherit; min-height: 2.75rem; white-space: normal; overflow-wrap: anywhere; }
+.classification-browser :focus-visible { outline: 3px solid #ffbf47; outline-offset: 2px; box-shadow: 0 0 0 5px #172d40; }
+.classification-browser .classification-results { padding-inline-start: 1.8rem; }
+.classification-browser .classification-results li { margin-block: .6rem; }
+.classification-browser small { display: block; overflow-wrap: anywhere; }
+.classification-browser .classification-pagination { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; justify-content: space-between; }
+.classification-browser .classification-scheme { border-block-end: 1px solid #b1b4b6; padding-block: .5rem; }
+.classification-browser summary { cursor: pointer; overflow-wrap: anywhere; }
+.classification-browser dt { font-weight: 650; margin-block-start: .5rem; }
+.classification-browser dd { margin-inline-start: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.classification-browser pre { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 24rem; overflow: auto; padding: .5rem; background: #f3f2f1; color: #0b0c0c; }
+.classification-browser .classification-detail { margin-block-start: 1rem; border-block-start: 2px solid #b1b4b6; padding-block-start: .5rem; }
+.classification-browser .classification-error { border-inline-start: .4rem solid #b10e1e; padding: .6rem; }
+.classification-browser [hidden] { display: none !important; }
+@media (max-width: 28rem) { .classification-browser .classification-pagination button { flex: 1 1 40%; } .classification-browser .classification-pagination span { order: -1; width: 100%; } }

@@ -1,20 +1,65 @@
 # Current context
 
-Last updated: 18 October 2026
+Last updated: 24 October 2026
+
+## OS branch reconciliation
+
+The owner requested reconciliation of the two local 18 October OS commits with
+current main. The [reconciliation record](docs/implementation/OKF-223_RECONCILIATION.md)
+preserves main's transient acquisition lifecycle and adds the bounded atomic
+view and broader metadata producer. The older persistent feature executor is
+retired. Historical branch observations do not supersede later accepted recovery
+evidence; local integration does not establish a new live capture or deployment.
+
+## Coverage presentation boundaries
+
+The optional [coverage navigator](examples/geography-task-experience/COVERAGE-NAVIGATOR.md)
+displays a dated host-provided statement. Catalogue inclusion, completed selected
+processing, technical tests and whole-product coverage are separate claims.
+Structural validation and displayed hashes do not authenticate the underlying
+evidence, grant rights or authorise acquisition.
+
+## Classification display provenance
+
+Optional [label-origin metadata](examples/geography-task-experience/LABEL-ORIGIN.md)
+separates authored display text from source-native labels. A fallback may remain a
+human-facing title; it must not become a supplier preferred label, alias or
+source-native form. Structural pointer checks do not prove source authenticity,
+field meaning or rights. Legacy omission adds no retrospective provenance claim.
 
 ## Authority and reading order
 
-On 18 October the owner requested [OKF-223](docs/implementation/OKF-223_ATOMIC_OS_KNOWLEDGE.md):
-retain small Markdown/YAML-LD files and Linked Data, acquire all available OS
-metadata, explain individual data items in depth and retrieve geographic records
-on demand. The owner explicitly chose metadata acquisition now rather than a
-complete local geographic-data mirror, states Government PSGA rights, and
-authorises the existing OS API credential without a volume cap subject to the
-documented rate limits. Dataset requests need duration estimates and an
-API/download efficiency comparison. Keep licensed payloads and originals private;
-this local authority does not change hosted-provider admission or establish
-that the current environment contains a usable credential. Exact-source checks,
-measured gaps and truthful completion claims remain required.
+On 19 October the owner requested recovery of the OS knowledge/acquisition task,
+retaining small OKF+ files, rich metadata and Linked Data. The owner confirmed
+government PSGA rights and authorised the existing OS API key for private retrieval
+within documented rate limits, including assessing all available data and API
+versus download acquisition times. Continue unattended without repeating this
+authorisation. Keep keys and account/licensed payloads outside Git and public
+outputs. Existing no-new-service/no-chargeable-overage limits remain.
+
+The owner clarified that payloads are temporary: download/process the complete
+selected data, retain the metadata, structures, controlled values, interpretation
+and reproducible retrieval methods required to understand it, then discard the
+payload. Do not build a permanent national data store. Plan arbitrary field and
+spatial selections across available APIs/downloads, coalescing requests only when
+field identity, collection/version, coverage and documented capability permit it.
+Compare time, transferred bytes and processing rather than assuming fewer API
+calls is always faster. Native field projection, filtering and local projection
+are different capabilities; unsupported query parameters must not be invented.
+Temporary workset/streaming limits still apply. The
+[recovery record](docs/implementation/OKF_OS_RECOVERY.md) separates observed access,
+coverage, private evidence, implementation and remaining execution prerequisites.
+
+The owner also asked that map, table and other presentation requirements guide
+retrieval choices, with VizQL and related visual query approaches investigated
+without assuming an OS VizQL endpoint. Record the underlying geometry, field,
+unit, temporal, aggregation and portrayal semantics in small linked evidence.
+Report requested-data availability within its exact scope: permission, expected
+presence, observed presence and retrieval completion are separate. Null, zero,
+missing property, no matching records, incomplete paging and access denial must
+remain distinguishable. Continue the original recovery objective alongside these
+annotations, keep reviewed source changes pushed to GitHub, and do not mistake
+completion of an annotation for completion of the whole pass.
 
 On 17 October the owner authorised continuing the repository review and four
 repairs towards release, including assessing the updated OpenAI Sites hosting
@@ -484,6 +529,15 @@ host was exercised, and this explained variance does not widen the production
 protocol boundary or complete the independent-host gate.
 
 ## Non-negotiable boundaries
+
+The 22 October field-documentary reference component is an optional, bounded
+source interface within the geography experience. Its public fixture and tests
+are fictional. The [integration guide](examples/geography-task-experience/FIELD-DOCUMENTARY-LINKS.md)
+separates native field/version evidence, explicit documentary links, unresolved
+matches and API adoption. It adds no provider transport, data publication, tool
+registration or Site change. The host owns rights, selected-source review and
+rendered accessibility acceptance; existing task and reference controls retain
+their ownership.
 
 - Keep `docs/research/2026-08-19/` byte-for-byte unchanged.
 - Commit only public, publishable or clearly synthetic data and fixtures.

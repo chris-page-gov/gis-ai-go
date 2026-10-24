@@ -1,0 +1,125 @@
+{
+  "schema": "gis-ai-go.documentary-source-citations.v1",
+  "reviewedOn": "2026-10-22",
+  "scope": "Selected dated primary-source text used by the concise methodological findings; source bytes are not republished.",
+  "sourceCount": 13,
+  "sources": [
+    {
+      "id": "ngd-29",
+      "url": "https://docs.os.uk/osngd/code-lists/code-lists-overview/heightingmethodvalue.md",
+      "bytes": 2247,
+      "sha256": "811467288e83528a56247e482d777fefb612cd1e842ed971afdf70b68f9a0ba9",
+      "retrievedAt": "2026-10-19T20:07:19.608475Z",
+      "reviewState": "retained-primary-source-text-reviewed",
+      "currentPageRefetched": false
+    },
+    {
+      "id": "ngd-1838",
+      "url": "https://docs.os.uk/osngd/code-lists/code-lists-overview/accesslevelvalue.md",
+      "bytes": 3509,
+      "sha256": "48c389e762f8b5e91543f95ae2a5dc5e15489af4c24af01f5e1b0d53568faec2",
+      "retrievedAt": "2026-10-19T21:12:14.760353Z",
+      "reviewState": "retained-primary-source-text-reviewed",
+      "currentPageRefetched": false
+    },
+    {
+      "id": "ngd-1846",
+      "url": "https://docs.os.uk/osngd/code-lists/code-lists-overview/addressclassificationsourcevalue.md",
+      "bytes": 3481,
+      "sha256": "8bed6026679667296d82ca33f8c6b971f36cb4da078a791541fa63ab1183e809",
+      "retrievedAt": "2026-10-19T21:12:24.906238Z",
+      "reviewState": "retained-primary-source-text-reviewed",
+      "currentPageRefetched": false
+    },
+    {
+      "id": "ngd-1918",
+      "url": "https://docs.os.uk/osngd/code-lists/code-lists-overview/landdescriptionvalue.md",
+      "bytes": 98812,
+      "sha256": "68e8e66a84f199af54c1e4cb083a9047a3a0e9d54745c0bd392115c76866abbd",
+      "retrievedAt": "2026-10-19T21:14:16.456615Z",
+      "reviewState": "retained-primary-source-text-reviewed",
+      "currentPageRefetched": false
+    },
+    {
+      "id": "ngd-1928",
+      "url": "https://docs.os.uk/osngd/code-lists/code-lists-overview/linkreferenceconfidencevalue.md",
+      "bytes": 6070,
+      "sha256": "d96382504ffbb5c067108ad43687adf9747558beb6ba78e85ec439b5b329b183",
+      "retrievedAt": "2026-10-19T21:14:29.631073Z",
+      "reviewState": "retained-primary-source-text-reviewed",
+      "currentPageRefetched": false
+    },
+    {
+      "id": "rami-1480",
+      "url": "https://docs.os.uk/os-downloads/products/transport-network-portfolio/os-mastermap-highways-network-routing-and-asset-management-information/os-mastermap-highways-network-routing-and-asset-management-information-technical-specification.md",
+      "bytes": 18876,
+      "sha256": "233a41c40ac6a9cbeb82e345ae0ea3ca97be5cf4d7dd2624a9715ee49f8f3385",
+      "retrievedAt": "2026-10-19T20:57:35.861184Z",
+      "reviewState": "retained-primary-source-text-reviewed",
+      "currentPageRefetched": false
+    },
+    {
+      "id": "rami-1489",
+      "url": "https://docs.os.uk/os-downloads/products/transport-network-portfolio/os-mastermap-highways-network-routing-and-asset-management-information/os-mastermap-highways-network-routing-and-asset-management-information-technical-specification/asset-management/feature-types/special-designation.md",
+      "bytes": 7099,
+      "sha256": "c8f56fff2b0ed01c9ff81706718d70880090cc1976e0108fbac7326eddcb01d9",
+      "retrievedAt": "2026-10-19T20:57:59.626835Z",
+      "reviewState": "retained-primary-source-text-reviewed",
+      "currentPageRefetched": false
+    },
+    {
+      "id": "rami-1490",
+      "url": "https://docs.os.uk/os-downloads/products/transport-network-portfolio/os-mastermap-highways-network-routing-and-asset-management-information/os-mastermap-highways-network-routing-and-asset-management-information-technical-specification/change-only-update-cou-supply.md",
+      "bytes": 6927,
+      "sha256": "11d0d3d742521e06263090c5f5f70e2bd5b4f8022d74c6f24a14e0ad55be8852",
+      "retrievedAt": "2026-10-19T20:58:01.909792Z",
+      "reviewState": "retained-primary-source-text-reviewed",
+      "currentPageRefetched": false
+    },
+    {
+      "id": "rami-1492",
+      "url": "https://docs.os.uk/os-downloads/products/transport-network-portfolio/os-mastermap-highways-network-routing-and-asset-management-information/os-mastermap-highways-network-routing-and-asset-management-information-technical-specification/data-types.md",
+      "bytes": 5444,
+      "sha256": "1bc806893cd05206283ac799d269a6ff2fa997f5340b4d744eec02d07d35d82d",
+      "retrievedAt": "2026-10-19T20:58:05.344120Z",
+      "reviewState": "retained-primary-source-text-reviewed",
+      "currentPageRefetched": false
+    },
+    {
+      "id": "rami-1497",
+      "url": "https://docs.os.uk/os-downloads/products/transport-network-portfolio/os-mastermap-highways-network-routing-and-asset-management-information/os-mastermap-highways-network-routing-and-asset-management-information-technical-specification/data-types/temporalpropertytype.md",
+      "bytes": 6642,
+      "sha256": "d58b083c2619b136636ff2639459230b171a99572faa28384be52ee000d549c5",
+      "retrievedAt": "2026-10-19T20:58:15.114535Z",
+      "reviewState": "retained-primary-source-text-reviewed",
+      "currentPageRefetched": false
+    },
+    {
+      "id": "rami-1502",
+      "url": "https://docs.os.uk/os-downloads/products/transport-network-portfolio/os-mastermap-highways-network-routing-and-asset-management-information/os-mastermap-highways-network-routing-and-asset-management-information-technical-specification/geopackage-overview.md",
+      "bytes": 3606,
+      "sha256": "d16e401748efed46a5bdd3f815d7b6e12a4830f4ae0df2d224210df727546e99",
+      "retrievedAt": "2026-10-19T20:58:25.253395Z",
+      "reviewState": "retained-primary-source-text-reviewed",
+      "currentPageRefetched": false
+    },
+    {
+      "id": "rami-1515",
+      "url": "https://docs.os.uk/os-downloads/products/transport-network-portfolio/os-mastermap-highways-network-routing-and-asset-management-information/os-mastermap-highways-network-routing-and-asset-management-information-technical-specification/geopackage-overview/turn-restriction.md",
+      "bytes": 3618,
+      "sha256": "6aaf611afb2eb1fe3ba9d700553a23c45464e53f128f1a09dbe5177f6972e6dc",
+      "retrievedAt": "2026-10-19T20:58:59.619215Z",
+      "reviewState": "retained-primary-source-text-reviewed",
+      "currentPageRefetched": false
+    },
+    {
+      "id": "rami-1526",
+      "url": "https://docs.os.uk/os-downloads/products/transport-network-portfolio/os-mastermap-highways-network-routing-and-asset-management-information/os-mastermap-highways-network-routing-and-asset-management-information-technical-specification/routing-and-asset-management-feature-information/data-types.md",
+      "bytes": 4740,
+      "sha256": "31414b3148a983c13892140d0c8b37bab83d622d03517f1395dcce6c4d574fb1",
+      "retrievedAt": "2026-10-19T20:59:25.214524Z",
+      "reviewState": "retained-primary-source-text-reviewed",
+      "currentPageRefetched": false
+    }
+  ]
+}
