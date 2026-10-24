@@ -44,6 +44,21 @@ def fixture(count=41):
 
 
 class ProjectionTests(unittest.TestCase):
+    def test_http_preview_requires_explicit_loopback_opt_in(self):
+        search, bundle = fixture(1)
+        for base in ('http://127.0.0.1:8130/context/', 'http://example.test:8130/context/'):
+            with self.assertRaisesRegex(ValueError, 'HTTPS'):
+                project(search, bundle, base_url=base, captured_at=CAPTURED)
+        for base in ('http://example.test:8130/context/', 'http://127.0.0.1/context/',
+                     'http://user@localhost:8130/context/', 'http://localhost:0/context/'):
+            with self.assertRaisesRegex(ValueError, 'HTTPS'):
+                project(search, bundle, base_url=base, captured_at=CAPTURED, allow_local_preview=True)
+        outputs, review = project(search, bundle, base_url='http://127.0.0.1:8130/context/',
+                                  captured_at=CAPTURED, allow_local_preview=True)
+        self.assertEqual(review['publication'], 'local-review-only')
+        checks, _ = pinned_contract()
+        validate_outputs(outputs, checks)
+
     def produce(self, count=41):
         search, bundle = fixture(count)
         return search, bundle, *project(search, bundle, base_url=BASE, captured_at=CAPTURED)

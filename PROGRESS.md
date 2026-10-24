@@ -2,6 +2,29 @@
 
 Last updated: 24 October 2026
 
+## Existing Explorer learning integration
+
+The [review implementation](docs/implementation/OKF_EXPLORER_REVIEW.md) adds a
+complete lazy Reader projection beside the existing full context corpus, using
+the separate canonical Explorer application. Three small linked learning-path
+records preserve source definitions, concept identities and unassessed practice.
+The consumer presents exact native field context, sources and explicit gaps.
+The complete retained corpus has 30,876 records, 2,915 native field nodes and
+three linked practice paths. Source/context/Reader checks pass, as do all 858
+consumer unit tests and 18 complete-candidate desktop/mobile browser checks.
+The [review record](docs/implementation/OKF_EXPLORER_REVIEW.md#checked-candidate--24-october-2026)
+binds the source revisions, exact app tree and scoped results. Producer PR #182
+and Explorer PR #183 preserve separate repository ownership. Full CI,
+human learning and release acceptance remain separate. No geographic feature
+payload or hosted service admission is added.
+
+The owner subsequently authorised merging the integration and requested the
+earlier compact facet presentation. Explorer restores thin colour bars and
+folded help while retaining accessible controls. Merge preparation refreshes
+the exact-build Heritage evidence and repairs the gateway's transitive Zod
+High finding under the existing vulnerability policy; see the
+[dependency record](docs/operations/DEPENDENCY_SECURITY_2026-10-24.md).
+
 ## Cloud continuation for OKF Explorer
 
 The owner agreed to extend the existing, separate `chris-page-gov/okf-explorer`
