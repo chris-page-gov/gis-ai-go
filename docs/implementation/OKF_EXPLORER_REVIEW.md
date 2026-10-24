@@ -96,7 +96,7 @@ SHA-256 is `79551c35c007b831f1cf4b2455054c98f4febf5668346aebe6d1ac99716f34bb`.
 Producer [PR #182](https://github.com/chris-page-gov/gis-ai-go/pull/182) targets
 the reconciled handoff branch; consumer
 [PR #183](https://github.com/chris-page-gov/okf-explorer/pull/183) targets its main.
-Both remain drafts pending their separate assurance gates.
+Both changes use separate assurance gates before merge.
 
 The full context export passed all-record schema validation. The Reader contains
 all 30,876 records in 965 lazy record shards, at most 1,032,325 bytes each, plus

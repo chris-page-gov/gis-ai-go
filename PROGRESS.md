@@ -13,10 +13,17 @@ The complete retained corpus has 30,876 records, 2,915 native field nodes and
 three linked practice paths. Source/context/Reader checks pass, as do all 858
 consumer unit tests and 18 complete-candidate desktop/mobile browser checks.
 The [review record](docs/implementation/OKF_EXPLORER_REVIEW.md#checked-candidate--24-october-2026)
-binds the source revisions, exact app tree and scoped results. Draft producer
-PR #182 and Explorer PR #183 preserve separate repository ownership. Full CI,
+binds the source revisions, exact app tree and scoped results. Producer PR #182
+and Explorer PR #183 preserve separate repository ownership. Full CI,
 human learning and release acceptance remain separate. No geographic feature
 payload or hosted service admission is added.
+
+The owner subsequently authorised merging the integration and requested the
+earlier compact facet presentation. Explorer restores thin colour bars and
+folded help while retaining accessible controls. Merge preparation refreshes
+the exact-build Heritage evidence and repairs the gateway's transitive Zod
+High finding under the existing vulnerability policy; see the
+[dependency record](docs/operations/DEPENDENCY_SECURITY_2026-10-24.md).
 
 ## Cloud continuation for OKF Explorer
 
