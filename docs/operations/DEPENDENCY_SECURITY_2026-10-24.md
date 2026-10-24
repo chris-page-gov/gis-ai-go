@@ -52,3 +52,11 @@ boundary, gateway-image contract and local-receipt checks passed. Changelog
 validation accepted all 143 fragments, and the diff passed whitespace checks.
 The initial registry audit identified one High finding; the new audit records
 zero High/Critical findings and the two separate Moderate findings described above.
+
+The next canonical repository run exercised 1,673 Python tests and identified one
+missed review binding: the strict-modern test still pinned the prior regenerable
+local receipt. Independent comparison confirmed that only the lockfile hash and
+derived set ID changed. The regenerable receipt pin was refreshed to its actual
+SHA-256, `c47248aa090d61877aa83740772c1690fe7a6b120641ca40a549a534de897ea4`.
+Historical evidence maps, classifications, claims and recorded outcomes remain
+unchanged; no receipt was edited to satisfy this guard.

@@ -64,8 +64,10 @@ EXACT_RESOURCES = [
 # Only its package binding and set ID change; historical evidence stays fixed.
 # OS branch reconciliation adds atomic assurance and distinct offline commands.
 # The canonical generator changes only the package binding and derived set ID.
+# 24 October 2026: the Zod repair refreshes only the independently checked
+# lockfile binding and derived set ID; every historical evidence pin stays fixed.
 REGENERABLE_LOCAL_RECEIPT_SHA256 = (
-    "46760cbcae78d37400366587b83ec72758419f3ed3290b2bfee80de388ea7843"
+    "c47248aa090d61877aa83740772c1690fe7a6b120641ca40a549a534de897ea4"
 )
 HISTORICAL_V1_SHA256 = {
     "evaluation/qual-206-local-protocol-evidence-matrix.v1.json": (
