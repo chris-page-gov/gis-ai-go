@@ -40,7 +40,7 @@ GIS projection root, a new preview directory and the actual GIS source commit:
 
 ```sh
 node ../okf-explorer/scripts/package_gis_learning_preview.mjs \
-  artifacts/okf-plus artifacts/okf-explorer-review SOURCE_COMMIT
+  artifacts/okf-plus artifacts/okf-explorer-review SOURCE_COMMIT LICENSE
 node artifacts/okf-explorer-review/serve.mjs
 ```
 
@@ -84,3 +84,49 @@ the review package. This establishes that metadata route only; protected
 feature-data entitlement, full-area retrieval and current semantic completeness
 remain separate. Human comprehension and assistive-technology acceptance remain
 open. Existing repository-wide CI and release gates still apply.
+
+## Checked candidate — 24 October 2026
+
+The second local package is bound to GIS implementation commit
+`444f640d9301800c203db3eb4c658af79029b5f1` and Explorer commit
+`00adcf1e5c3243bbc0a1c0d8f282d4f764b0b1c0`. Documentation updates after the
+GIS implementation commit do not change that candidate's source inputs.
+The corpus snapshot is `okf-plus-dee8c607b379fbc514609206` and the exact app tree
+SHA-256 is `79551c35c007b831f1cf4b2455054c98f4febf5668346aebe6d1ac99716f34bb`.
+Producer [PR #182](https://github.com/chris-page-gov/gis-ai-go/pull/182) targets
+the reconciled handoff branch; consumer
+[PR #183](https://github.com/chris-page-gov/okf-explorer/pull/183) targets its main.
+Both remain drafts pending their separate assurance gates.
+
+The full context export passed all-record schema validation. The Reader contains
+all 30,876 records in 965 lazy record shards, at most 1,032,325 bytes each, plus
+bounded search and the complete matching context corpus. The package manifest
+binds 36,955 files; independent byte/hash verification passed. The ZIP passed
+its integrity check. The three authored paths contain 11 steps, and each source
+learning record remains below 16 KiB.
+
+Verification passed 21 producer/source/context checks, 858 consumer unit tests,
+clean Svelte checks, deterministic builds, dependency policy and assembled-Site
+checks covering 393 reading pages and 8,328 internal references. The complete
+candidate passed 18 real Chromium 151 checks: every learning step, three exact
+native fields and source references, three normal searches, three full-corpus
+Ask queries, keyboard controls, reversible progress and 390-pixel mobile use.
+Desktop and mobile axe scans reported no violations; screenshots were visually
+inspected. Initial loading fetched zero dataset record shards. A learning
+selection fetched at most one targeted shard.
+
+Each representative Ask query searched the declared 30,876-record corpus and
+stayed within its budgets. Pavement width, building height and road elevation
+returned 501, 296 and 274 candidates respectively, selecting 16 records each.
+All three packages retained `insufficient` evidence status. These are verified
+retrieval journeys, not complete answers or specialist approval. There were no
+page, console or HTTP errors. The report separately retains 49 cancellation
+events after successful HTTP 200 response headers; the tested packages and
+journeys completed without unexpected transport failure.
+
+An unchanged local acceptance-lock descendant-cleanup test failed in this
+container, which retains zombie descendants under PID 1. No guard was weakened.
+The corresponding earlier Explorer CI app job passed after the browser-suite
+registry correction; final-source CI and full cross-engine release gates remain
+independent. Human comprehension, assistive-technology acceptance, live protected
+feature entitlement and hosted Ask OKF admission are not established here.

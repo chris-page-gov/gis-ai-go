@@ -9,9 +9,14 @@ complete lazy Reader projection beside the existing full context corpus, using
 the separate canonical Explorer application. Three small linked learning-path
 records preserve source definitions, concept identities and unassessed practice.
 The consumer presents exact native field context, sources and explicit gaps.
-Focused source, projection and consumer checks pass; complete candidate browser
-review is being recorded separately. No geographic feature payload or hosted
-service admission is added.
+The complete retained corpus has 30,876 records, 2,915 native field nodes and
+three linked practice paths. Source/context/Reader checks pass, as do all 858
+consumer unit tests and 18 complete-candidate desktop/mobile browser checks.
+The [review record](docs/implementation/OKF_EXPLORER_REVIEW.md#checked-candidate--24-october-2026)
+binds the source revisions, exact app tree and scoped results. Draft producer
+PR #182 and Explorer PR #183 preserve separate repository ownership. Full CI,
+human learning and release acceptance remain separate. No geographic feature
+payload or hosted service admission is added.
 
 ## Cloud continuation for OKF Explorer
 
