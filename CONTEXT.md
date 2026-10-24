@@ -2,6 +2,16 @@
 
 Last updated: 24 October 2026
 
+## Agreed Explorer continuation
+
+On 24 October the owner agreed to integrate the full OKF+ metadata with learning
+paths, JIT explanations and source references in the existing, separate OKF
+Explorer application. Reusable learning metadata belongs in small linked bundle
+records; presentation belongs in Explorer. The owner requested the reconciled
+branch handoff and continuation in a fresh cloud chat. The
+[handoff](docs/implementation/OKF_EXPLORER_CLOUD_HANDOFF.md) preserves the exact
+repository boundary, prior evidence and outstanding integration work.
+
 ## OS branch reconciliation
 
 The owner requested reconciliation of the two local 18 October OS commits with

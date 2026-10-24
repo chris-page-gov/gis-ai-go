@@ -2,6 +2,15 @@
 
 Last updated: 24 October 2026
 
+## Cloud continuation for OKF Explorer
+
+The owner agreed to extend the existing, separate `chris-page-gov/okf-explorer`
+application and keep reusable learning knowledge in small linked OKF+ records.
+The [cloud handoff](docs/implementation/OKF_EXPLORER_CLOUD_HANDOFF.md) records the
+two-repository boundary, source branch, reusable integration, environment checks
+and review target. It accompanies the requested publication of the reconciled
+branch; it adds no application implementation or new live acceptance.
+
 ## Reconciled local OS extension
 
 The owner requested [reconciliation](docs/implementation/OKF-223_RECONCILIATION.md)
