@@ -8,8 +8,10 @@ The owner agreed to extend the existing, separate `chris-page-gov/okf-explorer`
 application and keep reusable learning knowledge in small linked OKF+ records.
 The [cloud handoff](docs/implementation/OKF_EXPLORER_CLOUD_HANDOFF.md) records the
 two-repository boundary, source branch, reusable integration, environment checks
-and review target. It accompanies the requested publication of the reconciled
-branch; it adds no application implementation or new live acceptance.
+and review target. The reconciled branch, including the handoff at `119449ad`,
+has been pushed to GitHub. Starting a new cloud chat remains a user action: this
+session exposes no chat-creation tool and its CLI fallback could not connect.
+No application implementation or new live acceptance is added by this handoff.
 
 ## Reconciled local OS extension
 
@@ -31,8 +33,9 @@ complete OKF audits passed; the atomic audit checked 32,596 cards below 16 KiB.
 The broader repository gate remains incomplete on unchanged process-observer
 tests and the unavailable Chrome distribution. Private-output tests passed with
 an appropriate temporary directory; service/container, experience and remaining
-non-browser checks also passed. The reconciliation remains local, with protected
-main unchanged. See the record for exact scopes and diagnostic evidence.
+non-browser checks also passed. Protected main remains unchanged; branch
+publication is separate from merge or release acceptance. See the record for
+exact scopes and diagnostic evidence.
 
 ## Dated coverage navigation
 
