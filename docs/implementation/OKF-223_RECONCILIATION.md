@@ -67,9 +67,34 @@ execution claim. Focused metadata, planner, extraction/profile, atomic-card and
 registry checks passed. The canonical local receipt generator reran its suites;
 only the package binding and derived set identity changed, and all 33 receipt
 and strict-modern tests passed. Local links, contracts, changelog and secret
-checks passed. Full repository assurance and a final source-bound atomic audit
-are being recorded separately; no prior receipt is promoted to acceptance of
-changed files. Full assurance is required for a release or merge to protected main.
+checks passed. At merge commit `c377bfdb`, independent atomic verification passed
+all 32,596 cards, with a maximum of 14,838 bytes. The separate registry v2 contains
+72 cards, at most 12,923 bytes. A Building v4 explanation returned 13 complete
+linked cards in 70,493 bytes, with no traversal omission and explicit unknown
+datum/access evidence.
+
+The complete existing OKF verification also passed its importer, build, retrieval,
+whole-corpus projection, record/schema audit and pinned-engine stages at that
+commit; its unassessed K37–K40 cases remain unassessed. TypeScript, gateway,
+interoperability and front-end unit checks passed. The 22 execution-service tests,
+local client, execution-container, experience, reproducibility, version,
+public-read, diagram and SBOM checks passed separately.
+
+The full repository gate remains incomplete. The first attempt found restrictive
+checkout execute permissions on the existing launchers; restoring their required
+mode fixed that failure. The subsequent Python run executed 1,661 tests with six
+failures, one error and seven skips in unchanged observer/private-output tests.
+All ten private-output tests passed when rerun with an owner-only temporary
+directory outside Git: this managed environment places Git markers in its usual
+temporary and workspace roots. The observer's Darwin-mapping and SIGKILL cases
+still failed outside the sandbox; diagnostics found a negative mounted executable
+inode and an unreaped zombie process. Their code and tests are unchanged from
+main. Browser checks cannot launch because the required Chrome distribution is
+absent. No check or runtime guard was weakened to obtain a pass.
+
+No prior receipt is promoted to acceptance of changed files. Full assurance is
+still required for a release or merge to protected main. This local reconciliation
+does not publish a branch or pull request and does not change protected main.
 
 Rollback is to use the preserved original local branch or main's pinned revision.
 Generated directories and private ledgers are separate from source history and

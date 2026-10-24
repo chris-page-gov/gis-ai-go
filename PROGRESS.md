@@ -17,6 +17,14 @@ they do not invalidate the later successful captures recorded below. No private
 provider data was copied into the reconciled checkout. Verification and remaining
 integration limits are recorded separately; no new live acceptance is claimed.
 
+The merge is committed as `c377bfdb`. All reconciliation-specific checks and both
+complete OKF audits passed; the atomic audit checked 32,596 cards below 16 KiB.
+The broader repository gate remains incomplete on unchanged process-observer
+tests and the unavailable Chrome distribution. Private-output tests passed with
+an appropriate temporary directory; service/container, experience and remaining
+non-browser checks also passed. The reconciliation remains local, with protected
+main unchanged. See the record for exact scopes and diagnostic evidence.
+
 ## Dated coverage navigation
 
 The optional [coverage navigator](examples/geography-task-experience/COVERAGE-NAVIGATOR.md)
