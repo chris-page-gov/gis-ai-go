@@ -26,6 +26,14 @@ export const LIMITS = Object.freeze({
   requestTimeoutMs: 30_000,
   deadlineMs: 20 * 60_000,
 });
+export const TRANSPORT_LIMITS = Object.freeze({
+  extraAttemptsPerFile: 2,
+  extraRequests: 64,
+  replayBytes: 64 * 1024 * 1024,
+  retryAfterMs: 10_000,
+  startIntervalMs: 20,
+});
+const TRANSIENT_STATUS = new Set([429, 502, 503, 504]);
 const REPOSITORY = "chris-page-gov/gis-ai-go";
 const BASE_PATH = "/gis-ai-go/";
 const CANONICAL_URL = "https://chris-page-gov.github.io/gis-ai-go/";
@@ -50,6 +58,230 @@ const READINESS = Object.freeze({
 
 function invariant(condition, message) {
   if (!condition) throw Error(message);
+}
+function throwIfAborted(signal) {
+  if (signal?.aborted) throw signal.reason ?? Error("publication request aborted");
+}
+function abortable(value, signal) {
+  if (!signal) return Promise.resolve(value);
+  if (signal.aborted) {
+    // Attach rejection handling even when an operation was already initiated.
+    Promise.resolve(value).catch(() => {});
+    return Promise.reject(signal.reason ?? Error("publication request aborted"));
+  }
+  return new Promise((resolve, reject) => {
+    const cancelled = () => {
+      signal.removeEventListener("abort", cancelled);
+      reject(signal.reason ?? Error("publication request aborted"));
+    };
+    signal.addEventListener("abort", cancelled, { once: true });
+    Promise.resolve(value).then(result => {
+      signal.removeEventListener("abort", cancelled);
+      resolve(result);
+    }, error => {
+      signal.removeEventListener("abort", cancelled);
+      reject(error);
+    });
+  });
+}
+export class HttpStatusError extends Error {
+  constructor(url, status, retryAfter, bodyCancelled) {
+    super(url + " returned HTTP " + status);
+    this.name = "HttpStatusError";
+    this.status = status;
+    this.retryAfter = retryAfter;
+    this.bodyCancelled = bodyCancelled;
+  }
+}
+export function retryDelay(error, extraAttempt, now = Date.now()) {
+  invariant(error instanceof HttpStatusError && TRANSIENT_STATUS.has(error.status),
+    "only an observed transient HTTP status can be retried");
+  invariant(Number.isSafeInteger(extraAttempt) && extraAttempt >= 1 &&
+    extraAttempt <= TRANSPORT_LIMITS.extraAttemptsPerFile, "retry attempt is out of bounds");
+  let declared = 0;
+  if (error.retryAfter !== null) {
+    invariant(typeof error.retryAfter === "string" && error.retryAfter.length <= 256,
+      "Retry-After header is out of bounds");
+    const value = error.retryAfter.trim();
+    if (/^\d+$/u.test(value)) {
+      const seconds = Number(value);
+      invariant(Number.isSafeInteger(seconds), "Retry-After must be a bounded delay");
+      declared = seconds * 1000;
+    } else {
+      const timestamp = Date.parse(value);
+      invariant(Number.isFinite(timestamp) && new Date(timestamp).toUTCString() === value,
+        "Retry-After must be integer seconds or an HTTP date");
+      declared = Math.max(0, timestamp - now);
+    }
+    invariant(declared <= TRANSPORT_LIMITS.retryAfterMs, "Retry-After exceeds the 10-second ceiling");
+  }
+  return Math.max(extraAttempt * 1000, declared);
+}
+
+// Serialise only request starts. A delayed event loop cannot release overdue
+// tickets in a burst: each next grant is measured from the actual previous one.
+export function createRequestPacer({
+  enabled,
+  signal,
+  clock = () => performance.now(),
+  wait = (milliseconds, waitSignal) => pause(milliseconds, undefined, { signal: waitSignal }),
+} = {}) {
+  let tail = Promise.resolve();
+  let previousStart;
+  let queued = 0;
+  let peakQueued = 0;
+  let starts = 0;
+  let minimumGap;
+  async function start(operation, requestSignal) {
+    const effectiveSignal = signal && requestSignal ? AbortSignal.any([signal, requestSignal]) : signal ?? requestSignal;
+    throwIfAborted(effectiveSignal);
+    const invoke = () => {
+      throwIfAborted(effectiveSignal);
+      const observed = clock();
+      if (previousStart !== undefined) {
+        const gap = observed - previousStart;
+        minimumGap = minimumGap === undefined ? gap : Math.min(minimumGap, gap);
+      }
+      starts += 1;
+      try {
+        return operation();
+      } finally {
+        // Include synchronous fetch initialisation in the previous start.
+        // The next launch waits 20ms after this operation returned its promise,
+        // without waiting for response headers or body completion.
+        previousStart = clock();
+      }
+    };
+    if (!enabled) return invoke();
+    invariant(queued < LIMITS.concurrency, "request-start queue exceeds the worker ceiling");
+    queued += 1;
+    peakQueued = Math.max(peakQueued, queued);
+    const preceding = tail;
+    let release;
+    tail = new Promise(resolve => { release = resolve; });
+    try {
+      await preceding;
+      throwIfAborted(effectiveSignal);
+      while (previousStart !== undefined) {
+        const remaining = previousStart + TRANSPORT_LIMITS.startIntervalMs - clock();
+        if (remaining <= 0) break;
+        await abortable(wait(remaining, effectiveSignal), effectiveSignal);
+        throwIfAborted(effectiveSignal);
+      }
+      return invoke();
+    } finally {
+      queued -= 1;
+      release();
+    }
+  }
+  return {
+    start,
+    snapshot: () => ({
+      enabled: Boolean(enabled),
+      minimumStartIntervalMs: enabled ? TRANSPORT_LIMITS.startIntervalMs : 0,
+      requestsPerSecondLimit: enabled ? 50 : null,
+      startedRequests: starts,
+      peakQueuedStarts: peakQueued,
+      minimumObservedStartGapMs: minimumGap ?? null,
+    }),
+  };
+}
+
+export function createReadPolicy({
+  signal,
+  deployed = false,
+  fetcher = fetch,
+  clock = () => performance.now(),
+  wallClock = () => Date.now(),
+  wait = (milliseconds, waitSignal) => pause(milliseconds, undefined, { signal: waitSignal }),
+} = {}) {
+  const pacer = createRequestPacer({ enabled: deployed, signal, clock, wait });
+  const events = [];
+  const retriedFiles = new Set();
+  const statusCounts = { 429: 0, 502: 0, 503: 0, 504: 0 };
+  let reservations = 0;
+  let additionalRequests = 0;
+  let reservedReplayBytes = 0;
+  let additionalResponseBytes = 0;
+  let cancelledErrorBodies = 0;
+  let activeRequests = 0;
+  let peakActiveRequests = 0;
+  const snapshot = () => ({
+    ...pacer.snapshot(),
+    retryReservations: reservations,
+    additionalRequests,
+    reservedReplayBytes,
+    additionalResponseBytes,
+    retriedFiles: retriedFiles.size,
+    transientStatusCounts: { ...statusCounts },
+    cancelledErrorBodies,
+    // Error bodies are cancelled before application reads; this is not a
+    // measurement of bytes the HTTP implementation may have prefetched.
+    errorBodyBytesConsumed: 0,
+    peakActiveRequests,
+    retryEvents: events.map(event => ({ ...event })),
+  });
+  async function read(url, options) {
+    const resource = safePath(options.resource ?? new URL(url).pathname.replace(/^\/+/u, ""));
+    let attempt = 0;
+    let event;
+    while (true) {
+      throwIfAborted(signal);
+      let started = false;
+      try {
+        try {
+          return await readVerified(url, {
+            ...options,
+            fetcher,
+            signal,
+            startRequest: (operation, requestSignal) => pacer.start(() => {
+              started = true;
+              activeRequests += 1;
+              peakActiveRequests = Math.max(peakActiveRequests, activeRequests);
+              if (attempt > 0) {
+                additionalRequests += 1;
+                retriedFiles.add(resource);
+                event.started = true;
+              }
+              return operation();
+            }, requestSignal),
+            account: bytes => {
+              if (attempt > 0) additionalResponseBytes += bytes;
+              options.account?.(bytes);
+              if (attempt > 0) {
+                invariant(additionalResponseBytes <= TRANSPORT_LIMITS.replayBytes,
+                  "additional response byte ceiling exceeded");
+              }
+            },
+          });
+        } finally {
+          if (started) activeRequests -= 1;
+        }
+      } catch (error) {
+        if (!(error instanceof HttpStatusError)) throw error;
+        if (error.bodyCancelled) cancelledErrorBodies += 1;
+        if (!TRANSIENT_STATUS.has(error.status)) throw error;
+        statusCounts[error.status] += 1;
+        if (attempt >= TRANSPORT_LIMITS.extraAttemptsPerFile) throw error;
+        const delayMs = retryDelay(error, attempt + 1, wallClock());
+        const replayBytes = options.expectedBytes ?? options.maximum;
+        invariant(Number.isSafeInteger(replayBytes) && replayBytes >= 0,
+          "retry requires a declared response byte ceiling");
+        // Reserve both shared budgets without an intervening await.
+        invariant(reservations < TRANSPORT_LIMITS.extraRequests, "additional request ceiling exceeded");
+        invariant(reservedReplayBytes + replayBytes <= TRANSPORT_LIMITS.replayBytes,
+          "reserved replay byte ceiling exceeded");
+        reservations += 1;
+        reservedReplayBytes += replayBytes;
+        event = { path: resource, status: error.status, attempt: attempt + 2, delayMs, reservedBytes: replayBytes, started: false };
+        events.push(event);
+        attempt += 1;
+        await abortable(wait(delayMs, signal), signal);
+        throwIfAborted(signal);
+      }
+    }
+  }
+  return { read, snapshot };
 }
 export function hash(value) {
   return createHash("sha256").update(value).digest("hex");
@@ -189,19 +421,32 @@ export async function readVerified(url, options) {
     retain = false,
     requestTimeoutMs = LIMITS.requestTimeoutMs,
     account = () => {},
+    startRequest = operation => operation(),
   } = options;
+  invariant(Number.isSafeInteger(requestTimeoutMs) && requestTimeoutMs > 0 &&
+    requestTimeoutMs <= LIMITS.requestTimeoutMs, "request deadline is out of bounds");
   const localAbort = new AbortController();
-  const timeout = setTimeout(() => localAbort.abort(Error("publication request deadline exceeded")), requestTimeoutMs);
   const requestSignal = signal ? AbortSignal.any([signal, localAbort.signal]) : localAbort.signal;
+  let timeout;
   try {
-    const response = await fetcher(url, {
-      redirect: "error",
-      credentials: "omit",
-      cache: "no-store",
-      headers: { "cache-control": "no-cache" },
-      signal: requestSignal,
-    });
-    invariant(response.status === 200, url + " returned HTTP " + response.status);
+    const response = await startRequest(() => {
+      throwIfAborted(requestSignal);
+      // Queueing and backoff consume the walk deadline. The per-request clock
+      // begins at this actual fetch start, including headers and body lifetime.
+      timeout = setTimeout(() => localAbort.abort(Error("publication request deadline exceeded")), requestTimeoutMs);
+      return abortable(fetcher(url, {
+        redirect: "error",
+        credentials: "omit",
+        cache: "no-store",
+        headers: { "cache-control": "no-cache" },
+        signal: requestSignal,
+      }), requestSignal);
+    }, requestSignal);
+    if (response.status !== 200) {
+      const hasBody = Boolean(response.body);
+      if (hasBody) await abortable(response.body.cancel(), requestSignal);
+      throw new HttpStatusError(url, response.status, response.headers.get("retry-after"), hasBody);
+    }
     invariant(response.body, url + " has no response body");
     const reader = response.body.getReader();
     const digest = createHash("sha256");
@@ -210,7 +455,7 @@ export async function readVerified(url, options) {
     try {
       while (true) {
         if (requestSignal.aborted) throw requestSignal.reason;
-        const { done, value } = await reader.read();
+        const { done, value } = await abortable(reader.read(), requestSignal);
         if (done) break;
         invariant(value instanceof Uint8Array, "response body must contain bytes");
         length += value.byteLength;
@@ -220,7 +465,7 @@ export async function readVerified(url, options) {
         digest.update(value);
         if (retain) buffers.push(Buffer.from(value));
       }
-    } finally { await reader.cancel().catch(() => {}); }
+    } finally { await abortable(reader.cancel(), requestSignal); }
     invariant(expectedBytes === undefined || length === expectedBytes, url + " byte length differs");
     const sha256 = digest.digest("hex");
     invariant(expectedSha256 === undefined || sha256 === expectedSha256, url + " SHA-256 differs");
@@ -303,34 +548,34 @@ export async function runBounded(items, worker, options = {}) {
 export async function verifyPublication(expected, options = {}) {
   const started = Date.now();
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(Error("complete publication deadline exceeded")), options.deadlineMs ?? LIMITS.deadlineMs);
-  const fetcher = options.fetcher ?? fetch;
+  const deadlineMs = options.deadlineMs ?? LIMITS.deadlineMs;
+  invariant(Number.isSafeInteger(deadlineMs) && deadlineMs > 0 && deadlineMs <= LIMITS.deadlineMs,
+    "complete publication deadline is out of bounds");
+  const timer = setTimeout(() => controller.abort(Error("complete publication deadline exceeded")), deadlineMs);
+  const policy = createReadPolicy({
+    signal: controller.signal,
+    deployed: expected.mode === "deployed-publication",
+    fetcher: options.fetcher ?? fetch,
+  });
   let fetchedBytes = 0;
   let fetchedFiles = 0;
-  let active = 0;
-  let peakActive = 0;
   const retained = new Map();
   const base = expected.baseUrl instanceof URL ? expected.baseUrl : new URL(expected.baseUrl);
   const read = async (relative, maximum, extras = {}) => {
     const url = new URL(encodedPath(relative), base);
     invariant(url.origin === base.origin && url.pathname.startsWith(base.pathname), "publication URL escaped its base");
-    active += 1;
-    peakActive = Math.max(peakActive, active);
-    try {
-      const result = await readVerified(url.href, {
-        fetcher,
-        signal: controller.signal,
-        maximum,
-        requestTimeoutMs: options.requestTimeoutMs ?? LIMITS.requestTimeoutMs,
-        account: bytes => {
-          fetchedBytes += bytes;
-          invariant(fetchedBytes <= LIMITS.totalBytes, "complete publication byte limit exceeded");
-        },
-        ...extras,
-      });
-      fetchedFiles += 1;
-      return result;
-    } finally { active -= 1; }
+    const result = await policy.read(url.href, {
+      resource: relative,
+      maximum,
+      requestTimeoutMs: options.requestTimeoutMs ?? LIMITS.requestTimeoutMs,
+      account: bytes => {
+        fetchedBytes += bytes;
+        invariant(fetchedBytes <= LIMITS.totalBytes, "complete publication byte limit exceeded");
+      },
+      ...extras,
+    });
+    fetchedFiles += 1;
+    return result;
   };
   try {
     const checksumFile = await read("publication/CHECKSUMS.sha256", LIMITS.ledgerBytes, {
@@ -448,9 +693,14 @@ export async function verifyPublication(expected, options = {}) {
       logicalPayloadFiles: payloadEntries.length,
       emptyControlFiles: 1,
       concurrency,
-      peakActiveRequests: peakActive,
+      peakActiveRequests: policy.snapshot().peakActiveRequests,
+      transport: policy.snapshot(),
       elapsedMs: Date.now() - started,
     };
+  } catch (error) {
+    // runBounded waits for all its workers to settle before this snapshot.
+    error.verificationTransport = policy.snapshot();
+    throw error;
   } finally { clearTimeout(timer); controller.abort(); }
 }
 
@@ -472,6 +722,7 @@ async function main() {
       schema: "gis-ai-go.explorer-public-byte-verification.v1",
       status: "failed",
       error: String(error.message).slice(0, 4096),
+      ...(error.verificationTransport ? { transport: error.verificationTransport } : {}),
     }, null, 2) + "\n");
     throw error;
   }
