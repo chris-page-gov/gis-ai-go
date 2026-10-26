@@ -18,7 +18,10 @@
     "test:build": "node --test test/build/*.test.mjs",
     "test:unit": "pnpm --filter @gis-ai-go/contracts run build && pnpm run test:build && vitest run",
     "test:browser": "playwright test",
-    "test:public": "playwright test --config playwright.public.config.ts"
+    "test:public": "playwright test --config playwright.public.config.ts",
+    "verify:explorer-public": "node test/browser/verify-explorer-publication.mjs",
+    "test:explorer-browser": "playwright test --config playwright.explorer-public.config.ts",
+    "test:explorer-public": "pnpm run verify:explorer-public && pnpm run test:explorer-browser"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.13.0",

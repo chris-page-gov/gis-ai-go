@@ -8,12 +8,22 @@ boundary is deliberately broader than AI or MCP.
 ## Status
 
 **[`v0.1.0`](https://github.com/chris-page-gov/gis-ai-go/releases/tag/v0.1.0)
-is the first supported public discovery release.** Its exact protected-main artefact
-is deployed and verified at <https://chris-page-gov.github.io/gis-ai-go/>. The
-annotated tag is protected, the GitHub Release is immutable and its nine durable
-assets include checksums, receipts, provenance verification and the dependency SBOM.
+is the first supported public discovery release.** Its annotated tag is protected,
+the GitHub Release is immutable and its nine durable assets include checksums,
+receipts, provenance verification and the dependency SBOM.
 The [release evidence record](docs/operations/V0.1.0_RELEASE_EVIDENCE.md) binds the
-source, build, deployment and public-browser acceptance identities.
+source, build, deployment and public-browser acceptance identities of that release.
+
+The [full Explorer publication candidate](docs/decisions/ADR-0019-full-explorer-pages-publication.md)
+replaces the GIS site's INSPIRE-first default with the canonical OKF Explorer,
+complete OKF+ metadata, linked learning paths and field/source explanations.
+It retains the earlier catalogue through legacy routes and immutable v1 rollback.
+Deployment, exact public verification and rollback/restore evidence remain pending;
+merging source or running the portable preview does not establish those results.
+The public entrypoint remains <https://chris-page-gov.github.io/gis-ai-go/>;
+publication receipts identify the exact artefact served there.
+Use the [Explorer publication runbook](docs/operations/EXPLORER_PAGES_PUBLICATION.md)
+for candidate builds, exact-main deployment and legacy rollback selection.
 
 The Explorer is a static, metadata-only product; there is no deployed or public MCP
 service. Live status is in
@@ -151,7 +161,8 @@ For the build history, agent roles and a beginner explanation of the methodology
 read [How we built GIS AI GO](docs/chronicle/README.md). It includes the code review,
 model/guidance changes, local-completion plan and A4 print edition instructions.
 
-- `apps/public-explorer/` — static accessible catalogue Explorer
+- `apps/public-explorer/` — earlier static catalogue, retained for legacy journeys
+  and publication rollback
 - `apps/mcp-gateway/` — TypeScript gateway; generic/default entrypoints fail closed,
   while the fixed container and dedicated loopback-only local evaluation entrypoint
   mount the exact-five candidate

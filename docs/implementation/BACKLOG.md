@@ -69,6 +69,12 @@ and milestones are the source of truth for item-level status.
   search, update/release discovery, temporal evidence and geospatial concepts.
   Catalogue completeness and installed Ask OKF acceptance are separate gates.
 
+- [OKF-223 #153](https://github.com/chris-page-gov/gis-ai-go/issues/153) — make the
+  [canonical Explorer and complete OKF+ bundle the GIS public default](../decisions/ADR-0019-full-explorer-pages-publication.md),
+  retaining legacy links, exact app/source identities and v1 rollback. Close the
+  publication increment only with exact-main assurance, public-byte/browser
+  verification and rollback/restore evidence.
+
 ## Conditional integrations
 
 - `SITES-218` — implement and assess the [private Sites MCP pilot](SITES-218_PRIVATE_MCP_PILOT.md),

@@ -124,6 +124,13 @@ learning presentation from small linked records. Continue through complete
 candidate browser and accessibility review without promoting practice ticks,
 catalogue inclusion or metadata access to learning or data-retrieval acceptance.
 
+The [public-default migration](../decisions/ADR-0019-full-explorer-pages-publication.md)
+assembles the pinned canonical app and full projections in the GIS publication,
+preserves legacy links and retains immutable v1 rollback. Complete source
+assurance, exact public-byte and browser verification, then rollback and restore
+evidence before recording the switch-over as accepted. This static publication
+is separate from the supported gateway release.
+
 The 21 October learning increment adds a
 [task composition model](GEOGRAPHY_TASK_COMPOSITION.md) and
 [source-positioned term discovery](GEOSPATIAL_TERM_DISCOVERY.md). Task-specific

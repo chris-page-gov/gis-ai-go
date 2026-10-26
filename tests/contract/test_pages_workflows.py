@@ -120,7 +120,8 @@ class PagesWorkflowTests(unittest.TestCase):
             },
         )
         self.assertEqual(
-            always_run, {"assurance", "ci_impact_candidate", "ci_impact_shadow"}
+            always_run,
+            {"assurance", "ci_impact_candidate", "ci_impact_shadow", "explorer_pages_candidate"},
         )
         self.assertEqual(workflow_jobs, mapped_lanes | always_run)
 
@@ -170,6 +171,7 @@ class PagesWorkflowTests(unittest.TestCase):
         self.assertIn("- ci_impact_candidate", assurance)
         self.assertIn("- ci_impact_shadow", assurance)
         self.assertIn("- repository_assurance", assurance)
+        self.assertIn("- explorer_pages_candidate", assurance)
         self.assertIn("- gateway_image", assurance)
         self.assertIn(
             "CI_IMPACT_CANDIDATE_RESULT: ${{ needs.ci_impact_candidate.result }}",
@@ -192,6 +194,7 @@ class PagesWorkflowTests(unittest.TestCase):
         self.assertIn('[[ "$CI_IMPACT_SHADOW_RESULT" != \'success\' ]]', assurance)
         self.assertIn('[[ "$CI_IMPACT_CANDIDATE_RESULT" != \'success\' ]]', assurance)
         self.assertIn('[[ "$GATEWAY_IMAGE_RESULT" != \'success\' ]]', assurance)
+        self.assertIn('[[ "$EXPLORER_PAGES_RESULT" != \'success\' ]]', assurance)
         self.assertIn("exit 1", assurance)
 
         self.assertLess(
@@ -349,13 +352,15 @@ class PagesWorkflowTests(unittest.TestCase):
             "if: ${{ github.event_name == 'push' && "
             "github.ref == 'refs/heads/main' && success() }}"
         )
-        self.assertGreaterEqual(CI_WORKFLOW.count(guard), 3)
+        # PRs also build and exercise the archive; only protected-main push runs
+        # retain it under the deployment-authorised source artefact name.
+        self.assertEqual(CI_WORKFLOW.count(guard), 1)
         self.assertIn("name: pages-source-${{ github.sha }}", CI_WORKFLOW)
         self.assertIn("if-no-files-found: error", CI_WORKFLOW)
         self.assertIn("retention-days: 90", CI_WORKFLOW)
 
         diagnostic = CI_WORKFLOW.split("- name: Upload generated evidence", 1)[1].split(
-            "\n\n  gateway_image:", 1
+            "\n\n  explorer_pages_candidate:", 1
         )[0]
         self.assertIn("if: always()", diagnostic)
         self.assertIn("!artifacts/pages/**", diagnostic)
@@ -367,6 +372,7 @@ class PagesWorkflowTests(unittest.TestCase):
         )[0]
         self.assertIn("- assurance", provenance)
         self.assertIn("- repository_assurance", provenance)
+        self.assertIn("- explorer_pages_candidate", provenance)
         self.assertIn("timeout-minutes: 10", provenance)
         self.assertIn("actions: read", provenance)
         self.assertIn("attestations: write", provenance)
@@ -1149,7 +1155,7 @@ class ImpactAgreementWorkflowExecutionTests(unittest.TestCase):
         repository, environment = self._fixture()
         producers = (
             "CI_IMPACT_CANDIDATE_RESULT", "CI_IMPACT_SHADOW_RESULT",
-            "REPOSITORY_ASSURANCE_RESULT", "GATEWAY_IMAGE_RESULT",
+            "REPOSITORY_ASSURANCE_RESULT", "GATEWAY_IMAGE_RESULT", "EXPLORER_PAGES_RESULT",
         )
         environment.update({producer: "success" for producer in producers})
         result = self._run("Require all assurance producers to succeed", repository, environment)

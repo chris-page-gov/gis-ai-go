@@ -51,6 +51,7 @@ jobs:
       payload_root: ${{ steps.product.outputs.payload_root }}
       public_checksums_sha256: ${{ steps.product.outputs.public_checksums_sha256 }}
       product_version: ${{ steps.product.outputs.version }}
+      publication_schema: ${{ steps.product.outputs.publication_schema }}
     steps:
       - name: Validate dispatch inputs and CI run
         id: source
@@ -227,6 +228,11 @@ jobs:
             artifacts/pages/archive-receipt.json)"
           public_checksums_sha256="$(jq -r '.publication.checksumsSha256' \
             artifacts/pages/archive-receipt.json)"
+          publication_schema="$(jq -er '.schema' artifacts/pages/archive-receipt.json)"
+          case "$publication_schema" in
+            gis-ai-go.pages-archive-receipt.v1|gis-ai-go.pages-archive-receipt.v2) ;;
+            *) echo 'The verified publication schema is not supported' >&2; exit 1 ;;
+          esac
           if [[ ! "$okf_content_root" =~ ^[0-9a-f]{64}$ ]]; then
             echo 'The archive receipt has no valid OKF content root' >&2
             exit 1
@@ -241,6 +247,7 @@ jobs:
           fi
           {
             printf 'version=%s\n' "$SELECTED_VERSION"
+            printf 'publication_schema=%s\n' "$publication_schema"
             printf 'okf_content_root=%s\n' "$okf_content_root"
             printf 'payload_root=%s\n' "$payload_root"
             printf 'public_checksums_sha256=%s\n' "$public_checksums_sha256"
@@ -360,7 +367,8 @@ jobs:
       - prepare
       - deploy
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    # Complete-byte verification has a 20-minute deadline; UI journeys have 10.
+    timeout-minutes: 35
     permissions:
       contents: read
     steps:
@@ -396,7 +404,17 @@ jobs:
           EXPECTED_SOURCE_COMMIT: ${{ inputs.source_commit }}
           EXPECTED_VERSION: ${{ needs.prepare.outputs.product_version }}
           PUBLIC_BASE_URL: ${{ needs.deploy.outputs.page_url }}
-        run: pnpm --filter @gis-ai-go/public-explorer run test:public
+          PUBLICATION_SCHEMA: ${{ needs.prepare.outputs.publication_schema }}
+        run: |
+          case "$PUBLICATION_SCHEMA" in
+            gis-ai-go.pages-archive-receipt.v1)
+              pnpm --filter @gis-ai-go/public-explorer run test:public
+              ;;
+            gis-ai-go.pages-archive-receipt.v2)
+              pnpm --filter @gis-ai-go/public-explorer run test:explorer-public
+              ;;
+            *) echo 'No acceptance journey exists for this verified archive schema' >&2; exit 1 ;;
+          esac
 
       - name: Write public verification receipt
         env:

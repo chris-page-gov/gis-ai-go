@@ -1,6 +1,18 @@
 # Current context
 
-Last updated: 24 October 2026
+Last updated: 26 October 2026
+
+## GIS public entrypoint continuation
+
+On 26 October the owner asked to address the GIS site's remaining INSPIRE-first
+default from this chat. Continue the publication migration in GIS AI GO, reusing
+the merged canonical Explorer and its small linked OKF+ learning records.
+[ADR-0019](docs/decisions/ADR-0019-full-explorer-pages-publication.md) records the
+pinned app, public projection base, legacy routes and bounded v2 distribution.
+The existing open-publication authority and exact-main, attestation, manual
+deployment, public-verification and rollback requirements apply. Treat the change
+as a candidate until those results exist; do not infer a release, protected-data
+right or hosted service admission from the public UI.
 
 ## Agreed Explorer continuation
 

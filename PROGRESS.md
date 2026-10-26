@@ -1,6 +1,35 @@
 # Current progress
 
-Last updated: 24 October 2026
+Last updated: 26 October 2026
+
+## Full Explorer public default candidate
+
+The owner asked to complete the GIS public entrypoint from this chat. The
+[publication design](docs/decisions/ADR-0019-full-explorer-pages-publication.md)
+uses the merged canonical Explorer under `/explorer/`, the complete Reader and
+context under `/gis/explorer/`, and `/legacy/` for existing catalogue links.
+The app, GIS source and complete projection inventory have separate identities.
+Context is regenerated for the public base rather than copied from localhost.
+
+The candidate retains exact-main CI, archive attestation, manual Pages selection,
+complete served-byte verification and legacy v1 rollback. Its source checks,
+deployment and rollback/restore results must be recorded before claiming a live
+switch-over. The immutable `v0.1.0` release and separate gateway release gates
+remain unchanged.
+
+Two complete v2 archive builds also produced byte-identical tar archives. The
+final committed source still requires its own complete CI candidate and public
+deployment evidence.
+
+Provisional local acceptance used source HEAD
+`35318abcce5e23c1509ed6ce131d81f5dfd0d38c` with the uncommitted publication
+working tree. All 47 archive/publication/staging tests, 93 workflow/impact tests,
+11 assembler tests and nine byte-verifier tests passed. The exact staged
+candidate passed streaming checks for all 37,279 public files
+(714,610,618 bytes) and all seven real-browser journeys. These are local candidate
+results, not clean-commit CI or public HTTPS acceptance. The
+[publication runbook](docs/operations/EXPLORER_PAGES_PUBLICATION.md) records the
+build, manual exact-main selection and retained legacy rollback identities.
 
 ## Existing Explorer learning integration
 
@@ -10,19 +39,25 @@ the separate canonical Explorer application. Three small linked learning-path
 records preserve source definitions, concept identities and unassessed practice.
 The consumer presents exact native field context, sources and explicit gaps.
 The complete retained corpus has 30,876 records, 2,915 native field nodes and
-three linked practice paths. Source/context/Reader checks pass, as do all 858
-consumer unit tests and 18 complete-candidate desktop/mobile browser checks.
+three linked practice paths. Initial source/context/Reader checks passed, as did
+all 858 consumer unit tests and 18 complete-candidate desktop/mobile browser checks.
 The [review record](docs/implementation/OKF_EXPLORER_REVIEW.md#checked-candidate--24-october-2026)
-binds the source revisions, exact app tree and scoped results. Producer PR #182
-and Explorer PR #183 preserve separate repository ownership. Full CI,
-human learning and release acceptance remain separate. No geographic feature
-payload or hosted service admission is added.
+binds those source revisions, app tree and scoped results. On 24 October,
+[producer PR #182](https://github.com/chris-page-gov/gis-ai-go/pull/182) merged into
+`codex/okf-223-reconcile-main`, while
+[Explorer PR #183](https://github.com/chris-page-gov/okf-explorer/pull/183) merged
+into the separate Explorer `main`. Required CI passed for both reviewed heads,
+including Explorer's full cross-browser suite. GIS protected main and its public
+entrypoint were not switched by those merges. Human learning and release
+acceptance remain separate; no geographic feature payload or hosted service
+admission was added.
 
 The owner subsequently authorised merging the integration and requested the
-earlier compact facet presentation. Explorer restores thin colour bars and
-folded help while retaining accessible controls. Merge preparation refreshes
-the exact-build Heritage evidence and repairs the gateway's transitive Zod
-High finding under the existing vulnerability policy; see the
+earlier compact facet presentation. The merged Explorer restores thin colour bars
+and folded help while retaining accessible controls. Its exact-build Heritage
+refresh passed all 100 questions and three journeys in CI. The gateway's
+transitive Zod High finding was repaired under the existing vulnerability policy;
+see the
 [dependency record](docs/operations/DEPENDENCY_SECURITY_2026-10-24.md).
 
 ## Cloud continuation for OKF Explorer
