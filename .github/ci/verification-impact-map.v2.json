@@ -89,6 +89,7 @@
         ".github/**",
         ".nvmrc",
         "VERSION",
+        "config/explorer-publication.json",
         "package.json",
         "pnpm-lock.yaml",
         "pnpm-workspace.yaml",

@@ -8,6 +8,7 @@ from pathlib import Path
 import tempfile
 import unittest
 from unittest.mock import patch
+from urllib.parse import urlparse
 
 from scripts.okf_plus.metadata_refresh import (
     COLLECTIONS, DOC_PROJECTS, MAX_BODY_BYTES, MAX_RECORD_BYTES, PACKAGES, PRIVATE_PATH,
@@ -351,7 +352,7 @@ class MetadataRefreshTests(unittest.TestCase):
         self.responses[url] = (429, b'rate limited', {'Retry-After': '120'})
         first = self.run_capture()
         self.assertEqual(first['metadataCoverage'], 'incomplete')
-        self.assertEqual(sum('docs.os.uk' in row[0] for row in self.transport.calls), 1)
+        self.assertEqual(sum(urlparse(row[0]).hostname == 'docs.os.uk' for row in self.transport.calls), 1)
         before = len(self.transport.calls)
         self.run_capture()
         self.assertEqual(len(self.transport.calls), before)

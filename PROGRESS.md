@@ -21,6 +21,12 @@ Two complete v2 archive builds also produced byte-identical tar archives. The
 final committed source still requires its own complete CI candidate and public
 deployment evidence.
 
+The first main-target CI run passed gateway image assurance and identified one
+new configuration-routing omission, now repaired with a regression test. The
+[CodeQL review](docs/operations/EXPLORER_PAGES_CODEQL_REVIEW.md) records two open
+content-checksum findings and the code-scanning API access limitation; their
+complete paths still require review before merge. Query coverage is unchanged.
+
 Provisional local acceptance used source HEAD
 `35318abcce5e23c1509ed6ce131d81f5dfd0d38c` with the uncommitted publication
 working tree. All 47 archive/publication/staging tests, 93 workflow/impact tests,
