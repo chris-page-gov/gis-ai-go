@@ -1,0 +1,1387 @@
+{
+  "schema": "okf-plus.os-field-semantics.v1",
+  "reviewedAt": "2026-10-18T19:12:24Z",
+  "statementStatus": "author-reviewed-paraphrase",
+  "sourceSnapshot": "os-ngd-collections.json",
+  "sourceSnapshotSha256": "88905be3b1563f50a5309669741e1ebfa35700ca5c12d6e51b0c3cac9932acb4",
+  "coverage": {
+    "factCount": 48,
+    "collectionCount": 6,
+    "complete": false
+  },
+  "limitations": [
+    "Curated semantic supplement for priority questions; not a complete documentation or field-definition capture.",
+    "Web-connector observations are not raw HTTP capture receipts; excerpt hashes do not attest full pages.",
+    "Field existence is checked against the retained 2 October API snapshot; current documentation does not refresh that snapshot.",
+    "Documentation minor versions and API major collection IDs are retained separately. Only exact collectionId/nativeIdentifier matches may consume a fact.",
+    "Building Part v1 uses explicitly documented former names verified against the retained v1 schema.",
+    "No geographic records, credentials, entitlement assertions or live API acceptance are included.",
+    "Short retained excerpts support only the stated excerpt scope. Remaining semantic detail was reviewed through the web connector; complete supporting passages await private capture. Offline hash checks establish integrity, not independent semantic validation."
+  ],
+  "sources": [
+    {
+      "id": "road",
+      "url": "https://docs.os.uk/osngd/data-structure/transport/transport-network/road-link",
+      "observedOn": "2026-10-18",
+      "reviewedAt": "2026-10-18T19:12:24Z",
+      "observationMethod": "official-documentation-via-web-connector",
+      "evidenceExcerpt": "3D geometry for the feature.",
+      "excerptRepresentation": "Selected visible text excerpts with formatting removed; separate excerpts are delimited by newlines.",
+      "evidenceSha256": "de0350c6a050efcc905380cde4df36ec2b3dd0123de101758e5b3d9f71853005",
+      "hashScope": "UTF-8 evidenceExcerpt only; not the page or full HTTP response",
+      "excerptSupports": "Road geometry dimensionality only.",
+      "completeSupportingPassages": "not-retained; pending-private-capture",
+      "evidenceValidation": "Web-observed author review; checksum validates retained excerpt integrity only."
+    },
+    {
+      "id": "pavement",
+      "url": "https://docs.os.uk/osngd/data-structure/transport/transport-network/pavement-link",
+      "observedOn": "2026-10-18",
+      "reviewedAt": "2026-10-18T19:12:24Z",
+      "observationMethod": "official-documentation-via-web-connector",
+      "evidenceExcerpt": "The unique identifier (OSID) of the Road Link feature that the Pavement Link is related to.",
+      "excerptRepresentation": "Selected visible text excerpts with formatting removed; separate excerpts are delimited by newlines.",
+      "evidenceSha256": "5ec576c033fe39ddce5b63251bb9d0a8a4cc0dd24acdc43a44e41d3de27fac9b",
+      "hashScope": "UTF-8 evidenceExcerpt only; not the page or full HTTP response",
+      "excerptSupports": "Relationship to the Road Link identifier only.",
+      "completeSupportingPassages": "not-retained; pending-private-capture",
+      "evidenceValidation": "Web-observed author review; checksum validates retained excerpt integrity only."
+    },
+    {
+      "id": "road-pavement",
+      "url": "https://docs.os.uk/osngd/using-os-ngd-data/os-ngd-transport/pavements/pavement-attribution",
+      "observedOn": "2026-10-18",
+      "reviewedAt": "2026-10-18T19:12:24Z",
+      "observationMethod": "official-documentation-via-web-connector",
+      "evidenceExcerpt": "Therefore the pavement attribution has not been surveyed as identified in its metadata attributes.\nincludes both sides of the road",
+      "excerptRepresentation": "Selected visible text excerpts with formatting removed; separate excerpts are delimited by newlines.",
+      "evidenceSha256": "0ce9701a3ac8c5891d31d4335a42fa60285aa4d2ea23dd15e6d4a5fce7b589be",
+      "hashScope": "UTF-8 evidenceExcerpt only; not the page or full HTTP response",
+      "excerptSupports": "Pavement attribution is not separately surveyed; widths include both sides.",
+      "completeSupportingPassages": "not-retained; pending-private-capture",
+      "evidenceValidation": "Web-observed author review; checksum validates retained excerpt integrity only."
+    },
+    {
+      "id": "pavement-geometry",
+      "url": "https://docs.os.uk/osngd/using-os-ngd-data/os-ngd-transport/pavements/pavement-link-feature-type",
+      "observedOn": "2026-10-18",
+      "reviewedAt": "2026-10-18T19:12:24Z",
+      "observationMethod": "official-documentation-via-web-connector",
+      "evidenceExcerpt": "Pavement Link features are a discontinuous set of geometries and therefore not a routable network.",
+      "excerptRepresentation": "Selected visible text excerpts with formatting removed; separate excerpts are delimited by newlines.",
+      "evidenceSha256": "ecb0cf5202d3d5ee34037ab02608a9b718fff712a4d98de030e9cef9f3fab72b",
+      "hashScope": "UTF-8 evidenceExcerpt only; not the page or full HTTP response",
+      "excerptSupports": "Pavement Link discontinuity and lack of routability only.",
+      "completeSupportingPassages": "not-retained; pending-private-capture",
+      "evidenceValidation": "Web-observed author review; checksum validates retained excerpt integrity only."
+    },
+    {
+      "id": "building",
+      "url": "https://docs.os.uk/osngd/data-structure/buildings/building-features/building",
+      "observedOn": "2026-10-18",
+      "reviewedAt": "2026-10-18T19:12:24Z",
+      "observationMethod": "official-documentation-via-web-connector",
+      "evidenceExcerpt": "The height, above datum, of the underlying ground surface.",
+      "excerptRepresentation": "Selected visible text excerpts with formatting removed; separate excerpts are delimited by newlines.",
+      "evidenceSha256": "123ac8058203f9cc432b93ce517e35480621b8863293a1c53e6318ee10e6ec1f",
+      "hashScope": "UTF-8 evidenceExcerpt only; not the page or full HTTP response",
+      "excerptSupports": "Absolute ground-height datum relationship only.",
+      "completeSupportingPassages": "not-retained; pending-private-capture",
+      "evidenceValidation": "Web-observed author review; checksum validates retained excerpt integrity only."
+    },
+    {
+      "id": "building-part",
+      "url": "https://docs.os.uk/osngd/data-structure/buildings/building-features/building-part",
+      "observedOn": "2026-10-18",
+      "reviewedAt": "2026-10-18T19:12:24Z",
+      "observationMethod": "official-documentation-via-web-connector",
+      "evidenceExcerpt": "The confidence in the quality of the height attributes for the building or structure expressed in qualitative terms.",
+      "excerptRepresentation": "Selected visible text excerpts with formatting removed; separate excerpts are delimited by newlines.",
+      "evidenceSha256": "d47e6cdfeba0dd8f760f408ef1c26fdae0577984414a5a713b4c6378bc0021cb",
+      "hashScope": "UTF-8 evidenceExcerpt only; not the page or full HTTP response",
+      "excerptSupports": "Qualitative meaning of height confidence only.",
+      "completeSupportingPassages": "not-retained; pending-private-capture",
+      "evidenceValidation": "Web-observed author review; checksum validates retained excerpt integrity only."
+    },
+    {
+      "id": "building-creation",
+      "url": "https://docs.os.uk/osngd/using-os-ngd-data/os-ngd-buildings/how-building-data-is-created",
+      "observedOn": "2026-10-18",
+      "reviewedAt": "2026-10-18T19:12:24Z",
+      "observationMethod": "official-documentation-via-web-connector",
+      "evidenceExcerpt": "Building height data is created using a combination of manual and automated methods.",
+      "excerptRepresentation": "Selected visible text excerpts with formatting removed; separate excerpts are delimited by newlines.",
+      "evidenceSha256": "65f33c72a2a710557f7c6220a5e4708d326c648a32cf0c7c3082a09cd0fd5049",
+      "hashScope": "UTF-8 evidenceExcerpt only; not the page or full HTTP response",
+      "excerptSupports": "Manual and automated production methods only.",
+      "completeSupportingPassages": "not-retained; pending-private-capture",
+      "evidenceValidation": "Web-observed author review; checksum validates retained excerpt integrity only."
+    },
+    {
+      "id": "building-aggregation",
+      "url": "https://docs.os.uk/more-than-maps/data-demonstrators/topography-demonstrators/os-ngd-buildings/building-feature-type",
+      "observedOn": "2026-10-18",
+      "reviewedAt": "2026-10-18T19:12:24Z",
+      "observationMethod": "official-documentation-via-web-connector",
+      "evidenceExcerpt": "This was added in Version 4 of Buildings in March 2025.\ninherits the most extreme absolute values",
+      "excerptRepresentation": "Selected visible text excerpts with formatting removed; separate excerpts are delimited by newlines.",
+      "evidenceSha256": "0599cab045308a1f38cb3d4799d6eafaca59b6db623486278baf6a5d5a134a22",
+      "hashScope": "UTF-8 evidenceExcerpt only; not the page or full HTTP response",
+      "excerptSupports": "Building height introduced in v4; extreme absolute values are inherited.",
+      "completeSupportingPassages": "not-retained; pending-private-capture",
+      "evidenceValidation": "Web-observed author review; checksum validates retained excerpt integrity only."
+    },
+    {
+      "id": "height-confidence",
+      "url": "https://docs.os.uk/osngd/code-lists/code-lists-overview/builtstructureheightconfidencevalue",
+      "observedOn": "2026-10-18",
+      "reviewedAt": "2026-10-18T19:12:24Z",
+      "observationMethod": "official-documentation-via-web-connector",
+      "evidenceExcerpt": "Buildings and structures for which the confidence of the building / structure height values has not been assessed.",
+      "excerptRepresentation": "Selected visible text excerpts with formatting removed; separate excerpts are delimited by newlines.",
+      "evidenceSha256": "5bf654e9e128fa96a1073b6402952246b72f0f700fba4a3eb658f2a3cb7e7a80",
+      "hashScope": "UTF-8 evidenceExcerpt only; not the page or full HTTP response",
+      "excerptSupports": "Not Assessed code meaning only; other code meanings were reviewed online.",
+      "completeSupportingPassages": "not-retained; pending-private-capture",
+      "evidenceValidation": "Web-observed author review; checksum validates retained excerpt integrity only."
+    },
+    {
+      "id": "crs",
+      "url": "https://docs.os.uk/osngd/getting-started/os-ngd-fundamentals/coordinate-reference-systems",
+      "observedOn": "2026-10-18",
+      "reviewedAt": "2026-10-18T19:12:24Z",
+      "observationMethod": "official-documentation-via-web-connector",
+      "evidenceExcerpt": "The BNG is a horizontal spatial reference system only; it does not include a vertical (height) reference system.",
+      "excerptRepresentation": "Selected visible text excerpts with formatting removed; separate excerpts are delimited by newlines.",
+      "evidenceSha256": "9b1ef0cea1cdd7a2e91c1333e70228bd53f4b0ca762383e7f2357e3007d5669e",
+      "hashScope": "UTF-8 evidenceExcerpt only; not the page or full HTTP response",
+      "excerptSupports": "BNG alone has no vertical reference only; EPSG:7405 was reviewed online.",
+      "completeSupportingPassages": "not-retained; pending-private-capture",
+      "evidenceValidation": "Web-observed author review; checksum validates retained excerpt integrity only."
+    },
+    {
+      "id": "heighting-method",
+      "url": "https://docs.os.uk/osngd/code-lists/code-lists-overview/heightingmethodvalue",
+      "observedOn": "2026-10-18",
+      "reviewedAt": "2026-10-18T19:12:24Z",
+      "observationMethod": "official-documentation-via-web-connector",
+      "evidenceExcerpt": "The code list describes how a feature's height value was derived.",
+      "excerptRepresentation": "Selected visible text excerpts with formatting removed; separate excerpts are delimited by newlines.",
+      "evidenceSha256": "3ad9960d36089f869a66084c4524c79a75f4ee354a460868be641369637f40ed",
+      "hashScope": "UTF-8 evidenceExcerpt only; not the page or full HTTP response",
+      "excerptSupports": "Height derivation metadata only; code labels were reviewed online.",
+      "completeSupportingPassages": "not-retained; pending-private-capture",
+      "evidenceValidation": "Web-observed author review; checksum validates retained excerpt integrity only."
+    },
+    {
+      "id": "schema-versions",
+      "url": "https://docs.os.uk/osngd/getting-started/os-ngd-fundamentals/data-schema-versioning",
+      "observedOn": "2026-10-18",
+      "reviewedAt": "2026-10-18T19:12:24Z",
+      "observationMethod": "official-documentation-via-web-connector",
+      "evidenceExcerpt": "When a data schema undergoes a minor version increment, the previous version will no longer be available.",
+      "excerptRepresentation": "Selected visible text excerpts with formatting removed; separate excerpts are delimited by newlines.",
+      "evidenceSha256": "5efec073f70e78953a8418f6f7932793bfe1d7cf0929f6bcfc5489d09c8b68ac",
+      "hashScope": "UTF-8 evidenceExcerpt only; not the page or full HTTP response",
+      "excerptSupports": "Minor-version replacement policy only.",
+      "completeSupportingPassages": "not-retained; pending-private-capture",
+      "evidenceValidation": "Web-observed author review; checksum validates retained excerpt integrity only."
+    },
+    {
+      "id": "odn",
+      "url": "https://docs.os.uk/more-than-maps/a-guide-to-coordinate-systems-in-great-britain/ordnance-survey-coordinate-systems/ordnance-datum-newlyn",
+      "observedOn": "2026-10-18",
+      "reviewedAt": "2026-10-18T19:12:24Z",
+      "observationMethod": "official-documentation-via-web-connector",
+      "evidenceExcerpt": "orthometric height relative to Ordnance Datum Newlyn",
+      "excerptRepresentation": "Selected visible text excerpts with formatting removed; separate excerpts are delimited by newlines.",
+      "evidenceSha256": "aaeae4fb6aab61623bd5e962886be3167d8bb51b99ffd2833dc578b7d9cf2cb1",
+      "hashScope": "UTF-8 evidenceExcerpt only; not the page or full HTTP response",
+      "excerptSupports": "Orthometric height relative to ODN only.",
+      "completeSupportingPassages": "not-retained; pending-private-capture",
+      "evidenceValidation": "Web-observed author review; checksum validates retained excerpt integrity only."
+    },
+    {
+      "id": "feature-request",
+      "url": "https://docs.os.uk/os-apis/accessing-os-apis/os-ngd-api-features/technical-specification/features",
+      "observedOn": "2026-10-18",
+      "reviewedAt": "2026-10-18T19:12:24Z",
+      "observationMethod": "official-documentation-via-web-connector",
+      "evidenceExcerpt": "The coordinate reference system of the response geometries.",
+      "excerptRepresentation": "Selected visible text excerpts with formatting removed; separate excerpts are delimited by newlines.",
+      "evidenceSha256": "5563a8ae7199ae34af7c8e8831f2ba474717220c91e2d01560ce0e04887bb725",
+      "hashScope": "UTF-8 evidenceExcerpt only; not the page or full HTTP response",
+      "excerptSupports": "Response-geometry CRS parameter role only.",
+      "completeSupportingPassages": "not-retained; pending-private-capture",
+      "evidenceValidation": "Web-observed author review; checksum validates retained excerpt integrity only."
+    },
+    {
+      "id": "physical-level",
+      "url": "https://docs.os.uk/osngd/code-lists/code-lists-overview/physicallevelvalue",
+      "observedOn": "2026-10-18",
+      "reviewedAt": "2026-10-18T19:12:24Z",
+      "observationMethod": "official-documentation-via-web-connector",
+      "evidenceExcerpt": "Physical level for features beneath the ground surface level.",
+      "excerptRepresentation": "Selected visible text excerpts with formatting removed; separate excerpts are delimited by newlines.",
+      "evidenceSha256": "803ab6ca60ab7799d67f861b87b65ded03f99b10c2f60221ed800d6e336c1f4b",
+      "hashScope": "UTF-8 evidenceExcerpt only; not the page or full HTTP response",
+      "excerptSupports": "Underground code meaning only; other code meanings were reviewed online.",
+      "completeSupportingPassages": "not-retained; pending-private-capture",
+      "evidenceValidation": "Web-observed author review; checksum validates retained excerpt integrity only."
+    },
+    {
+      "id": "road-surface",
+      "url": "https://docs.os.uk/osngd/data-structure/transport/transport-features/road-track-or-path",
+      "observedOn": "2026-10-18",
+      "reviewedAt": "2026-10-18T19:12:24Z",
+      "observationMethod": "official-documentation-via-web-connector",
+      "evidenceExcerpt": "Geometry for the feature.",
+      "excerptRepresentation": "Selected visible text excerpts with formatting removed; separate excerpts are delimited by newlines.",
+      "evidenceSha256": "3939581c1986803ff9afb4987fabdd4a74ba940b1349b764ec31a9a7836a88db",
+      "hashScope": "UTF-8 evidenceExcerpt only; not the page or full HTTP response",
+      "excerptSupports": "Geometry context only; physicallevel definition was reviewed online.",
+      "completeSupportingPassages": "not-retained; pending-private-capture",
+      "evidenceValidation": "Web-observed author review; checksum validates retained excerpt integrity only."
+    }
+  ],
+  "facts": [
+    {
+      "collectionId": "trn-ntwk-roadlink-5",
+      "nativeIdentifier": "presenceofpavement_minimumwidth_m",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Minimum pavement width aggregated along the road link, including both sides.",
+      "sourceIds": [
+        "road",
+        "road-pavement"
+      ],
+      "documentedSchemaVersions": [
+        "5.0"
+      ],
+      "unit": "m",
+      "semanticRole": "pavement-width",
+      "derivation": "Algorithmic association of topographic pavement polygons with road links.",
+      "limitations": [
+        "Not carriageway width or a separately surveyed clear-passage measurement.",
+        "The field does not locate a particular pinch point."
+      ],
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture.",
+      "relatedFieldIdentifiers": [
+        "presenceofpavement_capturemethod",
+        "presenceofpavement_evidencedate",
+        "presenceofpavement_updatedate"
+      ],
+      "relatedFieldStatus": "author-curated-reading-dependencies"
+    },
+    {
+      "collectionId": "trn-ntwk-roadlink-5",
+      "nativeIdentifier": "presenceofpavement_averagewidth_m",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Average pavement width aggregated along the road link, including both sides.",
+      "sourceIds": [
+        "road",
+        "road-pavement"
+      ],
+      "documentedSchemaVersions": [
+        "5.0"
+      ],
+      "unit": "m",
+      "semanticRole": "pavement-width",
+      "derivation": "Algorithmic association of topographic pavement polygons with road links.",
+      "limitations": [
+        "Not carriageway width or a separately surveyed clear-passage measurement.",
+        "The field does not locate a particular pinch point."
+      ],
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture.",
+      "relatedFieldIdentifiers": [
+        "presenceofpavement_capturemethod",
+        "presenceofpavement_evidencedate",
+        "presenceofpavement_updatedate"
+      ],
+      "relatedFieldStatus": "author-curated-reading-dependencies"
+    },
+    {
+      "collectionId": "trn-ntwk-pavementlink-1",
+      "nativeIdentifier": "presenceofpavement_minimumwidth_m",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Minimum pavement width for the road subsection represented by this pavement link.",
+      "sourceIds": [
+        "pavement",
+        "pavement-geometry"
+      ],
+      "documentedSchemaVersions": [
+        "1.0"
+      ],
+      "unit": "m",
+      "semanticRole": "pavement-width",
+      "derivation": "Algorithmic association of topographic pavement polygons with road links.",
+      "limitations": [
+        "Use presenceofpavement_sideofroad to distinguish sides.",
+        "Coincident road-link geometry is not a pavement centreline."
+      ],
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture.",
+      "relatedFieldIdentifiers": [
+        "presenceofpavement_sideofroad",
+        "roadlinkid",
+        "geometry",
+        "presenceofpavement_capturemethod",
+        "presenceofpavement_evidencedate",
+        "presenceofpavement_updatedate"
+      ],
+      "relatedFieldStatus": "author-curated-reading-dependencies"
+    },
+    {
+      "collectionId": "trn-ntwk-pavementlink-1",
+      "nativeIdentifier": "presenceofpavement_averagewidth_m",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Average pavement width for the road subsection represented by this pavement link.",
+      "sourceIds": [
+        "pavement",
+        "pavement-geometry"
+      ],
+      "documentedSchemaVersions": [
+        "1.0"
+      ],
+      "unit": "m",
+      "semanticRole": "pavement-width",
+      "derivation": "Algorithmic association of topographic pavement polygons with road links.",
+      "limitations": [
+        "Use presenceofpavement_sideofroad to distinguish sides.",
+        "Coincident road-link geometry is not a pavement centreline."
+      ],
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture.",
+      "relatedFieldIdentifiers": [
+        "presenceofpavement_sideofroad",
+        "roadlinkid",
+        "geometry",
+        "presenceofpavement_capturemethod",
+        "presenceofpavement_evidencedate",
+        "presenceofpavement_updatedate"
+      ],
+      "relatedFieldStatus": "author-curated-reading-dependencies"
+    },
+    {
+      "collectionId": "trn-ntwk-pavementlink-1",
+      "nativeIdentifier": "presenceofpavement_sideofroad",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Left or right of the road in its start-node to end-node digitisation direction.",
+      "sourceIds": [
+        "pavement",
+        "pavement-geometry"
+      ],
+      "documentedSchemaVersions": [
+        "1.0"
+      ],
+      "semanticRole": "side-of-road",
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture.",
+      "relatedFieldIdentifiers": [
+        "roadlinkid",
+        "geometry"
+      ],
+      "relatedFieldStatus": "author-curated-reading-dependencies"
+    },
+    {
+      "collectionId": "trn-ntwk-pavementlink-1",
+      "nativeIdentifier": "roadlinkid",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "OSID linking this pavement subsection to its associated road link.",
+      "sourceIds": [
+        "pavement"
+      ],
+      "documentedSchemaVersions": [
+        "1.0"
+      ],
+      "semanticRole": "related-feature-identifier",
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture.",
+      "relatedFieldIdentifiers": [
+        "presenceofpavement_sideofroad",
+        "geometry"
+      ],
+      "relatedFieldStatus": "author-curated-reading-dependencies"
+    },
+    {
+      "collectionId": "trn-ntwk-pavementlink-1",
+      "nativeIdentifier": "geometry",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Road-link-coincident geometry covering the subsection where pavement is present on one side.",
+      "sourceIds": [
+        "pavement-geometry"
+      ],
+      "documentedSchemaVersions": [
+        "1.0"
+      ],
+      "semanticRole": "pavement-extent",
+      "limitations": [
+        "Two sides can produce overlapping geometries.",
+        "Discontinuous geometry is not a routable network or pavement centreline."
+      ],
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture.",
+      "relatedFieldIdentifiers": [
+        "presenceofpavement_sideofroad",
+        "roadlinkid"
+      ],
+      "relatedFieldStatus": "author-curated-reading-dependencies"
+    },
+    {
+      "collectionId": "trn-ntwk-roadlink-5",
+      "nativeIdentifier": "roadwidth_average",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Average carriageway width.",
+      "sourceIds": [
+        "road"
+      ],
+      "documentedSchemaVersions": [
+        "5.0"
+      ],
+      "semanticRole": "carriageway-width",
+      "limitations": [
+        "Different measurement from pavement width."
+      ],
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture."
+    },
+    {
+      "collectionId": "trn-ntwk-roadlink-5",
+      "nativeIdentifier": "roadwidth_minimum",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Minimum carriageway width.",
+      "sourceIds": [
+        "road"
+      ],
+      "documentedSchemaVersions": [
+        "5.0"
+      ],
+      "semanticRole": "carriageway-width",
+      "limitations": [
+        "Different measurement from pavement width."
+      ],
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture."
+    },
+    {
+      "collectionId": "trn-ntwk-roadlink-5",
+      "nativeIdentifier": "geometry",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Three-dimensional line geometry representing the road link.",
+      "sourceIds": [
+        "road",
+        "crs",
+        "feature-request",
+        "odn"
+      ],
+      "documentedSchemaVersions": [
+        "5.0"
+      ],
+      "semanticRole": "road-elevation-geometry",
+      "unit": "m when requested in EPSG:7405",
+      "verticalReference": "ODN for supported EPSG:7405 output",
+      "retrievalGuidance": "Request crs=http://www.opengis.net/def/crs/EPSG/0/7405; bbox-crs remains a supported 2D CRS.",
+      "limitations": [
+        "Validate that returned coordinates retain a third ordinate and that the response CRS is correct.",
+        "A height at a point between vertices requires a separately labelled interpolation.",
+        "ODN is a fixed vertical datum, not present-day sea level."
+      ],
+      "verticalDatum": "Ordnance Datum Newlyn (ODN), conditional on supported EPSG:7405 output",
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture.",
+      "relatedFieldIdentifiers": [
+        "heightingmethod",
+        "startgradeseparation",
+        "endgradeseparation"
+      ],
+      "relatedFieldStatus": "author-curated-reading-dependencies"
+    },
+    {
+      "collectionId": "trn-ntwk-roadlink-5",
+      "nativeIdentifier": "heightingmethod",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Provenance of the road geometry height values.",
+      "sourceIds": [
+        "road",
+        "heighting-method"
+      ],
+      "documentedSchemaVersions": [
+        "5.0"
+      ],
+      "semanticRole": "height-derivation",
+      "documentedValues": [
+        "DTM",
+        "Interpolated Bridge",
+        "Interpolated Tunnel"
+      ],
+      "limitations": [
+        "The code-list page gives labels but no further definitions.",
+        "Do not describe every road elevation as a directly surveyed surface measurement."
+      ],
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture.",
+      "relatedFieldIdentifiers": [
+        "geometry"
+      ],
+      "relatedFieldStatus": "author-curated-reading-dependencies"
+    },
+    {
+      "collectionId": "trn-ntwk-roadlink-5",
+      "nativeIdentifier": "elevationgain_indirection",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Cumulative ascent along the 3D link from start to end.",
+      "sourceIds": [
+        "road"
+      ],
+      "documentedSchemaVersions": [
+        "5.0"
+      ],
+      "semanticRole": "cumulative-ascent",
+      "limitations": [
+        "Not absolute road height above a datum."
+      ],
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture.",
+      "relatedFieldIdentifiers": [
+        "geometry"
+      ],
+      "relatedFieldStatus": "author-curated-reading-dependencies"
+    },
+    {
+      "collectionId": "trn-ntwk-roadlink-5",
+      "nativeIdentifier": "elevationgain_againstdirection",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Cumulative ascent along the 3D link from end to start.",
+      "sourceIds": [
+        "road"
+      ],
+      "documentedSchemaVersions": [
+        "5.0"
+      ],
+      "semanticRole": "cumulative-ascent",
+      "limitations": [
+        "Not absolute road height above a datum."
+      ],
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture.",
+      "relatedFieldIdentifiers": [
+        "geometry"
+      ],
+      "relatedFieldStatus": "author-curated-reading-dependencies"
+    },
+    {
+      "collectionId": "trn-ntwk-roadlink-5",
+      "nativeIdentifier": "startgradeseparation",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Relative network level at the start node.",
+      "sourceIds": [
+        "road"
+      ],
+      "documentedSchemaVersions": [
+        "5.0"
+      ],
+      "semanticRole": "relative-network-level",
+      "limitations": [
+        "Not a measured height above ground or sea level."
+      ],
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture.",
+      "relatedFieldIdentifiers": [
+        "geometry"
+      ],
+      "relatedFieldStatus": "author-curated-reading-dependencies"
+    },
+    {
+      "collectionId": "trn-ntwk-roadlink-5",
+      "nativeIdentifier": "endgradeseparation",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Relative network level at the end node.",
+      "sourceIds": [
+        "road"
+      ],
+      "documentedSchemaVersions": [
+        "5.0"
+      ],
+      "semanticRole": "relative-network-level",
+      "limitations": [
+        "Not a measured height above ground or sea level."
+      ],
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture.",
+      "relatedFieldIdentifiers": [
+        "geometry"
+      ],
+      "relatedFieldStatus": "author-curated-reading-dependencies"
+    },
+    {
+      "collectionId": "bld-fts-building-4",
+      "nativeIdentifier": "height_absolutemin_m",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Elevation of the underlying ground surface relative to the height datum.",
+      "sourceIds": [
+        "building",
+        "building-aggregation",
+        "building-creation"
+      ],
+      "documentedSchemaVersions": [
+        "4.1"
+      ],
+      "unit": "m",
+      "semanticRole": "absolute-ground-elevation",
+      "limitations": [
+        "Nullable: absence must not be converted to zero.",
+        "Numeric precision is not an accuracy guarantee."
+      ],
+      "derivation": "Whole-building values aggregate extreme absolute heights of constituent Building Parts.",
+      "verticalReference": "The field definition says above datum; these sources do not independently establish the datum for every record or island.",
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture.",
+      "relatedFieldIdentifiers": [
+        "height_confidencelevel",
+        "height_evidencedate",
+        "height_updatedate",
+        "height_absolutemax_m"
+      ],
+      "relatedFieldStatus": "author-curated-reading-dependencies"
+    },
+    {
+      "collectionId": "bld-fts-building-4",
+      "nativeIdentifier": "height_absoluteroofbase_m",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Elevation of the roof-wall intersection relative to the height datum.",
+      "sourceIds": [
+        "building",
+        "building-aggregation",
+        "building-creation"
+      ],
+      "documentedSchemaVersions": [
+        "4.1"
+      ],
+      "unit": "m",
+      "semanticRole": "absolute-roof-base-elevation",
+      "limitations": [
+        "Nullable: absence must not be converted to zero.",
+        "Numeric precision is not an accuracy guarantee."
+      ],
+      "derivation": "Whole-building values aggregate extreme absolute heights of constituent Building Parts.",
+      "verticalReference": "The field definition says above datum; these sources do not independently establish the datum for every record or island.",
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture.",
+      "relatedFieldIdentifiers": [
+        "height_confidencelevel",
+        "height_evidencedate",
+        "height_updatedate",
+        "height_relativeroofbase_m"
+      ],
+      "relatedFieldStatus": "author-curated-reading-dependencies"
+    },
+    {
+      "collectionId": "bld-fts-building-4",
+      "nativeIdentifier": "height_absolutemax_m",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Elevation of the highest building point, potentially including rooftop structures.",
+      "sourceIds": [
+        "building",
+        "building-aggregation",
+        "building-creation"
+      ],
+      "documentedSchemaVersions": [
+        "4.1"
+      ],
+      "unit": "m",
+      "semanticRole": "absolute-top-elevation",
+      "limitations": [
+        "Nullable: absence must not be converted to zero.",
+        "Numeric precision is not an accuracy guarantee."
+      ],
+      "derivation": "Whole-building values aggregate extreme absolute heights of constituent Building Parts.",
+      "verticalReference": "The field definition says above datum; these sources do not independently establish the datum for every record or island.",
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture.",
+      "relatedFieldIdentifiers": [
+        "height_confidencelevel",
+        "height_evidencedate",
+        "height_updatedate",
+        "height_relativemax_m"
+      ],
+      "relatedFieldStatus": "author-curated-reading-dependencies"
+    },
+    {
+      "collectionId": "bld-fts-building-4",
+      "nativeIdentifier": "height_relativeroofbase_m",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Vertical difference from building ground level to the roof base.",
+      "sourceIds": [
+        "building",
+        "building-aggregation",
+        "building-creation"
+      ],
+      "documentedSchemaVersions": [
+        "4.1"
+      ],
+      "unit": "m",
+      "semanticRole": "relative-roof-base-height",
+      "limitations": [
+        "Nullable: absence must not be converted to zero.",
+        "Numeric precision is not an accuracy guarantee."
+      ],
+      "derivation": "Whole-building values aggregate extreme absolute heights of constituent Building Parts.",
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture.",
+      "relatedFieldIdentifiers": [
+        "height_confidencelevel",
+        "height_evidencedate",
+        "height_updatedate",
+        "height_absoluteroofbase_m"
+      ],
+      "relatedFieldStatus": "author-curated-reading-dependencies"
+    },
+    {
+      "collectionId": "bld-fts-building-4",
+      "nativeIdentifier": "height_relativemax_m",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Vertical difference from building ground level to the highest building point.",
+      "sourceIds": [
+        "building",
+        "building-aggregation",
+        "building-creation"
+      ],
+      "documentedSchemaVersions": [
+        "4.1"
+      ],
+      "unit": "m",
+      "semanticRole": "relative-maximum-height",
+      "limitations": [
+        "Nullable: absence must not be converted to zero.",
+        "Numeric precision is not an accuracy guarantee."
+      ],
+      "derivation": "Whole-building values aggregate extreme absolute heights of constituent Building Parts.",
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture.",
+      "relatedFieldIdentifiers": [
+        "height_confidencelevel",
+        "height_evidencedate",
+        "height_updatedate",
+        "height_absolutemax_m"
+      ],
+      "relatedFieldStatus": "author-curated-reading-dependencies"
+    },
+    {
+      "collectionId": "bld-fts-building-4",
+      "nativeIdentifier": "height_confidencelevel",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Qualitative assessment of building-height confidence.",
+      "sourceIds": [
+        "height-confidence",
+        "building"
+      ],
+      "documentedSchemaVersions": [
+        "4.1"
+      ],
+      "semanticRole": "height-quality",
+      "valueMeanings": {
+        "High": "Manual heighting.",
+        "Moderate": "Routine automated derivation with no Low or Incomplete condition.",
+        "Low": "Geometry changed after the heights were extracted.",
+        "Incomplete": "Some height values could not be calculated; an aggregate may inherit this from a constituent.",
+        "Not Assessed": "No confidence assessment."
+      },
+      "limitations": [
+        "These categories are not numerical error bounds."
+      ],
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture."
+    },
+    {
+      "collectionId": "bld-fts-building-4",
+      "nativeIdentifier": "height_evidencedate",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Date of the evidence used for height attribution. Often the source imagery capture date.",
+      "sourceIds": [
+        "building"
+      ],
+      "documentedSchemaVersions": [
+        "4.1"
+      ],
+      "semanticRole": "evidence-date",
+      "limitations": [
+        "Distinct from retrieval time and height_updatedate."
+      ],
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture."
+    },
+    {
+      "collectionId": "bld-fts-building-4",
+      "nativeIdentifier": "height_updatedate",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Date when height attribution was last updated.",
+      "sourceIds": [
+        "building"
+      ],
+      "documentedSchemaVersions": [
+        "4.1"
+      ],
+      "semanticRole": "attribute-update-date",
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture."
+    },
+    {
+      "collectionId": "bld-fts-buildingpart-2",
+      "nativeIdentifier": "height_absolutemin_m",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Elevation of the underlying ground surface relative to the height datum.",
+      "sourceIds": [
+        "building-part",
+        "building-aggregation",
+        "height-confidence"
+      ],
+      "documentedSchemaVersions": [
+        "2.2"
+      ],
+      "unit": "m",
+      "semanticRole": "absolute-ground-elevation",
+      "limitations": [
+        "Nullable: absence must not be converted to zero.",
+        "Numeric precision is not an accuracy guarantee."
+      ],
+      "derivation": "Building Part polygons combined with DTM/DSM height data; inspect confidence metadata.",
+      "verticalReference": "The field definition says above datum; these sources do not independently establish the datum for every record or island.",
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture.",
+      "relatedFieldIdentifiers": [
+        "height_confidencelevel",
+        "height_evidencedate",
+        "height_updatedate",
+        "height_absolutemax_m"
+      ],
+      "relatedFieldStatus": "author-curated-reading-dependencies"
+    },
+    {
+      "collectionId": "bld-fts-buildingpart-2",
+      "nativeIdentifier": "height_absoluteroofbase_m",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Elevation of the roof-wall intersection relative to the height datum.",
+      "sourceIds": [
+        "building-part",
+        "building-aggregation",
+        "height-confidence"
+      ],
+      "documentedSchemaVersions": [
+        "2.2"
+      ],
+      "unit": "m",
+      "semanticRole": "absolute-roof-base-elevation",
+      "limitations": [
+        "Nullable: absence must not be converted to zero.",
+        "Numeric precision is not an accuracy guarantee."
+      ],
+      "derivation": "Building Part polygons combined with DTM/DSM height data; inspect confidence metadata.",
+      "verticalReference": "The field definition says above datum; these sources do not independently establish the datum for every record or island.",
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture.",
+      "relatedFieldIdentifiers": [
+        "height_confidencelevel",
+        "height_evidencedate",
+        "height_updatedate",
+        "height_relativeroofbase_m"
+      ],
+      "relatedFieldStatus": "author-curated-reading-dependencies"
+    },
+    {
+      "collectionId": "bld-fts-buildingpart-2",
+      "nativeIdentifier": "height_absolutemax_m",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Elevation of the highest building point, potentially including rooftop structures.",
+      "sourceIds": [
+        "building-part",
+        "building-aggregation",
+        "height-confidence"
+      ],
+      "documentedSchemaVersions": [
+        "2.2"
+      ],
+      "unit": "m",
+      "semanticRole": "absolute-top-elevation",
+      "limitations": [
+        "Nullable: absence must not be converted to zero.",
+        "Numeric precision is not an accuracy guarantee."
+      ],
+      "derivation": "Building Part polygons combined with DTM/DSM height data; inspect confidence metadata.",
+      "verticalReference": "The field definition says above datum; these sources do not independently establish the datum for every record or island.",
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture.",
+      "relatedFieldIdentifiers": [
+        "height_confidencelevel",
+        "height_evidencedate",
+        "height_updatedate",
+        "height_relativemax_m"
+      ],
+      "relatedFieldStatus": "author-curated-reading-dependencies"
+    },
+    {
+      "collectionId": "bld-fts-buildingpart-2",
+      "nativeIdentifier": "height_relativeroofbase_m",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Vertical difference from building ground level to the roof base.",
+      "sourceIds": [
+        "building-part",
+        "building-aggregation",
+        "height-confidence"
+      ],
+      "documentedSchemaVersions": [
+        "2.2"
+      ],
+      "unit": "m",
+      "semanticRole": "relative-roof-base-height",
+      "limitations": [
+        "Nullable: absence must not be converted to zero.",
+        "Numeric precision is not an accuracy guarantee."
+      ],
+      "derivation": "Building Part polygons combined with DTM/DSM height data; inspect confidence metadata.",
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture.",
+      "relatedFieldIdentifiers": [
+        "height_confidencelevel",
+        "height_evidencedate",
+        "height_updatedate",
+        "height_absoluteroofbase_m"
+      ],
+      "relatedFieldStatus": "author-curated-reading-dependencies"
+    },
+    {
+      "collectionId": "bld-fts-buildingpart-2",
+      "nativeIdentifier": "height_relativemax_m",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Vertical difference from building ground level to the highest building point.",
+      "sourceIds": [
+        "building-part",
+        "building-aggregation",
+        "height-confidence"
+      ],
+      "documentedSchemaVersions": [
+        "2.2"
+      ],
+      "unit": "m",
+      "semanticRole": "relative-maximum-height",
+      "limitations": [
+        "Nullable: absence must not be converted to zero.",
+        "Numeric precision is not an accuracy guarantee."
+      ],
+      "derivation": "Building Part polygons combined with DTM/DSM height data; inspect confidence metadata.",
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture.",
+      "relatedFieldIdentifiers": [
+        "height_confidencelevel",
+        "height_evidencedate",
+        "height_updatedate",
+        "height_absolutemax_m"
+      ],
+      "relatedFieldStatus": "author-curated-reading-dependencies"
+    },
+    {
+      "collectionId": "bld-fts-buildingpart-2",
+      "nativeIdentifier": "height_confidencelevel",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Qualitative assessment of building-height confidence.",
+      "sourceIds": [
+        "height-confidence",
+        "building-part"
+      ],
+      "documentedSchemaVersions": [
+        "2.2"
+      ],
+      "semanticRole": "height-quality",
+      "valueMeanings": {
+        "High": "Manual heighting.",
+        "Moderate": "Routine automated derivation with no Low or Incomplete condition.",
+        "Low": "Geometry changed after the heights were extracted.",
+        "Incomplete": "Some height values could not be calculated; an aggregate may inherit this from a constituent.",
+        "Not Assessed": "No confidence assessment."
+      },
+      "limitations": [
+        "These categories are not numerical error bounds."
+      ],
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture."
+    },
+    {
+      "collectionId": "bld-fts-buildingpart-2",
+      "nativeIdentifier": "height_evidencedate",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Date of the latest evidence considered for height attribution.",
+      "sourceIds": [
+        "building-part"
+      ],
+      "documentedSchemaVersions": [
+        "2.2"
+      ],
+      "semanticRole": "evidence-date",
+      "limitations": [
+        "Distinct from retrieval time and height_updatedate."
+      ],
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture."
+    },
+    {
+      "collectionId": "bld-fts-buildingpart-2",
+      "nativeIdentifier": "height_updatedate",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Date when height attribution was last updated.",
+      "sourceIds": [
+        "building-part"
+      ],
+      "documentedSchemaVersions": [
+        "2.2"
+      ],
+      "semanticRole": "attribute-update-date",
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture."
+    },
+    {
+      "collectionId": "bld-fts-buildingpart-1",
+      "nativeIdentifier": "absoluteheightminimum",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Elevation of the underlying ground surface relative to the height datum.",
+      "sourceIds": [
+        "building-part",
+        "building-aggregation",
+        "height-confidence"
+      ],
+      "documentedSchemaVersions": [
+        "1.0"
+      ],
+      "unit": "m",
+      "semanticRole": "absolute-ground-elevation",
+      "limitations": [
+        "Nullable: absence must not be converted to zero.",
+        "Numeric precision is not an accuracy guarantee."
+      ],
+      "derivation": "Building Part polygons combined with DTM/DSM height data; inspect confidence metadata.",
+      "verticalReference": "The field definition says above datum; these sources do not independently establish the datum for every record or island.",
+      "documentedRenamedField": "height_absolutemin_m",
+      "bindingNote": "Explicit former name documented for schema 1.0, matched to the retained major-version-1 API schema. No claim of a refreshed schema.",
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture.",
+      "relatedFieldIdentifiers": [
+        "heightconfidencelevel",
+        "height_evidencedate",
+        "height_updatedate",
+        "absoluteheightmaximum"
+      ],
+      "relatedFieldStatus": "author-curated-reading-dependencies"
+    },
+    {
+      "collectionId": "bld-fts-buildingpart-1",
+      "nativeIdentifier": "absoluteheightroofbase",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Elevation of the roof-wall intersection relative to the height datum.",
+      "sourceIds": [
+        "building-part",
+        "building-aggregation",
+        "height-confidence"
+      ],
+      "documentedSchemaVersions": [
+        "1.0"
+      ],
+      "unit": "m",
+      "semanticRole": "absolute-roof-base-elevation",
+      "limitations": [
+        "Nullable: absence must not be converted to zero.",
+        "Numeric precision is not an accuracy guarantee."
+      ],
+      "derivation": "Building Part polygons combined with DTM/DSM height data; inspect confidence metadata.",
+      "verticalReference": "The field definition says above datum; these sources do not independently establish the datum for every record or island.",
+      "documentedRenamedField": "height_absoluteroofbase_m",
+      "bindingNote": "Explicit former name documented for schema 1.0, matched to the retained major-version-1 API schema. No claim of a refreshed schema.",
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture.",
+      "relatedFieldIdentifiers": [
+        "heightconfidencelevel",
+        "height_evidencedate",
+        "height_updatedate",
+        "relativeheightroofbase"
+      ],
+      "relatedFieldStatus": "author-curated-reading-dependencies"
+    },
+    {
+      "collectionId": "bld-fts-buildingpart-1",
+      "nativeIdentifier": "absoluteheightmaximum",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Elevation of the highest building point, potentially including rooftop structures.",
+      "sourceIds": [
+        "building-part",
+        "building-aggregation",
+        "height-confidence"
+      ],
+      "documentedSchemaVersions": [
+        "1.0"
+      ],
+      "unit": "m",
+      "semanticRole": "absolute-top-elevation",
+      "limitations": [
+        "Nullable: absence must not be converted to zero.",
+        "Numeric precision is not an accuracy guarantee."
+      ],
+      "derivation": "Building Part polygons combined with DTM/DSM height data; inspect confidence metadata.",
+      "verticalReference": "The field definition says above datum; these sources do not independently establish the datum for every record or island.",
+      "documentedRenamedField": "height_absolutemax_m",
+      "bindingNote": "Explicit former name documented for schema 1.0, matched to the retained major-version-1 API schema. No claim of a refreshed schema.",
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture.",
+      "relatedFieldIdentifiers": [
+        "heightconfidencelevel",
+        "height_evidencedate",
+        "height_updatedate",
+        "relativeheightmaximum"
+      ],
+      "relatedFieldStatus": "author-curated-reading-dependencies"
+    },
+    {
+      "collectionId": "bld-fts-buildingpart-1",
+      "nativeIdentifier": "relativeheightroofbase",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Vertical difference from building ground level to the roof base.",
+      "sourceIds": [
+        "building-part",
+        "building-aggregation",
+        "height-confidence"
+      ],
+      "documentedSchemaVersions": [
+        "1.0"
+      ],
+      "unit": "m",
+      "semanticRole": "relative-roof-base-height",
+      "limitations": [
+        "Nullable: absence must not be converted to zero.",
+        "Numeric precision is not an accuracy guarantee."
+      ],
+      "derivation": "Building Part polygons combined with DTM/DSM height data; inspect confidence metadata.",
+      "documentedRenamedField": "height_relativeroofbase_m",
+      "bindingNote": "Explicit former name documented for schema 1.0, matched to the retained major-version-1 API schema. No claim of a refreshed schema.",
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture.",
+      "relatedFieldIdentifiers": [
+        "heightconfidencelevel",
+        "height_evidencedate",
+        "height_updatedate",
+        "absoluteheightroofbase"
+      ],
+      "relatedFieldStatus": "author-curated-reading-dependencies"
+    },
+    {
+      "collectionId": "bld-fts-buildingpart-1",
+      "nativeIdentifier": "relativeheightmaximum",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Vertical difference from building ground level to the highest building point.",
+      "sourceIds": [
+        "building-part",
+        "building-aggregation",
+        "height-confidence"
+      ],
+      "documentedSchemaVersions": [
+        "1.0"
+      ],
+      "unit": "m",
+      "semanticRole": "relative-maximum-height",
+      "limitations": [
+        "Nullable: absence must not be converted to zero.",
+        "Numeric precision is not an accuracy guarantee."
+      ],
+      "derivation": "Building Part polygons combined with DTM/DSM height data; inspect confidence metadata.",
+      "documentedRenamedField": "height_relativemax_m",
+      "bindingNote": "Explicit former name documented for schema 1.0, matched to the retained major-version-1 API schema. No claim of a refreshed schema.",
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture.",
+      "relatedFieldIdentifiers": [
+        "heightconfidencelevel",
+        "height_evidencedate",
+        "height_updatedate",
+        "absoluteheightmaximum"
+      ],
+      "relatedFieldStatus": "author-curated-reading-dependencies"
+    },
+    {
+      "collectionId": "bld-fts-buildingpart-1",
+      "nativeIdentifier": "heightconfidencelevel",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Qualitative assessment of building-height confidence.",
+      "sourceIds": [
+        "height-confidence",
+        "building-part"
+      ],
+      "documentedSchemaVersions": [
+        "1.1"
+      ],
+      "semanticRole": "height-quality",
+      "valueMeanings": {
+        "High": "Manual heighting.",
+        "Moderate": "Routine automated derivation with no Low or Incomplete condition.",
+        "Low": "Geometry changed after the heights were extracted.",
+        "Incomplete": "Some height values could not be calculated; an aggregate may inherit this from a constituent.",
+        "Not Assessed": "No confidence assessment."
+      },
+      "limitations": [
+        "These categories are not numerical error bounds."
+      ],
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture."
+    },
+    {
+      "collectionId": "bld-fts-buildingpart-1",
+      "nativeIdentifier": "height_evidencedate",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Date of the latest evidence considered for height attribution.",
+      "sourceIds": [
+        "building-part"
+      ],
+      "documentedSchemaVersions": [
+        "1.1"
+      ],
+      "semanticRole": "evidence-date",
+      "limitations": [
+        "Distinct from retrieval time and height_updatedate."
+      ],
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture."
+    },
+    {
+      "collectionId": "bld-fts-buildingpart-1",
+      "nativeIdentifier": "height_updatedate",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Date when height attribution was last updated.",
+      "sourceIds": [
+        "building-part"
+      ],
+      "documentedSchemaVersions": [
+        "1.1"
+      ],
+      "semanticRole": "attribute-update-date",
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture."
+    },
+    {
+      "collectionId": "trn-ntwk-roadlink-5",
+      "nativeIdentifier": "presenceofpavement_capturemethod",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Method used to create the pavement attribution.",
+      "sourceIds": [
+        "road-pavement",
+        "road"
+      ],
+      "documentedSchemaVersions": [
+        "5.0"
+      ],
+      "semanticRole": "pavement-derivation",
+      "limitations": [
+        "The pavement guidance describes algorithmic derivation, not separate pavement surveying."
+      ],
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture."
+    },
+    {
+      "collectionId": "trn-ntwk-roadlink-5",
+      "nativeIdentifier": "presenceofpavement_evidencedate",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Date of the latest evidence considered for pavement attribution.",
+      "sourceIds": [
+        "road"
+      ],
+      "documentedSchemaVersions": [
+        "5.0"
+      ],
+      "semanticRole": "evidence-date",
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture."
+    },
+    {
+      "collectionId": "trn-ntwk-roadlink-5",
+      "nativeIdentifier": "presenceofpavement_updatedate",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Date when pavement attribution was last updated.",
+      "sourceIds": [
+        "road"
+      ],
+      "documentedSchemaVersions": [
+        "5.0"
+      ],
+      "semanticRole": "attribute-update-date",
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture."
+    },
+    {
+      "collectionId": "trn-ntwk-pavementlink-1",
+      "nativeIdentifier": "presenceofpavement_capturemethod",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Method used to create the pavement attribution.",
+      "sourceIds": [
+        "road-pavement",
+        "pavement"
+      ],
+      "documentedSchemaVersions": [
+        "1.0"
+      ],
+      "semanticRole": "pavement-derivation",
+      "limitations": [
+        "The pavement guidance describes algorithmic derivation, not separate pavement surveying."
+      ],
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture."
+    },
+    {
+      "collectionId": "trn-ntwk-pavementlink-1",
+      "nativeIdentifier": "presenceofpavement_evidencedate",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Date of the latest evidence considered for pavement attribution.",
+      "sourceIds": [
+        "pavement"
+      ],
+      "documentedSchemaVersions": [
+        "1.0"
+      ],
+      "semanticRole": "evidence-date",
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture."
+    },
+    {
+      "collectionId": "trn-ntwk-pavementlink-1",
+      "nativeIdentifier": "presenceofpavement_updatedate",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Date when pavement attribution was last updated.",
+      "sourceIds": [
+        "pavement"
+      ],
+      "documentedSchemaVersions": [
+        "1.0"
+      ],
+      "semanticRole": "attribute-update-date",
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture."
+    },
+    {
+      "collectionId": "bld-fts-buildingpart-2",
+      "nativeIdentifier": "physicallevel",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Categorical position relative to the ground surface, including supported or underground features.",
+      "sourceIds": [
+        "building-part",
+        "physical-level"
+      ],
+      "documentedSchemaVersions": [
+        "2.2"
+      ],
+      "semanticRole": "relative-physical-level",
+      "limitations": [
+        "Not a measured altitude or a height in metres."
+      ],
+      "valueMeanings": {
+        "Surface Level": "Lowest identifiable non-underground level.",
+        "Level 1": "Supported structure above the surface.",
+        "Underground": "Beneath the ground surface.",
+        "Overhead": "Overhead feature, separate from the topology at other levels."
+      },
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture."
+    },
+    {
+      "collectionId": "trn-fts-roadtrackorpath-3",
+      "nativeIdentifier": "physicallevel",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Categorical position relative to the ground surface, including supported or underground features.",
+      "sourceIds": [
+        "road-surface",
+        "physical-level"
+      ],
+      "documentedSchemaVersions": [
+        "3.2"
+      ],
+      "semanticRole": "relative-physical-level",
+      "limitations": [
+        "Not a measured altitude or a height in metres."
+      ],
+      "valueMeanings": {
+        "Surface Level": "Lowest identifiable non-underground level.",
+        "Level 1": "Supported structure above the surface.",
+        "Underground": "Beneath the ground surface.",
+        "Overhead": "Overhead feature, separate from the topology at other levels."
+      },
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture."
+    },
+    {
+      "collectionId": "bld-fts-building-4",
+      "nativeIdentifier": "numberoffloors",
+      "statementStatus": "author-reviewed-paraphrase",
+      "definition": "Maximum count of occupiable floors at or above ground level.",
+      "sourceIds": [
+        "building",
+        "building-creation",
+        "building-aggregation"
+      ],
+      "documentedSchemaVersions": [
+        "4.1"
+      ],
+      "semanticRole": "floor-count",
+      "unit": "count",
+      "limitations": [
+        "Not a building height in metres; no fixed storey-height conversion is established.",
+        "Documented coverage is residential and office buildings meeting the source eligibility conditions; basements and rooftop plant rooms are excluded."
+      ],
+      "retainedEvidenceScope": "Partial excerpts only; complete semantic support was reviewed online and awaits private source capture."
+    }
+  ],
+  "relatedFieldPolicy": "Author-curated reading dependencies, supported by the cited field documentation; exact native identifiers within the same collection only. These are not declared API foreign keys or cross-version equivalences."
+}

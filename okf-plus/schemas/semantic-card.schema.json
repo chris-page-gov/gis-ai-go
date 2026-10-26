@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/schemas/semantic-card.schema.json",
+  "title": "Bounded source-addressable OS semantic card",
+  "description": "JSON front matter for one Markdown/YAML-LD card. The producer and verifier independently enforce the 16,384-byte complete-file limit. Schema validity does not establish semantic completeness or retrieval authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["@context", "@id", "@type", "schemaVersion", "kind", "title", "description", "nativeIdentifier", "sourceFamily", "collectionId", "version", "parent", "parentTitle", "source", "resource", "sourceSnapshot", "facts", "gaps", "related", "status"],
+  "properties": {
+    "@context": {"const": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/semantic/context.jsonld"},
+    "@id": {"type": "string", "pattern": "^https://chris-page-gov\\.github\\.io/gis-ai-go/okf-plus/semantic/id/[a-z-]+/[0-9a-f]{64}$"},
+    "@type": {"type": "array", "minItems": 2, "maxItems": 2, "prefixItems": [{"const": "okfp:SemanticCard"}, {"enum": ["skos:Concept", "schema:CreativeWork"]}], "items": false},
+    "schemaVersion": {"const": "gis-ai-go.okf-plus-semantic-card.v1"},
+    "kind": {"enum": ["collection", "field", "schema-definition", "code-list", "code-value", "documentation", "documentation-section", "documentation-reference", "documentation-table", "documentation-row", "api-contract", "api-operation", "api-contract-detail", "catalogue-record", "evidence-part"]},
+    "title": {"$ref": "#/$defs/nonemptyText"},
+    "description": {"$ref": "#/$defs/nonemptyText"},
+    "nativeIdentifier": {"$ref": "#/$defs/nonemptyText"},
+    "sourceFamily": {"type": "string", "pattern": "^os[a-z0-9-]*$"},
+    "collectionId": {"type": ["string", "null"], "minLength": 1},
+    "version": {"type": ["string", "null"], "minLength": 1},
+    "parent": {"$ref": "#/$defs/httpsReference"},
+    "parentTitle": {"$ref": "#/$defs/nonemptyText"},
+    "resource": {"anyOf": [{"$ref": "#/$defs/httpsReference"}, {"type": "null"}]},
+    "sourceSnapshot": {"$ref": "#/$defs/httpsReference"},
+    "source": {"$ref": "#/$defs/source"},
+    "facts": {"type": "object", "description": "Source-native constraints and reviewed semantic facts remain JSON data; their provenance is independently checked."},
+    "gaps": {"type": "array", "items": {"$ref": "#/$defs/nonemptyText"}},
+    "related": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/relationship"}},
+    "status": {"const": "source-normalised-not-human-reviewed"},
+    "codeList": {"$ref": "#/$defs/httpsReference"},
+    "definition": {"$ref": "#/$defs/nonemptyText"},
+    "unit": {"$ref": "#/$defs/nonemptyText"},
+    "verticalDatum": {"$ref": "#/$defs/nonemptyText"},
+    "derivationMethod": {"$ref": "#/$defs/nonemptyText"},
+    "semanticEvidence": {"$ref": "#/$defs/semanticEvidence"}
+  },
+  "$defs": {
+    "nonemptyText": {"type": "string", "minLength": 1},
+    "httpsReference": {"type": "string", "pattern": "^https://[^\\s]+$"},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "sourcePath": {"type": "string", "pattern": "^okf-plus/source/[a-zA-Z0-9._-]+\\.json$"},
+    "pointer": {"type": "string", "pattern": "^(?:/.*)?$"},
+    "relationship": {
+      "type": "object", "additionalProperties": false,
+      "required": ["@id", "relation", "status"],
+      "properties": {
+        "@id": {"$ref": "#/$defs/httpsReference"},
+        "relation": {"enum": ["schema", "queryable-schema", "source-reference", "semantic-companion"]},
+        "status": {"enum": ["source-stated", "author-curated-reading-dependencies"]}
+      },
+      "allOf": [{"if": {"properties": {"relation": {"const": "semantic-companion"}}},
+                 "then": {"properties": {"status": {"const": "author-curated-reading-dependencies"}}},
+                 "else": {"properties": {"status": {"const": "source-stated"}}}}]
+    },
+    "source": {
+      "type": "object", "additionalProperties": false,
+      "required": ["snapshot", "pointer", "sha256", "recordPointer", "recordSha256", "resource", "responseSha256", "retrievedAt", "responsePointer", "responsePointerStatus", "responseBinding"],
+      "properties": {
+        "snapshot": {"$ref": "#/$defs/sourcePath"},
+        "pointer": {"type": "string", "pattern": "^/records/[0-9]+(?:/.*)?$"},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "recordPointer": {"type": "string", "pattern": "^/records/[0-9]+$"},
+        "recordSha256": {"$ref": "#/$defs/sha256"},
+        "resource": {"anyOf": [{"$ref": "#/$defs/httpsReference"}, {"type": "null"}]},
+        "responseSha256": {"anyOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]},
+        "retrievedAt": {"type": ["string", "null"], "format": "date-time"},
+        "responsePointer": {"anyOf": [{"$ref": "#/$defs/pointer"}, {"type": "null"}]},
+        "responsePointerStatus": {"enum": ["exact-native-id-match", "catalogue-document", "normalised-schema-pointer-only", "not-evidenced"]},
+        "responseBinding": {"enum": ["matched-capture-receipt", "not-evidenced"]}
+      },
+      "allOf": [{"if": {"properties": {"responseBinding": {"const": "matched-capture-receipt"}}},
+                 "then": {"properties": {"resource": {"$ref": "#/$defs/httpsReference"}, "responseSha256": {"$ref": "#/$defs/sha256"}, "retrievedAt": {"type": "string", "format": "date-time"}}},
+                 "else": {"properties": {"responseSha256": {"type": "null"}, "retrievedAt": {"type": "null"}, "responsePointer": {"type": "null"}, "responsePointerStatus": {"const": "not-evidenced"}}}}]
+    },
+    "semanticEvidence": {
+      "type": "object", "additionalProperties": false,
+      "required": ["snapshot", "pointer", "sha256", "sources", "status"],
+      "properties": {
+        "snapshot": {"$ref": "#/$defs/sourcePath"},
+        "pointer": {"$ref": "#/$defs/pointer"},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "sources": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/reviewedSource"}},
+        "status": {"const": "source-backed-curated-paraphrase-not-schema-assertion"}
+      }
+    },
+    "reviewedSource": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "url", "evidenceExcerpt", "evidenceSha256", "hashScope"],
+      "properties": {
+        "id": {"$ref": "#/$defs/nonemptyText"},
+        "url": {"$ref": "#/$defs/httpsReference"},
+        "observedOn": {"type": "string", "format": "date"},
+        "reviewedAt": {"type": "string", "format": "date-time"},
+        "observationMethod": {"$ref": "#/$defs/nonemptyText"},
+        "evidenceExcerpt": {"$ref": "#/$defs/nonemptyText"},
+        "excerptRepresentation": {"$ref": "#/$defs/nonemptyText"},
+        "evidenceSha256": {"$ref": "#/$defs/sha256"},
+        "hashScope": {"$ref": "#/$defs/nonemptyText"},
+        "excerptSupports": {"$ref": "#/$defs/nonemptyText"},
+        "completeSupportingPassages": {"$ref": "#/$defs/nonemptyText"},
+        "evidenceValidation": {"$ref": "#/$defs/nonemptyText"}
+      }
+    }
+  }
+}

@@ -1,0 +1,645 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/schemas/service-registry-card.schema.json",
+  "title": "Small source-bound OS service and operation capability card",
+  "description": "Closed capability envelope. Native contract JSON is deliberately lossless opaque evidence, never executable policy.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "@context": {
+      "const": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/service-registry/context.jsonld"
+    },
+    "@id": {
+      "type": "string",
+      "pattern": "^https://chris-page-gov.github.io/gis-ai-go/okf-plus/service-registry/id/(service/[a-z0-9-]+|operation/[a-f0-9]{64})$"
+    },
+    "@type": {
+      "const": [
+        "okfp:ServiceCapabilityCard",
+        "dcat:DataService"
+      ]
+    },
+    "schemaVersion": {
+      "const": "gis-ai-go.okf-plus-service-registry.v2"
+    },
+    "kind": {
+      "enum": [
+        "service",
+        "operation"
+      ]
+    },
+    "service": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$"
+    },
+    "title": {
+      "type": "string"
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "snapshot": {
+          "const": "okf-plus/source/os-api-contracts.json"
+        },
+        "snapshotSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "pointer": {
+          "type": "string",
+          "pattern": "^/records/[0-9]+(?:/contracts/[0-9]+/operations/[0-9]+)?$"
+        },
+        "valueSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "recordPointer": {
+          "type": "string",
+          "pattern": "^/records/[0-9]+$"
+        },
+        "recordSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "documentUrl": {
+          "type": "string"
+        },
+        "documentSha256": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "captureReceipt": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/receipt"
+            }
+          ]
+        },
+        "binding": {
+          "enum": [
+            "matched-capture-receipt",
+            "normalised-source-only"
+          ]
+        }
+      },
+      "required": [
+        "snapshot",
+        "snapshotSha256",
+        "pointer",
+        "valueSha256",
+        "recordPointer",
+        "recordSha256",
+        "documentUrl",
+        "documentSha256",
+        "captureReceipt",
+        "binding"
+      ]
+    },
+    "statuses": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "documented": {
+          "const": "retained-documentation"
+        },
+        "lifecycle": {
+          "enum": [
+            "current-in-retained-documentation",
+            "withdrawn-in-retained-documentation",
+            "unknown"
+          ]
+        },
+        "metadataCaptureImplemented": {
+          "enum": [
+            "implemented-subset",
+            "not-implemented-in-profile"
+          ]
+        },
+        "dataExecutorImplemented": {
+          "enum": [
+            "implemented-subset",
+            "not-implemented-in-profile"
+          ]
+        },
+        "syntheticValidation": {
+          "enum": [
+            "test-contracts-present-not-executed-by-registry",
+            "not-evidenced"
+          ]
+        },
+        "liveAccess": {
+          "const": "not-tested"
+        }
+      },
+      "required": [
+        "documented",
+        "lifecycle",
+        "metadataCaptureImplemented",
+        "dataExecutorImplemented",
+        "syntheticValidation",
+        "liveAccess"
+      ]
+    },
+    "implementationEvidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string",
+            "pattern": "^(scripts/okf_plus/|tests/contract/)[a-z0-9_]+\\.py$"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "kind": {
+            "enum": [
+              "implementation",
+              "synthetic-test-contract"
+            ]
+          }
+        },
+        "required": [
+          "path",
+          "sha256",
+          "kind"
+        ]
+      }
+    },
+    "gaps": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "executionProfile": {
+          "const": "private-ngd-extract-with-transient-profile"
+        },
+        "metadataProfile": {
+          "const": "closed-os-metadata-refresh"
+        },
+        "providerRequestsMade": {
+          "const": 0
+        },
+        "authority": {
+          "const": "documentation-and-code-inventory-only"
+        },
+        "otherImplementations": {
+          "type": "string"
+        },
+        "supportedMetadata": {
+          "type": "string"
+        },
+        "supportedData": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "executionProfile",
+        "metadataProfile",
+        "providerRequestsMade",
+        "authority",
+        "otherImplementations"
+      ]
+    },
+    "role": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "enum": [
+            "data",
+            "authentication",
+            "unknown"
+          ]
+        },
+        "summary": {
+          "type": "string"
+        },
+        "basis": {
+          "enum": [
+            "reviewed-summary-of-retained-title-and-route-types",
+            "native-operation"
+          ]
+        },
+        "evidence": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "category",
+        "summary",
+        "basis",
+        "evidence"
+      ]
+    },
+    "native": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/serviceNative"
+        },
+        {
+          "$ref": "#/$defs/operationNative"
+        }
+      ]
+    },
+    "links": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/serviceLinks"
+        },
+        {
+          "$ref": "#/$defs/operationLinks"
+        }
+      ]
+    },
+    "parent": {
+      "type": "string"
+    },
+    "atomicOperation": {
+      "type": "string",
+      "pattern": "^https://chris-page-gov.github.io/gis-ai-go/okf-plus/semantic/id/api-operation/[a-f0-9]{64}$"
+    },
+    "operationCounts": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "retained": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "metadataCaptureImplemented": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "dataExecutorImplemented": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "retained",
+        "metadataCaptureImplemented",
+        "dataExecutorImplemented"
+      ]
+    }
+  },
+  "required": [
+    "@context",
+    "@id",
+    "@type",
+    "schemaVersion",
+    "kind",
+    "service",
+    "title",
+    "source",
+    "statuses",
+    "implementationEvidence",
+    "gaps",
+    "scope",
+    "role",
+    "native",
+    "links"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "service"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "operationCounts"
+        ],
+        "properties": {
+          "native": {
+            "$ref": "#/$defs/serviceNative"
+          },
+          "links": {
+            "$ref": "#/$defs/serviceLinks"
+          }
+        },
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "parent"
+              ]
+            },
+            {
+              "required": [
+                "atomicOperation"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "operation"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "parent",
+          "atomicOperation"
+        ],
+        "properties": {
+          "native": {
+            "$ref": "#/$defs/operationNative"
+          },
+          "links": {
+            "$ref": "#/$defs/operationLinks"
+          }
+        },
+        "not": {
+          "required": [
+            "operationCounts"
+          ]
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "jsonValue": {
+      "anyOf": [
+        {
+          "type": [
+            "null",
+            "boolean",
+            "number",
+            "string"
+          ]
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/jsonValue"
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/jsonValue"
+          }
+        }
+      ]
+    },
+    "receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "finalUrl": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "status": {
+          "const": 200
+        },
+        "retrievedAt": {
+          "type": "string"
+        },
+        "etag": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "lastModified": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "url",
+        "sha256",
+        "bytes",
+        "status",
+        "retrievedAt",
+        "etag",
+        "lastModified"
+      ]
+    },
+    "serviceNative": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "sourceCallable": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "documentationCount": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "sourceCallable",
+        "documentationCount"
+      ]
+    },
+    "operationNative": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "operation": {
+          "type": "object",
+          "required": [
+            "method",
+            "path"
+          ],
+          "properties": {
+            "method": {
+              "enum": [
+                "GET",
+                "POST",
+                "PUT",
+                "PATCH",
+                "DELETE",
+                "HEAD",
+                "OPTIONS",
+                "TRACE"
+              ]
+            },
+            "path": {
+              "type": "string",
+              "pattern": "^/"
+            }
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/jsonValue"
+          }
+        },
+        "servers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "openapi": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "contractVersion": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "fragmentSha256": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "contractSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "sourceCallable": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "unresolvedComponentClasses": {
+          "$ref": "#/$defs/jsonValue"
+        }
+      },
+      "required": [
+        "operation",
+        "servers",
+        "openapi",
+        "contractVersion",
+        "fragmentSha256",
+        "contractSha256",
+        "sourceCallable",
+        "unresolvedComponentClasses"
+      ]
+    },
+    "serviceLinks": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "operations": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "relation": {
+              "const": "indexed-children"
+            },
+            "command": {
+              "const": "routes"
+            },
+            "service": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "relation",
+            "command",
+            "service"
+          ]
+        },
+        "atomicBundle": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "relation": {
+              "const": "separate-semantic-index"
+            },
+            "command": {
+              "const": "semantic_search.py read"
+            },
+            "note": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "relation",
+            "command",
+            "note"
+          ]
+        }
+      },
+      "required": [
+        "operations",
+        "atomicBundle"
+      ]
+    },
+    "operationLinks": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "atomicContract": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "relation": {
+              "const": "separate-semantic-index"
+            },
+            "@id": {
+              "type": "string"
+            },
+            "note": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "relation",
+            "@id",
+            "note"
+          ]
+        }
+      },
+      "required": [
+        "atomicContract"
+      ]
+    }
+  }
+}

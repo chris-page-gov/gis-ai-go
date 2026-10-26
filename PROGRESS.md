@@ -1,6 +1,119 @@
 # Current progress
 
-Last updated: 22 October 2026
+Last updated: 26 October 2026
+
+## Full Explorer public default candidate
+
+The owner asked to complete the GIS public entrypoint from this chat. The
+[publication design](docs/decisions/ADR-0019-full-explorer-pages-publication.md)
+uses the merged canonical Explorer under `/explorer/`, the complete Reader and
+context under `/gis/explorer/`, and `/legacy/` for existing catalogue links.
+The app, GIS source and complete projection inventory have separate identities.
+Context is regenerated for the public base rather than copied from localhost.
+
+The main-target increment is scoped to the full public bundle, Reader/context,
+learning and native-field/atomic source records. The separate new private capture
+feature remains unchanged at reconciliation commit
+`35318abcce5e23c1509ed6ce131d81f5dfd0d38c`, pending its
+[CodeQL review](docs/operations/EXPLORER_PAGES_CODEQL_REVIEW.md). Its findings
+remain unresolved; this scope change neither fixes nor dismisses them. Existing
+main recovery, every required check and the original private acquisition objective
+are retained. The public dependency closure does not call the deferred feature.
+
+The candidate retains exact-main CI, archive attestation, manual Pages selection,
+complete served-byte verification and legacy v1 rollback. Its source checks,
+deployment and rollback/restore results must be recorded before claiming a live
+switch-over. The immutable `v0.1.0` release and separate gateway release gates
+remain unchanged.
+
+Before this scope split, two complete v2 archive builds produced byte-identical
+tar archives. The narrowed source changes the input digest and snapshot, so it
+requires fresh bundle/context/Reader generation, complete archive/runtime
+acceptance, committed-source CI and public deployment evidence.
+
+The first main-target CI run passed gateway image assurance and identified one
+new configuration-routing omission, now repaired with a regression test. The
+[CodeQL review](docs/operations/EXPLORER_PAGES_CODEQL_REVIEW.md) records the
+unresolved content-checksum findings in the deferred private source and the
+code-scanning API access limitation. Their complete paths still require separate
+review before that feature can merge. Full CodeQL remains required for the
+narrowed public tree, with unchanged query coverage.
+
+Before narrowing, provisional local acceptance used source HEAD
+`35318abcce5e23c1509ed6ce131d81f5dfd0d38c` with the uncommitted publication
+working tree. All 47 archive/publication/staging tests, 93 workflow/impact tests,
+11 assembler tests and nine byte-verifier tests passed. The exact staged
+candidate passed streaming checks for all 37,279 public files
+(714,610,618 bytes) and all seven real-browser journeys. These are local candidate
+results for that earlier working tree, not acceptance of the narrowed tree,
+clean-commit CI or public HTTPS. The
+[publication runbook](docs/operations/EXPLORER_PAGES_PUBLICATION.md) records the
+build, manual exact-main selection and retained legacy rollback identities.
+
+## Existing Explorer learning integration
+
+The [review implementation](docs/implementation/OKF_EXPLORER_REVIEW.md) adds a
+complete lazy Reader projection beside the existing full context corpus, using
+the separate canonical Explorer application. Three small linked learning-path
+records preserve source definitions, concept identities and unassessed practice.
+The consumer presents exact native field context, sources and explicit gaps.
+The complete retained corpus has 30,876 records, 2,915 native field nodes and
+three linked practice paths. Initial source/context/Reader checks passed, as did
+all 858 consumer unit tests and 18 complete-candidate desktop/mobile browser checks.
+The [review record](docs/implementation/OKF_EXPLORER_REVIEW.md#checked-candidate--24-october-2026)
+binds those source revisions, app tree and scoped results. On 24 October,
+[producer PR #182](https://github.com/chris-page-gov/gis-ai-go/pull/182) merged into
+`codex/okf-223-reconcile-main`, while
+[Explorer PR #183](https://github.com/chris-page-gov/okf-explorer/pull/183) merged
+into the separate Explorer `main`. Required CI passed for both reviewed heads,
+including Explorer's full cross-browser suite. GIS protected main and its public
+entrypoint were not switched by those merges. Human learning and release
+acceptance remain separate; no geographic feature payload or hosted service
+admission was added.
+
+The owner subsequently authorised merging the integration and requested the
+earlier compact facet presentation. The merged Explorer restores thin colour bars
+and folded help while retaining accessible controls. Its exact-build Heritage
+refresh passed all 100 questions and three journeys in CI. The gateway's
+transitive Zod High finding was repaired under the existing vulnerability policy;
+see the
+[dependency record](docs/operations/DEPENDENCY_SECURITY_2026-10-24.md).
+
+## Cloud continuation for OKF Explorer
+
+The owner agreed to extend the existing, separate `chris-page-gov/okf-explorer`
+application and keep reusable learning knowledge in small linked OKF+ records.
+The [cloud handoff](docs/implementation/OKF_EXPLORER_CLOUD_HANDOFF.md) records the
+two-repository boundary, source branch, reusable integration, environment checks
+and review target. The reconciled branch, including the handoff at `119449ad`,
+has been pushed to GitHub. Starting a new cloud chat remains a user action: this
+session exposes no chat-creation tool and its CLI fallback could not connect.
+No application implementation or new live acceptance is added by this handoff.
+
+## Reconciled local OS extension
+
+The owner requested [reconciliation](docs/implementation/OKF-223_RECONCILIATION.md)
+of local `a4e66e1a` with main `59ba0dd1`. Both histories and the original handoff
+are preserved. Main's measurement planner, accepted recovery methods and current
+experience/security changes remain. The older request-contract estimator has its
+own filename; the persistent feature fetcher is retired in favour of extraction,
+profiling and verified disposal. Small atomic records and bounded explanations
+complement the frozen recovery outputs. The broader new private capture lane is
+preserved in the reconciliation commit; the current public migration defers it.
+
+The old branch's no-access observations describe that environment on 18 October;
+they do not invalidate the later successful captures recorded below. No private
+provider data was copied into the reconciled checkout. Verification and remaining
+integration limits are recorded separately; no new live acceptance is claimed.
+
+The merge is committed as `c377bfdb`. All reconciliation-specific checks and both
+complete OKF audits passed; the atomic audit checked 32,596 cards below 16 KiB.
+The broader repository gate remains incomplete on unchanged process-observer
+tests and the unavailable Chrome distribution. Private-output tests passed with
+an appropriate temporary directory; service/container, experience and remaining
+non-browser checks also passed. Protected main remains unchanged; branch
+publication is separate from merge or release acceptance. See the record for
+exact scopes and diagnostic evidence.
 
 ## Dated coverage navigation
 

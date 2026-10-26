@@ -332,39 +332,6 @@ jobs:
             *) echo 'Unable to compare VERSION with the event base' >&2; exit 1 ;;
           esac
 
-      - name: Package immutable Pages source
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && success() }}
-        run: |
-          uv run --locked --cache-dir .uv-cache python scripts/package_pages.py \
-            --dist apps/public-explorer/dist \
-            --output-dir artifacts/pages \
-            --source-commit "$GITHUB_SHA" \
-            --repository "$GITHUB_REPOSITORY" \
-            --version "$(tr -d '\n' < VERSION)" \
-            --base-path /gis-ai-go/
-
-      - name: Verify immutable Pages source
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && success() }}
-        run: |
-          uv run --locked --cache-dir .uv-cache python scripts/verify_pages_archive.py \
-            --archive artifacts/pages/artifact.tar \
-            --checksum artifacts/pages/artifact.tar.sha256 \
-            --receipt artifacts/pages/archive-receipt.json \
-            --expected-source-commit "$GITHUB_SHA" \
-            --expected-repository "$GITHUB_REPOSITORY" \
-            --expected-version "$(tr -d '\n' < VERSION)" \
-            --expected-base-path /gis-ai-go/
-
-      - name: Upload immutable Pages source
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && success() }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: pages-source-${{ github.sha }}
-          path: artifacts/pages/
-          if-no-files-found: error
-          retention-days: 90
-          compression-level: 0
-
       - name: Upload generated evidence
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -384,6 +351,94 @@ jobs:
             apps/public-explorer/test-results/
             output/playwright/experience/
           if-no-files-found: warn
+
+  explorer_pages_candidate:
+    name: Explorer Pages candidate
+    needs: repository_assurance
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    permissions:
+      contents: read
+    steps:
+      - name: Check out exact GIS source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Check out the reviewed Explorer source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: chris-page-gov/okf-explorer
+          ref: 7ffa3297ec85bf28c27963724f221d80579bed1b
+          path: upstream-okf-explorer
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Install GIS pnpm
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+        with:
+          version: 10.33.2
+          run_install: false
+
+      - name: Set up the reviewed Explorer Node.js baseline
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24.22.1
+          cache: pnpm
+
+      - name: Set up governed uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          version: 0.12.2
+          enable-cache: true
+
+      - name: Install locked GIS dependencies
+        run: |
+          pnpm install --frozen-lockfile
+          uv sync --locked --group dev --cache-dir .uv-cache
+
+      - name: Test the publication assembler and complete-byte verifier
+        run: |
+          bash -n scripts/build_explorer_pages_candidate.sh
+          node --test scripts/build_explorer_pages.test.mjs \
+            apps/public-explorer/test/build/explorer-publication-verifier.test.mjs
+
+      - name: Package immutable Pages source
+        run: bash scripts/build_explorer_pages_candidate.sh upstream-okf-explorer
+
+      - name: Upload immutable Pages source
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && success() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: pages-source-${{ github.sha }}
+          path: artifacts/pages/
+          if-no-files-found: error
+          retention-days: 90
+          compression-level: 6
+
+      - name: Retain the pull request review candidate
+        if: ${{ github.event_name == 'pull_request' && success() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: pages-review-${{ github.sha }}
+          path: artifacts/pages/
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 6
+
+      - name: Retain Explorer candidate evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: explorer-pages-evidence-${{ github.sha }}
+          path: |
+            artifacts/pages/archive-receipt.json
+            artifacts/pages/artifact.tar.sha256
+            artifacts/explorer-pages-candidate/server.log
+            apps/public-explorer/test-results/explorer-public/
+          if-no-files-found: warn
+          retention-days: 30
 
   gateway_image:
     name: Gateway image assurance
@@ -460,6 +515,7 @@ jobs:
       - ci_impact_candidate
       - ci_impact_shadow
       - repository_assurance
+      - explorer_pages_candidate
       - gateway_image
     runs-on: ubuntu-24.04
     timeout-minutes: 5
@@ -471,14 +527,17 @@ jobs:
           CI_IMPACT_SHADOW_RESULT: ${{ needs.ci_impact_shadow.result }}
           GATEWAY_IMAGE_RESULT: ${{ needs.gateway_image.result }}
           REPOSITORY_ASSURANCE_RESULT: ${{ needs.repository_assurance.result }}
+          EXPLORER_PAGES_RESULT: ${{ needs.explorer_pages_candidate.result }}
         run: |
           if [[ "$CI_IMPACT_CANDIDATE_RESULT" != 'success' ]] || \
              [[ "$CI_IMPACT_SHADOW_RESULT" != 'success' ]] || \
              [[ "$REPOSITORY_ASSURANCE_RESULT" != 'success' ]] || \
+             [[ "$EXPLORER_PAGES_RESULT" != 'success' ]] || \
              [[ "$GATEWAY_IMAGE_RESULT" != 'success' ]]; then
             printf 'CI impact candidate (shadow): %s\n' "$CI_IMPACT_CANDIDATE_RESULT" >&2
             printf 'CI impact agreement (shadow): %s\n' "$CI_IMPACT_SHADOW_RESULT" >&2
             printf 'Repository assurance: %s\n' "$REPOSITORY_ASSURANCE_RESULT" >&2
+            printf 'Explorer Pages candidate: %s\n' "$EXPLORER_PAGES_RESULT" >&2
             printf 'Gateway image assurance: %s\n' "$GATEWAY_IMAGE_RESULT" >&2
             exit 1
           fi
@@ -488,6 +547,7 @@ jobs:
     needs:
       - assurance
       - repository_assurance
+      - explorer_pages_candidate
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:

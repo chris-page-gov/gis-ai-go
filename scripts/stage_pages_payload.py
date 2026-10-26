@@ -400,6 +400,17 @@ def stage_payload(
     expected_archive_sha256: str,
 ) -> dict[str, Any]:
     """Verify an accepted source archive, then stage its exact logical bytes."""
+    import json
+    candidate_receipt = json.loads(verifier.read_outer_file(receipt_path, "Pages archive receipt", verifier.MAX_METADATA_BYTES))
+    if isinstance(candidate_receipt, dict) and candidate_receipt.get("schema") == "gis-ai-go.pages-archive-receipt.v2":
+        try:
+            import verify_explorer_pages_archive as explorer_verifier
+        except ModuleNotFoundError:
+            from scripts import verify_explorer_pages_archive as explorer_verifier
+        return explorer_verifier.stage_payload(archive_path=archive_path, checksum_path=checksum_path,
+            receipt_path=receipt_path, output_dir=output_dir, expected_source_commit=expected_source_commit,
+            expected_repository=expected_repository, expected_version=expected_version,
+            expected_base_path=expected_base_path, expected_archive_sha256=expected_archive_sha256)
     receipt = verifier.verify_archive(
         archive_path=archive_path,
         checksum_path=checksum_path,

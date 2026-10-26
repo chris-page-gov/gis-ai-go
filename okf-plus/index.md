@@ -43,6 +43,12 @@ and reproducible methods, verify processing, then discard feature payloads.
 Permanent national storage is not required; an archive host remains deferred.
 This work does not establish a complete national scan or hosted execution.
 
+The [reconciled atomic extension](../docs/implementation/OKF-223_RECONCILIATION.md)
+adds bounded linked field/value/operation reads and interpretation evidence
+packets, with a separate broader metadata capture queue. Its pinned-source view
+and the recovered private explanation candidates retain different provenance;
+matching labels do not establish equivalent meanings or versions.
+
 Consult the small [NGD](profile/os-ngd-query-capabilities.json),
 [WFS](profile/os-wfs-query-capabilities.json) and
 [Downloads](profile/os-download-query-capabilities.json) capability registries.

@@ -207,9 +207,18 @@ def _card(record, row, base_url):
             'provenance': [deepcopy(record['provenance'][-1])], 'rights': record['rights'], 'access': record['access']}
 
 
-def project(search, bundle, *, base_url, captured_at, representatives=2):
+def project(search, bundle, *, base_url, captured_at, representatives=2, allow_local_preview=False):
     """Return full corpus outputs. All inputs survive as whole evidence units."""
-    if not _https(base_url) or not base_url.endswith('/') or urlsplit(base_url).query:
+    parsed_base = urlsplit(base_url)
+    try:
+        local_preview = (allow_local_preview and parsed_base.scheme == 'http'
+            and parsed_base.hostname in ('127.0.0.1', 'localhost', '::1')
+            and parsed_base.port is not None and 1 <= parsed_base.port <= 65535
+            and not parsed_base.username and not parsed_base.password and not parsed_base.fragment)
+    except ValueError:
+        local_preview = False
+    if (not (_https(base_url) or local_preview) or not base_url.endswith('/')
+            or parsed_base.query or re.search(r'[\s<>"\\]', base_url)):
         raise ValueError('An explicit HTTPS candidate publication directory is required')
     if not re.fullmatch(r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z', captured_at):
         raise ValueError('Explicit UTC projection capture timestamp is required')
@@ -341,7 +350,8 @@ def project(search, bundle, *, base_url, captured_at, representatives=2):
             'requirements': len(requirements), 'rule': 'Only derived links from authored navigation nodes to their complete retained record.',
             'sourceAssertions': 'Retained whole in semantic JSON; not automatically promoted to traversal requirements.'},
         'discoveryCardScope': 'Navigation aliases are limited to 100 values of at most 500 characters; source fields remain whole in evidence and source postings.',
-        'publication': 'candidate-not-deployed', 'installedAskOkfAdmission': 'not-established', 'limitations': LIMITATIONS,
+        'publication': 'local-review-only' if local_preview else 'candidate-not-deployed',
+        'installedAskOkfAdmission': 'not-established', 'limitations': LIMITATIONS,
         'outputs': [_reference(p, raw) for p, raw in sorted(outputs.items())]}
     outputs['projection-manifest.json'] = canonical(review)
     outputs['descriptor-entrypoints.json'] = canonical({'schema': 'gis-ai-go.okf-plus-context-entrypoints.v1',
@@ -444,6 +454,8 @@ def main():
                         help='Exact vendored dependency directory; default is in this checkout')
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--publication-base', required=True)
+    parser.add_argument('--allow-local-preview', action='store_true',
+                        help='Permit HTTP only for an explicit loopback host and port; local review only')
     parser.add_argument('--captured-at', required=True)
     parser.add_argument('--representatives-per-family', type=int, default=2)
     parser.add_argument('--all-records', action='store_true', help='Explicit whole-corpus intent; all records are always retained')
@@ -451,7 +463,8 @@ def main():
     args = parser.parse_args()
     search_raw, bundle_raw = args.search_index.read_bytes(), args.bundle.read_bytes()
     outputs, report = project(load_json(search_raw.decode()), load_json(bundle_raw.decode()),
-        base_url=args.publication_base, captured_at=args.captured_at, representatives=args.representatives_per_family)
+        base_url=args.publication_base, captured_at=args.captured_at, representatives=args.representatives_per_family,
+        allow_local_preview=args.allow_local_preview)
     checks, schemas = pinned_contract(args.vendor_root)
     validation = validate_outputs(outputs, checks)
     validation.update(explorerRevision=EXPLORER_REVISION, schemaFileSha256=schemas,

@@ -7,3 +7,4 @@ overrides:
   hono: 4.13.7
   jsdom>undici: 8.10.2
   source-map-js: 1.2.2
+  zod: 4.6.6

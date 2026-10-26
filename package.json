@@ -58,10 +58,14 @@
     "sbom": "uv run --locked --cache-dir .uv-cache python scripts/generate_sbom.py --output artifacts/sbom.cdx.json",
     "check": "pnpm run typecheck && pnpm run test && pnpm run test:browser && pnpm run validate:release-reproducibility && pnpm run validate:versions && pnpm run validate:changelog-fragments && pnpm run validate:public-read-v2 && pnpm run validate:contracts && pnpm run validate:links && pnpm run validate:secrets && pnpm run render:diagrams && pnpm run sbom && pnpm run check:okf-plus && pnpm run check:experience-browser",
     "build:okf-plus": "uv run --locked --cache-dir .uv-cache python scripts/okf_plus/build.py",
-    "check:okf-plus": "uv run --locked --cache-dir .uv-cache python scripts/okf_plus/verify.py",
+    "check:okf-plus": "uv run --locked --cache-dir .uv-cache python scripts/okf_plus/verify.py && pnpm run check:okf-semantics",
     "test:experience": "node --test examples/geography-task-experience/test_shared_actions.cjs examples/geography-task-experience/test_shared_actions_adverse.cjs && node examples/geography-task-experience/test_overlay_contract.cjs && SHARED_ACTIONS_OFF=1 node examples/geography-task-experience/test_overlay_contract.cjs && node examples/geography-task-experience/test_collection_selector.cjs && node examples/geography-task-experience/test_classification_browser.cjs && node examples/geography-task-experience/test_field_documentary_browser.cjs && node examples/geography-task-experience/test_coverage_navigator.cjs && node scripts/experience_evaluate.mjs && node --test tests/test_experience_evaluate.mjs && pnpm --filter @gis-ai-go/experience-intake run test && node scripts/experience_evaluate.mjs --run-local-fixtures --output artifacts/experience/coverage.json",
     "build:experience-offline": "pnpm --filter @gis-ai-go/public-data-workbench exec vite build --mode experience-offline && node scripts/package_experience_offline.mjs",
-    "check:experience-browser": "pnpm run build:experience-offline && node scripts/check_experience_browser.mjs"
+    "check:experience-browser": "pnpm run build:experience-offline && node scripts/check_experience_browser.mjs",
+    "build:okf-semantics": "uv run --locked --cache-dir .uv-cache python scripts/okf_plus/verify_semantics.py",
+    "check:okf-semantics": "uv run --locked --cache-dir .uv-cache python scripts/okf_plus/verify_semantics.py",
+    "search:okf-semantics": "uv run --locked --cache-dir .uv-cache python scripts/okf_plus/semantic_search.py --root artifacts/okf-plus/atomic",
+    "plan:os-data": "uv run --locked --cache-dir .uv-cache python scripts/okf_plus/request_retrieval_plan.py"
   },
   "devDependencies": {
     "@gis-ai-go/tool-registry": "workspace:*",

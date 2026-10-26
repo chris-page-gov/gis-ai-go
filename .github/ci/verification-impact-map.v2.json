@@ -6,7 +6,8 @@
   "always_run": [
     "assurance",
     "ci_impact_candidate",
-    "ci_impact_shadow"
+    "ci_impact_shadow",
+    "explorer_pages_candidate"
   ],
   "lanes": [
     {
@@ -88,6 +89,7 @@
         ".github/**",
         ".nvmrc",
         "VERSION",
+        "config/explorer-publication.json",
         "package.json",
         "pnpm-lock.yaml",
         "pnpm-workspace.yaml",

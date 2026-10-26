@@ -111,6 +111,35 @@ Acceptance separates catalogue traversal, metadata evidence, schema validation,
 semantic curation, retrieval and live Ask OKF admission. Unknown completeness
 denominators remain open; a large record count does not close them.
 
+The 24 October [branch reconciliation](OKF-223_RECONCILIATION.md) retains the
+additional small linked atomic view and broader metadata capture alongside the
+accepted recovery path. Main's transient processing lifecycle remains canonical;
+the earlier richer request estimator is a separate offline contract. Shared
+project pacing, exact schema preflight and cross-format evidence mapping remain
+explicit integration work rather than implicit effects of merging source.
+
+The [existing Explorer integration](OKF_EXPLORER_REVIEW.md) projects all retained
+metadata into bounded Reader/search/context files and derives the existing
+learning presentation from small linked records. Continue through complete
+candidate browser and accessibility review without promoting practice ticks,
+catalogue inclusion or metadata access to learning or data-retrieval acceptance.
+
+The [public-default migration](../decisions/ADR-0019-full-explorer-pages-publication.md)
+assembles the pinned canonical app and full projections in the GIS publication,
+preserves legacy links and retains immutable v1 rollback. Complete source
+assurance, exact public-byte and browser verification, then rollback and restore
+evidence before recording the switch-over as accepted. This static publication
+is separate from the supported gateway release.
+
+The main-target migration retains the full public metadata and native-field,
+atomic and learning dependencies. The separate new private capture extension
+remains at
+[reconciliation commit 35318abc](https://github.com/chris-page-gov/gis-ai-go/tree/35318abcce5e23c1509ed6ce131d81f5dfd0d38c)
+for [unresolved source-path review](../operations/EXPLORER_PAGES_CODEQL_REVIEW.md).
+Its acquisition objective remains outstanding. Accepted main OS recovery and all
+public assurance gates remain in force; public acceptance grants no disposition
+of the deferred findings.
+
 The 21 October learning increment adds a
 [task composition model](GEOGRAPHY_TASK_COMPOSITION.md) and
 [source-positioned term discovery](GEOSPATIAL_TERM_DISCOVERY.md). Task-specific
