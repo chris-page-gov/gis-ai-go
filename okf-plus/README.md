@@ -303,60 +303,23 @@ Each service and operation has its own record, bounded to 16 KiB, with exact
 source hashes and links to the atomic contract evidence. Statuses separate
 documentation, lifecycle, implemented subsets, test contracts and live access.
 These commands make no provider requests and never execute a retained route.
-Their implementation statuses apply to the local private retrieval profile;
-the experimental Sites adapters have separate scope and evidence.
+Implementation statuses describe the named profile in the current checkout;
+the experimental Sites adapters have separate scope and evidence. The deferred
+new metadata capture profile is not advertised as implemented here.
 The reconciled registry uses format v2. Rebuild older v1 bundles into a new
 directory; all readers refuse them because they describe the retired executor.
 
-The owner chose metadata acquisition and geographic data on demand, with complete
-selected processing and verified disposal of temporary feature payloads. Inspect
-the broader metadata queue without making any provider request:
-
-```sh
-pnpm run plan:os-metadata
-```
-
-Perform private acquisition once the environment permits the reviewed hosts:
-
-```sh
-uv run --locked --cache-dir .uv-cache python scripts/okf_plus/metadata_refresh.py \
-  --run --semantic-cards \
-  --network-allowed-host docs.os.uk --network-allowed-host api.os.uk \
-  --network-allowed-host osmetadata.astuntechnology.com \
-  --network-allowed-host www.ordnancesurvey.co.uk
-```
-
-These flags cannot override the environment's enforced policy. Public
-documentation and schema routes need no key; authenticated package metadata uses
-`OS_API_KEY`, falling back to the owner's dedicated `~/.secrets/os_api_key` file
-when that variable is absent. The file must be owned by the current user with
-mode `0600`, inside an owner-only `0700` directory. `ai.env` is not sourced.
-The cloud workspace has a separate home directory: local files must be mounted
-or configured as a cloud secret before they are available there.
-An environment variable named `OS_API_KEY` is supported, but it does not add
-network permission: explicitly allow `api.os.uk` as well as the three metadata
-hosts above. Published environment changes apply to newly started tasks; confirm
-the running task's bindings and policy before attempting acquisition.
-Never paste the key into a command, prompt,
-source file or URL. Full originals and small evidence chunks remain in ignored
-private output. Captured schemas and queryables also become individual field,
-code-list and code-value cards, preserving complete source descriptions, units,
-nullability and constraints. Oversized declarations have complete linked parts;
-local schema references remain traversable. These private imports do not silently
-change any pinned source catalogue or execution binding.
-Run `semantic_search.py --root
-artifacts/okf-plus/metadata-refresh index` after acquisition to index those private
-cards separately. A stopped run checkpoints incomplete work; it does not report
-a complete source inventory. The queue includes GEMINI, embedded public product
-search and four documentation indexes, including More Than Maps. Browser-only
-product supplementation, other specialist projects and linked attachments retain
-explicit refresh gaps.
-
-Keep this capture's directory and ledger separate from the fixed documentation
-recovery outputs. It resumes successful captures without expiry; it is not a
-scheduled freshness updater. The main inventory/extraction tools have separate
-per-process pacing. Do not run them concurrently against the same OS project and
-service with this capture: the limiters are not yet shared across both pipelines.
+The separate new private capture extension is deferred from this public
+publication. Its unchanged [capture source](https://github.com/chris-page-gov/gis-ai-go/blob/35318abcce5e23c1509ed6ce131d81f5dfd0d38c/scripts/okf_plus/metadata_refresh.py),
+[private schema-card source](https://github.com/chris-page-gov/gis-ai-go/blob/35318abcce5e23c1509ed6ce131d81f5dfd0d38c/scripts/okf_plus/private_schema_cards.py)
+and [original instructions](https://github.com/chris-page-gov/gis-ai-go/blob/35318abcce5e23c1509ed6ce131d81f5dfd0d38c/okf-plus/README.md)
+remain at the retained reconciliation commit. The
+[review findings remain unresolved](../docs/operations/EXPLORER_PAGES_CODEQL_REVIEW.md);
+this scope split neither fixes nor dismisses them. The public build does not
+call that feature or expose its planning command. The original private
+acquisition objective remains outstanding, including complete selected processing
+and verified disposal. Existing accepted [main OS recovery](../docs/implementation/OKF_OS_RECOVERY.md)
+and the full public native-field/atomic source records remain in this checkout.
 
 For the richer offline request contract,
 `scripts/okf_plus/request_retrieval_plan.py --request request.json`

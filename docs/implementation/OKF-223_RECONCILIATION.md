@@ -7,13 +7,21 @@ This integrates local commits `63b5cafe` and `a4e66e1a` with main at
 common base, `f8292cbb`. The original local branch and portable handoff are
 preserved. The reconciliation has its own branch and worktree.
 
+This historical record describes the full reconciliation preserved at
+[35318abc](https://github.com/chris-page-gov/gis-ai-go/tree/35318abcce5e23c1509ed6ce131d81f5dfd0d38c).
+The later public-default migration selects its public metadata, native-field,
+atomic and learning subset. The separate new private capture feature stays in
+that commit for [unresolved CodeQL review](../operations/EXPLORER_PAGES_CODEQL_REVIEW.md);
+accepted main OS recovery is retained. Results below keep their original branch
+scope and do not accept the deferred feature for protected main.
+
 ## Implementation decisions
 
 | Area | Reconciled behaviour |
 | --- | --- |
 | Current recovery workflow | Keep main's field cards, passages, field/document candidates, native lexical forms, query planning and transient processing. Its documented live results remain dated evidence, not new observations from this work. |
 | Additional atomic view | Keep `semantic.py`, bounded SQLite search/explain and independent source verification. These provide small field, value, contract and operation records with exact linked qualifications. |
-| Metadata acquisition | Keep the frozen `os_document_sync`/`recovery_run` cohort and the broader `metadata_refresh`/`private_schema_cards` producer in separate directories and ledgers. The latter includes the 2,303 frozen documentation URLs and 251 additional starting routes, with further reviewed discovery. |
+| Metadata acquisition | Keep the frozen `os_document_sync`/`recovery_run` cohort and the broader [`metadata_refresh`](https://github.com/chris-page-gov/gis-ai-go/blob/35318abcce5e23c1509ed6ce131d81f5dfd0d38c/scripts/okf_plus/metadata_refresh.py)/[`private_schema_cards`](https://github.com/chris-page-gov/gis-ai-go/blob/35318abcce5e23c1509ed6ce131d81f5dfd0d38c/scripts/okf_plus/private_schema_cards.py) producer in separate directories and ledgers. The latter includes the 2,303 frozen documentation URLs and 251 additional starting routes, with further reviewed discovery. |
 | Planner name collision | Keep main's `retrieval_plan.py` and its `{api, bulk}` measurement contract unchanged. Rename the older richer request-contract estimator to `request_retrieval_plan.py`; retain its schema and tests. It is offline and has no execution adapter. |
 | Geographic acquisition | Retire the older persistent `os_retrieve.py`, its request schema and tests. Keep main's `ngd_extract.py`, separate `transient_profile.py` and verified `discard_payloads` lifecycle. The documentation supervisor does not orchestrate geographic acquisition or disposal. |
 | API registry | Bind the NGD operation's implementation evidence and declared subset to the canonical extraction/profile workflow. Registry generation remains offline and does not establish live access. Other implemented workflows and the experimental Sites profile retain their separate inventories. |

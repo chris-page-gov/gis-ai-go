@@ -6,6 +6,14 @@ Live cutover, public verification and rollback/restore remain pending until thei
 exact workflow results are recorded. This work adds no gateway, provider service,
 protected-data entitlement or hosted Ask OKF admission.
 
+The public dependency closure retains the complete public metadata and
+native-field/atomic source records. The separate new private capture feature is
+preserved unchanged at
+[35318abc](https://github.com/chris-page-gov/gis-ai-go/tree/35318abcce5e23c1509ed6ce131d81f5dfd0d38c)
+with [unresolved review findings](EXPLORER_PAGES_CODEQL_REVIEW.md). It is not used
+by this publisher. Existing main OS recovery remains in place. Public success
+does not resolve that deferred feature's review or wider acquisition work.
+
 ## Build and check a local candidate
 
 Use a clean GIS checkout and a separate canonical Explorer checkout at
@@ -63,8 +71,9 @@ Public mode uses the actual canonical HTTPS site and forbids local interception.
 A bounded receipt wait allows CDN propagation: at most 110 seconds and 55 probes,
 each capped at 64 KiB with a five-second request deadline. A matching receipt is
 followed by strict complete-file streaming verification with bounded concurrency
-and all seven browser journeys. Record the exact served-file count and bytes;
-the local candidate checked 37,279 files, rather than a sampled subset.
+and all seven browser journeys. Record the exact served-file count and bytes.
+The pre-split local candidate checked all 37,279 public files; the narrowed
+source requires fresh complete verification with its new input digest and snapshot.
 
 ## Retained legacy rollback
 

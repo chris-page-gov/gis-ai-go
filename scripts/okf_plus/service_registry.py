@@ -63,6 +63,10 @@ ROLES = {
 }
 NGD_SERVER = 'https://api.os.uk/features/ngd/ofa/v1'
 DOWNLOAD_SERVER = 'https://api.os.uk/downloads/v1/'
+DEFERRED_METADATA_SOURCE = (
+    'https://github.com/chris-page-gov/gis-ai-go/blob/'
+    '35318abcce5e23c1509ed6ce131d81f5dfd0d38c/scripts/okf_plus/metadata_refresh.py'
+)
 METADATA_PATHS = {
     'os-ngd-api-features': {'/collections', '/collections/{collectionId}/schema', '/collections/{collectionId}/queryables'},
     'os-downloads-api': {'/products', '/products/{productId}', '/products/{productId}/downloads',
@@ -71,8 +75,9 @@ METADATA_PATHS = {
                          '/dataPackages/{dataPackageId}/versions/{versionId}'},
 }
 EVIDENCE_FILES = {
-    'metadata': (('implementation', 'scripts/okf_plus/metadata_refresh.py'),
-                 ('synthetic-test-contract', 'tests/contract/test_okf_plus_metadata_refresh.py')),
+    # The separate metadata-capture extension remains on its immutable
+    # reconciliation branch. No local implementation is claimed for it here.
+    'metadata': (),
     'data': (('implementation', 'scripts/okf_plus/ngd_extract.py'),
              ('implementation', 'scripts/okf_plus/transient_profile.py'),
              ('synthetic-test-contract', 'tests/contract/test_okf_plus_ngd_extract.py'),
@@ -136,11 +141,10 @@ def _statuses(lifecycle, metadata=False, data=False):
 
 def _support(slug, operation, servers, lifecycle):
     valid = operation['method'] == 'GET' and lifecycle == 'current-in-retained-documentation'
-    metadata = valid and servers == [NGD_SERVER if slug == 'os-ngd-api-features' else DOWNLOAD_SERVER] and operation['path'] in METADATA_PATHS.get(slug, set())
     data = (valid and slug == 'os-ngd-api-features' and servers == [NGD_SERVER]
             and operation['path'] == '/collections/{collectionId}/items'
             and operation.get('operationId') == 'getItems')
-    return bool(metadata), bool(data)
+    return False, bool(data)
 
 
 def _base(slug, title, kind, source, lifecycle):
@@ -150,7 +154,10 @@ def _base(slug, title, kind, source, lifecycle):
             'gaps': [], 'scope': {'executionProfile': PROFILE,
                 'metadataProfile': 'closed-os-metadata-refresh', 'providerRequestsMade': 0,
                 'authority': 'documentation-and-code-inventory-only',
-                'otherImplementations': 'Other executors and experimental Sites adapters are outside the named NGD extraction and transient profiling profile; these statuses are not whole-repository claims.'}}
+                'otherImplementations': (
+                    'Other executors and experimental Sites adapters are outside the named NGD extraction and transient profiling profile; '
+                    'these statuses are not whole-repository claims. Broader metadata capture remains a separate extension on the '
+                    'reconciliation branch, absent from this checkout: ' + DEFERRED_METADATA_SOURCE)}}
 
 
 def project(root=ROOT, *, snapshot=None):

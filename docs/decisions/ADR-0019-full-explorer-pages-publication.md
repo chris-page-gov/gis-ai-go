@@ -47,6 +47,16 @@ Do not rewrite a localhost-bound projection after its hashes have been generated
 The publication contains public metadata and guidance; credentials, private
 captures and geographic feature payloads remain excluded.
 
+Scope this main-target increment to the full public metadata, Reader/context,
+learning and native-field/atomic source-card dependencies. The separate new
+private capture extension remains unchanged at
+[reconciliation commit 35318abc](https://github.com/chris-page-gov/gis-ai-go/tree/35318abcce5e23c1509ed6ce131d81f5dfd0d38c)
+for [unresolved CodeQL review](../operations/EXPLORER_PAGES_CODEQL_REVIEW.md).
+Public acceptance can proceed independently because it does not call that feature.
+This neither fixes nor dismisses its findings; the wider acquisition objective
+and existing main recovery remain. Retain full mandatory assurance on the public
+tree and regenerate its source-bound projections after the scope change.
+
 The v2 distribution contract binds both source identities, the app manifest,
 complete Reader/context snapshot and exact publication inventory. Its served
 files total less than 1,000,000,000 bytes, with at most 50,000 files and at most

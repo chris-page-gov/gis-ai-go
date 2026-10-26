@@ -70,7 +70,7 @@ generation does not execute routes or establish live access.
 
 The [retained source review](OKF-220_OS_SOURCE_REVIEW.md),
 [source snapshots](../../okf-plus/source/) and
-[refresh admission rules](../../scripts/okf_plus/metadata_refresh.py) support the
+[refresh admission rules retained on the reconciliation branch](https://github.com/chris-page-gov/gis-ai-go/blob/35318abcce5e23c1509ed6ce131d81f5dfd0d38c/scripts/okf_plus/metadata_refresh.py) support the
 following original counts. Later closure is cited explicitly below; queue
 completion remains measured only over its own admitted routes.
 

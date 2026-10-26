@@ -247,67 +247,6 @@ class SemanticSearchTests(unittest.TestCase):
         self.assertEqual(result['interpretationCoverage']['facets']['definition']['evidence'][0]['pointer'], '/facts/schema/description')
         self.assertIn('confidence', result['interpretationCoverage']['unknowns'])
 
-    def write_private_schema(self, document):
-        from scripts.okf_plus.private_schema_cards import schema_cards
-        emitted = schema_cards(json.dumps(document).encode(),
-                               'https://api.os.uk/features/ngd/ofa/v1/collections/synthetic-1/schema',
-                               '2026-10-18T00:00:00Z')
-        for relative, raw in emitted:
-            path = self.root / relative
-            path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_bytes(raw)
-        return emitted
-
-    def test_explain_real_private_type_and_compositions_are_literal_nullability_evidence(self):
-        self.write_private_schema({'properties': {
-            'height': {'type': ['number', 'null'], 'description': 'Direct definition', 'units': 'm'},
-            'composed': {'anyOf': [{'type': 'number'}, {'type': 'null'}]}}})
-        SEARCH.build_index(self.root)
-        for native, pointer in (('height', '/facts/schema/type'), ('composed', '/facts/schema/anyOf')):
-            with self.subTest(native=native):
-                result = SEARCH.explain_item(self.root, native, max_bytes=32768)
-                evidence = result['interpretationCoverage']['facets']['nullability']['evidence']
-                self.assertEqual(evidence, [{'card': result['results'][0]['card']['@id'], 'pointer': pointer}])
-                self.assertIn('without evaluating JSON Schema', result['interpretationCoverage']['schemaInterpretation'])
-        direct = SEARCH.explain_item(self.root, 'height', max_bytes=32768)
-        self.assertEqual(direct['results'][0]['card']['facts']['schema']['type'], ['number', 'null'])
-
-    def test_explain_private_reference_facets_exclude_companion_and_its_reference_meanings(self):
-        emitted = self.write_private_schema({'properties': {
-            'selected': {'$ref': '#/$defs/Measure'},
-            'unrelated': {'description': 'Companion meaning', 'units': 'feet', '$ref': '#/$defs/Other'}},
-            '$defs': {'Measure': {'type': ['number', 'null'], 'description': 'Referenced measure', 'units': 'm'},
-                      'Other': {'description': 'Unrelated referenced meaning', 'units': 'yards', 'type': 'object'}}})
-        parsed = [(relative, SEARCH._read_card(self.root / relative)[0]) for relative, _ in emitted]
-        selected_path, selected = next((path, value) for path, value in parsed if value['nativeIdentifier'] == 'selected')
-        companion = next(value for _, value in parsed if value['nativeIdentifier'] == 'unrelated')
-        selected['related'].append({'@id': companion['@id'], 'relation': 'semantic-companion'})
-        self.root.joinpath(selected_path).write_text('---\n' + json.dumps(selected) + '\n---\nSynthetic linked evidence.\n')
-        SEARCH.build_index(self.root)
-        result = SEARCH.explain_item(self.root, selected['@id'], max_bytes=65536)
-        measure = next(row['card'] for row in result['results'] if row['card']['source'].get('jsonPointer') == '/$defs/Measure')
-        returned = {row['card']['source'].get('jsonPointer') for row in result['results']}
-        self.assertIn('/properties/unrelated', returned)
-        self.assertIn('/$defs/Other', returned)
-        for facet, pointer in (('definition', '/facts/schema/description'), ('unit', '/facts/schema/units'),
-                               ('nullability', '/facts/schema/type')):
-            self.assertEqual(result['interpretationCoverage']['facets'][facet]['evidence'],
-                             [{'card': measure['@id'], 'pointer': pointer, 'scope': 'referenced-schema',
-                               'linkedFrom': selected['@id']}])
-
-    def test_explain_omitted_private_reference_cannot_supply_coverage_evidence(self):
-        self.write_private_schema({'properties': {'height': {'$ref': '#/$defs/Measure'}},
-                                   '$defs': {'Measure': {'description': 'Exact definition. ' * 300,
-                                                       'units': 'm', 'type': ['number', 'null']}}})
-        SEARCH.build_index(self.root)
-        result = SEARCH.explain_item(self.root, 'height', max_bytes=12000)
-        self.assertTrue(result['truncated'])
-        self.assertIn('byte-limit', result['omissions'])
-        self.assertEqual(result['counts']['returned'], 1)
-        self.assertIn('definition', result['interpretationCoverage']['unknowns'])
-        self.assertIn('unit', result['interpretationCoverage']['unknowns'])
-        self.assertIn('nullability', result['interpretationCoverage']['unknowns'])
-
     def test_explain_budget_never_leaves_coverage_references_to_omitted_cards(self):
         value = card('measure', facts={'schema': {'description': 'Synthetic definition'}})
         linked = card('qualifier', facts={'semantics': {'semanticRole': 'observation-quality'}, 'text': 'Evidence ' * 700})

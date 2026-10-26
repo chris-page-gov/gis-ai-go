@@ -11,29 +11,42 @@ context under `/gis/explorer/`, and `/legacy/` for existing catalogue links.
 The app, GIS source and complete projection inventory have separate identities.
 Context is regenerated for the public base rather than copied from localhost.
 
+The main-target increment is scoped to the full public bundle, Reader/context,
+learning and native-field/atomic source records. The separate new private capture
+feature remains unchanged at reconciliation commit
+`35318abcce5e23c1509ed6ce131d81f5dfd0d38c`, pending its
+[CodeQL review](docs/operations/EXPLORER_PAGES_CODEQL_REVIEW.md). Its findings
+remain unresolved; this scope change neither fixes nor dismisses them. Existing
+main recovery, every required check and the original private acquisition objective
+are retained. The public dependency closure does not call the deferred feature.
+
 The candidate retains exact-main CI, archive attestation, manual Pages selection,
 complete served-byte verification and legacy v1 rollback. Its source checks,
 deployment and rollback/restore results must be recorded before claiming a live
 switch-over. The immutable `v0.1.0` release and separate gateway release gates
 remain unchanged.
 
-Two complete v2 archive builds also produced byte-identical tar archives. The
-final committed source still requires its own complete CI candidate and public
-deployment evidence.
+Before this scope split, two complete v2 archive builds produced byte-identical
+tar archives. The narrowed source changes the input digest and snapshot, so it
+requires fresh bundle/context/Reader generation, complete archive/runtime
+acceptance, committed-source CI and public deployment evidence.
 
 The first main-target CI run passed gateway image assurance and identified one
 new configuration-routing omission, now repaired with a regression test. The
-[CodeQL review](docs/operations/EXPLORER_PAGES_CODEQL_REVIEW.md) records two open
-content-checksum findings and the code-scanning API access limitation; their
-complete paths still require review before merge. Query coverage is unchanged.
+[CodeQL review](docs/operations/EXPLORER_PAGES_CODEQL_REVIEW.md) records the
+unresolved content-checksum findings in the deferred private source and the
+code-scanning API access limitation. Their complete paths still require separate
+review before that feature can merge. Full CodeQL remains required for the
+narrowed public tree, with unchanged query coverage.
 
-Provisional local acceptance used source HEAD
+Before narrowing, provisional local acceptance used source HEAD
 `35318abcce5e23c1509ed6ce131d81f5dfd0d38c` with the uncommitted publication
 working tree. All 47 archive/publication/staging tests, 93 workflow/impact tests,
 11 assembler tests and nine byte-verifier tests passed. The exact staged
 candidate passed streaming checks for all 37,279 public files
 (714,610,618 bytes) and all seven real-browser journeys. These are local candidate
-results, not clean-commit CI or public HTTPS acceptance. The
+results for that earlier working tree, not acceptance of the narrowed tree,
+clean-commit CI or public HTTPS. The
 [publication runbook](docs/operations/EXPLORER_PAGES_PUBLICATION.md) records the
 build, manual exact-main selection and retained legacy rollback identities.
 
@@ -84,8 +97,9 @@ of local `a4e66e1a` with main `59ba0dd1`. Both histories and the original handof
 are preserved. Main's measurement planner, accepted recovery methods and current
 experience/security changes remain. The older request-contract estimator has its
 own filename; the persistent feature fetcher is retired in favour of extraction,
-profiling and verified disposal. Small atomic records, bounded explanations and
-broader metadata capture complement the frozen recovery outputs.
+profiling and verified disposal. Small atomic records and bounded explanations
+complement the frozen recovery outputs. The broader new private capture lane is
+preserved in the reconciliation commit; the current public migration defers it.
 
 The old branch's no-access observations describe that environment on 18 October;
 they do not invalidate the later successful captures recorded below. No private

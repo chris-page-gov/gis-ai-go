@@ -14,6 +14,16 @@ deployment, public-verification and rollback requirements apply. Treat the chang
 as a candidate until those results exist; do not infer a release, protected-data
 right or hosted service admission from the public UI.
 
+The public increment retains the complete public bundle, Reader/context,
+learning and native-field/atomic source-card dependency closure. The separate
+new private capture feature stays unchanged at
+[reconciliation commit 35318abc](https://github.com/chris-page-gov/gis-ai-go/tree/35318abcce5e23c1509ed6ce131d81f5dfd0d38c)
+for its [unresolved CodeQL review](docs/operations/EXPLORER_PAGES_CODEQL_REVIEW.md).
+This scope change neither fixes nor dismisses those findings. Keep the original
+private acquisition objective outstanding and preserve accepted main OS recovery.
+All mandatory checks, including full CodeQL, continue on the public tree; no
+query exclusion, baseline change or finding dismissal follows from the split.
+
 ## Agreed Explorer continuation
 
 On 24 October the owner agreed to integrate the full OKF+ metadata with learning
@@ -28,8 +38,10 @@ repository boundary, prior evidence and outstanding integration work.
 
 The owner requested reconciliation of the two local 18 October OS commits with
 current main. The [reconciliation record](docs/implementation/OKF-223_RECONCILIATION.md)
-preserves main's transient acquisition lifecycle and adds the bounded atomic
-view and broader metadata producer. The older persistent feature executor is
+preserves main's transient acquisition lifecycle and records the bounded atomic
+view and separate broader metadata producer on the reconciliation branch. The
+public migration carries the atomic view and defers that new private producer.
+The older persistent feature executor is
 retired. Historical branch observations do not supersede later accepted recovery
 evidence; local integration does not establish a new live capture or deployment.
 

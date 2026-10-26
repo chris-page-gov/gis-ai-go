@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import shutil
 import subprocess
 import tempfile
 import unittest
@@ -63,8 +64,9 @@ class ExplorerPagesWorkflowTests(unittest.TestCase):
         self.assertIn("version: 0.12.2", candidate)
         build = BUILD.read_text(encoding="utf-8")
         self.assertIn('git -C "$explorer_checkout" rev-parse HEAD', build)
-        self.assertIn("corepack pnpm install --frozen-lockfile", build)
-        self.assertIn("corepack pnpm build:determinism", build)
+        self.assertIn("corepack pnpm --ignore-workspace install --frozen-lockfile", build)
+        self.assertIn("corepack pnpm --ignore-workspace check", build)
+        self.assertIn("corepack pnpm --ignore-workspace build:determinism", build)
         self.assertIn("uv python install", build)
         self.assertIn("uv sync --locked", build)
         self.assertIn("uv run --locked python scripts/build_site.py", build)
@@ -154,6 +156,75 @@ class ExplorerPagesWorkflowTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("exact checked-out source commit", result.stderr)
         self.assertNotIn("Downloading", result.stdout)
+
+    def test_nested_pnpm_install_uses_only_the_child_frozen_lock(self) -> None:
+        pnpm = shutil.which("pnpm")
+        self.assertIsNotNone(pnpm, "locked repository assurance requires pnpm")
+        with tempfile.TemporaryDirectory(prefix="explorer-nested-pnpm-") as temporary:
+            outer = Path(temporary)
+            app = outer / "upstream/apps/explorer"
+            app.mkdir(parents=True)
+            (outer / "package.json").write_text(json.dumps({
+                "name": "outer-gis-workspace-fixture", "private": True,
+                "dependencies": {"outer-only-unresolvable-fixture": "999.0.0"},
+            }))
+            (outer / "pnpm-workspace.yaml").write_text("packages:\n  - 'members/*'\n")
+            (app / "package.json").write_text(json.dumps({
+                "name": "canonical-explorer-fixture", "private": True,
+            }))
+            lock = (
+                "lockfileVersion: '9.0'\n\nsettings:\n"
+                "  autoInstallPeers: true\n  excludeLinksFromLockfile: false\n\n"
+                "importers:\n\n  .: {}\n"
+            )
+            (app / "pnpm-lock.yaml").write_text(lock)
+            # Without isolation pnpm selects the unrelated outer workspace,
+            # whose intentionally absent frozen lock makes that mistake fail.
+            inherited = subprocess.run(
+                [pnpm, "install", "--offline", "--ignore-scripts", "--frozen-lockfile",
+                 "--store-dir", str(outer / "store")],
+                cwd=app, capture_output=True, text=True, timeout=30,
+            )
+            self.assertNotEqual(inherited.returncode, 0)
+            isolated = subprocess.run(
+                [pnpm, "--ignore-workspace", "install", "--offline", "--ignore-scripts", "--frozen-lockfile",
+                 "--store-dir", str(outer / "store")],
+                cwd=app, capture_output=True, text=True, timeout=30,
+            )
+            self.assertEqual(isolated.returncode, 0, isolated.stdout + isolated.stderr)
+            self.assertEqual((app / "pnpm-lock.yaml").read_text(), lock)
+            self.assertFalse((outer / "pnpm-lock.yaml").exists())
+
+    def test_nested_uv_project_keeps_its_own_lock_and_environment(self) -> None:
+        uv = shutil.which("uv")
+        self.assertIsNotNone(uv, "locked repository assurance requires uv")
+        with tempfile.TemporaryDirectory(prefix="explorer-nested-uv-") as temporary:
+            outer = Path(temporary)
+            child = outer / "upstream"
+            child.mkdir()
+            (outer / "pyproject.toml").write_text(
+                '[project]\nname="outer-gis-fixture"\nversion="0.0.0"\n'
+                'requires-python=">=3.12"\n[tool.uv]\npackage=false\n'
+                '[tool.uv.workspace]\nmembers=["members/*"]\n'
+            )
+            (child / "pyproject.toml").write_text(
+                '[project]\nname="canonical-explorer-fixture"\nversion="0.0.0"\n'
+                'requires-python=">=3.12"\n[tool.uv]\npackage=false\n'
+            )
+            locked = subprocess.run(
+                [uv, "lock", "--offline"], cwd=child, capture_output=True, text=True, timeout=30,
+            )
+            self.assertEqual(locked.returncode, 0, locked.stderr)
+            lock = (child / "uv.lock").read_bytes()
+            synced = subprocess.run(
+                [uv, "sync", "--locked", "--offline"], cwd=child,
+                capture_output=True, text=True, timeout=30,
+            )
+            self.assertEqual(synced.returncode, 0, synced.stderr)
+            self.assertEqual((child / "uv.lock").read_bytes(), lock)
+            self.assertTrue((child / ".venv").is_dir())
+            self.assertFalse((outer / "uv.lock").exists())
+            self.assertFalse((outer / ".venv").exists())
 
 
 if __name__ == "__main__":

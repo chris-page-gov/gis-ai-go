@@ -131,6 +131,15 @@ assurance, exact public-byte and browser verification, then rollback and restore
 evidence before recording the switch-over as accepted. This static publication
 is separate from the supported gateway release.
 
+The main-target migration retains the full public metadata and native-field,
+atomic and learning dependencies. The separate new private capture extension
+remains at
+[reconciliation commit 35318abc](https://github.com/chris-page-gov/gis-ai-go/tree/35318abcce5e23c1509ed6ce131d81f5dfd0d38c)
+for [unresolved source-path review](../operations/EXPLORER_PAGES_CODEQL_REVIEW.md).
+Its acquisition objective remains outstanding. Accepted main OS recovery and all
+public assurance gates remain in force; public acceptance grants no disposition
+of the deferred findings.
+
 The 21 October learning increment adds a
 [task composition model](GEOGRAPHY_TASK_COMPOSITION.md) and
 [source-positioned term discovery](GEOSPATIAL_TERM_DISCOVERY.md). Task-specific

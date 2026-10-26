@@ -74,6 +74,11 @@ and milestones are the source of truth for item-level status.
   retaining legacy links, exact app/source identities and v1 rollback. Close the
   publication increment only with exact-main assurance, public-byte/browser
   verification and rollback/restore evidence.
+  Keep the separate new private capture extension at
+  [reconciliation commit 35318abc](https://github.com/chris-page-gov/gis-ai-go/tree/35318abcce5e23c1509ed6ce131d81f5dfd0d38c)
+  pending [complete CodeQL path review](../operations/EXPLORER_PAGES_CODEQL_REVIEW.md).
+  Its findings and wider acquisition objective remain unresolved; preserve
+  existing main recovery while completing the independent public publication.
 
 ## Conditional integrations
 

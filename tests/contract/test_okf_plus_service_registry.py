@@ -110,18 +110,20 @@ class ServiceRegistryTests(unittest.TestCase):
         ]:
             self.assertFalse(registry._support(slug, {**op, **change}, servers, state)[1])
 
-    def test_metadata_profiles_match_actual_closed_admission_and_exclude_file_transfer(self):
-        from scripts.okf_plus.metadata_refresh import admit
+    def test_metadata_capture_is_deferred_without_losing_native_documented_routes(self):
         supported = [c for c in self.cards if c['kind'] == 'operation' and c['statuses']['metadataCaptureImplemented'] == 'implemented-subset']
-        self.assertEqual(len(supported), 10)
-        for card in supported:
-            path = card['native']['operation']['path']
-            for name in ('collectionId', 'productId', 'dataPackageId', 'versionId'):
-                path = path.replace('{' + name + '}', 'synthetic-1')
-            url = card['native']['servers'][0].rstrip('/') + path
-            admit(url)
-            with self.assertRaises(ValueError):
-                admit(url + '?fileName=synthetic.zip')
+        self.assertEqual(supported, [])
+        self.assertEqual(self.summary['metadataCaptureOperationCount'], 0)
+        self.assertEqual(registry.EVIDENCE_FILES['metadata'], ())
+        documented = [c for c in self.cards if c['kind'] == 'operation'
+                      and c['native']['operation']['path'] in registry.METADATA_PATHS.get(c['service'], set())]
+        self.assertEqual(len(documented), 10)
+        for card in documented:
+            self.assertEqual(card['statuses']['metadataCaptureImplemented'], 'not-implemented-in-profile')
+            self.assertEqual(card['implementationEvidence'], [])
+            self.assertNotIn('supportedMetadata', card['scope'])
+            self.assertIn('absent from this checkout', card['scope']['otherImplementations'])
+            self.assertIn(registry.DEFERRED_METADATA_SOURCE, card['scope']['otherImplementations'])
         download = self._operation('os-downloads-api', '/dataPackages/{dataPackageId}/versions/{versionId}/downloads')
         self.assertEqual(download['statuses']['metadataCaptureImplemented'], 'not-implemented-in-profile')
         self.assertEqual(download['statuses']['dataExecutorImplemented'], 'not-implemented-in-profile')

@@ -65,7 +65,6 @@
     "build:okf-semantics": "uv run --locked --cache-dir .uv-cache python scripts/okf_plus/verify_semantics.py",
     "check:okf-semantics": "uv run --locked --cache-dir .uv-cache python scripts/okf_plus/verify_semantics.py",
     "search:okf-semantics": "uv run --locked --cache-dir .uv-cache python scripts/okf_plus/semantic_search.py --root artifacts/okf-plus/atomic",
-    "plan:os-metadata": "uv run --locked --cache-dir .uv-cache python scripts/okf_plus/metadata_refresh.py --plan",
     "plan:os-data": "uv run --locked --cache-dir .uv-cache python scripts/okf_plus/request_retrieval_plan.py"
   },
   "devDependencies": {

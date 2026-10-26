@@ -25,6 +25,14 @@ publication receipts identify the exact artefact served there.
 Use the [Explorer publication runbook](docs/operations/EXPLORER_PAGES_PUBLICATION.md)
 for candidate builds, exact-main deployment and legacy rollback selection.
 
+This increment carries the full public bundle, Reader/context projections,
+learning records and native-field/atomic source cards. The separate new private
+capture extension remains at the
+[retained reconciliation commit](https://github.com/chris-page-gov/gis-ai-go/tree/35318abcce5e23c1509ed6ce131d81f5dfd0d38c)
+for [unresolved CodeQL review](docs/operations/EXPLORER_PAGES_CODEQL_REVIEW.md).
+Existing main OS recovery is retained. Public acceptance does not accept or
+dispose of the deferred feature's findings or wider acquisition objective.
+
 The Explorer is a static, metadata-only product; there is no deployed or public MCP
 service. Live status is in
 [`PROGRESS.md`](PROGRESS.md); current authority and boundaries are in

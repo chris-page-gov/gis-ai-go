@@ -50,9 +50,10 @@ mkdir -p "$candidate_root/projection"
 # The two repositories retain their own locked package managers and Python roots.
 (
   cd "$explorer_checkout/apps/okf-explorer"
-  corepack pnpm install --frozen-lockfile
-  corepack pnpm check
-  corepack pnpm build:determinism
+  # This checkout is nested in GIS on Actions. Do not inherit GIS's workspace.
+  corepack pnpm --ignore-workspace install --frozen-lockfile
+  corepack pnpm --ignore-workspace check
+  corepack pnpm --ignore-workspace build:determinism
 )
 (
   cd "$explorer_checkout"
