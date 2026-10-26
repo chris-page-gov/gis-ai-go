@@ -66,8 +66,10 @@ EXACT_RESOURCES = [
 # The canonical generator changes only the package binding and derived set ID.
 # 24 October 2026: the Zod repair refreshes only the independently checked
 # lockfile binding and derived set ID; every historical evidence pin stays fixed.
+# 26 October 2026: deferring the private metadata command refreshes only the
+# package binding and set ID after the canonical selected suites pass again.
 REGENERABLE_LOCAL_RECEIPT_SHA256 = (
-    "c47248aa090d61877aa83740772c1690fe7a6b120641ca40a549a534de897ea4"
+    "faa39f1bd1d0bef87395f289dad2e18685162df912e3dc7c74d176904c48000d"
 )
 HISTORICAL_V1_SHA256 = {
     "evaluation/qual-206-local-protocol-evidence-matrix.v1.json": (
