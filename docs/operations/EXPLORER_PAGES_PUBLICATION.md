@@ -72,6 +72,19 @@ A bounded receipt wait allows CDN propagation: at most 110 seconds and 55 probes
 each capped at 64 KiB with a five-second request deadline. A matching receipt is
 followed by strict complete-file streaming verification with bounded concurrency
 and all seven browser journeys. Record the exact served-file count and bytes.
+The full public walk keeps at most 12 workers and spaces actual request starts
+by at least 20 milliseconds (at most 50 per second); loopback checks are unpaced.
+Only HTTP 429, 502, 503 and 504 permit up to two extra attempts per file, with
+shared ceilings of 64 extra requests and 64 MiB of reserved replay bytes.
+Backoff is one then two seconds, respecting a valid Retry-After up to ten
+seconds; a longer or malformed value fails closed. Error bodies are cancelled
+without being read. Queueing, backoff and retries remain inside the 20-minute
+walk deadline, and each actual request retains its 30-second deadline.
+Pass and failure reports record reservations, actual extra starts, statuses and
+received retry-body bytes; verified file and byte totals still count the complete
+successful inventory once. A hash, length, identity or redirect failure is never
+retried or skipped.
+
 The pre-split local candidate checked all 37,279 public files; the narrowed
 source requires fresh complete verification with its new input digest and snapshot.
 

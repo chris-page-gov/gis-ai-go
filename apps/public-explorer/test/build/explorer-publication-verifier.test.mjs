@@ -8,7 +8,8 @@ import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import test from "node:test";
 import {
-  APP, LIMITS, deploymentBudget, hash, ledger, parseLedger, readVerified, runBounded, safePath, settings, waitForPublication,
+  APP, LIMITS, TRANSPORT_LIMITS, HttpStatusError, createReadPolicy, createRequestPacer, deploymentBudget,
+  hash, ledger, parseLedger, readVerified, retryDelay, runBounded, safePath, settings, verifyPublication, waitForPublication,
 } from "../browser/verify-explorer-publication.mjs";
 
 test("paths remain local and ledger rows are exact, unique and byte-sorted", () => {
@@ -160,6 +161,330 @@ test("streaming transport checks each byte, digest, response and hard size ceili
   await assert.rejects(readVerified("https://example.test/file", {
     fetcher: async () => new Response("", { status: 404 }), maximum: 100,
   }), /HTTP 404/u);
+});
+
+function advancingClock() {
+  let now = 0;
+  const waits = [];
+  return {
+    clock: () => now,
+    waits,
+    wait: async (milliseconds, signal) => {
+      if (signal?.aborted) throw signal.reason;
+      waits.push(milliseconds);
+      now += milliseconds;
+    },
+  };
+}
+
+test("a transient response is cancelled unread and only the verified recovery body is counted", async () => {
+  const timing = advancingClock();
+  let calls = 0;
+  let cancelled = 0;
+  let accounted = 0;
+  const policy = createReadPolicy({
+    ...timing,
+    fetcher: async () => {
+      calls += 1;
+      if (calls === 1) return new Response(new ReadableStream({
+        start(controller) { controller.enqueue(Buffer.from("never accepted")); },
+        cancel() { cancelled += 1; },
+      }), { status: 503, headers: { "content-length": "0" } });
+      return new Response("exact");
+    },
+  });
+  const response = await policy.read("https://example.test/passage", {
+    maximum: 5, expectedBytes: 5, expectedSha256: hash("exact"),
+    account: bytes => { accounted += bytes; },
+  });
+  assert.equal(response.bytes, 5);
+  assert.equal(accounted, 5);
+  assert.equal(cancelled, 1);
+  assert.equal(calls, 2);
+  assert.deepEqual(timing.waits, [1000]);
+  const report = policy.snapshot();
+  assert.equal(report.startedRequests, 2);
+  assert.equal(report.additionalRequests, 1);
+  assert.equal(report.retryReservations, 1);
+  assert.equal(report.reservedReplayBytes, 5);
+  assert.equal(report.additionalResponseBytes, 5);
+  assert.equal(report.errorBodyBytesConsumed, 0);
+  assert.equal(report.retriedFiles, 1);
+  assert.equal(report.cancelledErrorBodies, 1);
+  assert.equal(report.transientStatusCounts[503], 1);
+  assert.deepEqual(report.retryEvents, [
+    { path: "passage", status: 503, attempt: 2, delayMs: 1000, reservedBytes: 5, started: true },
+  ]);
+});
+
+test("Retry-After accepts bounded integer seconds and exact HTTP dates without retrying early", async () => {
+  const now = Date.UTC(2026, 9, 26, 21);
+  assert.equal(retryDelay(new HttpStatusError("u", 429, "3", true), 1, now), 3000);
+  assert.equal(retryDelay(new HttpStatusError("u", 503, new Date(now + 5000).toUTCString(), true), 1, now), 5000);
+  assert.equal(retryDelay(new HttpStatusError("u", 504, new Date(now - 5000).toUTCString(), true), 2, now), 2000);
+  for (const header of ["-1", "1.5", "Infinity", "eleven", "11", new Date(now + 11_000).toUTCString()]) {
+    assert.throws(() => retryDelay(new HttpStatusError("u", 503, header, true), 1, now), /Retry-After/u);
+  }
+  const timing = advancingClock();
+  let calls = 0;
+  const policy = createReadPolicy({
+    ...timing, wallClock: () => now,
+    fetcher: async () => {
+      calls += 1;
+      if (calls === 1) return new Response("", { status: 429, headers: { "retry-after": "3" } });
+      if (calls === 2) return new Response("", { status: 502 });
+      return new Response("ok");
+    },
+  });
+  await policy.read("https://example.test/file", { maximum: 2, expectedBytes: 2, expectedSha256: hash("ok") });
+  assert.deepEqual(timing.waits, [3000, 2000]);
+  assert.equal(calls, 3);
+  assert.equal(policy.snapshot().additionalRequests, 2);
+});
+
+test("failure telemetry retains retry bytes before an aggregate accounting rejection", async () => {
+  let calls = 0;
+  const policy = createReadPolicy({
+    ...advancingClock(),
+    fetcher: async () => {
+      calls += 1;
+      return calls === 1 ? new Response("", { status: 503 }) : new Response("count");
+    },
+  });
+  await assert.rejects(policy.read("https://example.test/file", {
+    maximum: 5, account: () => { throw Error("aggregate byte ceiling exceeded"); },
+  }), /aggregate byte ceiling/u);
+  assert.equal(calls, 2);
+  assert.equal(policy.snapshot().additionalResponseBytes, 5);
+  assert.equal(policy.snapshot().additionalRequests, 1);
+});
+
+test("the per-file retry ceiling never starts a fourth request", async () => {
+  let calls = 0;
+  const policy = createReadPolicy({
+    ...advancingClock(),
+    fetcher: async () => { calls += 1; return new Response("", { status: 504 }); },
+  });
+  await assert.rejects(policy.read("https://example.test/file", { maximum: 100 }), /HTTP 504/u);
+  assert.equal(calls, 3);
+  assert.equal(policy.snapshot().additionalRequests, 2);
+  assert.equal(policy.snapshot().reservedReplayBytes, 200);
+  assert.equal(policy.snapshot().transientStatusCounts[504], 3);
+});
+
+test("non-transient status, redirect and arbitrary error text are never retried", async () => {
+  for (const status of [301, 400, 401, 403, 404, 500, 501]) {
+    let calls = 0;
+    const policy = createReadPolicy({
+      ...advancingClock(),
+      fetcher: async () => { calls += 1; return new Response("", { status }); },
+    });
+    await assert.rejects(policy.read("https://example.test/file", { maximum: 100 }), /HTTP/u);
+    assert.equal(calls, 1);
+    assert.equal(policy.snapshot().additionalRequests, 0);
+  }
+  for (const message of ["HTTP 503 in unrelated network text", "fetch failed", "publication request deadline exceeded"]) {
+    let calls = 0;
+    const policy = createReadPolicy({
+      ...advancingClock(),
+      fetcher: async () => { calls += 1; throw Error(message); },
+    });
+    await assert.rejects(policy.read("https://example.test/file", { maximum: 100 }), new RegExp(message, "u"));
+    assert.equal(calls, 1);
+    assert.equal(policy.snapshot().retryReservations, 0);
+  }
+});
+
+test("a recovered 200 still fails immediately on wrong bytes or a failed body read", async () => {
+  for (const [body, expected, pattern] of [
+    ["bad", { maximum: 3, expectedBytes: 3, expectedSha256: hash("yes") }, /SHA-256/u],
+    ["ab", { maximum: 3, expectedBytes: 3, expectedSha256: hash("yes") }, /byte length/u],
+    ["long", { maximum: 3, expectedBytes: 3, expectedSha256: hash("yes") }, /byte limit/u],
+  ]) {
+    let calls = 0;
+    const policy = createReadPolicy({
+      ...advancingClock(),
+      fetcher: async () => {
+        calls += 1;
+        return calls === 1 ? new Response("", { status: 503 }) : new Response(body);
+      },
+    });
+    await assert.rejects(policy.read("https://example.test/file", expected), pattern);
+    assert.equal(calls, 2);
+    assert.equal(policy.snapshot().retryReservations, 1);
+  }
+  let calls = 0;
+  const policy = createReadPolicy({
+    ...advancingClock(),
+    fetcher: async () => {
+      calls += 1;
+      return new Response(new ReadableStream({ start(controller) { controller.error(Error("503 body read failure")); } }));
+    },
+  });
+  await assert.rejects(policy.read("https://example.test/file", { maximum: 3 }), /503 body read failure/u);
+  assert.equal(calls, 1);
+  assert.equal(policy.snapshot().additionalRequests, 0);
+});
+
+test("concurrent transient failures cannot reserve over 64 extra requests", async () => {
+  const controller = new AbortController();
+  const calls = new Map();
+  const policy = createReadPolicy({
+    ...advancingClock(), signal: controller.signal,
+    fetcher: async url => {
+      const count = (calls.get(url) ?? 0) + 1;
+      calls.set(url, count);
+      return new Response("", { status: count === 1 ? 503 : 200 });
+    },
+  });
+  await assert.rejects(runBounded(Array.from({ length: 80 }, (_, index) => index), index =>
+    policy.read("https://example.test/files/" + index, {
+      maximum: 0, expectedBytes: 0, expectedSha256: hash(""),
+    }), { concurrency: 12, controller }), /additional request ceiling/u);
+  const report = policy.snapshot();
+  assert.equal(report.retryReservations, TRANSPORT_LIMITS.extraRequests);
+  assert.ok(report.additionalRequests <= 64);
+  assert.equal(report.retryEvents.length, 64);
+  assert.ok(report.retryEvents.every(event => event.reservedBytes === 0));
+  const observed = [...calls.values()].reduce((sum, count) => sum + count, 0);
+  await new Promise(resolve => setTimeout(resolve, 0));
+  assert.equal([...calls.values()].reduce((sum, count) => sum + count, 0), observed);
+});
+
+test("replay bytes are reserved from declared bounds rather than response headers", async () => {
+  const calls = new Map();
+  const policy = createReadPolicy({
+    ...advancingClock(),
+    fetcher: async url => {
+      const count = (calls.get(url) ?? 0) + 1;
+      calls.set(url, count);
+      return new Response("", { status: count === 1 ? 503 : 404, headers: { "content-length": "0" } });
+    },
+  });
+  for (const file of ["one", "two"]) {
+    await assert.rejects(policy.read("https://example.test/" + file, {
+      maximum: 32 * 1024 * 1024, expectedBytes: 32 * 1024 * 1024,
+    }), /HTTP 404/u);
+  }
+  await assert.rejects(policy.read("https://example.test/three", { maximum: 1 }), /reserved replay byte ceiling/u);
+  assert.equal(policy.snapshot().reservedReplayBytes, 64 * 1024 * 1024);
+  assert.equal(policy.snapshot().additionalRequests, 2);
+  assert.equal(policy.snapshot().retryReservations, 2);
+  assert.equal(calls.get("https://example.test/three"), 1);
+});
+
+test("public starts are spaced while response bodies remain concurrent", async () => {
+  const controller = new AbortController();
+  const timing = advancingClock();
+  const starts = [];
+  const waiting = [];
+  const deadline = setTimeout(() => controller.abort(Error("pacer serialised response completion")), 500);
+  const policy = createReadPolicy({
+    ...timing, signal: controller.signal, deployed: true,
+    fetcher: () => new Promise(resolve => {
+      starts.push(timing.clock());
+      waiting.push(resolve);
+      if (waiting.length === 12) for (const ready of waiting) ready(new Response("x"));
+    }),
+  });
+  try {
+    await Promise.all(Array.from({ length: 12 }, (_, index) => policy.read("https://example.test/" + index, {
+      maximum: 1, expectedBytes: 1, expectedSha256: hash("x"),
+    })));
+  } finally { clearTimeout(deadline); controller.abort(); }
+  assert.deepEqual(starts, Array.from({ length: 12 }, (_, index) => index * 20));
+  assert.equal(policy.snapshot().minimumObservedStartGapMs, 20);
+  assert.equal(policy.snapshot().peakActiveRequests, 12);
+  assert.ok(policy.snapshot().peakQueuedStarts <= 12);
+});
+
+test("an event-loop stall does not release overdue starts in a catch-up burst", async () => {
+  let now = 0;
+  let firstWait = true;
+  const starts = [];
+  const pacer = createRequestPacer({
+    enabled: true, clock: () => now,
+    wait: async delay => {
+      now += firstWait ? 1000 : delay;
+      firstWait = false;
+    },
+  });
+  await Promise.all(Array.from({ length: 5 }, () => pacer.start(() => { starts.push(now); })));
+  assert.deepEqual(starts, [0, 1000, 1020, 1040, 1060]);
+});
+
+test("synchronous fetch initialisation cannot shorten the next actual start gap", async () => {
+  let now = 0;
+  const starts = [];
+  const pacer = createRequestPacer({
+    enabled: true, clock: () => now,
+    wait: async delay => { now += delay; },
+  });
+  await Promise.all([0, 1, 2].map(index => pacer.start(() => {
+    if (index === 0) now += 5;
+    starts.push(now);
+  })));
+  assert.deepEqual(starts, [5, 25, 45]);
+  assert.equal(pacer.snapshot().minimumObservedStartGapMs, 20);
+});
+
+test("loopback reads are unpaced and a queued public start cannot outlive global abort", async () => {
+  const timing = advancingClock();
+  const local = createReadPolicy({ ...timing, fetcher: async () => new Response("x") });
+  await Promise.all([1, 2, 3].map(index => local.read("http://127.0.0.1/" + index, { maximum: 1 })));
+  assert.deepEqual(timing.waits, []);
+  assert.equal(local.snapshot().requestsPerSecondLimit, null);
+  const controller = new AbortController();
+  const started = [];
+  const pacer = createRequestPacer({ enabled: true, signal: controller.signal });
+  const work = [0, 1, 2].map(index => pacer.start(() => { started.push(index); }));
+  setTimeout(() => controller.abort(Error("global walk deadline")), 2);
+  const results = await Promise.allSettled(work);
+  assert.deepEqual(started, [0]);
+  assert.equal(results.filter(result => result.status === "rejected").length, 2);
+  assert.equal(pacer.snapshot().startedRequests, 1);
+});
+
+test("request deadlines begin at fetch start and global deadlines include retry backoff", async () => {
+  const starts = [];
+  const policy = createReadPolicy({
+    deployed: true,
+    fetcher: async () => { starts.push(performance.now()); return new Response("x"); },
+  });
+  await Promise.all([1, 2].map(index => policy.read("https://example.test/" + index, {
+    maximum: 1, requestTimeoutMs: 10,
+  })));
+  assert.ok(starts[1] - starts[0] >= 20);
+  let calls = 0;
+  const began = performance.now();
+  await assert.rejects(verifyPublication({
+    baseUrl: new URL("https://chris-page-gov.github.io/gis-ai-go/"),
+    mode: "deployed-publication", checksumsSha256: "a".repeat(64),
+  }, {
+    deadlineMs: 30,
+    fetcher: async () => { calls += 1; return new Response("", { status: 503 }); },
+  }), error => {
+    assert.match(error.message, /complete publication deadline/u);
+    assert.equal(error.verificationTransport.retryReservations, 1);
+    assert.equal(error.verificationTransport.additionalRequests, 0);
+    assert.equal(error.verificationTransport.retryEvents[0].started, false);
+    return true;
+  });
+  assert.equal(calls, 1);
+  assert.ok(performance.now() - began < 500);
+});
+
+test("a stalled error-body cancellation is bounded and never treated as retryable", async () => {
+  const policy = createReadPolicy({
+    fetcher: async () => new Response(new ReadableStream({
+      cancel() { return new Promise(() => {}); },
+    }), { status: 503 }),
+  });
+  await assert.rejects(policy.read("https://example.test/file", {
+    maximum: 1, requestTimeoutMs: 20,
+  }), /request deadline/u);
+  assert.equal(policy.snapshot().startedRequests, 1);
+  assert.equal(policy.snapshot().retryReservations, 0);
 });
 
 test("real HTTP redirects and stalled bodies fail without following a target", async () => {
