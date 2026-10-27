@@ -2,6 +2,18 @@
 
 Last updated: 27 October 2026
 
+## Explorer discovery repair
+
+The owner requested a fix after the public Explorer showed only two facets and
+zero relationships. The [discovery increment](docs/implementation/OKF_EXPLORER_DISCOVERY.md)
+projects 18 source-backed facets, 137 explicit links between retained records and
+61,309 source-reference associations, preserving the complete raw metadata. Four
+suggested facets stay folded in the compact interface; the other dimensions are
+available through **All**. The canonical consumer adds bounded loading for a
+selected record's references. These are implementation candidates; final source,
+app, CI and public acceptance remain pending. The served archive below remains
+the accepted earlier publication and retains its historical discovery limits.
+
 ## Full Explorer public default
 
 The [GIS public entrypoint](https://chris-page-gov.github.io/gis-ai-go/) now serves

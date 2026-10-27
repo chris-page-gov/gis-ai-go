@@ -11,6 +11,11 @@ large Reader and context projections.
 > The local candidates below retain their original dated identities and limits;
 > they are separate from later public acceptance and the unresolved private work.
 
+The subsequent [discovery repair](OKF_EXPLORER_DISCOVERY.md) adds source-backed
+facets, explicit links between retained records and bounded source-reference
+loading. Its acceptance is separate from the dated candidates below and the
+earlier public archive's two-facet, zero-relationship projection.
+
 ## Reproduce the local candidate
 
 Install each repository's locked dependencies using its own instructions.

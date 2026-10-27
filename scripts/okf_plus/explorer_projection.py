@@ -11,6 +11,7 @@ from collections import Counter, defaultdict
 from copy import deepcopy
 from datetime import datetime
 import json
+import math
 from pathlib import Path
 import re
 import unicodedata
@@ -18,14 +19,21 @@ import unicodedata
 try:
     from .context_projection import _validate_pair, canonical, sha, token_bucket
     from .model import load_json, safe_reference
+    from .explorer_facets import FACET_DEFINITIONS, facet_values, presentation_facets
+    from .explorer_relationships import project_relationships
+    from .explorer_resources import project_resources
 except ImportError:
     from context_projection import _validate_pair, canonical, sha, token_bucket
     from model import load_json, safe_reference
+    from explorer_facets import FACET_DEFINITIONS, facet_values, presentation_facets
+    from explorer_relationships import project_relationships
+    from explorer_resources import project_resources
 
 MARKER = 'gis-ai-go.okf-plus-explorer-projection.v1\n'
 RECORD_CHUNK_SIZE = 32
 RESULT_CHUNK_SIZE = 256
 MAX_SHARD_BYTES = 4 * 1024 * 1024
+MAX_GRAPH_OVERVIEW_NODES = 128
 STOP_WORDS = set('a an and are as at be by for from in into is it of on or the to with'.split())
 LIMITATIONS = [
     'Complete retained metadata input; catalogue inclusion is not whole-product or semantic completeness.',
@@ -149,19 +157,22 @@ def learning_presentation(rows, semantic):
             'paths': paths} if paths else None
 
 
-def _search(rows, datasets, outputs, snapshot):
+def _search(rows, datasets, outputs, snapshot, record_facets):
     """Existing bounded static-search v1: lexical metadata, no semantic inference."""
     postings = defaultdict(list)
     docs = []
-    facets = {key: defaultdict(list) for key in ('source_family', 'record_type')}
+    facets = {definition['key']: defaultdict(list) for definition in FACET_DEFINITIONS}
     sort_values = []
     for ordinal, (row, dataset) in enumerate(zip(rows, datasets)):
         name = dataset['name']
         docs.append({'ordinal': ordinal, 'name': name, 'route': row['route'], 'title': row['title'],
-                     'publisher': row['sourceFamily'], 'publisher_title': row['sourceFamily'],
-                     'resource_count': 0, 'formats': [], 'tags': row['tags'],
+                     'publisher': dataset['publisher'], 'publisher_title': dataset['publisher_title'],
+                     'source_publishers': dataset['source_publishers'],
+                     'resource_count': dataset['resource_count'], 'formats': [], 'tags': row['tags'],
                      'notes': row['description'], 'record_type': row['type'], 'record_id': row['id'],
-                     'native_id': row['nativeIdentifier'], 'open': row['route']})
+                     'native_id': row['nativeIdentifier'], 'open': row['route'],
+                     **{key: values for key, values in record_facets[row['id']].items()
+                        if key not in ('record_type', 'tag', 'source_publisher')}})
         fields = [(row['title'], 8, 1), (row['description'], 4, 2),
                   (' '.join([row['nativeIdentifier'], *row['tags']]), 4, 4),
                   (row['text'] + '\n' + canonical(row['details']).decode(), 1, 8)]
@@ -172,8 +183,9 @@ def _search(rows, datasets, outputs, snapshot):
                 scores[token] = (old_weight + weight, old_mask | mask)
         for token, (weight, mask) in scores.items():
             postings[token].append([ordinal, weight, mask])
-        facets['source_family'][row['sourceFamily']].append(ordinal)
-        facets['record_type'][row['type']].append(ordinal)
+        for key, values in record_facets[row['id']].items():
+            for value in values:
+                facets[key][value].append(ordinal)
         sort_values.append(['', row['title'], None])
     search_paths = []
 
@@ -249,6 +261,121 @@ def _search(rows, datasets, outputs, snapshot):
             for key, values in facets.items()}
 
 
+def _discovery_indexes(rows, datasets, facets, record_facets, resources, publishers,
+                       relationships, outputs, snapshot, captured_at):
+    """Expose bounded navigation without loading every complete Reader record."""
+    def put(path, value):
+        raw = canonical(value)
+        if len(raw) > MAX_SHARD_BYTES:
+            raise ValueError('Discovery shard exceeds bounded loading limit: ' + path)
+        outputs[path] = raw
+        return reference(path, raw)
+
+    chunks = {'resources': []}
+    by_dataset = defaultdict(list)
+    for resource in resources:
+        by_dataset[resource['dataset']].append(resource)
+    resource_buckets = {f'{number:02x}': {} for number in range(256)}
+    for offset in range(0, len(datasets), RECORD_CHUNK_SIZE):
+        group = datasets[offset:offset + RECORD_CHUNK_SIZE]
+        selected = []; locators = {}
+        for dataset in group:
+            values = by_dataset[dataset['name']]
+            if len(values) > 256:
+                raise ValueError('One record exceeds the bounded source-reference count')
+            locators[dataset['route']] = list(range(len(selected), len(selected) + len(values)))
+            selected.extend(values)
+        if len(selected) > 1024:
+            raise ValueError('Shared source-reference chunk exceeds the bounded row count')
+        ref = put(f'resources/{offset // RECORD_CHUNK_SIZE:05d}.json', selected) if selected else None
+        if ref and ref['bytes'] > 2 * 1024 * 1024:
+            raise ValueError('Shared source-reference chunk exceeds the targeted byte budget')
+        if ref:
+            chunks['resources'].append(ref)
+        for dataset in group:
+            indices = locators[dataset['route']]
+            resource_buckets[token_bucket(dataset['route'])][dataset['route']] = {
+                'dataset': dataset['name'], 'count': len(indices),
+                'chunks': [{**ref, 'rows': indices}] if indices else []}
+    resource_bucket_refs = {bucket: put('resources/locator/' + bucket + '.json', values)
+                            for bucket, values in resource_buckets.items() if values}
+    if any(ref['bytes'] > 1024 * 1024 for ref in resource_bucket_refs.values()):
+        raise ValueError('Source-reference locator bucket exceeds the targeted byte budget')
+    resource_ref = put('record-resources.json', {'schema': 'okf-record-resource-index.v1',
+        'snapshot': snapshot, 'algorithm': 'fnv1a32-prefix-2', 'buckets': resource_bucket_refs})
+    if resource_ref['bytes'] > 256 * 1024:
+        raise ValueError('Source-reference locator manifest exceeds its byte budget')
+    for name, values in (('publishers', publishers), ('relationships', relationships)):
+        chunks[name] = [put(f'{name}/{offset // 128:05d}.json', values[offset:offset + 128])
+                        for offset in range(0, len(values), 128)]
+    adjacency = {f'{number:02x}': defaultdict(list) for number in range(256)}
+    connected = Counter()
+    for relationship in relationships:
+        for route in sorted({relationship['source'], relationship['target']}):
+            adjacency[token_bucket(route)][route].append(relationship)
+            connected[route] += 1
+    bucket_refs = {bucket: put('relationships/adjacency/' + bucket + '.json', values)
+                   for bucket, values in adjacency.items() if values}
+    put('relationship-adjacency.json', {'schema': 'okf-relationship-adjacency.v1',
+        'algorithm': 'fnv1a32-prefix-2', 'snapshot': snapshot, 'routes': len(connected),
+        'relationships': len(relationships), 'buckets': bucket_refs})
+
+    by_route = {row['route']: row for row in rows}
+    facet_coverage = {}
+    analyses = []
+    total = len(rows)
+    for definition in FACET_DEFINITIONS:
+        key = definition['key']; values = facets[key]
+        covered = sum(bool(record_facets[row['id']][key]) for row in rows)
+        memberships = sum(item['count'] for item in values)
+        facet_coverage[key] = {'sourcePaths': definition['source_paths'],
+            'nonemptyRecords': covered, 'distinctValues': len(values), 'memberships': memberships,
+            'missingRecords': total - covered}
+        analyses.append({'key': key, 'label': definition['label'],
+            'description': 'Exact retained metadata values from ' + ', '.join(definition['source_paths']) + '.',
+            'coverage': covered / total if total else 0, 'cardinality': len(values),
+            'top_share': max((item['count'] / total for item in values), default=0),
+            'entropy': -sum((item['count'] / memberships) * math.log2(item['count'] / memberships) for item in values) if memberships else 0,
+            'expected_reduction': 1 - sum(item['count'] ** 2 for item in values) / (memberships * total) if memberships and total else 0,
+            'recommended_control': 'search' if len(values) > 40 else 'distribution',
+            'recommendation': 'primary' if definition['shown'] else 'advanced',
+            'default_hidden': not definition['shown'], 'values': values})
+    # These labels cover this bounded graph overview only. Do not advertise the
+    # optional global endpoint-label registry with partial route coverage: that
+    # contract would mark all other record, citation and facet labels missing.
+    selected_routes = {route for route, _ in connected.most_common(MAX_GRAPH_OVERVIEW_NODES)}
+    nodes = [{'id': route, 'route': route, 'label': by_route[route]['title'],
+              'type': by_route[route]['type'], 'count': connected[route]} for route in sorted(selected_routes)]
+    edge_counts = Counter(row['kind'] for row in relationships)
+    top_resources = sorted(datasets, key=lambda dataset: (-dataset['resource_count'], dataset['route']))[:8]
+    analysis = {'schema': 'okf-explorer-analysis.v1', 'snapshot': snapshot, 'generated_at': captured_at,
+        'summary': {'title': 'OS and ONS geospatial knowledge', 'record_count': total,
+            'resource_count': len(resources), 'relationship_count': len(relationships),
+            'description': 'Browse retained metadata, its source references and explicit typed links between records.',
+            'notices': ['Relationships count explicit links between retained records, not every external or nested RDF reference.',
+                        'Source references are record-to-URL citations, not a claim of downloadable data or access permission.',
+                        f'The graph overview shows up to {MAX_GRAPH_OVERVIEW_NODES} connected records; select a record for its exact incident links.']},
+        'display': {'facets': {'order': [definition['key'] for definition in FACET_DEFINITIONS],
+                             'default_mode': 'suggested'}},
+        'facet_analysis': analyses,
+        'graph_overview': {'nodes': nodes, 'edges': [relationship for relationship in relationships
+            if relationship['source'] in selected_routes and relationship['target'] in selected_routes]},
+        'relationship_overview': {
+            'types': [{'kind': kind, 'count': count, 'samples': [
+                {key: edge[key] for key in ('source', 'target', 'label')}
+                for edge in relationships if edge['kind'] == kind][:3]} for kind, count in sorted(edge_counts.items())],
+            'top_connected': [{'id': route, 'label': by_route[route]['title'], 'type': by_route[route]['type'],
+                               'count': count} for route, count in connected.most_common(12)]},
+        'resource_overview': {'total_resources': len(resources),
+            'distributions': {'resource_type': [{'value': 'source-reference', 'count': len(resources)}] if resources else []},
+            'high_resource_datasets': [{'route': dataset['route'], 'label': dataset['title'],
+                'publisher': dataset['publisher'], 'count': dataset['resource_count'],
+                'samples': [{'id': resource['id'], 'label': resource['name'], 'host': resource['host']}
+                            for resource in by_dataset[dataset['name']][:3]]} for dataset in top_resources if dataset['resource_count']]}}
+    analysis_ref = put('analysis-overview.json', analysis)
+    return chunks, analysis_ref, facet_coverage, resource_ref
+
+
 def project(search, bundle, context, *, captured_at):
     if not re.fullmatch(r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z', captured_at):
         raise ValueError('Explicit UTC capture timestamp is required')
@@ -258,13 +385,19 @@ def project(search, bundle, context, *, captured_at):
         raise ValueError('Every semantic record requires a unique Reader route')
     context, snapshot, entry = _validate_context(search, bundle, context)
     outputs = {'context/' + path: raw for path, raw in context.items()}
+    record_facets = {row['id']: facet_values(semantic[row['id']]) for row in rows}
+    resources, publishers, record_resources, resource_coverage = project_resources(rows, semantic)
+    relationships, relationship_coverage = project_relationships(
+        rows, semantic, captured_at=captured_at, source_revision=bundle['revision'])
     datasets = []
     for row in rows:
         parent = semantic[row['id']]
         datasets.append({'id': row['id'], 'name': row['route'].removeprefix('records/'),
             'route': row['route'], 'title': row['title'], 'notes': row['description'],
-            'publisher': row['sourceFamily'], 'publisher_title': row['sourceFamily'],
-            'record_type': row['type'], 'tags': row['tags'], 'resource_count': 0,
+            **{key: values for key, values in record_facets[row['id']].items()
+               if key not in ('record_type', 'tag', 'source_publisher')},
+            **record_resources[row['id']],
+            'record_type': row['type'], 'tags': row['tags'],
             'narrative': {'title': row['title'], 'body': row['text'],
                           'source_url': 'https://github.com/chris-page-gov/gis-ai-go/blob/' + bundle['revision'] + '/okf-plus/' + row['route']},
             'url': row['resource'], 'source_api_url': row['resource'],
@@ -289,26 +422,44 @@ def project(search, bundle, context, *, captured_at):
     outputs['record-locator.json'] = canonical({'schema': 'okf-record-locator-sharded.v1',
         'algorithm': 'fnv1a32-prefix-2', 'snapshot': snapshot, 'records': len(rows),
         'chunk_size': RECORD_CHUNK_SIZE, 'record_chunks': chunks, 'buckets': bucket_refs, 'bucket_count': 256})
-    facets = _search(rows, datasets, outputs, snapshot)
+    facets = _search(rows, datasets, outputs, snapshot, record_facets)
     outputs['facets.json'] = canonical(facets)
-    counts = {'datasets': len(rows), 'records': len(rows), 'resources': 0, 'publishers': 0, 'relationships': 0}
+    discovery_chunks, analysis_ref, facet_coverage, resource_ref = _discovery_indexes(
+        rows, datasets, facets, record_facets, resources, publishers, relationships,
+        outputs, snapshot, captured_at)
+    counts = {'datasets': len(rows), 'records': len(rows), 'resources': len(resources),
+              'publishers': len(publishers), 'relationships': len(relationships)}
+    coverage = {'schema': 'gis-ai-go.okf-plus-explorer-discovery-coverage.v1',
+        'snapshot': snapshot, 'sourceRevision': bundle['revision'], 'inputDigest': bundle['inputDigest'],
+        'records': len(rows), 'facets': facet_coverage, 'resources': resource_coverage,
+        'relationships': relationship_coverage,
+        'limitations': ['Facets are named, source-backed metadata dimensions; absent values are not invented.',
+                        'Typed graph rows cover explicit retained-record associations, not all RDF or geographic feature relationships.']}
+    outputs['discovery-coverage.json'] = canonical(coverage)
     recent = [row for row in rows if row['type'] in ('Concept', 'SourceFamily')][:12]
     outputs['overview.json'] = canonical({'schema': 'okf-explorer-overview.v1',
         'title': 'OS and ONS geospatial knowledge', 'generated_at': captured_at, 'counts': counts,
         'notices': LIMITATIONS, 'facet_previews': facets,
         'recent_datasets': [{'ordinal': rows.index(row), 'name': row['route'].removeprefix('records/'),
-            'route': row['route'], 'title': row['title'], 'publisher': row['sourceFamily'],
-            'publisher_title': row['sourceFamily'], 'resource_count': 0, 'formats': [],
+            'route': row['route'], 'title': row['title'],
+            **{key: record_resources[row['id']][key] for key in ('publisher', 'publisher_title', 'source_publishers', 'resource_count')},
+            'formats': [],
             'tags': row['tags'], 'notes': row['description'], 'open': row['route']} for row in recent]})
     locator_ref = reference('record-locator.json', outputs['record-locator.json'])
     outputs['data-manifest.json'] = canonical({'title': 'OS and ONS geospatial knowledge',
         'generated_at': captured_at, 'snapshot': snapshot, 'counts': counts,
         'indexes': {'overview': 'overview.json', 'search': 'search/manifest.json',
-                    'facets': 'facets.json', 'record_locator': locator_ref},
-        'chunks': {'datasets': chunks, 'resources': [], 'publishers': [], 'relationships': []},
-        'shards': {'datasets': chunks}})
+                    'facets': 'facets.json', 'record_locator': locator_ref,
+                    'analysis': analysis_ref['path'],
+                    'record_resources': resource_ref,
+                    'relationship_adjacency': 'relationship-adjacency.json'},
+        'chunks': {'datasets': chunks, **discovery_chunks},
+        'shards': {'datasets': chunks, **discovery_chunks}})
     entrypoints = {'data_manifest': 'data-manifest.json', 'overview_index': 'overview.json',
-                   'search_manifest': 'search/manifest.json', 'record_locator': locator_ref}
+                   'search_manifest': 'search/manifest.json', 'record_locator': locator_ref,
+                   'analysis_overview': analysis_ref['path'],
+                   'record_resources': resource_ref,
+                   'relationship_adjacency': 'relationship-adjacency.json'}
     integrity = {key: reference(path, outputs[path]) for key, path in entrypoints.items() if isinstance(path, str)}
     for name, binding in entry['entrypoints'].items():
         entrypoints[name] = {**binding, 'path': 'context/' + binding['path']}
@@ -318,10 +469,16 @@ def project(search, bundle, context, *, captured_at):
         'generated_at': captured_at, 'snapshot': snapshot, 'version': bundle['revision'], 'status': 'draft',
         'counts': counts, 'entrypoints': entrypoints, 'entrypoint_integrity': integrity,
         'vocabulary': {'record_singular': 'metadata record', 'record_plural': 'metadata records',
+                       'resource_singular': 'source reference', 'resource_plural': 'source references',
+                       'resource_stack_label': 'Source references',
                        'search_placeholder': 'Search retained metadata, fields and explanations'},
         'source': {'repository': 'https://github.com/chris-page-gov/gis-ai-go',
                    'revision': bundle['revision'], 'inputDigest': bundle['inputDigest']},
-        'extensions': {'gis_ai_go': {'limitations': LIMITATIONS, 'globalSourceCompleteness': 'not-established'}}}
+        'extensions': {'gis_ai_go': {'limitations': LIMITATIONS, 'globalSourceCompleteness': 'not-established',
+                         'discoveryCoverage': reference('discovery-coverage.json', outputs['discovery-coverage.json'])},
+                       'okf-explorer-presentation.v1': {'schema': 'okf-explorer-presentation.v1',
+                         'status': 'stable', 'snapshot': snapshot, 'defaults': {'facet_mode': 'suggested'},
+                         'facets': presentation_facets()}}}
     learning = learning_presentation(rows, semantic)
     if learning:
         descriptor['learning_presentation'] = learning
@@ -333,6 +490,8 @@ def project(search, bundle, context, *, captured_at):
         'inputRecords': len(rows), 'readerRecords': len(datasets), 'omittedRecordIds': [],
         'recordChunkSize': RECORD_CHUNK_SIZE, 'maximumRecordShardBytes': max(len(outputs[row['path']]) for row in chunks),
         'learningPaths': len(learning['paths']) if learning else 0, 'status': 'candidate-not-deployed',
+        'discovery': {'facets': len(facets), 'resources': len(resources), 'publishers': len(publishers),
+                      'relationships': len(relationships), 'coverage': reference('discovery-coverage.json', outputs['discovery-coverage.json'])},
         'outputs': [reference(path, raw) for path, raw in sorted(outputs.items())]}
     outputs['projection-manifest.json'] = canonical(report)
     return outputs, report
