@@ -6,6 +6,11 @@ repositories. GIS AI GO owns the retained metadata and linked learning records.
 The existing `chris-page-gov/okf-explorer` application consumes their generated
 large Reader and context projections.
 
+> Current evidence — 27 October 2026: the compact canonical Explorer and complete
+> public bundle are now the [verified GIS public default](../operations/EXPLORER_PAGES_PUBLICATION.md#completed-publication-evidence).
+> The local candidates below retain their original dated identities and limits;
+> they are separate from later public acceptance and the unresolved private work.
+
 ## Reproduce the local candidate
 
 Install each repository's locked dependencies using its own instructions.

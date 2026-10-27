@@ -1,54 +1,41 @@
 # Current progress
 
-Last updated: 26 October 2026
+Last updated: 27 October 2026
 
-## Full Explorer public default candidate
+## Full Explorer public default
 
-The owner asked to complete the GIS public entrypoint from this chat. The
-[publication design](docs/decisions/ADR-0019-full-explorer-pages-publication.md)
-uses the merged canonical Explorer under `/explorer/`, the complete Reader and
-context under `/gis/explorer/`, and `/legacy/` for existing catalogue links.
-The app, GIS source and complete projection inventory have separate identities.
-Context is regenerated for the public base rather than copied from localhost.
+The [GIS public entrypoint](https://chris-page-gov.github.io/gis-ai-go/) now serves
+the compact canonical Explorer with the complete public OKF+ metadata, Reader,
+context, linked learning paths and native-field/source explanations. On 27 October
+2026, exact-byte public HTTPS checks, browser journeys, legacy rollback and restore
+passed. The [publication evidence](docs/operations/EXPLORER_PAGES_PUBLICATION.md#completed-publication-evidence)
+binds the selected source, archive, app and actual per-phase results.
 
-The main-target increment is scoped to the full public bundle, Reader/context,
-learning and native-field/atomic source records. The separate new private capture
-feature remains unchanged at reconciliation commit
-`35318abcce5e23c1509ed6ce131d81f5dfd0d38c`, pending its
-[CodeQL review](docs/operations/EXPLORER_PAGES_CODEQL_REVIEW.md). Its findings
-remain unresolved; this scope change neither fixes nor dismisses them. Existing
-main recovery, every required check and the original private acquisition objective
-are retained. The public dependency closure does not call the deferred feature.
+The served archive remains GIS source `8e67ae88e68341120a712d102f692894fbd89659`
+from complete source CI
+[40412716168](https://github.com/chris-page-gov/gis-ai-go/actions/runs/40412716168).
+Its full public inventory has 37,279 files / 714,610,618 bytes, 30,876 metadata
+records, 2,915 native field nodes and three small linked practice paths.
+Generated public context has its own source-bound identity; the unchanged consumer
+is pinned to Explorer `7ffa3297…` / app tree `d127aadb…`.
 
-The candidate retains exact-main CI, archive attestation, manual Pages selection,
-complete served-byte verification and legacy v1 rollback. Its source checks,
-deployment and rollback/restore results must be recorded before claiming a live
-switch-over. The immutable `v0.1.0` release and separate gateway release gates
-remain unchanged.
+Initial run `40417221604` failed both complete-file walks on HTTP 503 before UI
+execution. Later deploy
+[40427376279](https://github.com/chris-page-gov/gis-ai-go/actions/runs/40427376279)
+passed the complete HTTPS walk with one bounded retry; six browser cases passed
+first attempt and one native-field readiness case passed on its configured retry.
+Those failures remain recorded. The subsequent test-readiness repair and actual
+[rollback](https://github.com/chris-page-gov/gis-ai-go/actions/runs/40438001316) /
+[restore](https://github.com/chris-page-gov/gis-ai-go/actions/runs/40438260796) results
+are recorded separately from the unchanged selected archive.
 
-Before this scope split, two complete v2 archive builds produced byte-identical
-tar archives. The narrowed source changes the input digest and snapshot, so it
-requires fresh bundle/context/Reader generation, complete archive/runtime
-acceptance, committed-source CI and public deployment evidence.
-
-The first main-target CI run passed gateway image assurance and identified one
-new configuration-routing omission, now repaired with a regression test. The
-[CodeQL review](docs/operations/EXPLORER_PAGES_CODEQL_REVIEW.md) records the
-unresolved content-checksum findings in the deferred private source and the
-code-scanning API access limitation. Their complete paths still require separate
-review before that feature can merge. Full CodeQL remains required for the
-narrowed public tree, with unchanged query coverage.
-
-Before narrowing, provisional local acceptance used source HEAD
-`35318abcce5e23c1509ed6ce131d81f5dfd0d38c` with the uncommitted publication
-working tree. All 47 archive/publication/staging tests, 93 workflow/impact tests,
-11 assembler tests and nine byte-verifier tests passed. The exact staged
-candidate passed streaming checks for all 37,279 public files
-(714,610,618 bytes) and all seven real-browser journeys. These are local candidate
-results for that earlier working tree, not acceptance of the narrowed tree,
-clean-commit CI or public HTTPS. The
-[publication runbook](docs/operations/EXPLORER_PAGES_PUBLICATION.md) records the
-build, manual exact-main selection and retained legacy rollback identities.
+This completes only the static public-default increment. Recognised older
+catalogue URLs keep their legacy record state. The immutable `v0.1.0` release and
+separate gateway release gates remain unchanged. No protected-data right or hosted
+Ask OKF admission follows from publication. The separate new private capture
+feature stays at `35318abcce5e23c1509ed6ce131d81f5dfd0d38c` with
+[CodeQL findings unresolved](docs/operations/EXPLORER_PAGES_CODEQL_REVIEW.md).
+Existing main OS recovery and the wider private acquisition objective remain.
 
 ## Existing Explorer learning integration
 

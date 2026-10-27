@@ -4,7 +4,8 @@ Work item: [OKF-223 #153](https://github.com/chris-page-gov/gis-ai-go/issues/153
 Review date: 26 October 2026. The review findings below remain unresolved for the
 deferred source. This scope change neither fixes nor dismisses them, and does not
 assert a current GitHub alert state for a branch without its own recorded scan.
-No query or required check has been disabled.
+No query or required check has been disabled. Evidence pointers were updated on
+27 October 2026 after public acceptance; the private findings remain unresolved.
 
 ## Current public increment
 
@@ -20,15 +21,17 @@ The first, broader main-target migration run completed all three CodeQL analyses
 aggregate check reported two `py/weak-sensitive-data-hashing` findings and one
 `py/incomplete-url-substring-sanitization` finding. These occur in the earlier
 private capture integration, rather than the publication packager. The narrowed
-public tree must pass fresh full CI and CodeQL with the existing query coverage.
-Passing those checks will not establish acceptance of the deferred source.
+public source passed complete main CI and full CodeQL with the existing query
+coverage; its [publication evidence](EXPLORER_PAGES_PUBLICATION.md#completed-publication-evidence)
+identifies the exact runs. Passing those checks does not establish acceptance of
+the deferred source.
 
 ## Content checksum findings
 
 | Location | Observed purpose |
 | --- | --- |
-| [`metadata_refresh.py`, `digest`](https://github.com/chris-page-gov/gis-ai-go/blob/35318abcce5e23c1509ed6ce131d81f5dfd0d38c/scripts/okf_plus/metadata_refresh.py) | SHA-256 identities for complete source bytes, normalised records, manifests and source URLs |
-| [`private_schema_cards.py`, `sha`](https://github.com/chris-page-gov/gis-ai-go/blob/35318abcce5e23c1509ed6ce131d81f5dfd0d38c/scripts/okf_plus/private_schema_cards.py) | SHA-256 identities for original JSON, schema pointers, values and linked text fragments |
+| [`metadata_refresh.py:88`, `digest`](https://github.com/chris-page-gov/gis-ai-go/blob/35318abcce5e23c1509ed6ce131d81f5dfd0d38c/scripts/okf_plus/metadata_refresh.py#L88) | SHA-256 identities for complete source bytes, normalised records, manifests and source URLs |
+| [`private_schema_cards.py:23`, `sha`](https://github.com/chris-page-gov/gis-ai-go/blob/35318abcce5e23c1509ed6ce131d81f5dfd0d38c/scripts/okf_plus/private_schema_cards.py#L23) | SHA-256 identities for original JSON, schema pointers, values and linked text fragments |
 
 These observed content/provenance uses do not resolve the rule's complete
 sensitive-data paths. Changing their algorithm changes source identities and
@@ -38,9 +41,19 @@ does not classify the findings as false positives.
 
 The official rule's guidance recommends SHA-2 for content integrity. Its separate
 password branch also classifies API keys as passwords through naming heuristics.
-Each annotation reports four password-source paths, but the connection returns
-HTTP 403 for the code-scanning alerts API, so those exact paths have not been
-retrieved. Matching the number of heuristic sources is not proof of a path.
+The historical [check containing both hash annotations](https://github.com/chris-page-gov/gis-ai-go/runs/121844685603)
+belongs to migration head `1c10fcd2cb4ccd97077dea0a45b7d3157c893769`.
+Each annotation reports four password-source paths. Both the normal GitHub
+connector and the existing cloud CLI returned HTTP 403 for the full code-scanning
+alerts API; exact alert-number URLs and complete source-to-sink paths were not
+available. Matching the number of heuristic sources is not proof of a path.
+SHA-256 content checksums and password hashing have different requirements;
+source inspection alone does not establish which sensitive values reach a sink.
+
+The historical Python analysis used CodeQL CLI 2.27.3. Its ordinary workflow
+artefacts API returned no retained artefacts, and the job logs did not supply the
+complete flow paths. Unresolved relative-import warnings are diagnostic evidence,
+not a false-positive decision. No finding was dismissed or reclassified.
 
 The separate follow-up is to inspect those paths through repository code-scanning
 access and record the disposition before bringing the private feature forward.

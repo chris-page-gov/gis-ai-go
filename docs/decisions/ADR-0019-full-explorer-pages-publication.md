@@ -1,6 +1,6 @@
 # ADR-0019: Full OKF+ Explorer publication
 
-- status: accepted design; implementation candidate
+- status: accepted design and implementation; public evidence recorded 27 October 2026
 - decided on: 26 October 2026
 - work item: [OKF-223 #153](https://github.com/chris-page-gov/gis-ai-go/issues/153)
 - extends: ADR-0007 publication identity and distribution contract
@@ -77,7 +77,7 @@ legacy links. Record the exact candidate, deployment and results.
 
 The repository owner maintains the publication contract; the upstream Explorer
 owns its application build. The existing source, rights, security, accessibility
-and release checks apply. This candidate addresses stale defaults, mixed source
+and release checks apply. This publication addresses stale defaults, mixed source
 identities, incomplete corpus closure and unsafe archive extraction through
 exact inventories, pinned identities and bounded verification.
 
@@ -88,9 +88,10 @@ authorise a rebuild or a weaker verifier.
 
 ## Consequences
 
-The public default can use the full knowledge bundle while old catalogue links
-remain usable. The implementation remains a candidate until its source gates,
-deployment, public browser checks and rollback/restore evidence exist. The
-supported `v0.1.0` release stays immutable. This static publication does not
+The public default uses the full knowledge bundle while old catalogue links
+remain usable. The [completed publication evidence](../operations/EXPLORER_PAGES_PUBLICATION.md#completed-publication-evidence)
+records source gates, public-byte/browser verification and actual rollback/restore
+on 27 October 2026. Future publications retain the same acceptance requirements.
+The supported `v0.1.0` release stays immutable. This static publication does not
 establish a supported `v0.2.0` gateway, protected-data entitlement or hosted Ask
 OKF admission.
