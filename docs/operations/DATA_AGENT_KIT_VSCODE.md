@@ -333,12 +333,21 @@ their separately recorded administrator procedure.
 ## Source verification on 27 October 2026
 
 On the cloud executor, Node.js `24.19.0` passed both JavaScript syntax checks,
-seven offline preflight tests and the workspace-only CLI check. The tests use
-`node --test --test-isolation=none tests/test_data_agent_kit_preflight.mjs` because
-this executor rejects Node subprocess creation with `EPERM`; the canonical test
-script retains normal test isolation. Local link/research-integrity, changelog,
-secret/machine-path, manifest-version and whitespace checks passed. Independent
-review corrected an additive-IAM explanation. Full canonical CI remains mandatory.
+seven offline preflight tests and the workspace-only CLI check. The first test
+run used `--test-isolation=none` because the sandbox rejected Node subprocesses
+with `EPERM`. Subsequent approved execution passed the canonical
+`pnpm run test:data-agent-kit-setup` command with normal test isolation.
+Local link/research-integrity, changelog, secret/machine-path, manifest-version and
+whitespace checks passed. Independent review corrected an additive-IAM explanation.
+
+Initial CI at `4397d6aa` found the deterministic QUAL-206 receipt set's package
+manifest binding stale after the test command was added. The existing
+`pnpm run generate:qual-206-local-evaluations` rebuilt and ran its fixture suites,
+regenerated the set and passed seven receipt-contract tests. Only the package
+hash and derived set identity changed; all receipt contents and non-live/unscored
+claims remain unchanged. The dependency lock files were not changed. The host
+launcher reported pnpm `11.19.0`; the repository's declared `10.33.2` baseline
+remains unchanged, and full canonical CI on the repaired source is still required.
 
 The local-prerequisites CLI returned exit `2`, correctly recording missing `code`,
 `gcloud` and exact extension-version evidence. No desktop or live Google acceptance

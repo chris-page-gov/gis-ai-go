@@ -20,8 +20,11 @@ tracks the source checks and remaining local acceptance.
 
 Seven offline checks and the portable workspace CLI check passed on Node.js
 `24.19.0`; local links, changelog, secret/path, manifest-version and whitespace
-checks passed. Tests used in-process execution because this cloud sandbox rejects
-Node subprocesses; canonical CI retains normal isolation and full assurance.
+checks passed. Initial sandbox testing used in-process execution; subsequent
+approved execution passed the normal isolated test command. Initial CI found the
+existing deterministic receipt set's package binding stale. Its supported offline
+generator and seven contract tests passed; only the package hash and derived set
+identity changed. Canonical CI on the repair remains mandatory.
 
 ## Explorer discovery repair
 
