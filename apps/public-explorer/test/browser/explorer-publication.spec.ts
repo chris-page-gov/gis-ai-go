@@ -185,9 +185,9 @@ test("native field context retains sources and gaps and prefills evidence discov
     const explanation = page.getByRole("region", { name: "Record explanation and sources", exact: true });
     await expect(explanation).toBeVisible();
     const fields = explanation.getByRole("combobox", { name: "Choose a native field", exact: true });
-    const fieldValue = await fields.locator("option").evaluateAll((options, name) => {
-      return (options.find(option => option.textContent?.includes(name)) as HTMLOptionElement | undefined)?.value;
-    }, sample.field);
+    const fieldOption = fields.getByRole("option", { name: sample.field, exact: true });
+    await expect(fieldOption).toHaveCount(1);
+    const fieldValue = await fieldOption.getAttribute("value");
     expect(fieldValue).toBeTruthy();
     await fields.selectOption(fieldValue!);
     await expect(explanation.getByRole("heading", { name: "Selected field: " + sample.field, exact: true })).toBeVisible();
