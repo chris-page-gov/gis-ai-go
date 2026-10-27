@@ -11,8 +11,8 @@ const LOCAL = PUBLIC_BASE.hostname === "127.0.0.1" || PUBLIC_BASE.hostname === "
 // exact source identity selects its historical contract; no other source may
 // fall back when discovery metadata is missing.
 const HISTORICAL_PUBLIC_SOURCE = "8e67ae88e68341120a712d102f692894fbd89659";
-const CURRENT_APP_TREE = "d127aadb96a77711d5f7cc7aec8cf731cbf5ec1e3d49304d8132189ea4991f93";
-const CURRENT_APP_MANIFEST = "ab227164e2e114148425a453a0e04b6bb21230f79be1e059a3ff6936d57f45f2";
+const CURRENT_APP_TREE = "827ac61a364500a2c73ad949dfda36f0839e54056644edd414ddb34f96aee960";
+const CURRENT_APP_MANIFEST = "bbb482b252b9385149ab06a0bb5cbaae778e65a9498ea5c06d3683f4aa297d7a";
 const APP_TREE = SOURCE === HISTORICAL_PUBLIC_SOURCE
   ? "d127aadb96a77711d5f7cc7aec8cf731cbf5ec1e3d49304d8132189ea4991f93" : CURRENT_APP_TREE;
 const APP_MANIFEST = SOURCE === HISTORICAL_PUBLIC_SOURCE

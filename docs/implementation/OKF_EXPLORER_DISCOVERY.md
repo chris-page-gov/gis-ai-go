@@ -106,6 +106,15 @@ route coverage and would correctly report missing labels for every omitted route
 
 ## Verification and publication
 
+The candidate pins reviewed consumer source
+`757537090af94eb6dda51de16938aa221fcda48d` from
+[Explorer PR #185](https://github.com/chris-page-gov/okf-explorer/pull/185), with
+app tree `827ac61a364500a2c73ad949dfda36f0839e54056644edd414ddb34f96aee960`
+and manifest `bbb482b252b9385149ab06a0bb5cbaae778e65a9498ea5c06d3683f4aa297d7a`.
+The exact pin allows both repositories' candidate checks to run in parallel.
+The consumer's full required CI and merge remain prerequisites for GIS merge;
+its protected-main checks also remain required before public acceptance.
+
 Producer checks cover exact facet postings, complete metadata preservation,
 source-reference identity and rights, row selectors, relationship source pointers,
 schema validation, coverage commitments and deterministic bytes. Consumer checks
@@ -121,6 +130,15 @@ inventory audit checked all 30,876 route locators, 61,309 source-reference IDs a
 The repaired development projection contains 37,760 files / 830,812,967 bytes before
 the app, guides, legacy routes and publication metadata are assembled. These are
 development results; they do not establish final-source CI or public acceptance.
+
+Six real-data development browser cases also passed without retries: discovery,
+native field explanations, full-corpus search/Ask and compact controls at 1440,
+390 and 320 pixels. The discovery case checks actual Links/Graph navigation,
+source-reference labels, shared-chunk isolation and Reader navigation within the
+same document. These checks use the retained source-353 prototype and the
+[consumer change](https://github.com/chris-page-gov/okf-explorer/pull/185), rather
+than an accepted publication archive. Earlier failed development attempts remain
+recorded separately.
 
 The exact accepted historical source `8e67ae88…` keeps its two-facet, zero-graph
 profile for rollback verification. Other sources must satisfy the new discovery

@@ -8,9 +8,9 @@ import { setTimeout as pause } from "node:timers/promises";
 // Independent acceptance pins: these must change deliberately with an accepted
 // upstream application, rather than trusting a self-declared deployed manifest.
 export const APP = Object.freeze({
-  sourceCommit: "7ffa3297ec85bf28c27963724f221d80579bed1b",
-  treeSha256: "d127aadb96a77711d5f7cc7aec8cf731cbf5ec1e3d49304d8132189ea4991f93",
-  manifestSha256: "ab227164e2e114148425a453a0e04b6bb21230f79be1e059a3ff6936d57f45f2",
+  sourceCommit: "757537090af94eb6dda51de16938aa221fcda48d",
+  treeSha256: "827ac61a364500a2c73ad949dfda36f0839e54056644edd414ddb34f96aee960",
+  manifestSha256: "bbb482b252b9385149ab06a0bb5cbaae778e65a9498ea5c06d3683f4aa297d7a",
   path: "explorer/okf-explorer-build-manifest.json",
 });
 // Retained v2 publication accepted before discovery/resource delivery changed.

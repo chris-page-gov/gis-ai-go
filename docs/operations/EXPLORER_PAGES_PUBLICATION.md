@@ -25,7 +25,7 @@ does not resolve that deferred feature's review or wider acquisition work.
 ## Build and check a local candidate
 
 Use a clean GIS checkout and a separate canonical Explorer checkout at
-`7ffa3297ec85bf28c27963724f221d80579bed1b`. The checked
+`757537090af94eb6dda51de16938aa221fcda48d`. The checked
 [publication configuration](../../config/explorer-publication.json) pins that
 source, app tree, build manifest, public context prefix and capture timestamp.
 The complete app remains unchanged; generated guides have separate
