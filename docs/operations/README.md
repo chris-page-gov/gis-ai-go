@@ -24,6 +24,7 @@ registration and the `v0.2.0` release remain blocked on the recorded host, ident
 storage, operations and acceptance gates.
 
 - [Stage 0 boundary](STAGE_0_BOUNDARY.md)
+- [VS Code Data Agent Kit setup and protected-machine reproduction](DATA_AGENT_KIT_VSCODE.md)
 - [Dependency baseline](DEPENDENCIES.md)
 - [Stage 0 verification record](STAGE_0_VERIFICATION.md)
 - [DISC-102 Explorer verification record](DISC-102_VERIFICATION.md)
