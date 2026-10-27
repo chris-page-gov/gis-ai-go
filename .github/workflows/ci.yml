@@ -370,7 +370,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: chris-page-gov/okf-explorer
-          ref: 7ffa3297ec85bf28c27963724f221d80579bed1b
+          ref: 757537090af94eb6dda51de16938aa221fcda48d
           path: upstream-okf-explorer
           fetch-depth: 1
           persist-credentials: false

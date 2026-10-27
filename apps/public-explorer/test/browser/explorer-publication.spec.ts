@@ -7,15 +7,52 @@ const SOURCE = required("EXPECTED_SOURCE_COMMIT");
 const CANONICAL = new URL("https://chris-page-gov.github.io/gis-ai-go/");
 const DESCRIPTOR = new URL("gis/explorer/okf-explorer.json", CANONICAL).href;
 const LOCAL = PUBLIC_BASE.hostname === "127.0.0.1" || PUBLIC_BASE.hostname === "localhost";
-const APP_TREE = "d127aadb96a77711d5f7cc7aec8cf731cbf5ec1e3d49304d8132189ea4991f93";
-const APP_MANIFEST = "ab227164e2e114148425a453a0e04b6bb21230f79be1e059a3ff6936d57f45f2";
+// The accepted pre-discovery v2 archive remains a valid rollback target. Its
+// exact source identity selects its historical contract; no other source may
+// fall back when discovery metadata is missing.
+const HISTORICAL_PUBLIC_SOURCE = "8e67ae88e68341120a712d102f692894fbd89659";
+const CURRENT_APP_TREE = "827ac61a364500a2c73ad949dfda36f0839e54056644edd414ddb34f96aee960";
+const CURRENT_APP_MANIFEST = "bbb482b252b9385149ab06a0bb5cbaae778e65a9498ea5c06d3683f4aa297d7a";
+const APP_TREE = SOURCE === HISTORICAL_PUBLIC_SOURCE
+  ? "d127aadb96a77711d5f7cc7aec8cf731cbf5ec1e3d49304d8132189ea4991f93" : CURRENT_APP_TREE;
+const APP_MANIFEST = SOURCE === HISTORICAL_PUBLIC_SOURCE
+  ? "ab227164e2e114148425a453a0e04b6bb21230f79be1e059a3ff6936d57f45f2" : CURRENT_APP_MANIFEST;
+const DISCOVERY_FACET_KEYS = [
+  "record_type", "source_family", "tag", "source_publisher", "review_status", "assertion_status",
+  "lifecycle_status", "temporal_status", "temporal_kind", "update_frequency", "update_frequency_status",
+  "release_version", "retrieval_authority", "source_evidence_kind", "unit", "spatial_reference", "crs", "storage_crs",
+];
 type Step = { title: string; route: string };
 type LearningPath = { id: string; title: string; steps: Step[] };
+type ProjectionReference = string | { path: string; bytes?: number; sha256?: string };
+type FacetPostings = Record<string, Record<string, number[]>>;
+type ProjectionManifest = {
+  counts: { records: number; resources: number; publishers: number; relationships: number };
+  indexes: { record_locator: ProjectionReference; record_resources?: ProjectionReference };
+  chunks: { datasets: ProjectionReference[]; relationships: ProjectionReference[]; resources: ProjectionReference[]; publishers: ProjectionReference[] };
+};
+type ProjectedRecord = {
+  id: string; name: string; route: string; title: string;
+  okf_plus: { metadata: Record<string, unknown> & { "@id": string; tags: string[]; reviewStatus: string; "skos:related"?: { "@id": string }[] } };
+};
+type ProjectedRelationship = {
+  id: string; source: string; target: string; source_iri: string; target_iri: string;
+  predicate: string; assertion_status: string; assertion_scope: string; authority: { class: string }; evidence: unknown[];
+};
+type ProjectedSourceReference = {
+  id: string; name: string; dataset: string; route: string; url: string;
+  resource_type: string; downloadability: string; execution_admitted: boolean;
+  download_url?: string; provenance: { record_route: string };
+  source_access: { url: string; label: string; display_mode: string };
+};
 type Descriptor = {
   schema: string;
   snapshot: string;
   source: { revision: string; inputDigest: string };
-  counts: { records: number };
+  counts: { records: number; resources: number; publishers: number; relationships: number };
+  entrypoints: Record<string, ProjectionReference>;
+  vocabulary: Record<string, string>;
+  extensions: { gis_ai_go: { discoveryCoverage?: ProjectionReference } };
   learning_presentation: { paths: LearningPath[] };
 };
 type Transport = { requests: string[]; mirrorRequests: string[] };
@@ -40,6 +77,41 @@ function inPrefix(value: string, prefix: URL): boolean {
 }
 function shards(requests: string[]): string[] {
   return [...new Set(requests.filter(value => /\/gis\/explorer\/records\/\d+\.json(?:\?|$)/u.test(value)))];
+}
+async function projectionJson<T>(page: Page, reference: ProjectionReference): Promise<T> {
+  const path = typeof reference === "string" ? reference : reference.path;
+  const response = await page.request.get(publicUrl("gis/explorer/" + path), { maxRedirects: 0 });
+  expect(response.status(), "the exact advertised projection resource must exist: " + path).toBe(200);
+  const bytes = await response.body();
+  if (typeof reference !== "string") {
+    if (reference.bytes !== undefined) expect(bytes.byteLength).toBe(reference.bytes);
+    if (reference.sha256 !== undefined) expect(createHash("sha256").update(bytes).digest("hex")).toBe(reference.sha256);
+  }
+  return JSON.parse(bytes.toString()) as T;
+}
+function routeBucket(route: string): string {
+  let hash = 0x811c9dc5;
+  for (const character of route) hash = Math.imul(hash ^ character.charCodeAt(0), 0x01000193) >>> 0;
+  return (hash >>> 24).toString(16).padStart(2, "0");
+}
+async function projectionRecord(page: Page, manifest: ProjectionManifest, routeOrOrdinal: string | number): Promise<ProjectedRecord> {
+  const locator = await projectionJson<{
+    chunk_size: number; record_chunks: ProjectionReference[]; buckets: Record<string, ProjectionReference>;
+  }>(page, manifest.indexes.record_locator);
+  let chunkIndex: number;
+  let rowIndex: number;
+  if (typeof routeOrOrdinal === "number") {
+    chunkIndex = Math.floor(routeOrOrdinal / locator.chunk_size);
+    rowIndex = routeOrOrdinal % locator.chunk_size;
+  } else {
+    const bucket = await projectionJson<Record<string, [number, number]>>(page, locator.buckets[routeBucket(routeOrOrdinal)]!);
+    expect(bucket[routeOrOrdinal], "the source record must have a bounded record locator").toBeTruthy();
+    [chunkIndex, rowIndex] = bucket[routeOrOrdinal]!;
+  }
+  const records = await projectionJson<ProjectedRecord[]>(page, locator.record_chunks[chunkIndex]!);
+  const value = records[rowIndex]!;
+  if (typeof routeOrOrdinal === "string") expect(value.route).toBe(routeOrOrdinal);
+  return value;
 }
 async function selectedRoute(page: Page, route: string): Promise<void> {
   await expect.poll(() => new URL(page.url()).hash.slice(1)).toBe(encodeURI(route));
@@ -242,6 +314,243 @@ test("full-corpus search and Ask preserve bounded evidence and explicit insuffic
   }
 });
 
+test("retained metadata is exposed as exact facets, source references and governed concept relationships", async ({ page, transport }, info) => {
+  test.setTimeout(180_000);
+  const value = await descriptor(page);
+  const manifest = await projectionJson<ProjectionManifest>(page, value.entrypoints.data_manifest!);
+  const search = await projectionJson<{ entrypoints: { facets: ProjectionReference } }>(page, value.entrypoints.search_manifest!);
+  const postings = await projectionJson<FacetPostings>(page, search.entrypoints.facets);
+  if (SOURCE === HISTORICAL_PUBLIC_SOURCE) {
+    expect(Object.keys(postings).sort()).toEqual(["record_type", "source_family"]);
+    expect(value.counts).toMatchObject({ records: 30_876, resources: 0, publishers: 0, relationships: 0 });
+    expect(manifest.counts).toMatchObject(value.counts);
+    expect(value.extensions.gis_ai_go.discoveryCoverage).toBeUndefined();
+    await page.goto(readerUrl(), { waitUntil: "networkidle" });
+    await page.getByLabel("Facet visibility", { exact: true }).getByRole("button", { name: "All", exact: true }).click();
+    await expect(page.locator(".facet-section")).toHaveCount(2);
+    await expect(page.locator('[data-metric="resources"] strong')).toHaveText("0");
+    await expect(page.locator('[data-metric="relationships"] strong')).toHaveText("0");
+    await info.attach("discovery-acceptance-contract", {
+      body: JSON.stringify({ profile: "accepted-pre-discovery-v2", sourceCommit: SOURCE, facets: 2, relationships: 0 }),
+      contentType: "application/json",
+    });
+    return;
+  }
+  expect(value.extensions.gis_ai_go.discoveryCoverage, "every new source requires the complete discovery coverage contract").toBeTruthy();
+  const coverage = await projectionJson<{
+    schema: string;
+    facets: Record<string, { nonemptyRecords: number; distinctValues: number; memberships: number }>;
+  }>(page, value.extensions.gis_ai_go.discoveryCoverage!);
+  expect(coverage.schema).toBe("gis-ai-go.okf-plus-explorer-discovery-coverage.v1");
+  expect(Object.keys(postings).sort()).toEqual([...DISCOVERY_FACET_KEYS].sort());
+  expect(Object.keys(coverage.facets).sort()).toEqual([...DISCOVERY_FACET_KEYS].sort());
+  for (const key of DISCOVERY_FACET_KEYS) {
+    expect(postings[key], "a retained metadata dimension must be indexed: " + key).toBeTruthy();
+    const values = Object.values(postings[key]!);
+    expect(coverage.facets[key]!.distinctValues).toBe(values.length);
+    expect(coverage.facets[key]!.memberships).toBe(values.reduce((sum, members) => sum + members.length, 0));
+    expect(coverage.facets[key]!.nonemptyRecords).toBe(new Set(values.flat()).size);
+  }
+  expect(value.counts).toMatchObject(manifest.counts);
+  expect(value.counts.relationships).toBe(137);
+  expect(value.counts.resources).toBeGreaterThanOrEqual(value.counts.records);
+  expect(value.counts.publishers).toBeGreaterThan(0);
+  expect(value.vocabulary.resource_plural).toBe("source references");
+  await info.attach("discovery-acceptance-contract", {
+    body: JSON.stringify({
+      profile: "full-discovery-v1", sourceCommit: SOURCE, facets: DISCOVERY_FACET_KEYS.length,
+      relationships: value.counts.relationships, sourceReferences: value.counts.resources, publishers: value.counts.publishers,
+    }),
+    contentType: "application/json",
+  });
+
+  const access = await projectionRecord(page, manifest, "records/geospatial-concepts/access-rights.md");
+  const metadata = access.okf_plus.metadata;
+  expect(metadata.tags).toContain("rights");
+  expect(metadata["skos:related"]).toHaveLength(2);
+  const frequency = Object.keys(postings.update_frequency!).find(item => item.trim());
+  expect(frequency).toBeTruthy();
+  const dated = await projectionRecord(page, manifest, postings.update_frequency![frequency!]![0]!);
+  const update = dated.okf_plus.metadata.update as { frequency: { label: string } };
+  expect(update.frequency.label.trim()).toBe(frequency);
+  const examples = [
+    { key: "tag", value: "rights" },
+    { key: "review_status", value: metadata.reviewStatus },
+    { key: "update_frequency", value: frequency! },
+  ];
+  for (const example of examples) {
+    await page.goto(readerUrl(), { waitUntil: "networkidle" });
+    await page.getByLabel("Facet visibility", { exact: true }).getByRole("button", { name: "All", exact: true }).click();
+    await expect(page.locator(".facet-section")).toHaveCount(Object.keys(postings).length);
+    const facet = page.locator('.facet-section[data-facet-key="' + example.key + '"]');
+    await facet.locator(".facet-toggle").click();
+    const findValue = facet.locator(".facet-values input");
+    if (await findValue.count()) await findValue.fill(example.value);
+    const member = facet.locator(".facet-value[data-facet-value=" + JSON.stringify(example.value) + "]");
+    await expect(member).toHaveCount(1);
+    await expect(member.locator("small")).toHaveText(new RegExp("/ " + postings[example.key]![example.value]!.length.toLocaleString("en-GB") + "$"));
+    await member.click();
+    await expect.poll(() => {
+      const state = JSON.parse(new URL(page.url()).searchParams.get("explore") || "{}") as { preview?: Record<string, string[]> };
+      return state.preview?.[example.key];
+    }).toEqual([example.value]);
+    await expect(page.locator(".exploration-toolbar")).toContainText(
+      postings[example.key]![example.value]!.length.toLocaleString("en-GB") + " highlighted / 30,876 in scope",
+    );
+  }
+  // This retained route is outside the connected concept graph. Its authored
+  // title must remain available through the record locator as well.
+  const datedRecordStart = transport.requests.length;
+  await page.goto(readerUrl(dated.route), { waitUntil: "networkidle" });
+  await expect(page.locator(".right-panel").getByRole("heading", { name: dated.title, exact: true })).toBeVisible();
+  expect(shards(transport.requests.slice(datedRecordStart))).toHaveLength(1);
+
+  const firstReferences = await projectionJson<ProjectedSourceReference[]>(page, manifest.chunks.resources[0]!);
+  expect(firstReferences.length).toBeGreaterThan(0);
+  const sourceReference = firstReferences[0]!;
+  expect(sourceReference.resource_type).toBe("source-reference");
+  expect(sourceReference.downloadability).toBe("not-established");
+  expect(sourceReference.execution_admitted).toBe(false);
+  expect(sourceReference.download_url).toBeUndefined();
+  const citedRecord = await projectionRecord(page, manifest, sourceReference.provenance.record_route);
+  const citedMetadata = citedRecord.okf_plus.metadata;
+  const sources = citedMetadata.sources as { resource: string }[];
+  expect([citedMetadata.resource, ...sources.map(item => item.resource)]).toContain(sourceReference.url);
+  const publishers = await projectionJson<{ name: string; provenance: { source_property: string } }[]>(page, manifest.chunks.publishers[0]!);
+  expect(publishers.length).toBeGreaterThan(0);
+  expect(publishers[0]!.name).toMatch(/^https?:\/\//u);
+  expect(publishers[0]!.provenance.source_property).toBe("dcterms:publisher");
+
+  expect(value.entrypoints.record_resources, "every new source must advertise bounded record references").toBeTruthy();
+  expect(manifest.indexes.record_resources).toEqual(value.entrypoints.record_resources);
+  const resourceIndex = await projectionJson<{
+    schema: string; snapshot: string; algorithm: string; buckets: Record<string, ProjectionReference>;
+  }>(page, value.entrypoints.record_resources!);
+  expect(resourceIndex.schema).toBe("okf-record-resource-index.v1");
+  expect(resourceIndex.snapshot).toBe(value.snapshot);
+  expect(resourceIndex.algorithm).toBe("fnv1a32-prefix-2");
+  const resourceBucketReference = resourceIndex.buckets[routeBucket(access.route)]!;
+  expect(resourceBucketReference).toBeTruthy();
+  const resourceBucket = await projectionJson<Record<string, {
+    dataset: string; count: number; chunks: (ProjectionReference & { rows: number[] })[];
+  }>>(page, resourceBucketReference);
+  const selectedReferences = resourceBucket[access.route]!;
+  expect(selectedReferences.dataset).toBe(access.name);
+  expect(selectedReferences.count).toBeGreaterThan(0);
+  expect(selectedReferences.count).toBeLessThanOrEqual(256);
+  expect(selectedReferences.chunks.length).toBeLessThanOrEqual(16);
+  const selectedSources: ProjectedSourceReference[] = [];
+  for (const reference of selectedReferences.chunks) {
+    const rows = await projectionJson<ProjectedSourceReference[]>(page, reference);
+    expect(rows.length).toBeLessThanOrEqual(1024);
+    expect(new Set(reference.rows).size).toBe(reference.rows.length);
+    for (const index of reference.rows) {
+      expect(Number.isSafeInteger(index) && index >= 0 && index < rows.length).toBe(true);
+      const row = rows[index]!;
+      expect(row.dataset).toBe(access.name);
+      expect(row.provenance.record_route).toBe(access.route);
+      expect(row.source_access).toMatchObject({ url: row.url, label: "Retained source reference", display_mode: "link" });
+      selectedSources.push(row);
+    }
+  }
+  expect(selectedSources).toHaveLength(selectedReferences.count);
+  const sourceRequestStart = transport.requests.length;
+  // Retain the same document: URL/history navigation from the dated record
+  // must hydrate this newly selected Reader context, including its references.
+  await page.goto(readerUrl(access.route), { waitUntil: "networkidle" });
+  const sourceLinks = page.locator(".right-panel .detail-actions").getByRole("link", {
+    name: "Open Retained source reference ↗", exact: true,
+  });
+  await expect(sourceLinks).toHaveCount(selectedSources.length);
+  expect((await sourceLinks.evaluateAll(nodes => nodes.map(node => (node as HTMLAnchorElement).href))).sort())
+    .toEqual(selectedSources.map(row => row.url).sort());
+  await expect(page.getByRole("button", { name: "View source data", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Open official source ↗", exact: true })).toHaveCount(0);
+  await page.getByLabel("Views", { exact: true }).getByRole("button", { name: "Resources", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Source references", exact: true })).toBeVisible();
+  await expect(page.getByText(selectedSources.length + " source references shown from current reduction", { exact: true })).toBeVisible();
+  const sourceStack = page.locator(".resource-stack-view");
+  await expect(sourceStack.locator(":scope > article")).toHaveCount(1);
+  await expect(sourceStack.locator(".stack-heading strong")).toHaveText(access.title);
+  await expect(sourceStack.locator(".resource-stack > button strong"))
+    .toHaveText(selectedSources.slice(0, 12).map(row => row.name));
+  await sourceStack.locator(".resource-stack > button").first().click();
+  await expect(page.locator(".right-panel").getByRole("heading", { name: selectedSources[0]!.name, exact: true })).toBeVisible();
+  const sourceUiRequests = transport.requests.slice(sourceRequestStart);
+  const projectionPath = (reference: ProjectionReference): string =>
+    new URL(typeof reference === "string" ? reference : reference.path, DESCRIPTOR).pathname;
+  const sourceChunkRequests = sourceUiRequests.filter(url => /\/gis\/explorer\/resources\/\d+\.json(?:\?|$)/u.test(url));
+  expect(sourceChunkRequests.map(url => new URL(url).pathname).sort())
+    .toEqual(selectedReferences.chunks.map(projectionPath).sort());
+  // The dated record and this record share the one manifest cache. Switching
+  // to Resources must reuse both the selected chunk and that manifest.
+  const referenceNavigationRequests = transport.requests.slice(datedRecordStart);
+  for (const reference of [value.entrypoints.record_resources!, resourceBucketReference]) {
+    expect(referenceNavigationRequests.filter(url => new URL(url).pathname === projectionPath(reference))).toHaveLength(1);
+  }
+  expect(shards(sourceUiRequests), "Reader and selected source references may load only their one record shard").toHaveLength(1);
+  for (const row of selectedSources) expect(sourceUiRequests).not.toContain(row.url);
+  await info.attach("selected-source-reference-transport", {
+    body: JSON.stringify({ route: access.route, references: selectedSources.length, requests: sourceUiRequests }, null, 2),
+    contentType: "application/json",
+  });
+
+  const relationships = (await Promise.all(manifest.chunks.relationships.map(reference =>
+    projectionJson<ProjectedRelationship[]>(page, reference)))).flat();
+  const related = relationships.filter(row => row.predicate === "http://www.w3.org/2004/02/skos/core#related");
+  expect(related).toHaveLength(137);
+  expect(new Set(related.map(row => row.id)).size).toBe(137);
+  const outgoing = related.filter(row => row.source_iri === metadata["@id"]);
+  expect(outgoing.map(row => row.target_iri).sort()).toEqual(metadata["skos:related"]!.map(row => row["@id"]).sort());
+  for (const relationship of outgoing) {
+    expect(relationship.source).toBe(access.route);
+    expect(relationship.authority.class).toBe("derived");
+    expect(relationship.assertion_status).toBe("normalized");
+    expect(relationship.assertion_scope).toBe("real-world");
+    expect(relationship.evidence.length).toBeGreaterThan(0);
+  }
+
+  const graphRequestStart = transport.requests.length;
+  await page.goto(readerUrl(access.route), { waitUntil: "networkidle" });
+  await expect(page.locator('[data-metric="source-references"] strong')).toHaveText(value.counts.resources.toLocaleString("en-GB"));
+  await expect(page.locator('[data-metric="relationships"] strong')).toHaveText("137");
+  await page.getByRole("button", { name: "Links", exact: true }).click();
+  const first = outgoing[0]!;
+  const target = await projectionRecord(page, manifest, first.target);
+  const exactText = (text: string) => new RegExp("^" + text.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&") + "$");
+  const row = page.locator(".links-view > button").filter({
+    has: page.locator("strong:first-child").filter({ hasText: exactText(access.title) }),
+  }).filter({
+    has: page.locator("strong:last-child").filter({ hasText: exactText(target.title) }),
+  });
+  await expect(row).toHaveCount(1);
+  await expect(row).toHaveAttribute("data-relationship-authority", "derived");
+  await expect(row).toHaveAttribute("data-relationship-status", "normalized");
+  await expect(row).toHaveAttribute("data-relationship-scope", "real-world");
+  await row.click();
+  await page.getByRole("tablist", { name: "Relationship data card", exact: true }).getByRole("tab", { name: "Relationship", exact: true }).click();
+  const relationshipCard = page.locator(".relationship-detail-content");
+  await expect(relationshipCard).toContainText(first.predicate);
+  await expect(relationshipCard).toContainText(metadata["@id"]);
+  await expect(relationshipCard).toContainText(first.target_iri);
+  await expect(relationshipCard.getByRole("heading", { name: "Relationship evidence and provenance", exact: true })).toBeVisible();
+  await relationshipCard.getByText("Relationship JSON", { exact: true }).click();
+  const inspected = JSON.parse(await relationshipCard.locator(".json-panel pre").innerText()) as Omit<ProjectedRelationship, "authority"> & { authority: string };
+  expect(inspected.id).toBe(first.id);
+  expect(inspected.predicate).toBe(first.predicate);
+  expect(inspected.source_iri).toBe(metadata["@id"]);
+  expect(inspected.target_iri).toBe(first.target_iri);
+  expect(inspected.authority).toBe("derived");
+  expect(inspected.assertion_scope).toBe("real-world");
+  expect(inspected.evidence.length).toBeGreaterThan(0);
+  await page.getByRole("button", { name: "Graph", exact: true }).first().click();
+  await expect(page.locator('.graph-node[data-route="' + access.route + '"]')).toBeVisible();
+  for (const relationship of outgoing) {
+    await expect(page.locator('.graph-node[data-route="' + relationship.target + '"]')).toBeVisible();
+  }
+  expect(shards(transport.requests.slice(graphRequestStart)).length, "selected concept links must not hydrate the full record corpus").toBeLessThanOrEqual(3);
+});
+
 for (const width of [1440, 390, 320]) {
   test("compact facets preserve exact state, palette keyboard controls and accessibility at " + width + "px", async ({ page }) => {
     const state = { preview: { source_family: ["ons-website-dataset"], record_type: ["Concept"] }, reductions: [] };
@@ -250,7 +559,13 @@ for (const width of [1440, 390, 320]) {
     await page.setViewportSize({ width, height: width === 1440 ? 1000 : 844 });
     await page.goto(url.href, { waitUntil: "networkidle" });
     if (width < 1100) await page.getByRole("button", { name: "Search & facets", exact: true }).click();
-    await expect(page.locator(".facet-section")).toHaveCount(2);
+    const expectedFacetKeys = SOURCE === HISTORICAL_PUBLIC_SOURCE
+      ? ["record_type", "source_family"]
+      : ["record_type", "source_family", "tag", "review_status"];
+    await expect(page.locator(".facet-section")).toHaveCount(expectedFacetKeys.length);
+    for (const key of expectedFacetKeys) {
+      await expect(page.locator('.facet-section[data-facet-key="' + key + '"]')).toBeVisible();
+    }
     await expect(page.locator(".exploration-toolbar")).toContainText("0 highlighted / 30,876 in scope");
     await selectedRoute(page, "records/geospatial-concepts/height-datum.md");
     const cards = page.locator(".facet-section");

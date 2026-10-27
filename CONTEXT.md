@@ -15,6 +15,12 @@ retains exact-source, attestation, manual deployment and rollback requirements
 for future publications. This static UI establishes no new release, protected-data
 right or hosted service admission.
 
+The owner subsequently requested richer facets and relationships. The
+[discovery repair](docs/implementation/OKF_EXPLORER_DISCOVERY.md) is a new
+implementation increment: the earlier accepted archive retains only two facets
+and zero projected relationships. Retained-record links, source references and
+discovery coverage require their own source-bound publication acceptance.
+
 The public increment retains the complete public bundle, Reader/context,
 learning and native-field/atomic source-card dependency closure. The separate
 new private capture feature stays unchanged at

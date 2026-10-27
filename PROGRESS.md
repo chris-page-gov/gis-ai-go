@@ -17,10 +17,23 @@ remain in unavailable private configuration. Reuse the desktop's existing verifi
 gcloud context. No desktop installation, sign-in, API/IAM/billing change, OKF
 import or cloud deployment is claimed by this preparation. [Issue 188](https://github.com/chris-page-gov/gis-ai-go/issues/188)
 tracks the source checks and remaining local acceptance.
+
 Seven offline checks and the portable workspace CLI check passed on Node.js
 `24.19.0`; local links, changelog, secret/path, manifest-version and whitespace
 checks passed. Tests used in-process execution because this cloud sandbox rejects
 Node subprocesses; canonical CI retains normal isolation and full assurance.
+
+## Explorer discovery repair
+
+The owner requested a fix after the public Explorer showed only two facets and
+zero relationships. The [discovery increment](docs/implementation/OKF_EXPLORER_DISCOVERY.md)
+projects 18 source-backed facets, 137 explicit links between retained records and
+61,309 source-reference associations, preserving the complete raw metadata. Four
+suggested facets stay folded in the compact interface; the other dimensions are
+available through **All**. The canonical consumer adds bounded loading for a
+selected record's references. These are implementation candidates; final source,
+app, CI and public acceptance remain pending. The served archive below remains
+the accepted earlier publication and retains its historical discovery limits.
 
 ## Full Explorer public default
 

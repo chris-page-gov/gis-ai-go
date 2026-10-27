@@ -17,6 +17,89 @@ def inputs(count=41):
 
 
 class ExplorerProjectionTests(unittest.TestCase):
+    def test_record_source_reference_locators_select_only_the_requested_record(self):
+        search, bundle, context = inputs(41)
+        outputs, _ = project(search, bundle, context, captured_at=CAPTURED)
+        descriptor = json.loads(outputs['okf-explorer.json'])
+        manifest = json.loads(outputs['data-manifest.json'])
+        index_ref = descriptor['entrypoints']['record_resources']
+        self.assertEqual(index_ref, manifest['indexes']['record_resources'])
+        index = json.loads(outputs[index_ref['path']])
+        self.assertEqual(index['schema'], 'okf-record-resource-index.v1')
+        self.assertEqual(index['snapshot'], descriptor['snapshot'])
+        self.assertEqual(index['algorithm'], 'fnv1a32-prefix-2')
+        projected_ids = set()
+        chunk_routes = {}
+        for row in search['records']:
+            bucket_ref = index['buckets'][token_bucket(row['route'])]
+            self.assertEqual(bucket_ref['sha256'], sha(outputs[bucket_ref['path']]))
+            entry = json.loads(outputs[bucket_ref['path']])[row['route']]
+            self.assertEqual(entry['dataset'], row['route'].removeprefix('records/'))
+            selected = []
+            for ref in entry['chunks']:
+                self.assertEqual(ref['bytes'], len(outputs[ref['path']]))
+                self.assertEqual(ref['sha256'], sha(outputs[ref['path']]))
+                chunk = json.loads(outputs[ref['path']])
+                self.assertEqual(len(ref['rows']), len(set(ref['rows'])))
+                selected.extend(chunk[index] for index in ref['rows'])
+                chunk_routes.setdefault(ref['path'], set()).add(row['route'])
+            self.assertEqual(len(selected), entry['count'])
+            self.assertEqual({item['dataset'] for item in selected}, {entry['dataset']})
+            self.assertTrue(projected_ids.isdisjoint(item['id'] for item in selected))
+            projected_ids.update(item['id'] for item in selected)
+        self.assertEqual(len(projected_ids), descriptor['counts']['resources'])
+        # Adjacent records share one bounded transport, but have distinct selectors.
+        self.assertEqual(sorted(map(len, chunk_routes.values())), [9, 32])
+
+    def test_source_facets_links_and_citations_are_available_without_full_record_loading(self):
+        search, bundle, _ = inputs(3)
+        first, second, third = bundle['records']
+        first['skos:related'] = [{'@id': second['@id']}, {'@id': third['@id']}]
+        first['dcterms:publisher'] = {'@id': 'https://example.test/publisher', 'rdfs:label': 'Fixture publisher'}
+        context, _ = context_project(search, bundle, base_url=BASE, captured_at=CAPTURED)
+        outputs, report = project(search, bundle, context, captured_at=CAPTURED)
+        descriptor = json.loads(outputs['okf-explorer.json'])
+        manifest = json.loads(outputs['data-manifest.json'])
+        coverage = json.loads(outputs['discovery-coverage.json'])
+        self.assertEqual(descriptor['counts']['relationships'], 2)
+        self.assertEqual(descriptor['counts']['publishers'], 1)
+        self.assertEqual(descriptor['counts']['resources'], 6)
+        self.assertEqual(descriptor['vocabulary']['resource_plural'], 'source references')
+        facets = json.loads(outputs['search/facets.json'])
+        self.assertEqual(facets['source_publisher'], {'https://example.test/publisher': [0]})
+        self.assertEqual(facets['review_status'], {'synthetic': [0, 1, 2]})
+        self.assertEqual(facets['update_frequency'], {'Monthly': [0, 1, 2]})
+        self.assertEqual(coverage['facets']['source_publisher']['nonemptyRecords'], 1)
+        self.assertEqual(coverage['relationships']['retained_record_reference_occurrences'], 2)
+        self.assertEqual(coverage['relationships']['projected_assertions'], 2)
+        docs = json.loads(outputs['search/results/00000.json'])
+        self.assertEqual(docs[0]['publisher'], 'https://example.test/publisher')
+        self.assertEqual(docs[1]['publisher'], '')
+        self.assertEqual(docs[0]['source_publishers'], [{'name': 'https://example.test/publisher', 'title': 'Fixture publisher'}])
+        self.assertEqual(docs[0]['review_status'], ['synthetic'])
+        # Compact discovery rows do not duplicate complete retained semantics.
+        self.assertNotIn('okf_plus', docs[0])
+        relationships = [edge for ref in manifest['chunks']['relationships'] for edge in json.loads(outputs[ref['path']])]
+        self.assertEqual({edge['target'] for edge in relationships}, {search['records'][1]['route'], search['records'][2]['route']})
+        adjacency = json.loads(outputs['relationship-adjacency.json'])
+        bucket = adjacency['buckets'][token_bucket(search['records'][0]['route'])]
+        incident = json.loads(outputs[bucket['path']])[search['records'][0]['route']]
+        self.assertEqual({edge['id'] for edge in incident}, {edge['id'] for edge in relationships})
+        for name in ('resources', 'publishers', 'relationships'):
+            for ref in manifest['chunks'][name]:
+                self.assertEqual(ref['bytes'], len(outputs[ref['path']]))
+                self.assertEqual(ref['sha256'], sha(outputs[ref['path']]))
+        self.assertNotIn('endpoint_labels', descriptor['entrypoints'])
+        self.assertNotIn('endpoint_labels', manifest['indexes'])
+        analysis = json.loads(outputs['analysis-overview.json'])
+        self.assertEqual({entry['route'] for entry in analysis['graph_overview']['nodes']}, {row['route'] for row in search['records']})
+        self.assertEqual({entry['label'] for entry in analysis['graph_overview']['nodes']}, {row['title'] for row in search['records']})
+        self.assertEqual(analysis['summary']['relationship_count'], 2)
+        self.assertEqual(len(analysis['graph_overview']['edges']), 2)
+        self.assertEqual(report['discovery']['relationships'], 2)
+        record = json.loads(outputs['records/00000.json'])[0]
+        self.assertEqual(record['okf_plus']['metadata'], first)
+
     def test_tail_route_loads_one_whole_chunk_and_metadata_is_not_rewritten(self):
         search, bundle, context = inputs()
         outputs, report = project(search, bundle, context, captured_at=CAPTURED)
