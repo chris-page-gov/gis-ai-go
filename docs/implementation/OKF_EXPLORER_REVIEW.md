@@ -7,14 +7,20 @@ The existing `chris-page-gov/okf-explorer` application consumes their generated
 large Reader and context projections.
 
 > Current evidence — 27 October 2026: the compact canonical Explorer and complete
-> public bundle are now the [verified GIS public default](../operations/EXPLORER_PAGES_PUBLICATION.md#completed-publication-evidence).
+> public bundle are now the [verified GIS public default](../operations/EXPLORER_PAGES_PUBLICATION.md#discovery-publication-evidence).
 > The local candidates below retain their original dated identities and limits;
 > they are separate from later public acceptance and the unresolved private work.
 
 The subsequent [discovery repair](OKF_EXPLORER_DISCOVERY.md) adds source-backed
 facets, explicit links between retained records and bounded source-reference
 loading. Its acceptance is separate from the dated candidates below and the
-earlier public archive's two-facet, zero-relationship projection.
+earlier public archive's two-facet, zero-relationship projection. Both discovery
+implementations have merged after required PR assurance. Complete GIS main CI,
+CodeQL and the attested main archive have passed. Initial deployment passed the
+complete actual public HTTPS walk and all eight browser cases first attempt.
+Historical rollback and restore of the identical new archive also passed their
+actual public checks, completing the static discovery publication and recovery
+rehearsal.
 
 ## Reproduce the local candidate
 

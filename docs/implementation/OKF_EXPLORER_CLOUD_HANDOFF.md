@@ -3,14 +3,20 @@
 Owner agreement: 24 October 2026. Related work: [issue #153](https://github.com/chris-page-gov/gis-ai-go/issues/153).
 
 > Current evidence — 27 October 2026: the compact canonical Explorer and complete
-> public bundle are now the [verified GIS public default](../operations/EXPLORER_PAGES_PUBLICATION.md#completed-publication-evidence).
+> public bundle are now the [verified GIS public default](../operations/EXPLORER_PAGES_PUBLICATION.md#discovery-publication-evidence).
 > The dated handoff below remains historical evidence. The separate private
 > capture review and human learning assessment remain outstanding.
 
 The owner then requested the [discovery repair](OKF_EXPLORER_DISCOVERY.md) for
 the public archive's two-facet, zero-relationship projection. Its additional
 facets, governed links and bounded source references are a separate increment
-whose final source, app and public acceptance remain pending.
+whose producer and canonical consumer have merged after required PR assurance.
+Complete GIS main CI, CodeQL and the attested main archive have passed. Initial
+deployment passed the complete actual public HTTPS walk and all eight browser
+cases first attempt. Historical rollback and restore of the identical new
+archive also passed their actual public checks. The static discovery publication
+and recovery rehearsal are complete. Earlier `8e67ae88…` acceptance remains
+separate from the new discovery publication.
 
 ## Agreed outcome
 
