@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/schemas/explorer-relationship.schema.json",
+  "title": "GIS retained-record relationship projection",
+  "description": "Additive GIS Explorer assertion rows projected from explicit JSON-LD links. This is not a canonical Bundle Wiki conformance claim and grants no retrieval, publication, execution or reuse authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "id", "source", "target", "source_iri", "target_iri", "predicate", "kind", "label", "inverse_label", "assertion_status", "source_assertion_status", "assertion_scope", "scope", "authority", "derivation", "observed_at", "freshness", "review_status", "source_lifecycle_status", "evidence", "rights", "provenance"],
+  "properties": {
+    "schema": {"const": "gis-ai-go.explorer-relationship.v1"},
+    "id": {"type": "string", "pattern": "^urn:gis-ai-go:relationship:sha256:[0-9a-f]{64}$"},
+    "source": {"$ref": "#/$defs/route"},
+    "target": {"$ref": "#/$defs/route"},
+    "source_iri": {"$ref": "#/$defs/iri"},
+    "target_iri": {"$ref": "#/$defs/iri"},
+    "predicate": {"$ref": "#/$defs/iri"},
+    "kind": {"$ref": "#/$defs/text"},
+    "label": {"$ref": "#/$defs/text"},
+    "inverse_label": {"$ref": "#/$defs/text"},
+    "assertion_status": {"enum": ["official", "normalized", "inferred", "model-derived"]},
+    "source_assertion_status": {"enum": ["official", "normalised", "normalized", "inferred", "model-derived"]},
+    "assertion_scope": {"enum": ["real-world", "synthetic-fixture"]},
+    "scope": {"$ref": "#/$defs/text"},
+    "authority": {
+      "type": "object", "additionalProperties": false,
+      "required": ["class", "label", "source"],
+      "properties": {"class": {"enum": ["derived", "synthetic"]}, "label": {"$ref": "#/$defs/text"}, "source": {"$ref": "#/$defs/iri"}}
+    },
+    "derivation": {"const": "explicit-jsonld-retained-record-reference-v1"},
+    "observed_at": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$"},
+    "freshness": {"const": "unknown"},
+    "review_status": {"$ref": "#/$defs/text"},
+    "source_lifecycle_status": {"$ref": "#/$defs/text"},
+    "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/evidence"}},
+    "rights": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source", "assertion", "inherited_record_rights", "no_rights_expansion"],
+      "properties": {"source": {"$ref": "#/$defs/iri"}, "assertion": {"$ref": "#/$defs/text"}, "inherited_record_rights": {"type": "object"}, "no_rights_expansion": {"const": true}}
+    },
+    "provenance": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source_record", "source_record_sha256", "source_record_hash_canonicalization", "sources"],
+      "properties": {
+        "source_record": {"$ref": "#/$defs/iri"},
+        "source_record_sha256": {"$ref": "#/$defs/sha256"},
+        "source_record_hash_canonicalization": {"const": "canonical-json-utf8"},
+        "sources": {"type": "array", "items": {"type": "object"}},
+        "source_revision": {"type": "string", "pattern": "^[0-9a-f]{40}$"}
+      }
+    }
+  },
+  "$defs": {
+    "text": {"type": "string", "minLength": 1},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "route": {"type": "string", "pattern": "^records(/[A-Za-z0-9._~-]+)+$"},
+    "iri": {"type": "string", "pattern": "^(https?://[^\\s]+|urn:[^\\s]+)$"},
+    "evidence": {
+      "type": "object", "additionalProperties": false,
+      "required": ["url", "type", "source_field", "locator", "source_artifact", "source_sha256", "source_hash_canonicalization", "source_value", "source_value_sha256", "source_value_hash_canonicalization", "field_provenance"],
+      "properties": {
+        "url": {"$ref": "#/$defs/iri"},
+        "type": {"const": "explicit-jsonld-record-reference"},
+        "source_field": {"$ref": "#/$defs/text"},
+        "locator": {"type": "string", "pattern": "^/"},
+        "source_artifact": {"type": "string", "pattern": "^okf-plus/records/"},
+        "source_sha256": {"$ref": "#/$defs/sha256"},
+        "source_hash_canonicalization": {"const": "canonical-json-utf8"},
+        "source_value": {"type": "object", "required": ["@id"], "properties": {"@id": {"$ref": "#/$defs/iri"}}},
+        "source_value_sha256": {"$ref": "#/$defs/sha256"},
+        "source_value_hash_canonicalization": {"const": "canonical-json-utf8"},
+        "field_provenance": {"$ref": "#/$defs/text"}
+      }
+    }
+  }
+}

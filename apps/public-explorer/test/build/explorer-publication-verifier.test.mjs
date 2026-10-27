@@ -8,7 +8,8 @@ import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import test from "node:test";
 import {
-  APP, LIMITS, TRANSPORT_LIMITS, HttpStatusError, createReadPolicy, createRequestPacer, deploymentBudget,
+  APP, LEGACY_APP, LEGACY_SOURCE_COMMIT, acceptedAppForSource,
+  LIMITS, TRANSPORT_LIMITS, HttpStatusError, createReadPolicy, createRequestPacer, deploymentBudget,
   hash, ledger, parseLedger, readVerified, retryDelay, runBounded, safePath, settings, verifyPublication, waitForPublication,
 } from "../browser/verify-explorer-publication.mjs";
 
@@ -60,7 +61,81 @@ test("external expected identities require the real publication prefix and safe 
   ]) assert.throws(() => settings({ ...env, PUBLIC_BASE_URL: address }));
   assert.throws(() => settings({ ...env, EXPECTED_SOURCE_COMMIT: "main" }), /SOURCE_COMMIT/u);
   assert.throws(() => settings({ ...env, EXPECTED_PAYLOAD_ROOT: "no digest" }), /PAYLOAD_ROOT/u);
-  assert.equal(APP.treeSha256, "d127aadb96a77711d5f7cc7aec8cf731cbf5ec1e3d49304d8132189ea4991f93");
+  assert.match(APP.treeSha256, /^[0-9a-f]{64}$/u);
+});
+
+test("only the exact accepted historical GIS source selects the immutable legacy app pins", () => {
+  assert.equal(LEGACY_SOURCE_COMMIT, "8e67ae88e68341120a712d102f692894fbd89659");
+  assert.deepEqual(LEGACY_APP, {
+    sourceCommit: "7ffa3297ec85bf28c27963724f221d80579bed1b",
+    treeSha256: "d127aadb96a77711d5f7cc7aec8cf731cbf5ec1e3d49304d8132189ea4991f93",
+    manifestSha256: "ab227164e2e114148425a453a0e04b6bb21230f79be1e059a3ff6936d57f45f2",
+    path: "explorer/okf-explorer-build-manifest.json",
+  });
+  assert.ok(Object.isFrozen(LEGACY_APP));
+  assert.notStrictEqual(APP, LEGACY_APP);
+  assert.strictEqual(acceptedAppForSource(LEGACY_SOURCE_COMMIT), LEGACY_APP);
+  for (const source of ["a".repeat(40), LEGACY_SOURCE_COMMIT.slice(0, -1) + "0", LEGACY_SOURCE_COMMIT.toUpperCase(), "main", undefined]) {
+    assert.strictEqual(acceptedAppForSource(source), APP);
+    assert.notStrictEqual(acceptedAppForSource(source), LEGACY_APP);
+  }
+  assert.throws(() => { LEGACY_APP.treeSha256 = "0".repeat(64); }, TypeError);
+});
+
+test("historical readiness requires the accepted source and every legacy app identity field", async () => {
+  const expected = {
+    baseUrl: new URL("https://chris-page-gov.github.io/gis-ai-go/"),
+    sourceCommit: LEGACY_SOURCE_COMMIT, version: "0.1.0", payloadRoot: "b".repeat(64), okfRoot: "c".repeat(64),
+  };
+  const receipt = {
+    schema: "gis-ai-go.pages-site-receipt.v2", repository: "chris-page-gov/gis-ai-go",
+    canonicalUrl: expected.baseUrl.href, basePath: "/gis-ai-go/", sourceCommit: expected.sourceCommit,
+    version: expected.version, payloadRootSha256: expected.payloadRoot, okfContentRootSha256: expected.okfRoot,
+    app: LEGACY_APP,
+  };
+  const options = { deadlineMs: 1000, attemptLimit: 1, pauseMs: 0 };
+  const observed = await waitForPublication(expected, { ...options,
+    fetcher: async () => new Response(JSON.stringify(receipt)),
+  });
+  assert.equal(observed.status, "ready");
+  for (const key of ["sourceCommit", "treeSha256", "manifestSha256"]) {
+    await assert.rejects(waitForPublication(expected, { ...options,
+      fetcher: async () => new Response(JSON.stringify({ ...receipt, app: { ...LEGACY_APP, [key]: "e".repeat(key === "sourceCommit" ? 40 : 64) } })),
+    }), /readiness did not pass/u);
+  }
+  await assert.rejects(waitForPublication(expected, { ...options,
+    fetcher: async () => new Response(JSON.stringify({ ...receipt, sourceCommit: "d".repeat(40) })),
+  }), /readiness did not pass/u);
+});
+
+test("complete verification applies independently selected app pins before reading an untrusted OKF identity", async () => {
+  async function probe(sourceCommit, app) {
+    const expected = {
+      baseUrl: new URL("http://127.0.0.1:8131/gis-ai-go/"), mode: "loopback-candidate",
+      sourceCommit, version: "0.1.0", okfRoot: "c".repeat(64),
+    };
+    const manifest = Buffer.from(JSON.stringify({
+      schema: "gis-ai-go.pages-manifest.v2", repository: "chris-page-gov/gis-ai-go",
+      sourceCommit, version: expected.version, basePath: "/gis-ai-go/",
+      canonicalUrl: "https://chris-page-gov.github.io/gis-ai-go/",
+      okfContentRootSha256: expected.okfRoot, app, okf: null,
+    }));
+    const checksums = Buffer.from(ledger([{ path: "publication/manifest.json", bytes: manifest.length, sha256: hash(manifest) }]));
+    expected.checksumsSha256 = hash(checksums);
+    return verifyPublication(expected, {
+      fetcher: async url => {
+        if (new URL(url).pathname.endsWith("publication/CHECKSUMS.sha256")) return new Response(checksums);
+        if (new URL(url).pathname.endsWith("publication/manifest.json")) return new Response(manifest);
+        throw Error("unexpected request after app identity probe");
+      },
+    });
+  }
+  for (const [source, app] of [[LEGACY_SOURCE_COMMIT, LEGACY_APP], ["a".repeat(40), APP]]) {
+    await assert.rejects(probe(source, app), /OKF identity must be an object/u);
+    for (const key of ["sourceCommit", "treeSha256", "manifestSha256", "path"]) {
+      await assert.rejects(probe(source, { ...app, [key]: "unaccepted app identity" }), new RegExp("app identity mismatch: " + key, "u"));
+    }
+  }
 });
 
 test("bounded workers verify every item once and honour the concurrency ceiling", async () => {

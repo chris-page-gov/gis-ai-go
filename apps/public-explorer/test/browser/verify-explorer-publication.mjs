@@ -8,11 +8,24 @@ import { setTimeout as pause } from "node:timers/promises";
 // Independent acceptance pins: these must change deliberately with an accepted
 // upstream application, rather than trusting a self-declared deployed manifest.
 export const APP = Object.freeze({
+  sourceCommit: "757537090af94eb6dda51de16938aa221fcda48d",
+  treeSha256: "827ac61a364500a2c73ad949dfda36f0839e54056644edd414ddb34f96aee960",
+  manifestSha256: "bbb482b252b9385149ab06a0bb5cbaae778e65a9498ea5c06d3683f4aa297d7a",
+  path: "explorer/okf-explorer-build-manifest.json",
+});
+// Retained v2 publication accepted before discovery/resource delivery changed.
+// This exception binds one immutable GIS source to its independently accepted
+// app. Every other source must satisfy the current APP pins above.
+export const LEGACY_SOURCE_COMMIT = "8e67ae88e68341120a712d102f692894fbd89659";
+export const LEGACY_APP = Object.freeze({
   sourceCommit: "7ffa3297ec85bf28c27963724f221d80579bed1b",
   treeSha256: "d127aadb96a77711d5f7cc7aec8cf731cbf5ec1e3d49304d8132189ea4991f93",
   manifestSha256: "ab227164e2e114148425a453a0e04b6bb21230f79be1e059a3ff6936d57f45f2",
   path: "explorer/okf-explorer-build-manifest.json",
 });
+export function acceptedAppForSource(sourceCommit) {
+  return sourceCommit === LEGACY_SOURCE_COMMIT ? LEGACY_APP : APP;
+}
 export const LIMITS = Object.freeze({
   files: 50_000,
   payloadFiles: 49_995,
@@ -46,6 +59,7 @@ const SUPPORT = [
 ];
 const RETAIN = new Set([
   APP.path,
+  LEGACY_APP.path,
   "EXPLORER-DISTRIBUTION.json",
   "gis/explorer/okf-explorer.json",
   "gis/explorer/context/manifest.json",
@@ -372,9 +386,9 @@ function identity(document, schema, expected) {
     canonicalUrl: CANONICAL_URL,
   })) invariant(document[key] === value, schema + " identity mismatch: " + key);
 }
-function appIdentity(value) {
+function appIdentity(value, acceptedApp) {
   object(value, "app identity");
-  for (const [key, expected] of Object.entries(APP)) {
+  for (const [key, expected] of Object.entries(acceptedApp)) {
     invariant(value[key] === expected, "app identity mismatch: " + key);
   }
 }
@@ -474,6 +488,7 @@ export async function readVerified(url, options) {
 }
 
 export async function waitForPublication(expected, options = {}) {
+  const acceptedApp = acceptedAppForSource(expected.sourceCommit);
   const controller = new AbortController();
   const deadlineMs = options.deadlineMs ?? READINESS.deadlineMs;
   const attemptLimit = options.attemptLimit ?? READINESS.attempts;
@@ -510,8 +525,8 @@ export async function waitForPublication(expected, options = {}) {
           receipt.basePath === BASE_PATH && receipt.sourceCommit === expected.sourceCommit &&
           receipt.version === expected.version && receipt.payloadRootSha256 === expected.payloadRoot &&
           receipt.okfContentRootSha256 === expected.okfRoot &&
-          receipt.app?.sourceCommit === APP.sourceCommit && receipt.app?.treeSha256 === APP.treeSha256 &&
-          receipt.app?.manifestSha256 === APP.manifestSha256;
+          receipt.app?.sourceCommit === acceptedApp.sourceCommit && receipt.app?.treeSha256 === acceptedApp.treeSha256 &&
+          receipt.app?.manifestSha256 === acceptedApp.manifestSha256;
         if (ready) return { status: "ready", attempts, probeBytes: bytes, deadlineMs };
         last = "the served receipt still describes another publication";
       } catch (error) {
@@ -546,6 +561,7 @@ export async function runBounded(items, worker, options = {}) {
 }
 
 export async function verifyPublication(expected, options = {}) {
+  const acceptedApp = acceptedAppForSource(expected.sourceCommit);
   const started = Date.now();
   const controller = new AbortController();
   const deadlineMs = options.deadlineMs ?? LIMITS.deadlineMs;
@@ -591,7 +607,7 @@ export async function verifyPublication(expected, options = {}) {
     const manifest = json(manifestFile.value, "publication manifest");
     identity(manifest, "gis-ai-go.pages-manifest.v2", expected);
     invariant(manifest.okfContentRootSha256 === expected.okfRoot, "manifest OKF root differs");
-    appIdentity(manifest.app);
+    appIdentity(manifest.app, acceptedApp);
     const okf = object(manifest.okf, "OKF identity");
     invariant(okf.sourceRevision === expected.sourceCommit && okf.inputDigest === expected.okfRoot,
       "OKF source identity differs");
@@ -619,8 +635,8 @@ export async function verifyPublication(expected, options = {}) {
       declaredBytes += row.bytes;
     }
     const budget = deploymentBudget(payloadEntries.length, declaredBytes);
-    const appEntry = served.find(row => row.path === APP.path);
-    invariant(appEntry?.sha256 === APP.manifestSha256, "app manifest is not the accepted build");
+    const appEntry = served.find(row => row.path === acceptedApp.path);
+    invariant(appEntry?.sha256 === acceptedApp.manifestSha256, "app manifest is not the accepted build");
     const concurrency = options.concurrency ?? LIMITS.concurrency;
     await runBounded(served, async row => {
       const retain = RETAIN.has(row.path);
@@ -630,9 +646,9 @@ export async function verifyPublication(expected, options = {}) {
       });
       if (retain) retained.set(row.path, result.value);
     }, { concurrency, controller });
-    const appManifest = json(retained.get(APP.path), "app build manifest");
+    const appManifest = json(retained.get(acceptedApp.path), "app build manifest");
     invariant(appManifest.schema === "okf-explorer-app-build-manifest.v1" &&
-      appManifest.algorithm === "sha256-canonical-json-materials-v1" && appManifest.tree_sha256 === APP.treeSha256,
+      appManifest.algorithm === "sha256-canonical-json-materials-v1" && appManifest.tree_sha256 === acceptedApp.treeSha256,
       "app build manifest identity differs");
     const appMaterials = entries(appManifest.materials, LIMITS.payloadFileBytes, "app build");
     invariant(appManifest.file_count === appMaterials.length, "app build material count differs");
@@ -646,14 +662,14 @@ export async function verifyPublication(expected, options = {}) {
     identity(site, "gis-ai-go.pages-site-receipt.v2", expected);
     invariant(site.payloadRootSha256 === expected.payloadRoot && site.okfContentRootSha256 === expected.okfRoot &&
       site.fileCount === payloadEntries.length, "site receipt roots or file count differ");
-    appIdentity(site.app);
+    appIdentity(site.app, acceptedApp);
     invariant(isDeepStrictEqual(site.okf, manifest.okf), "site receipt OKF identity differs");
     invariant(site.provenanceSha256 === checksums.get("publication/provenance.json") &&
       site.sbomSha256 === checksums.get("publication/sbom.cdx.json"), "site receipt metadata hashes differ");
     invariant(site.okfManifestSha256 === checksums.get(okf.descriptorPath), "site receipt descriptor hash differs");
     const provenance = json(retained.get("publication/provenance.json"), "provenance");
     identity(provenance, "gis-ai-go.pages-provenance.v2", expected);
-    appIdentity(provenance.app);
+    appIdentity(provenance.app, acceptedApp);
     invariant(isDeepStrictEqual(provenance.okf, manifest.okf), "provenance OKF identity differs");
     const source = object(provenance.source, "provenance source");
     invariant(source.path === "artifacts/explorer-pages-dist" &&
@@ -669,7 +685,7 @@ export async function verifyPublication(expected, options = {}) {
       "GIS context is not bound to the canonical publication");
     const distribution = json(retained.get("EXPLORER-DISTRIBUTION.json"), "distribution manifest");
     identity(distribution, "gis-ai-go.explorer-distribution.v1", expected);
-    appIdentity(distribution.app);
+    appIdentity(distribution.app, acceptedApp);
     invariant(isDeepStrictEqual(distribution.okf, manifest.okf), "distribution OKF identity differs");
     const distributionFiles = entries(distribution.files, LIMITS.payloadFileBytes, "distribution");
     const expectedDistribution = payloadEntries.filter(row => row.path !== ".nojekyll" && row.path !== "EXPLORER-DISTRIBUTION.json");
@@ -687,7 +703,7 @@ export async function verifyPublication(expected, options = {}) {
       payloadRootSha256: expected.payloadRoot,
       okfContentRootSha256: expected.okfRoot,
       publicChecksumsSha256: expected.checksumsSha256,
-      app: APP,
+      app: acceptedApp,
       verifiedFiles: fetchedFiles,
       verifiedBytes: fetchedBytes,
       logicalPayloadFiles: payloadEntries.length,

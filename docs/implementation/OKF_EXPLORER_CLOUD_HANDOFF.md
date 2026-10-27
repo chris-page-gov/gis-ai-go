@@ -7,6 +7,11 @@ Owner agreement: 24 October 2026. Related work: [issue #153](https://github.com/
 > The dated handoff below remains historical evidence. The separate private
 > capture review and human learning assessment remain outstanding.
 
+The owner then requested the [discovery repair](OKF_EXPLORER_DISCOVERY.md) for
+the public archive's two-facet, zero-relationship projection. Its additional
+facets, governed links and bounded source references are a separate increment
+whose final source, app and public acceptance remain pending.
+
 ## Agreed outcome
 
 Extend the existing [OKF Explorer](https://github.com/chris-page-gov/okf-explorer)

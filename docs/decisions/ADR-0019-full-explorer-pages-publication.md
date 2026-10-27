@@ -19,11 +19,16 @@ for the existing immutable publication contract.
 GIS AI GO owns assembly and publication of the public metadata surface. Reuse the
 canonical application without forking its presentation code. Pin the consumer to
 `chris-page-gov/okf-explorer` source
-`7ffa3297ec85bf28c27963724f221d80579bed1b`, app tree
-`d127aadb96a77711d5f7cc7aec8cf731cbf5ec1e3d49304d8132189ea4991f93`,
+`757537090af94eb6dda51de16938aa221fcda48d`, app tree
+`827ac61a364500a2c73ad949dfda36f0839e54056644edd414ddb34f96aee960`,
 and build-manifest SHA-256
-`ab227164e2e114148425a453a0e04b6bb21230f79be1e059a3ff6936d57f45f2`.
+`bbb482b252b9385149ab06a0bb5cbaae778e65a9498ea5c06d3683f4aa297d7a`.
 Verify the complete app build and retain its licence notices.
+
+The discovery candidate updates this pin on 27 October 2026. Its
+[acceptance record](../implementation/OKF_EXPLORER_DISCOVERY.md) remains pending
+until both repositories and publication checks pass. The earlier accepted
+archive retains its original app identity for exact-source rollback verification.
 
 Generated guides form a separate closure from the unchanged app materials.
 `explorer/GUIDE-PROVENANCE.json` records the pinned upstream source, original

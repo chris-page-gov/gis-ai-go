@@ -8,6 +8,12 @@ passed on 27 October 2026. The
 workflow identities and outcomes. This work adds no gateway, provider service,
 protected-data entitlement or hosted Ask OKF admission.
 
+The subsequent [discovery repair](../implementation/OKF_EXPLORER_DISCOVERY.md)
+adds facets, retained-record relationships and bounded source references. Its
+final pins, CI and public acceptance remain pending. The accepted `8e67ae88…`
+archive below retains its two-facet, zero-relationship projection; its successful
+publication checks do not establish the richer discovery increment.
+
 The public dependency closure retains the complete public metadata and
 native-field/atomic source records. The separate new private capture feature is
 preserved unchanged at
@@ -19,7 +25,7 @@ does not resolve that deferred feature's review or wider acquisition work.
 ## Build and check a local candidate
 
 Use a clean GIS checkout and a separate canonical Explorer checkout at
-`7ffa3297ec85bf28c27963724f221d80579bed1b`. The checked
+`757537090af94eb6dda51de16938aa221fcda48d`. The checked
 [publication configuration](../../config/explorer-publication.json) pins that
 source, app tree, build manifest, public context prefix and capture timestamp.
 The complete app remains unchanged; generated guides have separate
@@ -36,7 +42,7 @@ bash scripts/build_explorer_pages_candidate.sh ../okf-explorer
 
 The script builds the pinned app and guides, regenerates the complete public
 projections, assembles legacy routes, packages, verifies and stages the archive,
-then runs complete-byte verification and seven browser journeys. It requires new
+then runs complete-byte verification and eight browser journeys. It requires new
 output directories; preserve earlier candidates and use a fresh checkout to rerun.
 
 The three files in `artifacts/pages/` are the immutable source archive:
@@ -73,7 +79,7 @@ Public mode uses the actual canonical HTTPS site and forbids local interception.
 A bounded receipt wait allows CDN propagation: at most 110 seconds and 55 probes,
 each capped at 64 KiB with a five-second request deadline. A matching receipt is
 followed by strict complete-file streaming verification with bounded concurrency
-and all seven browser journeys. Record the exact served-file count and bytes.
+and all eight browser journeys. Record the exact served-file count and bytes.
 The full public walk keeps at most 12 workers and spaces actual request starts
 by at least 20 milliseconds (at most 50 per second); loopback checks are unpaced.
 Only HTTP 429, 502, 503 and 504 permit up to two extra attempts per file, with
@@ -126,6 +132,11 @@ authorise rebuilding an accepted archive or weakening its checks.
 
 
 ## Completed publication evidence
+
+This section records the accepted `8e67ae88…` publication and its original seven
+browser journeys. The [pending discovery increment](../implementation/OKF_EXPLORER_DISCOVERY.md)
+requires separate acceptance with the eight-journey suite; it does not change the
+source, inventory or outcomes recorded here.
 
 Observed on 27 October 2026. The current bare
 [GIS root](https://chris-page-gov.github.io/gis-ai-go/) opens the full compact
