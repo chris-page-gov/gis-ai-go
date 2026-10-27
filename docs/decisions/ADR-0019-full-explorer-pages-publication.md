@@ -25,10 +25,14 @@ and build-manifest SHA-256
 `bbb482b252b9385149ab06a0bb5cbaae778e65a9498ea5c06d3683f4aa297d7a`.
 Verify the complete app build and retain its licence notices.
 
-The discovery candidate updates this pin on 27 October 2026. Its
-[acceptance record](../implementation/OKF_EXPLORER_DISCOVERY.md) remains pending
-until both repositories and publication checks pass. The earlier accepted
-archive retains its original app identity for exact-source rollback verification.
+Publication with this pin was accepted on 27 October 2026 after complete
+upstream PR assurance and merge, an exact reviewed/merged Git-tree comparison,
+normal upstream main workflow selection and complete GIS protected-main checks.
+Its [acceptance record](../implementation/OKF_EXPLORER_DISCOVERY.md) binds the
+actual deploy, historical rollback and restore of the identical new archive.
+The earlier accepted archive retains its original app identity for exact-source
+rollback verification. Declared upstream main skips remain distinct from its
+full identical-tree PR behavioural evidence.
 
 Generated guides form a separate closure from the unchanged app materials.
 `explorer/GUIDE-PROVENANCE.json` records the pinned upstream source, original
@@ -94,9 +98,11 @@ authorise a rebuild or a weaker verifier.
 ## Consequences
 
 The public default uses the full knowledge bundle while old catalogue links
-remain usable. The [completed publication evidence](../operations/EXPLORER_PAGES_PUBLICATION.md#completed-publication-evidence)
+remain usable. The [completed discovery publication evidence](../operations/EXPLORER_PAGES_PUBLICATION.md#discovery-publication-evidence)
 records source gates, public-byte/browser verification and actual rollback/restore
-on 27 October 2026. Future publications retain the same acceptance requirements.
+on 27 October 2026. The [initial publication evidence](../operations/EXPLORER_PAGES_PUBLICATION.md#completed-publication-evidence)
+retains its original source identities and outcomes. Future publications retain
+the same acceptance requirements.
 The supported `v0.1.0` release stays immutable. This static publication does not
 establish a supported `v0.2.0` gateway, protected-data entitlement or hosted Ask
 OKF admission.

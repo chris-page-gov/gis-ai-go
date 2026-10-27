@@ -7,9 +7,10 @@ Last updated: 27 October 2026
 On 27 October 2026, the owner’s requested GIS default migration completed its
 static-publication increment: the canonical compact Explorer and complete public
 OKF+ bundle are the [public entrypoint](https://chris-page-gov.github.io/gis-ai-go/).
-The [recorded evidence](docs/operations/EXPLORER_PAGES_PUBLICATION.md#completed-publication-evidence)
-identifies accepted source `8e67ae88…`, complete HTTPS/browser results and actual
-legacy rollback/restore. Later verification and documentation commits do not
+The [recorded evidence](docs/operations/EXPLORER_PAGES_PUBLICATION.md#discovery-publication-evidence)
+identifies accepted source `93fe7534…`, complete HTTPS/browser results, actual
+rollback to the earlier `8e67ae88…` archive and restore of the identical new
+archive. Later verification and documentation commits do not
 replace those selected archive bytes. [ADR-0019](docs/decisions/ADR-0019-full-explorer-pages-publication.md)
 retains exact-source, attestation, manual deployment and rollback requirements
 for future publications. This static UI establishes no new release, protected-data
@@ -18,8 +19,17 @@ right or hosted service admission.
 The owner subsequently requested richer facets and relationships. The
 [discovery repair](docs/implementation/OKF_EXPLORER_DISCOVERY.md) is a new
 implementation increment: the earlier accepted archive retains only two facets
-and zero projected relationships. Retained-record links, source references and
-discovery coverage require their own source-bound publication acceptance.
+and zero projected relationships. The producer and canonical consumer have
+merged after required PR assurance; the reviewed consumer tree equals merged
+upstream main. Retained-record links, source references and discovery coverage
+passed complete GIS main CI and CodeQL with no skipped checks; the exact main
+archive and build attestation are verified. Initial deployment passed complete
+actual public HTTPS verification and all eight browser cases first attempt.
+Historical rollback also passed exact-byte verification and all eight browser
+cases using its original discovery profile. Restore of the identical new archive
+passed the complete actual HTTPS walk and all eight browser cases first attempt.
+The static discovery publication and recovery rehearsal are complete; human
+learning assessment and wider private acquisition remain separate.
 
 The public increment retains the complete public bundle, Reader/context,
 learning and native-field/atomic source-card dependency closure. The separate

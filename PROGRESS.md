@@ -10,26 +10,52 @@ projects 18 source-backed facets, 137 explicit links between retained records an
 61,309 source-reference associations, preserving the complete raw metadata. Four
 suggested facets stay folded in the compact interface; the other dimensions are
 available through **All**. The canonical consumer adds bounded loading for a
-selected record's references. These are implementation candidates; final source,
-app, CI and public acceptance remain pending. The served archive below remains
-the accepted earlier publication and retains its historical discovery limits.
+selected record's references. Both implementations have merged:
+[GIS PR #187](https://github.com/chris-page-gov/gis-ai-go/pull/187) as main
+`93fe7534…` and [Explorer PR #185](https://github.com/chris-page-gov/okf-explorer/pull/185)
+as main `46928e2a…`, whose Git tree equals the reviewed immutable consumer pin.
+Full PR assurance passed, including all eight GIS review-candidate browser cases
+first attempt. The [central evidence](docs/implementation/OKF_EXPLORER_DISCOVERY.md#merged-implementation-and-review-evidence)
+distinguishes full upstream PR results, normal selected main checks and the GIS
+review archive. GIS main CI and CodeQL succeeded on attempt 1 with all 13 checks
+passing and none skipped. Its attested main tar `742eb25f…` passed complete
+38,604-file / 899,129,361-byte loopback verification and all eight browser cases
+first attempt. Actual deploy
+[40506483121](https://github.com/chris-page-gov/gis-ai-go/actions/runs/40506483121)
+passed all three jobs on attempt 1: the actual canonical HTTPS walk verified all
+38,604 files / 899,129,361 bytes, and all eight browser cases passed first attempt.
+The existing bounded policy recovered 18 HTTP 503 responses automatically, with
+no manual rerun. Historical rollback
+[40509547583](https://github.com/chris-page-gov/gis-ai-go/actions/runs/40509547583)
+then verified the exact earlier `8e67ae88…` archive and all eight browser cases
+first attempt. Actual restore
+[40512243266](https://github.com/chris-page-gov/gis-ai-go/actions/runs/40512243266)
+passed the complete public HTTPS walk and all eight browser cases first attempt,
+restoring the identical `93fe7534…` / `742eb25f…` archive without regeneration.
+All three phases passed their source/attestation, deployment and actual public
+checks. The discovery publication and recovery rehearsal are complete; later
+documentation commits do not replace the selected archive. Human learning
+assessment and the separate private acquisition work remain outstanding.
+The earlier accepted archive below retains its historical discovery limits.
 
 ## Full Explorer public default
 
-The [GIS public entrypoint](https://chris-page-gov.github.io/gis-ai-go/) now serves
-the compact canonical Explorer with the complete public OKF+ metadata, Reader,
-context, linked learning paths and native-field/source explanations. On 27 October
-2026, exact-byte public HTTPS checks, browser journeys, legacy rollback and restore
-passed. The [publication evidence](docs/operations/EXPLORER_PAGES_PUBLICATION.md#completed-publication-evidence)
-binds the selected source, archive, app and actual per-phase results.
+The first full [GIS public entrypoint](https://chris-page-gov.github.io/gis-ai-go/)
+publication served the compact canonical Explorer with complete public OKF+
+metadata, Reader, context, linked learning paths and native-field/source
+explanations. On 27 October 2026, its exact-byte public HTTPS checks, browser
+journeys, legacy rollback and restore passed. The
+[earlier publication evidence](docs/operations/EXPLORER_PAGES_PUBLICATION.md#completed-publication-evidence)
+binds that archive's source, app and actual per-phase results; the discovery repair
+above records the later accepted publication.
 
-The served archive remains GIS source `8e67ae88e68341120a712d102f692894fbd89659`
+The earlier accepted archive uses GIS source `8e67ae88e68341120a712d102f692894fbd89659`
 from complete source CI
 [40412716168](https://github.com/chris-page-gov/gis-ai-go/actions/runs/40412716168).
 Its full public inventory has 37,279 files / 714,610,618 bytes, 30,876 metadata
 records, 2,915 native field nodes and three small linked practice paths.
-Generated public context has its own source-bound identity; the unchanged consumer
-is pinned to Explorer `7ffa3297…` / app tree `d127aadb…`.
+Generated public context had its own source-bound identity; that archive's consumer
+was pinned to Explorer `7ffa3297…` / app tree `d127aadb…`.
 
 Initial run `40417221604` failed both complete-file walks on HTTP 503 before UI
 execution. Later deploy
