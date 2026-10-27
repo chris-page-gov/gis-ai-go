@@ -1,18 +1,19 @@
 # Current context
 
-Last updated: 26 October 2026
+Last updated: 27 October 2026
 
-## GIS public entrypoint continuation
+## GIS public entrypoint
 
-On 26 October the owner asked to address the GIS site's remaining INSPIRE-first
-default from this chat. Continue the publication migration in GIS AI GO, reusing
-the merged canonical Explorer and its small linked OKF+ learning records.
-[ADR-0019](docs/decisions/ADR-0019-full-explorer-pages-publication.md) records the
-pinned app, public projection base, legacy routes and bounded v2 distribution.
-The existing open-publication authority and exact-main, attestation, manual
-deployment, public-verification and rollback requirements apply. Treat the change
-as a candidate until those results exist; do not infer a release, protected-data
-right or hosted service admission from the public UI.
+On 27 October 2026, the owner’s requested GIS default migration completed its
+static-publication increment: the canonical compact Explorer and complete public
+OKF+ bundle are the [public entrypoint](https://chris-page-gov.github.io/gis-ai-go/).
+The [recorded evidence](docs/operations/EXPLORER_PAGES_PUBLICATION.md#completed-publication-evidence)
+identifies accepted source `8e67ae88…`, complete HTTPS/browser results and actual
+legacy rollback/restore. Later verification and documentation commits do not
+replace those selected archive bytes. [ADR-0019](docs/decisions/ADR-0019-full-explorer-pages-publication.md)
+retains exact-source, attestation, manual deployment and rollback requirements
+for future publications. This static UI establishes no new release, protected-data
+right or hosted service admission.
 
 The public increment retains the complete public bundle, Reader/context,
 learning and native-field/atomic source-card dependency closure. The separate

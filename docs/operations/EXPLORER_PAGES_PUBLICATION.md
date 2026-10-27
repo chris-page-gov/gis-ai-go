@@ -2,8 +2,10 @@
 
 This runbook covers the static publication in
 [ADR-0019](../decisions/ADR-0019-full-explorer-pages-publication.md).
-Live cutover, public verification and rollback/restore remain pending until their
-exact workflow results are recorded. This work adds no gateway, provider service,
+The public default, complete HTTPS/browser checks and legacy rollback/restore
+passed on 27 October 2026. The
+[completed evidence](#completed-publication-evidence) below records exact sources,
+workflow identities and outcomes. This work adds no gateway, provider service,
 protected-data entitlement or hosted Ask OKF admission.
 
 The public dependency closure retains the complete public metadata and
@@ -85,12 +87,14 @@ received retry-body bytes; verified file and byte totals still count the complet
 successful inventory once. A hash, length, identity or redirect failure is never
 retried or skipped.
 
-The pre-split local candidate checked all 37,279 public files; the narrowed
-source requires fresh complete verification with its new input digest and snapshot.
+The accepted source's complete HTTPS inventory is recorded below. A later
+publication must establish its own exact-source and complete-file evidence;
+earlier loopback or public results cannot be relabelled for changed bytes.
 
 ## Retained legacy rollback
 
-The following v1 selection was present in GitHub metadata on 26 October 2026:
+The following v1 selection was rechecked in GitHub metadata on
+27 October 2026, 02:17:11 UTC before the recorded rehearsal:
 
 | Identity | Value |
 | --- | --- |
@@ -100,13 +104,17 @@ The following v1 selection was present in GitHub metadata on 26 October 2026:
 | Source tar SHA-256 | `acf072986dafc34795039e363d0d5d09af44432fa392ff3aee5525887e1081a4` |
 | Actions ZIP SHA-256 | `b727ee694306c574dbdfb959000983c2212198984d578aa1803b32d0d23f0314` |
 | Actions retention expiry | 18 November 2026, 04:10:51 UTC |
+| Rehearsed v1 payload root SHA-256 | `80a649a5e4bebc36fb38c7b6d51d84056d1b2ff4c8b5f6b96c75bb6d03c6d245` |
+| Rehearsed v1 OKF root SHA-256 | `f6da572916ea850f6825e276867504a835bc783d76cea8038f72c8d1d42c2750` |
+| Rehearsed v1 checksum-ledger SHA-256 | `75d3a3c9ad8fad2cd7d5a8ee67851fd7655457aae9473ae717f0f4dbc67da815` |
 
 Recheck the current API before use: the source run must still match, and the
 exact-name artefact must be unique, unexpired and have its recorded transport
 digest. The Actions ZIP digest is separate from the source tar digest above.
-This readiness observation did not download the archive or perform fresh
-cryptographic or public-byte verification. Immutable release assets remain
-historical evidence; they are not an alternative ingestion path for this workflow.
+The recorded rollback below subsequently passed the workflow's source, archive,
+attestation and public verification checks. Retention must still be rechecked
+before any future use. Immutable release assets remain historical evidence;
+they are not an alternative ingestion path for this workflow.
 
 Rehearse `rollback` with the retained v1 run, source and tar digest. Let the
 unchanged legacy verifier and public suite validate it. Then select the accepted
@@ -115,3 +123,160 @@ journeys again. Record deployment run IDs, source/archive identities, roots and
 results in [PROGRESS](../../PROGRESS.md) and the retained workflow evidence before
 recording cutover and rollback/restore as complete. A deployment failure does not
 authorise rebuilding an accepted archive or weakening its checks.
+
+
+## Completed publication evidence
+
+Observed on 27 October 2026. The current bare
+[GIS root](https://chris-page-gov.github.io/gis-ai-go/) opens the full compact
+Explorer. Recognised earlier catalogue query/record links intentionally open
+`/legacy/` with their state. The static publication keeps product version `0.1.0`;
+it does not replace the immutable supported release or admit a gateway service.
+
+### Accepted publication bytes
+
+GIS source [8e67ae88](https://github.com/chris-page-gov/gis-ai-go/commit/8e67ae88e68341120a712d102f692894fbd89659)
+passed complete protected-main source CI
+[40412716168](https://github.com/chris-page-gov/gis-ai-go/actions/runs/40412716168)
+and full CodeQL
+[40412716256](https://github.com/chris-page-gov/gis-ai-go/actions/runs/40412716256).
+All ten main CI jobs, including independent verification and provenance, passed.
+Its candidate walk and seven browser cases passed in loopback mode without retry;
+actual public HTTPS results are identified separately below.
+
+| Identity | Accepted value |
+| --- | --- |
+| GIS source | `8e67ae88e68341120a712d102f692894fbd89659` |
+| Retained source artefact | `pages-source-8e67ae88e68341120a712d102f692894fbd89659`, ID `12695267839` |
+| Actions ZIP SHA-256 / bytes | `47a1f3bbdb81116fbe58960fd03cdea9e1820b23fb62a38d782fe26d0e2e2b35` / 134,423,399 |
+| Source artefact retention expiry | 24 January 2027, 22:28:36 UTC; recheck before future use |
+| Source tar SHA-256 / bytes | `3fe870878a997965fce3d4aec4e407218479ac23e1653cca10ac910d5febfc0c` / 744,069,120 |
+| Logical payload root SHA-256 | `fd08e1e07911956fe18b0af3d3e099bb26c864bf302f5ba99f6d0de1fd58f0e1` |
+| OKF input root SHA-256 | `4baa97670ab0ebfcb17f3f0d67cabebb00a47dbe686fe33972b9ce9d4ea6e395` |
+| Public checksum ledger SHA-256 | `7b4291bbd3f3fc28f91c2a88ef4e01e2cc17b7a969f32b810e73bfcc8ce5177a` |
+| Snapshot | `okf-plus-1045d0770cc377a06f9eeb5a` |
+| Complete served inventory | 37,279 files / 714,610,618 bytes |
+| Metadata closure | 30,876 records, 2,915 native field nodes, three small linked practice paths / 11 steps |
+| Explorer source | `7ffa3297ec85bf28c27963724f221d80579bed1b` |
+| Explorer app tree SHA-256 | `d127aadb96a77711d5f7cc7aec8cf731cbf5ec1e3d49304d8132189ea4991f93` |
+| Explorer app-manifest SHA-256 | `ab227164e2e114148425a453a0e04b6bb21230f79be1e059a3ff6936d57f45f2` |
+
+### Verification repairs and retained failures
+
+Initial [Pages run 40417221604](https://github.com/chris-page-gov/gis-ai-go/actions/runs/40417221604)
+used workflow/source `8e67ae88…` and the accepted archive above. Source validation
+and deployment passed. Two public complete-file walks failed on different HTTP
+503 responses before any browser journey ran. No byte-integrity failure was
+reported, and these attempts remain failed despite the later successful deploy.
+
+| Attempt | Verification job | Failed context passage | Diagnostic artefact ID / ZIP SHA-256 |
+| --- | --- | --- | --- |
+| 1 | `121902971948` | `2173111324335ce9db81a6c4b9f09976f983a8f981d05f2e9404c21a80194075.txt` | `12695184510` / `d940d9e22528988c46dee6e21431a977b8ef53bb7eb4444ba5760c4371583351` |
+| 2 | `121904456364` | `213446f784129a2076e1996295663084f82212fb78b53ab0aff4fcfddf421c6e.txt` | `12695924459` / `6336a9494d7ae9506b9cc82bfe0f770f3fa4d8f9ea17bf8772429cdcbd270614` |
+
+Transport repair [#184](https://github.com/chris-page-gov/gis-ai-go/pull/184)
+added the bounded pacing/retry policy above. Accepted verifier commit
+`0bc58f6dae852175d4acd67cf323243277a60c3a` passed complete main CI
+[40423718672](https://github.com/chris-page-gov/gis-ai-go/actions/runs/40423718672)
+and CodeQL
+[40423718582](https://github.com/chris-page-gov/gis-ai-go/actions/runs/40423718582).
+The byte-verifier SHA-256 is
+`12466f389ed10d65c679719e24e7ab6ff49879f1cca831ef33ff650f5acabb01`.
+Its 23 focused tests and injected local HTTP 503 complete-walk regression were
+development evidence; they do not substitute for public acceptance.
+
+The successful deploy below retained one native-field browser failure before its
+configured retry passed. Trace inspection found a synchronous option lookup about
+18 ms after switching to Building while its record shard was loading. Readiness
+repair [#185](https://github.com/chris-page-gov/gis-ai-go/pull/185) waits for the
+exact option within the existing bounded assertion. It preserves all field,
+source, gap and discovery assertions, timeouts and retry limits. An actual two-second
+Building-shard delay passed locally without retry. Accepted repair main
+`3fbc813cabdcef259649a7cf51da39e69342e340` passed complete main CI
+[40434327233](https://github.com/chris-page-gov/gis-ai-go/actions/runs/40434327233) and full CodeQL
+[40434327053](https://github.com/chris-page-gov/gis-ai-go/actions/runs/40434327053).
+Its test SHA-256 is `2e3d31faa1bbfc4f32daad1110a897f00df019b9f2e5dccd601081ad3e992d0e`.
+All 13 protected-main checks passed. Its seven loopback browser cases passed first
+attempt with zero flaky cases; that newly generated archive was not selected
+for publication.
+Neither repair changes the selected app, source archive or generated payload.
+
+### Actual public phases
+
+The workflow commit identifies the verifier and deployment procedure. The selected
+source identifies the immutable served archive; these are deliberately separate.
+The initial deploy and rollback passed normal source/archive/attestation
+validation, deployment and actual public verification. Restore verification
+passed all three jobs and the complete HTTPS/browser checks. No phase rebuilt
+its selected archive.
+
+| Phase / run / attempt | Workflow commit | Selected source / source CI / tar SHA-256 | Result |
+| --- | --- | --- | --- |
+| [Deploy 40427376279](https://github.com/chris-page-gov/gis-ai-go/actions/runs/40427376279), attempt 1 | `0bc58f6dae852175d4acd67cf323243277a60c3a` | `8e67ae88…` / `40412716168` / `3fe87087…` as above | Success; complete HTTPS and seven eventual UI passes |
+| [Rollback 40438001316](https://github.com/chris-page-gov/gis-ai-go/actions/runs/40438001316), attempt 1 | `3fbc813cabdcef259649a7cf51da39e69342e340` | `f1bda209e6309bf4f14f7ab7f524c442e59917b8` / `32330917042` / `acf072986dafc34795039e363d0d5d09af44432fa392ff3aee5525887e1081a4` | Success; four actual HTTPS legacy cases passed |
+| [Restore 40438260796](https://github.com/chris-page-gov/gis-ai-go/actions/runs/40438260796), attempt 1 | `3fbc813cabdcef259649a7cf51da39e69342e340` | The identical `8e67ae88…` / `40412716168` / `3fe87087…` archive above | Success; complete HTTPS and seven first-attempt UI passes |
+
+| Phase | Validation job | Deployment job | Public-verification job |
+| --- | --- | --- | --- |
+| Deploy | `121936401354` | `121936837531` | `121936991820` |
+| Rollback | `121971269032` | `121971405295` | `121971511026` |
+| Restore | `121972118769` | `121972365161` | `121972442433` |
+
+Rollback matched the retained v1 roots above. Its four actual HTTPS cases passed
+in 9.7 seconds, with zero reported failures or flaky cases. The v1 suite checked
+its payload manifest and public ledger entries; its reporter did not retain a
+separate numeric full-byte-walk report or individual result JSON. Final restore
+matched every accepted v2 source, payload, OKF, ledger and app identity above.
+
+| Public evidence | Artefact ID | Actions ZIP SHA-256 |
+| --- | --- | --- |
+| Initial deploy validation | `12700836018` | `687887df3568528738ea12b22777118509dbceaeb99213f3d63cdc831e40beea` |
+| Initial successful deploy | `12701470786` | `14a1d5f5828d4e8c3fd06de9d80bb29bcd62486d779479d8c20142e3fb8f90cb` |
+| Rollback validation | `12705565081` | `82aaa496807594147d4d45ec9f0564b91c2ec81f459daca8e0ab9bc9082d20a2` |
+| Rollback public verification | `12704559326` | `4557bda01fb441f97659e26cb20b3b9fa8a56eeae006b75bb7589426b415fc69` |
+| Restore validation | `12705190713` | `d5247a8e4ef39231c61933e2783c5dc8ab0a634d1e93561ea2264ad3be314c2f` |
+| Restore public verification | `12704929390` | `ec5b9e23c45f4d3ee0589e6850819476016499c354086bd9843f29dd899deb5b` |
+
+The initial v2 public walk used `mode=deployed-publication` at the canonical HTTPS
+URL, with no loopback mirror. Restore used the same mode and canonical URL.
+Initial deploy checked all 37,279 files / 714,610,618 bytes in 771,521 ms. Its one
+receipt probe consumed 1,398 bytes. Browser results
+were six first-attempt passes, one recovered flaky case, zero skipped and zero
+unexpected; all seven ultimately passed. That run is not a clean first-attempt
+browser result. The retained artefact includes its failure trace and reports.
+The suite exercises all three learning paths / 11 steps and checks 12-pixel colour
+bars with folded facet cards at most 64 pixels high at 1,440, 390 and 320 pixels,
+as well as keyboard, palette and accessibility assertions.
+
+| Actual complete-walk transport | Deploy 40427376279 | Restore 40438260796 |
+| --- | --- | --- |
+| Verified files / bytes | 37,279 / 714,610,618 | 37,279 / 714,610,618 |
+| Elapsed milliseconds | 771,521 | 772,660 |
+| Pacing / configured spacing | Enabled / 20 ms, at most 50 starts/s | Enabled / 20 ms, at most 50 starts/s |
+| Started requests | 37,280 | 37,280 |
+| Minimum observed start gap | 20.000559 ms | 20.000614 ms |
+| Peak queued / active requests | 12 / 12 | 12 / 12 |
+| Retry reservations / extra requests / retried files | 1 / 1 / 1 | 1 / 1 / 1 |
+| Reserved replay / received extra-response bytes | 4,346 / 4,346 | 6,371 / 6,371 |
+| Transient status counts (429 / 502 / 503 / 504) | 0 / 0 / 1 / 0 | 0 / 0 / 1 / 0 |
+| Cancelled error bodies / application-consumed error bytes | 1 / 0 | 1 / 0 |
+| Browser expected / flaky / skipped / unexpected | 6 / 1 / 0 / 0 | 7 / 0 / 0 / 0 |
+
+Each walk recovered one HTTP 503 at attempt 2 after 1,000 ms:
+
+| Walk | Context passage under `gis/explorer/context/passages/` | Reserved replay bytes |
+| --- | --- | --- |
+| Deploy | `408242327c0ceb2882a5701f3b9e1e73cf8675ea86da60c5baa838c1339ee667.txt` | 4,346 |
+| Restore | `e0a28308184f23fd661d363163626f7a957fd241d21c15f6a0d6a870809b4714.txt` | 6,371 |
+
+Cancellation and consumed-body counts describe application behaviour, not
+unmeasured network prefetch. Restore readiness used two receipt probes / 2,139
+bytes within the existing 110,000 ms deadline. All seven restore browser cases
+passed first attempt, with zero flaky, skipped or unexpected results and no
+mirrored requests or transport failures.
+
+The same selected 8e67 archive was restored; later verifier and documentation
+commits do not become the deployed source. This accepts the static public default
+and its technical checks. Human learning assessment, wider private acquisition,
+the deferred feature's findings, protected-data rights and supported gateway or
+hosted-service admission remain separate.

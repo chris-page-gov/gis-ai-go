@@ -2,6 +2,11 @@
 
 Owner agreement: 24 October 2026. Related work: [issue #153](https://github.com/chris-page-gov/gis-ai-go/issues/153).
 
+> Current evidence — 27 October 2026: the compact canonical Explorer and complete
+> public bundle are now the [verified GIS public default](../operations/EXPLORER_PAGES_PUBLICATION.md#completed-publication-evidence).
+> The dated handoff below remains historical evidence. The separate private
+> capture review and human learning assessment remain outstanding.
+
 ## Agreed outcome
 
 Extend the existing [OKF Explorer](https://github.com/chris-page-gov/okf-explorer)

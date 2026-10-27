@@ -125,11 +125,12 @@ candidate browser and accessibility review without promoting practice ticks,
 catalogue inclusion or metadata access to learning or data-retrieval acceptance.
 
 The [public-default migration](../decisions/ADR-0019-full-explorer-pages-publication.md)
-assembles the pinned canonical app and full projections in the GIS publication,
-preserves legacy links and retains immutable v1 rollback. Complete source
-assurance, exact public-byte and browser verification, then rollback and restore
-evidence before recording the switch-over as accepted. This static publication
-is separate from the supported gateway release.
+completed its static-publication increment on 27 October 2026: the pinned compact
+canonical app and full public projections serve the GIS default, retaining legacy
+links. [Recorded acceptance](../operations/EXPLORER_PAGES_PUBLICATION.md#completed-publication-evidence)
+binds complete source assurance, exact HTTPS/browser verification, immutable v1
+rollback and same-archive v2 restore. This technical publication is separate from
+human learning acceptance and the supported gateway release.
 
 The main-target migration retains the full public metadata and native-field,
 atomic and learning dependencies. The separate new private capture extension
