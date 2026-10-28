@@ -2,6 +2,30 @@
 
 Last updated: 27 October 2026
 
+## VS Code Data Agent Kit preparation
+
+The owner requested configuration of the existing personal-project VS Code
+environment and reproducible steps for a protected machine. The
+[setup guide](docs/operations/DATA_AGENT_KIT_VSCODE.md) supplies the official
+extension recommendation, disables the documented notebook execution tool and
+records CLI-first configuration, exact-version capture, Knowledge Catalog-only
+selection and identity boundaries. Three documented extension-specific UI controls
+remain. The offline preflight distinguishes portable-file checks from desktop
+and live acceptance. The current cloud executor has no desktop connection,
+`code`, `gcloud` or configured GCP identity; the previous personal project values
+remain in unavailable private configuration. Reuse the desktop's existing verified
+gcloud context. No desktop installation, sign-in, API/IAM/billing change, OKF
+import or cloud deployment is claimed by this preparation. [Issue 188](https://github.com/chris-page-gov/gis-ai-go/issues/188)
+tracks the source checks and remaining local acceptance.
+
+Seven offline checks and the portable workspace CLI check passed on Node.js
+`24.19.0`; local links, changelog, secret/path, manifest-version and whitespace
+checks passed. Initial sandbox testing used in-process execution; subsequent
+approved execution passed the normal isolated test command. Initial CI found the
+existing deterministic receipt set's package binding stale. Its supported offline
+generator and seven contract tests passed; only the package hash and derived set
+identity changed. Canonical CI on the repair remains mandatory.
+
 ## Explorer discovery repair
 
 The owner requested a fix after the public Explorer showed only two facets and
