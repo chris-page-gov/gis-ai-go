@@ -177,6 +177,17 @@ class CiImpactPlanTests(unittest.TestCase):
         self.assertEqual(plan["selected_lanes"], ["repository_assurance"])
         self.assertEqual(plan["matched_rule_ids"], ["documentation-and-governance"])
 
+    def test_explorer_publication_pin_requires_complete_assurance(self) -> None:
+        plan = self.plan("config/explorer-publication.json")
+        self.assertTrue(plan["force_full"])
+        self.assertTrue(plan["gateway_image_required"])
+        self.assertEqual(plan["unmatched_paths"], [])
+        self.assertIn("global-assurance-control", plan["matched_rule_ids"])
+        self.assertEqual(
+            set(plan["selected_lanes"]), set(plan["applicable_lanes"])
+        )
+        self.assertIn("explorer_pages_candidate", plan["always_run"])
+
     def test_locked_research_inputs_select_okf_image_assurance(self) -> None:
         for path in RESEARCH_OKF_INPUTS:
             with self.subTest(path=path):

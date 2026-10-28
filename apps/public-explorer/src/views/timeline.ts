@@ -79,7 +79,7 @@ export function renderTimelineView(
   const section = element("section");
   section.setAttribute("aria-labelledby", "view-heading-timeline");
   section.append(
-    element("h2", { id: "view-heading-timeline", text: "Catalogue timeline" }),
+    element("h2", { id: "view-heading-timeline", text: "Catalogue timeline", tabIndex: -1 }),
     element("p", {
       text: "Dates retain their source meaning. Review dates and review-by dates are governance information and are not relabelled as publication or release dates.",
     }),

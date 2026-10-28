@@ -187,7 +187,7 @@ export function renderGraphView(
   const section = element("section");
   section.setAttribute("aria-labelledby", "view-heading-graph");
   section.append(
-    element("h2", { id: "view-heading-graph", text: "Evidence graph" }),
+    element("h2", { id: "view-heading-graph", text: "Evidence graph", tabIndex: -1 }),
     element("p", {
       text: "The graph shows only source relationships explicitly recorded in the catalogue. Shared publishers and topics do not create edges.",
     }),

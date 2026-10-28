@@ -1,0 +1,1 @@
+- Record the agreed two-repository OKF Explorer cloud continuation, preserving small linked learning metadata, existing integration evidence and explicit review limits. Tracking: [#153](https://github.com/chris-page-gov/gis-ai-go/issues/153).

@@ -1,0 +1,460 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/schemas/classification-browser.schema.json",
+  "title": "Reviewed selected classification lists for offline discovery",
+  "type": "object",
+  "required": [
+    "schema",
+    "reviewedOn",
+    "globalComplete",
+    "schemes"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gis-ai-go.classification-browser.v1"
+    },
+    "reviewedOn": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "globalComplete": {
+      "const": false
+    },
+    "schemes": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "edition",
+          "referenceDate",
+          "publishedDate",
+          "retrievedAt",
+          "jurisdiction",
+          "description",
+          "sources",
+          "coverage",
+          "gaps",
+          "entries"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,159}$"
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 10000
+          },
+          "edition": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 10000
+          },
+          "referenceDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 10000
+          },
+          "publishedDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 10000
+          },
+          "retrievedAt": {
+            "type": "string",
+            "maxLength": 10000
+          },
+          "jurisdiction": {
+            "type": "string",
+            "maxLength": 10000
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 10000
+          },
+          "sources": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 32,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "title",
+                "url",
+                "sha256"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,159}$"
+                },
+                "title": {
+                  "type": "string",
+                  "maxLength": 10000
+                },
+                "url": {
+                  "type": "string",
+                  "maxLength": 2048
+                },
+                "sha256": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "coverage": {
+            "type": "object",
+            "required": [
+              "status",
+              "expectedEntries",
+              "retainedEntries",
+              "definitionsStatus"
+            ],
+            "properties": {
+              "status": {
+                "enum": [
+                  "complete-selected-list",
+                  "partial",
+                  "not-captured"
+                ]
+              },
+              "expectedEntries": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 0,
+                "maximum": 20000
+              },
+              "retainedEntries": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 20000
+              },
+              "definitionsStatus": {
+                "enum": [
+                  "source-definitions-retained",
+                  "labels-only",
+                  "mixed-or-partial"
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          "gaps": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 100,
+            "items": {
+              "type": "string",
+              "maxLength": 10000
+            }
+          },
+          "entries": {
+            "type": "array",
+            "maxItems": 20000,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "code",
+                "label",
+                "definition",
+                "level",
+                "parentCode",
+                "aliases",
+                "sourceId",
+                "sourceLocator",
+                "native"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,159}$"
+                },
+                "code": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "maxLength": 10000
+                },
+                "label": {
+                  "type": "string",
+                  "maxLength": 10000
+                },
+                "definition": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "maxLength": 10000
+                },
+                "level": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "maxLength": 10000
+                },
+                "parentCode": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "maxLength": 10000
+                },
+                "aliases": {
+                  "type": "array",
+                  "maxItems": 100,
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "text",
+                      "kind",
+                      "authority",
+                      "sourceId"
+                    ],
+                    "properties": {
+                      "text": {
+                        "type": "string",
+                        "maxLength": 10000,
+                        "minLength": 1
+                      },
+                      "kind": {
+                        "enum": [
+                          "abbreviation",
+                          "search-variant",
+                          "native-field-form",
+                          "native-type-form",
+                          "historical-label",
+                          "source-alternative-label",
+                          "notation",
+                          "full-iri",
+                          "compact-iri"
+                        ]
+                      },
+                      "authority": {
+                        "enum": [
+                          "source-stated",
+                          "project-search-variant"
+                        ]
+                      },
+                      "sourceId": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,159}$"
+                      }
+                    },
+                    "additionalProperties": false,
+                    "allOf": [
+                      {
+                        "if": {
+                          "properties": {
+                            "authority": {
+                              "const": "project-search-variant"
+                            }
+                          }
+                        },
+                        "then": {
+                          "properties": {
+                            "kind": {
+                              "const": "search-variant"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "sourceId": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,159}$"
+                },
+                "sourceLocator": {
+                  "type": "string",
+                  "maxLength": 10000
+                },
+                "native": {
+                  "type": "object"
+                },
+                "labelLanguage": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "minLength": 1,
+                  "maxLength": 80
+                },
+                "nativeSearchForms": {
+                  "type": "array",
+                  "maxItems": 8,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "text",
+                      "kind",
+                      "authority",
+                      "sourceId",
+                      "sourceLocator",
+                      "nativePointer",
+                      "language"
+                    ],
+                    "properties": {
+                      "text": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1000
+                      },
+                      "kind": {
+                        "const": "source-native-value"
+                      },
+                      "authority": {
+                        "const": "source-stated"
+                      },
+                      "sourceId": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,159}$"
+                      },
+                      "sourceLocator": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 10000
+                      },
+                      "nativePointer": {
+                        "type": "string",
+                        "minLength": 8,
+                        "maxLength": 512,
+                        "pattern": "^/native/"
+                      },
+                      "language": {
+                        "type": "null"
+                      }
+                    }
+                  }
+                },
+                "codeRole": {
+                  "enum": [
+                    "unknown",
+                    "source-code-retained",
+                    "explicit-empty-code",
+                    "unresolved-native-value",
+                    "no-separate-code-assertion"
+                  ]
+                },
+                "labelOrigin": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "kind",
+                    "sourceId",
+                    "sourceLocator",
+                    "nativePointer",
+                    "nativeState",
+                    "languagePointer",
+                    "displayLanguage"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "enum": [
+                        "source-native",
+                        "project-display-fallback"
+                      ]
+                    },
+                    "sourceId": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,159}$"
+                    },
+                    "sourceLocator": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 10000
+                    },
+                    "nativePointer": {
+                      "type": "string",
+                      "minLength": 8,
+                      "maxLength": 512,
+                      "pattern": "^/native/(?:[^~]|~[01])*$"
+                    },
+                    "nativeState": {
+                      "enum": [
+                        "absent",
+                        "null",
+                        "empty-string",
+                        "string"
+                      ]
+                    },
+                    "languagePointer": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "minLength": 8,
+                      "maxLength": 512,
+                      "pattern": "^/native/(?:[^~]|~[01])*$"
+                    },
+                    "displayLanguage": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "minLength": 1,
+                      "maxLength": 80
+                    }
+                  },
+                  "allOf": [
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "source-native"
+                          }
+                        }
+                      },
+                      "then": {
+                        "properties": {
+                          "nativeState": {
+                            "enum": [
+                              "empty-string",
+                              "string"
+                            ]
+                          }
+                        }
+                      },
+                      "else": {
+                        "properties": {
+                          "nativeState": {
+                            "enum": [
+                              "absent",
+                              "null"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

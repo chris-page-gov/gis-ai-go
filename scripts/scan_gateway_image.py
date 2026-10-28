@@ -12,13 +12,15 @@ import os
 import re
 import stat
 import subprocess
+import sys
 import tarfile
 import tempfile
 import time
 import unicodedata
+from contextlib import contextmanager
 from datetime import UTC, datetime
 from pathlib import Path, PurePosixPath
-from typing import Any, BinaryIO
+from typing import Any, BinaryIO, Iterator
 from urllib.parse import parse_qs, unquote
 
 from jsonschema import Draft202012Validator, FormatChecker
@@ -43,6 +45,7 @@ from gateway_image import (
     MAX_LAYER_PATH_COMPONENTS,
     MAX_LAYER_PATH_COMPONENT_BYTES,
     MAX_OCI_BYTES,
+    NODE_ADVISORY_STAGE_EXIT_CODES,
     RUNTIME_LIBRARY_DONOR_ACQUISITION_EXIT_CODE,
     RUNTIME_LIBRARY_DONOR_VALIDATION_EXIT_CODE,
     ROOT,
@@ -51,16 +54,22 @@ from gateway_image import (
     TRIVY_REFERENCE,
     UBI_RUNTIME_LIBRARY_DONOR_DIGEST,
     UBI_RUNTIME_LIBRARY_DONOR_REFERENCE,
+    VULNERABILITY_SCAN_STAGE_EXIT_CODES,
     assert_no_private_json,
     assert_no_private_text,
     canonical_json_bytes,
     contains_diagnostic_private_path,
+    node_inventory_size_diagnostic,
     parse_checksum,
     prohibited_text_reason,
     sha256_file,
     verify_pinned_builder,
 )
-from node_runtime_advisory import generate_node_advisory, verify_node_advisory
+from node_runtime_advisory import (
+    NodeAdvisoryFailure,
+    generate_node_advisory,
+    verify_node_advisory,
+)
 from security.bounded_tar import BoundedTarInfo
 
 BLOCKED_SEVERITIES = frozenset({"HIGH", "CRITICAL"})
@@ -121,6 +130,45 @@ class RuntimeLibraryDonorAcquisitionError(ValueError):
 
 class RuntimeLibraryDonorValidationError(ValueError):
     """Signal that acquired donor evidence failed closed validation."""
+
+
+class ScanStageFailure(ValueError):
+    """Expose a closed stage identity without chaining the underlying failure."""
+
+    def __init__(self, stage: str) -> None:
+        if stage not in VULNERABILITY_SCAN_STAGE_EXIT_CODES:
+            raise ValueError("gateway vulnerability scan diagnostic stage is invalid")
+        self.stage = stage
+        super().__init__(f"gateway vulnerability scan failed closed at {stage}")
+
+
+@contextmanager
+def _scan_stage(stage: str) -> Iterator[None]:
+    if stage not in VULNERABILITY_SCAN_STAGE_EXIT_CODES:
+        raise ValueError("gateway vulnerability scan diagnostic stage is invalid")
+    failed = False
+    try:
+        yield
+    except (
+        ScanStageFailure,
+        NodeAdvisoryFailure,
+        TrivyDatabaseAcquisitionError,
+        RuntimeLibraryDonorAcquisitionError,
+        RuntimeLibraryDonorValidationError,
+    ):
+        raise
+    except Exception:
+        # Never stringify or copy untrusted exception text.
+        failed = True
+    if failed:
+        try:
+            raise ScanStageFailure(stage) from None
+        except ScanStageFailure as failure:
+            # A with statement still supplies its active exception to the
+            # context manager. Detach it after raising, then use a bare re-raise
+            # so propagation does not attach that private context again.
+            failure.__context__ = None
+            raise
 
 
 def utc_timestamp() -> str:
@@ -1933,148 +1981,160 @@ def bind_gateway_archive(archive: Path, receipt: dict[str, Any]) -> dict[str, An
 def generate_scan_evidence(
     *, archive: Path, sbom: Path, receipt_path: Path, output: Path
 ) -> dict[str, Any]:
-    receipt = load_bounded_json_object(
-        receipt_path,
-        maximum_bytes=MAX_RECEIPT_JSON_BYTES,
-        label="gateway image receipt",
-    )
-    image_binding = bind_gateway_archive(archive, receipt)
-    started_at = utc_timestamp()
-    started = time.monotonic()
-    output.parent.mkdir(parents=True, exist_ok=True)
-    archive_path = output.parent / DB_ARCHIVE_NAME
-    checksum_path = output.parent / DB_CHECKSUM_NAME
-    report_path = output.parent / REPORT_NAME
-    donor_archive_path = output.parent / DONOR_ARCHIVE_NAME
-    donor_report_path = output.parent / DONOR_REPORT_NAME
-    donor = _acquire_scan_images(donor_archive_path)
-    with tempfile.TemporaryDirectory(
-        prefix="gis-ai-go-trivy-acquisition-"
-    ) as acquisition_temporary:
-        acquired_cache = _download_trivy_database(Path(acquisition_temporary))
-        inventory = package_database(acquired_cache, archive_path)
-    checksum_path.write_text(
-        f"{sha256_file(archive_path)}  {archive_path.name}\n", encoding="utf-8"
-    )
-    with tempfile.TemporaryDirectory(prefix="gis-ai-go-trivy-replay-") as replay_temporary:
+    with _scan_stage("input-binding"):
+        receipt = load_bounded_json_object(
+            receipt_path,
+            maximum_bytes=MAX_RECEIPT_JSON_BYTES,
+            label="gateway image receipt",
+        )
+        image_binding = bind_gateway_archive(archive, receipt)
+        started_at = utc_timestamp()
+        started = time.monotonic()
+        output.parent.mkdir(parents=True, exist_ok=True)
+        archive_path = output.parent / DB_ARCHIVE_NAME
+        checksum_path = output.parent / DB_CHECKSUM_NAME
+        report_path = output.parent / REPORT_NAME
+        donor_archive_path = output.parent / DONOR_ARCHIVE_NAME
+        donor_report_path = output.parent / DONOR_REPORT_NAME
+    with _scan_stage("scanner-images"):
+        donor = _acquire_scan_images(donor_archive_path)
+    with _scan_stage("trivy-db-retention"):
+        with tempfile.TemporaryDirectory(
+            prefix="gis-ai-go-trivy-acquisition-"
+        ) as acquisition_temporary:
+            acquired_cache = _download_trivy_database(Path(acquisition_temporary))
+            inventory = package_database(acquired_cache, archive_path)
+        checksum_path.write_text(
+            f"{sha256_file(archive_path)}  {archive_path.name}\n", encoding="utf-8"
+        )
+    with _scan_stage("trivy-db-retention"), tempfile.TemporaryDirectory(
+        prefix="gis-ai-go-trivy-replay-"
+    ) as replay_temporary:
         replay_cache = Path(replay_temporary) / "cache"
         replay_cache.mkdir(mode=0o700)
         extracted_inventory = inspect_database_archive(archive_path, extract_to=replay_cache)
         if extracted_inventory != inventory:
             raise ValueError("retained Trivy database differs after canonical extraction")
-        report = _docker_scan(
-            cache=replay_cache,
-            archive=archive,
-            artifact_path=TRIVY_OCI_PATH,
-            offline=True,
-            pull="never",
+        with _scan_stage("trivy-gateway-assessment"):
+            report = _docker_scan(
+                cache=replay_cache,
+                archive=archive,
+                artifact_path=TRIVY_OCI_PATH,
+                offline=True,
+                pull="never",
+            )
+        with _scan_stage("trivy-donor-assessment"):
+            donor_report = _docker_scan(
+                cache=replay_cache,
+                archive=donor_archive_path,
+                artifact_path=TRIVY_DONOR_PATH,
+                offline=True,
+                pull="never",
+            )
+        with _scan_stage("trivy-evidence-binding"):
+            if cache_inventory(replay_cache) != inventory:
+                raise ValueError("offline Trivy replay mutated the retained database")
+    with _scan_stage("trivy-evidence-binding"):
+        report_bytes = canonical_json_bytes(report)
+        donor_report_bytes = canonical_json_bytes(donor_report)
+        assert_no_private_json(report, "gateway Trivy report")
+        assert_no_private_text(report_bytes, "gateway Trivy report")
+        assert_no_private_json(donor_report, "gateway donor Trivy report")
+        assert_no_private_text(donor_report_bytes, "gateway donor Trivy report")
+        sbom_document = load_bounded_json_object(
+            sbom,
+            maximum_bytes=MAX_SBOM_JSON_BYTES,
+            label="gateway image SBOM",
         )
-        donor_report = _docker_scan(
-            cache=replay_cache,
-            archive=donor_archive_path,
-            artifact_path=TRIVY_DONOR_PATH,
-            offline=True,
-            pull="never",
+        coverage = project_coverage(
+            report, donor_report, sbom_document, receipt, donor
         )
-        if cache_inventory(replay_cache) != inventory:
-            raise ValueError("offline Trivy replay mutated the retained database")
-    report_bytes = canonical_json_bytes(report)
-    donor_report_bytes = canonical_json_bytes(donor_report)
-    assert_no_private_json(report, "gateway Trivy report")
-    assert_no_private_text(report_bytes, "gateway Trivy report")
-    assert_no_private_json(donor_report, "gateway donor Trivy report")
-    assert_no_private_text(donor_report_bytes, "gateway donor Trivy report")
-    sbom_document = load_bounded_json_object(
-        sbom,
-        maximum_bytes=MAX_SBOM_JSON_BYTES,
-        label="gateway image SBOM",
-    )
-    coverage = project_coverage(
-        report, donor_report, sbom_document, receipt, donor
-    )
-    node_runtime, node_findings = generate_node_advisory(
-        sbom=sbom_document,
-        receipt=receipt,
-        output=output.parent,
-    )
-    findings = sorted(
-        [*project_all_findings(report, donor_report), *node_findings],
-        key=_finding_sort_key,
-    )
-    fixable, passed = evaluate_policy(findings)
-    evidence = {
-        "schema": "gis-ai-go.gateway-image-vulnerability-scan.v3",
-        "classification": (
-            "repository-only-unregistered-candidate"
-            if receipt["source"]["clean"] else "non-publishable-development-build"
-        ),
-        "source_revision": receipt["source"]["revision"],
-        "image_manifest_digest": receipt["image"]["manifest_digest"],
-        "image": image_binding,
-        "donor_image": donor,
-        "scanner": {"image": TRIVY_REFERENCE, "version": TRIVY_VERSION},
-        "sbom": {"file": sbom.name, "sha256": sha256_file(sbom), "bytes": sbom.stat().st_size},
-        "database": {
-            "archive": archive_path.name, "archive_sha256": sha256_file(archive_path),
-            "archive_bytes": archive_path.stat().st_size,
-            "expanded_bytes": sum(item["bytes"] for item in inventory),
-            "file_count": len(inventory), "files": inventory,
-        },
-        "reports": {
-            "gateway": {
-                "file": report_path.name,
-                "sha256": hashlib.sha256(report_bytes).hexdigest(),
-                "bytes": len(report_bytes),
+    with _scan_stage("node-advisory"):
+        node_runtime, node_findings = generate_node_advisory(
+            sbom=sbom_document,
+            receipt=receipt,
+            output=output.parent,
+        )
+    with _scan_stage("final-evidence-validation"):
+        findings = sorted(
+            [*project_all_findings(report, donor_report), *node_findings],
+            key=_finding_sort_key,
+        )
+        fixable, passed = evaluate_policy(findings)
+        evidence = {
+            "schema": "gis-ai-go.gateway-image-vulnerability-scan.v3",
+            "classification": (
+                "repository-only-unregistered-candidate"
+                if receipt["source"]["clean"] else "non-publishable-development-build"
+            ),
+            "source_revision": receipt["source"]["revision"],
+            "image_manifest_digest": receipt["image"]["manifest_digest"],
+            "image": image_binding,
+            "donor_image": donor,
+            "scanner": {"image": TRIVY_REFERENCE, "version": TRIVY_VERSION},
+            "sbom": {"file": sbom.name, "sha256": sha256_file(sbom), "bytes": sbom.stat().st_size},
+            "database": {
+                "archive": archive_path.name, "archive_sha256": sha256_file(archive_path),
+                "archive_bytes": archive_path.stat().st_size,
+                "expanded_bytes": sum(item["bytes"] for item in inventory),
+                "file_count": len(inventory), "files": inventory,
             },
-            "runtime_library_donor": {
-                "file": donor_report_path.name,
-                "sha256": hashlib.sha256(donor_report_bytes).hexdigest(),
-                "bytes": len(donor_report_bytes),
+            "reports": {
+                "gateway": {
+                    "file": report_path.name,
+                    "sha256": hashlib.sha256(report_bytes).hexdigest(),
+                    "bytes": len(report_bytes),
+                },
+                "runtime_library_donor": {
+                    "file": donor_report_path.name,
+                    "sha256": hashlib.sha256(donor_report_bytes).hexdigest(),
+                    "bytes": len(donor_report_bytes),
+                },
             },
-        },
-        "replay": {
-            "pull": "never",
-            "network": "none",
-            "skip_db_update": True,
-            "offline_scan": True,
-            "list_all_packages": True,
-            "inputs": [archive.name, donor_archive_path.name],
-        },
-        "node_runtime": node_runtime,
-        "coverage": coverage,
-        "policy": {
-            "severities": sorted(BLOCKED_SEVERITIES), "block_fixable_only": True,
-            "maximum_fixable_findings": 0,
-        },
-        "findings": findings,
-        "fixable_findings": fixable,
-        "passed": passed,
-        "phase": {
-            "started_at": started_at, "completed_at": utc_timestamp(),
-            "duration_ms": round((time.monotonic() - started) * 1000),
-        },
-        "claims": {
-            "public_deployment": False, "production_activation": False,
-            "live_provider_call": False,
-        },
-    }
-    schema = load_bounded_json_object(
-        SCAN_SCHEMA,
-        maximum_bytes=MAX_SCHEMA_JSON_BYTES,
-        label="gateway vulnerability receipt schema",
-    )
-    Draft202012Validator.check_schema(schema)
-    Draft202012Validator(schema, format_checker=FormatChecker()).validate(evidence)
-    output_bytes = canonical_json_bytes(evidence)
-    assert_no_private_json(evidence, "gateway vulnerability evidence")
-    assert_no_private_text(output_bytes, "gateway vulnerability evidence")
-    report_path.write_bytes(report_bytes)
-    donor_report_path.write_bytes(donor_report_bytes)
-    output.write_bytes(output_bytes)
-    if not passed:
-        raise AssertionError(
-            f"gateway image has {len(fixable)} fixable high or critical vulnerabilities"
+            "replay": {
+                "pull": "never",
+                "network": "none",
+                "skip_db_update": True,
+                "offline_scan": True,
+                "list_all_packages": True,
+                "inputs": [archive.name, donor_archive_path.name],
+            },
+            "node_runtime": node_runtime,
+            "coverage": coverage,
+            "policy": {
+                "severities": sorted(BLOCKED_SEVERITIES), "block_fixable_only": True,
+                "maximum_fixable_findings": 0,
+            },
+            "findings": findings,
+            "fixable_findings": fixable,
+            "passed": passed,
+            "phase": {
+                "started_at": started_at, "completed_at": utc_timestamp(),
+                "duration_ms": round((time.monotonic() - started) * 1000),
+            },
+            "claims": {
+                "public_deployment": False, "production_activation": False,
+                "live_provider_call": False,
+            },
+        }
+        schema = load_bounded_json_object(
+            SCAN_SCHEMA,
+            maximum_bytes=MAX_SCHEMA_JSON_BYTES,
+            label="gateway vulnerability receipt schema",
         )
+        Draft202012Validator.check_schema(schema)
+        Draft202012Validator(schema, format_checker=FormatChecker()).validate(evidence)
+        output_bytes = canonical_json_bytes(evidence)
+        assert_no_private_json(evidence, "gateway vulnerability evidence")
+        assert_no_private_text(output_bytes, "gateway vulnerability evidence")
+        report_path.write_bytes(report_bytes)
+        donor_report_path.write_bytes(donor_report_bytes)
+        output.write_bytes(output_bytes)
+    with _scan_stage("vulnerability-policy"):
+        if not passed:
+            raise AssertionError(
+                f"gateway image has {len(fixable)} fixable high or critical vulnerabilities"
+            )
     return evidence
 
 
@@ -2292,6 +2352,17 @@ def cli() -> None:
         raise SystemExit(RUNTIME_LIBRARY_DONOR_ACQUISITION_EXIT_CODE) from None
     except RuntimeLibraryDonorValidationError:
         raise SystemExit(RUNTIME_LIBRARY_DONOR_VALIDATION_EXIT_CODE) from None
+    except ScanStageFailure as error:
+        exit_code = VULNERABILITY_SCAN_STAGE_EXIT_CODES[error.stage]
+    except NodeAdvisoryFailure as error:
+        exit_code = NODE_ADVISORY_STAGE_EXIT_CODES[error.stage]
+        diagnostic = node_inventory_size_diagnostic(error.inventory_sizes)
+        if diagnostic is not None:
+            sys.stderr.write(diagnostic + "\n")
+    else:
+        return
+    # Do not retain even the fixed diagnostic exception on the CLI exit.
+    raise SystemExit(exit_code)
 
 
 if __name__ == "__main__":

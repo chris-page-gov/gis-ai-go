@@ -44,8 +44,38 @@ EXACT_RESOURCES = [
 # acceptance claims remain unchanged; historical observed-host artefacts stay pinned.
 # GCP-223 updates only the exact workspace-lock hash and derived set identity
 # for the security dependency fixes; receipt bodies and claims remain identical.
+# The EXPERIENCE-221 refresh changes only the package-script and workspace-lock
+# bindings and derived set ID; suite and receipt bodies remain unchanged.
+# The ASSURE-209 notice refresh changes only source-lock material bindings and
+# the derived suite, receipt and set identities; outcomes and claims are unchanged.
+# REVIEW-222 binds the reviewed comments and repaired Explorer source. Only
+# material hashes and derived identities change; assertions and limits are retained.
+# DEP-142 refreshes the patched package/source-lock bindings and derived identities
+# after executing the selected suites; assertions, outcomes and historical pins remain.
+# The 21 October MCP SDK repair refreshes three source hashes and the lockfile,
+# plus their derived identities, after all 87 selected tests pass. Historical pins
+# and every assertion, test count, outcome and non-live boundary remain unchanged.
+# The geography learning overlay adds its synthetic contract check to package.json.
+# The passing generator changes only that package hash and the derived set ID;
+# every suite, receipt, assertion, outcome and historical pin is unchanged.
+# The shared local action checks extend that package script. The passing generator
+# again changes only the package binding and set ID, preserving all case evidence.
+# The bounded collection selector extends the same script. Its reviewed refresh
+# changes only the package binding and set ID; all observed-host pins stay fixed.
+# Native source search adds the bounded widget checks to the same script. Only
+# the package binding and derived set ID change; historical pins remain unchanged.
+# Field documentary references add synthetic widget checks to the same script.
+# Only the package binding and derived set ID change; historical pins stay fixed.
+# Dated coverage navigation extends the same synthetic experience script.
+# Only its package binding and set ID change; historical evidence stays fixed.
+# OS branch reconciliation adds atomic assurance and distinct offline commands.
+# The canonical generator changes only the package binding and derived set ID.
+# 24 October 2026: the Zod repair refreshes only the independently checked
+# lockfile binding and derived set ID; every historical evidence pin stays fixed.
+# 26 October 2026: deferring the private metadata command refreshes only the
+# package binding and set ID after the canonical selected suites pass again.
 REGENERABLE_LOCAL_RECEIPT_SHA256 = (
-    "c374933dcef34e138e085dc08cd4df86c0ff9e833be8d6a3d91ac7a8a8130f05"
+    "faa39f1bd1d0bef87395f289dad2e18685162df912e3dc7c74d176904c48000d"
 )
 HISTORICAL_V1_SHA256 = {
     "evaluation/qual-206-local-protocol-evidence-matrix.v1.json": (

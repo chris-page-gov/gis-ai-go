@@ -1,0 +1,377 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/schemas/term-discovery.schema.json",
+  "title": "Source-positioned OKF+ term discovery",
+  "type": "object",
+  "required": [
+    "schema",
+    "revision",
+    "inputDigest",
+    "recordCount",
+    "formCount",
+    "byFormKind",
+    "records",
+    "semanticTerms",
+    "ambiguousForms",
+    "coverage"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gis-ai-go.okf-plus-term-discovery.v1"
+    },
+    "revision": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{40}$"
+    },
+    "inputDigest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "recordCount": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100000
+    },
+    "formCount": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1000000
+    },
+    "byFormKind": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "records": {
+      "type": "array",
+      "maxItems": 100000,
+      "items": {
+        "$ref": "#/$defs/record"
+      }
+    },
+    "semanticTerms": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "iri",
+          "compactIri",
+          "definitionSource",
+          "mappingReview"
+        ]
+      }
+    },
+    "ambiguousForms": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "normalisedForm",
+          "nodeIds"
+        ],
+        "properties": {
+          "normalisedForm": {
+            "type": "string"
+          },
+          "nodeIds": {
+            "type": "array",
+            "minItems": 2,
+            "uniqueItems": true,
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "required": [
+        "retainedRecordTraversal",
+        "globalVocabularyCompleteness",
+        "allPossibleTermForms",
+        "normalisation",
+        "unindexedCategories",
+        "limits"
+      ],
+      "properties": {
+        "retainedRecordTraversal": {
+          "const": "complete"
+        },
+        "globalVocabularyCompleteness": {
+          "const": "not-established"
+        },
+        "allPossibleTermForms": {
+          "const": "not-established"
+        },
+        "normalisation": {
+          "type": "string"
+        },
+        "unindexedCategories": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "limits": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "form": {
+      "type": "object",
+      "required": [
+        "kind",
+        "value",
+        "display",
+        "pointer",
+        "nodeId",
+        "language",
+        "datatype"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "record-iri",
+            "record-title",
+            "native-identifier",
+            "preferred-label",
+            "alternative-label",
+            "hidden-label",
+            "notation",
+            "node-label",
+            "qualified-lexical-form",
+            "field-iri",
+            "native-field-name",
+            "native-enum",
+            "native-constant",
+            "native-table-label"
+          ]
+        },
+        "value": {},
+        "display": {
+          "type": "string"
+        },
+        "pointer": {
+          "type": "string",
+          "pattern": "^/"
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "language": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "datatype": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "formKind": {
+          "type": "string"
+        },
+        "authority": {
+          "enum": [
+            "source-stated",
+            "project-search-variant"
+          ]
+        },
+        "sources": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "formId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sourcePointer": {
+          "type": "string",
+          "pattern": "^/details/entry/native/",
+          "maxLength": 526
+        },
+        "labelOrigin": {
+          "enum": [
+            "source-native",
+            "project-display-fallback"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "qualified-lexical-form"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "formKind",
+              "authority",
+              "sources",
+              "formId"
+            ]
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "formKind"
+            ],
+            "properties": {
+              "formKind": {
+                "const": "source-native-value"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "sourcePointer"
+            ],
+            "properties": {
+              "kind": {
+                "const": "qualified-lexical-form"
+              },
+              "authority": {
+                "const": "source-stated"
+              }
+            }
+          },
+          "else": {
+            "not": {
+              "required": [
+                "sourcePointer"
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "labelOrigin"
+            ]
+          },
+          "then": {
+            "properties": {
+              "kind": {
+                "const": "record-title"
+              },
+              "pointer": {
+                "const": "/title"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "record": {
+      "type": "object",
+      "required": [
+        "recordId",
+        "recordSha256",
+        "title",
+        "sourceFamily",
+        "definition",
+        "resource",
+        "assertionStatus",
+        "reviewStatus",
+        "lifecycleStatus",
+        "sources",
+        "temporal",
+        "update",
+        "forms"
+      ],
+      "properties": {
+        "recordId": {
+          "type": "string"
+        },
+        "recordSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "title": {
+          "type": "string"
+        },
+        "sourceFamily": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "definition": {
+          "type": "string"
+        },
+        "resource": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "assertionStatus": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "reviewStatus": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "lifecycleStatus": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "temporal": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "update": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "forms": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/form"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

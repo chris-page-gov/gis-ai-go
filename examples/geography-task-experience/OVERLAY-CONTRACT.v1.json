@@ -1,0 +1,124 @@
+{
+  "schema": "gis-ai-go.geography-experience-overlay-contract.v1",
+  "status": "source-only-host-integration-contract",
+  "standaloneApplication": false,
+  "taskIds": [
+    "learn",
+    "areas",
+    "groups",
+    "features",
+    "settlements",
+    "history",
+    "sources"
+  ],
+  "referenceIds": [
+    "context",
+    "glossary",
+    "dates",
+    "codelists"
+  ],
+  "requiredHostFunctions": [
+    "$(id): existing element",
+    "el(tag, optionalText, optionalClass): safe element with textContent"
+  ],
+  "requiredHostIds": [
+    "app-shell",
+    "task-navigator",
+    "navigator-toggle",
+    "workspace",
+    "active-task-label",
+    "task-help",
+    "reference-inspector",
+    "reference-heading",
+    "reference-toggle",
+    "reference-pin",
+    "reference-pin-status",
+    "context-help",
+    "glossary-search",
+    "glossary-count",
+    "glossary-results",
+    "learning-persona",
+    "persona-prompt",
+    "learning-stepper",
+    "learning-stages",
+    "learning-previous",
+    "learning-next",
+    "learning-progress",
+    "reset-learning",
+    "map-workbench",
+    "area-map-slot",
+    "feature-map-slot",
+    "earlier-feature-view",
+    "added-feature-view",
+    "show-earlier",
+    "show-added",
+    "journey",
+    "journey-slot"
+  ],
+  "requiredDynamicIds": [
+    "task-{taskId}",
+    "title-{taskId}",
+    "ref-tab-{referenceId}",
+    "ref-panel-{referenceId}"
+  ],
+  "requiredSelectors": [
+    ".task-panel",
+    "[data-task]",
+    "#task-navigator [data-task]",
+    "[data-reference]"
+  ],
+  "injection": {
+    "placeholder": "__VOCABULARY_REGISTRY__",
+    "requiredArrays": [
+      "terms",
+      "sources"
+    ],
+    "termFields": [
+      "id",
+      "label",
+      "definition",
+      "sourceRefs"
+    ],
+    "optionalTermFields": [
+      "scopeNote",
+      "aliases",
+      "helpStatus",
+      "domainContext",
+      "example"
+    ],
+    "sourceFields": [
+      "id",
+      "title",
+      "url",
+      "reviewState"
+    ],
+    "rules": [
+      "Embed a reviewed JSON value, not executable provider text.",
+      "Keep term and source IDs unique and all sourceRefs resolvable.",
+      "Merge the help supplement only with the corresponding reviewed base registry.",
+      "Search variants retain their kind, authority and language; no exactMatch is inferred.",
+      "The source-only helpStatus must remain visible.",
+      "Render example.text only when example.kind is 'authored-synthetic-example', as text under an illustrative-example heading. It is an authored example, not native evidence."
+    ]
+  },
+  "lifecycle": [
+    "Load the host model and construct required DOM first.",
+    "Call initialiseExperience once after the host is ready.",
+    "Use experienceShow(taskId, focus) for cross-task actions.",
+    "Use experienceFeatureView('earlier'|'added') for the native-observation subview.",
+    "The overlay reserves #task/{taskId} fragments and in-memory practice state.",
+    "Task routing ignores unrelated fragments such as skip-link targets; an empty fragment restores the learning task. A supplied reference skip link unfolds the inspector first."
+  ],
+  "scopeLimits": [
+    "No model, map renderer, server, API client or provider dataset is supplied by this overlay.",
+    "Host contents, captions and provenance remain the host's responsibility.",
+    "The stylesheet layers over the reviewed host structure; it is not a generic design system.",
+    "Synthetic tests do not establish browser reflow, assistive-technology acceptance or human learning outcomes."
+  ],
+  "optionalSelectors": [
+    ".skip-link[href=\"#reference-heading\"]"
+  ],
+  "optionalHostCallbacks": [
+    "window.classificationTermAction(term, card): append a text-only contextual action for an explicitly configured term-to-list search; no equivalence assertion"
+  ]
+}

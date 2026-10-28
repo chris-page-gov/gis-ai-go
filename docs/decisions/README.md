@@ -23,6 +23,12 @@ research recommendations remain unchanged in the preserved pack at
 - [ADR-0017: A separately identified local evaluation edition](ADR-0017-local-evaluation-edition.md)
 - [ADR-0018: A private Sites pilot for bounded OS and ONS retrieval](ADR-0018-private-sites-live-pilot.md)
 - [ADR-0019: Network-private GCP pilot with transactional evidence](ADR-0019-network-private-gcp-pilot.md)
+- [ADR-0019: Full OKF+ Explorer publication](ADR-0019-full-explorer-pages-publication.md)
+
+Both histories independently assigned ADR-0019. The distinct filenames, scopes
+and statuses are retained; the GCP proposal does not supersede the accepted
+Explorer publication decision or inherit its acceptance. Renumbering remains
+unresolved.
 
 Research decisions D01–D19 are accepted as constraints for building and evaluating
 Stage 0, not as blanket authority for later production stages. Research decision D20

@@ -39,6 +39,8 @@ export const WEBMCP_TOOL_NAMES = [
 ] as const;
 
 export const WEBMCP_TOOL_METADATA = Object.freeze({
+  // These descriptions are application-authored instructions. Catalogue text is
+  // returned only as result data and must never become a registered tool definition.
   explorer_search_catalogue: Object.freeze({
     name: "explorer_search_catalogue",
     title: "Search the governed public catalogue",

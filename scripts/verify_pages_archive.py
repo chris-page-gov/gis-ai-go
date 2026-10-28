@@ -372,6 +372,18 @@ def verify_archive(
     expected_base_path: str,
     expected_archive_sha256: str | None = None,
 ) -> dict[str, Any]:
+    # Schema selection grants no authority: each version verifies its complete
+    # accepted archive independently. Keep the legacy v1 budgets unchanged.
+    candidate_receipt = json.loads(read_outer_file(receipt_path, "Pages archive receipt", MAX_METADATA_BYTES))
+    if isinstance(candidate_receipt, dict) and candidate_receipt.get("schema") == "gis-ai-go.pages-archive-receipt.v2":
+        try:
+            import verify_explorer_pages_archive as explorer_verifier
+        except ModuleNotFoundError:
+            from scripts import verify_explorer_pages_archive as explorer_verifier
+        return explorer_verifier.verify_archive(archive_path=archive_path, checksum_path=checksum_path,
+            receipt_path=receipt_path, expected_source_commit=expected_source_commit,
+            expected_repository=expected_repository, expected_version=expected_version,
+            expected_base_path=expected_base_path, expected_archive_sha256=expected_archive_sha256)
     if expected_repository != EXPECTED_REPOSITORY or expected_base_path != EXPECTED_BASE_PATH:
         raise ValueError(
             "expected repository and base path must name the GIS AI GO Pages publication"

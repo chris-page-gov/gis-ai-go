@@ -30,6 +30,10 @@ and milestones are the source of truth for item-level status.
 
 ## Current learning and local-completion work
 
+- [ASSURE-209 #97](https://github.com/chris-page-gov/gis-ai-go/issues/97) — implement
+  [trusted-base shadow agreement](CI_IMPACT_AGREEMENT.md); separately establish an
+  externally protected gate and promotion evidence before selective enforcement.
+
 - `RETRO-208` — reconstruct the Claude investigation in
   [issue #86](https://github.com/chris-page-gov/gis-ai-go/issues/86); start authorised
   on 14 September 2026 after the local candidate milestone.
@@ -64,6 +68,17 @@ and milestones are the source of truth for item-level status.
   source-native identities, Markdown/YAML-LD, provenance, measured coverage,
   search, update/release discovery, temporal evidence and geospatial concepts.
   Catalogue completeness and installed Ask OKF acceptance are separate gates.
+
+- [OKF-223 #153](https://github.com/chris-page-gov/gis-ai-go/issues/153) — make the
+  [canonical Explorer and complete OKF+ bundle the GIS public default](../decisions/ADR-0019-full-explorer-pages-publication.md),
+  retaining legacy links, exact app/source identities and v1 rollback. The static
+  publication subincrement completed on 27 October 2026 with
+  [exact-main, HTTPS/browser and rollback/restore evidence](../operations/EXPLORER_PAGES_PUBLICATION.md#completed-publication-evidence).
+  Keep the separate new private capture extension at
+  [reconciliation commit 35318abc](https://github.com/chris-page-gov/gis-ai-go/tree/35318abcce5e23c1509ed6ce131d81f5dfd0d38c)
+  pending [complete CodeQL path review](../operations/EXPLORER_PAGES_CODEQL_REVIEW.md).
+  Its findings and wider acquisition objective remain unresolved; preserve
+  existing main recovery. This public completion does not close the wider work item.
 
 ## Conditional integrations
 

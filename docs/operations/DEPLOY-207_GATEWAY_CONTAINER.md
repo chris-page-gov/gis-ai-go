@@ -671,6 +671,22 @@ requested source and non-endorsement notice. This assurance-only material is not
 added to the runtime's bundled third-party notice; keeping it in this runbook avoids
 changing that separate runtime file merely to describe external scanner evidence.
 
+On 13 October 2026, [canonical CI run 38384558085](https://github.com/chris-page-gov/gis-ai-go/actions/runs/38384558085/job/115253399756)
+at commit `2ab2bff8c7ff180c0e6da0f77d4712c38a93a9a7` identified the Node
+inventory failure as an expanded-size limit: 97 bytes of import metadata and
+3,239,141,376 bytes of database, totalling 3,239,141,473 bytes. That was
+17,916,001 bytes above the former 3 GiB bound. The accepted post-import size is now
+bounded to 4 GiB (4,294,967,296 bytes), leaving about 1 GiB above that observation
+(24.58% of the bound). The compressed archive remains limited to 256 MiB;
+the two-file inventory, freshness, calibration, vulnerability thresholds and
+offline mutation checks are unchanged. Imports are sequential and file hashing
+is streamed. The expanded-size check runs after import and hydration; it is not
+an operating-system disk or memory quota. Docker layers, archives and other job
+files also consume runner resources. Full canonical producer and protected replay
+checks must still succeed on their respective runners; the measured size alone
+does not establish acceptance. Historical database measurements above remain
+unchanged.
+
 Both Trivy passes run as the invoking host UID and GID so the capability-free
 container can write the owner-private mode-0700 cache on native Linux as well as
 Docker Desktop. Its private `/tmp` tmpfs has the same numeric owner. The scanner

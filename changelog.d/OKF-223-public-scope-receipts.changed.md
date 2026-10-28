@@ -1,0 +1,1 @@
+- Refresh the repository-only QUAL-206 receipt set after removing the deferred private metadata command from the public publication. Bind the current package scripts while retaining every suite outcome, non-live claim and historical evidence pin ([#153](https://github.com/chris-page-gov/gis-ai-go/issues/153)).

@@ -307,4 +307,27 @@ test("supports skip navigation and view changes from the keyboard", async ({ pag
   await expect(page.getByRole("heading", { level: 2, name: "Evidence graph" })).toBeVisible();
   await expect(graphLink).toHaveAttribute("aria-current", "page");
   await expect.poll(() => new URL(page.url()).searchParams.get("view")).toBe("graph");
+
+  await skipLink.focus();
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#main-content")).toBeFocused();
 });
+
+for (const { name, query, expected } of [
+  { name: "supplementary characters at the input limit", query: "𐐀".repeat(100), expected: "𐐀".repeat(100) },
+  { name: "normalisation that expands the input", query: "ﬃ".repeat(66) + "𐐀z", expected: "ffi".repeat(66) + "𐐀" },
+]) {
+  test(`search survives reopening its URL with ${name}`, async ({ page }) => {
+    await page.goto("/?view=cards");
+    const search = page.getByRole("searchbox", { name: "Search catalogue", exact: true });
+    await search.fill(query);
+    await page.getByRole("button", { name: "Search", exact: true }).click();
+    await expect(search).toHaveValue(expected);
+    expect(new URL(page.url()).searchParams.get("q")).toBe(expected);
+
+    await page.reload();
+    await expect(search).toHaveValue(expected);
+    expect(new URL(page.url()).searchParams.get("q")).toBe(expected);
+    await expect(page.getByText("Some settings in this link were not recognised and were ignored.")).toHaveCount(0);
+  });
+}

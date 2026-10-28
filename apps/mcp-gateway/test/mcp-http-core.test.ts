@@ -194,3 +194,14 @@ test("HTTP query cancellation after write issuance remains uncertain and same-ke
   assert.equal(recovered.structuredContent.evidence.receipt.receipt_id, (await s.store.readSnapshot()).records[0]!.receipt.receipt_id);
   assert.equal(s.database.updates, 1);
 });
+
+
+test("hosted CPIH rejects excessive SDK argument elements before application validation", async (t) => {
+  const s = await scenario(t);
+  const response = await s.handler.fetch(request(JSON.stringify(message("tools/call", "web216_cpih_select", { period: Array(1_024).fill(0) })), { "mcp-name": "web216_cpih_select" }));
+  assert.equal(response.status, 200);
+  const value = await response.json() as { result: { isError: boolean; content: { text: string }[] } };
+  assert.equal(value.result.isError, true);
+  assert.match(value.result.content[0]!.text, /maximum of 1024 elements/u);
+  assert.equal(s.database.updates, 0);
+});

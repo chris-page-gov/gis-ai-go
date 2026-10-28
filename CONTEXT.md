@@ -1,8 +1,8 @@
 # Current context
 
-Last updated: 9 October 2026
+Last updated: 27 October 2026
 
-## Authority and reading order
+## GCP authority and security boundaries
 
 The owner subsequently requested an independent review after reporting a switch
 to Daybreak, and clearer stable progress and elapsed-time reporting. The exact
@@ -67,6 +67,140 @@ metadata and synthetic fixtures; credentials, licensed features, private
 original archives and protected BDUK data are excluded. No external model or
 live-provider calls are authorised by this commission. See
 [`docs/deployment/gcp/README.md`](docs/deployment/gcp/README.md).
+
+## GIS public entrypoint
+
+On 27 October 2026, the owner’s requested GIS default migration completed its
+static-publication increment: the canonical compact Explorer and complete public
+OKF+ bundle are the [public entrypoint](https://chris-page-gov.github.io/gis-ai-go/).
+The [recorded evidence](docs/operations/EXPLORER_PAGES_PUBLICATION.md#discovery-publication-evidence)
+identifies accepted source `93fe7534…`, complete HTTPS/browser results, actual
+rollback to the earlier `8e67ae88…` archive and restore of the identical new
+archive. Later verification and documentation commits do not
+replace those selected archive bytes. [ADR-0019](docs/decisions/ADR-0019-full-explorer-pages-publication.md)
+retains exact-source, attestation, manual deployment and rollback requirements
+for future publications. This static UI establishes no new release, protected-data
+right or hosted service admission.
+
+The owner subsequently requested richer facets and relationships. The
+[discovery repair](docs/implementation/OKF_EXPLORER_DISCOVERY.md) is a new
+implementation increment: the earlier accepted archive retains only two facets
+and zero projected relationships. The producer and canonical consumer have
+merged after required PR assurance; the reviewed consumer tree equals merged
+upstream main. Retained-record links, source references and discovery coverage
+passed complete GIS main CI and CodeQL with no skipped checks; the exact main
+archive and build attestation are verified. Initial deployment passed complete
+actual public HTTPS verification and all eight browser cases first attempt.
+Historical rollback also passed exact-byte verification and all eight browser
+cases using its original discovery profile. Restore of the identical new archive
+passed the complete actual HTTPS walk and all eight browser cases first attempt.
+The static discovery publication and recovery rehearsal are complete; human
+learning assessment and wider private acquisition remain separate.
+
+The public increment retains the complete public bundle, Reader/context,
+learning and native-field/atomic source-card dependency closure. The separate
+new private capture feature stays unchanged at
+[reconciliation commit 35318abc](https://github.com/chris-page-gov/gis-ai-go/tree/35318abcce5e23c1509ed6ce131d81f5dfd0d38c)
+for its [unresolved CodeQL review](docs/operations/EXPLORER_PAGES_CODEQL_REVIEW.md).
+This scope change neither fixes nor dismisses those findings. Keep the original
+private acquisition objective outstanding and preserve accepted main OS recovery.
+All mandatory checks, including full CodeQL, continue on the public tree; no
+query exclusion, baseline change or finding dismissal follows from the split.
+
+## Agreed Explorer continuation
+
+On 24 October the owner agreed to integrate the full OKF+ metadata with learning
+paths, JIT explanations and source references in the existing, separate OKF
+Explorer application. Reusable learning metadata belongs in small linked bundle
+records; presentation belongs in Explorer. The owner requested the reconciled
+branch handoff and continuation in a fresh cloud chat. The
+[handoff](docs/implementation/OKF_EXPLORER_CLOUD_HANDOFF.md) preserves the exact
+repository boundary, prior evidence and outstanding integration work.
+
+## OS branch reconciliation
+
+The owner requested reconciliation of the two local 18 October OS commits with
+current main. The [reconciliation record](docs/implementation/OKF-223_RECONCILIATION.md)
+preserves main's transient acquisition lifecycle and records the bounded atomic
+view and separate broader metadata producer on the reconciliation branch. The
+public migration carries the atomic view and defers that new private producer.
+The older persistent feature executor is
+retired. Historical branch observations do not supersede later accepted recovery
+evidence; local integration does not establish a new live capture or deployment.
+
+## Coverage presentation boundaries
+
+The optional [coverage navigator](examples/geography-task-experience/COVERAGE-NAVIGATOR.md)
+displays a dated host-provided statement. Catalogue inclusion, completed selected
+processing, technical tests and whole-product coverage are separate claims.
+Structural validation and displayed hashes do not authenticate the underlying
+evidence, grant rights or authorise acquisition.
+
+## Classification display provenance
+
+Optional [label-origin metadata](examples/geography-task-experience/LABEL-ORIGIN.md)
+separates authored display text from source-native labels. A fallback may remain a
+human-facing title; it must not become a supplier preferred label, alias or
+source-native form. Structural pointer checks do not prove source authenticity,
+field meaning or rights. Legacy omission adds no retrospective provenance claim.
+
+## Authority and reading order
+
+On 19 October the owner requested recovery of the OS knowledge/acquisition task,
+retaining small OKF+ files, rich metadata and Linked Data. The owner confirmed
+government PSGA rights and authorised the existing OS API key for private retrieval
+within documented rate limits, including assessing all available data and API
+versus download acquisition times. Continue unattended without repeating this
+authorisation. Keep keys and account/licensed payloads outside Git and public
+outputs. Existing no-new-service/no-chargeable-overage limits remain.
+
+The owner clarified that payloads are temporary: download/process the complete
+selected data, retain the metadata, structures, controlled values, interpretation
+and reproducible retrieval methods required to understand it, then discard the
+payload. Do not build a permanent national data store. Plan arbitrary field and
+spatial selections across available APIs/downloads, coalescing requests only when
+field identity, collection/version, coverage and documented capability permit it.
+Compare time, transferred bytes and processing rather than assuming fewer API
+calls is always faster. Native field projection, filtering and local projection
+are different capabilities; unsupported query parameters must not be invented.
+Temporary workset/streaming limits still apply. The
+[recovery record](docs/implementation/OKF_OS_RECOVERY.md) separates observed access,
+coverage, private evidence, implementation and remaining execution prerequisites.
+
+The owner also asked that map, table and other presentation requirements guide
+retrieval choices, with VizQL and related visual query approaches investigated
+without assuming an OS VizQL endpoint. Record the underlying geometry, field,
+unit, temporal, aggregation and portrayal semantics in small linked evidence.
+Report requested-data availability within its exact scope: permission, expected
+presence, observed presence and retrieval completion are separate. Null, zero,
+missing property, no matching records, incomplete paging and access denial must
+remain distinguishable. Continue the original recovery objective alongside these
+annotations, keep reviewed source changes pushed to GitHub, and do not mistake
+completion of an annotation for completion of the whole pass.
+
+On 17 October the owner authorised continuing the repository review and four
+repairs towards release, including assessing the updated OpenAI Sites hosting
+path. [REVIEW-222](https://github.com/chris-page-gov/gis-ai-go/issues/151) tracks
+integration, maintenance disposition and release evidence. Preserve the existing
+private Site audience, provider rights and spending limits. This authorises
+routine implementation, publication and verification; supported release status
+still requires the existing evidence gates. The experimental six-tool Sites
+pilot does not itself establish acceptance of the exact-five core gateway.
+
+The owner subsequently agreed to finish the existing private Sites teaching
+exemplar first. Porting the full five-tool gateway is a separate milestone;
+retain its existing acceptance requirements. The current dependency repair under
+[issue #142](https://github.com/chris-page-gov/gis-ai-go/issues/142) updates the
+hosted workbench's bundled MCP client as well as affected server/build packages.
+A fresh local audit is not proof that the active Site contains those patched
+bytes; updated Site source/build access and deployed-client acceptance remain
+separate prerequisites. See the [dependency disposition](docs/operations/DEPENDENCY_SECURITY_2026-10-17.md).
+
+On 13 October the owner requested checking the governance case-study review and
+implementing its missing trusted-base agreement where supported by the evidence.
+The [bounded ASSURE-209 increment](docs/implementation/CI_IMPACT_AGREEMENT.md)
+keeps every existing assurance gate active. It does not select an external trusted
+gate, change repository approval settings or authorise selective enforcement.
 
 On 2 October 2026 the owner authorised [EXPERIENCE-221](docs/implementation/EXPERIENCE-221_LEARNING_AND_EVALUATION.md):
 review actual connection facilities, build feature-complete authored persona,
@@ -512,6 +646,15 @@ host was exercised, and this explained variance does not widen the production
 protocol boundary or complete the independent-host gate.
 
 ## Non-negotiable boundaries
+
+The 22 October field-documentary reference component is an optional, bounded
+source interface within the geography experience. Its public fixture and tests
+are fictional. The [integration guide](examples/geography-task-experience/FIELD-DOCUMENTARY-LINKS.md)
+separates native field/version evidence, explicit documentary links, unresolved
+matches and API adoption. It adds no provider transport, data publication, tool
+registration or Site change. The host owns rights, selected-source review and
+rendered accessibility acceptance; existing task and reference controls retain
+their ownership.
 
 - Keep `docs/research/2026-08-19/` byte-for-byte unchanged.
 - Commit only public, publishable or clearly synthetic data and fixtures.

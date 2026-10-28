@@ -45,11 +45,11 @@ def valid_tar(schema=PUBLIC, format=tarfile.PAX_FORMAT, global_headers=None):
     return result.getvalue(), manifest
 
 
-def attributed_tar(schema, attributes, count=30):
+def canonical_local_pax_tar(schema, count=30):
     entries = [{'path': f'empty-{number}.txt', 'bytes': 0, 'sha256': EXPORT.sha(b'')} for number in range(count)]
     manifest = {'schema': schema, 'fileCount': count, 'payloadBytes': 0, 'files': entries}
-    raw = member('global-attributes', b''.join(pax(key, value) for key, value in attributes.items()), tarfile.XGLTYPE)
-    raw += b''.join(member(entry['path']) for entry in entries)
+    raw = b''.join(member('local-path', pax('path', entry['path']), tarfile.XHDTYPE)
+                   + member(entry['path']) for entry in entries)
     raw += member(EXPORT.MANIFEST, EXPORT.canonical(manifest)) + b'\0' * 1024
     return raw, manifest
 
@@ -84,51 +84,46 @@ class ArchivePreParserLimitsTests(unittest.TestCase):
                             EXPORT.verify_archive(self.path, schema)
                     self.assertEqual([(0, 512)], reads, 'No extension body read may reach gzip')
 
-    def test_padded_extension_size_is_guarded_before_body_read(self):
-        self.write(member('extension', b'x' * 512, tarfile.GNUTYPE_LONGNAME, declared=257) + b'\0' * 1024)
+    def test_canonical_local_pax_padded_size_is_guarded_before_body_read(self):
+        self.write(member('extension', pax('path', 'x' * 243), tarfile.XHDTYPE, declared=257) + b'\0' * 1024)
         reads, spy = self.spy_reads()
         with mock.patch.object(EXPORT, 'MAX_EXTENSION_BYTES', 300), spy:
             with self.assertRaisesRegex(ValueError, 'extension exceeds byte ceiling'):
                 EXPORT.verify_archive(self.path)
         self.assertEqual([(0, 512)], reads)
 
-    def test_extension_aggregate_and_count_limits_apply_before_next_body_read(self):
-        # Empty global headers are valid metadata; a following file supplies data.
-        raw = member('global-one', b'', tarfile.XGLTYPE) + member('global-two', b'', tarfile.XGLTYPE)
-        raw += member('payload', b'x') + b'\0' * 1024
-        for setting, value in [('MAX_EXTENSION_TOTAL', 512), ('MAX_EXTENSION_HEADERS', 1)]:
+    def test_canonical_local_pax_aggregate_and_count_limits_apply_before_next_body_read(self):
+        raw, _ = canonical_local_pax_tar(PUBLIC, count=2)
+        for setting, value in [('MAX_EXTENSION_TOTAL', 1024), ('MAX_EXTENSION_HEADERS', 1)]:
             with self.subTest(setting=setting):
                 self.write(raw)
                 reads, spy = self.spy_reads()
                 with mock.patch.object(EXPORT, setting, value), spy:
                     with self.assertRaisesRegex(ValueError, 'aggregate ceiling'):
                         EXPORT.verify_archive(self.path)
-                self.assertEqual(512, reads[-1][1])
-                self.assertEqual(512, reads[-1][0])
-                self.assertNotIn((1024, 0), reads)
+                self.assertEqual([(0, 512), (512, 512), (1024, 512), (1536, 512)], reads)
 
-    def test_cumulative_extension_bodies_and_headers_share_one_byte_budget(self):
-        raw = member('global-one', pax('comment', 'one'), tarfile.XGLTYPE)
-        raw += member('global-two', pax('comment', 'two'), tarfile.XGLTYPE) + member('file', b'x')
-        self.write(raw + b'\0' * 1024)
+    def test_canonical_local_pax_bodies_and_headers_share_one_byte_budget(self):
+        raw, _ = canonical_local_pax_tar(PUBLIC, count=2)
+        self.write(raw)
         reads, spy = self.spy_reads()
         with mock.patch.object(EXPORT, 'MAX_EXTENSION_TOTAL', 1024), spy:
             with self.assertRaisesRegex(ValueError, 'aggregate ceiling'):
                 EXPORT.verify_archive(self.path)
-        self.assertEqual([(0, 512), (512, 512), (1024, 512)], reads)
+        self.assertEqual([(0, 512), (512, 512), (1024, 512), (1536, 512)], reads)
 
-    def test_extension_recursion_is_bounded_before_python_recursion_failure(self):
-        raw = member('global', b'', tarfile.XGLTYPE) * 4 + member('payload', b'x') + b'\0' * 1024
+    def test_local_pax_depth_guard_precedes_nested_metadata_body_read(self):
+        raw = member('local', pax('path', 'payload'), tarfile.XHDTYPE) * 4 + member('payload', b'x') + b'\0' * 1024
         self.write(raw)
         reads, spy = self.spy_reads()
-        with mock.patch.object(EXPORT, 'MAX_EXTENSION_DEPTH', 2), spy:
+        with mock.patch.object(EXPORT, 'MAX_EXTENSION_DEPTH', 1), spy:
             with self.assertRaisesRegex(ValueError, 'nesting exceeds ceiling'):
                 EXPORT.verify_archive(self.path)
         self.assertEqual((1024, 512), reads[-1])
 
-    def test_extension_count_is_cumulative_across_separate_payload_members(self):
-        raw = member('local-one', pax('comment', 'one'), tarfile.XHDTYPE) + member('one', b'x')
-        raw += member('local-two', pax('comment', 'two'), tarfile.XHDTYPE) + member('two', b'x')
+    def test_canonical_local_pax_count_is_cumulative_across_separate_payload_members(self):
+        raw = member('local-one', pax('path', 'one'), tarfile.XHDTYPE) + member('one', b'x')
+        raw += member('local-two', pax('path', 'two'), tarfile.XHDTYPE) + member('two', b'x')
         self.write(raw + b'\0' * 1024)
         with mock.patch.object(EXPORT, 'MAX_EXTENSION_HEADERS', 1):
             with self.assertRaisesRegex(ValueError, 'aggregate ceiling'):
@@ -192,13 +187,14 @@ class ArchivePreParserLimitsTests(unittest.TestCase):
                     with (spy, mock.patch.object(tarfile.TarInfo, '_proc_gnusparse_00', side_effect=AssertionError('sparse00')),
                             mock.patch.object(tarfile.TarInfo, '_proc_gnusparse_01', side_effect=AssertionError('sparse01')),
                             mock.patch.object(tarfile.TarInfo, '_proc_gnusparse_10', side_effect=AssertionError('sparse10'))):
-                        with self.assertRaisesRegex(ValueError, 'Sparse archive'):
+                        expected = 'Sparse archive' if kind == tarfile.XHDTYPE else 'Unsupported or nested archive metadata'
+                        with self.assertRaisesRegex(ValueError, expected):
                             EXPORT.verify_archive(self.path)
-                    self.assertEqual((1024, 512), reads[-1])
+                    self.assertEqual([(0, 512), (512, 512), (1024, 512)] if kind == tarfile.XHDTYPE else [(0, 512)], reads)
 
     def test_truncated_headers_extension_payloads_padding_and_gzip_fail_closed(self):
         raw, _ = valid_tar()
-        cases = [raw[:100], raw[:512], member('metadata', b'x', tarfile.GNUTYPE_LONGNAME, declared=512)[:600],
+        cases = [raw[:100], raw[:512], member('metadata', b'x', tarfile.XHDTYPE, declared=512)[:600],
                  member('payload', b'x')[:513], raw[:len(raw.rstrip(b'\0'))], raw[:len(raw.rstrip(b'\0'))] + b'\0' * 512]
         for value in cases:
             with self.subTest(bytes=len(value)):
@@ -210,38 +206,38 @@ class ArchivePreParserLimitsTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'compressed archive'):
             EXPORT.verify_archive(self.path)
 
-    def test_pax_unicode_global_and_gnu_long_paths_roundtrip_both_schemas(self):
+    def test_canonical_local_pax_unicode_paths_roundtrip_both_schemas(self):
         for schema in (PUBLIC, PRIVATE):
-            for format, headers in [(tarfile.PAX_FORMAT, None),
-                                    (tarfile.PAX_FORMAT, {'uname': 'équipe', 'comment': 'Public métadonnées'}),
-                                    (tarfile.GNU_FORMAT, None)]:
-                with self.subTest(schema=schema, format=format, global_headers=headers):
-                    raw, expected = valid_tar(schema, format, headers)
-                    self.write(raw)
-                    self.assertEqual(expected, EXPORT.verify_archive(self.path, schema))
+            with self.subTest(schema=schema):
+                raw, expected = valid_tar(schema)
+                self.write(raw)
+                self.assertEqual(expected, EXPORT.verify_archive(self.path, schema))
 
-    def test_solaris_pax_unicode_path_remains_compatible_in_both_schemas(self):
-        name = 'métadonnées/角度.md'
-        body = b'Synthetic public metadata.\n'
+    def test_strict_policy_rejects_global_solaris_and_gnu_metadata_before_body_or_copy(self):
         for schema in (PUBLIC, PRIVATE):
-            expected = {'schema': schema, 'fileCount': 1, 'payloadBytes': len(body),
-                        'files': [{'path': name, 'bytes': len(body), 'sha256': EXPORT.sha(body)}]}
-            raw = member('SolarisHeader', pax('path', name), tarfile.SOLARIS_XHDTYPE)
-            raw += member('fallback', body) + member(EXPORT.MANIFEST, EXPORT.canonical(expected))
-            self.write(raw + b'\0' * 1024)
-            self.assertEqual(expected, EXPORT.verify_archive(self.path, schema))
+            for kind in EXTENSIONS[1:]:
+                with self.subTest(schema=schema, kind=kind):
+                    self.write(member('metadata', pax('path', 'record.txt'), kind) + member('record.txt') + b'\0' * 1024)
+                    reads, spy = self.spy_reads()
+                    expected = 'GNU archive metadata' if kind in (tarfile.GNUTYPE_LONGNAME, tarfile.GNUTYPE_LONGLINK) else 'Unsupported or nested archive metadata'
+                    with spy, mock.patch.object(tarfile.TarInfo, '_apply_pax_info', side_effect=AssertionError('metadata copy')):
+                        with self.assertRaisesRegex(ValueError, expected):
+                            EXPORT.verify_archive(self.path, schema)
+                    self.assertEqual([(0, 512)], reads)
 
-    def test_reproduced_500_attribute_global_header_rejected_before_member_copy(self):
+    def test_strict_policy_rejects_500_attribute_global_header_before_body_or_member_copy(self):
         for schema in (PUBLIC, PRIVATE):
-            raw, _ = attributed_tar(schema, {f'vendor.attribute-{number}': 'fixture' for number in range(500)})
-            self.write(raw)
-            with mock.patch.object(tarfile.TarInfo, '_apply_pax_info', side_effect=AssertionError('unbounded copy')):
-                with self.assertRaisesRegex(ValueError, 'PAX attribute count'):
+            body = b''.join(pax(f'vendor.attribute-{number}', 'fixture') for number in range(500))
+            self.write(member('global', body, tarfile.XGLTYPE) + member('file') + b'\0' * 1024)
+            reads, spy = self.spy_reads()
+            with spy, mock.patch.object(tarfile.TarInfo, '_apply_pax_info', side_effect=AssertionError('unbounded copy')):
+                with self.assertRaisesRegex(ValueError, 'Unsupported or nested archive metadata'):
                     EXPORT.verify_archive(self.path, schema)
+            self.assertEqual([(0, 512)], reads)
 
-    def test_many_legitimate_members_do_not_multiply_global_pax_retention(self):
+    def test_many_canonical_local_pax_members_do_not_accumulate_cached_state(self):
         for schema in (PUBLIC, PRIVATE):
-            raw, expected = attributed_tar(schema, {f'vendor.attribute-{number}': 'fixture' for number in range(100)})
+            raw, expected = canonical_local_pax_tar(schema)
             self.write(raw)
             retained = []
             original_next = tarfile.TarFile.next
@@ -252,54 +248,66 @@ class ArchivePreParserLimitsTests(unittest.TestCase):
             with mock.patch.object(tarfile.TarFile, 'next', observe):
                 self.assertEqual(expected, EXPORT.verify_archive(self.path, schema))
             self.assertEqual(1, max(count for count, _ in retained))
-            self.assertEqual(100, max(attributes for _, attributes in retained))
+            self.assertEqual(1, max(attributes for _, attributes in retained))
             self.assertEqual((0, 0), retained[-1])
 
-    def test_global_pax_count_accumulates_across_interleaved_members(self):
-        raw = member('first-global', b''.join(pax(f'vendor.first-{number}', 'one') for number in range(3)), tarfile.XGLTYPE)
-        raw += member('one')
-        raw += member('second-global', b''.join(pax(f'vendor.second-{number}', 'two') for number in range(3)), tarfile.XGLTYPE)
+    def test_strict_policy_rejects_global_pax_after_regular_member_before_body_or_copy(self):
+        raw = member('one') + member('global', pax('vendor.value', 'one'), tarfile.XGLTYPE)
         raw += member('two') + b'\0' * 1024
         for schema in (PUBLIC, PRIVATE):
             self.write(raw)
-            with mock.patch.object(EXPORT, 'MAX_PAX_ATTRIBUTES', 4):
-                with self.assertRaisesRegex(ValueError, 'PAX attribute count'):
+            reads, spy = self.spy_reads()
+            original_apply = tarfile.TarInfo._apply_pax_info
+            copied = []
+            def observe(info, headers, encoding, errors):
+                copied.append(dict(headers))
+                return original_apply(info, headers, encoding, errors)
+            with spy, mock.patch.object(tarfile.TarInfo, '_apply_pax_info', observe):
+                with self.assertRaisesRegex(ValueError, 'Unsupported or nested archive metadata'):
                     EXPORT.verify_archive(self.path, schema)
+            self.assertEqual([(0, 512), (512, 512)], reads)
+            self.assertTrue(all(not headers for headers in copied))
 
-    def test_global_and_local_pax_state_values_are_bounded_before_copy(self):
+    def test_canonical_local_pax_state_values_are_bounded_before_copy(self):
         original_apply = tarfile.TarInfo._apply_pax_info
         for schema in (PUBLIC, PRIVATE):
-            for kind in (tarfile.XHDTYPE, tarfile.XGLTYPE, tarfile.SOLARIS_XHDTYPE):
-                with self.subTest(schema=schema, kind=kind):
-                    self.write(member('attributes', pax('vendor.value', 'x' * 40), kind) + member('file') + b'\0' * 1024)
-                    copied = []
-                    def observe(info, headers, encoding, errors):
-                        copied.append(dict(headers))
-                        return original_apply(info, headers, encoding, errors)
-                    with mock.patch.object(EXPORT, 'MAX_PAX_STATE_BYTES', 32), mock.patch.object(tarfile.TarInfo, '_apply_pax_info', observe):
-                        with self.assertRaisesRegex(ValueError, 'PAX state exceeds'):
+            self.write(member('local', pax('path', 'x' * 40), tarfile.XHDTYPE) + member('file') + b'\0' * 1024)
+            copied = []
+            def observe(info, headers, encoding, errors):
+                copied.append(dict(headers))
+                self.assertFalse(headers, 'Over-limit local PAX state must not reach the copy')
+                return original_apply(info, headers, encoding, errors)
+            with (mock.patch.object(EXPORT, 'MAX_PAX_STATE_BYTES', 32),
+                  mock.patch.object(tarfile.TarInfo, '_apply_pax_info', observe)):
+                with self.assertRaisesRegex(ValueError, 'PAX state exceeds'):
+                    EXPORT.verify_archive(self.path, schema)
+            self.assertEqual([{}], copied)
+
+    def test_canonical_local_pax_attribute_count_is_bounded_before_copy(self):
+        original_apply = tarfile.TarInfo._apply_pax_info
+        for schema in (PUBLIC, PRIVATE):
+            self.write(member('local', pax('path', 'file'), tarfile.XHDTYPE) + member('file') + b'\0' * 1024)
+            copied = []
+            def observe(info, headers, encoding, errors):
+                copied.append(dict(headers))
+                self.assertFalse(headers, 'Over-limit local PAX state must not reach the copy')
+                return original_apply(info, headers, encoding, errors)
+            with (mock.patch.object(EXPORT, 'MAX_PAX_ATTRIBUTES', 0),
+                  mock.patch.object(tarfile.TarInfo, '_apply_pax_info', observe)):
+                with self.assertRaisesRegex(ValueError, 'PAX attribute count'):
+                    EXPORT.verify_archive(self.path, schema)
+            self.assertEqual([{}], copied)
+
+    def test_strict_policy_rejects_bounded_unknown_local_pax_attributes_before_payload_read(self):
+        for schema in (PUBLIC, PRIVATE):
+            for attributes in (pax('vendor.comment', 'fixture'), pax('path', 'file') + pax('vendor.comment', 'fixture')):
+                with self.subTest(schema=schema, attributes=attributes):
+                    self.write(member('local', attributes, tarfile.XHDTYPE) + member('file', b'x') + b'\0' * 1024)
+                    reads, spy = self.spy_reads()
+                    with spy, mock.patch.object(tarfile.TarFile, 'extractfile', side_effect=AssertionError('payload read')):
+                        with self.assertRaisesRegex(ValueError, 'non-canonical PAX metadata'):
                             EXPORT.verify_archive(self.path, schema)
-                    self.assertTrue(all('vendor.value' not in headers for headers in copied))
-
-    def test_combined_global_local_pax_state_and_count_are_bounded(self):
-        for schema in (PUBLIC, PRIVATE):
-            for limit, value, expected in [('MAX_PAX_ATTRIBUTES', 1, 'PAX attribute count'),
-                                           ('MAX_PAX_STATE_BYTES', 60, 'PAX state exceeds')]:
-                raw = member('global', pax('vendor.global', 'x' * 20), tarfile.XGLTYPE)
-                raw += member('local', pax('vendor.local', 'y' * 20), tarfile.XHDTYPE) + member('file') + b'\0' * 1024
-                self.write(raw)
-                with mock.patch.object(EXPORT, limit, value):
-                    with self.assertRaisesRegex(ValueError, expected):
-                        EXPORT.verify_archive(self.path, schema)
-
-    def test_bounded_unknown_pax_attribute_replacement_remains_compatible(self):
-        for schema in (PUBLIC, PRIVATE):
-            raw, expected = valid_tar(schema)
-            prefix = member('global-one', pax('vendor.comment', 'équipe'), tarfile.XGLTYPE)
-            prefix += member('global-two', pax('vendor.comment', 'réunion'), tarfile.XGLTYPE)
-            self.write(prefix + raw)
-            with mock.patch.object(EXPORT, 'MAX_PAX_ATTRIBUTES', 2):
-                self.assertEqual(expected, EXPORT.verify_archive(self.path, schema))
+                    self.assertEqual([(0, 512), (512, 512), (1024, 512)], reads)
 
 
 if __name__ == '__main__':

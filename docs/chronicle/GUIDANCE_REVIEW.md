@@ -1,5 +1,21 @@
 # Guidance review and model transitions
 
+## 19 October 2026: transient OS processing and efficient query planning
+
+The owner clarified that full data acquisition is for complete temporary
+processing, retaining schema/structure/controlled-value knowledge and retrieval
+recipes before discarding payloads. It does not authorise building a permanent
+national replica. Methodology now separates native field identity and reviewed
+equivalence from physical routes, server projection from local projection, and
+independent response bundles from joins. Cost comparisons require equivalent
+coverage and explicit measurements; sample success is not a complete scan.
+
+The owner reported selecting GPT-6 Ultra for this complex work. This records the
+owner's stated model choice, not an independently observed host model slug or a
+change to application model APIs. Historical model baselines, source provenance,
+mandatory tests and release gates remain intact. Capability claims require
+documented contracts and observed responses regardless of model selection.
+
 ## 9 October 2026: independent review and observable progress
 
 The owner reported switching to Daybreak for an independent review of published

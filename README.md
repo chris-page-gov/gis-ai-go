@@ -8,12 +8,31 @@ boundary is deliberately broader than AI or MCP.
 ## Status
 
 **[`v0.1.0`](https://github.com/chris-page-gov/gis-ai-go/releases/tag/v0.1.0)
-is the first supported public discovery release.** Its exact protected-main artefact
-is deployed and verified at <https://chris-page-gov.github.io/gis-ai-go/>. The
-annotated tag is protected, the GitHub Release is immutable and its nine durable
-assets include checksums, receipts, provenance verification and the dependency SBOM.
+is the first supported public discovery release.** Its annotated tag is protected,
+the GitHub Release is immutable and its nine durable assets include checksums,
+receipts, provenance verification and the dependency SBOM.
 The [release evidence record](docs/operations/V0.1.0_RELEASE_EVIDENCE.md) binds the
-source, build, deployment and public-browser acceptance identities.
+source, build, deployment and public-browser acceptance identities of that release.
+
+The [full Explorer publication](docs/operations/EXPLORER_PAGES_PUBLICATION.md#discovery-publication-evidence)
+is the verified GIS public default at <https://chris-page-gov.github.io/gis-ai-go/>.
+It serves the compact canonical Explorer, complete public OKF+ metadata, linked
+learning paths and field/source explanations, with 18 source-backed facets,
+137 explicit links between retained records and 61,309 source references. Four
+suggested facets stay folded; **All** exposes every dimension. Complete public
+HTTPS/browser checks, rollback and restore passed on 27 October 2026. The restored
+archive remains exact GIS source `93fe753460a2a3c907d9b8257060e89c758e3c4e`;
+the immutable supported `v0.1.0` release remains separately identified above.
+Saved catalogue URLs preserve their legacy record state. Use the bare public URL
+to open the full Explorer.
+
+This increment carries the full public bundle, Reader/context projections,
+learning records and native-field/atomic source cards. The separate new private
+capture extension remains at the
+[retained reconciliation commit](https://github.com/chris-page-gov/gis-ai-go/tree/35318abcce5e23c1509ed6ce131d81f5dfd0d38c)
+for [unresolved CodeQL review](docs/operations/EXPLORER_PAGES_CODEQL_REVIEW.md).
+Existing main OS recovery is retained. Public acceptance does not accept or
+dispose of the deferred feature's findings or wider acquisition objective.
 
 The Explorer is a static, metadata-only product; there is no deployed or public MCP
 service. Live status is in
@@ -72,6 +91,12 @@ and tenant collaboration metadata. A privacy-scrubbed DOCX derivative and the
 byte-exact supplied Markdown are tracked for review. They retain their source rights
 and are not relicensed under MIT by inclusion in this repository.
 
+The [13 October 2026 governance case-study intake](docs/research/2026-10-13/governance-as-code/README.md)
+contains two owner-supplied documents as public DOCX derivatives and Markdown
+extracts, with provenance and checksums. The dated briefing and earlier peer review
+are research evidence, not operational authority or endorsement. Their source rights
+remain separate from the repository's MIT licence.
+
 ## Licence
 
 GIS AI GO code, original documentation, schemas and the 19 August 2026 research pack
@@ -79,8 +104,9 @@ are licensed under the [MIT licence](LICENSE), copyright © 2026 Chris Page. The
 licensing decision for that immutable research ZIP and extracted copy is recorded in
 [`ADR-0003`](docs/decisions/ADR-0003-mit-licence.md). Linked external resources and
 imported material identified in [`THIRD_PARTY.md`](THIRD_PARTY.md) retain their own
-rights and licence terms. The separately governed 23 August research sources are not
-relicensed under MIT; their folder-specific provenance record controls handling.
+rights and licence terms. The separately governed 23 August and 13 October research
+sources are not relicensed under MIT; their folder-specific provenance records
+control handling.
 
 ## Local verification
 
@@ -155,11 +181,18 @@ for verification and client examples.
 
 ## Repository map
 
+Read the [implemented architecture and repository review](docs/architecture/README.md)
+for component and sequence diagrams, formal invariants, a beginner guide to
+contracts, the complete contract register and prioritised maintenance findings.
+Implementation and test references are pinned to an exact Git commit and line
+range; the source register records coverage and review depth.
+
 For the build history, agent roles and a beginner explanation of the methodology,
 read [How we built GIS AI GO](docs/chronicle/README.md). It includes the code review,
 model/guidance changes, local-completion plan and A4 print edition instructions.
 
-- `apps/public-explorer/` — static accessible catalogue Explorer
+- `apps/public-explorer/` — earlier static catalogue, retained for legacy journeys
+  and publication rollback
 - `apps/mcp-gateway/` — TypeScript gateway; generic/default entrypoints fail closed,
   while the fixed container and dedicated loopback-only local evaluation entrypoint
   mount the exact-five candidate

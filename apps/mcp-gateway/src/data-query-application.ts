@@ -1004,6 +1004,8 @@ async function query(
     normalisedParametersSha256,
   });
 
+  // Resolve retries before policy and provider preflight: a completed key recovers
+  // evidence through the inspector, and must never start another provider query.
   if (runtime.reconciliationIndex !== undefined) {
     let existing: ReturnType<PublicEvidenceReconciliationIndex["lookup"]>;
     try {
@@ -1239,6 +1241,8 @@ async function query(
       runtime.evidenceLedger !== undefined &&
       reconciliationClaim !== undefined
     ) {
+      // Publish the resolution before the ledger receipt. A crash in between leaves
+      // the key pending; only the verified read-back below may report completion.
       const resolution = runtime.reconciliationIndex.resolve(
         reconciliationClaim,
         receipt,

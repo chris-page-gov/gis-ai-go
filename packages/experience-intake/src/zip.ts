@@ -115,6 +115,8 @@ export function inspectZipArchive(name: string, input: ArrayBuffer | Uint8Array)
       }
     }
     extents.sort((a, b) => a.start - b.start);
+    // Require the local records to tile the bytes before the central directory.
+    // This detects prefixes, overlaps and gaps without extracting member content.
     let next = 0;
     for (const extent of extents) {
       if (extent.start !== next) fail("ZIP members overlap or contain an unexplained gap or executable prefix.");

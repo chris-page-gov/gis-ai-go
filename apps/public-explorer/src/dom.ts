@@ -4,6 +4,7 @@ export interface ElementOptions {
   readonly className?: string;
   readonly id?: string;
   readonly text?: string;
+  readonly tabIndex?: number;
 }
 
 export function appendChildren(parent: Node, children: readonly DomChild[]): void {
@@ -29,6 +30,9 @@ export function element<K extends keyof HTMLElementTagNameMap>(
   }
   if (options.text !== undefined) {
     node.textContent = options.text;
+  }
+  if (options.tabIndex !== undefined) {
+    node.tabIndex = options.tabIndex;
   }
   appendChildren(node, children);
   return node;

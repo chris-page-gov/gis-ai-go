@@ -1,0 +1,389 @@
+{
+ "schema": "gis-ai-go.os-linked-identifiers-capabilities.v1",
+ "reviewedOn": "2026-10-20",
+ "status": "local-candidate; no hosted admission or live acceptance claimed",
+ "owner": "repository owner",
+ "baseUrl": "https://api.os.uk/search/links/v1/",
+ "baseEvidence": {
+  "url": "https://raw.githubusercontent.com/OrdnanceSurvey/OS-Data-Hub-API-Demos/master/OSLinkedIdentifiersAPI/js/query.js",
+  "sha256": "3be6ea24b53fdadd1d9b66098e664bfaa6f4cd3a02283ffdb214305d163eccfa",
+  "bytes": 5391,
+  "locator": "line 1 BASE_URL; official documentation links the demo"
+ },
+ "operations": [
+  {
+   "method": "GET",
+   "path": "/identifiers/{id}",
+   "admitted": false,
+   "source": {
+    "url": "https://docs.os.uk/os-apis/accessing-os-apis/os-linked-identifiers-api/technical-specification/identifier.md",
+    "sha256": "87f5940e34a6cf3c71eeb516869201ebc418c62bc5c78d2646cc03d043d9c836",
+    "bytes": 7251,
+    "retrievedAt": "2026-10-20T20:45:27.201041+00:00"
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/identifierTypes/{identifierType}/{id}",
+   "admitted": true,
+   "source": {
+    "url": "https://docs.os.uk/os-apis/accessing-os-apis/os-linked-identifiers-api/technical-specification/identifier-types.md",
+    "sha256": "a6c0fbba59cae75b45a5dfa0bf27cd984bd867976327e067779bd81d79783f5e",
+    "bytes": 7215,
+    "retrievedAt": "2026-10-20T20:45:29.592832+00:00"
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/featureTypes/{featureType}/{id}",
+   "admitted": true,
+   "source": {
+    "url": "https://docs.os.uk/os-apis/accessing-os-apis/os-linked-identifiers-api/technical-specification/feature-types.md",
+    "sha256": "0e2558f298e14bf404bb415ba64bb8c2bdd387c75d2544dedc603fac3eba217f",
+    "bytes": 7202,
+    "retrievedAt": "2026-10-20T20:45:31.927068+00:00"
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/productVersionInfo/{correlationMethod}",
+   "admitted": true,
+   "source": {
+    "url": "https://docs.os.uk/os-apis/accessing-os-apis/os-linked-identifiers-api/technical-specification/product-version-information.md",
+    "sha256": "fd8cc3ed6d77b5af95f6b4e8fdee241e956832098cf943b6f077adbc4b7bfc76",
+    "bytes": 6990,
+    "retrievedAt": "2026-10-20T20:45:34.313525+00:00"
+   }
+  }
+ ],
+ "authentication": {
+  "binding": "OS_API_KEY",
+  "destination": "key HTTP header on api.os.uk only",
+  "source": {
+   "url": "https://docs.os.uk/os-apis/core-concepts/authentication.md",
+   "sha256": "92aba71c747852465f97230784dd120063753567913e713721e8645069561fa2",
+   "bytes": 10733,
+   "retrievedAt": "2026-10-20T20:45:39.251961+00:00"
+  },
+  "discrepancy": "Embedded operation OpenAPI declares query key only; shared official authentication page expressly permits header key. Header implementation still requires a successful bounded runtime receipt.",
+  "queryKeyFallback": false,
+  "oauthTokenRequest": false
+ },
+ "identifierTypes": [
+  "GUID",
+  "TOID",
+  "UPRN",
+  "USRN"
+ ],
+ "featureTypes": [
+  "BLPU",
+  "ORRoadNode",
+  "ORRoadLink",
+  "Road",
+  "RoadLink",
+  "Street",
+  "TopographicArea"
+ ],
+ "methods": [
+  {
+   "correlationMethodIdentifier": "BLPU_UPRN_RoadLink_TOID_9",
+   "endpoints": [
+    {
+     "featureType": "BLPU",
+     "identifierType": "UPRN"
+    },
+    {
+     "featureType": "RoadLink",
+     "identifierType": "TOID"
+    }
+   ],
+   "meaning": "UPRN to closest associated RoadLink according to the published method.",
+   "limits": "Includes live, provisional and historic BLPU; do not label it verified vehicle/pedestrian access or serving-road topology. Source cycles differ.",
+   "source": {
+    "url": "https://docs.os.uk/os-downloads/products/buildings-and-infrastructure-portfolio/os-open-linked-identifiers/os-open-linked-identifiers-technical-specification/blpu_uprn_roadlink_toid_9.md",
+    "sha256": "e29fe80a4b7adddc54d91ab7a9a16334d13033d39fdac1db0e34c24a675ba713",
+    "bytes": 5518,
+    "retrievedAt": "2026-10-20T20:46:50.202395+00:00"
+   }
+  },
+  {
+   "correlationMethodIdentifier": "BLPU_UPRN_Street_USRN_11",
+   "endpoints": [
+    {
+     "featureType": "BLPU",
+     "identifierType": "UPRN"
+    },
+    {
+     "featureType": "Street",
+     "identifierType": "USRN"
+    }
+   ],
+   "meaning": "Addressable location to its recorded Street relationships.",
+   "limits": "Includes live, provisional and historic BLPU and open roads in the described extraction; no geometry or postal-address attributes returned.",
+   "source": {
+    "url": "https://docs.os.uk/os-downloads/products/buildings-and-infrastructure-portfolio/os-open-linked-identifiers/os-open-linked-identifiers-technical-specification/blpu_uprn_street_usrn_11.md",
+    "sha256": "a7c997b34c2ca918cabbe28c9464c2f590e7755406c541d6ab0a683864cc3a7d",
+    "bytes": 4719,
+    "retrievedAt": "2026-10-20T20:46:57.088803+00:00"
+   }
+  },
+  {
+   "correlationMethodIdentifier": "BLPU_UPRN_TopographicArea_TOID_5",
+   "endpoints": [
+    {
+     "featureType": "BLPU",
+     "identifierType": "UPRN"
+    },
+    {
+     "featureType": "TopographicArea",
+     "identifierType": "TOID"
+    }
+   ],
+   "meaning": "Addressable-location UPRN to corresponding topographic polygon; building examples are supported.",
+   "limits": "Includes live, provisional and historic BLPU records; not every UPRN denotes a building and current NGD Building geometry is not established as equivalent. Source cycles differ.",
+   "source": {
+    "url": "https://docs.os.uk/os-downloads/products/buildings-and-infrastructure-portfolio/os-open-linked-identifiers/os-open-linked-identifiers-technical-specification/blpu_uprn_topographicarea_toid_5.md",
+    "sha256": "c8b6f951b33fea8b2eb2a74686c86bcdbd75533a5fc124b4f780f97d767fd1c8",
+    "bytes": 5613,
+    "retrievedAt": "2026-10-20T20:46:38.955491+00:00"
+   }
+  },
+  {
+   "correlationMethodIdentifier": "ORRoadLink_GUID_RoadLink_TOID_12",
+   "endpoints": [
+    {
+     "featureType": "ORRoadLink",
+     "identifierType": "GUID"
+    },
+    {
+     "featureType": "RoadLink",
+     "identifierType": "TOID"
+    }
+   ],
+   "meaning": "Corresponding Highways and generalised Open Roads link representations.",
+   "limits": "Different refresh cycles and geometry capture mean no automatic shape or attribute equivalence.",
+   "source": {
+    "url": "https://docs.os.uk/os-downloads/products/buildings-and-infrastructure-portfolio/os-open-linked-identifiers/os-open-linked-identifiers-technical-specification/orroadlink_guid_roadlink_toid_12.md",
+    "sha256": "761f97448d1548ab95f006dd949ad3c646be507c2d928be8bedf3b31d7d7fd39",
+    "bytes": 5483,
+    "retrievedAt": "2026-10-20T20:47:00.685798+00:00"
+   }
+  },
+  {
+   "correlationMethodIdentifier": "ORRoadNode_GUID_RoadLink_TOID_13",
+   "endpoints": [
+    {
+     "featureType": "ORRoadNode",
+     "identifierType": "GUID"
+    },
+    {
+     "featureType": "RoadLink",
+     "identifierType": "TOID"
+    }
+   ],
+   "meaning": "A Highways RoadLink simplified to an Open Roads node, for example a collapsed roundabout.",
+   "limits": "ORRoadNode GUID is explicitly non-persistent; this link changes representation dimension and cannot preserve route topology/geometry.",
+   "source": {
+    "url": "https://docs.os.uk/os-downloads/products/buildings-and-infrastructure-portfolio/os-open-linked-identifiers/os-open-linked-identifiers-technical-specification/orroadnode_guid_roadlink_toid_13.md",
+    "sha256": "fccb5d2355ad81f7707c7bd33a1b43733557f78debb0b44dfe224002379e0965",
+    "bytes": 5488,
+    "retrievedAt": "2026-10-20T20:47:04.188779+00:00"
+   }
+  },
+  {
+   "correlationMethodIdentifier": "RoadLink_TOID_Road_TOID_7",
+   "endpoints": [
+    {
+     "featureType": "RoadLink",
+     "identifierType": "TOID"
+    },
+    {
+     "featureType": "Road",
+     "identifierType": "TOID"
+    }
+   ],
+   "meaning": "RoadLink membership in a Road link set sharing a name or classification.",
+   "limits": "Same-source version agreement is described for extraction, not a timeless match to later geometry.",
+   "source": {
+    "url": "https://docs.os.uk/os-downloads/products/buildings-and-infrastructure-portfolio/os-open-linked-identifiers/os-open-linked-identifiers-technical-specification/roadlink_toid_road_toid_7.md",
+    "sha256": "00aa6086ed2bb44a85734c04faade3392da9c04ef5f4ad4160abb8673ab7308d",
+    "bytes": 4679,
+    "retrievedAt": "2026-10-20T20:46:42.640188+00:00"
+   }
+  },
+  {
+   "correlationMethodIdentifier": "RoadLink_TOID_Street_USRN_8",
+   "endpoints": [
+    {
+     "featureType": "RoadLink",
+     "identifierType": "TOID"
+    },
+    {
+     "featureType": "Street",
+     "identifierType": "USRN"
+    }
+   ],
+   "meaning": "RoadLink membership in a matched Street.",
+   "limits": "USRNs without matched RoadLinks are omitted. Same-source extraction does not establish current edition compatibility.",
+   "source": {
+    "url": "https://docs.os.uk/os-downloads/products/buildings-and-infrastructure-portfolio/os-open-linked-identifiers/os-open-linked-identifiers-technical-specification/roadlink_toid_street_usrn_8.md",
+    "sha256": "20cccd52296b73b0c3dd66cc4817fb83a9ca765258546b11e16e9c4bff8666c4",
+    "bytes": 5381,
+    "retrievedAt": "2026-10-20T20:46:46.367063+00:00"
+   }
+  },
+  {
+   "correlationMethodIdentifier": "RoadLink_TOID_TopographicArea_TOID_2",
+   "endpoints": [
+    {
+     "featureType": "RoadLink",
+     "identifierType": "TOID"
+    },
+    {
+     "featureType": "TopographicArea",
+     "identifierType": "TOID"
+    }
+   ],
+   "meaning": "Road centre line to corresponding road surface polygons. Does not establish a building footprint relationship.",
+   "limits": "Not every RoadLink has a corresponding TopographicArea; different source refresh cycles can invalidate version alignment.",
+   "source": {
+    "url": "https://docs.os.uk/os-downloads/products/buildings-and-infrastructure-portfolio/os-open-linked-identifiers/os-open-linked-identifiers-technical-specification/roadlink_toid_topographicarea_toid_2.md",
+    "sha256": "2300bca3e1defc71318a9bc3b0d85390ca575cd0a815c5273b16206f05b94398",
+    "bytes": 5378,
+    "retrievedAt": "2026-10-20T20:46:28.214636+00:00"
+   }
+  },
+  {
+   "correlationMethodIdentifier": "Road_TOID_Street_USRN_10",
+   "endpoints": [
+    {
+     "featureType": "Road",
+     "identifierType": "TOID"
+    },
+    {
+     "featureType": "Street",
+     "identifierType": "USRN"
+    }
+   ],
+   "meaning": "Road\u2013Street association through common component RoadLinks.",
+   "limits": "Shared-component association does not make Road and Street identical; extraction uses one source product.",
+   "source": {
+    "url": "https://docs.os.uk/os-downloads/products/buildings-and-infrastructure-portfolio/os-open-linked-identifiers/os-open-linked-identifiers-technical-specification/road_toid_street_usrn_10.md",
+    "sha256": "1eba05f19201069d4d87dd113bd61d1ea06fcf0c8551c0ed0940f0f3ed019a33",
+    "bytes": 5374,
+    "retrievedAt": "2026-10-20T20:46:53.547092+00:00"
+   }
+  },
+  {
+   "correlationMethodIdentifier": "Road_TOID_TopographicArea_TOID_3",
+   "endpoints": [
+    {
+     "featureType": "Road",
+     "identifierType": "TOID"
+    },
+    {
+     "featureType": "TopographicArea",
+     "identifierType": "TOID"
+    }
+   ],
+   "meaning": "A named or classified Road is a collection of RoadLinks; targets are road surface polygons.",
+   "limits": "Source cycles differ; no direct building link and no universal one-to-one correspondence.",
+   "source": {
+    "url": "https://docs.os.uk/os-downloads/products/buildings-and-infrastructure-portfolio/os-open-linked-identifiers/os-open-linked-identifiers-technical-specification/road_toid_topographicarea_toid_3.md",
+    "sha256": "8cab2ff85c8b984bf31b89af12921cf58e77d1e3f8fd9a805341675a344795eb",
+    "bytes": 5474,
+    "retrievedAt": "2026-10-20T20:46:31.830346+00:00"
+   }
+  },
+  {
+   "correlationMethodIdentifier": "Street_USRN_TopographicArea_TOID_4",
+   "endpoints": [
+    {
+     "featureType": "Street",
+     "identifierType": "USRN"
+    },
+    {
+     "featureType": "TopographicArea",
+     "identifierType": "TOID"
+    }
+   ],
+   "meaning": "Street to road surfaces through its matched RoadLinks.",
+   "limits": "Street USRNs without a matched OS RoadLink are omitted; source cycles differ.",
+   "source": {
+    "url": "https://docs.os.uk/os-downloads/products/buildings-and-infrastructure-portfolio/os-open-linked-identifiers/os-open-linked-identifiers-technical-specification/street_usrn_topographicarea_toid_4.md",
+    "sha256": "2577b6fc8a33d03ff855f6eb1365af5e4a7ae239996884c67a233d5b05bbc2bf",
+    "bytes": 5938,
+    "retrievedAt": "2026-10-20T20:46:35.501778+00:00"
+   }
+  }
+ ],
+ "responseScope": {
+  "genericIdentifier": "linkedIdentifiers array; UPRN and USRN numeric namespaces can overlap, so one ID can yield multiple typed results.",
+  "typedLookup": "linkedIdentifier object plus correlations array; each correlation has correlatedIdentifiers array.",
+  "versions": "Optional searchedIdentifierVersionDate/Number and correlated versionDate/Number are strings/numbers in the contract, not a proven ISO lexical/date-time model.",
+  "paging": "No paging/filter/query parameters, continuation links or numeric result maximum documented in these four contracts. Complete transport/JSON parsing is necessary; do not infer national or universal relationship completeness.",
+  "errors": [
+   400,
+   401,
+   403,
+   404,
+   405,
+   429,
+   500,
+   503
+  ]
+ },
+ "rateSource": {
+  "url": "https://docs.os.uk/os-apis/core-concepts/rate-limiting-policy.md",
+  "sha256": "98588df8fe2ac423d53e882470c9ba2c82642b35b28d0f30a6b4bb9bb24b7748",
+  "bytes": 3186,
+  "retrievedAt": "2026-10-20T20:45:41.669685+00:00"
+ },
+ "limits": {
+  "maxRequests": 20,
+  "maxBytes": 8388608,
+  "maxWallSeconds": 300,
+  "responseBytes": 1048576,
+  "spacingSeconds": 2.05,
+  "maxEdgesPerResponse": 1000,
+  "maxGroupsPerResponse": 32
+ },
+ "deadline": "Immutable selection requires an absolute UTC deadline; every request is bounded by its remaining time.",
+ "resume": "Successful responses and observations are independently replayed by checksum. Any failed or pending attempt stops automatic continuation. Reserved uncertain bytes and time are not refunded.",
+ "sourceDefects": [
+  {
+   "defect": "Unresolved ${lids.api.server} in embedded OpenAPI servers.",
+   "handling": "Resolve only from separately captured official demo BASE_URL; do not interpolate arbitrary hosts."
+  },
+  {
+   "defect": "correlationMethodInformation requires methodIdentfier but declares methodIdentifier with additionalProperties:false.",
+   "handling": "Preserve exact source defect; use explicit reviewed validator policy, flag unexpected spelling/runtime shape."
+  },
+  {
+   "defect": "correlatedIdentifiers puts required/additionalProperties on array rather than the item schema.",
+   "handling": "Do not claim schema conformance from a mechanical validator; enforce reviewed item semantics and distinguish missing values."
+  },
+  {
+   "defect": "Download JSON page differs from API productVersionInfo fields/casing and omits Open Roads feature types in its list.",
+   "handling": "Do not substitute download contract for API response; keep separate sources."
+  },
+  {
+   "defect": "Overview advertises GeoJSON while operations declare application/json relationship objects.",
+   "handling": "Use operation response contract; no geometry inference."
+  }
+ ],
+ "coverageExclusions": [
+  "GSS codes and LocalAuthority/MSOA/LSOA/OA are not supported identifier/feature enums.",
+  "OSID, NGD Building and PathLink are not supported identifier/feature enums.",
+  "GB coverage does not establish Northern Ireland applicability.",
+  "No geometry, heights, address text, access topology or complete property/road population supplied.",
+  "No API historical as-of/version selector is documented. productVersionInfo returns current valid source version information."
+ ],
+ "semantics": [
+  "Confidence describes source version alignment, not probability or positional accuracy.",
+  "Methods 5, 9 and 11 include live, provisional and historic BLPU.",
+  "Typed nodes keep identifier and feature namespaces distinct; preserve each observed edge direction and native versions.",
+  "No inverse edge, transitive identity, field equivalence, geometry equivalence, access topology or current containment is inferred.",
+  "A completed selected response does not establish nationwide relationship completeness."
+ ]
+}

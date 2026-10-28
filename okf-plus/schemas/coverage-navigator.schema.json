@@ -1,0 +1,317 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gis-ai-go.example/schemas/coverage-navigator.schema.json",
+  "title": "Dated supplied coverage navigation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "asOf",
+    "basis",
+    "counts",
+    "fullCoverage",
+    "percentage",
+    "gates",
+    "rows",
+    "nodes",
+    "edges"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gis-ai-go.coverage-navigator.v1"
+    },
+    "asOf": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "basis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "title",
+        "scopeNote"
+      ],
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "scopeNote": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        }
+      }
+    },
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rows",
+        "included",
+        "excluded",
+        "unclassified",
+        "edges"
+      ],
+      "properties": {
+        "rows": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 256
+        },
+        "included": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 256
+        },
+        "excluded": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 256
+        },
+        "unclassified": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 256
+        },
+        "edges": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 128
+        }
+      }
+    },
+    "fullCoverage": {
+      "const": false
+    },
+    "percentage": {
+      "type": "null"
+    },
+    "gates": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "label"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,79}$",
+            "maxLength": 80
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          }
+        }
+      }
+    },
+    "rows": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 256,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "label",
+          "scope",
+          "sourceUrl",
+          "next",
+          "remaining",
+          "gates",
+          "evidence"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,79}$",
+            "maxLength": 80
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 240
+          },
+          "scope": {
+            "enum": [
+              "included",
+              "excluded",
+              "unclassified"
+            ]
+          },
+          "sourceUrl": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "maxLength": 2048,
+                "format": "uri",
+                "pattern": "^https://(docs\\.os\\.uk|www\\.ordnancesurvey\\.co\\.uk|os\\.uk|www\\.ons\\.gov\\.uk|www\\.nomisweb\\.co\\.uk|example\\.org)/[^?\\s]*$"
+              }
+            ]
+          },
+          "next": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "remaining": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "gates": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 16,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "status",
+                "limit"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,79}$",
+                  "maxLength": 80
+                },
+                "status": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120
+                },
+                "limit": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                }
+              }
+            }
+          },
+          "evidence": {
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 32,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "scope",
+                "limit",
+                "receiptHashes"
+              ],
+              "properties": {
+                "scope": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 500
+                },
+                "limit": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                },
+                "receiptHashes": {
+                  "type": "array",
+                  "minItems": 0,
+                  "maxItems": 16,
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "nodes": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 64,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "label"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,79}$",
+            "maxLength": 80
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          }
+        }
+      }
+    },
+    "edges": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 128,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "from",
+          "to",
+          "relation",
+          "limits",
+          "transitiveIdentityInferred"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,79}$",
+            "maxLength": 80
+          },
+          "from": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,79}$",
+            "maxLength": 80
+          },
+          "to": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,79}$",
+            "maxLength": 80
+          },
+          "relation": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "limits": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "transitiveIdentityInferred": {
+            "const": false
+          }
+        }
+      }
+    }
+  }
+}

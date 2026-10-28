@@ -1,0 +1,357 @@
+{
+  "@context": {
+    "okfp": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/vocab/",
+    "dcat": "http://www.w3.org/ns/dcat#",
+    "status": {
+      "@id": "okfp:status",
+      "@type": "@json"
+    },
+    "owner": {
+      "@id": "okfp:owner",
+      "@type": "@json"
+    },
+    "policy": {
+      "@id": "okfp:policy",
+      "@type": "@json"
+    },
+    "threats": {
+      "@id": "okfp:threats",
+      "@type": "@json"
+    },
+    "rights": {
+      "@id": "okfp:rights",
+      "@type": "@json"
+    },
+    "evidence": {
+      "@id": "okfp:evidence",
+      "@type": "@json"
+    },
+    "capabilities": {
+      "@id": "okfp:capabilities",
+      "@type": "@json"
+    },
+    "limitations": {
+      "@id": "okfp:limitations",
+      "@type": "@json"
+    },
+    "retentionIntent": {
+      "@id": "okfp:retentionIntent",
+      "@type": "@json"
+    },
+    "unverified": {
+      "@id": "okfp:unverified",
+      "@type": "@json"
+    },
+    "liveObservations": {
+      "@id": "okfp:liveObservations",
+      "@type": "@json"
+    }
+  },
+  "@id": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/profile/os-wfs-query-capabilities",
+  "@type": "okfp:QueryCapabilityProfile",
+  "dcat:endpointURL": {
+    "@id": "https://api.os.uk/features/v1"
+  },
+  "status": {
+    "documented": "captured-contract-not-live-conformance",
+    "observed": "Bounded observations listed separately; no global runtime conformance claim.",
+    "unverified": "current-endpoint-and-project-entitlement"
+  },
+  "owner": "GIS AI GO repository owner",
+  "policy": {
+    "executionAdmitted": false,
+    "purpose": "Planning evidence; no provider, tool or entitlement grant. Use existing runtime admission and source-specific rights."
+  },
+  "threats": [
+    "Credential leakage in URLs or logs",
+    "Untrusted provider text or links treated as instructions",
+    "Payload retention beyond the owner-selected transient purpose",
+    "Unbounded retrieval, unsupported parameters or false source-equivalence claims"
+  ],
+  "rights": {
+    "metadata": "Source rights retained; factual capability description.",
+    "featurePayload": "PSGA/project entitlement and recipient rights checked separately; this file does not grant redistribution."
+  },
+  "retentionIntent": {
+    "ownerInstruction": "Process feature data transiently; discard feature payload after processing.",
+    "retain": [
+      "Semantic metadata and source-grounded knowledge",
+      "Reproducible query/processing methods and non-payload evidence receipts"
+    ],
+    "status": "policy-intent-not-proof-of-implemented-cleanup"
+  },
+  "evidence": [
+    {
+      "snapshot": "okf-plus/source/os-api-contracts.json",
+      "pointer": "/records/66",
+      "sourceUrl": "https://docs.os.uk/os-apis/accessing-os-apis/os-features-api/technical-specification/getfeature.md",
+      "sourceSha256": "486bd0fb88ba03b7c3c703afaf22c527b2970321f61c32b0f2e832f23e473795",
+      "retrievedAt": "2026-10-02T07:27:14.640559Z",
+      "status": "documented"
+    },
+    {
+      "snapshot": "okf-plus/source/os-api-contracts.json",
+      "pointer": "/records/64",
+      "sourceUrl": "https://docs.os.uk/os-apis/accessing-os-apis/os-features-api/technical-specification/getcapabilities.md",
+      "sourceSha256": "b02c75e24a33ec4b331a4ca75eb61440f2730cde08f40b464a77f3bf70df51a6",
+      "retrievedAt": "2026-10-02T07:27:12.250544Z",
+      "status": "documented"
+    },
+    {
+      "snapshot": "okf-plus/source/os-api-contracts.json",
+      "pointer": "/records/65",
+      "sourceUrl": "https://docs.os.uk/os-apis/accessing-os-apis/os-features-api/technical-specification/describefeaturetype.md",
+      "sourceSha256": "f5f4140c8c0645ddcbe6553bc07b3d5b51031bc4f4819552b486e16010ab862a",
+      "retrievedAt": "2026-10-02T07:27:13.398647Z",
+      "status": "documented"
+    },
+    {
+      "snapshot": "okf-plus/source/os-api-contracts.json",
+      "pointer": "/records/67",
+      "sourceUrl": "https://docs.os.uk/os-apis/accessing-os-apis/os-features-api/technical-specification/filtering.md",
+      "sourceSha256": "2a382bda0129d639a673384f6c042dc88ab1cc2109473a8dc8d059ddc93d7f39",
+      "retrievedAt": "2026-10-02T07:27:15.921425Z",
+      "status": "documented"
+    },
+    {
+      "snapshot": "okf-plus/source/os-api-contracts.json",
+      "pointer": "/records/69",
+      "sourceUrl": "https://docs.os.uk/os-apis/accessing-os-apis/os-features-api/technical-specification/empty-values.md",
+      "sourceSha256": "b893670c8233e5f3ff712a2586e2b0f8270e6736d3aaa239b8cbdb8f8a846bcc",
+      "retrievedAt": "2026-10-02T07:27:18.242946Z",
+      "status": "documented"
+    }
+  ],
+  "capabilities": {
+    "getFeature": {
+      "method": "GET",
+      "path": "/wfs",
+      "parameters": [
+        "request",
+        "service",
+        "version",
+        "typeNames",
+        "bbox",
+        "filter",
+        "count",
+        "maxFeatures",
+        "propertyName",
+        "startIndex",
+        "outputFormat",
+        "resultType",
+        "srsName"
+      ],
+      "evidence": {
+        "snapshot": "okf-plus/source/os-api-contracts.json",
+        "pointer": "/records/66/contracts/0/operations/0/parameters",
+        "sourceUrl": "https://docs.os.uk/os-apis/accessing-os-apis/os-features-api/technical-specification/getfeature.md",
+        "sourceSha256": "486bd0fb88ba03b7c3c703afaf22c527b2970321f61c32b0f2e832f23e473795",
+        "retrievedAt": "2026-10-02T07:27:14.640559Z",
+        "status": "documented"
+      }
+    },
+    "projection": {
+      "parameter": "propertyName",
+      "semantics": "List of valid feature attribute names from the selected native feature type.",
+      "evidence": {
+        "snapshot": "okf-plus/source/os-api-contracts.json",
+        "pointer": "/records/66/contracts/0/operations/0/parameters/8",
+        "sourceUrl": "https://docs.os.uk/os-apis/accessing-os-apis/os-features-api/technical-specification/getfeature.md",
+        "sourceSha256": "486bd0fb88ba03b7c3c703afaf22c527b2970321f61c32b0f2e832f23e473795",
+        "retrievedAt": "2026-10-02T07:27:14.640559Z",
+        "status": "documented"
+      }
+    },
+    "filter": {
+      "parameter": "filter",
+      "language": "OGC XML filter",
+      "bboxPrecedence": {
+        "rule": "A separate bbox query parameter takes precedence over a purely attribute-based XML filter; that attribute filter is ignored.",
+        "combinedSelection": "Put spatial and attribute conditions together inside one OGC XML filter parameter.",
+        "status": "source-documented; no new live precedence test",
+        "freshSourceSha256": "bddec074009554c5217c60106b1f1b0860c281c8b21288de451707d7339792d9",
+        "baselineCatalogueEvidence": {
+          "snapshot": "okf-plus/source/os-api-contracts.json",
+          "pointer": "/records/67"
+        },
+        "freshSourceLines": [
+          23,
+          25
+        ],
+        "freshRetrievedAt": "2026-10-19T20:08:09.961695Z",
+        "freshReceipt": "artifacts/okf-plus/private-os-documents/checkpoint.json; records[baseline source URL]"
+      },
+      "attributeScope": "OS guide states attributes returned by DescribeFeatureType are valid attribute-filter candidates; complex path/operator/type behaviour is not universally established."
+    },
+    "paging": {
+      "countMaximum": 100,
+      "startIndexDefault": "0",
+      "countDefault": "100",
+      "evidence": {
+        "snapshot": "okf-plus/source/os-api-contracts.json",
+        "pointer": "/records/66/contracts/0/operations/0/parameters/6",
+        "sourceUrl": "https://docs.os.uk/os-apis/accessing-os-apis/os-features-api/technical-specification/getfeature.md",
+        "sourceSha256": "486bd0fb88ba03b7c3c703afaf22c527b2970321f61c32b0f2e832f23e473795",
+        "retrievedAt": "2026-10-02T07:27:14.640559Z",
+        "status": "documented"
+      }
+    },
+    "counts": {
+      "parameter": "resultType",
+      "values": [
+        "results",
+        "hits"
+      ],
+      "evidence": {
+        "snapshot": "okf-plus/source/os-api-contracts.json",
+        "pointer": "/records/66/contracts/0/operations/0/parameters/11",
+        "sourceUrl": "https://docs.os.uk/os-apis/accessing-os-apis/os-features-api/technical-specification/getfeature.md",
+        "sourceSha256": "486bd0fb88ba03b7c3c703afaf22c527b2970321f61c32b0f2e832f23e473795",
+        "retrievedAt": "2026-10-02T07:27:14.640559Z",
+        "status": "documented"
+      }
+    },
+    "featureTypes": {
+      "parameter": "typeNames",
+      "contractShape": "single enum-valued string",
+      "multiTypeStatus": "not-advertised-by-captured-contract"
+    },
+    "advertisedConstraints": {
+      "status": "Observed capability-document assertions; not runtime-tested per operation.",
+      "responseSha256": "7bb714cb6471633a8d53fb436907143141361ad439de89f0c918311c789bc687",
+      "privateReceipt": "artifacts/okf-plus/private-route-comparisons/wfs-capabilities-receipt.json",
+      "xpathNamespace": "ows=http://www.opengis.net/ows/1.1",
+      "xpathPattern": "//ows:Constraint[@name=NAME]/ows:DefaultValue",
+      "false": [
+        "ImplementsStandardJoins",
+        "ImplementsSpatialJoins",
+        "ImplementsTemporalJoins",
+        "ImplementsRemoteResolve",
+        "ImplementsFeatureVersioning",
+        "ManageStoredQueries"
+      ],
+      "trueUnverified": [
+        "ImplementsSorting",
+        "ImplementsResourceId",
+        "ImplementsMinimumXPath"
+      ],
+      "interpretation": "Do not plan server-side joins, remote resolution, feature-version navigation or stored-query management as supported. Multi-type union is a separate undocumented question."
+    },
+    "missingValueHandling": {
+      "status": "documented-plus-bounded-typed-observation",
+      "rule": "Guide describes omission of unpopulated attributes and client-specific interpretation. Preserve missing property, JSON null, literal string null, empty string and native scalar type separately.",
+      "freshSourceSha256": "f4aea32569510b3a9dc2c07aa37f9b0e173eae2270fad4107f6d0b65d00a35b9",
+      "observation": "Bounded cross-route comparison saw WFS width strings versus NGD JSON numbers and one WFS literal string null versus NGD JSON null; no numeric/null conversion contract or measurement equivalence inferred.",
+      "baselineCatalogueEvidence": {
+        "snapshot": "okf-plus/source/os-api-contracts.json",
+        "pointer": "/records/69"
+      },
+      "freshSourceLines": [
+        5,
+        9
+      ],
+      "freshRetrievedAt": "2026-10-19T20:08:08.977884Z",
+      "freshReceipt": "artifacts/okf-plus/private-os-documents/checkpoint.json; records[baseline source URL]"
+    },
+    "operationReview": {
+      "date": "2026-10-19",
+      "advertisementSourceSha256": "7bb714cb6471633a8d53fb436907143141361ad439de89f0c918311c789bc687",
+      "advertisementXPath": "/wfs:WFS_Capabilities/ows:OperationsMetadata/ows:Operation",
+      "advertisedMethods": [
+        "GET",
+        "POST"
+      ],
+      "methodLimit": "GET/POST advertisement does not validate POST or gateway forwarding.",
+      "operations": [
+        {
+          "operation": "GetCapabilities",
+          "status": "observed-HTTP200-capabilities-metadata",
+          "limit": "44 feature types and seven operation advertisements; not proof of all operation execution."
+        },
+        {
+          "operation": "DescribeFeatureType",
+          "status": "44-advertised-types-schema-metadata-captured",
+          "limit": "External imports not followed; source-native declarations remain authoritative."
+        },
+        {
+          "operation": "GetFeature",
+          "status": "documented-and-bounded-RoadLink-GET-observations",
+          "limit": "projection including SHAPE worked; one omission-of-SHAPE GEOJSON control was malformed. Other products, hits and formats remain unverified."
+        },
+        {
+          "operation": "GetPropertyValue",
+          "status": "controlled-HTTP200-unusable-XML-response",
+          "limit": "Controlled 682-byte HTTP200 body again failed XML parsing at line11,column24; retained privately as failed input. No successful value processing/count or conversion established.",
+          "responseSha256": "bda2461fc7177689c387583971b890fb2f92dd415e586ec11b9183279eabe1f6",
+          "privateReceipt": "artifacts/okf-plus/private-wfs-operations/controlled-reproduction/receipt.json",
+          "historicalFailure": {
+            "responseSha256": "8079231b555d78d16fb600ebf9d656ef08f4dc178e1dd03a65c13e10d82d13d8",
+            "httpStatus": null,
+            "rawInput": "Prematurely deleted after diagnostic text profiling; not native value processing. Controlled bytes differ and do not reconstruct it."
+          }
+        },
+        {
+          "operation": "GetGmlObject",
+          "status": "advertised-only-not-invoked",
+          "limit": "No OS-specific captured operation contract; GML object identity, protocol version, parameters and utility unknown. No remote links followed."
+        },
+        {
+          "operation": "ListStoredQueries",
+          "status": "observed-HTTP200-empty-metadata-response",
+          "limit": "No query definitions returned for this bounded request/project; no arbitrary stored-query retrieval or management established.",
+          "responseSha256": "2422872f9d1876ab49a0e4f8b6d5f662f2dc110fa0f28929d44788464aff9c2d",
+          "privateReceipt": "artifacts/okf-plus/private-wfs-operations/ListStoredQueries/receipt.json"
+        },
+        {
+          "operation": "DescribeStoredQueries",
+          "status": "observed-HTTP200-empty-metadata-response",
+          "limit": "No query definitions returned for this bounded request/project; no arbitrary stored-query retrieval or management established.",
+          "responseSha256": "8a6e06195d20b2841ff969030eaf502fd138ff93e4ee2e4199c55a17db1e1d08",
+          "privateReceipt": "artifacts/okf-plus/private-wfs-operations/DescribeStoredQueries/receipt.json"
+        }
+      ]
+    }
+  },
+  "limitations": [
+    "Legacy WFS feature types differ from NGD collections: similar labels do not establish equivalent fields, versions or meaning.",
+    "Generic WFS specification capabilities do not prove this OS endpoint supports multi-type requests or joins.",
+    "propertyName projection is documented here and must not be transferred to NGD without evidence.",
+    "A map may require native geometry/CRS while a table may favour field projection; route names alone do not prove efficiency, field equivalence or stable identity/type/null handling."
+  ],
+  "unverified": [
+    "Multiple feature types in one request",
+    "Current feature type entitlement and availability",
+    "Projection behaviour outside the bounded Road Link sample; WFS-to-NGD measurement equivalence"
+  ],
+  "liveObservations": [
+    {
+      "date": "2026-10-19",
+      "status": "observed-bounded-selection",
+      "operation": "Highways_RoadLink propertyName including SHAPE",
+      "matchedNativeIdentities": 2,
+      "fields": [
+        "RoadWidthAverage",
+        "RoadWidthMinimum",
+        "RoadWidthConfidenceLevel"
+      ],
+      "withinServiceAgreement": "2/2 exact typed values for each field against full response",
+      "fullResponseBytes": 4668,
+      "projectedResponseBytes": 2084,
+      "mandatoryExtraFieldsRetained": true,
+      "crossProductEquivalence": "not-established",
+      "privateEvidenceSha256": "af0b786abb6429af58aa6d011fd64861d8c1cfd2a6c42c966f8ec9bda0691348",
+      "limits": "Descriptive same-provider agreement only; no national coverage, independent validation or statistical confidence."
+    },
+    {
+      "date": "2026-10-19",
+      "status": "candidate-serialization-issue",
+      "operation": "Same-bbox GEOJSON projection omitting SHAPE",
+      "httpStatus": 200,
+      "jsonValid": false,
+      "controls": "Full-record and SHAPE-including projected responses parsed normally.",
+      "supportCase": "private-unsent-draft",
+      "responseSha256": "8f96146152e7f704cfe3777d4ef5255134d7f88fa9992b97e42a2a2228b6ba10",
+      "limits": "One request per variant; do not assume all products or geometries fail."
+    }
+  ]
+}

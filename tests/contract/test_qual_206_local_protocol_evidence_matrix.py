@@ -37,13 +37,23 @@ PREDECESSOR_COMPATIBILITY_PATH = (
 PREDECESSOR_COMPATIBILITY_SHA256 = (
     "b014eed6f24f221fd1fd4e5c60907d5b14e422207b6cc1c8120ec0e938fd4615"
 )
-CURRENT_COMPATIBILITY_PATH = (
+EXTRACTION_COMPATIBILITY_PATH = (
     ROOT / "tests" / "interoperability" / "evidence"
     / "qual-206-web216-current-runtime-compatibility.v3.json"
 )
-CURRENT_COMPATIBILITY_SHA256 = (
-    "01a334323b549aa15991598156372226c6d49ae63a0dd5654f38c487f62cc6e4"
+EXTRACTION_COMPATIBILITY_SHA256 = (
+    "8d68b0ff9604b9213b1009143f447cc332a991ba9212649dd0a3f15cb90635e9"
 )
+CURRENT_COMPATIBILITY_PATH = (
+    ROOT / "tests" / "interoperability" / "evidence"
+    / "qual-206-web216-current-runtime-compatibility.v4.json"
+)
+CURRENT_COMPATIBILITY_SHA256 = (
+    "b45ea2076658f616ca4032610dc3bad3b15a528f489cf3e4d7e3b26c5dd9fb63"
+)
+CURRENT_COMPATIBILITY_TEST_PATHS = [
+    "apps/mcp-gateway/test/mcp-transport.test.ts",
+]
 CURRENT_COMPATIBILITY_RUNTIME_PATHS = [
     "apps/mcp-gateway/src/mcp-http.ts",
     "apps/mcp-gateway/src/mcp-server.ts",
@@ -68,6 +78,8 @@ CURRENT_REGRESSION_PATHS = [
     "apps/mcp-gateway/test/web216-cpih-mcp.test.ts",
     "apps/mcp-gateway/test/mcp-http-core.test.ts",
     "packages/evidence/test/web216-pure.test.ts",
+    "apps/mcp-gateway/test/mcp-transport.test.ts",
+    "apps/mcp-gateway/test/mcp-input-bounds.test.ts",
 ]
 BOUNDARY = (
     "Repository-material-bound deterministic source matrix. It is repository-only, "
@@ -369,11 +381,14 @@ class Qual206LocalProtocolEvidenceMatrixTests(unittest.TestCase):
         )
         self.assertRegex(document["reviewed_source_commit"], r"^[0-9a-f]{40}$")
 
-    def assert_current_compatibility(self, document: dict[str, Any]) -> dict[str, str]:
-        # The whole-record pin prevents adding a scope/hash/claim exception, even
-        # after an edited document is given a newly recomputed self-hash.
+    def assert_extraction_compatibility(self, document: dict[str, Any]) -> None:
+        # Preserve V3 byte-for-byte as a historical source review, including its
+        # original material hashes; do not reinterpret those as current bytes.
+        self.assertEqual(
+            sha256(EXTRACTION_COMPATIBILITY_PATH), EXTRACTION_COMPATIBILITY_SHA256
+        )
         encoded = (json.dumps(document, ensure_ascii=False, indent=2) + "\n").encode()
-        self.assertEqual(sha256_bytes(encoded), CURRENT_COMPATIBILITY_SHA256)
+        self.assertEqual(sha256_bytes(encoded), EXTRACTION_COMPATIBILITY_SHA256)
         self.assertEqual(
             document["record_type"], "gis-ai-go.qual-206-current-runtime-compatibility.v3"
         )
@@ -388,19 +403,52 @@ class Qual206LocalProtocolEvidenceMatrixTests(unittest.TestCase):
         predecessor = load_json(PREDECESSOR_COMPATIBILITY_PATH)
         self.assert_predecessor_compatibility(predecessor)
         self.assertEqual(document["historical_matrix"], predecessor["historical_matrix"])
+        self.assertEqual(
+            [item["path"] for item in document["current_runtime_materials"]],
+            CURRENT_COMPATIBILITY_RUNTIME_PATHS,
+        )
+        for material, old in zip(
+            document["current_runtime_materials"],
+            predecessor["current_runtime_materials"], strict=True,
+        ):
+            self.assertEqual(material["historical_sha256"], old["historical_sha256"])
+
+    def assert_current_compatibility(self, document: dict[str, Any]) -> dict[str, str]:
+        # The whole-record pin prevents adding a scope/hash/claim exception, even
+        # after an edited document is given a newly recomputed self-hash.
+        encoded = (json.dumps(document, ensure_ascii=False, indent=2) + "\n").encode()
+        self.assertEqual(sha256_bytes(encoded), CURRENT_COMPATIBILITY_SHA256)
+        self.assertEqual(
+            document["record_type"], "gis-ai-go.qual-206-current-runtime-compatibility.v4"
+        )
+        self.assertEqual(
+            document["classification"], "reviewed-source-compatibility-not-execution-evidence"
+        )
+        self.assertEqual(set(document["claims"].values()), {False})
+        self.assertEqual(document["predecessor"], {
+            "path": EXTRACTION_COMPATIBILITY_PATH.relative_to(ROOT).as_posix(),
+            "sha256": EXTRACTION_COMPATIBILITY_SHA256,
+        })
+        predecessor = load_json(EXTRACTION_COMPATIBILITY_PATH)
+        self.assert_extraction_compatibility(predecessor)
+        self.assertEqual(document["historical_matrix"], predecessor["historical_matrix"])
         materials = document["current_runtime_materials"]
         self.assertEqual([item["path"] for item in materials], CURRENT_COMPATIBILITY_RUNTIME_PATHS)
         for material, old in zip(materials, predecessor["current_runtime_materials"], strict=True):
             self.assertEqual(material["historical_sha256"], old["historical_sha256"])
             self.assertEqual(material["sha256"], sha256(ROOT / material["path"]))
-        self.assertEqual(materials[2], predecessor["current_runtime_materials"][2])
         extraction = document["extraction_materials"]
         self.assertEqual([item["path"] for item in extraction], CURRENT_EXTRACTION_PATHS)
         for material in extraction:
             self.assertEqual(material["sha256"], sha256(ROOT / material["path"]))
         sources = document["regression_sources"]
         self.assertEqual([item["path"] for item in sources], CURRENT_REGRESSION_PATHS)
-        self.assertEqual(sources[0], predecessor["regression_source"])
+        for source, old in zip(sources, predecessor["regression_sources"]):
+            self.assertEqual(source["path"], old["path"])
+            self.assertEqual(
+                source["source_test_names"][:len(old["source_test_names"])],
+                old["source_test_names"],
+            )
         for source in sources:
             source_path = ROOT / source["path"]
             self.assertEqual(source["sha256"], sha256(source_path))
@@ -413,7 +461,20 @@ class Qual206LocalProtocolEvidenceMatrixTests(unittest.TestCase):
         # The reviewed commit is a provenance reference, not a protected-main
         # ancestry assertion: accepted source changes are squash-merged.
         self.assertRegex(document["reviewed_source_commit"], r"^[0-9a-f]{40}$")
-        return {material["path"]: material["sha256"] for material in materials}
+        test_materials = document["current_test_materials"]
+        self.assertEqual(
+            [item["path"] for item in test_materials], CURRENT_COMPATIBILITY_TEST_PATHS
+        )
+        for material in test_materials:
+            self.assertEqual(
+                material["historical_sha256"],
+                sha256_bytes(git_blob(RUNTIME_BASE_COMMIT, material["path"])),
+            )
+            self.assertEqual(material["sha256"], sha256(ROOT / material["path"]))
+        return {
+            material["path"]: material["sha256"]
+            for material in [*materials, *test_materials]
+        }
 
     def assert_current_material_hash(
         self, material: dict[str, Any], current_compatibility: dict[str, str]
@@ -423,6 +484,9 @@ class Qual206LocalProtocolEvidenceMatrixTests(unittest.TestCase):
 
     def test_predecessor_compatibility_record_remains_exact_historical_evidence(self) -> None:
         self.assert_predecessor_compatibility(load_json(PREDECESSOR_COMPATIBILITY_PATH))
+
+    def test_extraction_compatibility_record_remains_exact_historical_evidence(self) -> None:
+        self.assert_extraction_compatibility(load_json(EXTRACTION_COMPATIBILITY_PATH))
 
     def test_original_compatibility_record_remains_exact_historical_evidence(self) -> None:
         self.assert_original_compatibility(load_json(ORIGINAL_COMPATIBILITY_PATH))
@@ -458,7 +522,7 @@ class Qual206LocalProtocolEvidenceMatrixTests(unittest.TestCase):
                     changed["current_runtime_materials"][index][key] = value
                     with self.assertRaises(AssertionError):
                         self.assert_current_compatibility(changed)
-        for field in ("extraction_materials", "regression_sources"):
+        for field in ("extraction_materials", "regression_sources", "current_test_materials"):
             for index in range(len(original[field])):
                 for key, value in (
                     ("sha256", "0" * 64),
@@ -499,9 +563,10 @@ class Qual206LocalProtocolEvidenceMatrixTests(unittest.TestCase):
         original_sha256 = sha256
         for material in (
             *document["current_runtime_materials"], *document["extraction_materials"],
-            *document["regression_sources"],
+            *document["regression_sources"], *document["current_test_materials"],
             document["predecessor"], document["historical_matrix"],
             {"path": ORIGINAL_COMPATIBILITY_PATH.relative_to(ROOT).as_posix()},
+            {"path": PREDECESSOR_COMPATIBILITY_PATH.relative_to(ROOT).as_posix()},
         ):
             changed_path = ROOT / material["path"]
             with self.subTest(path=material["path"]):
@@ -521,7 +586,10 @@ class Qual206LocalProtocolEvidenceMatrixTests(unittest.TestCase):
             item for item in self.document["repository_binding"]["runtime_materials"]
             if item["path"] not in CURRENT_COMPATIBILITY_RUNTIME_PATHS
         ]
-        adjacent_materials.append(self.document["coverage"][0]["test_sources"][0])
+        adjacent_materials.extend(
+            item for row in self.document["coverage"] for item in row["test_sources"]
+            if item["path"] not in CURRENT_COMPATIBILITY_TEST_PATHS
+        )
         for adjacent in adjacent_materials:
             changed_path = ROOT / adjacent["path"]
             with self.subTest(path=adjacent["path"]):
@@ -618,9 +686,10 @@ class Qual206LocalProtocolEvidenceMatrixTests(unittest.TestCase):
                 )
                 # The manifest and lockfile bindings record the protected runtime
                 # base. Unrelated scripts or workspace importers may change without
-                # changing the pinned gateway client. Its current exact dependency
-                # is checked separately below. Only the explicit additive WEB-216
-                # runtime admission uses its new exact reviewed hash; every other
+                # rewriting the historical client observation. The current patched
+                # client pin is checked separately below. Only the explicitly named
+                # additive runtime and test-source admissions use their exact reviewed
+                # hashes; every other
                 # runtime/source material remains byte-identical to the base.
                 current_client_projection_paths = {
                     self.document["official_client"]["manifest"]["path"],
@@ -709,7 +778,7 @@ class Qual206LocalProtocolEvidenceMatrixTests(unittest.TestCase):
             f"{identity(core)}",
         )
 
-    def test_official_client_and_lock_are_exactly_pinned(self) -> None:
+    def test_historical_client_and_current_patched_client_are_separately_pinned(self) -> None:
         official = self.document["official_client"]
         self.assertEqual(official["package"], "@modelcontextprotocol/client")
         self.assertEqual(official["version"], "2.0.0")
@@ -717,6 +786,8 @@ class Qual206LocalProtocolEvidenceMatrixTests(unittest.TestCase):
         self.assertEqual(official["lockfile"]["path"], "pnpm-lock.yaml")
 
         manifest = load_json(GATEWAY_MANIFEST_PATH)
+        # This does not relabel the immutable v1 matrix as a 2.2.0 observation.
+        # Current interoperability is exercised by the executable SDK suites.
         self.assertEqual(
             manifest["devDependencies"]["@modelcontextprotocol/client"],
             "2.2.0",

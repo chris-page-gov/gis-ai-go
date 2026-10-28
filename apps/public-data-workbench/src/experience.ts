@@ -114,6 +114,8 @@ function showIntake(plan: IntakePlan) {
 }
 async function readFiles(files: readonly File[], paths?: string[]) {
   dropController?.abort();
+  // File.text()/arrayBuffer() cannot use this AbortSignal. A newer selection or
+  // Clear action advances the generation so completed reads cannot repopulate it.
   const generation = ++fileGeneration;
   const descriptors: IntakeFile[] = files.map((file, i) => ({ name: file.name, size: file.size, ...(paths?.[i] || file.webkitRelativePath ? { relativePath: paths?.[i] || file.webkitRelativePath } : {}) }));
   const preflight = planIntake({ files: descriptors });

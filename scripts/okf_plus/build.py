@@ -14,6 +14,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 from model import BASE, CONTEXT, CTX, PREFIXES, PROFILE, apply_temporal, canonical, digest, load_json, read_markdown, safe_reference
 from vocabulary_usage import vocabulary_usage
+from term_discovery import build_discovery
 
 ROOT=Path(__file__).resolve().parents[2]
 MARKER='gis-ai-go-okf-plus-build.v1\n'
@@ -42,10 +43,10 @@ def write_json(path,value):
     path.write_text(json.dumps(value,ensure_ascii=False,indent=2,sort_keys=True,allow_nan=False)+'\n')
 
 def schema_validator(root,name):
-    path=root/'okf-plus/schemas'/name
-    if not path.exists():return None  # Small synthetic build fixtures have no profile tree.
+    path=source_path(root,Path('okf-plus/schemas')/name)
+    if not path.is_file():raise ValueError('Required OKF+ schema is missing or not a regular file: '+name)
     from jsonschema import Draft202012Validator
-    schema=load_json(source_path(root,path.relative_to(root)).read_text())
+    schema=load_json(path.read_text())
     Draft202012Validator.check_schema(schema)
     return Draft202012Validator(schema)
 
@@ -132,6 +133,8 @@ def build(root,output,revision):
         return coverage
 
 def _build_into(root,output,revision):
+    # validate_record resolves provenance through this module-level root. The CLI
+    # runs one build at a time; callers must not interleave builds for different roots.
     global ROOT
     ROOT=root
     if not re.fullmatch('[0-9a-f]{40}',revision):raise ValueError('A full Git revision is required')
@@ -143,16 +146,30 @@ def _build_into(root,output,revision):
         shutil.rmtree(output)
     output.mkdir(parents=True);(output/'.okf-plus-generated').write_text(MARKER)
     records=[];identities=set();source_cache={};search=[]
+    # Require the complete validation set before reading any records. Test-only
+    # fixtures carry these same schemas rather than bypassing normal validation.
     record_check=schema_validator(root,'record.schema.json')
     snapshot_check=schema_validator(root,'source-snapshot.schema.json')
+    index_check=schema_validator(root,'search-index.schema.json')
+    term_check=schema_validator(root,'term-discovery.schema.json')
+    lexical_check=schema_validator(root,'lexical-form.schema.json')
     for path in sorted((root/'okf-plus/records').rglob('*.md')):
         source_path(root,path.relative_to(root))
         row,body=read_markdown(path);validate_record(row,path,source_cache)
-        if record_check:record_check.validate(row)
+        record_check.validate(row)
+        if 'okfp:lexicalForm' in row:
+            if not isinstance(row['okfp:lexicalForm'],list):
+                raise ValueError('Qualified lexical forms must be an array')
+            for form in row['okfp:lexicalForm']:
+                lexical_check.validate(form)
         if row['@id'] in identities:raise ValueError('Duplicate semantic identity')
         identities.add(row['@id']);records.append(row)
         route=path.relative_to(root/'okf-plus').as_posix()
         projected={'id':row['@id'],'title':row['title'],'description':row['description'],'type':row['type'],'sourceFamily':row['sourceFamily'],'nativeIdentifier':row['nativeIdentifier'],'sources':row['sources'],'temporal':row['temporal'],'update':row['update'],'details':row['details'],'tags':row['tags'],'text':body,'resource':row['resource'],'rights':row['rights'],'limitations':row['limitations'],'schemaEvidence':row.get('schemaEvidence',{}),'route':route,'assertionStatus':row['assertionStatus'],'reviewStatus':row['reviewStatus'],'status':row['status']}
+        # Retain complete source-native field nodes with their parent collection.
+        # Search may rank their labels/definitions, but must not invent aliases.
+        if "okfp:field" in row:
+            projected["okfp:field"] = row["okfp:field"]
         search.append(projected)
     if not records:raise ValueError('No records')
     for path in sorted((root/'okf-plus/source').glob('*.json')):
@@ -165,9 +182,10 @@ def _build_into(root,output,revision):
     standards_path=root/'okf-plus/profile/standards.json'
     standards=load_json(source_path(root,standards_path.relative_to(root)).read_text()) if standards_path.exists() else {'standards':[]}
     vocabulary=vocabulary_usage(records,standards,revision,input_digest)
+    term_discovery=build_discovery(records,vocabulary,revision,input_digest)
+    term_check.validate(term_discovery)
     snapshots=[v for v in source_cache.values() if v.get('schema')=='okf-plus-source-snapshot.v1']
-    if snapshot_check:
-        for snapshot in snapshots:snapshot_check.validate(snapshot)
+    for snapshot in snapshots:snapshot_check.validate(snapshot)
     coverage={'schema':'gis-ai-go.okf-plus-coverage.v1','revision':revision,'inputDigest':input_digest,'recordCount':len(records),'globalCompleteness':'not-established','byFamily':dict(sorted(Counter(r['sourceFamily'] for r in records).items())),'byType':dict(sorted(Counter(r['type'] for r in records).items())),'catalogues':[{**s['coverage'],'family':s['family'],'retrievedAt':sorted({r['retrievedAt'] for r in s['receipts']}),'failedRequests':sum(r['status']!=200 for r in s['receipts'])} for s in snapshots],
         'temporalEvidence':dict(Counter(r['temporal']['status'] for r in records)),
         'updateFrequencyEvidence':dict(Counter(r['update']['frequency']['status'] for r in records)),
@@ -178,19 +196,20 @@ def _build_into(root,output,revision):
         'schemaFindings':[{'record':r['@id'],'kind':kind,'requiredUndeclared':e['requiredUndeclared']} for r in records for kind,e in r.get('schemaEvidence',{}).items() if e['requiredUndeclared']],
         'limits':['Counts are catalogue representations at separate grains, not unique OS/ONS products.','No finite concept inventory proves all geospatial concepts.','Frequency and reference-period evidence have separate denominators; not-evidenced is not non-compliance.','Build validates retained metadata and provenance, not statistical accuracy, dataset rights or live connector admission.']}
     write_json(output/'vocabulary-usage.json',vocabulary)
+    write_json(output/'term-discovery.json',term_discovery)
     write_json(output/'context.jsonld',{'@context':CTX})
     write_json(output/'okf-bundle.jsonld',{'@context':CTX,'@id':BASE+'bundle','@type':'dcat:Catalog','dcterms:title':'OS and ONS geospatial OKF+','@graph':records})
     write_json(output/'okf-bundle.json',{'schema':'gis-ai-go.okf-plus-bundle.v1','okfVersion':'0.2','profile':PROFILE,'profileStatus':'candidate-pending-consumer-acceptance','revision':revision,'inputDigest':input_digest,'recordCount':len(records),'records':records})
     index={'schema':'gis-ai-go.okf-plus-search-index.v1','revision':revision,'inputDigest':input_digest,'records':search}
-    index_check=schema_validator(root,'search-index.schema.json')
-    if index_check:index_check.validate(index)
+    index_check.validate(index)
     write_json(output/'search-index.json',index)
     write_json(output/'coverage.json',coverage)
     write_json(output/'source-lock.json',{'schema':'gis-ai-go.okf-plus-source-lock.v1','revision':revision,'inputs':inputs,'sha256':input_digest})
-    write_json(output/'okf.json',{'okf_version':'0.2','title':'OS and ONS geospatial OKF+','description':'Metadata/schema discovery with provenance, date ranges, update routes and measured gaps.','profile':PROFILE,'profile_status':'candidate','entrypoints':{'bundle':'okf-bundle.json','jsonld':'okf-bundle.jsonld','search':'search-index.json','coverage':'coverage.json','vocabularyUsage':'vocabulary-usage.json'},'limitations':['Installed Ask OKF currently allowlists DWP only; this descriptor does not register the new bundle.']})
+    write_json(output/'okf.json',{'okf_version':'0.2','title':'OS and ONS geospatial OKF+','description':'Metadata/schema discovery with provenance, date ranges, update routes and measured gaps.','profile':PROFILE,'profile_status':'candidate','entrypoints':{'bundle':'okf-bundle.json','jsonld':'okf-bundle.jsonld','search':'search-index.json','coverage':'coverage.json','vocabularyUsage':'vocabulary-usage.json','termDiscovery':'term-discovery.json'},'limitations':['Installed Ask OKF currently allowlists DWP only; this descriptor does not register the new bundle.']})
     lines=['# OS and ONS OKF+ coverage','',f'Revision: `{revision}`. Input digest: `{input_digest}`.','',f'{len(records):,} Markdown/YAML-LD records. Global completeness is **not established**.','', '| Source family | Unit | Retained | Reported denominator | Catalogue traversal |','| --- | --- | ---: | ---: | --- |']
     for c in coverage['catalogues']:lines.append(f"| {c['family']} | {c['unit']} | {c['retrievedUnique']} | {c.get('reportedTotal','unknown')} | {'complete within stated lane' if c.get('catalogueComplete') else 'partial'} |")
     lines+=['','Actual predicate, class, object and datatype references are counted separately in `vocabulary-usage.json`. Namespace declarations and opaque JSON are excluded; unused terms stay visible. Usage is not semantic certification.']
+    lines+=['',f"Term discovery retains {term_discovery['formCount']:,} positioned lexical forms across every retained record in `term-discovery.json`. Labels, native codes, fields, typed enum values and semantic IRIs remain distinct. Search collisions do not establish equivalence or complete vocabulary coverage."]
     lines+=['','Temporal extent and update-cadence evidence are counted independently in `coverage.json`. A release date, metadata change timestamp or date in a title does not establish the period covered by observations.','',f"Schema field nodes: {coverage['ngdFieldNodes']:,}. Schema contradictions: {len(coverage['schemaFindings'])}.",'','## Limits','']+['- '+s for s in coverage['limits']]
     (output/'coverage.md').write_text('\n'.join(lines)+'\n')
     checksums={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(output.iterdir()) if p.is_file()}

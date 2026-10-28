@@ -10,7 +10,7 @@
     "sha256": "91dc5a38125b5fd686d3028621f8452c0a3d77fe177dd67b110da6316bfc6039",
     "runtime_base_commit": "f253605ab26628e821d4ebc3809cf13c883d57ed"
   },
-  "reviewed_source_commit": "322b2082da347950431d80076c514e50bdeb4e94",
+  "reviewed_source_commit": "ca09c5630bf41798e4c8b04632e7a855efcfede0",
   "current_runtime_materials": [
     {
       "path": "apps/mcp-gateway/src/mcp-http.ts",
@@ -63,7 +63,7 @@
     },
     {
       "path": "packages/evidence/src/reconciliation-index.ts",
-      "sha256": "178f4bca7596345f0132989ed295d6afaa344ea1b9c7a35eb6406cfc9773e0e5"
+      "sha256": "ccf1b957deee1f866d7a84736d3976be783b2aca5cc89192965f01831843bd9a"
     },
     {
       "path": "apps/mcp-gateway/src/web216-cpih-input-schemas.ts",
@@ -75,7 +75,7 @@
     },
     {
       "path": "apps/mcp-gateway/src/web216-hosted-cpih-application.ts",
-      "sha256": "954887ea9e87f3f037efa0ace373a70ff087f0957eb829fa72acd056a4771444"
+      "sha256": "396a9678c423aef2d2c2666bc768df59fdd0951686c6b1249812f8521793c348"
     },
     {
       "path": "apps/mcp-gateway/src/web216-hosted-cpih-mcp.ts",
@@ -87,7 +87,8 @@
     "Keep all three existing HTTP wrappers and their automatic response mode; add a separately named JSON-only hosted wrapper that discards parsed-body overrides and grants no ingress or deployment authority.",
     "Retain the unchanged protocol and maximum tool-result constants; move the unchanged public idempotency grammar into one shared object without changing the legacy root evidence exports.",
     "Use the explicit pure evidence subpath for the hosted application, MCP face and their selection/schema dependencies. The separate extraction-material list binds these reviewed source bytes but exempts no additional historical matrix material.",
-    "Refresh the current http-app.ts binding for LOCAL-214's separately registered local capability-health projection and matching local OpenAPI schema selection. Generic, default and non-local candidate health, readiness and OpenAPI behaviour remain unchanged; no historical matrix material is newly exempted."
+    "Refresh the current http-app.ts binding for LOCAL-214's separately registered local capability-health projection and matching local OpenAPI schema selection. Generic, default and non-local candidate health, readiness and OpenAPI behaviour remain unchanged; no historical matrix material is newly exempted.",
+    "Refresh only the extraction-material hashes for REVIEW-222 standalone explanatory comments in reconciliation-index.ts and web216-hosted-cpih-application.ts. All prior source lines are preserved; the runtime exemption set, named regressions, historical records and non-attesting claims are unchanged."
   ],
   "regression_sources": [
     {

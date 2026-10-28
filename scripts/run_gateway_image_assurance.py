@@ -21,13 +21,18 @@ from typing import Any
 
 from gateway_evidence import write_evidence_manifest
 from gateway_image import (
+    NODE_ADVISORY_STAGE_EXIT_CODES,
+    NODE_INVENTORY_SIZE_FIELDS,
+    NODE_INVENTORY_SIZE_PREFIX,
     PRIVACY_PHASE_OUTPUT_BOUNDARY,
     RUNTIME_LIBRARY_DONOR_ACQUISITION_EXIT_CODE,
     RUNTIME_LIBRARY_DONOR_VALIDATION_EXIT_CODE,
     ROOT,
     TRIVY_DB_ACQUISITION_EXIT_CODE,
     TRIVY_DB_REPOSITORIES,
+    VULNERABILITY_SCAN_STAGE_EXIT_CODES,
     contains_diagnostic_private_path,
+    node_inventory_size_diagnostic,
     prohibited_text_reason,
 )
 
@@ -38,6 +43,28 @@ MAX_PHASE_OUTPUT_BYTES = 1024 * 1024
 PHASE_OUTPUT_CHUNK_BYTES = 64 * 1024
 PHASE_OUTPUT_BOUNDARY = PRIVACY_PHASE_OUTPUT_BOUNDARY + "\n"
 PHASE_NAME = re.compile(r"[a-z][a-z0-9-]{0,63}\Z")
+SCAN_FAILURE_STAGES = {
+    code: stage for stage, code in {
+        **VULNERABILITY_SCAN_STAGE_EXIT_CODES,
+        **NODE_ADVISORY_STAGE_EXIT_CODES,
+    }.items()
+}
+
+
+def _node_inventory_size_diagnostic(text: str) -> str | None:
+    lines = [line for line in text.splitlines()
+             if line.startswith(NODE_INVENTORY_SIZE_PREFIX.rstrip())]
+    if len(lines) != 1:
+        return None
+    pattern = re.escape(NODE_INVENTORY_SIZE_PREFIX) + " ".join(
+        re.escape(key) + r"=(0|[1-9][0-9]{0,18})" for key in NODE_INVENTORY_SIZE_FIELDS
+    )
+    match = re.fullmatch(pattern, lines[0])
+    if match is None:
+        return None
+    return node_inventory_size_diagnostic(
+        dict(zip(NODE_INVENTORY_SIZE_FIELDS, map(int, match.groups()), strict=True))
+    )
 
 
 def _contains_reserved_phase_boundary(text: str) -> bool:
@@ -348,6 +375,8 @@ def run_checked(
             and return_code == RUNTIME_LIBRARY_DONOR_VALIDATION_EXIT_CODE
         ):
             failure = "failed during runtime-library donor validation"
+        elif name == "vulnerability-scan" and return_code in SCAN_FAILURE_STAGES:
+            failure = f"failed during {SCAN_FAILURE_STAGES[return_code]}"
         else:
             failure = "exited unsuccessfully"
     elif prohibited_output_reason is not None:
@@ -395,6 +424,28 @@ def run_checked(
                 "gateway image assurance phase vulnerability-scan failed closed; "
                 "failure_stage=runtime-library-donor-validation\n"
             )
+            sys.stderr.flush()
+        elif (
+            name == "vulnerability-scan"
+            and return_code in SCAN_FAILURE_STAGES
+            and failure == f"failed during {SCAN_FAILURE_STAGES[return_code]}"
+        ):
+            sys.stderr.write(
+                "gateway image assurance phase vulnerability-scan failed closed; "
+                f"failure_stage={SCAN_FAILURE_STAGES[return_code]}\n"
+            )
+            if (
+                return_code == NODE_ADVISORY_STAGE_EXIT_CODES["node-db-inventory-expanded-bound"]
+                and prohibited_output_reason is None
+                and classifications[1][2] is not None
+                and not any(
+                    line.startswith(NODE_INVENTORY_SIZE_PREFIX.rstrip())
+                    for line in (classifications[0][2] or "").splitlines()
+                )
+            ):
+                diagnostic = _node_inventory_size_diagnostic(classifications[1][2])
+                if diagnostic is not None:
+                    sys.stderr.write(diagnostic + "\n")
             sys.stderr.flush()
     if failure is not None:
         raise ValueError(f"gateway image assurance phase {name} {failure}")
@@ -557,6 +608,8 @@ def main() -> None:
         require_assurance_paths()
         if output.exists() or output.is_symlink():
             raise ValueError("gateway assurance output appeared before verified promotion")
+        # Publication is the final state transition: consumers must never see an
+        # output directory containing only the phases that happened to finish.
         quarantine.replace(output)
         promoted = True
     finally:

@@ -1,0 +1,1 @@
+- Add a bounded optional field-documentary reference panel with source/version context, explicit unresolved links, just-in-time explanations and fictional contract tests, without asserting API adoption or publishing supplier payloads. (#153)

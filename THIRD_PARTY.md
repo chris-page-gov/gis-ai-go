@@ -35,6 +35,32 @@ LandIS material is attributed to Cranfield University and the Land Information
 System. Its catalogue has mixed access and per-record rights. This repository does
 not grant blanket reuse rights in LandIS records, services or data.
 
+## Governance case-study documents
+
+The [13 October 2026 governance case-study intake](docs/research/2026-10-13/governance-as-code/README.md)
+contains two owner-supplied documents: a draft meeting briefing and a peer review
+of an earlier case study. Public DOCX derivatives have metadata scrubbed while
+preserving visible text; Markdown extracts support review. The folder records
+provenance, transformations and checksums.
+
+These documents are research evidence, not operational instructions or an
+endorsement. Source rights remain with their respective rights holders; inclusion
+does not relicense the documents or their extracts under MIT. The briefing's
+header claims about models and reviewers remain unverified.
+
+## Pinned JavaScript security replacements, 17 October 2026
+
+The dependency repair for [issue #142](https://github.com/chris-page-gov/gis-ai-go/issues/142)
+retains upstream package licences while replacing affected locked versions:
+Hono `4.13.7` (MIT), Undici `8.10.2` (MIT), source-map-js `1.2.2` (BSD-3-Clause),
+and MCP client/core `2.2.0` (MIT). The server and Node adapter retain their separate
+`2.0.0` dependency graph. The hosted workbench includes the MCP client; Undici
+and source-map-js are development/build dependencies in this workspace. Their
+upstream licence files remain in the installed distributions and applicable
+packaging outputs. The generated SBOM identifies exact locked components; the
+[security disposition](docs/operations/DEPENDENCY_SECURITY_2026-10-17.md) records
+advisories, exposure and the distinction between source repair and deployment.
+
 ## Blocked gateway runtime composition
 
 The DEPLOY-207 gateway candidate uses one fixed `linux/amd64` hybrid runtime. The

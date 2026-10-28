@@ -8,8 +8,10 @@ import hashlib
 import importlib.util
 import io
 import json
+import os
 from pathlib import Path, PurePosixPath
 import re
+import stat
 import tarfile
 import tempfile
 
@@ -28,6 +30,8 @@ MAX_EXTENSION_HEADERS = 100_000
 MAX_EXTENSION_DEPTH = 16
 MAX_PAX_ATTRIBUTES = 128
 MAX_PAX_STATE_BYTES = 64 * 1024
+MAX_PAX_HEADER = 64 * 1024
+MAX_PAX_TOTAL = 128 * 1024 * 1024
 MANIFEST = 'EXPORT_MANIFEST.json'
 FIXED = ('LICENSE', '.nvmrc', 'pyproject.toml', 'uv.lock', 'package.json', 'pnpm-lock.yaml',
          'services/geo-execution/pyproject.toml', 'scripts/scan_secrets.py')
@@ -47,6 +51,45 @@ def safe_path(value):
     if path.is_absolute() or any(p in ('', '.', '..') for p in value.split('/')) or ':' in value:
         raise ValueError('Export paths must be safe relative paths')
     return value
+
+
+class BoundedTarInfo(tarfile.TarInfo):
+    """Admit the bounded local-PAX subset produced by the OKF+ exporters."""
+
+    def _proc_pax(self, archive):
+        if self.type != tarfile.XHDTYPE or getattr(archive, '_okf_pax_active', False):
+            raise ValueError('Unsupported or nested archive metadata')
+        padded = self._block(self.size)
+        count = getattr(archive, '_okf_pax_count', 0) + 1
+        total = getattr(archive, '_okf_pax_bytes', 0) + tarfile.BLOCKSIZE + padded
+        if (not 0 < self.size <= MAX_PAX_HEADER or count > MAX_FILES
+                or total > MAX_PAX_TOTAL):
+            raise ValueError('PAX archive metadata exceeds its resource ceiling')
+        archive._okf_pax_count = count
+        archive._okf_pax_bytes = total
+        archive._okf_pax_active = True
+        try:
+            member = super()._proc_pax(archive)
+        finally:
+            archive._okf_pax_active = False
+        if set(member.pax_headers) != {'path'}:
+            raise ValueError('Archive contains non-canonical PAX metadata')
+        return member
+
+    def _proc_gnulong(self, archive):
+        raise ValueError('GNU archive metadata is unsupported')
+
+    def _proc_sparse(self, archive):
+        raise ValueError('Sparse archive metadata is unsupported')
+
+    def _proc_gnusparse_00(self, *args):
+        raise ValueError('Sparse archive metadata is unsupported')
+
+    def _proc_gnusparse_01(self, *args):
+        raise ValueError('Sparse archive metadata is unsupported')
+
+    def _proc_gnusparse_10(self, *args):
+        raise ValueError('Sparse archive metadata is unsupported')
 
 
 def read_file(root, relative):
@@ -247,7 +290,7 @@ def _check_pax_state(headers):
             raise ValueError('PAX state exceeds byte ceiling')
 
 
-class _BoundedTarInfo(tarfile.TarInfo):
+class _BoundedTarInfo(BoundedTarInfo):
     """Guard hidden extension reads before the standard parser processes them."""
 
     @classmethod
@@ -266,7 +309,7 @@ class _BoundedTarInfo(tarfile.TarInfo):
         # them for a local extension or _proc_builtin applies them to a member.
         _check_pax_state(archive.pax_headers)
         if self.type == tarfile.GNUTYPE_SPARSE:
-            raise ValueError('Sparse archive members are forbidden')
+            raise ValueError('Sparse archive metadata members are forbidden')
         extensions = (tarfile.XHDTYPE, tarfile.XGLTYPE, tarfile.SOLARIS_XHDTYPE,
                       tarfile.GNUTYPE_LONGNAME, tarfile.GNUTYPE_LONGLINK)
         if self.type not in extensions:
@@ -295,58 +338,61 @@ class _BoundedTarInfo(tarfile.TarInfo):
         _check_pax_state(headers)
         if (any(key.startswith('GNU.sparse.') or key in ('SCHILY.realsize', 'SCHILY.holesdata') for key in headers)
                 or headers.get('SCHILY.filetype') == 'sparse'):
-            raise ValueError('Sparse archive members are forbidden')
+            raise ValueError('Sparse archive metadata is unsupported')
         return super()._apply_pax_info(headers, encoding, errors)
-
-    def _proc_gnusparse_00(self, *args):
-        raise ValueError('Sparse archive members are forbidden')
-
-    def _proc_gnusparse_01(self, *args):
-        raise ValueError('Sparse archive members are forbidden')
-
-    def _proc_gnusparse_10(self, *args):
-        raise ValueError('Sparse archive members are forbidden')
 
 
 def verify_archive(path, expected_schema='gis-ai-go.okf-plus-export-manifest.v1'):
     """Inspect and hash regular files without extracting an archive."""
-    if Path(path).stat().st_size > MAX_TOTAL:
-        raise ValueError('Compressed archive exceeds byte ceiling')
+    path = Path(path)
+    try:
+        metadata = path.lstat()
+    except FileNotFoundError as error:
+        raise ValueError('Archive does not exist') from error
+    if (stat.S_ISLNK(metadata.st_mode) or not stat.S_ISREG(metadata.st_mode)
+            or metadata.st_nlink != 1 or metadata.st_size > MAX_TOTAL):
+        raise ValueError('Archive must be a bounded ordinary single-link file')
     found = {}; total = 0; manifest = None
     try:
-        with gzip.open(path, 'rb') as compressed:
-            expanded = _ExpandedReader(compressed)
-            with tarfile.open(fileobj=expanded, mode='r:', tarinfo=_BoundedTarInfo) as archive:
-                for member in archive:
-                    name = safe_path(member.name)
-                    if (not member.isfile() or member.issym() or member.islnk() or member.issparse() or name in found
-                            or not 0 <= member.size <= MAX_FILE or len(found) >= MAX_FILES):
-                        raise ValueError('Unsafe or oversized archive member')
-                    total += member.size
-                    if total > MAX_TOTAL:
-                        raise ValueError('Archive exceeds total byte ceiling')
-                    handle = archive.extractfile(member)
-                    if handle is None:
-                        raise ValueError('Archive member has no data')
-                    raw = handle.read(member.size + 1)
-                    if len(raw) != member.size:
-                        raise ValueError('Archive member size mismatch')
-                    found[name] = {'path': name, 'bytes': len(raw), 'sha256': sha(raw)}
-                    if name == MANIFEST:
-                        manifest = load_json(raw.decode())
-                    # TarFile caches each returned TarInfo even in stream mode
-                    # on Python 3.12. This route reads once, hashes once and never
-                    # looks up members by name, so retain no per-file PAX copies.
-                    archive.members.clear()
-                if not getattr(archive, '_okf_end_seen', False):
-                    raise ValueError('Archive terminator is missing')
-            trailing = 0
-            while raw := expanded.read(64 * 1024):
-                trailing += len(raw)
-                if any(raw):
-                    raise ValueError('Nonzero trailing archive data is forbidden')
-            if trailing < tarfile.BLOCKSIZE:
-                raise ValueError('Truncated archive terminator')
+        with path.open('rb') as source:
+            opened = os.fstat(source.fileno())
+            if ((opened.st_dev, opened.st_ino) != (metadata.st_dev, metadata.st_ino)
+                    or not stat.S_ISREG(opened.st_mode) or opened.st_nlink != 1
+                    or opened.st_size > MAX_TOTAL):
+                raise ValueError('Archive changed or escaped its file boundary')
+            with gzip.GzipFile(fileobj=source, mode='rb') as compressed:
+                expanded = _ExpandedReader(compressed)
+                with tarfile.open(fileobj=expanded, mode='r:', tarinfo=_BoundedTarInfo) as archive:
+                    for member in archive:
+                        name = safe_path(member.name)
+                        if (not member.isfile() or member.issym() or member.islnk() or member.issparse() or name in found
+                                or not 0 <= member.size <= MAX_FILE or len(found) >= MAX_FILES):
+                            raise ValueError('Unsafe or oversized archive member')
+                        total += member.size
+                        if total > MAX_TOTAL:
+                            raise ValueError('Archive exceeds total byte ceiling')
+                        handle = archive.extractfile(member)
+                        if handle is None:
+                            raise ValueError('Archive member has no data')
+                        raw = handle.read(member.size + 1)
+                        if len(raw) != member.size:
+                            raise ValueError('Archive member size mismatch')
+                        found[name] = {'path': name, 'bytes': len(raw), 'sha256': sha(raw)}
+                        if name == MANIFEST:
+                            manifest = load_json(raw.decode())
+                        # TarFile caches each returned TarInfo even in stream mode
+                        # on Python 3.12. This route reads once, hashes once and never
+                        # looks up members by name, so retain no per-file PAX copies.
+                        archive.members.clear()
+                    if not getattr(archive, '_okf_end_seen', False):
+                        raise ValueError('Archive terminator is missing')
+                trailing = 0
+                while raw := expanded.read(64 * 1024):
+                    trailing += len(raw)
+                    if any(raw):
+                        raise ValueError('Nonzero trailing archive data is forbidden')
+                if trailing < tarfile.BLOCKSIZE:
+                    raise ValueError('Truncated archive terminator')
     except (tarfile.TarError, EOFError, OSError) as error:
         raise ValueError('Truncated or invalid compressed archive') from error
     if not manifest or manifest.get('schema') != expected_schema:

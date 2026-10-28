@@ -5,7 +5,9 @@
   "push_main_policy": "full_exact_commit",
   "always_run": [
     "assurance",
-    "ci_impact_shadow"
+    "ci_impact_candidate",
+    "ci_impact_shadow",
+    "explorer_pages_candidate"
   ],
   "lanes": [
     {
@@ -87,12 +89,16 @@
         ".github/**",
         ".nvmrc",
         "VERSION",
+        "config/explorer-publication.json",
         "package.json",
         "pnpm-lock.yaml",
         "pnpm-workspace.yaml",
         "pyproject.toml",
+        "scripts/agree_ci_impact.py",
         "scripts/plan_ci_impact.py",
+        "tests/contract/test_ci_impact_agreement.py",
         "tests/contract/test_ci_impact_plan.py",
+        "tests/contract/test_pages_workflows.py",
         "tsconfig.base.json",
         "uv.lock"
       ],
@@ -320,6 +326,7 @@
       "id": "experience-learning-and-intake",
       "description": "Learning examples, local file intake and evaluation require full assurance.",
       "patterns": [
+        "examples/geography-task-experience/**",
         "packages/experience-intake/**"
       ],
       "lanes": [

@@ -1,0 +1,936 @@
+{
+  "schema": "gis-ai-go.authored-experience-design.v1",
+  "status": "authored design hypotheses; human evaluation not run",
+  "denominator": "These 26 declared v11 interface capabilities, including inherited v10 facilities. Not all GIS AI GO capabilities or every possible question.",
+  "personas": [
+    {
+      "id": "resident",
+      "label": "Resident or learner",
+      "goal": "Understand which place and evidence a question concerns.",
+      "languageAndKnowledge": "Everyday place language; expertise is not assumed.",
+      "researchStatus": "authored-hypothesis"
+    },
+    {
+      "id": "planner",
+      "label": "Policy or service planner",
+      "goal": "Frame a service question without unsupported household or access claims.",
+      "languageAndKnowledge": "Administrative vocabulary, variable statistical knowledge.",
+      "researchStatus": "authored-hypothesis"
+    },
+    {
+      "id": "analyst",
+      "label": "Analyst or statistician",
+      "goal": "Check denominators, classification meaning and comparable periods.",
+      "languageAndKnowledge": "Comfortable with tables; geographic expertise varies.",
+      "researchStatus": "authored-hypothesis"
+    },
+    {
+      "id": "specialist",
+      "label": "Geospatial or network specialist",
+      "goal": "Inspect native geometry, typed references, cardinality and versions.",
+      "languageAndKnowledge": "Precise geographic and network vocabulary.",
+      "researchStatus": "authored-hypothesis"
+    },
+    {
+      "id": "steward",
+      "label": "Data steward or engineer",
+      "goal": "Trace fields, nulls, sources, identifiers and interpretation changes.",
+      "languageAndKnowledge": "Technical data knowledge, variable subject expertise.",
+      "researchStatus": "authored-hypothesis"
+    },
+    {
+      "id": "teacher",
+      "label": "Teacher or facilitator",
+      "goal": "Help someone practise and explain a supported interpretation.",
+      "languageAndKnowledge": "Teaching expertise; subject knowledge varies.",
+      "researchStatus": "authored-hypothesis"
+    },
+    {
+      "id": "reviewer",
+      "label": "Auditor or reviewer",
+      "goal": "Separate observed evidence from proposals and unresolved claims.",
+      "languageAndKnowledge": "Assurance vocabulary; interface and source expertise vary.",
+      "researchStatus": "authored-hypothesis"
+    }
+  ],
+  "crossCuttingNeeds": [
+    {
+      "id": "access",
+      "description": "Keyboard, screen reader, low vision, touch and motor needs apply to every role; do not infer ability from a persona."
+    },
+    {
+      "id": "language",
+      "description": "English fluency, vocabulary and subject expertise are independent; preserve native names and identifiers."
+    },
+    {
+      "id": "experience",
+      "description": "Novice and expert use can occur within every role; give plain explanations with inspectable technical evidence."
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "C01",
+      "capability": "Start and choose a task",
+      "primaryPersona": "resident",
+      "task": "learn",
+      "learningStage": "orient",
+      "story": "As a resident or learner, I want an understandable starting point so I can ask a useful place question.",
+      "expectedVisibleOutcome": "Only the chosen task occupies the workspace; its purpose and safeguard are visible.",
+      "jit": "Task help",
+      "sourceBasis": "EXPERIENCE-221 learning and examples",
+      "testStatus": "candidate checks recorded separately; no human outcome inferred",
+      "sourceRefs": [
+        "experience-contract"
+      ]
+    },
+    {
+      "id": "C02",
+      "capability": "Choose and follow a learning stage",
+      "primaryPersona": "teacher",
+      "task": "learn",
+      "learningStage": "orient",
+      "story": "As a teacher or facilitator, I want a goal, activity and observable outcome so I can facilitate practice.",
+      "expectedVisibleOutcome": "One selected stage shows a goal, activity, output, safeguard and evidence; previous/next change the stage.",
+      "jit": "Learning is practice, not assessment",
+      "sourceBasis": "Explorer learning presentation",
+      "testStatus": "candidate checks recorded separately; no human outcome inferred",
+      "sourceRefs": [
+        "experience-contract"
+      ]
+    },
+    {
+      "id": "C03",
+      "capability": "Change persona perspective",
+      "primaryPersona": "teacher",
+      "task": "learn",
+      "learningStage": "orient",
+      "story": "As a teacher or facilitator, I want alternative role prompts so I can explain the same facilities for different needs.",
+      "expectedVisibleOutcome": "The chosen role changes the authored prompt; it does not change the data or authority.",
+      "jit": "Role prompts are hypotheses",
+      "sourceBasis": "EXPERIENCE-221 persona catalogue",
+      "testStatus": "candidate checks recorded separately; no human outcome inferred",
+      "sourceRefs": [
+        "experience-contract"
+      ]
+    },
+    {
+      "id": "C04",
+      "capability": "Mark and reset practice",
+      "primaryPersona": "resident",
+      "task": "learn",
+      "learningStage": "verify",
+      "story": "As a resident or learner, I want to remember what I tried in this session without claiming a qualification.",
+      "expectedVisibleOutcome": "Practice ticks persist only in page memory, can be reset and clear on reload.",
+      "jit": "Not assessment or certification",
+      "sourceBasis": "Explorer learning presentation",
+      "testStatus": "candidate checks recorded separately; no human outcome inferred",
+      "sourceRefs": [
+        "experience-contract"
+      ]
+    },
+    {
+      "id": "C05",
+      "capability": "Choose geography and follow membership",
+      "primaryPersona": "planner",
+      "task": "areas",
+      "learningStage": "orient",
+      "story": "As a policy or service planner, I want to move between the supplied authority geography and statistical areas using published memberships.",
+      "expectedVisibleOutcome": "Native codes, levels and the published relationship are visible; a polygon or code selects the same record.",
+      "jit": "Organisation versus administrative area; exact-fit versus best-fit",
+      "sourceBasis": "ONS statistical and administrative geography sources",
+      "testStatus": "candidate checks recorded separately; no human outcome inferred",
+      "sourceRefs": [
+        "ons-census",
+        "ons-admin"
+      ]
+    },
+    {
+      "id": "C06",
+      "capability": "Use map and code alternatives",
+      "primaryPersona": "resident",
+      "task": "areas",
+      "learningStage": "orient",
+      "story": "As a resident or learner, I want to select the same area with a map, code or keyboard so a picture is optional.",
+      "expectedVisibleOutcome": "The map and code buttons retain matching selected state and focus; map selection does not assert containment.",
+      "jit": "Membership is not geometric containment",
+      "sourceBasis": "Retained boundary and lookup source declarations",
+      "testStatus": "candidate checks recorded separately; no human outcome inferred",
+      "sourceRefs": [
+        "ons-census"
+      ]
+    },
+    {
+      "id": "C07",
+      "capability": "Search and page retained UPRNs",
+      "primaryPersona": "steward",
+      "task": "areas",
+      "learningStage": "follow",
+      "story": "As a data steward or engineer, I want to inspect a retained identifier within the chosen area without a fresh provider request.",
+      "expectedVisibleOutcome": "Bounded pages, exact search, empty results and current/previous-property caveat remain.",
+      "jit": "UPRN is an identifier, not a count of people",
+      "sourceBasis": "NSUL scope and identifier sources",
+      "testStatus": "candidate checks recorded separately; no human outcome inferred",
+      "sourceRefs": [
+        "ons-uprn",
+        "os-ids"
+      ]
+    },
+    {
+      "id": "C08",
+      "capability": "Inspect typed Linked Identifiers associations",
+      "primaryPersona": "specialist",
+      "task": "areas",
+      "learningStage": "follow",
+      "story": "As a geospatial or network specialist, I want to distinguish relationship methods and source versions before following a native feature.",
+      "expectedVisibleOutcome": "Typed target, method meaning, source/target dates and native confidence are displayed; unobserved UPRNs stay unobserved.",
+      "jit": "Association is not building containment or road access",
+      "sourceBasis": "OS Linked Identifiers method documentation",
+      "testStatus": "candidate checks recorded separately; no human outcome inferred",
+      "sourceRefs": [
+        "os-li",
+        "os-ids"
+      ]
+    },
+    {
+      "id": "C09",
+      "capability": "Inspect native-query outcomes",
+      "primaryPersona": "reviewer",
+      "task": "features",
+      "learningStage": "follow",
+      "story": "As an auditor or reviewer, I want to distinguish an actual match, no match and no response so coverage is not overstated.",
+      "expectedVisibleOutcome": "Earlier query choices preserve all three outcomes and the original reservation/no-retry explanation.",
+      "jit": "Zero matches are scoped; no response is not absence",
+      "sourceBasis": "Native source contracts and retained outcome explanations",
+      "testStatus": "candidate checks recorded separately; no human outcome inferred",
+      "sourceRefs": [
+        "os-ids"
+      ]
+    },
+    {
+      "id": "C10",
+      "capability": "Inspect native heights",
+      "primaryPersona": "specialist",
+      "task": "features",
+      "learningStage": "follow",
+      "story": "As a geospatial or network specialist, I want native height fields and units without mistaking precision for accuracy.",
+      "expectedVisibleOutcome": "The height table keeps field names, definitions, nulls, metres and qualitative confidence; values and units stay together.",
+      "jit": "Vertical meaning and geometry CRS are separate",
+      "sourceBasis": "OS BuildingPart height definitions",
+      "testStatus": "candidate checks recorded separately; no human outcome inferred",
+      "sourceRefs": [
+        "os-crs"
+      ]
+    },
+    {
+      "id": "C11",
+      "capability": "Select added native feature families",
+      "primaryPersona": "specialist",
+      "task": "features",
+      "learningStage": "follow",
+      "story": "As a geospatial or network specialist, I want to inspect selected Streets, Sites, Buildings and PathLinks without implying complete area coverage.",
+      "expectedVisibleOutcome": "Family filter, full native property table, diagnostic status and all retained references remain available.",
+      "jit": "Selected observations are not an inventory of every feature",
+      "sourceBasis": "OS NGD feature source documentation",
+      "testStatus": "candidate checks recorded separately; no human outcome inferred",
+      "sourceRefs": [
+        "os-road-link",
+        "os-path-link"
+      ]
+    },
+    {
+      "id": "C12",
+      "capability": "Follow source-owned native references",
+      "primaryPersona": "steward",
+      "task": "features",
+      "learningStage": "follow",
+      "story": "As a data steward or engineer, I want to follow exact loaded targets and preserve unresolved references.",
+      "expectedVisibleOutcome": "Loaded targets navigate to their detail; unloaded targets explicitly have no loaded geometry.",
+      "jit": "Site principal building is not all Site buildings",
+      "sourceBasis": "OS native reference fields and source versions",
+      "testStatus": "candidate checks recorded separately; no human outcome inferred",
+      "sourceRefs": [
+        "os-ids"
+      ]
+    },
+    {
+      "id": "C13",
+      "capability": "Inspect PathLink representation limits",
+      "primaryPersona": "specialist",
+      "task": "features",
+      "learningStage": "follow",
+      "story": "As a geospatial or network specialist, I want to know what a drawn path does and does not establish.",
+      "expectedVisibleOutcome": "The original dated Street reference and PathLink native version remain distinct; requested 2D versus storage ordinate loss is visible.",
+      "jit": "No walkability, access, connectivity or right-of-way inference",
+      "sourceBasis": "OS PathLink source schema and definitions",
+      "testStatus": "candidate checks recorded separately; no human outcome inferred",
+      "sourceRefs": [
+        "os-path-link",
+        "os-crs"
+      ]
+    },
+    {
+      "id": "C14",
+      "capability": "Compare ONSUD groupings",
+      "primaryPersona": "analyst",
+      "task": "groups",
+      "learningStage": "compare",
+      "story": "As an analyst or statistician, I want to count the selected cohort by a documented dimension with a complete table alternative.",
+      "expectedVisibleOutcome": "Dimension and cohort controls update the chart and table together; denominator and method are explicit.",
+      "jit": "Counts of retained UPRNs are not population estimates",
+      "sourceBasis": "ONSUD methods and dated ancillary definitions",
+      "testStatus": "candidate checks recorded separately; no human outcome inferred",
+      "sourceRefs": [
+        "ons-uprn"
+      ]
+    },
+    {
+      "id": "C15",
+      "capability": "Inspect allocation differences",
+      "primaryPersona": "planner",
+      "task": "groups",
+      "learningStage": "compare",
+      "story": "As a policy or service planner, I want to compare direct and best-fit assignments without replacing either with a guessed answer.",
+      "expectedVisibleOutcome": "The supplied difference example shows both native assignments and the explanation; neither is overwritten.",
+      "jit": "Direct and best-fit methods answer different questions",
+      "sourceBasis": "ONSUD and NSUL method documentation",
+      "testStatus": "candidate checks recorded separately; no human outcome inferred",
+      "sourceRefs": [
+        "ons-uprn"
+      ]
+    },
+    {
+      "id": "C16",
+      "capability": "Interpret nominal and ranked classifications",
+      "primaryPersona": "analyst",
+      "task": "groups",
+      "learningStage": "compare",
+      "story": "As an analyst or statistician, I want to distinguish nominal RUC/OAC categories from deprivation ranks and measures.",
+      "expectedVisibleOutcome": "Native labels and classification notes stay beside counts; ranks are not displayed as deprivation amounts.",
+      "jit": "Nominal categories are not quantities; jurisdictions differ",
+      "sourceBasis": "ONS RUC/OAC and jurisdiction-specific deprivation sources",
+      "testStatus": "candidate checks recorded separately; no human outcome inferred",
+      "sourceRefs": [
+        "ons-ruc",
+        "ons-oac",
+        "england-imd"
+      ]
+    },
+    {
+      "id": "C17",
+      "capability": "Compare historical BUA assignments and boundaries",
+      "primaryPersona": "planner",
+      "task": "settlements",
+      "learningStage": "contrast",
+      "story": "As a policy or service planner, I want to compare a settlement lookup with its dated boundary evidence without inventing a current crosswalk.",
+      "expectedVisibleOutcome": "Only exact BUA24CD joins are used; lookup/boundary editions, field-specific discrepancies and complete selected geometry remain visible.",
+      "jit": "Settlement is not an administrative authority",
+      "sourceBasis": "ONS historical BUA source and lookup definitions",
+      "testStatus": "candidate checks recorded separately; no human outcome inferred",
+      "sourceRefs": [
+        "ons-uprn",
+        "ons-codes"
+      ]
+    },
+    {
+      "id": "C18",
+      "capability": "Handle the not-covered BUA pseudo-code",
+      "primaryPersona": "analyst",
+      "task": "settlements",
+      "learningStage": "contrast",
+      "story": "As an analyst or statistician, I want a not-covered category to remain distinct from rurality or outside-polygon status.",
+      "expectedVisibleOutcome": "The category has no polygon and no implied spatial complement; it remains in the counts table.",
+      "jit": "Not covered does not mean rural",
+      "sourceBasis": "ONSUD BUA coverage notes",
+      "testStatus": "candidate checks recorded separately; no human outcome inferred",
+      "sourceRefs": [
+        "ons-uprn"
+      ]
+    },
+    {
+      "id": "C19",
+      "capability": "Inspect all BUA attributes and geometry",
+      "primaryPersona": "steward",
+      "task": "settlements",
+      "learningStage": "contrast",
+      "story": "As a data steward or engineer, I want native fields, whitespace, nulls and geometry details to survive a visual comparison.",
+      "expectedVisibleOutcome": "The full retained attribute table and exact lexeme details remain; all selected rings are drawn without new simplification.",
+      "jit": "Different native strings or identifiers are not silently normalised",
+      "sourceBasis": "Historical boundary source fields and portrayal limits",
+      "testStatus": "candidate checks recorded separately; no human outcome inferred",
+      "sourceRefs": [
+        "ons-codes"
+      ]
+    },
+    {
+      "id": "C20",
+      "capability": "Inspect code instances and dates",
+      "primaryPersona": "reviewer",
+      "task": "history",
+      "learningStage": "verify",
+      "story": "As an auditor or reviewer, I want native instance dates distinguished from polygon life and code succession.",
+      "expectedVisibleOutcome": "The chosen code can show multiple recorded instances; native date meaning, empty/absent values and source labels remain.",
+      "jit": "Code validity is not boundary validity or a crosswalk",
+      "sourceBasis": "Register of Geographic Codes and date-source definitions",
+      "testStatus": "candidate checks recorded separately; no human outcome inferred",
+      "sourceRefs": [
+        "ons-codes",
+        "ons-chd"
+      ]
+    },
+    {
+      "id": "C21",
+      "capability": "Compare explanation routes and proposal previews",
+      "primaryPersona": "teacher",
+      "task": "sources",
+      "learningStage": "verify",
+      "story": "As a teacher or facilitator, I want learners to distinguish an implemented observation from a suggested presentation.",
+      "expectedVisibleOutcome": "Explanation routes, earlier research notes and proposal-only chart previews keep their status labels.",
+      "jit": "A proposal is not a completed dataset or calculation",
+      "sourceBasis": "Geography dates and classifications guide",
+      "testStatus": "candidate checks recorded separately; no human outcome inferred",
+      "sourceRefs": [
+        "ons-census",
+        "ons-admin"
+      ]
+    },
+    {
+      "id": "C22",
+      "capability": "Inspect all evidence and journey caveats",
+      "primaryPersona": "reviewer",
+      "task": "sources",
+      "learningStage": "verify",
+      "story": "As an auditor or reviewer, I want the original source editions, journey status and coverage limits to remain inspectable.",
+      "expectedVisibleOutcome": "Original evidence text, source links and journey-status entries remain accessible in the focused sources task.",
+      "jit": "Selected-input acceptance is not full coverage",
+      "sourceBasis": "Original source editions and boundary explanations",
+      "testStatus": "candidate checks recorded separately; no human outcome inferred",
+      "sourceRefs": [
+        "ons-codes"
+      ]
+    },
+    {
+      "id": "C23",
+      "capability": "Search terminology and aliases",
+      "primaryPersona": "resident",
+      "task": "reference",
+      "learningStage": "orient",
+      "story": "As a resident or learner, I want to find an unfamiliar word or code without assuming every matching label means the same thing.",
+      "expectedVisibleOutcome": "Search matches reviewed labels, definitions and aliases; entries retain source links, alias authority and scope notes.",
+      "jit": "A search variant does not establish semantic equivalence",
+      "sourceBasis": "Source-reviewed vocabulary registry",
+      "testStatus": "candidate checks recorded separately; no human outcome inferred",
+      "sourceRefs": [
+        "w3c-skos"
+      ]
+    },
+    {
+      "id": "C24",
+      "capability": "Pin and fold reference",
+      "primaryPersona": "reviewer",
+      "task": "reference",
+      "learningStage": "verify",
+      "story": "As an auditor or reviewer, I want to keep a definition beside another task and recover it with the keyboard.",
+      "expectedVisibleOutcome": "Pinned reference tab/query survives task changes; folding preserves state, Escape returns focus, and tab arrows work.",
+      "jit": "Pinning preserves context, not source freshness",
+      "sourceBasis": "EXPERIENCE-221 persistent learning panel",
+      "testStatus": "candidate checks recorded separately; no human outcome inferred",
+      "sourceRefs": [
+        "experience-contract"
+      ]
+    },
+    {
+      "id": "C25",
+      "capability": "Use narrow-screen and keyboard routes",
+      "primaryPersona": "resident",
+      "task": "all",
+      "learningStage": "orient",
+      "story": "As a resident or learner, I want the same tasks on a narrow screen without losing labels, focus or tables.",
+      "expectedVisibleOutcome": "One workspace remains active; task/reference controls fold; tables scroll locally; no document-wide horizontal overflow.",
+      "jit": "Automated checks do not establish full accessibility",
+      "sourceBasis": "Existing workbench accessibility acceptance requirements",
+      "testStatus": "candidate checks recorded separately; no human outcome inferred",
+      "sourceRefs": [
+        "experience-contract"
+      ]
+    },
+    {
+      "id": "C26",
+      "capability": "Reset and navigate without another request",
+      "primaryPersona": "steward",
+      "task": "all",
+      "learningStage": "verify",
+      "story": "As a data steward or engineer, I want local navigation and reset to preserve the source model and make no new acquisition.",
+      "expectedVisibleOutcome": "Local hash back/forward, reset, task choices and reference changes do not mutate model bytes or call a provider.",
+      "jit": "No broad authority or endpoint is implied by a UI control",
+      "sourceBasis": "Private local-only presentation boundary",
+      "testStatus": "candidate checks recorded separately; no human outcome inferred",
+      "sourceRefs": [
+        "experience-contract"
+      ]
+    }
+  ],
+  "evaluation": {
+    "humanComprehension": "not run",
+    "assistiveTechnology": "not run",
+    "voice": "not implemented or tested",
+    "automatedChecks": "separate source-bound browser and preservation receipts",
+    "authoredCoverage": "all declared capabilities have a story, expected outcome, source basis, JIT concept and learning stage"
+  },
+  "sources": [
+    {
+      "id": "experience-contract",
+      "title": "GIS AI GO learning and evaluation contract",
+      "url": "https://github.com/chris-page-gov/gis-ai-go/blob/main/docs/implementation/EXPERIENCE-221_LEARNING_AND_EVALUATION.md"
+    },
+    {
+      "id": "ons-census",
+      "title": "ONS Census 2021 geographies",
+      "url": "https://www.ons.gov.uk/methodology/geography/ukgeographies/censusgeographies/census2021geographies",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "ons-admin",
+      "title": "ONS administrative geographies",
+      "url": "https://www.ons.gov.uk/methodology/geography/ukgeographies/administrativegeography",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "ons-codes",
+      "title": "ONS names, codes and lookups",
+      "url": "https://www.ons.gov.uk/methodology/geography/geographicalproducts/namescodesandlookups",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "ons-chd",
+      "title": "ONS Code History Database",
+      "url": "https://www.ons.gov.uk/methodology/geography/geographicalproducts/namescodesandlookups/codehistorydatabasechd",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "ons-portal",
+      "title": "ONS Open Geography Portal",
+      "url": "https://geoportal.statistics.gov.uk/",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "ons-uprn",
+      "title": "ONS National Statistics UPRN Products",
+      "url": "https://www.ons.gov.uk/methodology/geography/geographicalproducts/nationalstatisticsaddressproducts",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "ons-oac",
+      "title": "ONS 2021 and 2022 residential-based area classifications",
+      "url": "https://www.ons.gov.uk/methodology/geography/geographicalproducts/areaclassifications/2021and2022residentialbasedareaclassifications",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "ons-ruc",
+      "title": "ONS 2021 Rural Urban Classification",
+      "url": "https://www.ons.gov.uk/methodology/geography/geographicalproducts/ruralurbanclassifications/2021ruralurbanclassification",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "scotland-ruc",
+      "title": "Scottish Government Urban Rural Classification 2022",
+      "url": "https://www.gov.scot/publications/scottish-government-urban-rural-classification-2022/pages/overview/",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "england-imd",
+      "title": "English indices of deprivation 2025: statistical release",
+      "url": "https://www.gov.uk/government/statistics/english-indices-of-deprivation-2025/english-indices-of-deprivation-2025-statistical-release",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "wales-imd",
+      "title": "Welsh Index of Multiple Deprivation: 2025",
+      "url": "https://www.gov.wales/welsh-index-multiple-deprivation-2025",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "scotland-imd",
+      "title": "Scottish Index of Multiple Deprivation: data and resources",
+      "url": "https://www.gov.scot/collections/scottish-index-of-multiple-deprivation-2020/",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "ni-mdm",
+      "title": "Northern Ireland Multiple Deprivation Measure 2017",
+      "url": "https://www.nisra.gov.uk/statistics/deprivation-and-poverty/northern-ireland-multiple-deprivation-measure-2017-nimdm2017",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "os-ids",
+      "title": "OS NGD unique identifiers",
+      "url": "https://docs.os.uk/osngd/getting-started/os-ngd-fundamentals/unique-identifiers",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "os-address",
+      "title": "OS NGD Address theme",
+      "url": "https://docs.os.uk/osngd/data-structure/address",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "os-codelists",
+      "title": "OS NGD code lists overview",
+      "url": "https://docs.os.uk/osngd/code-lists/code-lists-overview",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "os-address-class",
+      "title": "OS NGD addressclassificationcodevalue",
+      "url": "https://docs.os.uk/osngd/code-lists/code-lists-overview/addressclassificationcodevalue",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "os-building-use",
+      "title": "OS NGD buildingusevalue",
+      "url": "https://docs.os.uk/osngd/code-lists/code-lists-overview/buildingusevalue",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "os-language",
+      "title": "OS NGD languagevalue",
+      "url": "https://docs.os.uk/osngd/code-lists/code-lists-overview/languagevalue",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "os-build-status",
+      "title": "OS NGD buildstatusvalue",
+      "url": "https://docs.os.uk/osngd/code-lists/code-lists-overview/buildstatuscode",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "os-accuracy",
+      "title": "OS NGD positionalaccuracyvalue",
+      "url": "https://docs.os.uk/osngd/code-lists/code-lists-overview/positionalaccuracyvalue",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "os-road-class",
+      "title": "OS NGD roadclassificationvalue",
+      "url": "https://docs.os.uk/osngd/code-lists/code-lists-overview/roadclassificationvalue",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "os-access-level",
+      "title": "OS NGD accesslevelvalue",
+      "url": "https://docs.os.uk/osngd/code-lists/code-lists-overview/accesslevelvalue",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "os-li",
+      "title": "OS Linked Identifiers API technical specification",
+      "url": "https://docs.os.uk/os-apis/accessing-os-apis/os-linked-identifiers-api/technical-specification",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "os-road-link",
+      "title": "OS NGD Road Link",
+      "url": "https://docs.os.uk/osngd/data-structure/transport/transport-network/road-link",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "os-path-link",
+      "title": "OS NGD Path Link",
+      "url": "https://docs.os.uk/osngd/data-structure/transport/transport-network/path-link",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "os-psga",
+      "title": "OS government and public sector",
+      "url": "https://www.ordnancesurvey.co.uk/customers/public-sector",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "os-cou",
+      "title": "OS NGD change only updates",
+      "url": "https://docs.os.uk/more-than-maps/data-demonstrators/os-ngd-data/change-only-updates",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "os-epoch",
+      "title": "AddressBase products November 2025 – Epoch 123",
+      "url": "https://docs.os.uk/os-downloads/products/addresses-and-names-portfolio/addressbase-fundamentals/release-notes/addressbase-products-november-2025-epoch-123",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "os-crs",
+      "title": "OS NGD coordinate reference systems",
+      "url": "https://docs.os.uk/osngd/getting-started/os-ngd-fundamentals/coordinate-reference-systems",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "os-geodesy",
+      "title": "OS guide to coordinate systems in Great Britain",
+      "url": "https://www.ordnancesurvey.co.uk/documents/resources/guide-coordinate-systems-great-britain.pdf",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "os-transform",
+      "title": "OS coordinate transformations",
+      "url": "https://www.ordnancesurvey.co.uk/geodesy-positioning/coordinate-transformations",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-search-result-extract-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "ogc-gml",
+      "title": "OGC Geography Markup Language",
+      "url": "https://www.ogc.org/standards/gml/",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "ogc-geosparql",
+      "title": "OGC GeoSPARQL 1.1",
+      "url": "https://docs.ogc.org/is/22-047r1/22-047r1.html",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "w3c-yaml-ld",
+      "title": "YAML-LD final Community Group report, 6 December 2023",
+      "url": "https://www.w3.org/community/reports/json-ld/CG-FINAL-yaml-ld-20231206/",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "w3c-skos",
+      "title": "SKOS reference, 18 August 2009",
+      "url": "https://www.w3.org/TR/2009/REC-skos-reference-20090818/",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "w3c-dcat",
+      "title": "DCAT 3, 22 August 2024",
+      "url": "https://www.w3.org/TR/2024/REC-vocab-dcat-3-20240822/",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "w3c-prov",
+      "title": "PROV-O, 30 April 2013",
+      "url": "https://www.w3.org/TR/2013/REC-prov-o-20130430/",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "w3c-owl",
+      "title": "OWL 2 Primer, second edition",
+      "url": "https://www.w3.org/TR/2012/REC-owl2-primer-20121211/",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "w3c-sosa",
+      "title": "W3C Semantic Sensor Network Ontology",
+      "url": "https://www.w3.org/TR/vocab-ssn/",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "qudt",
+      "title": "QUDT units, quantity kinds and dimensions",
+      "url": "https://www.qudt.org/",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "project-context",
+      "title": "GIS AI GO OKF-220 context integration, inspected commit",
+      "url": "https://github.com/chris-page-gov/gis-ai-go/blob/d7fa5048bccecd0be7e630f96a2f378721aa5b91/docs/implementation/OKF-220_ASK_OKF_INTEGRATION.md",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "local-pinned-project-file-read",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "wales-imd-children",
+      "title": "WIMD 2025: deprivation relating to children, 7 October 2026",
+      "url": "https://www.gov.wales/welsh-index-multiple-deprivation-2025-deprivation-relating-children",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "ons-sic2026",
+      "title": "UK SIC 2026 revision process",
+      "url": "https://www.ons.gov.uk/methodology/classificationsandstandards/ukstandardindustrialclassificationofeconomicactivities/uksic2026revisionprocess",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "ons-soc2020",
+      "title": "SOC 2020",
+      "url": "https://www.ons.gov.uk/methodology/classificationsandstandards/standardoccupationalclassificationsoc/soc2020",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "ni-ruc",
+      "title": "NISRA Urban – Rural Classification",
+      "url": "https://www.nisra.gov.uk/support/geography/urban-rural-classification",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "addressbase-class",
+      "title": "AddressBase classification scheme",
+      "url": "https://docs.os.uk/os-downloads/products/addresses-and-names-portfolio/addressbase-fundamentals/classification-scheme",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "nomis-api",
+      "title": "Nomis API discovery documentation",
+      "url": "https://www.nomisweb.co.uk/api/v01/help",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "ons-ethnic",
+      "title": "Ethnic group variable: Census 2021",
+      "url": "https://www.ons.gov.uk/census/census2021dictionary/variablesbytopic/ethnicgroupnationalidentitylanguageandreligionvariablescensus2021/ethnicgroup",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    },
+    {
+      "id": "ons-bua",
+      "title": "Towns and cities, characteristics of built-up areas, England and Wales: Census 2021",
+      "url": "https://www.ons.gov.uk/peoplepopulationandcommunity/housing/articles/townsandcitiescharacteristicsofbuiltupareasenglandandwales/census2021",
+      "reviewedOn": "2026-10-21",
+      "reviewState": "official-page-opened-text-reviewed",
+      "responseBytesRetained": false,
+      "editionClosure": "not-claimed"
+    }
+  ]
+}

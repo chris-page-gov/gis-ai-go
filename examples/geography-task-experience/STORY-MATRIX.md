@@ -1,0 +1,32 @@
+# Authored story matrix
+
+All rows are design hypotheses; no human outcome is recorded. Cross-cutting access, language and expertise needs apply to every row.
+
+| Capability | Primary role | Workspace / stage | Expected visible outcome | JIT safeguard |
+| --- | --- | --- | --- | --- |
+| C01 · Start and choose a task | resident | learn / orient | Only the chosen task occupies the workspace; its purpose and safeguard are visible. | Task help |
+| C02 · Choose and follow a learning stage | teacher | learn / orient | One selected stage shows a goal, activity, output, safeguard and evidence; previous/next change the stage. | Learning is practice, not assessment |
+| C03 · Change persona perspective | teacher | learn / orient | The chosen role changes the authored prompt; it does not change the data or authority. | Role prompts are hypotheses |
+| C04 · Mark and reset practice | resident | learn / verify | Practice ticks persist only in page memory, can be reset and clear on reload. | Not assessment or certification |
+| C05 · Choose geography and follow membership | planner | areas / orient | Native codes, levels and the published relationship are visible; a polygon or code selects the same record. | Organisation versus administrative area; exact-fit versus best-fit |
+| C06 · Use map and code alternatives | resident | areas / orient | The map and code buttons retain matching selected state and focus; map selection does not assert containment. | Membership is not geometric containment |
+| C07 · Search and page retained UPRNs | steward | areas / follow | Bounded pages, exact search, empty results and current/previous-property caveat remain. | UPRN is an identifier, not a count of people |
+| C08 · Inspect typed Linked Identifiers associations | specialist | areas / follow | Typed target, method meaning, source/target dates and native confidence are displayed; unobserved UPRNs stay unobserved. | Association is not building containment or road access |
+| C09 · Inspect native-query outcomes | reviewer | features / follow | Earlier query choices preserve all three outcomes and the original reservation/no-retry explanation. | Zero matches are scoped; no response is not absence |
+| C10 · Inspect native heights | specialist | features / follow | The height table keeps field names, definitions, nulls, metres and qualitative confidence; values and units stay together. | Vertical meaning and geometry CRS are separate |
+| C11 · Select added native feature families | specialist | features / follow | Family filter, full native property table, diagnostic status and all retained references remain available. | Selected observations are not an inventory of every feature |
+| C12 · Follow source-owned native references | steward | features / follow | Loaded targets navigate to their detail; unloaded targets explicitly have no loaded geometry. | Site principal building is not all Site buildings |
+| C13 · Inspect PathLink representation limits | specialist | features / follow | The original dated Street reference and PathLink native version remain distinct; requested 2D versus storage ordinate loss is visible. | No walkability, access, connectivity or right-of-way inference |
+| C14 · Compare ONSUD groupings | analyst | groups / compare | Dimension and cohort controls update the chart and table together; denominator and method are explicit. | Counts of retained UPRNs are not population estimates |
+| C15 · Inspect allocation differences | planner | groups / compare | The supplied difference example shows both native assignments and the explanation; neither is overwritten. | Direct and best-fit methods answer different questions |
+| C16 · Interpret nominal and ranked classifications | analyst | groups / compare | Native labels and classification notes stay beside counts; ranks are not displayed as deprivation amounts. | Nominal categories are not quantities; jurisdictions differ |
+| C17 · Compare historical BUA assignments and boundaries | planner | settlements / contrast | Only exact BUA24CD joins are used; lookup/boundary editions, field-specific discrepancies and complete selected geometry remain visible. | Settlement is not an administrative authority |
+| C18 · Handle the not-covered BUA pseudo-code | analyst | settlements / contrast | The category has no polygon and no implied spatial complement; it remains in the counts table. | Not covered does not mean rural |
+| C19 · Inspect all BUA attributes and geometry | steward | settlements / contrast | The full retained attribute table and exact lexeme details remain; all selected rings are drawn without new simplification. | Different native strings or identifiers are not silently normalised |
+| C20 · Inspect code instances and dates | reviewer | history / verify | The chosen code can show multiple recorded instances; native date meaning, empty/absent values and source labels remain. | Code validity is not boundary validity or a crosswalk |
+| C21 · Compare explanation routes and proposal previews | teacher | sources / verify | Explanation routes, earlier research notes and proposal-only chart previews keep their status labels. | A proposal is not a completed dataset or calculation |
+| C22 · Inspect all evidence and journey caveats | reviewer | sources / verify | Original evidence text, source links and journey-status entries remain accessible in the focused sources task. | Selected-input acceptance is not full coverage |
+| C23 · Search terminology and aliases | resident | reference / orient | Search matches reviewed labels, definitions and aliases; entries retain source links, alias authority and scope notes. | A search variant does not establish semantic equivalence |
+| C24 · Pin and fold reference | reviewer | reference / verify | Pinned reference tab/query survives task changes; folding preserves state, Escape returns focus, and tab arrows work. | Pinning preserves context, not source freshness |
+| C25 · Use narrow-screen and keyboard routes | resident | all / orient | One workspace remains active; task/reference controls fold; tables scroll locally; no document-wide horizontal overflow. | Automated checks do not establish full accessibility |
+| C26 · Reset and navigate without another request | steward | all / verify | Local hash back/forward, reset, task choices and reference changes do not mutate model bytes or call a provider. | No broad authority or endpoint is implied by a UI control |

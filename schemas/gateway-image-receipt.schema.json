@@ -218,7 +218,7 @@
               "redistribution_notice": {
                 "source_path": "THIRD_PARTY.md",
                 "image_path": "/usr/share/licenses/gis-ai-go/THIRD_PARTY.md",
-                "sha256": "5e8c6f85a7f2307b19cd461b20413aa013c82b990e73d75ecc651a53b471bd7e"
+                "sha256": "674f63aa213d493e6a4fbd8e37e0a44c1f47fa45dc02e02913809acd97e3fd31"
               }
             },
             "support_boundary": "not-red-hat-supported-or-endorsed"

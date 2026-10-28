@@ -83,7 +83,7 @@ are displayed with their authored status. Seven development records are not a
 full ONS catalogue or validated user-research sample. The public build excludes
 contacts and observation payloads; values reach the page only through retrieval.
 
-The official MCP client is pinned to 2.0.0 and protocol 2026-07-28. It can call
+The official MCP client is pinned to 2.2.0 and protocol 2026-07-28. It can call
 only this page's exact loopback endpoint, with no cookies or redirects. The Node
 listener bounds input, concurrency and assets, refuses cross-origin requests and
 uses an owner-only identity-bound durable store. The server verifies full admitted

@@ -1,0 +1,75 @@
+{
+  "baseline": "97bc45635a91064cd78f06bf0848ad7636f05439",
+  "command": "node node_modules/typescript/bin/tsc --project PROJECT --noEmit --noUnusedLocals --noUnusedParameters",
+  "interpretation": "Diagnostic flags added for review; these failures are findings, not failures of the normal compiler configuration. Imported dependencies can appear in more than one project. Public exports are not proved unused by this diagnostic.",
+  "projects": [
+    {
+      "project": "apps/mcp-gateway/tsconfig.json",
+      "returncode": 1,
+      "output": "apps/mcp-gateway/src/data-query-application.ts(30,3): error TS6133: 'ONS_ADAPTER_VERSION' is declared but its value is never read.\napps/mcp-gateway/src/governed-assembly.ts(315,33): error TS6133: 'ledger' is declared but its value is never read.\napps/mcp-gateway/src/web216-cpih-mcp.ts(44,7): error TS6133: 'key' is declared but its value is never read.\napps/mcp-gateway/test/public-read-transport.test.ts(7,28): error TS6133: 'TestContext' is declared but its value is never read.\napps/mcp-gateway/test/public-read-transport.test.ts(39,8): error TS6133: 'DataQueryProblemCode' is declared but its value is never read.\napps/mcp-gateway/test/public-read-transport.test.ts(629,9): error TS6133: 'directTrace' is declared but its value is never read.\npackages/evidence/src/receipt.ts(5,8): error TS6133: 'CanonicalJsonValue' is declared but its value is never read.\npackages/provider-adapter-sdk/src/ons-data-api.ts(7,3): error TS6133: 'FixedHttpsTransportError' is declared but its value is never read.\n"
+    },
+    {
+      "project": "apps/public-data-workbench/tsconfig.json",
+      "returncode": 0,
+      "output": ""
+    },
+    {
+      "project": "apps/public-explorer/tsconfig.json",
+      "returncode": 1,
+      "output": "apps/public-explorer/src/views/cards.ts(14,32): error TS6196: 'JsonValue' is declared but never used.\n"
+    },
+    {
+      "project": "apps/webmcp-explorer/tsconfig.json",
+      "returncode": 1,
+      "output": "apps/webmcp-explorer/test/unit/catalogue-tools.test.ts(4,3): error TS6133: 'PageToolInputError' is declared but its value is never read.\n"
+    },
+    {
+      "project": "packages/authority-context/tsconfig.json",
+      "returncode": 1,
+      "output": "packages/evidence/src/receipt.ts(5,8): error TS6133: 'CanonicalJsonValue' is declared but its value is never read.\n"
+    },
+    {
+      "project": "packages/contracts/tsconfig.json",
+      "returncode": 0,
+      "output": ""
+    },
+    {
+      "project": "packages/evidence/tsconfig.json",
+      "returncode": 1,
+      "output": "packages/evidence/src/receipt.ts(5,8): error TS6133: 'CanonicalJsonValue' is declared but its value is never read.\npackages/evidence/test/receipt.test.ts(29,3): error TS6133: 'makePolicyDecision' is declared but its value is never read.\n"
+    },
+    {
+      "project": "packages/experience-intake/tsconfig.json",
+      "returncode": 0,
+      "output": ""
+    },
+    {
+      "project": "packages/policy-client/tsconfig.json",
+      "returncode": 1,
+      "output": "packages/evidence/src/receipt.ts(5,8): error TS6133: 'CanonicalJsonValue' is declared but its value is never read.\n"
+    },
+    {
+      "project": "packages/provider-adapter-sdk/tsconfig.json",
+      "returncode": 1,
+      "output": "packages/evidence/src/receipt.ts(5,8): error TS6133: 'CanonicalJsonValue' is declared but its value is never read.\npackages/provider-adapter-sdk/src/ons-data-api.ts(7,3): error TS6133: 'FixedHttpsTransportError' is declared but its value is never read.\n"
+    },
+    {
+      "project": "packages/tool-registry/tsconfig.json",
+      "returncode": 0,
+      "output": ""
+    }
+  ],
+  "unique_diagnostics": [
+    "apps/mcp-gateway/src/data-query-application.ts(30,3): error TS6133: 'ONS_ADAPTER_VERSION' is declared but its value is never read.",
+    "apps/mcp-gateway/src/governed-assembly.ts(315,33): error TS6133: 'ledger' is declared but its value is never read.",
+    "apps/mcp-gateway/src/web216-cpih-mcp.ts(44,7): error TS6133: 'key' is declared but its value is never read.",
+    "apps/mcp-gateway/test/public-read-transport.test.ts(39,8): error TS6133: 'DataQueryProblemCode' is declared but its value is never read.",
+    "apps/mcp-gateway/test/public-read-transport.test.ts(629,9): error TS6133: 'directTrace' is declared but its value is never read.",
+    "apps/mcp-gateway/test/public-read-transport.test.ts(7,28): error TS6133: 'TestContext' is declared but its value is never read.",
+    "apps/public-explorer/src/views/cards.ts(14,32): error TS6196: 'JsonValue' is declared but never used.",
+    "apps/webmcp-explorer/test/unit/catalogue-tools.test.ts(4,3): error TS6133: 'PageToolInputError' is declared but its value is never read.",
+    "packages/evidence/src/receipt.ts(5,8): error TS6133: 'CanonicalJsonValue' is declared but its value is never read.",
+    "packages/evidence/test/receipt.test.ts(29,3): error TS6133: 'makePolicyDecision' is declared but its value is never read.",
+    "packages/provider-adapter-sdk/src/ons-data-api.ts(7,3): error TS6133: 'FixedHttpsTransportError' is declared but its value is never read."
+  ]
+}

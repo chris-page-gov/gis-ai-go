@@ -369,6 +369,8 @@ def verify_documents(
     expected_image_manifest: str | None = None,
     require_non_synthetic_contracts: bool = False,
 ) -> dict[str, object]:
+    # Schema validity is only the first gate. The documents must also describe
+    # the same source, image, storage and observation; no live probe occurs here.
     if live_path is not None and transport_path is None:
         raise AdmissionVerificationError("live-provider evidence requires transport evidence")
     filesystem_paths = (ledger_filesystem_path, reconciliation_filesystem_path)

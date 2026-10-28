@@ -45,6 +45,13 @@ valid map features.
 pnpm --filter @gis-ai-go/experience-intake run test
 ```
 
+Assurance also requires the repository's locked Python development environment
+(`uv sync --locked --group dev`). The schema conformance test uses its existing
+JSON Schema Draft 2020-12 validator to check both published descriptors and real
+planner/ZIP results. This is a test dependency; the browser package remains
+dependency-free at runtime. Schema-valid input must still pass the planner's
+stricter path, byte-budget and content checks.
+
 The tests exercise ambiguity, malformed input, geometry structure, coordinates,
 quoted table cells, omitted preview rows, untrusted text, folder boundaries,
 automatic archive companion discovery and hostile ZIP/URL cases. The strict JSON

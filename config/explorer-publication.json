@@ -1,0 +1,11 @@
+{
+  "schema": "gis-ai-go.explorer-publication.v1",
+  "repository": "chris-page-gov/okf-explorer",
+  "sourceCommit": "757537090af94eb6dda51de16938aa221fcda48d",
+  "appTreeSha256": "827ac61a364500a2c73ad949dfda36f0839e54056644edd414ddb34f96aee960",
+  "appManifestSha256": "bbb482b252b9385149ab06a0bb5cbaae778e65a9498ea5c06d3683f4aa297d7a",
+  "canonicalUrl": "https://chris-page-gov.github.io/gis-ai-go/",
+  "basePath": "/gis-ai-go/",
+  "contextPublicationBase": "https://chris-page-gov.github.io/gis-ai-go/gis/explorer/context/",
+  "capturedAt": "2026-10-24T11:06:00Z"
+}

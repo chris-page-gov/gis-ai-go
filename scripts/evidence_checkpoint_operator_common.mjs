@@ -57,6 +57,8 @@ export function verificationSummary(result) {
 }
 
 export function createCheckpointOperatorResult(configuration, now) {
+  // The CLI has required explicit operator assertions. This flag records that
+  // assertion; it does not inspect processes or stop another ledger writer.
   const result = createEvidenceCheckpoint({
     ...configuration,
     stoppedSingleWriter: true,

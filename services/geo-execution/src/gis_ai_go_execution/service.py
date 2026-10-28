@@ -295,6 +295,9 @@ class ExecutionService:
             raise UNKNOWN_OPERATION
         trace = _trace(root["trace"])
 
+        # These fields bind the gateway decision to this operation; they do not
+        # authenticate its sender or cryptographically verify a policy decision.
+        # The loopback transport and trusted gateway remain separate prerequisites.
         authorisation = _object(
             root["gateway_authorisation"],
             {"schema", "decision_id", "decision_digest", "permitted_operation"},
