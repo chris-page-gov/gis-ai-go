@@ -70,6 +70,7 @@ from node_runtime_advisory import (
     generate_node_advisory,
     verify_node_advisory,
 )
+from security.bounded_tar import BoundedTarInfo
 
 BLOCKED_SEVERITIES = frozenset({"HIGH", "CRITICAL"})
 TRIVY_VERSION = "0.74.0"
@@ -362,7 +363,7 @@ def inspect_database_archive(
     try:
         inventory: list[dict[str, Any]] = []
         total = 0
-        with tarfile.open(archive_path, "r:gz") as archive:
+        with tarfile.open(archive_path, "r:gz", tarinfo=BoundedTarInfo) as archive:
             expected_names = ["db", "db/metadata.json", "db/trivy.db"]
             member_count = 0
             for member in archive:
@@ -750,7 +751,7 @@ def _materialise_buildkit_donor_archive(
     ):
         raise ValueError("pinned donor source graph is invalid")
 
-    with tarfile.open(raw, "r:") as archive:
+    with tarfile.open(raw, "r:", tarinfo=BoundedTarInfo) as archive:
         members: dict[str, tarfile.TarInfo] = {}
         total = 0
         for member in archive:
@@ -972,7 +973,7 @@ def inspect_donor_archive(path: Path) -> dict[str, Any]:
         or metadata.st_size > MAX_OCI_BYTES
     ):
         raise ValueError("runtime-library donor archive is invalid or over its bound")
-    with tarfile.open(path, "r:") as archive:
+    with tarfile.open(path, "r:", tarinfo=BoundedTarInfo) as archive:
         members: dict[str, tarfile.TarInfo] = {}
         ordered_members: list[tarfile.TarInfo] = []
         total = 0

@@ -112,7 +112,7 @@ coherent pair, and restore a complete independently verified pair as set out in
 From a clean full checkout at the candidate commit:
 
 ```bash
-pnpm install --frozen-lockfile
+pnpm install --frozen-lockfile --ignore-scripts --package-import-method=copy
 uv sync --locked --group dev --cache-dir .uv-cache
 pnpm --filter @gis-ai-go/mcp-gateway run test
 pnpm run validate:contracts

@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Explore OKF+ · GIS AI GO</title>
+  <link rel="stylesheet" href="/portal.css">
+  <script type="module" src="/knowledge/knowledge.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to search</a>
+  <header><a href="/">GIS AI GO home</a><span>Private metadata discovery</span></header>
+  <main id="main">
+    <h1>Explore the admitted knowledge release</h1>
+    <p>Search retained public metadata and inspect its exact source, vintage, rights and limits. No model, live dataset retrieval or provider call is used.</p>
+    <p id="release" role="status">Checking the server's admitted release…</p>
+    <form id="search-form">
+      <p><label for="bundle">Knowledge release</label><br><select id="bundle" name="bundle"><option value="okf-plus">OKF+ · expanded OS and ONS metadata</option><option value="okf">OKF · curated Explorer catalogue</option></select></p>
+      <p><label for="query">One to ten English keywords</label><br><input id="query" name="query" maxlength="256" required value="geography" autocomplete="off" aria-describedby="search-help"></p>
+      <p id="search-help">Do not enter personal information. A match is metadata for review, not permission to retrieve a dataset.</p>
+      <button type="submit">Search metadata</button>
+    </form>
+    <p id="status" role="status" aria-live="polite"></p>
+    <div id="results"></div>
+    <section id="detail" hidden aria-labelledby="detail-title"><h2 id="detail-title">Selected source record</h2><p id="detail-summary"></p><pre id="record"></pre></section>
+  </main>
+  <footer>Source-native catalogue representations · completeness is not established · no live provider access</footer>
+</body>
+</html>

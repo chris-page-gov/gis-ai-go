@@ -143,7 +143,7 @@ Use a complete checkout because the accepted gateway still loads canonical schem
 from the repository layout:
 
 ```bash
-pnpm install --frozen-lockfile
+pnpm install --frozen-lockfile --ignore-scripts --package-import-method=copy
 uv sync --locked
 pnpm run build:okf
 pnpm --filter @gis-ai-go/contracts run build
@@ -672,7 +672,7 @@ git worktree add --detach "$QUAL206_FALLBACK_ROOT/repository" \
 cd "$QUAL206_FALLBACK_ROOT/repository"
 test "$(git rev-parse HEAD)" = "$QUAL206_FALLBACK_COMMIT"
 test -z "$(git status --porcelain)"
-pnpm install --frozen-lockfile
+pnpm install --frozen-lockfile --ignore-scripts --package-import-method=copy
 uv sync --locked
 pnpm run test:interoperability
 pnpm --filter @gis-ai-go/mcp-gateway run test

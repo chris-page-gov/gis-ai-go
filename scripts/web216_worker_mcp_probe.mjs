@@ -52,7 +52,7 @@ const wireRecords = [];
 const overallEnd = Date.now() + 120_000;
 const plan = { experiment: "local-workerd-mcp-d1-not-hosted", started_at: startedAt,
   tooling_root: toolingRoot, expected_versions: VERSIONS,
-  sdk_server_version: "2.0.0", sdk_client_version: "2.2.0", protocol: PROTOCOL,
+  sdk_server_version: "2.3.0", sdk_client_version: "2.2.0", protocol: PROTOCOL,
   source_commit: execFileSync("git", ["rev-parse", "HEAD"], { cwd: ROOT, encoding: "utf8" }).trim(),
   source_state: "working-tree-inputs-not-attested", conditions: ["workerd"],
   provider_egress: false, telemetry: false, deployment: false,

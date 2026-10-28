@@ -1,0 +1,23 @@
+:root { font-family: system-ui, sans-serif; color: #102a32; background: #f4f7f5; }
+body { margin: 0; font-size: 1.125rem; line-height: 1.65; }
+header { background: #102a32; color: white; padding: 1.25rem max(1rem, calc((100vw - 60rem) / 2)); display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between; }
+header a { color: white; }
+main { max-width: 60rem; margin: 2rem auto; padding: 0 1rem; }
+h1 { font-size: clamp(2rem, 4vw, 3rem); line-height: 1.2; }
+h2 { line-height: 1.35; }
+h1, h2, button { overflow-wrap: anywhere; }
+section { background: white; border-top: 0.3rem solid #16745c; padding: 1rem 1.5rem; margin-block: 1.5rem; }
+a { color: #075a7d; text-decoration-thickness: 0.12em; text-underline-offset: 0.2em; }
+a:focus-visible { outline: 0.2rem solid #ffbf47; outline-offset: 0.2rem; color: #102a32; }
+.eyebrow { font-weight: 650; }
+.skip-link { position: absolute; top: -10rem; background: #ffbf47; padding: 0.75rem; }
+.skip-link:focus { top: 0; z-index: 1; }
+footer { padding: 1.5rem 1rem; text-align: center; border-top: 1px solid #ccd8d3; }
+code { overflow-wrap: anywhere; }
+input, select, button { font: inherit; min-height: 2.75rem; max-width: 100%; box-sizing: border-box; }
+input { width: min(100%, 32rem); }
+button { color: white; background: #075a7d; border: 2px solid #075a7d; border-radius: 0.2rem; padding: 0.45rem 0.8rem; cursor: pointer; }
+input:focus-visible, select:focus-visible, button:focus-visible { outline: 0.2rem solid #ffbf47; outline-offset: 0.2rem; }
+p, pre { overflow-wrap: anywhere; }
+pre { white-space: pre-wrap; font-size: 0.9rem; }
+@media (max-width: 30rem) { section { padding: 0.75rem; } }

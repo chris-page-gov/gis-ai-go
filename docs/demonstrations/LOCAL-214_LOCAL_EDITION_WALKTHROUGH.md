@@ -76,7 +76,7 @@ bytes; it does not by itself authenticate the publisher. The package contains
 source, not trusted prebuilt JavaScript. Both routes then use the lockfiles:
 
 ```bash
-pnpm install --frozen-lockfile
+pnpm install --frozen-lockfile --ignore-scripts --package-import-method=copy
 uv sync --locked --group dev --cache-dir .uv-cache
 ```
 

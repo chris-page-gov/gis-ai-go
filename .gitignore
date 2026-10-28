@@ -28,3 +28,10 @@ apps/webmcp-explorer/playwright-report/
 
 # Local browser evaluation evidence; no user uploads.
 /output/playwright/experience/
+
+# Private infrastructure caches/state; provider dependency lockfiles stay reviewable.
+infra/gcp/**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+.terraform.tfstate.lock.info

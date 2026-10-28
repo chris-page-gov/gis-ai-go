@@ -334,7 +334,7 @@ and workflow contract. The separate image gate requires Docker and public packag
 base-image, scanner-image and vulnerability-database downloads:
 
 ```bash
-pnpm install --frozen-lockfile
+pnpm install --frozen-lockfile --ignore-scripts --package-import-method=copy
 uv sync --locked --group dev --cache-dir .uv-cache
 pnpm run check
 docker buildx create \

@@ -8,7 +8,7 @@ Explorer, LOCAL-212 on port 8787, the supported Pages product and a `v0.2.0` rel
 Use the repository's pinned Node, pnpm and Python/uv environment. Install once:
 
 ```sh
-pnpm install --frozen-lockfile
+pnpm install --frozen-lockfile --ignore-scripts --package-import-method=copy
 uv sync --locked --group dev --cache-dir .uv-cache
 pnpm start:public-data-workbench
 ```

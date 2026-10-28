@@ -1,0 +1,567 @@
+{
+  "title": "GIS AI GO private GCP acceptance catalogue",
+  "version": "1.0",
+  "date": "2026-10-05",
+  "status": "REQUIREMENTS CATALOGUE: results are emitted separately by scripts/gcp/deploy.sh verify; no hosted acceptance inferred",
+  "allowed_statuses": [
+    "PASS",
+    "FAIL",
+    "BLOCKED",
+    "NOT_RUN",
+    "NOT_APPLICABLE"
+  ],
+  "rules": [
+    "A required FAIL or BLOCKED prevents the corresponding acceptance level.",
+    "NOT_APPLICABLE requires recorded architecture-specific justification; it cannot waive a fixed requirement.",
+    "Mock identity or local results must not substitute for real hosted acceptance.",
+    "Adapt test commands and mappings to inspected current repository without weakening requirements."
+  ],
+  "tests": [
+    {
+      "id": "SRC01",
+      "area": "repository",
+      "requirement": "Read current local authority, branch and dirty state; preserve unrelated work.",
+      "required_for": [
+        "prepared-only",
+        "personal-reference-accepted",
+        "bduk-sandpit-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    },
+    {
+      "id": "SRC02",
+      "area": "repository",
+      "requirement": "Identify both original OKF and current OKF+ pipelines and every selected consumer.",
+      "required_for": [
+        "prepared-only",
+        "personal-reference-accepted",
+        "bduk-sandpit-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    },
+    {
+      "id": "SRC03",
+      "area": "repository",
+      "requirement": "Separate current private pilot work from supported public release and blocked generic entrypoints.",
+      "required_for": [
+        "prepared-only",
+        "personal-reference-accepted",
+        "bduk-sandpit-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    },
+    {
+      "id": "BUILD01",
+      "area": "build",
+      "requirement": "Build exact selected inputs using pinned dependencies; run mandatory relevant assurance.",
+      "required_for": [
+        "prepared-only",
+        "personal-reference-accepted",
+        "bduk-sandpit-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    },
+    {
+      "id": "BUILD02",
+      "area": "build",
+      "requirement": "Inspect allowlisted build/upload inventory; exclude secrets, private originals and unapproved data.",
+      "required_for": [
+        "prepared-only",
+        "personal-reference-accepted",
+        "bduk-sandpit-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    },
+    {
+      "id": "BUILD03",
+      "area": "build",
+      "requirement": "Record source, image, bundle, policy and configuration digests; bind plan to them.",
+      "required_for": [
+        "prepared-only",
+        "personal-reference-accepted",
+        "bduk-sandpit-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    },
+    {
+      "id": "NET01",
+      "area": "network",
+      "requirement": "Inside the approved private path, obtain actual application and MCP responses.",
+      "required_for": [
+        "personal-reference-accepted",
+        "bduk-sandpit-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    },
+    {
+      "id": "NET02",
+      "area": "network",
+      "requirement": "Outside the private path, obtain no application content even with an otherwise valid invocation credential.",
+      "required_for": [
+        "personal-reference-accepted",
+        "bduk-sandpit-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    },
+    {
+      "id": "NET03",
+      "area": "network",
+      "requirement": "Verify ingress policy, effective routing/DNS and Shared VPC assumptions against the actual topology.",
+      "required_for": [
+        "personal-reference-accepted",
+        "bduk-sandpit-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    },
+    {
+      "id": "NET04",
+      "area": "network",
+      "requirement": "Access VM has no external IP; SSH restricted to IAP target; no public or LAN proxy listener.",
+      "required_for": [
+        "personal-reference-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    },
+    {
+      "id": "NET05",
+      "area": "network",
+      "requirement": "Tunnel shutdown removes intended local access; proxy cannot target arbitrary upstreams.",
+      "required_for": [
+        "personal-reference-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    },
+    {
+      "id": "AUTH01",
+      "area": "identity",
+      "requirement": "Record transport principal independently of the actual verified human/client identity.",
+      "required_for": [
+        "personal-reference-accepted",
+        "bduk-sandpit-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    },
+    {
+      "id": "AUTH02",
+      "area": "identity",
+      "requirement": "Allowed real identity succeeds; forbidden real identity is denied at the declared hosted identity milestone.",
+      "required_for": [
+        "personal-reference-accepted",
+        "bduk-sandpit-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    },
+    {
+      "id": "AUTH03",
+      "area": "identity",
+      "requirement": "Reject invalid issuer, audience, expiry and signature, and forged identity/role headers.",
+      "required_for": [
+        "personal-reference-accepted",
+        "bduk-sandpit-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    },
+    {
+      "id": "AUTH04",
+      "area": "identity",
+      "requirement": "Browser sessions and MCP OAuth/programmatic authentication tested independently.",
+      "required_for": [
+        "personal-reference-accepted",
+        "bduk-sandpit-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    },
+    {
+      "id": "AUTH05",
+      "area": "identity",
+      "requirement": "Real BDUK Okta/federation claims and revocation verified only in approved sandpit; never inferred from Gmail test.",
+      "required_for": [
+        "bduk-sandpit-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    },
+    {
+      "id": "POL01",
+      "area": "policy",
+      "requirement": "Role-dependent tool discovery reflects server-side permissions.",
+      "required_for": [
+        "personal-reference-accepted",
+        "bduk-sandpit-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    },
+    {
+      "id": "POL02",
+      "area": "policy",
+      "requirement": "Direct invocation of a hidden/forbidden tool is denied.",
+      "required_for": [
+        "personal-reference-accepted",
+        "bduk-sandpit-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    },
+    {
+      "id": "POL03",
+      "area": "policy",
+      "requirement": "Equivalent API, resource, export, evidence, cache and cursor paths enforce the same scope.",
+      "required_for": [
+        "personal-reference-accepted",
+        "bduk-sandpit-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    },
+    {
+      "id": "POL04",
+      "area": "policy",
+      "requirement": "Missing/unknown attributes fail closed; self-asserted purpose or role cannot grant access.",
+      "required_for": [
+        "personal-reference-accepted",
+        "bduk-sandpit-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    },
+    {
+      "id": "POL05",
+      "area": "policy",
+      "requirement": "Changes to policy/group access and token/session expiry respect documented revocation bounds.",
+      "required_for": [
+        "personal-reference-accepted",
+        "bduk-sandpit-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    },
+    {
+      "id": "MCP01",
+      "area": "protocol",
+      "requirement": "Initialise and negotiate using a real independent client through the private route.",
+      "required_for": [
+        "personal-reference-accepted",
+        "bduk-sandpit-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    },
+    {
+      "id": "MCP02",
+      "area": "protocol",
+      "requirement": "Discover and invoke an admitted tool and inspect its linked evidence.",
+      "required_for": [
+        "personal-reference-accepted",
+        "bduk-sandpit-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    },
+    {
+      "id": "MCP03",
+      "area": "protocol",
+      "requirement": "Reject malformed inputs and unsupported protocol combinations; handle cancellation and streaming.",
+      "required_for": [
+        "personal-reference-accepted",
+        "bduk-sandpit-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    },
+    {
+      "id": "MCP04",
+      "area": "protocol",
+      "requirement": "Never treat an HTML login page, homepage or health HTTP 200 as a protocol pass.",
+      "required_for": [
+        "personal-reference-accepted",
+        "bduk-sandpit-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    },
+    {
+      "id": "KNOW01",
+      "area": "knowledge",
+      "requirement": "Exercise a known record from each hosted bundle via intended UI/MCP faces.",
+      "required_for": [
+        "personal-reference-accepted",
+        "bduk-sandpit-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    },
+    {
+      "id": "KNOW02",
+      "area": "knowledge",
+      "requirement": "Check release identity, source links, freshness, rights and declared gaps in bounded evidence.",
+      "required_for": [
+        "personal-reference-accepted",
+        "bduk-sandpit-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    },
+    {
+      "id": "KNOW03",
+      "area": "knowledge",
+      "requirement": "Reject corrupt/unexpected bundle files and unsafe paths; no private-original download route.",
+      "required_for": [
+        "personal-reference-accepted",
+        "bduk-sandpit-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    },
+    {
+      "id": "KNOW04",
+      "area": "knowledge",
+      "requirement": "Keep representation counts, dataset counts, cached observations and live observations distinct.",
+      "required_for": [
+        "personal-reference-accepted",
+        "bduk-sandpit-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    },
+    {
+      "id": "STATE01",
+      "area": "durability",
+      "requirement": "Inspect the same persisted evidence after Cloud Run instance/revision replacement.",
+      "required_for": [
+        "personal-reference-accepted",
+        "bduk-sandpit-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    },
+    {
+      "id": "STATE02",
+      "area": "durability",
+      "requirement": "Concurrent same-key and conflicting-key requests preserve idempotency and ownership.",
+      "required_for": [
+        "personal-reference-accepted",
+        "bduk-sandpit-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    },
+    {
+      "id": "STATE03",
+      "area": "durability",
+      "requirement": "Crash/lost-response reconciliation retrieves valid original evidence without replaying the action.",
+      "required_for": [
+        "personal-reference-accepted",
+        "bduk-sandpit-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    },
+    {
+      "id": "STATE04",
+      "area": "durability",
+      "requirement": "Cross-instance/revision state, policy scopes and retention remain consistent.",
+      "required_for": [
+        "personal-reference-accepted",
+        "bduk-sandpit-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    },
+    {
+      "id": "OPS01",
+      "area": "operations",
+      "requirement": "Verify actual runtime egress; no hidden external assets, models, providers or credentials.",
+      "required_for": [
+        "personal-reference-accepted",
+        "bduk-sandpit-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    },
+    {
+      "id": "OPS02",
+      "area": "operations",
+      "requirement": "Runtime and access identities are least-privilege; no downloaded service-account keys.",
+      "required_for": [
+        "personal-reference-accepted",
+        "bduk-sandpit-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    },
+    {
+      "id": "OPS03",
+      "area": "operations",
+      "requirement": "Logs redact tokens, cookies, sensitive query strings and unapproved payloads.",
+      "required_for": [
+        "personal-reference-accepted",
+        "bduk-sandpit-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    },
+    {
+      "id": "OPS04",
+      "area": "operations",
+      "requirement": "Rollback restores compatible image/bundle/policy without destroying evidence.",
+      "required_for": [
+        "personal-reference-accepted",
+        "bduk-sandpit-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    },
+    {
+      "id": "OPS05",
+      "area": "operations",
+      "requirement": "Destroy plan targets owned resources only and reports retained resources/costs.",
+      "required_for": [
+        "personal-reference-accepted",
+        "bduk-sandpit-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    },
+    {
+      "id": "OPS06",
+      "area": "operations",
+      "requirement": "Pricing assumptions, billing currency, approved spend and residual idle costs are recorded.",
+      "required_for": [
+        "personal-reference-accepted",
+        "bduk-sandpit-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    },
+    {
+      "id": "PACK01",
+      "area": "handoff",
+      "requirement": "Produce sanitised platform-review ZIP with executable scripts, IaC, manifests, tests and operator instructions.",
+      "required_for": [
+        "prepared-only",
+        "personal-reference-accepted",
+        "bduk-sandpit-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    },
+    {
+      "id": "PACK02",
+      "area": "handoff",
+      "requirement": "All claimed outcomes have evidence; blocked/not-run tests and enterprise approvals remain explicit.",
+      "required_for": [
+        "prepared-only",
+        "personal-reference-accepted",
+        "bduk-sandpit-accepted"
+      ],
+      "status": "NOT_RUN",
+      "evidence": [],
+      "observed_at": null,
+      "notes": null
+    }
+  ],
+  "source": "Owner-supplied GIS AI GO private GCP handover, 2026-10-05; requirements retained without weakening",
+  "result_contract": {
+    "entrypoint": "scripts/gcp/deploy.sh",
+    "command": "verify",
+    "private_results_directory": "artifacts/gcp/",
+    "catalogue_is_not_test_results": true,
+    "hosted_evidence_required": true
+  }
+}

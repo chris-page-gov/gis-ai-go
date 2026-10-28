@@ -1,0 +1,19 @@
+# Additive private-pilot image: built locally from an enumerated prepared context.
+# This digest is the accepted Node builder pin in apps/mcp-gateway/Containerfile.
+# It does not inherit the separate UBI candidate's image acceptance.
+FROM node:24.19.0-bookworm-slim@sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03
+LABEL org.opencontainers.image.title="GIS AI GO private GCP pilot" \
+      org.opencontainers.image.source="https://github.com/chris-page-gov/gis-ai-go" \
+      org.opencontainers.image.licenses="MIT AND LicenseRef-Third-Party-Notices" \
+      io.gis-ai-go.live-provider-calls="false" \
+      io.gis-ai-go.acceptance="additive-private-pilot-requires-separate-assurance"
+ENV NODE_ENV=production PORT=8080
+WORKDIR /app
+COPY --chown=0:0 app/ /app/
+RUN --network=none test "$(node --version)" = "v24.19.0" \
+    && chmod -R a-w /app \
+    && chmod -R a+rX /app
+USER 65532:65532
+EXPOSE 8080/tcp
+STOPSIGNAL SIGTERM
+ENTRYPOINT ["node", "/app/runtime/gcp-main.mjs"]

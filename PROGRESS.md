@@ -1,6 +1,25 @@
 # Current progress
 
-Last updated: 27 October 2026
+Last updated: 28 October 2026
+
+## Local GCP branch integration
+
+The owner authorised merging `origin/main` at `93edcc06` into
+`codex/gcp-private-pilot`, retaining its GCP work at `75ddaebd`. Conflicts retain
+main's current Explorer updates, stricter canonical archive admission and MCP
+server `2.3.0`, alongside the GCP authentication dependency and additional archive
+resource limits. The focused archive regression run passed all 27 checks;
+JavaScript syntax and merge whitespace checks passed.
+
+This is a local integration, not source publication or deployment acceptance.
+Full assurance remains unverified: project dependencies and compiled gateway
+outputs are absent, the package-manager launcher is administrator-blocked, and
+Windows symlink privileges prevented one wider archive test. The interoperability
+run passed eight checks and failed 14 for missing dependencies/build outputs.
+Existing local evaluation receipts are historical and require regeneration for
+the merged package and lock inputs; their digests have not been relabelled as a
+fresh passing run. Canonical CI, exact-source/image/platform admission and all
+existing GCP mutation and secure-machine execution gates remain required.
 
 ## Explorer discovery repair
 
@@ -667,8 +686,128 @@ earlier 11-page case study, not the revised briefing or the implementation in
   and [CodeQL](https://github.com/chris-page-gov/gis-ai-go/actions/runs/34810081562) passed.
 - Public MCP hosting, live deployment acceptance and the `v0.2.0` tag/release
   remain open in #23, #24 and #25.
+- The GCP branch's local security fixes and historical checks below do not
+  establish current canonical assurance, image/platform admission, cloud mutation
+  approval or hosted/BDUK acceptance. Those limitations remain in force.
+
+## GCP branch checkpoint: 9 October 2026
+
+- The [independent 9 October review](docs/security/GCP-223-INDEPENDENT-REVIEW-2026-10-09.md)
+  is sealed at published input `f3dd856f`: 752 distinct full-reviewed files,
+  explicitly partial corpus/document/dependency semantics, 50 minutes 30 seconds
+  to confirmed completion, and unavailable token/Fast comparison measurements.
+  Its additional MEDIUM host tar-parser and LOW browser-login availability paths
+  have local corrections. Shared metadata admission covers all ten OCI/database
+  read entry points; browser login reserves no pre-human storage and accepted
+  replay markers remain bounded and durable. Parent reproduced the fresh
+  reviewer's ledger contention case and corrected it for eight admitted requests.
+  Affected checks pass: 308 Python, 30 GCP runtime and five demo checks, gateway
+  compilation and the baseline secret/path scan. Current demo SDK checks and
+  active install instructions are aligned. Both pre-patch investigations completed;
+  final reviewer threads became host `pending_init` and were interrupted after
+  a bounded wait. Parent bypass/regression fallback completed; independent final
+  candidate-review results remain unavailable. The sanitised follow-up and
+  reproducible exact-source package commands are included on the implementation
+  branch for [draft PR #146](https://github.com/chris-page-gov/gis-ai-go/pull/146). Canonical assurance,
+  HIGH/CRITICAL images and exact source/image/platform admission still block
+  secure-machine execution; no GCP mutation or hosted acceptance is claimed.
+
+- [GCP-223 issue #145](https://github.com/chris-page-gov/gis-ai-go/issues/145) adds manual local/cloud/BDUK development-container profiles, pinned
+  offline tooling, exact source/image/platform admission, a portable existing-clone
+  transition and offline OCI assurance. The actual toolchain image built and
+  passed the non-root offline container tool check. Affected local checks passed:
+  23 environment, 44 image-assurance, 71 lifecycle and 39 archive tests; the full
+  GCP command passed 26 runtime, 115 Python and seven packaging/UI checks.
+  The patched SDK passed 639 TypeScript/launcher and 52 workbench unit checks,
+  with the credential-required provider case skipped. Workspace typechecks,
+  source privacy and documentation/research/changelog checks. Canonical CI remains
+  mandatory. [Build assurance](docs/development/BUILD_ASSURANCE.md) records the
+  executable workflow, observed image identities and precise gates.
+  The repository-wide Standard Security report completed with three MEDIUM
+  source findings and explicitly partial semantic coverage. It preserves the
+  original installer snapshot and records concurrent source changes; the final
+  published source needs its own exact review. Scan token usage was unavailable.
+  The owner subsequently authorised fixes and sanitised GitHub publication.
+  The three source findings are remediated within focused local verification.
+  Independent review identified a further archive metadata-retention case; its
+  correction passed the parent's direct recheck and regressions. Full canonical
+  assurance remains blocked locally: the full check ran 1,249 Python checks
+  with three failures and seven skips. The receipt-binding failure is corrected
+  (33 owning checks pass); native observer and strict collector identity fixtures
+  remain unresolved, and canonical Chrome is absent. Canonical CI is mandatory.
+  Copy-only offline dependency imports and 23 environment checks pass.
+  The maintained-lock
+  offline recheck found zero advisory entries across 155 npm and eight Python
+  packages, including development dependencies. The
+  [sanitised report](docs/security/GCP-223-SECURITY-REVIEW.md) preserves original
+  findings and supplemental observations. Implementation/report publication is
+  [draft PR #146](https://github.com/chris-page-gov/gis-ai-go/pull/146). Fresh
+  CodeQL triage found exact API-list membership already safe and identified a
+  response-header framing hardening gap. The proxy now validates every upstream
+  field before buffering a status; 11 proxy checks preserve duplicate cookies,
+  streaming and large public exports. The first published Repository assurance
+  job failed; its detailed log download is network-blocked. Final canonical CI
+  and CodeQL remain gates. Secure-machine execution remains
+  blocked by HIGH/CRITICAL image findings, incomplete scan coverage and exact
+  source/image/platform admission. Neither image was published or
+  deployed. No cloud mutation or hosted/BDUK acceptance is claimed.
 
 ## Previous implementation checkpoint: EXPERIENCE-221
+
+The owner confirmed on 9 October that the secure machine can transfer this work
+only through GitHub. The `codex/gcp-private-pilot` branch is the source transfer
+target, containing the installer, runtime, infrastructure, locks, policy and
+public metadata inputs. The [clone instructions](docs/deployment/gcp/INSTALL_PLATFORM.md#clone-through-github)
+replace the chat ZIP route for that machine. Retain the exact cloned commit for
+review; branch publication does not merge the change, approve cloud mutation or
+complete canonical/hosted BDUK acceptance. Private configs/state/images remain
+ignored and outside Git.
+
+On 9 October the owner requested a runnable installer and confirmed the BDUK GCP
+sandpit target. `scripts/gcp/install-platform.sh` adds one operator entrypoint for
+exclusive private configuration, input checks, non-mutating review/package and
+execution of the existing exact approved plan. It refuses personal VM/access
+configuration and keeps platform identity, pricing and approvals explicit. The
+[operator guide](docs/deployment/gcp/INSTALL_PLATFORM.md) gives prerequisites,
+commands and recovery/cleanup. Earlier implementation and evidence are retained;
+this increment grants no cloud mutation or BDUK acceptance.
+Local verification passed 20 installer tests and the full 119-test focused GCP
+command, shell syntax, links, secret scan and changelog checks. Real `init` created
+an exclusive mode-600 draft; `inputs` and `review --skip-prepare` returned blocked
+for missing platform inputs while the review stage produced an actual sanitised
+ZIP containing the executable installer. Evidence is under
+`artifacts/gcp/platform-installer-20261009/`; no cloud calls or mutations occurred.
+
+GCP-222 implementation and local verification are complete on
+`codex/gcp-private-pilot` in the existing authoritative checkout based on
+`97bc45635a91064cd78f06bf0848ad7636f05439`. It adds private Cloud Run, the current
+website/workbench, full OKF/OKF+ surfaces, custom Streamable HTTP MCP, durable
+evidence operations, distinct transport/human/application policy and ten executable
+lifecycle commands. The personal tunnel VM starts on demand and stops on disconnect,
+with a stop-only schedule; it has not been created. BDUK consumes approved platform
+resources and requires real Okta/network/role acceptance. Existing local/public/Sites
+work is preserved.
+
+Final focused checks passed: 26 runtime, 66 lifecycle/proxy/verifier and seven
+packaging/UI tests; Terraform validation and seven mocked plans; actual full
+36/30,833-record HTTP/MCP/proxy integration and a matching 189,929,585-byte export;
+2 GiB non-root/read-only/no-network image boot; 38 existing browser assertions,
+20 offline experience journeys and nine new portal journeys using Chromium.
+Canonical assurance remains open: sandbox recovery/executable/hardlink fixtures
+failed; the canonical Chrome binary is absent. The authorised package/lock change's
+regenerable receipt bindings were refreshed without changing receipt bodies/claims,
+and all 33 targeted tests passed. Full canonical CI was not claimed green.
+
+The actual accepted local output is `artifacts/gcp/1784b702d63d0ba7/`;
+`package-approval` produces its sanitised `platform-review.zip` and checksum.
+Preflight/plan remain blocked by missing cloud CLI/login/project/billing/pricing,
+state and exact VM/access inputs. The owner selected a £20 total ceiling and
+31 December 2026 end; no billing account or deployment approval was inferred.
+Verification reports `prepared-only`; all 41 hosted requirements remain blocked.
+No GCP mutation/upload occurred and no deployed GCP URL exists. See
+[observed results](docs/deployment/gcp/LOCAL_OBSERVATION.md) for commands, evidence,
+illustrative costs, exact gates and cleanup; [runbook](docs/deployment/gcp/README.md)
+and [platform review](docs/deployment/gcp/PLATFORM_APPROVAL.md) govern continuation.
 
 The latest exact-commit CI, publication and client-acceptance checkpoint is
 [EXPERIENCE-221 issue #143](https://github.com/chris-page-gov/gis-ai-go/issues/143),

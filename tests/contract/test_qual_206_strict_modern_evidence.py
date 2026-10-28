@@ -38,6 +38,12 @@ EXACT_RESOURCES = [
 # This source-bound local set is deliberately regenerated after authorised source
 # changes; it is not an immutable observed-host artefact. Current material bindings
 # are independently checked by test_qual_206_local_evaluation_receipts.
+# The GCP-222 refresh changes only the package-script and workspace-lock bindings
+# (the offline GCP check and pinned OIDC library) and derived set ID. Independent
+# comparison with the preceding committed set confirms suite, receipt bodies and
+# acceptance claims remain unchanged; historical observed-host artefacts stay pinned.
+# GCP-223 updates only the exact workspace-lock hash and derived set identity
+# for the security dependency fixes; receipt bodies and claims remain identical.
 # The EXPERIENCE-221 refresh changes only the package-script and workspace-lock
 # bindings and derived set ID; suite and receipt bodies remain unchanged.
 # The ASSURE-209 notice refresh changes only source-lock material bindings and

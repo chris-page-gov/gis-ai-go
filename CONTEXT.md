@@ -2,6 +2,72 @@
 
 Last updated: 27 October 2026
 
+## GCP authority and security boundaries
+
+The owner subsequently requested an independent review after reporting a switch
+to Daybreak, and clearer stable progress and elapsed-time reporting. The exact
+`f3dd856f` Standard source review is sealed with two additional findings and
+explicit partial semantic coverage. Existing fix/publication authority applies
+to those source paths and affected instructions; it does not admit an image,
+permit secure-machine execution or grant GCP/BDUK approval. Preserve the
+immutable findings, separately recorded patch checks and historical model baselines.
+Fresh pre-patch investigations completed; the host did not supply independent
+final candidate reviews. Preserve that gap alongside the parent review fallback.
+See the [follow-up record](docs/security/GCP-223-INDEPENDENT-REVIEW-2026-10-09.md).
+
+On 9 October the owner explicitly authorised fixing the three reported source
+findings and dependency advisories, and publishing a sanitised report through
+GitHub. Preserve the sealed original audit and distinguish supplemental fix
+verification from its original findings and partial coverage. This authorises
+local fixes, regression checks and source/report publication; it does not grant
+secure-machine execution, image/registry publication, merging, cloud mutation
+or BDUK acceptance. See the [sanitised review](docs/security/GCP-223-SECURITY-REVIEW.md).
+The same remediation scope includes triaging annotations from the published
+draft PR and hardening the proxy's upstream response-header boundary. Preserve
+the distinction between an established vulnerability, already-safe API-list
+membership and unproven exploitability under a fixed authenticated upstream.
+
+On 9 October the owner additionally requested portable development containers,
+updated dependencies/instructions and a full-repository security scan before any
+execution on the secured machine. Local implementation, source review and
+bounded local image/dependency assurance are authorised. Use repository-relative
+paths and the host's own home location, preserve the existing secure clone and
+dirty work, and use GitHub as its source-transfer route. Do not open a container,
+install dependencies or run repository scripts there before exact-source,
+exact-image and platform admission. Vendor hardened-image availability does not
+select an entitlement, mirror, base digest, budget or approving identity.
+Source fixes and the maintained-lock recheck are recorded separately; original
+image findings, incomplete coverage and exact-source/platform admission still
+block secure execution;
+see [development and build assurance](docs/development/BUILD_ASSURANCE.md).
+No cloud mutation, image publication, protected-data upload or live provider/model
+call is granted by this increment. The original deployment approval contract
+and separate hosted acceptance requirements remain in force.
+
+On 9 October the owner requested an executable platform installer and explicitly
+selected the BDUK GCP sandpit. Implement and test that operator entrypoint using
+the existing private deployment contract. Do not reuse personal project/budget or
+VM authority for BDUK. Platform inputs and exact first-cloud-mutation approval
+remain required under the 5 October commission.
+The owner subsequently confirmed GitHub is the secure machine's only source
+transfer route. Publish the reviewed implementation branch for cloning; keep
+private configuration, credentials, state and images outside Git. This source
+publication grants no cloud mutation, merge or hosted acceptance.
+
+On 5 October 2026 the owner authorised GCP-222: implement an additive,
+network-private personal GCP pilot of the current website, OKF/OKF+ knowledge,
+workbench and custom Streamable HTTP MCP, plus a portable BDUK sandpit review
+package. Local implementation and checks are authorised. Cloud prerequisites
+may be inspected read-only; the first cloud mutation requires a recorded exact
+account/project, resource and upload inventory, costed plan, spend envelope and
+pilot duration approval. Approval is reusable only within its recorded scope.
+Do not infer a budget, billing attachment, enterprise identity or deployment
+permission from earlier Sites/OS work. Initial content is admitted public
+metadata and synthetic fixtures; credentials, licensed features, private
+original archives and protected BDUK data are excluded. No external model or
+live-provider calls are authorised by this commission. See
+[`docs/deployment/gcp/README.md`](docs/deployment/gcp/README.md).
+
 ## GIS public entrypoint
 
 On 27 October 2026, the owner’s requested GIS default migration completed its
@@ -609,7 +675,7 @@ their ownership.
 The complete local gate is:
 
 ```bash
-pnpm install --frozen-lockfile
+pnpm install --frozen-lockfile --ignore-scripts --package-import-method=copy
 uv sync --locked --group dev --cache-dir .uv-cache
 pnpm run check
 ```

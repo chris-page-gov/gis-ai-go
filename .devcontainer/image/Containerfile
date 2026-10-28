@@ -1,0 +1,26 @@
+FROM python:3.12.14-slim-bookworm@sha256:a116514e19457bcb7af7efe9c3dd0b9b71e85b317694e7882a1c52aa15a78134 AS python
+FROM node:24.19.0-bookworm@sha256:4196d66a565c6f195728d9952f161f4adfe2ad753052a08b7ec7f1c5a6bda42b
+
+# The digest fixes Git, Bash and the Debian dependency closure. No apt index,
+# repository source, host configuration, proxy certificate or secret enters this image.
+COPY --from=python /usr/local/ /usr/local/
+COPY toolchain.lock.json /usr/share/gis-ai-go/toolchain.lock.json
+COPY install_image.py /tmp/install_image.py
+COPY inputs/ /tmp/inputs/
+RUN --network=none python3 /tmp/install_image.py && \
+    rm -rf /tmp/inputs /tmp/install_image.py && \
+    find /usr/bin /usr/sbin /usr/lib /bin /sbin -type f -perm /6000 -exec chmod a-s {} + && \
+    test ! -x /usr/bin/sudo && \
+    node_home=$(getent passwd node | cut -d : -f6) && \
+    mkdir -p /workspace/gis-ai-go "$node_home/.cache" "$node_home/.local" && \
+    chown -R node:node /workspace "$node_home"
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    UV_PYTHON_DOWNLOADS=never \
+    UV_NO_MODIFY_PATH=1 \
+    GIT_CONFIG_NOSYSTEM=1
+WORKDIR /workspace/gis-ai-go
+USER node:node
+ENTRYPOINT []
+CMD ["sleep", "infinity"]

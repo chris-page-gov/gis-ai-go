@@ -26,6 +26,8 @@ from datetime import UTC, datetime
 from pathlib import Path, PurePosixPath
 from typing import Any, BinaryIO, Iterable
 
+from security.bounded_tar import BoundedTarInfo
+
 ROOT = Path(__file__).resolve().parents[1]
 CONTAINERFILE = ROOT / "apps" / "mcp-gateway" / "Containerfile"
 DOCKERIGNORE = ROOT / "apps" / "mcp-gateway" / "Containerfile.dockerignore"
@@ -4428,7 +4430,7 @@ def canonicalise_oci_archive(
     then, the supplied bytes must exactly match the independently derived projection.
     """
     destination.parent.mkdir(parents=True, exist_ok=True)
-    with tarfile.open(source, "r:") as archive:
+    with tarfile.open(source, "r:", tarinfo=BoundedTarInfo) as archive:
         members: list[tarfile.TarInfo] = []
         for member in archive:
             members.append(member)
@@ -4687,8 +4689,9 @@ def _validate_layer_tar(fileobj: BinaryIO) -> None:
     names: set[str] = set()
     kinds: dict[str, str] = {}
     try:
-        with tarfile.open(fileobj=fileobj, mode="r:") as layer:
+        with tarfile.open(fileobj=fileobj, mode="r:", tarinfo=BoundedTarInfo) as layer:
             for member in layer:
+                layer.members.clear()
                 if len(names) >= MAX_LAYER_MEMBERS:
                     raise ValueError("OCI layer exceeds its member-count bound")
                 _validate_layer_member_metadata(member)
@@ -4940,8 +4943,9 @@ def _layer_rootfs_entries(
                         raise ValueError("OCI layer exceeds its expanded byte bound")
                     expanded_layer.write(chunk)
             expanded_layer.seek(0)
-            with tarfile.open(fileobj=expanded_layer, mode="r:") as layer:
+            with tarfile.open(fileobj=expanded_layer, mode="r:", tarinfo=BoundedTarInfo) as layer:
                 for member_index, layer_member in enumerate(layer):
+                    layer.members.clear()
                     if member_index >= MAX_LAYER_MEMBERS:
                         raise ValueError("OCI layer exceeds its member-count bound")
                     _validate_layer_member_metadata(layer_member)
@@ -5328,7 +5332,7 @@ def inspect_oci_archive(path: Path) -> OciInspection:
     if metadata.st_size > MAX_OCI_BYTES:
         raise ValueError("OCI archive exceeds its byte bound")
     _assert_canonical_oci_archive(path)
-    with tarfile.open(path, "r:") as archive:
+    with tarfile.open(path, "r:", tarinfo=BoundedTarInfo) as archive:
         members: dict[str, tarfile.TarInfo] = {}
         ordered_names: list[str] = []
         total_bytes = 0

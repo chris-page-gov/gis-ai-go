@@ -13,9 +13,22 @@ export function createHostedMcpCall(location: Location): McpCall {
   return createPinnedMcpCall(location, true);
 }
 
-function createPinnedMcpCall(location: Location, hosted: boolean): McpCall {
-  const origin = hosted ? "https://gis-ai-go-webmcp-explorer.crpage.chatgpt.site" : "http://127.0.0.1:8788";
-  const endpoint = new URL(hosted ? "/workbench/mcp" : "/mcp", origin);
+/** Ordinary private hosting uses this page's origin; the server checks its own allowlist. */
+export function createGcpMcpCall(location: Location): McpCall {
+  let parsed: URL;
+  try { parsed = new URL(location.origin); }
+  catch { throw new Error("Private workbench requires a valid origin."); }
+  if (parsed.origin !== location.origin || parsed.username || parsed.password ||
+      (parsed.protocol !== "https:" && parsed.origin !== "http://127.0.0.1:8789")) {
+    throw new Error("Private workbench requires HTTPS or the approved local tunnel.");
+  }
+  return createPinnedMcpCall(location, true, parsed.origin, "/mcp");
+}
+
+function createPinnedMcpCall(location: Location, hosted: boolean,
+  privateOrigin?: string, privatePath?: string): McpCall {
+  const origin = privateOrigin ?? (hosted ? "https://gis-ai-go-webmcp-explorer.crpage.chatgpt.site" : "http://127.0.0.1:8788");
+  const endpoint = new URL(privatePath ?? (hosted ? "/workbench/mcp" : "/mcp"), origin);
   return async (name, input, signal) => {
     if (location.origin !== origin) {
       throw new Error(hosted ? "Retrieval is available only on the approved private Site. This preview only supports discovery."

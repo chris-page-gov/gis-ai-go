@@ -17,7 +17,7 @@ product remains the static `v0.1.0` Explorer.
 
 - Use a complete checkout and run the command from the repository root.
 - Use Node.js `24.19.0` and pnpm `10.33.2`, as pinned by the repository.
-- Install dependencies in advance with `pnpm install --frozen-lockfile`. This may
+- Install dependencies in advance with `pnpm install --frozen-lockfile --ignore-scripts --package-import-method=copy`. This may
   need package-registry access; the demonstration itself does not need network
   access.
 - Do not provide an API key or provider credential. None is required or used.

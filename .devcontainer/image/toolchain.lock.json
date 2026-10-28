@@ -1,0 +1,43 @@
+{
+  "schema": "gis-ai-go.dev-toolchain.v1",
+  "platform": "linux/amd64",
+  "observed_at": "2026-10-09",
+  "bases": {
+    "node": "node:24.19.0-bookworm@sha256:4196d66a565c6f195728d9952f161f4adfe2ad753052a08b7ec7f1c5a6bda42b",
+    "python": "python:3.12.14-slim-bookworm@sha256:a116514e19457bcb7af7efe9c3dd0b9b71e85b317694e7882a1c52aa15a78134"
+  },
+  "versions": {
+    "node": "24.19.0",
+    "pnpm": "10.33.2",
+    "python": "3.12.14",
+    "uv": "0.12.2",
+    "terraform": "1.13.4"
+  },
+  "artifacts": [
+    {
+      "name": "pnpm-10.33.2.tgz",
+      "url": "https://registry.npmjs.org/pnpm/-/pnpm-10.33.2.tgz",
+      "sha256": "7a7bcf13d7f6ceb3946c03978373d99be9fde1cafc3000bdfed4c4f791167610",
+      "integrity": "sha512-qQ+vb+6rca1sblf5Tg/hoS9dzCLNdU20CulZPraj4LaxLjVAIYuzeuCDQEsfLObbKkEh6XmCm0r/lLmfSdoc+A==",
+      "maximum_bytes": 10000000
+    },
+    {
+      "name": "uv-0.12.2.whl",
+      "url": "https://files.pythonhosted.org/packages/a7/fe/a87be2a492440945e745b0dc81aef7fea9730d8194af88d854b7641f5ddf/uv-0.12.2-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+      "sha256": "3a8d93d1fe019561b70494a8e1332492afb5f14dadc33d5239569d0964164d10",
+      "maximum_bytes": 50000000
+    },
+    {
+      "name": "terraform_1.13.4_linux_amd64.zip",
+      "url": "https://releases.hashicorp.com/terraform/1.13.4/terraform_1.13.4_linux_amd64.zip",
+      "sha256": "98aa516201e948306698efd9954ab4cc0d1227c2578ba56245898b5f679e590b",
+      "maximum_bytes": 50000000
+    }
+  ],
+  "upstream_checksums": {
+    "pnpm": "https://registry.npmjs.org/pnpm/10.33.2",
+    "uv": "https://pypi.org/pypi/uv/0.12.2/json",
+    "terraform": "https://releases.hashicorp.com/terraform/1.13.4/terraform_1.13.4_SHA256SUMS"
+  },
+  "notice": "Observed public upstream pins; not a vulnerability clearance, platform approval or Docker Hardened Images claim. Git, Bash and Debian libraries are fixed by the Node base digest. Linux amd64 only."
+}
