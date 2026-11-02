@@ -8,12 +8,12 @@ All installed dependencies are exact in `pnpm-lock.yaml` or `uv.lock`.
 | pnpm | `10.33.2` | JavaScript workspace and lock |
 | TypeScript | `7.0.2` | Strict type checking |
 | `@types/node` | `24.13.3` | Node.js 24 types |
-| `@modelcontextprotocol/server` | `2.0.0` | MCP 2026-07-28 server and transports |
-| `@modelcontextprotocol/node` | `2.0.0` | Streaming Node HTTP adapter |
-| `@modelcontextprotocol/client` | `2.0.0` | Development-only conformance client |
+| `@modelcontextprotocol/server` | `2.3.0` | MCP 2026-07-28 server and transports |
+| `@modelcontextprotocol/node` | `2.1.0` | Streaming Node HTTP adapter |
+| `@modelcontextprotocol/client` | `2.3.0` | Conformance and workbench client; not gateway runtime |
 | `@viz-js/viz` | `3.29.0` | Lockfile-pinned WebAssembly Graphviz renderer |
-| Vite | `8.2.1` | Static Explorer build and local preview only |
-| Vitest | `4.1.11` | Explorer unit and component assurance |
+| Vite | `8.2.4` | Static Explorer build and local preview only |
+| Vitest | `4.1.12` | Explorer unit and component assurance |
 | jsdom | `30.0.1` | Standards-based HTML parsing in build-policy and component tests |
 | Playwright | `1.62.1` | Real-browser Explorer acceptance using runner Chrome |
 | axe-core Playwright integration | `4.13.0` | Automated WCAG 2.2 A and AA checks |

@@ -6,7 +6,8 @@ An isolated security maintenance candidate updates affected JavaScript locks
 and the optional chronicle renderer. It changes no provider permissions or
 published archive. Canonical CI remains mandatory; merge, publication and
 alert closure require separate review. See the dependency maintenance
-changelog fragment for the affected components.
+[record](docs/operations/DEPENDENCY_SECURITY_2026-11-02.md) for the affected
+components, passing local checks and unresolved image scan verification gate.
 
 Last updated: 27 October 2026
 
