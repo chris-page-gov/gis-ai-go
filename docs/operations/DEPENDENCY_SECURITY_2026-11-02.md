@@ -1,4 +1,4 @@
-# Dependency security candidate — 2 November 2026
+# Dependency security maintenance — 2 November 2026
 
 The candidate updates the split MCP Node adapter to 2.1.0 and client to 2.3.0,
 Hono to 4.13.11, its Node server to 2.1.3, the jsdom Undici dependency to
@@ -93,3 +93,21 @@ Independent inspection of the checksum-verified 24.22.1 archive measured
 126,879,696 bytes for `bin/node` and 157,609 bytes for `LICENSE`, matching their
 newly pinned hashes. The candidate now pins those measured sizes explicitly and
 rejects the old sizes. No comparison or image-composition requirement is relaxed.
+
+## Accepted PR increment
+
+Exact head `7c36d9711312986efe0999f973c90cfabc87776d` passed complete
+[PR CI](https://github.com/chris-page-gov/gis-ai-go/actions/runs/41491411239)
+and [CodeQL](https://github.com/chris-page-gov/gis-ai-go/actions/runs/41491400740).
+Repository assurance, actual gateway packaging/reproducibility, the 488-component
+SBOM, vulnerability scan, container acceptance, offline replay, full Explorer
+candidate and aggregate assurance passed. Independent derivation and provenance
+are main-event checks and were correctly skipped on the PR event.
+
+[PR #192](https://github.com/chris-page-gov/gis-ai-go/pull/192) merged by squash as
+`4573634b822f4d964c91f66380dc702d0ce7e82c`. Dependabot PRs #191, #170, #169,
+#166 and #158 were closed with individual comments explaining their replacement.
+The requested direct versions are included. PR #170's incidental transitive
+refresh was deliberately excluded; the retained pins satisfy Vite 8.2.4's
+published ranges. No deployment or alert dismissal is claimed. PR #146 was
+left untouched.

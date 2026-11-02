@@ -1,19 +1,71 @@
 # Current progress
 
-## Dependency maintenance candidate — 2 November 2026
+## Dependency maintenance — 2 November 2026
 
-The security maintenance candidate updates affected JavaScript locks and the
-optional chronicle renderer. Safe image diagnostics identified a public Node.js
-advisory description rejected by the privacy gate, then authoritative advisory
-review established that the existing runtime is affected by HIGH
-CVE-2026-105482. The candidate therefore also updates the independently pinned
-gateway runtime to patched Node.js 24.22.1. Full canonical source and image
-assurance remain mandatory before merge. No provider permission or accepted
-published archive changes. See the dependency maintenance
+The security maintenance repair merged through
+[PR #192](https://github.com/chris-page-gov/gis-ai-go/pull/192) as main
+`4573634b…`. It updates affected JavaScript locks, the optional chronicle renderer
+and the independently pinned gateway runtime to Node.js 24.22.1 for HIGH
+CVE-2026-105482. Full PR repository, image, Explorer candidate and CodeQL checks
+passed on `7c36d971…`; main-only independent derivation and provenance retain
+their separate evidence boundary. The five overlapping Dependabot PRs were
+closed with individual explanations. No provider permission or accepted
+published archive changed. See the dependency maintenance
 [record](docs/operations/DEPENDENCY_SECURITY_2026-11-02.md) for the affected
-components, passing local checks and unresolved image scan verification gate.
+components, failed attempts, concrete repairs and passing evidence.
 
-Last updated: 27 October 2026
+Last updated: 2 November 2026
+
+## VS Code Data Agent Kit preparation
+
+The owner requested configuration of the existing personal-project VS Code
+environment and reproducible steps for a protected machine. The
+[setup guide](docs/operations/DATA_AGENT_KIT_VSCODE.md) supplies the official
+extension recommendation, disables the documented notebook execution tool and
+records CLI-first configuration, exact-version capture, Knowledge Catalog-only
+selection and identity boundaries. Three documented extension-specific UI controls
+remain. The offline preflight distinguishes portable-file checks from desktop
+and live acceptance. The current cloud executor has no desktop connection,
+`code`, `gcloud` or configured GCP identity; the previous personal project values
+remain in unavailable private configuration. Reuse the desktop's existing verified
+gcloud context. No desktop installation, sign-in, API/IAM/billing change, OKF
+import or cloud deployment is claimed by this preparation. [Issue 188](https://github.com/chris-page-gov/gis-ai-go/issues/188)
+tracks the source checks and remaining local acceptance.
+
+Seven offline checks and the portable workspace CLI check passed on Node.js
+`24.19.0`; local links, changelog, secret/path, manifest-version and whitespace
+checks passed. Initial sandbox testing used in-process execution; subsequent
+approved execution passed the normal isolated test command. Initial CI found the
+existing deterministic receipt set's package binding stale. Its supported offline
+generator and seven contract tests passed; only the package hash and derived set
+identity changed. Canonical CI on the repair remains mandatory.
+
+On 2 November 2026, the setup branch incorporated the reviewed dependency repair.
+The workspace files now have an explicit conservative full-assurance impact route.
+The supported generator passed its selected suites and refreshed only the local
+receipt set's package binding and derived set identity relative to that dependency
+baseline; its mutable test pin was updated while historical evidence stayed fixed.
+The actual pnpm `10.33.2` frozen-lock installation and the seven setup tests passed.
+All 56 CI-impact and agreement tests and 46 receipt/strict-modern/protocol-evidence
+tests passed locally. Desktop/Google acceptance remains outstanding; complete
+canonical CI is still a merge prerequisite.
+
+The subsequent dependency diagnostics repair (`0e7c97cc…`) is also incorporated.
+Its 20 diagnostic tests, Python syntax and complete local link/integrity checks
+passed. It changes no package, lock or local receipt inputs, so the previously
+passing receipt suites were not repeated. That draft checkpoint did not establish
+desktop acceptance.
+
+The final client-only increment was reconstructed on dependency candidate
+`6c374a14…`, retaining its corrected source-lock and runtime notice identities.
+With actual pnpm `10.33.2` and uv `0.12.2`, the frozen offline dependency checks,
+supported local receipt generator and seven setup tests passed. Relative to that
+dependency candidate, only the generator's package binding and derived set ID
+change; no source-lock, dependency lock, receipt body or historical evidence pin
+is changed by the client increment. The client-only delta is now rebased onto
+the merged dependency repair at `4573634b…`, preserving the final runtime size
+checks. Full canonical CI is required before its own merge. Desktop/Google
+acceptance remains separate and tracked by issue #188.
 
 ## Explorer discovery repair
 

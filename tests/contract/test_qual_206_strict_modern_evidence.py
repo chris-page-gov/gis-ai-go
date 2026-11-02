@@ -71,8 +71,10 @@ EXACT_RESOURCES = [
 # 2 November 2026: the patched Node licence notice refreshes the source-lock
 # material and derived suite/receipt/set identities after the canonical suites pass.
 # Assertions, outcomes, non-live boundaries and historical pins remain unchanged.
+# 2 November 2026: the separate client setup adds only its package binding and
+# derived set identity on the reviewed dependency/source-lock baseline.
 REGENERABLE_LOCAL_RECEIPT_SHA256 = (
-    "cbfbb483a736693bc74c4feec3717b1d97afb7dc9c6145c676a941ae1cd13ad7"
+    "aaae27e6c8ca06cc52de998efab73e431898858b4e2758966e996ad41c6b633e"
 )
 HISTORICAL_V1_SHA256 = {
     "evaluation/qual-206-local-protocol-evidence-matrix.v1.json": (
