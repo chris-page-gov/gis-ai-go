@@ -14,13 +14,13 @@
     "preview": "vite preview --host 127.0.0.1 --port 4176 --strictPort"
   },
   "dependencies": {
-    "@modelcontextprotocol/client": "2.2.0"
+    "@modelcontextprotocol/client": "2.3.0"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.13.0",
     "@playwright/test": "1.62.1",
     "jsdom": "30.0.1",
-    "vite": "8.2.1",
-    "vitest": "4.1.11"
+    "vite": "8.2.4",
+    "vitest": "4.1.12"
   }
 }

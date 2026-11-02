@@ -4,15 +4,25 @@ This runbook covers the static publication in
 [ADR-0019](../decisions/ADR-0019-full-explorer-pages-publication.md).
 The public default, complete HTTPS/browser checks and legacy rollback/restore
 passed on 27 October 2026. The
-[completed evidence](#completed-publication-evidence) below records exact sources,
+[completed discovery evidence](#discovery-publication-evidence) below records exact sources,
 workflow identities and outcomes. This work adds no gateway, provider service,
 protected-data entitlement or hosted Ask OKF admission.
 
 The subsequent [discovery repair](../implementation/OKF_EXPLORER_DISCOVERY.md)
 adds facets, retained-record relationships and bounded source references. Its
-final pins, CI and public acceptance remain pending. The accepted `8e67ae88…`
-archive below retains its two-facet, zero-relationship projection; its successful
-publication checks do not establish the richer discovery increment.
+producer and canonical consumer have merged after required PR assurance, with
+the immutable consumer pin verified against the identical merged Git tree.
+Complete GIS main CI and CodeQL passed all 13 checks with none skipped, and the
+exact main archive and attestation are verified. Initial deploy `40506483121`
+passed all three jobs, complete actual public HTTPS verification and all eight
+browser cases first attempt. Historical rollback `40509547583` and restore
+`40512243266` of the identical new archive also passed their actual public checks.
+The previously accepted
+`8e67ae88…` archive below retains its two-facet, zero-relationship projection;
+its successful publication checks do not establish the richer discovery increment. The
+[merged implementation evidence](../implementation/OKF_EXPLORER_DISCOVERY.md#merged-implementation-and-review-evidence)
+records the main archive and all three accepted public phases separately from
+the review-only candidate and earlier publication.
 
 The public dependency closure retains the complete public metadata and
 native-field/atomic source records. The separate new private capture feature is
@@ -22,6 +32,42 @@ with [unresolved review findings](EXPLORER_PAGES_CODEQL_REVIEW.md). It is not us
 by this publisher. Existing main OS recovery remains in place. Public success
 does not resolve that deferred feature's review or wider acquisition work.
 
+## Discovery publication evidence
+
+The discovery increment completed on 27 October 2026. The current bare
+[GIS public URL](https://chris-page-gov.github.io/gis-ai-go/) serves exact source
+`93fe753460a2a3c907d9b8257060e89c758e3c4e`, selected from successful complete
+main CI `40500356691`, with tar SHA-256
+`742eb25f698355fe021780d321e025a4b542a6ee32b8da60921c4a0d2e3b39b4`.
+All 13 main checks passed without skips. The canonical consumer is pinned to
+reviewed `75753709…`, whose Git tree equals merged upstream `46928e2a…`.
+The [complete identity and assurance record](../implementation/OKF_EXPLORER_DISCOVERY.md#merged-implementation-and-review-evidence)
+binds the source artefact, attestation, app tree/manifest, roots and scoped results.
+
+| Actual public phase / attempt | Selected source / tar | Complete verified files / bytes | First-attempt browser passes | Automatic HTTP 503 retries / replay bytes |
+| --- | --- | --- | --- | --- |
+| [Deploy 40506483121](https://github.com/chris-page-gov/gis-ai-go/actions/runs/40506483121) / 1 | `93fe7534…` / `742eb25f…` | 38,604 / 899,129,361 | 8 | 18 / 142,197 |
+| [Rollback 40509547583](https://github.com/chris-page-gov/gis-ai-go/actions/runs/40509547583) / 1 | `8e67ae88…` / `3fe87087…` | 37,279 / 714,610,618 | 8 | 5 / 25,008 |
+| [Restore 40512243266](https://github.com/chris-page-gov/gis-ai-go/actions/runs/40512243266) / 1 | The identical `93fe7534…` / `742eb25f…` archive | 38,604 / 899,129,361 | 8 | 10 / 280,000 |
+
+All three phases passed source/archive/attestation validation, deployment and
+actual canonical HTTPS verification. Each public walk checked all selected
+logical bytes; every browser case passed first attempt with zero flaky, skipped
+or unexpected results, mirrors or reported transport errors. Each phase used one
+readiness probe / 1,398 bytes. Transient HTTP 503 responses recovered within the
+unchanged bounded automatic retry policy, with no manual rerun and zero
+application-consumed error-body bytes. Their phase-specific totals above are
+separate from the earlier publication's retries below.
+
+Rollback verified the original `8e67ae88…` app, roots and two-facet/zero-graph
+profile. Restore verified the identical new archive, not a rebuilt candidate,
+and the full discovery contract: 18 facets, 137 explicit relationships, 61,309
+source-reference associations and two publishers. Four suggested facets remain
+folded, with 12-pixel bars and compact controls; **All** exposes every dimension.
+This completes static discovery publication and recovery acceptance. Later
+documentation commits do not replace the selected source; the supported release,
+human learning assessment, private findings and acquisition work remain separate.
+
 ## Build and check a local candidate
 
 Use a clean GIS checkout and a separate canonical Explorer checkout at
@@ -30,6 +76,11 @@ Use a clean GIS checkout and a separate canonical Explorer checkout at
 source, app tree, build manifest, public context prefix and capture timestamp.
 The complete app remains unchanged; generated guides have separate
 `explorer/GUIDE-PROVENANCE.json` source/output hashes and reference mappings.
+An immutable reviewed head may remain the pin after upstream merge only when
+its Git tree equals accepted main. Require full upstream PR assurance, merge,
+that exact tree comparison and successful normal main workflow selection before
+GIS merge or publication. Record declared conditional skips separately from the
+full behavioural evidence; do not force selectors or claim a full main rerun.
 
 Use the candidate CI toolchains: Node.js 24.22.1, GIS pnpm 10.33.2, Explorer
 pnpm 10.34.7, uv 0.12.2 and Explorer CPython 3.12.11. Corepack selects each
@@ -134,12 +185,12 @@ authorise rebuilding an accepted archive or weakening its checks.
 ## Completed publication evidence
 
 This section records the accepted `8e67ae88…` publication and its original seven
-browser journeys. The [pending discovery increment](../implementation/OKF_EXPLORER_DISCOVERY.md)
-requires separate acceptance with the eight-journey suite; it does not change the
+browser journeys. The later [discovery publication](#discovery-publication-evidence)
+has separate acceptance with the eight-journey suite; it does not change the
 source, inventory or outcomes recorded here.
 
-Observed on 27 October 2026. The current bare
-[GIS root](https://chris-page-gov.github.io/gis-ai-go/) opens the full compact
+Observed on 27 October 2026 for the archive recorded below. At that acceptance,
+the bare [GIS root](https://chris-page-gov.github.io/gis-ai-go/) opened the full compact
 Explorer. Recognised earlier catalogue query/record links intentionally open
 `/legacy/` with their state. The static publication keeps product version `0.1.0`;
 it does not replace the immutable supported release or admit a gateway service.

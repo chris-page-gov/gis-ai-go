@@ -65,15 +65,15 @@ class RepositoryBoundaryTests(unittest.TestCase):
             package["dependencies"]["@modelcontextprotocol/server"], "2.3.0"
         )
         self.assertEqual(
-            package["dependencies"]["@modelcontextprotocol/node"], "2.0.0"
+            package["dependencies"]["@modelcontextprotocol/node"], "2.1.0"
         )
         self.assertEqual(
-            package["devDependencies"]["@modelcontextprotocol/client"], "2.2.0"
+            package["devDependencies"]["@modelcontextprotocol/client"], "2.3.0"
         )
         workbench = json.loads(
             (ROOT / "apps/public-data-workbench/package.json").read_text(encoding="utf-8")
         )
-        self.assertEqual(workbench["dependencies"]["@modelcontextprotocol/client"], "2.2.0")
+        self.assertEqual(workbench["dependencies"]["@modelcontextprotocol/client"], "2.3.0")
         for forbidden in (
             "@modelcontextprotocol/sdk",
             "@modelcontextprotocol/server-legacy",

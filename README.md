@@ -14,14 +14,17 @@ receipts, provenance verification and the dependency SBOM.
 The [release evidence record](docs/operations/V0.1.0_RELEASE_EVIDENCE.md) binds the
 source, build, deployment and public-browser acceptance identities of that release.
 
-The [full Explorer publication](docs/operations/EXPLORER_PAGES_PUBLICATION.md#completed-publication-evidence)
+The [full Explorer publication](docs/operations/EXPLORER_PAGES_PUBLICATION.md#discovery-publication-evidence)
 is the verified GIS public default at <https://chris-page-gov.github.io/gis-ai-go/>.
 It serves the compact canonical Explorer, complete public OKF+ metadata, linked
-learning paths and field/source explanations. Exact-byte HTTPS checks, browser
-journeys, legacy rollback and restore passed on 27 October 2026. Publication evidence identifies the served archive as GIS source
-`8e67ae88e68341120a712d102f692894fbd89659`; the immutable supported `v0.1.0`
-release remains separately identified above. Saved catalogue URLs preserve their
-legacy record state. Use the bare public URL to open the full Explorer.
+learning paths and field/source explanations, with 18 source-backed facets,
+137 explicit links between retained records and 61,309 source references. Four
+suggested facets stay folded; **All** exposes every dimension. Complete public
+HTTPS/browser checks, rollback and restore passed on 27 October 2026. The restored
+archive remains exact GIS source `93fe753460a2a3c907d9b8257060e89c758e3c4e`;
+the immutable supported `v0.1.0` release remains separately identified above.
+Saved catalogue URLs preserve their legacy record state. Use the bare public URL
+to open the full Explorer.
 
 This increment carries the full public bundle, Reader/context projections,
 learning records and native-field/atomic source cards. The separate new private

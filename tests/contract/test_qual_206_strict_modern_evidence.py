@@ -68,8 +68,10 @@ EXACT_RESOURCES = [
 # lockfile binding and derived set ID; every historical evidence pin stays fixed.
 # 26 October 2026: deferring the private metadata command refreshes only the
 # package binding and set ID after the canonical selected suites pass again.
+# 2 November 2026: Data Agent Kit setup adds package-script bindings after the
+# dependency repair. The selected suites pass; historical observed-host pins stay fixed.
 REGENERABLE_LOCAL_RECEIPT_SHA256 = (
-    "faa39f1bd1d0bef87395f289dad2e18685162df912e3dc7c74d176904c48000d"
+    "bab6d2e8e5b641781dd64593b43988c5f6e83b191bba33f49014b2d99ec0bc00"
 )
 HISTORICAL_V1_SHA256 = {
     "evaluation/qual-206-local-protocol-evidence-matrix.v1.json": (

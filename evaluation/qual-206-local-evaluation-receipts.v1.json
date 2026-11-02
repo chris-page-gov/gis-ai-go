@@ -9,7 +9,7 @@
     "path": "scripts/qual_206_local_evaluations.mjs",
     "sha256": "8909ba88dedcda8e33204f3a167a3922bc46d198a77136651525db8bc84a66c1",
     "package_json_sha256": "3df8644b72c7a44f749a5eff5f5911d03542bed8e28453b7b01c85ebb4716035",
-    "pnpm_lock_sha256": "c29fa070fe095a076c79d61f1807816565ae9dd49e50e9fa9983a031cde18afd",
+    "pnpm_lock_sha256": "09921ed1508d88a42f5fae127af7f92af823f31443dda63b7f6b330770eda9bc",
     "verification_command": "pnpm run test:qual-206-local-evaluations"
   },
   "evaluation_manifest": {
@@ -1407,5 +1407,5 @@
     "complete_case_evaluation": false
   },
   "boundary": "Repository-only deterministic evidence. It is non-live and unscored, does not complete the research case, and does not authorise activation, deployment, registration or release.",
-  "set_id": "gis-ai-go:qual-206-local-evaluation-set:sha256:a46a3ba421f4bfa67e7a4cec24aace0489c9438260662d14082f813ea8404708"
+  "set_id": "gis-ai-go:qual-206-local-evaluation-set:sha256:6e7aa42fdaf78c45d5a52f6f0fa7a36147d9d280b9c91fe5068b2ea6ff393f14"
 }
