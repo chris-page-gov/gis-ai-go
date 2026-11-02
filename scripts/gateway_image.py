@@ -36,7 +36,9 @@ NODE_RUNTIME_VERSION = "24.22.1"
 NODE_BASE_VERSION = f"{NODE_RUNTIME_VERSION}-bookworm-slim"
 NODE_BASE_DIGEST = "sha256:be8204d4bd327363357f532187b752ff62759c31bedf98e9e18fc08c9cbd605c"
 NODE_BASE_REFERENCE = f"{NODE_BASE_NAME}:{NODE_BASE_VERSION}@{NODE_BASE_DIGEST}"
+NODE_BINARY_SIZE = 126_879_696
 NODE_BINARY_SHA256 = "e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb"
+NODE_LICENCE_SIZE = 157_609
 NODE_LICENCE_SHA256 = "5888dbb9a1d2b18f2c3e6c5f6af1b39de658372b402a0577b002777f14c62ace"
 NODE_UPSTREAM_ARCHIVE_URL = (
     "https://nodejs.org/download/release/v24.22.1/node-v24.22.1-linux-x64.tar.xz"
@@ -5665,7 +5667,7 @@ def _required_runtime_entries() -> tuple[RootfsEntry, ...]:
             0o755,
             0,
             0,
-            size=125_989_464,
+            size=NODE_BINARY_SIZE,
             sha256=NODE_BINARY_SHA256,
         ),
         RootfsEntry(
@@ -5715,7 +5717,7 @@ def _required_runtime_entries() -> tuple[RootfsEntry, ...]:
             0o644,
             0,
             0,
-            size=157_606,
+            size=NODE_LICENCE_SIZE,
             sha256=NODE_LICENCE_SHA256,
         ),
         RootfsEntry(

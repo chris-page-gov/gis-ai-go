@@ -86,3 +86,10 @@ restored the deterministic OKF build. The supported local receipt generator
 then passed its selected suites and refreshed the two affected material bindings
 and their derived suite, receipt and set identifiers. Outcomes, assertions,
 classification and historical observation pins remain unchanged.
+
+The next package attempt in `41489523050` exposed a separate exact-size binding:
+the root-filesystem verifier still named the old Node binary and licence sizes.
+Independent inspection of the checksum-verified 24.22.1 archive measured
+126,879,696 bytes for `bin/node` and 157,609 bytes for `LICENSE`, matching their
+newly pinned hashes. The candidate now pins those measured sizes explicitly and
+rejects the old sizes. No comparison or image-composition requirement is relaxed.
