@@ -43,6 +43,7 @@ from gateway_image import (
     parse_bounded_json_object,
     parse_checksum,
     prohibited_text_reason,
+    prohibited_json_reason,
     read_bounded_regular_file,
     sha256_file,
 )
@@ -167,13 +168,33 @@ _NODE_REPORT_OPERATION_CODES = frozenset({
     "canonical-json", "privacy-json", "privacy-text", "role-evidence",
     "missing-role", "finding-projection",
 })
-NODE_REPORT_DIAGNOSTIC_CODES = frozenset(_NODE_REPORT_ERROR_CODES.values()) | _NODE_REPORT_OPERATION_CODES
+_NODE_PRIVACY_CATEGORIES = frozenset({
+    "document", "descriptor-config", "descriptor-db", "descriptor-other",
+    "source", "matches-description", "matches-reference", "matches-artifact",
+    "matches-details", "matches-vulnerability", "matches-other",
+    "metadata", "components", "vulnerabilities-description",
+    "vulnerabilities-reference", "vulnerabilities-other",
+})
+_NODE_PRIVACY_CODES = frozenset(
+    f"privacy-json-{role}-{kind}-sensitive-{category}"
+    for role in NODE_ROLES for kind in ("input", "json", "cdx")
+    for category in _NODE_PRIVACY_CATEGORIES
+)
+NODE_REPORT_DIAGNOSTIC_CODES = (frozenset(_NODE_REPORT_ERROR_CODES.values())
+                                | _NODE_REPORT_OPERATION_CODES | _NODE_PRIVACY_CODES)
 
 
-def _fail_node_report(reason: str) -> None:
+def _fail_node_report(reason: str, *, cve: str | None = None) -> None:
     if type(reason) is not str or reason not in NODE_REPORT_DIAGNOSTIC_CODES:
         raise ValueError("Node report diagnostic reason is invalid")
-    sys.stderr.write(NODE_REPORT_DIAGNOSTIC_PREFIX + reason + "\n")
+    if cve is not None and (
+        type(cve) is not str or len(cve) > 64 or _CVE.fullmatch(cve) is None
+        or prohibited_text_reason(cve) is not None
+        or reason not in _NODE_PRIVACY_CODES
+    ):
+        raise ValueError("Node report diagnostic CVE is invalid")
+    suffix = "" if cve is None else " cve=" + cve
+    sys.stderr.write(NODE_REPORT_DIAGNOSTIC_PREFIX + reason + suffix + "\n")
     raise NodeAdvisoryFailure("node-report-validation")
 
 
@@ -190,6 +211,61 @@ def _node_report_step(reason: str, operation: Callable[..., Any], /, *args: Any,
                 and type(error.args[0]) is str):
             reason = _NODE_REPORT_ERROR_CODES.get(error.args[0], reason)
     _fail_node_report(reason)
+
+
+def _node_report_privacy_json(document: dict[str, Any], *, role: str, kind: str) -> None:
+    """Keep the privacy gate and identify only fixed schema categories on failure."""
+    if role not in NODE_ROLES or kind not in {"input", "json", "cdx"}:
+        raise ValueError("Node report privacy diagnostic input is invalid")
+    try:
+        assert_no_private_json(document, f"Grype Node {role} {kind}")
+        return
+    except ValueError:
+        pass
+    # Values, source keys, descriptions, paths and exception text are never logged.
+    # A CVE is emitted only from the already normalised scanner inventory.
+    category = "document"
+    cve = None
+    candidates: list[tuple[str, Any, str | None]] = []
+    descriptor = document.get("descriptor")
+    if isinstance(descriptor, dict):
+        candidates.extend([
+            ("descriptor-config", descriptor.get("configuration"), None),
+            ("descriptor-db", descriptor.get("db"), None),
+            ("descriptor-other", descriptor, None),
+        ])
+    candidates.append(("source", document.get("source"), None))
+    for match in (document.get("matches", []) if kind == "json" else []):
+        vulnerability = match.get("vulnerability", {})
+        identifier = vulnerability.get("id")
+        candidates.extend([
+            ("matches-description", {"description": vulnerability.get("description")}, identifier),
+            ("matches-reference", {key: vulnerability.get(key) for key in ("dataSource", "urls")}, identifier),
+            ("matches-artifact", match.get("artifact"), identifier),
+            ("matches-details", match.get("matchDetails"), identifier),
+            ("matches-vulnerability", vulnerability, identifier),
+            ("matches-other", match, identifier),
+        ])
+    candidates.extend([
+        ("metadata", document.get("metadata"), None),
+        ("components", document.get("components"), None),
+    ])
+    for vulnerability in ((document.get("vulnerabilities", []) or []) if kind == "cdx" else []):
+        identifier = vulnerability.get("id")
+        candidates.extend([
+            ("vulnerabilities-description", {"description": vulnerability.get("description")}, identifier),
+            ("vulnerabilities-reference", {key: vulnerability.get(key) for key in ("source", "advisories", "references")}, identifier),
+            ("vulnerabilities-other", vulnerability, identifier),
+        ])
+    for candidate_category, value, identifier in candidates:
+        if prohibited_json_reason(value) is not None:
+            category = candidate_category
+            if (type(identifier) is str and len(identifier) <= 64
+                    and _CVE.fullmatch(identifier) is not None
+                    and prohibited_text_reason(identifier) is None):
+                cve = identifier
+            break
+    _fail_node_report(f"privacy-json-{role}-{kind}-sensitive-{category}", cve=cve)
 
 
 class _RejectRedirect(HTTPRedirectHandler):
@@ -1257,12 +1333,12 @@ def assess_node(
         cdx_bytes = _node_report_step("canonical-json", canonical_json_bytes, raw_cdx)
         for document, encoded, label in (
             (input_document, input_bytes, "input"),
-            (raw_json, report_bytes, "JSON report"),
-            (raw_cdx, cdx_bytes, "CycloneDX report"),
+            (raw_json, report_bytes, "json"),
+            (raw_cdx, cdx_bytes, "cdx"),
         ):
             _node_report_step(
-                "privacy-json", assert_no_private_json,
-                document, f"Grype Node {role} {label}",
+                "privacy-json", _node_report_privacy_json,
+                document, role=role, kind=label,
             )
             _node_report_step(
                 "privacy-text", assert_no_private_text,

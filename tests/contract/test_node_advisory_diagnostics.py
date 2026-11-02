@@ -153,6 +153,40 @@ class NodeAdvisoryDiagnosticsTests(unittest.TestCase):
             node._node_report_step(marker, operation)
         operation.assert_not_called()
 
+    def test_privacy_diagnostic_identifies_only_fixed_field_category_and_validated_cve(self):
+        marker = "SYNTHETIC-PRIVATE-PAYLOAD"
+        cases = [
+            ("json", {"descriptor": {"configuration": {"authorization": "Bearer " + marker}}},
+             "descriptor-config", ""),
+            ("json", {"matches": [{"vulnerability": {"id": "CVE-2026-56846", "description": "Bearer " + marker}}]},
+             "matches-description", " cve=CVE-2026-56846"),
+            ("json", {"matches": [{"vulnerability": {"id": marker, "dataSource": "https://example.test/?token=" + marker}}]},
+             "matches-reference", ""),
+            ("cdx", {"metadata": {"authorization": "Bearer " + marker}},
+             "metadata", ""),
+            ("cdx", {"vulnerabilities": [{"id": "CVE-2026-56846", "description": "Bearer " + marker}]},
+             "vulnerabilities-description", " cve=CVE-2026-56846"),
+        ]
+        for role in node.NODE_ROLES:
+            for kind, document, category, suffix in cases:
+                with self.subTest(role=role, kind=kind, category=category):
+                    output = io.StringIO()
+                    with (contextlib.redirect_stderr(output),
+                          self.assertRaises(node.NodeAdvisoryFailure) as raised):
+                        node._node_report_privacy_json(document, role=role, kind=kind)
+                    line = (node.NODE_REPORT_DIAGNOSTIC_PREFIX
+                            + f"privacy-json-{role}-{kind}-sensitive-{category}" + suffix)
+                    self.assertEqual(output.getvalue(), line + "\n")
+                    self.assertEqual(assurance._node_report_diagnostic(line), line)
+                    self.assertNotIn(marker, output.getvalue())
+                    self.assertEqual(raised.exception.stage, "node-report-validation")
+                    self.assert_detached(raised.exception)
+        self.assertIsNone(node._node_report_privacy_json({"name": "public fixture"}, role="actual", kind="input"))
+        base = node.NODE_REPORT_DIAGNOSTIC_PREFIX + "privacy-json-actual-json-sensitive-matches-description"
+        for suffix in (" cve=" + marker, " cve=CVE-2026-56846 extra", " cve=CVE-2026-" + "1" * 80):
+            self.assertIsNone(assurance._node_report_diagnostic(base + suffix))
+        self.assertIsNone(assurance._node_report_diagnostic(base.replace("reason=", "reasonX")))
+
     def test_report_step_preserves_success_and_existing_control_flow(self):
         result = object()
         operation = mock.Mock(return_value=result)

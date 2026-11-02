@@ -32,3 +32,17 @@ there is no waiver, passing vulnerability-scan claim or deployment authority.
 Full canonical CI, including that image gate, must pass before verification is
 complete. No publication, protected-provider request or alert dismissal follows
 from this candidate.
+
+The follow-up processing pass corrected the fragment's two top-level bullets;
+the checked release format requires one. It also corrected the current workbench
+client version in its README. Pinned Linux workspace type checks, dependency
+unit suites, the real documented launcher with pnpm 10.33.2 and uv 0.12.2, and
+39 receipt/boundary tests passed. The initial launcher attempt used the host's
+unmatched tool versions and failed before health; the pinned rerun passed.
+
+Closed static diagnostics preserve the existing privacy checks and failure
+stages. In canonical run `41483536290`, image job `125408100424` identified
+`privacy-json`: structural report normalisation and cross-format identities
+passed before the raw report's privacy check refused it. This does not establish
+that the rejected content is benign. Raw scanner output remains withheld and
+the image gate remains required. CodeQL passed at `0e7c97cc`.

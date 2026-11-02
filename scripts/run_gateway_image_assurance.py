@@ -72,11 +72,18 @@ def _node_inventory_size_diagnostic(text: str) -> str | None:
 def _node_report_diagnostic(text: str) -> str | None:
     lines = [line for line in text.splitlines()
              if line.startswith(NODE_REPORT_DIAGNOSTIC_PREFIX.rstrip("="))]
-    if len(lines) != 1:
+    if len(lines) != 1 or not lines[0].startswith(NODE_REPORT_DIAGNOSTIC_PREFIX):
         return None
-    return next((NODE_REPORT_DIAGNOSTIC_PREFIX + reason
-                 for reason in NODE_REPORT_DIAGNOSTIC_CODES
-                 if lines[0] == NODE_REPORT_DIAGNOSTIC_PREFIX + reason), None)
+    reason, separator, cve = lines[0][len(NODE_REPORT_DIAGNOSTIC_PREFIX):].partition(" cve=")
+    if reason not in NODE_REPORT_DIAGNOSTIC_CODES:
+        return None
+    if separator and (
+        not reason.startswith("privacy-json-") or len(cve) > 64
+        or re.fullmatch(r"CVE-[0-9]{4}-[0-9]{4,}", cve) is None
+        or prohibited_text_reason(cve) is not None
+    ):
+        return None
+    return NODE_REPORT_DIAGNOSTIC_PREFIX + reason + (separator + cve if separator else "")
 
 
 def _contains_reserved_phase_boundary(text: str) -> bool:
