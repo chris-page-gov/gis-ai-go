@@ -23,6 +23,8 @@ their macOS failures do not establish a passing canonical run.
 The first canonical repository run failed on the changed lock binding in the
 mutable, non-live QUAL-206 receipt set. Its existing deterministic generator
 regenerates that binding; it does not rewrite historical live observations.
+The strict evidence test's expected hash is updated to those reviewed generated
+bytes; its classification and all-false live/release claims remain asserted.
 The separate gateway image job built and reproduced the OCI image and generated
 its SBOM, then failed closed at `node-report-validation`. Its raw scanner output
 was withheld by the existing evidence policy. The cause remains unproven;

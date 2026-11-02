@@ -69,7 +69,7 @@ EXACT_RESOURCES = [
 # 26 October 2026: deferring the private metadata command refreshes only the
 # package binding and set ID after the canonical selected suites pass again.
 REGENERABLE_LOCAL_RECEIPT_SHA256 = (
-    "faa39f1bd1d0bef87395f289dad2e18685162df912e3dc7c74d176904c48000d"
+    "42e5f4f97225a4a213c3a85079e8cbae0735689e9af7fe08821c9830b9ff0f4c"
 )
 HISTORICAL_V1_SHA256 = {
     "evaluation/qual-206-local-protocol-evidence-matrix.v1.json": (
