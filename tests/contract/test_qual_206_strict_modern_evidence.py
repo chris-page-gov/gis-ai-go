@@ -68,8 +68,11 @@ EXACT_RESOURCES = [
 # lockfile binding and derived set ID; every historical evidence pin stays fixed.
 # 26 October 2026: deferring the private metadata command refreshes only the
 # package binding and set ID after the canonical selected suites pass again.
+# 2 November 2026: the patched Node licence notice refreshes the source-lock
+# material and derived suite/receipt/set identities after the canonical suites pass.
+# Assertions, outcomes, non-live boundaries and historical pins remain unchanged.
 REGENERABLE_LOCAL_RECEIPT_SHA256 = (
-    "42e5f4f97225a4a213c3a85079e8cbae0735689e9af7fe08821c9830b9ff0f4c"
+    "cbfbb483a736693bc74c4feec3717b1d97afb7dc9c6145c676a941ae1cd13ad7"
 )
 HISTORICAL_V1_SHA256 = {
     "evaluation/qual-206-local-protocol-evidence-matrix.v1.json": (

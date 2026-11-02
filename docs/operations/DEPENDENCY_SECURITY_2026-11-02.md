@@ -78,3 +78,11 @@ The same walker handles parsed and canonical textual evidence, so offline replay
 does not require a filename-based exemption. Focused adversarial checks and
 independent review passed. Fresh exact-image build, scan, replay and complete
 canonical CI remain merge prerequisites.
+
+The first patched-runtime run, `41488623262`, stopped before building the image:
+the current third-party notice had changed, while its live entry in
+`okf/source-lock.json` retained the older checksum. Refreshing that one binding
+restored the deterministic OKF build. The supported local receipt generator
+then passed its selected suites and refreshed the two affected material bindings
+and their derived suite, receipt and set identifiers. Outcomes, assertions,
+classification and historical observation pins remain unchanged.
