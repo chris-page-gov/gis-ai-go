@@ -138,7 +138,7 @@ for (const protocol of ["2025-06-18", "2025-11-25", "2026-07-28"]) test(`officia
   assert(!JSON.stringify(report).includes("authorization"));
   assert.equal(report.claims.oauth_flow_verified, false);
   assert.equal(report.classification, "injected-transport-test");
-  assert.equal(report.client_version, "2.2.0");
+  assert.equal(report.client_version, "2.3.0");
   execFileSync(fileURLToPath(new URL("../../.venv/bin/python", import.meta.url)), ["-c", `
 import json,sys
 from jsonschema import Draft202012Validator,FormatChecker

@@ -87,10 +87,10 @@
           ],
           "properties": {
             "reference": {
-              "const": "node:24.19.0-bookworm-slim@sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03"
+              "const": "node:24.22.1-bookworm-slim@sha256:be8204d4bd327363357f532187b752ff62759c31bedf98e9e18fc08c9cbd605c"
             },
             "digest": {
-              "const": "sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03"
+              "const": "sha256:be8204d4bd327363357f532187b752ff62759c31bedf98e9e18fc08c9cbd605c"
             }
           }
         },
@@ -116,17 +116,17 @@
               ]
             },
             "node_binary": {
-              "donor_reference": "node:24.19.0-bookworm-slim@sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03",
-              "version": "24.19.0",
+              "donor_reference": "node:24.22.1-bookworm-slim@sha256:be8204d4bd327363357f532187b752ff62759c31bedf98e9e18fc08c9cbd605c",
+              "version": "24.22.1",
               "path": "/usr/local/bin/node",
-              "sha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12",
-              "purl": "pkg:generic/node@24.19.0",
-              "cpe": "cpe:2.3:a:nodejs:node.js:24.19.0:*:*:*:*:*:*:*",
+              "sha256": "e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb",
+              "purl": "pkg:generic/node@24.22.1",
+              "cpe": "cpe:2.3:a:nodejs:node.js:24.22.1:*:*:*:*:*:*:*",
               "licence_path": "/usr/share/licenses/nodejs/LICENSE",
-              "licence_sha256": "148eacf7863ef4329224a29398623077200a27194aa075569faf4a0a85566ca5",
-              "upstream_archive_url": "https://nodejs.org/download/release/v24.19.0/node-v24.19.0-linux-x64.tar.xz",
-              "upstream_archive_sha256": "14b342e71204f811bde6153be8e04b62aef63c236fef92b55f9c83154b409647",
-              "security_advisory_url": "https://nodejs.org/en/blog/vulnerability/july-2026-security-releases"
+              "licence_sha256": "5888dbb9a1d2b18f2c3e6c5f6af1b39de658372b402a0577b002777f14c62ace",
+              "upstream_archive_url": "https://nodejs.org/download/release/v24.22.1/node-v24.22.1-linux-x64.tar.xz",
+              "upstream_archive_sha256": "6c172a9ab6718f7b801fb5a7bd486af2ee5e32758086a04b84fcce2aa77095e6",
+              "security_advisory_url": "https://nodejs.org/en/blog/vulnerability/october-2026-security-releases"
             },
             "runtime_library_donor": {
               "reference": "registry.access.redhat.com/ubi10/nodejs-24-minimal@sha256:e0e44d118dfba1c90e8adbdc751d6db2a1c5f9b0856d31d577054f8ea5216e2d",
@@ -218,7 +218,7 @@
               "redistribution_notice": {
                 "source_path": "THIRD_PARTY.md",
                 "image_path": "/usr/share/licenses/gis-ai-go/THIRD_PARTY.md",
-                "sha256": "674f63aa213d493e6a4fbd8e37e0a44c1f47fa45dc02e02913809acd97e3fd31"
+                "sha256": "c04c392fee6443c421e5fa6c828712ab4cb399ede4fe40f402cbfad955f229d4"
               }
             },
             "support_boundary": "not-red-hat-supported-or-endorsed"

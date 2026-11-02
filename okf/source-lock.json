@@ -4,7 +4,7 @@
   "inputs": [
     {
       "path": "THIRD_PARTY.md",
-      "sha256": "674f63aa213d493e6a4fbd8e37e0a44c1f47fa45dc02e02913809acd97e3fd31",
+      "sha256": "c04c392fee6443c421e5fa6c828712ab4cb399ede4fe40f402cbfad955f229d4",
       "role": "live-third-party-notice"
     },
     {

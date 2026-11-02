@@ -11,6 +11,7 @@ import re
 import ssl
 import stat
 import subprocess
+import sys
 import tempfile
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -31,6 +32,7 @@ from gateway_image import (
     NODE_BINARY_SHA256,
     NODE_RUNTIME_CPE,
     NODE_RUNTIME_PURL,
+    NODE_RUNTIME_VERSION,
     NODE_SECURITY_ADVISORY_URL,
     NODE_UPSTREAM_ARCHIVE_SHA256,
     NODE_UPSTREAM_ARCHIVE_URL,
@@ -42,6 +44,7 @@ from gateway_image import (
     parse_bounded_json_object,
     parse_checksum,
     prohibited_text_reason,
+    prohibited_json_reason,
     read_bounded_regular_file,
     sha256_file,
 )
@@ -69,13 +72,16 @@ MAX_DATABASE_AGE_AT_SCAN = timedelta(days=3)
 # Two hours leaves transfer/setup headroom without treating retained history as same-run.
 MAX_PROTECTED_PROVENANCE_ASSESSMENT_AGE = timedelta(hours=2)
 MAX_PROTECTED_PROVENANCE_FUTURE_SKEW = timedelta(minutes=5)
+NODE_CALIBRATION_ADVISORY_URL = (
+    "https://nodejs.org/en/blog/vulnerability/july-2026-security-releases"
+)
 NODE_CALIBRATION_AFFECTED_VERSION = "24.18.0"
 NODE_CALIBRATION_FIXED_VERSION = "24.18.1"
 NODE_CALIBRATION_HIGH_IDS = frozenset(
     {"CVE-2026-56846", "CVE-2026-56848", "CVE-2026-58043"}
 )
 NODE_ROLES: dict[str, tuple[str, str | None]] = {
-    "actual": ("24.19.0", None),
+    "actual": (NODE_RUNTIME_VERSION, None),
     "affected": (NODE_CALIBRATION_AFFECTED_VERSION, "affected"),
     "fixed": (NODE_CALIBRATION_FIXED_VERSION, "fixed"),
 }
@@ -122,6 +128,148 @@ def _node_step(
         pass
     # Raise outside the handler without copying private exception text or chains.
     raise NodeAdvisoryFailure(stage)
+
+
+# These codes describe validator branches, never scanner or exception text.
+NODE_REPORT_DIAGNOSTIC_PREFIX = "node-report-diagnostic reason="
+_NODE_REPORT_ERROR_CODES = {
+    "Grype JSON report lacks its descriptor": "json-descriptor",
+    "Grype JSON report lacks the pinned scanner identity": "json-scanner-identity",
+    "Grype JSON report does not prove the closed offline CPE mode": "json-offline-mode",
+    "Grype ignore rules differ from the pinned non-Node defaults": "json-ignore-defaults",
+    "Grype ignore rule is not an object": "json-ignore-shape",
+    "Grype ignore rule could conceal a Node advisory match": "json-ignore-policy",
+    "Grype database status is missing": "json-database-status",
+    "Grype database is not valid schema v6 evidence": "json-database-schema",
+    "Grype database build time is not UTC": "json-database-time",
+    "Grype database build time is invalid": "json-database-time",
+    "offline Grype status did not report a manual import": "json-database-import",
+    "manual Grype import differs from its acquired database": "json-database-binding",
+    "Grype report lacks the NVD database provider": "json-nvd-provider",
+    "Grype NVD capture time is invalid": "json-nvd-time",
+    "Grype NVD provider identity is invalid": "json-nvd-identity",
+    "Grype JSON report lacks its database providers": "json-database-providers",
+    "Grype JSON report match inventory is invalid": "json-match-inventory",
+    "Grype JSON report is not bound to the closed Node input role": "json-input-binding",
+    "Grype JSON report contains an invalid match": "json-match-shape",
+    "Grype JSON report match is incomplete": "json-match-fields",
+    "Grype report matched a component outside the exact Node input": "json-node-binding",
+    "Grype Node advisory match is outside the closed contract": "json-advisory-contract",
+    "Grype Node advisory match is not one stock CPE assessment": "json-match-count",
+    "Grype Node advisory match did not use the exact stock CPE": "json-cpe-binding",
+    "Grype Node advisory report duplicates a vulnerability ID": "json-duplicate-id",
+    "Grype CycloneDX report lacks its pinned tool identity": "cdx-scanner-identity",
+    "Grype CycloneDX report lacks its component inventory": "cdx-component-inventory",
+    "Grype CycloneDX report does not expose one exact Node component": "cdx-component-count",
+    "Grype CycloneDX Node component differs from its input": "cdx-node-binding",
+    "Grype CycloneDX vulnerability inventory is invalid": "cdx-vulnerability-inventory",
+    "Grype CycloneDX report contains an invalid vulnerability": "cdx-vulnerability-shape",
+    "Grype CycloneDX vulnerability lacks its Node binding": "cdx-vulnerability-binding",
+    "Grype CycloneDX report duplicates a vulnerability ID": "cdx-duplicate-id",
+}
+_NODE_REPORT_OPERATION_CODES = frozenset({
+    "json-contract", "cdx-contract", "cross-format-ids", "cross-role-boundary",
+    "canonical-json", "privacy-json", "privacy-text", "role-evidence",
+    "missing-role", "finding-projection",
+})
+_NODE_PRIVACY_CATEGORIES = frozenset({
+    "document", "descriptor-config", "descriptor-db", "descriptor-other",
+    "source", "matches-description", "matches-reference", "matches-artifact",
+    "matches-details", "matches-vulnerability", "matches-other",
+    "metadata", "components", "vulnerabilities-description",
+    "vulnerabilities-reference", "vulnerabilities-other",
+})
+_NODE_PRIVACY_CODES = frozenset(
+    f"privacy-json-{role}-{kind}-sensitive-{category}"
+    for role in NODE_ROLES for kind in ("input", "json", "cdx")
+    for category in _NODE_PRIVACY_CATEGORIES
+)
+NODE_REPORT_DIAGNOSTIC_CODES = (frozenset(_NODE_REPORT_ERROR_CODES.values())
+                                | _NODE_REPORT_OPERATION_CODES | _NODE_PRIVACY_CODES)
+
+
+def _fail_node_report(reason: str, *, cve: str | None = None) -> None:
+    if type(reason) is not str or reason not in NODE_REPORT_DIAGNOSTIC_CODES:
+        raise ValueError("Node report diagnostic reason is invalid")
+    if cve is not None and (
+        type(cve) is not str or len(cve) > 64 or _CVE.fullmatch(cve) is None
+        or prohibited_text_reason(cve) is not None
+        or reason not in _NODE_PRIVACY_CODES
+    ):
+        raise ValueError("Node report diagnostic CVE is invalid")
+    suffix = "" if cve is None else " cve=" + cve
+    sys.stderr.write(NODE_REPORT_DIAGNOSTIC_PREFIX + reason + suffix + "\n")
+    raise NodeAdvisoryFailure("node-report-validation")
+
+
+def _node_report_step(reason: str, operation: Callable[..., Any], /, *args: Any, **kwargs: Any) -> Any:
+    if type(reason) is not str or reason not in _NODE_REPORT_OPERATION_CODES:
+        raise ValueError("Node report diagnostic operation is invalid")
+    try:
+        return operation(*args, **kwargs)
+    except NodeAdvisoryFailure:
+        raise
+    except Exception as error:
+        # Do not stringify arbitrary exceptions or retain their traceback/arguments.
+        if (type(error) is ValueError and len(error.args) == 1
+                and type(error.args[0]) is str):
+            reason = _NODE_REPORT_ERROR_CODES.get(error.args[0], reason)
+    _fail_node_report(reason)
+
+
+def _node_report_privacy_json(document: dict[str, Any], *, role: str, kind: str) -> None:
+    """Keep the privacy gate and identify only fixed schema categories on failure."""
+    if role not in NODE_ROLES or kind not in {"input", "json", "cdx"}:
+        raise ValueError("Node report privacy diagnostic input is invalid")
+    try:
+        assert_no_private_json(document, f"Grype Node {role} {kind}")
+        return
+    except ValueError:
+        pass
+    # Values, source keys, descriptions, paths and exception text are never logged.
+    # A CVE is emitted only from the already normalised scanner inventory.
+    category = "document"
+    cve = None
+    candidates: list[tuple[str, Any, str | None]] = []
+    descriptor = document.get("descriptor")
+    if isinstance(descriptor, dict):
+        candidates.extend([
+            ("descriptor-config", descriptor.get("configuration"), None),
+            ("descriptor-db", descriptor.get("db"), None),
+            ("descriptor-other", descriptor, None),
+        ])
+    candidates.append(("source", document.get("source"), None))
+    for match in (document.get("matches", []) if kind == "json" else []):
+        vulnerability = match.get("vulnerability", {})
+        identifier = vulnerability.get("id")
+        candidates.extend([
+            ("matches-description", {"description": vulnerability.get("description")}, identifier),
+            ("matches-reference", {key: vulnerability.get(key) for key in ("dataSource", "urls")}, identifier),
+            ("matches-artifact", match.get("artifact"), identifier),
+            ("matches-details", match.get("matchDetails"), identifier),
+            ("matches-vulnerability", vulnerability, identifier),
+            ("matches-other", match, identifier),
+        ])
+    candidates.extend([
+        ("metadata", document.get("metadata"), None),
+        ("components", document.get("components"), None),
+    ])
+    for vulnerability in ((document.get("vulnerabilities", []) or []) if kind == "cdx" else []):
+        identifier = vulnerability.get("id")
+        candidates.extend([
+            ("vulnerabilities-description", {"description": vulnerability.get("description")}, identifier),
+            ("vulnerabilities-reference", {key: vulnerability.get(key) for key in ("source", "advisories", "references")}, identifier),
+            ("vulnerabilities-other", vulnerability, identifier),
+        ])
+    for candidate_category, value, identifier in candidates:
+        if prohibited_json_reason(value) is not None:
+            category = candidate_category
+            if (type(identifier) is str and len(identifier) <= 64
+                    and _CVE.fullmatch(identifier) is not None
+                    and prohibited_text_reason(identifier) is None):
+                cve = identifier
+            break
+    _fail_node_report(f"privacy-json-{role}-{kind}-sensitive-{category}", cve=cve)
 
 
 class _RejectRedirect(HTTPRedirectHandler):
@@ -512,7 +660,7 @@ def extract_node_identity(sbom: dict[str, Any], receipt: dict[str, Any]) -> dict
         raise ValueError("gateway receipt lacks the standalone Node runtime identity")
     expected_node = {
         "name": "node",
-        "version": "24.19.0",
+        "version": NODE_RUNTIME_VERSION,
         "purl": NODE_RUNTIME_PURL,
         "cpe": NODE_RUNTIME_CPE,
         "path": "/usr/local/bin/node",
@@ -604,11 +752,11 @@ def extract_node_identity(sbom: dict[str, Any], receipt: dict[str, Any]) -> dict
     if (
         application.get("type") != "application"
         or application.get("name") != "node"
-        or application.get("version") != "24.19.0"
+        or application.get("version") != NODE_RUNTIME_VERSION
         or application.get("purl") != NODE_RUNTIME_PURL
         or application.get("cpe") != NODE_RUNTIME_CPE
         or app_properties.get("syft:location:0:path") != expected_node["path"]
-        or file_component.get("version") != "24.19.0"
+        or file_component.get("version") != NODE_RUNTIME_VERSION
         or file_hashes != {NODE_BINARY_SHA256}
         or file_properties.get("gis-ai-go:runtime-file-path") != expected_node["path"]
         or file_properties.get("gis-ai-go:rootfs-inventory-sha256")
@@ -1038,16 +1186,16 @@ def _assess(
         "node-scan-execution", _scan_raw, cache, input_document,
         output_format="cyclonedx-json",
     )
-    projected_json = _node_step(
-        "node-report-validation", normalise_json_report,
+    projected_json = _node_report_step(
+        "json-contract", normalise_json_report,
         raw_json, input_document, database_source=database_source
     )
-    projected_cdx = _node_step(
-        "node-report-validation", normalise_cyclonedx_report, raw_cdx, input_document
+    projected_cdx = _node_report_step(
+        "cdx-contract", normalise_cyclonedx_report, raw_cdx, input_document
     )
     json_ids = sorted(item["id"] for item in projected_json["matches"])
     if json_ids != projected_cdx["vulnerability_ids"]:
-        raise NodeAdvisoryFailure("node-report-validation")
+        _fail_node_report("cross-format-ids")
     return raw_json, raw_cdx, projected_json, projected_cdx
 
 
@@ -1131,7 +1279,7 @@ def _calibration_projection(roles: dict[str, dict[str, Any]]) -> dict[str, Any]:
     ):
         raise ValueError("Grype Node CPE calibration did not cross the fixed security boundary")
     return {
-        "official_advisory": NODE_SECURITY_ADVISORY_URL,
+        "official_advisory": NODE_CALIBRATION_ADVISORY_URL,
         "required_high_ids": sorted(NODE_CALIBRATION_HIGH_IDS),
         "affected_role": "affected",
         "fixed_role": "fixed",
@@ -1183,21 +1331,21 @@ def assess_node(
         elif any(
             projected_json[key] != value for key, value in actual_boundary.items()
         ):
-            raise NodeAdvisoryFailure("node-report-validation")
-        input_bytes = _node_step("node-report-validation", canonical_json_bytes, input_document)
-        report_bytes = _node_step("node-report-validation", canonical_json_bytes, raw_json)
-        cdx_bytes = _node_step("node-report-validation", canonical_json_bytes, raw_cdx)
+            _fail_node_report("cross-role-boundary")
+        input_bytes = _node_report_step("canonical-json", canonical_json_bytes, input_document)
+        report_bytes = _node_report_step("canonical-json", canonical_json_bytes, raw_json)
+        cdx_bytes = _node_report_step("canonical-json", canonical_json_bytes, raw_cdx)
         for document, encoded, label in (
             (input_document, input_bytes, "input"),
-            (raw_json, report_bytes, "JSON report"),
-            (raw_cdx, cdx_bytes, "CycloneDX report"),
+            (raw_json, report_bytes, "json"),
+            (raw_cdx, cdx_bytes, "cdx"),
         ):
-            _node_step(
-                "node-report-validation", assert_no_private_json,
-                document, f"Grype Node {role} {label}",
+            _node_report_step(
+                "privacy-json", _node_report_privacy_json,
+                document, role=role, kind=label,
             )
-            _node_step(
-                "node-report-validation", assert_no_private_text,
+            _node_report_step(
+                "privacy-text", assert_no_private_text,
                 encoded, f"Grype Node {role} {label}",
             )
         files = NODE_ROLE_FILES[role]
@@ -1208,8 +1356,8 @@ def assess_node(
                 files["cyclonedx_report"]: cdx_bytes,
             }
         )
-        roles[role] = _node_step(
-            "node-report-validation", _role_evidence,
+        roles[role] = _node_report_step(
+            "role-evidence", _role_evidence,
             role=role,
             version=version,
             input_bytes=input_bytes,
@@ -1220,7 +1368,7 @@ def assess_node(
         )
         projections[role] = (projected_json, projected_cdx)
     if actual_boundary is None:
-        raise NodeAdvisoryFailure("node-report-validation")
+        _fail_node_report("missing-role")
     calibration = _node_step("node-calibration", _calibration_projection, roles)
     actual_json, _ = projections["actual"]
     assessment = _node_step("node-runtime-policy", _actual_assessment, roles["actual"])
@@ -1237,8 +1385,8 @@ def assess_node(
         "calibration": calibration,
         "assessment": assessment,
     }
-    return evidence, artifacts, _node_step(
-        "node-report-validation", _project_findings, actual_json
+    return evidence, artifacts, _node_report_step(
+        "finding-projection", _project_findings, actual_json
     )
 
 

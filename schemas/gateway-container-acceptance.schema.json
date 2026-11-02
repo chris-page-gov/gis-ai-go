@@ -462,7 +462,7 @@
         "environment": {
           "const": [
             "PATH=/usr/local/bin",
-            "NODE_VERSION=24.19.0",
+            "NODE_VERSION=24.22.1",
             "HOME=/nonexistent",
             "NODE_ENV=production",
             "TZ=UTC"

@@ -7,7 +7,7 @@ over an internal bridge that cannot reach the provider.
 
 The current local image source uses the one reviewed `linux/amd64` composition:
 UBI 10 micro as the runtime root, the official Node image as builder and checked
-Node.js 24.19.0 donor, and UBI 10 Node.js 24 minimal as donor for the exact versioned
+Node.js 24.22.1 donor, and UBI 10 Node.js 24 minimal as donor for the exact versioned
 `libstdc++` object and GCC notices. The UBI micro root supplies exact `libgcc_s`.
 The image includes the unmodified UBI EULA and all required licence
 and source-provenance notices. It is not supported or endorsed by Red Hat. This
@@ -53,14 +53,15 @@ The stable `check:gateway-image` aggregator materialises the checksum-bound sour
 context, builds and canonically verifies a deterministic OCI archive, creates the
 full Syft SBOM and retains the inventory-bearing Trivy scans and database for offline
 replay. A supplemental, digest-pinned Grype 0.117.0 lane separately checks the exact
-standalone Node.js 24.19.0 component against the retained NVD CPE provider. The same
+standalone Node.js 24.22.1 component against the retained NVD CPE provider. The same
 database and configuration must report the three reviewed High advisories for the
 affected 24.18.0 control and no longer report them for the fixed 24.18.1 control.
 The lane records only that the retained database has no High or Critical NVD CPE
 match for the actual component; it does not claim that Node.js has no
-vulnerabilities. The change does not alter the Node executable or gateway TypeScript
-sources, but the revised schemas are copied into the image: exact OCI/rootfs bytes
-therefore change and require a fresh build. The gate then loads those exact new image
+vulnerabilities. The 2 November 2026 candidate updates the actual Node executable
+to the October security release; the July calibration controls remain unchanged.
+The executable, licence and revised schemas change exact OCI/rootfs bytes and
+require a fresh build and complete assurance. The gate then loads those exact new image
 bytes, exercises this Compose file, stops the service, restores the saved image and
 confirms that the same volume identities remain readable. It removes its uniquely
 named containers, network and volumes afterwards.

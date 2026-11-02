@@ -66,7 +66,11 @@ The local replacement is deliberately one fixed `linux/amd64` composition, not a
 general base-image profile. Its realised root is the exact UBI 10 micro image at
 `registry.access.redhat.com/ubi10-micro@sha256:422bd02268e317995a8fbb9c81c0835aa99798a234b5619c52350843d5ed5c4d`.
 The official Node image remains the build environment and supplies the checked
-Node.js 24.19.0 executable and complete bundled Node licence. The exact UBI 10
+Node.js 24.22.1 executable and complete bundled Node licence. This is the current
+2 November 2026 candidate, not a revision of the accepted historical image evidence
+above. Its [October security release](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases)
+addresses the newly reported runtime advisory; complete fresh image assurance
+remains required. The exact UBI 10
 Node.js 24 minimal image at
 `registry.access.redhat.com/ubi10/nodejs-24-minimal@sha256:e0e44d118dfba1c90e8adbdc751d6db2a1c5f9b0856d31d577054f8ea5216e2d`
 supplies only the checked versioned `libstdc++` object and GCC runtime licence
@@ -203,8 +207,8 @@ record this setting as a deployed endpoint.
 
 ## Pinned construction
 
-The builder uses the public multi-architecture Node `24.19.0-bookworm-slim` index
-at `sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03`,
+The builder uses the public multi-architecture Node `24.22.1-bookworm-slim` index
+at `sha256:be8204d4bd327363357f532187b752ff62759c31bedf98e9e18fc08c9cbd605c`,
 but the only admitted target is `linux/amd64` and the receipt binds that platform.
 The build downloads pnpm `10.33.2`, verifies its independently published SHA-512
 before installation, fetches the frozen dependency graph and creates a
@@ -397,7 +401,7 @@ The image gate performs this fixed sequence:
    and scan it so the copied `libstdc++` RPM is covered; then retain the checksummed
    database and both reports and replay both scans with no network;
    separately use digest-pinned Grype 0.117.0 and one retained NVD CPE database to
-   scan the exact Node.js 24.19.0 component and the 24.18.0 affected and 24.18.1
+   scan the exact Node.js 24.22.1 component and the 24.18.0 affected and 24.18.1
    fixed controls, retaining each input and paired JSON and CycloneDX report before
    replaying the complete lane with no network;
 7. load the exact OCI archive and start only the local Compose candidate;
@@ -602,10 +606,11 @@ archive failure emits only `failure_stage=runtime-library-donor-validation`.
 Registry responses, commands, temporary paths and runner paths are not replayed.
 
 Trivy's operating-system and language-package inventories do not provide advisory
-coverage for the standalone Node executable recorded as `pkg:generic/node@24.19.0`.
-The supplemental lane closes that specific gap without changing the Node executable
-or gateway TypeScript sources. The assurance schemas are nevertheless copied into
-the image, so the OCI/rootfs bytes change and need a fresh build. The lane uses the
+coverage for the standalone Node executable recorded as `pkg:generic/node@24.22.1`.
+The supplemental lane closes that specific coverage gap. The 2 November 2026
+candidate updates the actual Node executable to the October security release while
+retaining the separate July calibration controls. The executable, licence and
+assurance schemas change exact OCI/rootfs bytes and require a fresh build. The lane uses the
 exact `linux/amd64` image for
 [Grype 0.117.0](https://github.com/anchore/grype/releases/tag/v0.117.0), pinned by
 digest, and stock CPE matching against the NVD provider in one retained Grype
@@ -619,7 +624,7 @@ for Node.js 24.18.0 and must not produce them for 24.18.1. Those controls exerci
 `CVE-2026-56846`, `CVE-2026-56848` and `CVE-2026-58043`, which the
 [official Node.js July 2026 advisory](https://nodejs.org/en/blog/vulnerability/july-2026-security-releases)
 identifies as High issues fixed by the 24.18.1 security release. The retained actual
-JSON and CycloneDX reports must still contain the exact 24.19.0 component, have no
+JSON and CycloneDX reports must still contain the exact 24.22.1 component, have no
 ignored match and have no High or Critical NVD CPE match. That is the complete claim:
 it is not a claim that Node.js has no vulnerabilities, and it does not extend to a
 provider, ecosystem or database that is absent from the retained evidence.

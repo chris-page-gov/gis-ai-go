@@ -74,8 +74,8 @@ The realised root filesystem is composed from these immutable inputs:
   `registry.access.redhat.com/ubi10-micro@sha256:422bd02268e317995a8fbb9c81c0835aa99798a234b5619c52350843d5ed5c4d`,
   including the exact `libgcc_s.so.1` dependency and its target;
 - the official Node.js Docker image
-  `node:24.19.0-bookworm-slim@sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03`,
-  used only as the build environment and donor for the upstream Node.js 24.19.0
+  `node:24.22.1-bookworm-slim@sha256:be8204d4bd327363357f532187b752ff62759c31bedf98e9e18fc08c9cbd605c`,
+  used only as the build environment and donor for the upstream Node.js 24.22.1
   binary and its complete bundled licence notice; and
 - Red Hat UBI 10 Node.js 24 minimal
   `registry.access.redhat.com/ubi10/nodejs-24-minimal@sha256:e0e44d118dfba1c90e8adbdc751d6db2a1c5f9b0856d31d577054f8ea5216e2d`,
@@ -95,15 +95,15 @@ GO product labels rather than inheriting either Red Hat image's product, vendor,
 maintainer or display-name labels.
 
 The copied Node binary has SHA-256
-`bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12`.
+`e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb`.
 Its complete bundled licence file has SHA-256
-`148eacf7863ef4329224a29398623077200a27194aa075569faf4a0a85566ca5`
+`5888dbb9a1d2b18f2c3e6c5f6af1b39de658372b402a0577b002777f14c62ace`
 and remains at `/usr/share/licenses/nodejs/LICENSE`. The corresponding official
 upstream archive is
-[`node-v24.19.0-linux-x64.tar.xz`](https://nodejs.org/download/release/v24.19.0/node-v24.19.0-linux-x64.tar.xz),
+[`node-v24.22.1-linux-x64.tar.xz`](https://nodejs.org/download/release/v24.22.1/node-v24.22.1-linux-x64.tar.xz),
 SHA-256
-`14b342e71204f811bde6153be8e04b62aef63c236fef92b55f9c83154b409647`;
-the tagged source is [Node.js v24.19.0](https://github.com/nodejs/node/tree/v24.19.0).
+`6c172a9ab6718f7b801fb5a7bd486af2ee5e32758086a04b84fcce2aa77095e6`;
+the tagged source is [Node.js v24.22.1](https://github.com/nodejs/node/tree/v24.22.1).
 
 The realised GCC runtime objects are:
 

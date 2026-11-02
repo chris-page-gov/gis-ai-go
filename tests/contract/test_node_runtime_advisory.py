@@ -20,6 +20,7 @@ from gateway_image import (  # noqa: E402
     NODE_BINARY_SHA256,
     NODE_RUNTIME_CPE,
     NODE_RUNTIME_PURL,
+    NODE_RUNTIME_VERSION,
     NODE_SECURITY_ADVISORY_URL,
     NODE_UPSTREAM_ARCHIVE_SHA256,
     NODE_UPSTREAM_ARCHIVE_URL,
@@ -61,7 +62,7 @@ def node_fixture() -> tuple[dict[str, object], dict[str, object]]:
         "build": {
             "runtime_composition": {
                 "node_binary": {
-                    "version": "24.19.0",
+                    "version": NODE_RUNTIME_VERSION,
                     "path": "/usr/local/bin/node",
                     "sha256": NODE_BINARY_SHA256,
                     "purl": NODE_RUNTIME_PURL,
@@ -89,7 +90,7 @@ def node_fixture() -> tuple[dict[str, object], dict[str, object]]:
             {
                 "type": "application",
                 "name": "node",
-                "version": "24.19.0",
+                "version": NODE_RUNTIME_VERSION,
                 "purl": NODE_RUNTIME_PURL,
                 "cpe": NODE_RUNTIME_CPE,
                 "properties": [
@@ -102,7 +103,7 @@ def node_fixture() -> tuple[dict[str, object], dict[str, object]]:
             {
                 "type": "file",
                 "name": "node",
-                "version": "24.19.0",
+                "version": NODE_RUNTIME_VERSION,
                 "hashes": [{"alg": "SHA-256", "content": NODE_BINARY_SHA256}],
                 "properties": [
                     {
@@ -310,11 +311,15 @@ class NodeRuntimeAdvisoryTests(unittest.TestCase):
     def test_exact_node_identity_is_bound_across_receipt_sbom_and_rootfs(self) -> None:
         sbom, receipt = node_fixture()
         identity = extract_node_identity(sbom, receipt)
+        self.assertEqual(identity["version"], NODE_RUNTIME_VERSION)
         self.assertEqual(identity["purl"], NODE_RUNTIME_PURL)
         self.assertEqual(identity["cpe"], NODE_RUNTIME_CPE)
         self.assertEqual(identity["file_sha256"], NODE_BINARY_SHA256)
 
         mutations = []
+        old_runtime = copy.deepcopy((sbom, receipt))
+        old_runtime[1]["build"]["runtime_composition"]["node_binary"]["version"] = "24.19.0"  # type: ignore[index]
+        mutations.append(old_runtime)
         wrong_purl = copy.deepcopy((sbom, receipt))
         wrong_purl[0]["components"][0]["purl"] = "pkg:generic/node@24.18.0"  # type: ignore[index]
         mutations.append(wrong_purl)
@@ -425,7 +430,16 @@ class NodeRuntimeAdvisoryTests(unittest.TestCase):
                 "component_visible": True,
             },
         }
-        self.assertTrue(_calibration_projection(roles)["passed"])
+        calibration = _calibration_projection(roles)
+        self.assertTrue(calibration["passed"])
+        self.assertEqual(
+            calibration["official_advisory"],
+            "https://nodejs.org/en/blog/vulnerability/july-2026-security-releases",
+        )
+        self.assertEqual(
+            NODE_SECURITY_ADVISORY_URL,
+            "https://nodejs.org/en/blog/vulnerability/october-2026-security-releases",
+        )
         missing = copy.deepcopy(roles)
         missing["affected"]["matched_ids"].pop()
         with self.assertRaisesRegex(ValueError, "fixed security boundary"):

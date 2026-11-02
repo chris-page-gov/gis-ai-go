@@ -1593,7 +1593,7 @@ class GatewayImageContractTests(unittest.TestCase):
         mutations = [
             containerfile.replace(
                 f'ARG NODE_BASE="{NODE_BASE_REFERENCE}"',
-                f'# {NODE_BASE_REFERENCE}\nARG NODE_BASE="node:24.19.0-bookworm-slim@sha256:{"0" * 64}"',
+                f'# {NODE_BASE_REFERENCE}\nARG NODE_BASE="node:24.22.1-bookworm-slim@sha256:{"0" * 64}"',
             ),
             containerfile.replace(
                 f"npm pack pnpm@{PNPM_VERSION}",
@@ -1876,6 +1876,16 @@ class GatewayImageContractTests(unittest.TestCase):
                 else item
                 for item in original
             ],
+            "old-node-binary-size": [
+                replace(item, size=125_989_464)
+                if item.path == "/usr/local/bin/node" else item
+                for item in original
+            ],
+            "old-node-licence-size": [
+                replace(item, size=157_606)
+                if item.path == "/usr/share/licenses/nodejs/LICENSE" else item
+                for item in original
+            ],
             "extra-licence-file": [
                 *original,
                 RootfsEntry(
@@ -1889,6 +1899,10 @@ class GatewayImageContractTests(unittest.TestCase):
                 ),
             ],
         }
+        # Measured from the checksum-verified v24.22.1 upstream archive and
+        # independently from the pinned official linux/amd64 image.
+        self.assertEqual(by_path["/usr/local/bin/node"].size, 126_879_696)
+        self.assertEqual(by_path["/usr/share/licenses/nodejs/LICENSE"].size, 157_609)
         self.assertEqual(by_path[LIBSTDCXX_PATH].sha256, LIBSTDCXX_SHA256)
         for name, entries in mutations.items():
             with self.subTest(name=name), self.assertRaises(ValueError):

@@ -1,5 +1,18 @@
 # Current progress
 
+## Dependency maintenance candidate — 2 November 2026
+
+The security maintenance candidate updates affected JavaScript locks and the
+optional chronicle renderer. Safe image diagnostics identified a public Node.js
+advisory description rejected by the privacy gate, then authoritative advisory
+review established that the existing runtime is affected by HIGH
+CVE-2026-105482. The candidate therefore also updates the independently pinned
+gateway runtime to patched Node.js 24.22.1. Full canonical source and image
+assurance remain mandatory before merge. No provider permission or accepted
+published archive changes. See the dependency maintenance
+[record](docs/operations/DEPENDENCY_SECURITY_2026-11-02.md) for the affected
+components, passing local checks and unresolved image scan verification gate.
+
 Last updated: 27 October 2026
 
 ## Explorer discovery repair

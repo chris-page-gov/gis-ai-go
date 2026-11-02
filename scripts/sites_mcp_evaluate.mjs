@@ -9,7 +9,7 @@ import { performance } from "node:perf_hooks";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 export const REPORT_SCHEMA = "gis-ai-go.sites-mcp-evaluation-run.v1";
-const CLIENT_VERSION = "2.2.0";
+const CLIENT_VERSION = "2.3.0";
 export const SUPPORTED_PROTOCOLS = Object.freeze(["2025-06-18", "2025-11-25", "2026-07-28"]);
 const TOOLS = Object.freeze(["sites_capabilities", "sites_os_names", "sites_os_open_product", "sites_ons_cpih", "sites_ons_areas", "sites_evidence_inspect"]);
 const RECEIPT = /^sites-pilot:sha256:[0-9a-f]{64}$/u;
