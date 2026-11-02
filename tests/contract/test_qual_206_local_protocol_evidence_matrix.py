@@ -786,11 +786,11 @@ class Qual206LocalProtocolEvidenceMatrixTests(unittest.TestCase):
         self.assertEqual(official["lockfile"]["path"], "pnpm-lock.yaml")
 
         manifest = load_json(GATEWAY_MANIFEST_PATH)
-        # This does not relabel the immutable v1 matrix as a 2.2.0 observation.
+        # This does not relabel the immutable v1 matrix as a 2.3.0 observation.
         # Current interoperability is exercised by the executable SDK suites.
         self.assertEqual(
             manifest["devDependencies"]["@modelcontextprotocol/client"],
-            "2.2.0",
+            "2.3.0",
         )
         lockfile = LOCKFILE_PATH.read_text(encoding="utf-8")
         importer = re.search(
@@ -804,8 +804,8 @@ class Qual206LocalProtocolEvidenceMatrixTests(unittest.TestCase):
             importer_body,
             (
                 r"'@modelcontextprotocol/client':\n"
-                r"\s+specifier: 2\.2\.0\n"
-                r"\s+version: 2\.2\.0"
+                r"\s+specifier: 2\.3\.0\n"
+                r"\s+version: 2\.3\.0"
             ),
         )
 

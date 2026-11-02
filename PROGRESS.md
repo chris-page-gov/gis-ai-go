@@ -1,5 +1,13 @@
 # Current progress
 
+## Dependency maintenance candidate — 2 November 2026
+
+An isolated security maintenance candidate updates affected JavaScript locks
+and the optional chronicle renderer. It changes no provider permissions or
+published archive. Canonical CI remains mandatory; merge, publication and
+alert closure require separate review. See the dependency maintenance
+changelog fragment for the affected components.
+
 Last updated: 27 October 2026
 
 ## Explorer discovery repair
