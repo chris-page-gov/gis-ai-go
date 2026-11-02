@@ -128,6 +128,66 @@ class NodeAdvisoryDiagnosticsTests(unittest.TestCase):
                 node._node_step("node-db-update", mock.Mock(side_effect=original))
             self.assertIs(raised.exception, original)
 
+    def test_report_step_exposes_only_closed_static_reasons_without_chains(self):
+        class HostileFailure(Exception):
+            def __str__(self):
+                raise AssertionError("untrusted exception must not be rendered")
+
+        marker = "synthetic-private-detail"
+        cases = [(ValueError(message), reason)
+                 for message, reason in node._NODE_REPORT_ERROR_CODES.items()]
+        cases += [(ValueError(marker), "json-contract"),
+                  (HostileFailure(marker), "json-contract")]
+        for error, reason in cases:
+            with self.subTest(reason=reason):
+                output = io.StringIO()
+                with (contextlib.redirect_stderr(output),
+                      self.assertRaises(node.NodeAdvisoryFailure) as raised):
+                    node._node_report_step("json-contract", mock.Mock(side_effect=error))
+                self.assertEqual(output.getvalue(), node.NODE_REPORT_DIAGNOSTIC_PREFIX + reason + "\n")
+                self.assertNotIn(marker, output.getvalue())
+                self.assertEqual(raised.exception.stage, "node-report-validation")
+                self.assert_detached(raised.exception)
+        operation = mock.Mock()
+        with self.assertRaises(ValueError):
+            node._node_report_step(marker, operation)
+        operation.assert_not_called()
+
+    def test_report_step_preserves_success_and_existing_control_flow(self):
+        result = object()
+        operation = mock.Mock(return_value=result)
+        self.assertIs(node._node_report_step("json-contract", operation, 1, named=2), result)
+        operation.assert_called_once_with(1, named=2)
+        for error in (node.NodeAdvisoryFailure("node-runtime-policy"),
+                      KeyboardInterrupt(), SystemExit(3)):
+            with self.assertRaises(type(error)) as raised:
+                node._node_report_step("json-contract", mock.Mock(side_effect=error))
+            self.assertIs(raised.exception, error)
+
+    def test_report_diagnostic_replays_only_one_exact_code_for_its_failed_stage(self):
+        prefix = node.NODE_REPORT_DIAGNOSTIC_PREFIX
+        valid = prefix + "json-advisory-contract"
+        cases = [
+            ("vulnerability-scan", "", valid + "\n", 104, True),
+            ("vulnerability-scan", "", valid + "\n" + valid, 104, False),
+            ("vulnerability-scan", "", valid + "-unknown", 104, False),
+            ("vulnerability-scan", valid, valid, 104, False),
+            ("container-acceptance", "", valid, 104, False),
+            ("vulnerability-scan", "", valid, 103, False),
+            ("vulnerability-scan", "", valid + "\nBearer SYNTHETIC-SECRET", 104, False),
+        ]
+        for phase, stdout, stderr, code, exposed in cases:
+            with self.subTest(phase=phase, stdout=stdout, stderr=stderr, code=code):
+                command = (f"import os,sys;os.write(1,{stdout.encode()!r});"
+                           f"os.write(2,{stderr.encode()!r});sys.exit({code})")
+                output = io.StringIO()
+                with (contextlib.redirect_stdout(output), contextlib.redirect_stderr(output),
+                      self.assertRaises(ValueError)):
+                    assurance.run_checked(phase, [sys.executable, "-c", command])
+                lines = output.getvalue().splitlines()
+                self.assertEqual(valid in lines, exposed)
+                self.assertNotIn("SYNTHETIC-SECRET", output.getvalue())
+
     def test_unknown_stage_is_rejected_before_operation_and_not_reflected(self):
         operation = mock.Mock()
         marker = "unreviewed-stage-text"

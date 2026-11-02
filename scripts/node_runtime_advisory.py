@@ -11,6 +11,7 @@ import re
 import ssl
 import stat
 import subprocess
+import sys
 import tempfile
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -122,6 +123,73 @@ def _node_step(
         pass
     # Raise outside the handler without copying private exception text or chains.
     raise NodeAdvisoryFailure(stage)
+
+
+# These codes describe validator branches, never scanner or exception text.
+NODE_REPORT_DIAGNOSTIC_PREFIX = "node-report-diagnostic reason="
+_NODE_REPORT_ERROR_CODES = {
+    "Grype JSON report lacks its descriptor": "json-descriptor",
+    "Grype JSON report lacks the pinned scanner identity": "json-scanner-identity",
+    "Grype JSON report does not prove the closed offline CPE mode": "json-offline-mode",
+    "Grype ignore rules differ from the pinned non-Node defaults": "json-ignore-defaults",
+    "Grype ignore rule is not an object": "json-ignore-shape",
+    "Grype ignore rule could conceal a Node advisory match": "json-ignore-policy",
+    "Grype database status is missing": "json-database-status",
+    "Grype database is not valid schema v6 evidence": "json-database-schema",
+    "Grype database build time is not UTC": "json-database-time",
+    "Grype database build time is invalid": "json-database-time",
+    "offline Grype status did not report a manual import": "json-database-import",
+    "manual Grype import differs from its acquired database": "json-database-binding",
+    "Grype report lacks the NVD database provider": "json-nvd-provider",
+    "Grype NVD capture time is invalid": "json-nvd-time",
+    "Grype NVD provider identity is invalid": "json-nvd-identity",
+    "Grype JSON report lacks its database providers": "json-database-providers",
+    "Grype JSON report match inventory is invalid": "json-match-inventory",
+    "Grype JSON report is not bound to the closed Node input role": "json-input-binding",
+    "Grype JSON report contains an invalid match": "json-match-shape",
+    "Grype JSON report match is incomplete": "json-match-fields",
+    "Grype report matched a component outside the exact Node input": "json-node-binding",
+    "Grype Node advisory match is outside the closed contract": "json-advisory-contract",
+    "Grype Node advisory match is not one stock CPE assessment": "json-match-count",
+    "Grype Node advisory match did not use the exact stock CPE": "json-cpe-binding",
+    "Grype Node advisory report duplicates a vulnerability ID": "json-duplicate-id",
+    "Grype CycloneDX report lacks its pinned tool identity": "cdx-scanner-identity",
+    "Grype CycloneDX report lacks its component inventory": "cdx-component-inventory",
+    "Grype CycloneDX report does not expose one exact Node component": "cdx-component-count",
+    "Grype CycloneDX Node component differs from its input": "cdx-node-binding",
+    "Grype CycloneDX vulnerability inventory is invalid": "cdx-vulnerability-inventory",
+    "Grype CycloneDX report contains an invalid vulnerability": "cdx-vulnerability-shape",
+    "Grype CycloneDX vulnerability lacks its Node binding": "cdx-vulnerability-binding",
+    "Grype CycloneDX report duplicates a vulnerability ID": "cdx-duplicate-id",
+}
+_NODE_REPORT_OPERATION_CODES = frozenset({
+    "json-contract", "cdx-contract", "cross-format-ids", "cross-role-boundary",
+    "canonical-json", "privacy-json", "privacy-text", "role-evidence",
+    "missing-role", "finding-projection",
+})
+NODE_REPORT_DIAGNOSTIC_CODES = frozenset(_NODE_REPORT_ERROR_CODES.values()) | _NODE_REPORT_OPERATION_CODES
+
+
+def _fail_node_report(reason: str) -> None:
+    if type(reason) is not str or reason not in NODE_REPORT_DIAGNOSTIC_CODES:
+        raise ValueError("Node report diagnostic reason is invalid")
+    sys.stderr.write(NODE_REPORT_DIAGNOSTIC_PREFIX + reason + "\n")
+    raise NodeAdvisoryFailure("node-report-validation")
+
+
+def _node_report_step(reason: str, operation: Callable[..., Any], /, *args: Any, **kwargs: Any) -> Any:
+    if type(reason) is not str or reason not in _NODE_REPORT_OPERATION_CODES:
+        raise ValueError("Node report diagnostic operation is invalid")
+    try:
+        return operation(*args, **kwargs)
+    except NodeAdvisoryFailure:
+        raise
+    except Exception as error:
+        # Do not stringify arbitrary exceptions or retain their traceback/arguments.
+        if (type(error) is ValueError and len(error.args) == 1
+                and type(error.args[0]) is str):
+            reason = _NODE_REPORT_ERROR_CODES.get(error.args[0], reason)
+    _fail_node_report(reason)
 
 
 class _RejectRedirect(HTTPRedirectHandler):
@@ -1038,16 +1106,16 @@ def _assess(
         "node-scan-execution", _scan_raw, cache, input_document,
         output_format="cyclonedx-json",
     )
-    projected_json = _node_step(
-        "node-report-validation", normalise_json_report,
+    projected_json = _node_report_step(
+        "json-contract", normalise_json_report,
         raw_json, input_document, database_source=database_source
     )
-    projected_cdx = _node_step(
-        "node-report-validation", normalise_cyclonedx_report, raw_cdx, input_document
+    projected_cdx = _node_report_step(
+        "cdx-contract", normalise_cyclonedx_report, raw_cdx, input_document
     )
     json_ids = sorted(item["id"] for item in projected_json["matches"])
     if json_ids != projected_cdx["vulnerability_ids"]:
-        raise NodeAdvisoryFailure("node-report-validation")
+        _fail_node_report("cross-format-ids")
     return raw_json, raw_cdx, projected_json, projected_cdx
 
 
@@ -1183,21 +1251,21 @@ def assess_node(
         elif any(
             projected_json[key] != value for key, value in actual_boundary.items()
         ):
-            raise NodeAdvisoryFailure("node-report-validation")
-        input_bytes = _node_step("node-report-validation", canonical_json_bytes, input_document)
-        report_bytes = _node_step("node-report-validation", canonical_json_bytes, raw_json)
-        cdx_bytes = _node_step("node-report-validation", canonical_json_bytes, raw_cdx)
+            _fail_node_report("cross-role-boundary")
+        input_bytes = _node_report_step("canonical-json", canonical_json_bytes, input_document)
+        report_bytes = _node_report_step("canonical-json", canonical_json_bytes, raw_json)
+        cdx_bytes = _node_report_step("canonical-json", canonical_json_bytes, raw_cdx)
         for document, encoded, label in (
             (input_document, input_bytes, "input"),
             (raw_json, report_bytes, "JSON report"),
             (raw_cdx, cdx_bytes, "CycloneDX report"),
         ):
-            _node_step(
-                "node-report-validation", assert_no_private_json,
+            _node_report_step(
+                "privacy-json", assert_no_private_json,
                 document, f"Grype Node {role} {label}",
             )
-            _node_step(
-                "node-report-validation", assert_no_private_text,
+            _node_report_step(
+                "privacy-text", assert_no_private_text,
                 encoded, f"Grype Node {role} {label}",
             )
         files = NODE_ROLE_FILES[role]
@@ -1208,8 +1276,8 @@ def assess_node(
                 files["cyclonedx_report"]: cdx_bytes,
             }
         )
-        roles[role] = _node_step(
-            "node-report-validation", _role_evidence,
+        roles[role] = _node_report_step(
+            "role-evidence", _role_evidence,
             role=role,
             version=version,
             input_bytes=input_bytes,
@@ -1220,7 +1288,7 @@ def assess_node(
         )
         projections[role] = (projected_json, projected_cdx)
     if actual_boundary is None:
-        raise NodeAdvisoryFailure("node-report-validation")
+        _fail_node_report("missing-role")
     calibration = _node_step("node-calibration", _calibration_projection, roles)
     actual_json, _ = projections["actual"]
     assessment = _node_step("node-runtime-policy", _actual_assessment, roles["actual"])
@@ -1237,8 +1305,8 @@ def assess_node(
         "calibration": calibration,
         "assessment": assessment,
     }
-    return evidence, artifacts, _node_step(
-        "node-report-validation", _project_findings, actual_json
+    return evidence, artifacts, _node_report_step(
+        "finding-projection", _project_findings, actual_json
     )
 
 

@@ -36,6 +36,8 @@ from gateway_image import (
     prohibited_text_reason,
 )
 
+from node_runtime_advisory import NODE_REPORT_DIAGNOSTIC_CODES, NODE_REPORT_DIAGNOSTIC_PREFIX
+
 
 PHASE_TIMEOUT_SECONDS = 40 * 60
 PHASE_DRAIN_TIMEOUT_SECONDS = 10
@@ -65,6 +67,16 @@ def _node_inventory_size_diagnostic(text: str) -> str | None:
     return node_inventory_size_diagnostic(
         dict(zip(NODE_INVENTORY_SIZE_FIELDS, map(int, match.groups()), strict=True))
     )
+
+
+def _node_report_diagnostic(text: str) -> str | None:
+    lines = [line for line in text.splitlines()
+             if line.startswith(NODE_REPORT_DIAGNOSTIC_PREFIX.rstrip("="))]
+    if len(lines) != 1:
+        return None
+    return next((NODE_REPORT_DIAGNOSTIC_PREFIX + reason
+                 for reason in NODE_REPORT_DIAGNOSTIC_CODES
+                 if lines[0] == NODE_REPORT_DIAGNOSTIC_PREFIX + reason), None)
 
 
 def _contains_reserved_phase_boundary(text: str) -> bool:
@@ -444,6 +456,18 @@ def run_checked(
                 )
             ):
                 diagnostic = _node_inventory_size_diagnostic(classifications[1][2])
+                if diagnostic is not None:
+                    sys.stderr.write(diagnostic + "\n")
+            if (
+                return_code == NODE_ADVISORY_STAGE_EXIT_CODES["node-report-validation"]
+                and prohibited_output_reason is None
+                and classifications[1][2] is not None
+                and not any(
+                    line.startswith(NODE_REPORT_DIAGNOSTIC_PREFIX.rstrip("="))
+                    for line in (classifications[0][2] or "").splitlines()
+                )
+            ):
+                diagnostic = _node_report_diagnostic(classifications[1][2])
                 if diagnostic is not None:
                     sys.stderr.write(diagnostic + "\n")
             sys.stderr.flush()
