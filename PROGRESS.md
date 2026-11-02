@@ -45,6 +45,12 @@ All 56 CI-impact and agreement tests and 46 receipt/strict-modern/protocol-evide
 tests passed locally. Desktop/Google acceptance remains outstanding; complete
 canonical CI is still a merge prerequisite.
 
+The subsequent dependency diagnostics repair (`0e7c97cc…`) is also incorporated.
+Its 20 diagnostic tests, Python syntax and complete local link/integrity checks
+passed. It changes no package, lock or local receipt inputs, so the previously
+passing receipt suites were not repeated. This source preparation remains a draft
+pending full canonical assurance and does not establish desktop acceptance.
+
 ## Explorer discovery repair
 
 The owner requested a fix after the public Explorer showed only two facets and
