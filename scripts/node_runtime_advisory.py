@@ -32,6 +32,7 @@ from gateway_image import (
     NODE_BINARY_SHA256,
     NODE_RUNTIME_CPE,
     NODE_RUNTIME_PURL,
+    NODE_RUNTIME_VERSION,
     NODE_SECURITY_ADVISORY_URL,
     NODE_UPSTREAM_ARCHIVE_SHA256,
     NODE_UPSTREAM_ARCHIVE_URL,
@@ -71,13 +72,16 @@ MAX_DATABASE_AGE_AT_SCAN = timedelta(days=3)
 # Two hours leaves transfer/setup headroom without treating retained history as same-run.
 MAX_PROTECTED_PROVENANCE_ASSESSMENT_AGE = timedelta(hours=2)
 MAX_PROTECTED_PROVENANCE_FUTURE_SKEW = timedelta(minutes=5)
+NODE_CALIBRATION_ADVISORY_URL = (
+    "https://nodejs.org/en/blog/vulnerability/july-2026-security-releases"
+)
 NODE_CALIBRATION_AFFECTED_VERSION = "24.18.0"
 NODE_CALIBRATION_FIXED_VERSION = "24.18.1"
 NODE_CALIBRATION_HIGH_IDS = frozenset(
     {"CVE-2026-56846", "CVE-2026-56848", "CVE-2026-58043"}
 )
 NODE_ROLES: dict[str, tuple[str, str | None]] = {
-    "actual": ("24.19.0", None),
+    "actual": (NODE_RUNTIME_VERSION, None),
     "affected": (NODE_CALIBRATION_AFFECTED_VERSION, "affected"),
     "fixed": (NODE_CALIBRATION_FIXED_VERSION, "fixed"),
 }
@@ -656,7 +660,7 @@ def extract_node_identity(sbom: dict[str, Any], receipt: dict[str, Any]) -> dict
         raise ValueError("gateway receipt lacks the standalone Node runtime identity")
     expected_node = {
         "name": "node",
-        "version": "24.19.0",
+        "version": NODE_RUNTIME_VERSION,
         "purl": NODE_RUNTIME_PURL,
         "cpe": NODE_RUNTIME_CPE,
         "path": "/usr/local/bin/node",
@@ -748,11 +752,11 @@ def extract_node_identity(sbom: dict[str, Any], receipt: dict[str, Any]) -> dict
     if (
         application.get("type") != "application"
         or application.get("name") != "node"
-        or application.get("version") != "24.19.0"
+        or application.get("version") != NODE_RUNTIME_VERSION
         or application.get("purl") != NODE_RUNTIME_PURL
         or application.get("cpe") != NODE_RUNTIME_CPE
         or app_properties.get("syft:location:0:path") != expected_node["path"]
-        or file_component.get("version") != "24.19.0"
+        or file_component.get("version") != NODE_RUNTIME_VERSION
         or file_hashes != {NODE_BINARY_SHA256}
         or file_properties.get("gis-ai-go:runtime-file-path") != expected_node["path"]
         or file_properties.get("gis-ai-go:rootfs-inventory-sha256")
@@ -1275,7 +1279,7 @@ def _calibration_projection(roles: dict[str, dict[str, Any]]) -> dict[str, Any]:
     ):
         raise ValueError("Grype Node CPE calibration did not cross the fixed security boundary")
     return {
-        "official_advisory": NODE_SECURITY_ADVISORY_URL,
+        "official_advisory": NODE_CALIBRATION_ADVISORY_URL,
         "required_high_ids": sorted(NODE_CALIBRATION_HIGH_IDS),
         "affected_role": "affected",
         "fixed_role": "fixed",

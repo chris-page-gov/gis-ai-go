@@ -1593,7 +1593,7 @@ class GatewayImageContractTests(unittest.TestCase):
         mutations = [
             containerfile.replace(
                 f'ARG NODE_BASE="{NODE_BASE_REFERENCE}"',
-                f'# {NODE_BASE_REFERENCE}\nARG NODE_BASE="node:24.19.0-bookworm-slim@sha256:{"0" * 64}"',
+                f'# {NODE_BASE_REFERENCE}\nARG NODE_BASE="node:24.22.1-bookworm-slim@sha256:{"0" * 64}"',
             ),
             containerfile.replace(
                 f"npm pack pnpm@{PNPM_VERSION}",

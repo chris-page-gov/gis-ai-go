@@ -5,6 +5,7 @@ All installed dependencies are exact in `pnpm-lock.yaml` or `uv.lock`.
 | Surface | Version or constraint | Purpose |
 | --- | --- | --- |
 | Node.js | `24.19.0` LTS baseline; engine `>=24.19.0` | TypeScript build and tests |
+| Gateway Node.js runtime | `24.22.1`, exact image and upstream binary identities | Patched container runtime; build/test baseline remains separate |
 | pnpm | `10.33.2` | JavaScript workspace and lock |
 | TypeScript | `7.0.2` | Strict type checking |
 | `@types/node` | `24.13.3` | Node.js 24 types |

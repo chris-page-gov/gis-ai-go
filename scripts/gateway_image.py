@@ -32,21 +32,22 @@ DOCKERIGNORE = ROOT / "apps" / "mcp-gateway" / "Containerfile.dockerignore"
 RECEIPT_SCHEMA = ROOT / "schemas" / "gateway-image-receipt.schema.json"
 
 NODE_BASE_NAME = "node"
-NODE_BASE_VERSION = "24.19.0-bookworm-slim"
-NODE_BASE_DIGEST = "sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03"
+NODE_RUNTIME_VERSION = "24.22.1"
+NODE_BASE_VERSION = f"{NODE_RUNTIME_VERSION}-bookworm-slim"
+NODE_BASE_DIGEST = "sha256:be8204d4bd327363357f532187b752ff62759c31bedf98e9e18fc08c9cbd605c"
 NODE_BASE_REFERENCE = f"{NODE_BASE_NAME}:{NODE_BASE_VERSION}@{NODE_BASE_DIGEST}"
-NODE_BINARY_SHA256 = "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12"
-NODE_LICENCE_SHA256 = "148eacf7863ef4329224a29398623077200a27194aa075569faf4a0a85566ca5"
+NODE_BINARY_SHA256 = "e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb"
+NODE_LICENCE_SHA256 = "5888dbb9a1d2b18f2c3e6c5f6af1b39de658372b402a0577b002777f14c62ace"
 NODE_UPSTREAM_ARCHIVE_URL = (
-    "https://nodejs.org/download/release/v24.19.0/node-v24.19.0-linux-x64.tar.xz"
+    "https://nodejs.org/download/release/v24.22.1/node-v24.22.1-linux-x64.tar.xz"
 )
 NODE_UPSTREAM_ARCHIVE_SHA256 = (
-    "14b342e71204f811bde6153be8e04b62aef63c236fef92b55f9c83154b409647"
+    "6c172a9ab6718f7b801fb5a7bd486af2ee5e32758086a04b84fcce2aa77095e6"
 )
-NODE_RUNTIME_PURL = "pkg:generic/node@24.19.0"
-NODE_RUNTIME_CPE = "cpe:2.3:a:nodejs:node.js:24.19.0:*:*:*:*:*:*:*"
+NODE_RUNTIME_PURL = "pkg:generic/node@24.22.1"
+NODE_RUNTIME_CPE = "cpe:2.3:a:nodejs:node.js:24.22.1:*:*:*:*:*:*:*"
 NODE_SECURITY_ADVISORY_URL = (
-    "https://nodejs.org/en/blog/vulnerability/july-2026-security-releases"
+    "https://nodejs.org/en/blog/vulnerability/october-2026-security-releases"
 )
 UBI_RUNTIME_BASE_NAME = "registry.access.redhat.com/ubi10-micro"
 UBI_RUNTIME_BASE_VERSION = "10.2-1786324819"
@@ -151,7 +152,7 @@ MAX_BUILDKIT_CAPTURE_BYTES = 64 * 1024
 MAX_BUILDKIT_DIAGNOSTIC_BYTES = 4 * 1024
 BUILDKIT_OUTPUT_CHUNK_BYTES = 64 * 1024
 EXPECTED_RUNTIME_STAGE_SHA256 = (
-    "a58ec217df86e43caa7b881080b8d7e51c503f2f0958f01f2474c24a77ccd9fa"
+    "ddd40ea9d28347d779a2e34b82ea4f18901ceffdebfe3e823dbdc501b9775861"
 )
 SYFT_REFERENCE = (
     "anchore/syft:v1.42.2@"
@@ -247,7 +248,7 @@ EXPECTED_USER = "65532:65532"
 EXPECTED_PORT = "8787/tcp"
 EXPECTED_ENVIRONMENT = [
     "PATH=/usr/local/bin",
-    "NODE_VERSION=24.19.0",
+    f"NODE_VERSION={NODE_RUNTIME_VERSION}",
     "HOME=/nonexistent",
     "NODE_ENV=production",
     "TZ=UTC",
@@ -1676,6 +1677,22 @@ def _json_field_name(value: str) -> str:
     return re.sub(r"[^A-Za-z0-9]", "", expanded).lower()
 
 
+def _is_reviewed_public_advisory_description(node: dict[Any, Any], key: str, value: str) -> bool:
+    """Recognise one immutable public prose value, never a credential exemption.
+
+    The source and exact UTF-8 bytes are retained under
+    tests/fixtures/node-runtime-advisory/README.md. Its literal backslash-zero
+    illustrates the public CVE; it is not an actual NUL in the source text.
+    """
+    if (key != "description" or node.get("id") != "CVE-2026-105482"
+            or len(value) > 670):
+        return False
+    encoded = value.encode("utf-8")
+    return len(encoded) == 670 and hashlib.sha256(encoded).hexdigest() == (
+        "4860b19ad9d60392ad2fb11103fc786e634469d26db9ecc7692591ac06967f01"
+    )
+
+
 def prohibited_json_reason(document: Any) -> str | None:
     """Inspect one parsed JSON value with explicit depth and node bounds."""
     stack: list[tuple[Any, int]] = [(document, 0)]
@@ -1718,11 +1735,14 @@ def prohibited_json_reason(document: Any) -> str | None:
                             or not count_text(value)
                         ):
                             return "sensitive"
-                        if prohibited_text_reason(value) is not None:
-                            return "sensitive"
-                        projected_value = _decoded_privacy_projection(value)
-                        if projected_value is None:
-                            return "sensitive"
+                        if not _is_reviewed_public_advisory_description(node, key, value):
+                            if prohibited_text_reason(value) is not None:
+                                return "sensitive"
+                            projected_value = _decoded_privacy_projection(value)
+                            if projected_value is None:
+                                return "sensitive"
+                        # Reviewed prose retains its original literal for all
+                        # key, declaration and enclosing credential checks below.
                     field = _json_field_name(projected_key)
                     if field in {"name", "key", "variable", "envname"}:
                         declarations.append(projected_value)
@@ -5903,7 +5923,7 @@ def make_image_receipt(
         },
         "node_binary": {
             "donor_reference": NODE_BASE_REFERENCE,
-            "version": "24.19.0",
+            "version": NODE_RUNTIME_VERSION,
             "path": "/usr/local/bin/node",
             "sha256": NODE_BINARY_SHA256,
             "purl": NODE_RUNTIME_PURL,
