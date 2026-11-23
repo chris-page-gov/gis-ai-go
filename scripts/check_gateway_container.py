@@ -13,6 +13,7 @@ import re
 import socket
 import stat
 import subprocess
+import sys
 import tempfile
 import threading
 import time
@@ -22,9 +23,12 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Iterable, Iterator
 
-from jsonschema import Draft202012Validator, FormatChecker
+from jsonschema import Draft202012Validator, FormatChecker, ValidationError
 
 from gateway_image import (
+    CONTAINER_ACCEPTANCE_DIAGNOSTIC_PREFIX,
+    CONTAINER_ACCEPTANCE_DIAGNOSTIC_STAGES,
+    CONTAINER_ACCEPTANCE_SCHEMA_NODES,
     EXPECTED_ENVIRONMENT,
     EXPECTED_ENTRYPOINT,
     EXPECTED_HEALTHCHECK,
@@ -103,6 +107,64 @@ _DOCKER_LOAD_SENSITIVE = re.compile(
     r"passwords?|passwd|pwd|client[ _-]?secrets?|secrets?"
     r")"
 )
+_ACCEPTANCE_FAILURE_MESSAGES = (
+    (
+        AssertionError, "unregistered gateway did not become healthy",
+        "gateway_health_timeout",
+    ),
+    (
+        AssertionError, "Docker did not report the gateway container healthy",
+        "container_health_timeout",
+    ),
+)
+
+
+class _SafeArgumentParser(argparse.ArgumentParser):
+    """Avoid echoing untrusted argument values in CLI parse failures."""
+
+    def error(self, message: str) -> None:
+        del message
+        raise ValueError("invalid command-line arguments")
+
+
+def _acceptance_failure_reason(error: Exception) -> str:
+    """Return a closed reason code without exposing exception data."""
+    error_type = type(error)
+    if error_type is ValidationError:
+        # Compare only the failed public schema node. Never render the receipt,
+        # instance path, validator message or exception arguments.
+        if type(error.schema) is dict:
+            for index, schema_node in enumerate(CONTAINER_ACCEPTANCE_SCHEMA_NODES):
+                if error.schema == schema_node:
+                    return f"schema_rule_{index:03d}"
+        return "schema_unknown"
+    if (error_type in {AssertionError, ValueError} and type(error.args) is tuple
+            and len(error.args) == 1 and type(error.args[0]) is str):
+        # Inspect only an existing literal string, without converting arbitrary
+        # exception arguments. Only reviewed messages select a fixed code.
+        message = error.args[0]
+        for known_type, known_message, reason in _ACCEPTANCE_FAILURE_MESSAGES:
+            if error_type is known_type and message == known_message:
+                return reason
+    if error_type is AssertionError:
+        return "assertion_failed"
+    if error_type is subprocess.TimeoutExpired:
+        return "command_timeout"
+    if error_type is subprocess.CalledProcessError:
+        return "command_failed"
+    if isinstance(error, OSError):
+        return "system_call_failed"
+    if error_type is ValueError:
+        return "validation_failed"
+    return "unknown"
+
+
+def _acceptance_failure_line(stage: str, error: Exception) -> str:
+    safe_stage = stage if type(stage) is str and stage in CONTAINER_ACCEPTANCE_DIAGNOSTIC_STAGES else "unknown"
+    return (
+        CONTAINER_ACCEPTANCE_DIAGNOSTIC_PREFIX +
+        f"stage={safe_stage} reason={_acceptance_failure_reason(error)}"
+    )
 COMPOSE_CONTAINER_LABELS = frozenset(
     {
         "com.docker.compose.config-hash",
@@ -786,10 +848,68 @@ def storage_identity(container: str) -> dict[str, Any]:
     return json_from_exec(container, expression)
 
 
+def image_catalogue_freshness(container: str) -> dict[str, str]:
+    """Read the deadline and byte identity from the exact running image."""
+    value = json_from_exec(container, """
+      import { createHash } from 'node:crypto';
+      import { readFileSync } from 'node:fs';
+      const bytes = readFileSync('/app/artifacts/okf/okf-bundle.json');
+      console.log(JSON.stringify({
+        stale_after: JSON.parse(bytes).staleAfter,
+        bundle_sha256: createHash('sha256').update(bytes).digest('hex'),
+      }));
+    """)
+    if (set(value) != {"stale_after", "bundle_sha256"}
+            or type(value["bundle_sha256"]) is not str
+            or re.fullmatch(r"[0-9a-f]{64}", value["bundle_sha256"]) is None):
+        raise AssertionError("image catalogue freshness identity is invalid")
+    _freshness_time(value["stale_after"])
+    return value
+
+
+def _freshness_time(value: Any) -> datetime:
+    if (type(value) is not str or len(value) > 35
+            or re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\.[0-9]{1,6})?Z", value) is None):
+        raise AssertionError("catalogue freshness time is invalid")
+    try:
+        return datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        raise AssertionError("catalogue freshness time is invalid") from None
+
+
+def assert_catalogue_freshness(
+    health: dict[str, Any], image_freshness: dict[str, str],
+    load_window_started_at: str, observed_at: str,
+) -> dict[str, Any]:
+    deadline = _freshness_time(image_freshness["stale_after"])
+    # Match the gateway's Date.parse precision for fractional source deadlines.
+    deadline = deadline.replace(microsecond=(deadline.microsecond // 1000) * 1000)
+    started, observed = _freshness_time(load_window_started_at), _freshness_time(observed_at)
+    # The snapshot fixes freshness when it loads. A deadline crossed during
+    # startup is ambiguous, so require another rehearsal after the boundary.
+    if observed < started or started < deadline <= observed:
+        raise AssertionError("catalogue freshness observation crossed a time boundary")
+    stale = started >= deadline
+    warnings = ([
+        f"Catalogue freshness review expired at {image_freshness['stale_after']}; "
+        "results are a governed snapshot, not current source authority."
+    ] if stale else [])
+    catalogue = health.get("catalogue", {})
+    if (type(catalogue.get("stale")) is not bool or catalogue["stale"] is not stale
+            or catalogue.get("warnings") != warnings):
+        raise AssertionError("gateway catalogue freshness differs from its image and observation time")
+    return {**image_freshness, "load_window_started_at": load_window_started_at,
+            "observed_at": observed_at, "stale": stale}
+
+
 def assert_http_boundary(
     expected_revision: str, expected_version: str, *, container: str | None,
+    image_freshness: dict[str, str], load_window_started_at: str,
 ) -> dict[str, Any]:
     health = wait_for_health(container)
+    freshness = assert_catalogue_freshness(
+        health, image_freshness, load_window_started_at, utc_now(),
+    )
     if (health.get("status") != "ok"
             or health.get("lifecycle") != "candidate-unregistered"
             or health.get("production_registration") is not False
@@ -893,6 +1013,7 @@ def assert_http_boundary(
         raise AssertionError("gateway MCP face accepted a hostile Host header")
     return {
         "health": health,
+        "catalogue_freshness": freshness,
         "readiness": {"http_status": 200, **expected_ready},
         "openapi_paths": paths,
         "direct_operation": {
@@ -1173,8 +1294,12 @@ def comparable_runtime(value: dict[str, Any]) -> dict[str, Any]:
     return copy
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser()
+def main(
+    *, _diagnostic_stage: list[str] | None = None, _cli: bool = False,
+) -> None:
+    if _diagnostic_stage is not None:
+        _diagnostic_stage[0] = "arguments"
+    parser = _SafeArgumentParser() if _cli else argparse.ArgumentParser()
     parser.add_argument("--archive", type=Path, required=True)
     parser.add_argument("--receipt", type=Path, required=True)
     parser.add_argument(
@@ -1182,6 +1307,8 @@ def main() -> None:
         default=Path("artifacts/gateway/container-acceptance.json"),
     )
     args = parser.parse_args()
+    if _diagnostic_stage is not None:
+        _diagnostic_stage[0] = "input_validation"
     archive = args.archive if args.archive.is_absolute() else ROOT / args.archive
     receipt_path = args.receipt if args.receipt.is_absolute() else ROOT / args.receipt
     output = args.output if args.output.is_absolute() else ROOT / args.output
@@ -1234,12 +1361,16 @@ def main() -> None:
     transport: dict[str, Any] = {}
     boundary: dict[str, Any] = {}
 
+    if _diagnostic_stage is not None:
+        _diagnostic_stage[0] = "engine_identity"
     with record_phase(phases, "engine-identity"):
         engine = docker_versions()
 
     with tempfile.TemporaryDirectory(prefix="gis-ai-go-gateway-restore-") as temporary:
         saved = Path(temporary) / "gateway-image.tar"
         try:
+            if _diagnostic_stage is not None:
+                _diagnostic_stage[0] = "oci_load"
             with record_phase(phases, "exact-oci-load"):
                 loaded = load_docker_archive(archive)
                 if tag not in loaded.stdout and tag not in loaded.stderr:
@@ -1250,6 +1381,8 @@ def main() -> None:
                 )
                 checks.append("exact-oci-load")
 
+            if _diagnostic_stage is not None:
+                _diagnostic_stage[0] = "compose_render"
             with record_phase(phases, "compose-render"):
                 configuration = json.loads(
                     compose(
@@ -1261,7 +1394,10 @@ def main() -> None:
                 rendered_sha256 = validate_rendered_compose(configuration, project, tag)
                 checks.append("closed-compose-topology")
 
+            if _diagnostic_stage is not None:
+                _diagnostic_stage[0] = "compose_start_probe"
             with record_phase(phases, "compose-start-and-probe"):
+                load_window_started_at = utc_now()
                 compose(project, environment, "up", "--detach", "--no-build",
                         "--pull", "never")
                 container = compose(
@@ -1275,8 +1411,10 @@ def main() -> None:
                     compose_version=engine["compose"]["version"],
                 )
                 http_container = None if transport["mode"] == "host-loopback" else container
+                image_freshness = image_catalogue_freshness(container)
                 boundary = assert_http_boundary(
-                    source["revision"], source["version"], container=http_container
+                    source["revision"], source["version"], container=http_container,
+                    image_freshness=image_freshness, load_window_started_at=load_window_started_at,
                 )
                 if transport["mode"] == (
                     "container-loopback-internal-engine-fallback"
@@ -1296,14 +1434,18 @@ def main() -> None:
                     "private-disjoint-storage", "runtime-resource-bounds",
                 ])
 
+            if _diagnostic_stage is not None:
+                _diagnostic_stage[0] = "restart_persistence"
             with record_phase(phases, "restart-and-persistence"):
+                load_window_started_at = utc_now()
                 compose(project, environment, "restart", "gateway")
                 restart_inspection = wait_for_container_health(container)
                 restart_transport = assert_transport_unchanged(
                     restart_inspection, transport
                 )
                 assert_http_boundary(
-                    source["revision"], source["version"], container=http_container
+                    source["revision"], source["version"], container=http_container,
+                    image_freshness=image_freshness, load_window_started_at=load_window_started_at,
                 )
                 if restart_transport["mode"] == (
                     "container-loopback-internal-engine-fallback"
@@ -1323,6 +1465,8 @@ def main() -> None:
                     ) from None
                 checks.append("log-minimisation")
 
+            if _diagnostic_stage is not None:
+                _diagnostic_stage[0] = "service_suspension"
             with record_phase(phases, "service-suspension"):
                 compose(project, environment, "stop", "gateway")
                 suspended_state = assert_container_stopped(container)
@@ -1331,6 +1475,8 @@ def main() -> None:
                 checks.append("service-suspension")
                 compose(project, environment, "down", "--remove-orphans")
 
+            if _diagnostic_stage is not None:
+                _diagnostic_stage[0] = "image_restore"
             with record_phase(phases, "exact-image-restore"):
                 run(
                     ("docker", "image", "save", "--output", str(saved), tag),
@@ -1351,6 +1497,7 @@ def main() -> None:
                     or restored_labels != image_labels
                 ):
                     raise AssertionError("saved image restored a different exact identity")
+                load_window_started_at = utc_now()
                 compose(project, environment, "up", "--detach", "--no-build",
                         "--pull", "never")
                 container = compose(
@@ -1365,9 +1512,12 @@ def main() -> None:
                     raise AssertionError("gateway runtime shape changed after exact-image restore")
                 if restored_transport != transport:
                     raise AssertionError("gateway transport changed after exact-image restore")
+                if image_catalogue_freshness(container) != image_freshness:
+                    raise AssertionError("restored image catalogue freshness identity changed")
                 http_container = None if transport["mode"] == "host-loopback" else container
                 assert_http_boundary(
-                    source["revision"], source["version"], container=http_container
+                    source["revision"], source["version"], container=http_container,
+                    image_freshness=image_freshness, load_window_started_at=load_window_started_at,
                 )
                 if restored_transport["mode"] == (
                     "container-loopback-internal-engine-fallback"
@@ -1384,6 +1534,8 @@ def main() -> None:
                 capture=True, check=False,
             )
 
+    if _diagnostic_stage is not None:
+        _diagnostic_stage[0] = "receipt_finalization"
     checks.append("closed-acceptance-receipt")
     if checks != EXPECTED_CHECKS:
         raise AssertionError("gateway container checks did not complete in reviewed order")
@@ -1426,6 +1578,8 @@ def main() -> None:
         raise ValueError("gateway container acceptance receipt exceeds its byte bound")
     assert_no_private_json(evidence, "gateway container acceptance receipt")
     assert_no_private_text(canonical, "gateway container acceptance receipt")
+    if _diagnostic_stage is not None:
+        _diagnostic_stage[0] = "receipt_schema"
     validate_schema_instance(ACCEPTANCE_SCHEMA, evidence)
     if canonical_json_bytes(json.loads(canonical)) != canonical:
         raise AssertionError("gateway container acceptance receipt is not canonical JSON")
@@ -1437,5 +1591,15 @@ def main() -> None:
     )
 
 
+def cli_main() -> int:
+    stage = ["arguments"]
+    try:
+        main(_diagnostic_stage=stage, _cli=True)
+    except Exception as error:
+        sys.stderr.write(_acceptance_failure_line(stage[0], error) + "\n")
+        return 1
+    return 0
+
+
 if __name__ == "__main__":
-    main()
+    raise SystemExit(cli_main())

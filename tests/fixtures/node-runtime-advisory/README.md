@@ -1,5 +1,21 @@
 # Reviewed public advisory prose
 
+## November advisory
+
+`CVE-2026-123864.json` is the unchanged public CVEProject record at
+[commit e07fde67365e96da6b745cd79af30cc64fe8ae7a](https://github.com/CVEProject/cvelistV5/blob/e07fde67365e96da6b745cd79af30cc64fe8ae7a/cves/2026/123xxx/CVE-2026-123864.json).
+The whole retained file has SHA-256
+`8191afa44fd10504ad7b00387ebc0eeda501de91b775883e62d7b1ef290d2fef`.
+Its English CNA description is 929 UTF-8 bytes with SHA-256
+`97b94971e6c46a1c75d0e6b3a6f1334391574030f715be10c6b39ce40c059601`.
+The generic privacy parser rejects this public technical prose. The exact
+description has the same narrow identity check and surrounding protections as
+the October advisory below. Both JSON and canonical text representations are
+tested, including changed prose, private siblings and enclosing credentials.
+This rule does not change vulnerability classification or calibration.
+
+## October advisory
+
 `CVE-2026-105482.json` is the unchanged public CVEProject record at
 [commit 1d00567453bd67f89f5c2f37c29673e6d194080a](https://github.com/CVEProject/cvelistV5/blob/1d00567453bd67f89f5c2f37c29673e6d194080a/cves/2026/105xxx/CVE-2026-105482.json).
 The whole retained file has SHA-256

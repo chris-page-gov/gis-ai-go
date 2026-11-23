@@ -41,6 +41,7 @@ from gateway_image import (
 )
 from scan_gateway_image import verify_scan_evidence
 from verify_gateway_oci import verify_gateway_oci
+from check_gateway_container import assert_catalogue_freshness
 
 ACCEPTANCE_SCHEMA = ROOT / "schemas" / "gateway-container-acceptance.schema.json"
 COMPOSE_FILE = ROOT / "deploy" / "gateway" / "compose.candidate.yaml"
@@ -448,6 +449,34 @@ def _verify_acceptance_bindings(
         or okf_receipt.get("recordCount") != health_catalogue["record_count"]
     ):
         raise ValueError("gateway health catalogue differs from canonical OKF evidence")
+
+    bundle_bytes = read_bounded_regular_file(
+        ROOT / "artifacts" / "okf" / "okf-bundle.json",
+        maximum_bytes=8 * 1024 * 1024, label="canonical OKF bundle",
+    )
+    bundle = parse_bounded_json_object(
+        bundle_bytes, maximum_bytes=8 * 1024 * 1024, label="canonical OKF bundle",
+    )
+    freshness = acceptance["boundary"]["catalogue_freshness"]
+    image_freshness = {
+        "bundle_sha256": sha256_bytes(bundle_bytes), "stale_after": bundle["staleAfter"],
+    }
+    try:
+        expected_freshness = assert_catalogue_freshness(
+            acceptance["boundary"]["health"], image_freshness,
+            freshness["load_window_started_at"], freshness["observed_at"],
+        )
+    except (AssertionError, KeyError, TypeError) as error:
+        raise ValueError("gateway catalogue freshness evidence is inconsistent") from error
+    if freshness != expected_freshness:
+        raise ValueError("gateway catalogue freshness differs from the canonical bundle")
+    startup_phase = acceptance["phases"][3]
+    startup_start = _parse_utc_timestamp(startup_phase["started_at"], label="gateway startup start")
+    startup_end = _parse_utc_timestamp(startup_phase["ended_at"], label="gateway startup end")
+    load_start = _parse_utc_timestamp(freshness["load_window_started_at"], label="catalogue load start")
+    observed = _parse_utc_timestamp(freshness["observed_at"], label="catalogue observation")
+    if not startup_start <= load_start <= observed <= startup_end:
+        raise ValueError("gateway catalogue observation is outside its startup phase")
 
 
 def _verify_tool_version_bindings(

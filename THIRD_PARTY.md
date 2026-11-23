@@ -74,8 +74,8 @@ The realised root filesystem is composed from these immutable inputs:
   `registry.access.redhat.com/ubi10-micro@sha256:422bd02268e317995a8fbb9c81c0835aa99798a234b5619c52350843d5ed5c4d`,
   including the exact `libgcc_s.so.1` dependency and its target;
 - the official Node.js Docker image
-  `node:24.22.1-bookworm-slim@sha256:be8204d4bd327363357f532187b752ff62759c31bedf98e9e18fc08c9cbd605c`,
-  used only as the build environment and donor for the upstream Node.js 24.22.1
+  `node:24.22.3-bookworm-slim@sha256:dc26ae92c9fb15cf6b1d63e20f0944b2efe0f115b20e00be48fb23fceb061c54`,
+  used only as the build environment and donor for the upstream Node.js 24.22.3
   binary and its complete bundled licence notice; and
 - Red Hat UBI 10 Node.js 24 minimal
   `registry.access.redhat.com/ubi10/nodejs-24-minimal@sha256:e0e44d118dfba1c90e8adbdc751d6db2a1c5f9b0856d31d577054f8ea5216e2d`,
@@ -95,15 +95,15 @@ GO product labels rather than inheriting either Red Hat image's product, vendor,
 maintainer or display-name labels.
 
 The copied Node binary has SHA-256
-`e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb`.
+`a7ec1b37e6ff9d187e4198c5b6df9a4eb1c74dd31804fb3bac55cc4ceca1ac01`.
 Its complete bundled licence file has SHA-256
 `5888dbb9a1d2b18f2c3e6c5f6af1b39de658372b402a0577b002777f14c62ace`
 and remains at `/usr/share/licenses/nodejs/LICENSE`. The corresponding official
 upstream archive is
-[`node-v24.22.1-linux-x64.tar.xz`](https://nodejs.org/download/release/v24.22.1/node-v24.22.1-linux-x64.tar.xz),
+[`node-v24.22.3-linux-x64.tar.xz`](https://nodejs.org/download/release/v24.22.3/node-v24.22.3-linux-x64.tar.xz),
 SHA-256
-`6c172a9ab6718f7b801fb5a7bd486af2ee5e32758086a04b84fcce2aa77095e6`;
-the tagged source is [Node.js v24.22.1](https://github.com/nodejs/node/tree/v24.22.1).
+`4f2b175a6d53a5c617a80dba2676238a0688cef28c6da4eba35c7d844e66fcfb`;
+the tagged source is [Node.js v24.22.3](https://github.com/nodejs/node/tree/v24.22.3).
 
 The realised GCC runtime objects are:
 

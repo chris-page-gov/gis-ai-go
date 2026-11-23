@@ -1,5 +1,17 @@
 # Current progress
 
+## Gateway image maintenance — 23 November 2026
+
+The image candidate now pins Node.js 24.22.3 and recognises only the exact
+reviewed public description for CVE-2026-123864 during privacy inspection.
+The upstream Linux archive and official amd64 Docker image have matching Node
+binary and licence hashes. The [maintenance record](docs/operations/GATEWAY_SECURITY_2026-11-23.md)
+keeps local checks separate from the required exact-image build, vulnerability
+scan, replay and canonical CI. No deployment or alert dismissal is claimed.
+The receipt also now preserves the catalogue's genuine 20 November expiry,
+checking its exact warning against the image bundle and recorded load window.
+It does not extend the authored deadline or claim current source authority.
+
 ## Dependency maintenance — 2 November 2026
 
 The security maintenance repair merged through

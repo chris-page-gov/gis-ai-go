@@ -438,7 +438,7 @@ class NodeRuntimeAdvisoryTests(unittest.TestCase):
         )
         self.assertEqual(
             NODE_SECURITY_ADVISORY_URL,
-            "https://nodejs.org/en/blog/vulnerability/october-2026-security-releases",
+            "https://nodejs.org/en/blog/vulnerability/november-2026-security-releases",
         )
         missing = copy.deepcopy(roles)
         missing["affected"]["matched_ids"].pop()

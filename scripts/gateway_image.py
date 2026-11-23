@@ -32,24 +32,24 @@ DOCKERIGNORE = ROOT / "apps" / "mcp-gateway" / "Containerfile.dockerignore"
 RECEIPT_SCHEMA = ROOT / "schemas" / "gateway-image-receipt.schema.json"
 
 NODE_BASE_NAME = "node"
-NODE_RUNTIME_VERSION = "24.22.1"
+NODE_RUNTIME_VERSION = "24.22.3"
 NODE_BASE_VERSION = f"{NODE_RUNTIME_VERSION}-bookworm-slim"
-NODE_BASE_DIGEST = "sha256:be8204d4bd327363357f532187b752ff62759c31bedf98e9e18fc08c9cbd605c"
+NODE_BASE_DIGEST = "sha256:dc26ae92c9fb15cf6b1d63e20f0944b2efe0f115b20e00be48fb23fceb061c54"
 NODE_BASE_REFERENCE = f"{NODE_BASE_NAME}:{NODE_BASE_VERSION}@{NODE_BASE_DIGEST}"
-NODE_BINARY_SIZE = 126_879_696
-NODE_BINARY_SHA256 = "e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb"
+NODE_BINARY_SIZE = 126_891_984
+NODE_BINARY_SHA256 = "a7ec1b37e6ff9d187e4198c5b6df9a4eb1c74dd31804fb3bac55cc4ceca1ac01"
 NODE_LICENCE_SIZE = 157_609
 NODE_LICENCE_SHA256 = "5888dbb9a1d2b18f2c3e6c5f6af1b39de658372b402a0577b002777f14c62ace"
 NODE_UPSTREAM_ARCHIVE_URL = (
-    "https://nodejs.org/download/release/v24.22.1/node-v24.22.1-linux-x64.tar.xz"
+    "https://nodejs.org/download/release/v24.22.3/node-v24.22.3-linux-x64.tar.xz"
 )
 NODE_UPSTREAM_ARCHIVE_SHA256 = (
-    "6c172a9ab6718f7b801fb5a7bd486af2ee5e32758086a04b84fcce2aa77095e6"
+    "4f2b175a6d53a5c617a80dba2676238a0688cef28c6da4eba35c7d844e66fcfb"
 )
-NODE_RUNTIME_PURL = "pkg:generic/node@24.22.1"
-NODE_RUNTIME_CPE = "cpe:2.3:a:nodejs:node.js:24.22.1:*:*:*:*:*:*:*"
+NODE_RUNTIME_PURL = "pkg:generic/node@24.22.3"
+NODE_RUNTIME_CPE = "cpe:2.3:a:nodejs:node.js:24.22.3:*:*:*:*:*:*:*"
 NODE_SECURITY_ADVISORY_URL = (
-    "https://nodejs.org/en/blog/vulnerability/october-2026-security-releases"
+    "https://nodejs.org/en/blog/vulnerability/november-2026-security-releases"
 )
 UBI_RUNTIME_BASE_NAME = "registry.access.redhat.com/ubi10-micro"
 UBI_RUNTIME_BASE_VERSION = "10.2-1786324819"
@@ -154,7 +154,7 @@ MAX_BUILDKIT_CAPTURE_BYTES = 64 * 1024
 MAX_BUILDKIT_DIAGNOSTIC_BYTES = 4 * 1024
 BUILDKIT_OUTPUT_CHUNK_BYTES = 64 * 1024
 EXPECTED_RUNTIME_STAGE_SHA256 = (
-    "ddd40ea9d28347d779a2e34b82ea4f18901ceffdebfe3e823dbdc501b9775861"
+    "70a24d02015a26f7af516efa93533139a1f7b29c23d0b842fd2f810604d379fb"
 )
 SYFT_REFERENCE = (
     "anchore/syft:v1.42.2@"
@@ -185,6 +185,36 @@ VULNERABILITY_SCAN_STAGE_EXIT_CODES = {
     "final-evidence-validation": 96,
     "vulnerability-policy": 97,
 }
+CONTAINER_ACCEPTANCE_DIAGNOSTIC_PREFIX = "gateway-container-acceptance-failure "
+CONTAINER_ACCEPTANCE_DIAGNOSTIC_STAGES = frozenset({
+    "arguments", "input_validation", "engine_identity", "oci_load",
+    "compose_render", "compose_start_probe", "restart_persistence",
+    "service_suspension", "image_restore", "receipt_finalization", "receipt_schema", "unknown",
+})
+
+
+def _acceptance_schema_nodes(value: Any) -> Iterable[dict[str, Any]]:
+    """Enumerate only the reviewed public schema, never receipt values."""
+    if type(value) is dict:
+        yield value
+        for key in sorted(value):
+            yield from _acceptance_schema_nodes(value[key])
+    elif type(value) is list:
+        for item in value:
+            yield from _acceptance_schema_nodes(item)
+
+
+CONTAINER_ACCEPTANCE_SCHEMA_NODES = tuple(_acceptance_schema_nodes(json.loads(
+    (ROOT / "schemas/gateway-container-acceptance.schema.json").read_text(encoding="utf-8")
+)))
+CONTAINER_ACCEPTANCE_SCHEMA_REASONS = frozenset(
+    f"schema_rule_{index:03d}" for index in range(len(CONTAINER_ACCEPTANCE_SCHEMA_NODES))
+)
+CONTAINER_ACCEPTANCE_DIAGNOSTIC_REASONS = frozenset({
+    "gateway_health_timeout", "container_health_timeout", "assertion_failed",
+    "command_timeout", "command_failed", "system_call_failed",
+    "validation_failed", "schema_unknown", "unknown",
+}) | CONTAINER_ACCEPTANCE_SCHEMA_REASONS
 NODE_ADVISORY_STAGE_EXIT_CODES = {
     "node-scanner-acquisition": 98,
     "node-db-update": 99,
@@ -1680,19 +1710,23 @@ def _json_field_name(value: str) -> str:
 
 
 def _is_reviewed_public_advisory_description(node: dict[Any, Any], key: str, value: str) -> bool:
-    """Recognise one immutable public prose value, never a credential exemption.
+    """Recognise immutable public prose values, never a credential exemption.
 
-    The source and exact UTF-8 bytes are retained under
-    tests/fixtures/node-runtime-advisory/README.md. Its literal backslash-zero
-    illustrates the public CVE; it is not an actual NUL in the source text.
+    Sources and exact UTF-8 bytes are retained under
+    tests/fixtures/node-runtime-advisory/README.md. Public prose keeps its literal
+    meaning; enclosing credential checks and sibling inspection still apply.
     """
-    if (key != "description" or node.get("id") != "CVE-2026-105482"
-            or len(value) > 670):
+    reviewed = {
+        "CVE-2026-105482": (670, "4860b19ad9d60392ad2fb11103fc786e634469d26db9ecc7692591ac06967f01"),
+        "CVE-2026-123864": (929, "97b94971e6c46a1c75d0e6b3a6f1334391574030f715be10c6b39ce40c059601"),
+    }
+    if key != "description" or type(node.get("id")) is not str:
+        return False
+    identity = reviewed.get(node["id"])
+    if identity is None or len(value) > identity[0]:
         return False
     encoded = value.encode("utf-8")
-    return len(encoded) == 670 and hashlib.sha256(encoded).hexdigest() == (
-        "4860b19ad9d60392ad2fb11103fc786e634469d26db9ecc7692591ac06967f01"
-    )
+    return len(encoded) == identity[0] and hashlib.sha256(encoded).hexdigest() == identity[1]
 
 
 def prohibited_json_reason(document: Any) -> str | None:

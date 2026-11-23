@@ -74,7 +74,7 @@ EXACT_RESOURCES = [
 # 2 November 2026: the separate client setup adds only its package binding and
 # derived set identity on the reviewed dependency/source-lock baseline.
 REGENERABLE_LOCAL_RECEIPT_SHA256 = (
-    "aaae27e6c8ca06cc52de998efab73e431898858b4e2758966e996ad41c6b633e"
+    "4917fe4755c6d091c2839fe9bc6220e9d16a9aad5b5f53296068da6581b4eae8"
 )
 HISTORICAL_V1_SHA256 = {
     "evaluation/qual-206-local-protocol-evidence-matrix.v1.json": (

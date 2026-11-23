@@ -1,0 +1,1 @@
+- Pin the gateway runtime to the independently verified Node.js 24.22.3 binary and recognise the exact public CVE-2026-123864 description. Report only closed acceptance failure codes. Bind catalogue freshness observations and exact expiry warnings to the image bundle and startup window, preserving privacy, vulnerability, calibration and image-replay gates.

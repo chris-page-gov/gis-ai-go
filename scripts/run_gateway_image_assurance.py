@@ -21,6 +21,9 @@ from typing import Any
 
 from gateway_evidence import write_evidence_manifest
 from gateway_image import (
+    CONTAINER_ACCEPTANCE_DIAGNOSTIC_PREFIX,
+    CONTAINER_ACCEPTANCE_DIAGNOSTIC_REASONS,
+    CONTAINER_ACCEPTANCE_DIAGNOSTIC_STAGES,
     NODE_ADVISORY_STAGE_EXIT_CODES,
     NODE_INVENTORY_SIZE_FIELDS,
     NODE_INVENTORY_SIZE_PREFIX,
@@ -67,6 +70,21 @@ def _node_inventory_size_diagnostic(text: str) -> str | None:
     return node_inventory_size_diagnostic(
         dict(zip(NODE_INVENTORY_SIZE_FIELDS, map(int, match.groups()), strict=True))
     )
+
+
+def _container_acceptance_diagnostic(text: str) -> str | None:
+    lines = [line for line in text.splitlines()
+             if line.startswith(CONTAINER_ACCEPTANCE_DIAGNOSTIC_PREFIX.rstrip())]
+    if len(lines) != 1:
+        return None
+    match = re.fullmatch(
+        re.escape(CONTAINER_ACCEPTANCE_DIAGNOSTIC_PREFIX)
+        + r"stage=([a-z_]+) reason=([a-z0-9_]+)", lines[0],
+    )
+    if (match is None or match[1] not in CONTAINER_ACCEPTANCE_DIAGNOSTIC_STAGES
+            or match[2] not in CONTAINER_ACCEPTANCE_DIAGNOSTIC_REASONS):
+        return None
+    return lines[0]
 
 
 def _node_report_diagnostic(text: str) -> str | None:
@@ -477,6 +495,15 @@ def run_checked(
                 diagnostic = _node_report_diagnostic(classifications[1][2])
                 if diagnostic is not None:
                     sys.stderr.write(diagnostic + "\n")
+            sys.stderr.flush()
+    if (failure == "exited unsuccessfully" and name == "container-acceptance"
+            and prohibited_output_reason is None and classifications is not None
+            and classifications[1][2] is not None
+            and not any(line.startswith(CONTAINER_ACCEPTANCE_DIAGNOSTIC_PREFIX.rstrip())
+                        for line in (classifications[0][2] or "").splitlines())):
+        diagnostic = _container_acceptance_diagnostic(classifications[1][2])
+        if diagnostic is not None:
+            sys.stderr.write(diagnostic + "\n")
             sys.stderr.flush()
     if failure is not None:
         raise ValueError(f"gateway image assurance phase {name} {failure}")

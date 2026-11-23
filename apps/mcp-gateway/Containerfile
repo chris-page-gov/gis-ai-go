@@ -1,4 +1,4 @@
-ARG NODE_BASE="node:24.22.1-bookworm-slim@sha256:be8204d4bd327363357f532187b752ff62759c31bedf98e9e18fc08c9cbd605c"
+ARG NODE_BASE="node:24.22.3-bookworm-slim@sha256:dc26ae92c9fb15cf6b1d63e20f0944b2efe0f115b20e00be48fb23fceb061c54"
 ARG UBI_RUNTIME_BASE="registry.access.redhat.com/ubi10-micro@sha256:422bd02268e317995a8fbb9c81c0835aa99798a234b5619c52350843d5ed5c4d"
 ARG UBI_RUNTIME_LIBRARY_DONOR="registry.access.redhat.com/ubi10/nodejs-24-minimal@sha256:e0e44d118dfba1c90e8adbdc751d6db2a1c5f9b0856d31d577054f8ea5216e2d"
 
@@ -154,7 +154,7 @@ LABEL org.opencontainers.image.title="GIS AI GO local unregistered gateway candi
       io.gis-ai-go.active-api-operations="[\"catalogue.search\",\"catalogue.describe\",\"selection.resolve\",\"data.query\",\"evidence.inspect\"]"
 
 ENV PATH=/usr/local/bin \
-    NODE_VERSION=24.22.1 \
+    NODE_VERSION=24.22.3 \
     HOME=/nonexistent \
     NODE_ENV=production \
     TZ=UTC
@@ -190,13 +190,13 @@ RUN --network=none test ! -e /usr/lib64/libstdc++.so.6 \
     && /usr/bin/ln -s \
       libstdc++.so.6.0.33 \
       /usr/lib64/libstdc++.so.6 \
-    && test "$(/usr/local/bin/node --version)" = 'v24.22.1' \
+    && test "$(/usr/local/bin/node --version)" = 'v24.22.3' \
     && test "$(/usr/bin/readlink /usr/lib64/libgcc_s.so.1)" = \
       'libgcc_s-14-20251022.so.1' \
     && test "$(/usr/bin/readlink /usr/lib64/libstdc++.so.6)" = \
       'libstdc++.so.6.0.33' \
     && test "$(/usr/bin/sha256sum /usr/local/bin/node)" = \
-      'e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb  /usr/local/bin/node' \
+      'a7ec1b37e6ff9d187e4198c5b6df9a4eb1c74dd31804fb3bac55cc4ceca1ac01  /usr/local/bin/node' \
     && test "$(/usr/bin/sha256sum /usr/lib64/libgcc_s-14-20251022.so.1)" = \
       'a0070ef643f5ad08f3d3a32a439d8d02d388a38ba5732cbafe58f3a1d60f1e32  /usr/lib64/libgcc_s-14-20251022.so.1' \
     && test "$(/usr/bin/sha256sum /usr/lib64/libstdc++.so.6.0.33)" = \
