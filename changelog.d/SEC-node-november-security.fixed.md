@@ -1,0 +1,1 @@
+- Pin the gateway runtime to the independently verified Node.js 24.22.3 binary and recognise the exact public CVE-2026-123864 description without relaxing privacy, vulnerability, calibration or image-replay gates.
