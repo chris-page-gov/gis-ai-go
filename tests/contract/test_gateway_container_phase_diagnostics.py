@@ -35,6 +35,14 @@ class ContainerPhaseDiagnosticTests(unittest.TestCase):
         self.assertEqual(output.count(LINE), 1)
         self.assertIn("output withheld", output)
 
+    def test_reviewed_schema_code_is_forwarded_but_unknown_numbers_are_rejected(self):
+        line = "gateway-container-acceptance-failure stage=receipt_schema reason=schema_rule_000"
+        self.assertEqual(assurance._container_acceptance_diagnostic(line), line)
+        self.assertIsNone(assurance._container_acceptance_diagnostic(
+            line.replace("schema_rule_000", "schema_rule_999999")
+        ))
+        self.assertIn(line, self.invoke_failure("container-acceptance", line + "\n"))
+
     def test_private_or_ambiguous_streams_do_not_forward_diagnostics(self):
         for phase, stderr, stdout in (
             ("foreign-phase", LINE + "\n", ""),

@@ -52,3 +52,11 @@ stderr in the failed acceptance phase. It rejects malformed or duplicate codes
 and codes appearing in stdout, and still fails the phase.
 Library exceptions and cleanup remain intact. The full acceptance gate remains
 required and failed evidence cannot be promoted.
+
+The next candidate completed the runtime phases but failed while finalising the
+receipt. Schema failures now identify only the index of a matching node in the
+reviewed public acceptance schema. The finite code list is shared with the
+parent runner; receipt values, instance paths and validator messages remain
+withheld. Unrecognised schemas receive a fixed unknown code. This diagnostic
+preserves the original validation exception and does not permit an invalid
+receipt to be written or promoted.

@@ -12,9 +12,31 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "scripts"))
 
 import check_gateway_container as container_check  # noqa: E402
+from jsonschema import Draft202012Validator, ValidationError
 
 
 class GatewayContainerCliDiagnosticTests(unittest.TestCase):
+    def test_schema_failure_emits_only_the_reviewed_schema_node_code(self) -> None:
+        schema = {"const": "65532:65532"}
+        with self.assertRaises(ValidationError) as caught:
+            Draft202012Validator(schema).validate("Bearer SYNTHETIC-PRIVATE-VALUE")
+        index = container_check.CONTAINER_ACCEPTANCE_SCHEMA_NODES.index(schema)
+        self.assertEqual(
+            container_check._acceptance_failure_line("receipt_schema", caught.exception),
+            "gateway-container-acceptance-failure "
+            f"stage=receipt_schema reason=schema_rule_{index:03d}",
+        )
+
+    def test_unrecognised_schema_and_private_paths_are_not_echoed(self) -> None:
+        error = ValidationError(
+            "Bearer SYNTHETIC-PRIVATE-VALUE", schema={"private": "provider-data"},
+            path=["sensitive-provider-path"],
+        )
+        self.assertEqual(
+            container_check._acceptance_failure_line("receipt_schema", error),
+            "gateway-container-acceptance-failure stage=receipt_schema reason=schema_unknown",
+        )
+
     def test_exception_arguments_are_not_converted_to_text(self) -> None:
         class Argument:
             def __str__(self):

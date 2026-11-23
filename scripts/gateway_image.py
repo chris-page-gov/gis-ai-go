@@ -189,13 +189,32 @@ CONTAINER_ACCEPTANCE_DIAGNOSTIC_PREFIX = "gateway-container-acceptance-failure "
 CONTAINER_ACCEPTANCE_DIAGNOSTIC_STAGES = frozenset({
     "arguments", "input_validation", "engine_identity", "oci_load",
     "compose_render", "compose_start_probe", "restart_persistence",
-    "service_suspension", "image_restore", "receipt_finalization", "unknown",
+    "service_suspension", "image_restore", "receipt_finalization", "receipt_schema", "unknown",
 })
+
+
+def _acceptance_schema_nodes(value: Any) -> Iterable[dict[str, Any]]:
+    """Enumerate only the reviewed public schema, never receipt values."""
+    if type(value) is dict:
+        yield value
+        for key in sorted(value):
+            yield from _acceptance_schema_nodes(value[key])
+    elif type(value) is list:
+        for item in value:
+            yield from _acceptance_schema_nodes(item)
+
+
+CONTAINER_ACCEPTANCE_SCHEMA_NODES = tuple(_acceptance_schema_nodes(json.loads(
+    (ROOT / "schemas/gateway-container-acceptance.schema.json").read_text(encoding="utf-8")
+)))
+CONTAINER_ACCEPTANCE_SCHEMA_REASONS = frozenset(
+    f"schema_rule_{index:03d}" for index in range(len(CONTAINER_ACCEPTANCE_SCHEMA_NODES))
+)
 CONTAINER_ACCEPTANCE_DIAGNOSTIC_REASONS = frozenset({
     "gateway_health_timeout", "container_health_timeout", "assertion_failed",
     "command_timeout", "command_failed", "system_call_failed",
-    "validation_failed", "unknown",
-})
+    "validation_failed", "schema_unknown", "unknown",
+}) | CONTAINER_ACCEPTANCE_SCHEMA_REASONS
 NODE_ADVISORY_STAGE_EXIT_CODES = {
     "node-scanner-acquisition": 98,
     "node-db-update": 99,

@@ -79,7 +79,7 @@ def _container_acceptance_diagnostic(text: str) -> str | None:
         return None
     match = re.fullmatch(
         re.escape(CONTAINER_ACCEPTANCE_DIAGNOSTIC_PREFIX)
-        + r"stage=([a-z_]+) reason=([a-z_]+)", lines[0],
+        + r"stage=([a-z_]+) reason=([a-z0-9_]+)", lines[0],
     )
     if (match is None or match[1] not in CONTAINER_ACCEPTANCE_DIAGNOSTIC_STAGES
             or match[2] not in CONTAINER_ACCEPTANCE_DIAGNOSTIC_REASONS):

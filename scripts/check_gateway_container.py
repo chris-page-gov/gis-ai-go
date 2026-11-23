@@ -23,11 +23,12 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Iterable, Iterator
 
-from jsonschema import Draft202012Validator, FormatChecker
+from jsonschema import Draft202012Validator, FormatChecker, ValidationError
 
 from gateway_image import (
     CONTAINER_ACCEPTANCE_DIAGNOSTIC_PREFIX,
     CONTAINER_ACCEPTANCE_DIAGNOSTIC_STAGES,
+    CONTAINER_ACCEPTANCE_SCHEMA_NODES,
     EXPECTED_ENVIRONMENT,
     EXPECTED_ENTRYPOINT,
     EXPECTED_HEALTHCHECK,
@@ -129,6 +130,14 @@ class _SafeArgumentParser(argparse.ArgumentParser):
 def _acceptance_failure_reason(error: Exception) -> str:
     """Return a closed reason code without exposing exception data."""
     error_type = type(error)
+    if error_type is ValidationError:
+        # Compare only the failed public schema node. Never render the receipt,
+        # instance path, validator message or exception arguments.
+        if type(error.schema) is dict:
+            for index, schema_node in enumerate(CONTAINER_ACCEPTANCE_SCHEMA_NODES):
+                if error.schema == schema_node:
+                    return f"schema_rule_{index:03d}"
+        return "schema_unknown"
     if (error_type in {AssertionError, ValueError} and type(error.args) is tuple
             and len(error.args) == 1 and type(error.args[0]) is str):
         # Inspect only an existing literal string, without converting arbitrary
@@ -1501,6 +1510,8 @@ def main(
         raise ValueError("gateway container acceptance receipt exceeds its byte bound")
     assert_no_private_json(evidence, "gateway container acceptance receipt")
     assert_no_private_text(canonical, "gateway container acceptance receipt")
+    if _diagnostic_stage is not None:
+        _diagnostic_stage[0] = "receipt_schema"
     validate_schema_instance(ACCEPTANCE_SCHEMA, evidence)
     if canonical_json_bytes(json.loads(canonical)) != canonical:
         raise AssertionError("gateway container acceptance receipt is not canonical JSON")
