@@ -39,3 +39,13 @@ reproducibility, SBOM, vulnerability scan, container acceptance, offline replay
 and complete canonical CI must pass before merge. Independent main-event
 derivation and provenance remain separate. No provider call, deployment,
 registration, release or alert dismissal follows from this source repair.
+
+The first candidate passed exact Linux image packaging, reproducibility, the
+488-component SBOM, vulnerability scanning and retained offline replay in
+[run 45181630703](https://github.com/chris-page-gov/gis-ai-go/actions/runs/45181630703).
+Container acceptance then failed with its traceback withheld by the privacy
+guard. The CLI now emits only closed stage and reason codes on failure, including
+the two existing health-readiness deadlines. Unknown failures receive a fixed
+unknown code; paths, exception text and environment values are never emitted.
+Library exceptions and cleanup remain intact. The full acceptance gate remains
+required and failed evidence cannot be promoted.

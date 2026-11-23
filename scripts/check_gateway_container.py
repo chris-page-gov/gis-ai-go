@@ -13,6 +13,7 @@ import re
 import socket
 import stat
 import subprocess
+import sys
 import tempfile
 import threading
 import time
@@ -103,6 +104,70 @@ _DOCKER_LOAD_SENSITIVE = re.compile(
     r"passwords?|passwd|pwd|client[ _-]?secrets?|secrets?"
     r")"
 )
+_ACCEPTANCE_FAILURE_STAGES = frozenset(
+    {
+        "arguments",
+        "input_validation",
+        "engine_identity",
+        "oci_load",
+        "compose_render",
+        "compose_start_probe",
+        "restart_persistence",
+        "service_suspension",
+        "image_restore",
+        "receipt_finalization",
+    }
+)
+_ACCEPTANCE_FAILURE_MESSAGES = (
+    (
+        AssertionError, "unregistered gateway did not become healthy",
+        "gateway_health_timeout",
+    ),
+    (
+        AssertionError, "Docker did not report the gateway container healthy",
+        "container_health_timeout",
+    ),
+)
+
+
+class _SafeArgumentParser(argparse.ArgumentParser):
+    """Avoid echoing untrusted argument values in CLI parse failures."""
+
+    def error(self, message: str) -> None:
+        del message
+        raise ValueError("invalid command-line arguments")
+
+
+def _acceptance_failure_reason(error: Exception) -> str:
+    """Return a closed reason code without exposing exception data."""
+    error_type = type(error)
+    if (error_type in {AssertionError, ValueError} and type(error.args) is tuple
+            and len(error.args) == 1 and type(error.args[0]) is str):
+        # Inspect only an existing literal string, without converting arbitrary
+        # exception arguments. Only reviewed messages select a fixed code.
+        message = error.args[0]
+        for known_type, known_message, reason in _ACCEPTANCE_FAILURE_MESSAGES:
+            if error_type is known_type and message == known_message:
+                return reason
+    if error_type is AssertionError:
+        return "assertion_failed"
+    if error_type is subprocess.TimeoutExpired:
+        return "command_timeout"
+    if error_type is subprocess.CalledProcessError:
+        return "command_failed"
+    if isinstance(error, OSError):
+        return "system_call_failed"
+    if error_type is ValueError:
+        return "validation_failed"
+    return "unknown"
+
+
+def _acceptance_failure_line(stage: str, error: Exception) -> str:
+    safe_stage = stage if type(stage) is str and stage in _ACCEPTANCE_FAILURE_STAGES else "unknown"
+    return (
+        "gateway-container-acceptance-failure "
+        f"stage={safe_stage} reason={_acceptance_failure_reason(error)}"
+    )
 COMPOSE_CONTAINER_LABELS = frozenset(
     {
         "com.docker.compose.config-hash",
@@ -1173,8 +1238,12 @@ def comparable_runtime(value: dict[str, Any]) -> dict[str, Any]:
     return copy
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser()
+def main(
+    *, _diagnostic_stage: list[str] | None = None, _cli: bool = False,
+) -> None:
+    if _diagnostic_stage is not None:
+        _diagnostic_stage[0] = "arguments"
+    parser = _SafeArgumentParser() if _cli else argparse.ArgumentParser()
     parser.add_argument("--archive", type=Path, required=True)
     parser.add_argument("--receipt", type=Path, required=True)
     parser.add_argument(
@@ -1182,6 +1251,8 @@ def main() -> None:
         default=Path("artifacts/gateway/container-acceptance.json"),
     )
     args = parser.parse_args()
+    if _diagnostic_stage is not None:
+        _diagnostic_stage[0] = "input_validation"
     archive = args.archive if args.archive.is_absolute() else ROOT / args.archive
     receipt_path = args.receipt if args.receipt.is_absolute() else ROOT / args.receipt
     output = args.output if args.output.is_absolute() else ROOT / args.output
@@ -1234,12 +1305,16 @@ def main() -> None:
     transport: dict[str, Any] = {}
     boundary: dict[str, Any] = {}
 
+    if _diagnostic_stage is not None:
+        _diagnostic_stage[0] = "engine_identity"
     with record_phase(phases, "engine-identity"):
         engine = docker_versions()
 
     with tempfile.TemporaryDirectory(prefix="gis-ai-go-gateway-restore-") as temporary:
         saved = Path(temporary) / "gateway-image.tar"
         try:
+            if _diagnostic_stage is not None:
+                _diagnostic_stage[0] = "oci_load"
             with record_phase(phases, "exact-oci-load"):
                 loaded = load_docker_archive(archive)
                 if tag not in loaded.stdout and tag not in loaded.stderr:
@@ -1250,6 +1325,8 @@ def main() -> None:
                 )
                 checks.append("exact-oci-load")
 
+            if _diagnostic_stage is not None:
+                _diagnostic_stage[0] = "compose_render"
             with record_phase(phases, "compose-render"):
                 configuration = json.loads(
                     compose(
@@ -1261,6 +1338,8 @@ def main() -> None:
                 rendered_sha256 = validate_rendered_compose(configuration, project, tag)
                 checks.append("closed-compose-topology")
 
+            if _diagnostic_stage is not None:
+                _diagnostic_stage[0] = "compose_start_probe"
             with record_phase(phases, "compose-start-and-probe"):
                 compose(project, environment, "up", "--detach", "--no-build",
                         "--pull", "never")
@@ -1296,6 +1375,8 @@ def main() -> None:
                     "private-disjoint-storage", "runtime-resource-bounds",
                 ])
 
+            if _diagnostic_stage is not None:
+                _diagnostic_stage[0] = "restart_persistence"
             with record_phase(phases, "restart-and-persistence"):
                 compose(project, environment, "restart", "gateway")
                 restart_inspection = wait_for_container_health(container)
@@ -1323,6 +1404,8 @@ def main() -> None:
                     ) from None
                 checks.append("log-minimisation")
 
+            if _diagnostic_stage is not None:
+                _diagnostic_stage[0] = "service_suspension"
             with record_phase(phases, "service-suspension"):
                 compose(project, environment, "stop", "gateway")
                 suspended_state = assert_container_stopped(container)
@@ -1331,6 +1414,8 @@ def main() -> None:
                 checks.append("service-suspension")
                 compose(project, environment, "down", "--remove-orphans")
 
+            if _diagnostic_stage is not None:
+                _diagnostic_stage[0] = "image_restore"
             with record_phase(phases, "exact-image-restore"):
                 run(
                     ("docker", "image", "save", "--output", str(saved), tag),
@@ -1384,6 +1469,8 @@ def main() -> None:
                 capture=True, check=False,
             )
 
+    if _diagnostic_stage is not None:
+        _diagnostic_stage[0] = "receipt_finalization"
     checks.append("closed-acceptance-receipt")
     if checks != EXPECTED_CHECKS:
         raise AssertionError("gateway container checks did not complete in reviewed order")
@@ -1437,5 +1524,15 @@ def main() -> None:
     )
 
 
+def cli_main() -> int:
+    stage = ["arguments"]
+    try:
+        main(_diagnostic_stage=stage, _cli=True)
+    except Exception as error:
+        sys.stderr.write(_acceptance_failure_line(stage[0], error) + "\n")
+        return 1
+    return 0
+
+
 if __name__ == "__main__":
-    main()
+    raise SystemExit(cli_main())
