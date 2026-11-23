@@ -60,3 +60,24 @@ parent runner; receipt values, instance paths and validator messages remain
 withheld. Unrecognised schemas receive a fixed unknown code. This diagnostic
 preserves the original validation exception and does not permit an invalid
 receipt to be written or promoted.
+
+That diagnostic exposed a separate receipt assumption: the frozen catalogue's
+freshness review expired on 20 November 2026, while the receipt schema required
+`stale: false` indefinitely. The compiled loader correctly returns the expiry
+warning at and after its authored deadline. The local mechanism rehearsal now
+records the real state. It reads the deadline and whole-bundle SHA-256 from the
+exact running image, brackets the initial load with UTC observation times, and
+requires the corresponding boolean and exact warning on startup, restart and
+image restore. `load_window_started_at` is the lower bound sampled before the
+Compose start or restart, rather than a claimed exact in-container load time.
+A deadline crossed during startup requires another rehearsal.
+The restored image must retain the same bundle identity and deadline.
+
+The schema permits only coupled fresh or expired states, with empty warnings
+for fresh data and the bounded expiry warning for expired data. Independent
+evidence verification binds those observations to the canonical bundle bytes
+and startup phase, and recomputes the expected state and warning. False freshness,
+suppressed or changed warnings, changed bundle hashes and observations outside
+the phase fail. The authored deadline and runtime freshness behaviour are
+unchanged. This establishes a local mechanism rehearsal with an expired
+snapshot, and makes no current-source, provider or production-readiness claim.

@@ -848,10 +848,68 @@ def storage_identity(container: str) -> dict[str, Any]:
     return json_from_exec(container, expression)
 
 
+def image_catalogue_freshness(container: str) -> dict[str, str]:
+    """Read the deadline and byte identity from the exact running image."""
+    value = json_from_exec(container, """
+      import { createHash } from 'node:crypto';
+      import { readFileSync } from 'node:fs';
+      const bytes = readFileSync('/app/artifacts/okf/okf-bundle.json');
+      console.log(JSON.stringify({
+        stale_after: JSON.parse(bytes).staleAfter,
+        bundle_sha256: createHash('sha256').update(bytes).digest('hex'),
+      }));
+    """)
+    if (set(value) != {"stale_after", "bundle_sha256"}
+            or type(value["bundle_sha256"]) is not str
+            or re.fullmatch(r"[0-9a-f]{64}", value["bundle_sha256"]) is None):
+        raise AssertionError("image catalogue freshness identity is invalid")
+    _freshness_time(value["stale_after"])
+    return value
+
+
+def _freshness_time(value: Any) -> datetime:
+    if (type(value) is not str or len(value) > 35
+            or re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\.[0-9]{1,6})?Z", value) is None):
+        raise AssertionError("catalogue freshness time is invalid")
+    try:
+        return datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        raise AssertionError("catalogue freshness time is invalid") from None
+
+
+def assert_catalogue_freshness(
+    health: dict[str, Any], image_freshness: dict[str, str],
+    load_window_started_at: str, observed_at: str,
+) -> dict[str, Any]:
+    deadline = _freshness_time(image_freshness["stale_after"])
+    # Match the gateway's Date.parse precision for fractional source deadlines.
+    deadline = deadline.replace(microsecond=(deadline.microsecond // 1000) * 1000)
+    started, observed = _freshness_time(load_window_started_at), _freshness_time(observed_at)
+    # The snapshot fixes freshness when it loads. A deadline crossed during
+    # startup is ambiguous, so require another rehearsal after the boundary.
+    if observed < started or started < deadline <= observed:
+        raise AssertionError("catalogue freshness observation crossed a time boundary")
+    stale = started >= deadline
+    warnings = ([
+        f"Catalogue freshness review expired at {image_freshness['stale_after']}; "
+        "results are a governed snapshot, not current source authority."
+    ] if stale else [])
+    catalogue = health.get("catalogue", {})
+    if (type(catalogue.get("stale")) is not bool or catalogue["stale"] is not stale
+            or catalogue.get("warnings") != warnings):
+        raise AssertionError("gateway catalogue freshness differs from its image and observation time")
+    return {**image_freshness, "load_window_started_at": load_window_started_at,
+            "observed_at": observed_at, "stale": stale}
+
+
 def assert_http_boundary(
     expected_revision: str, expected_version: str, *, container: str | None,
+    image_freshness: dict[str, str], load_window_started_at: str,
 ) -> dict[str, Any]:
     health = wait_for_health(container)
+    freshness = assert_catalogue_freshness(
+        health, image_freshness, load_window_started_at, utc_now(),
+    )
     if (health.get("status") != "ok"
             or health.get("lifecycle") != "candidate-unregistered"
             or health.get("production_registration") is not False
@@ -955,6 +1013,7 @@ def assert_http_boundary(
         raise AssertionError("gateway MCP face accepted a hostile Host header")
     return {
         "health": health,
+        "catalogue_freshness": freshness,
         "readiness": {"http_status": 200, **expected_ready},
         "openapi_paths": paths,
         "direct_operation": {
@@ -1338,6 +1397,7 @@ def main(
             if _diagnostic_stage is not None:
                 _diagnostic_stage[0] = "compose_start_probe"
             with record_phase(phases, "compose-start-and-probe"):
+                load_window_started_at = utc_now()
                 compose(project, environment, "up", "--detach", "--no-build",
                         "--pull", "never")
                 container = compose(
@@ -1351,8 +1411,10 @@ def main(
                     compose_version=engine["compose"]["version"],
                 )
                 http_container = None if transport["mode"] == "host-loopback" else container
+                image_freshness = image_catalogue_freshness(container)
                 boundary = assert_http_boundary(
-                    source["revision"], source["version"], container=http_container
+                    source["revision"], source["version"], container=http_container,
+                    image_freshness=image_freshness, load_window_started_at=load_window_started_at,
                 )
                 if transport["mode"] == (
                     "container-loopback-internal-engine-fallback"
@@ -1375,13 +1437,15 @@ def main(
             if _diagnostic_stage is not None:
                 _diagnostic_stage[0] = "restart_persistence"
             with record_phase(phases, "restart-and-persistence"):
+                load_window_started_at = utc_now()
                 compose(project, environment, "restart", "gateway")
                 restart_inspection = wait_for_container_health(container)
                 restart_transport = assert_transport_unchanged(
                     restart_inspection, transport
                 )
                 assert_http_boundary(
-                    source["revision"], source["version"], container=http_container
+                    source["revision"], source["version"], container=http_container,
+                    image_freshness=image_freshness, load_window_started_at=load_window_started_at,
                 )
                 if restart_transport["mode"] == (
                     "container-loopback-internal-engine-fallback"
@@ -1433,6 +1497,7 @@ def main(
                     or restored_labels != image_labels
                 ):
                     raise AssertionError("saved image restored a different exact identity")
+                load_window_started_at = utc_now()
                 compose(project, environment, "up", "--detach", "--no-build",
                         "--pull", "never")
                 container = compose(
@@ -1447,9 +1512,12 @@ def main(
                     raise AssertionError("gateway runtime shape changed after exact-image restore")
                 if restored_transport != transport:
                     raise AssertionError("gateway transport changed after exact-image restore")
+                if image_catalogue_freshness(container) != image_freshness:
+                    raise AssertionError("restored image catalogue freshness identity changed")
                 http_container = None if transport["mode"] == "host-loopback" else container
                 assert_http_boundary(
-                    source["revision"], source["version"], container=http_container
+                    source["revision"], source["version"], container=http_container,
+                    image_freshness=image_freshness, load_window_started_at=load_window_started_at,
                 )
                 if restored_transport["mode"] == (
                     "container-loopback-internal-engine-fallback"

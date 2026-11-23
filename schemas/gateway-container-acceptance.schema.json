@@ -683,8 +683,19 @@
     "boundary": {
       "type": "object",
       "additionalProperties": false,
+      "oneOf": [
+        { "properties": {
+          "catalogue_freshness": { "properties": { "stale": { "const": false } } },
+          "health": { "properties": { "catalogue": { "properties": { "stale": { "const": false } } } } }
+        } },
+        { "properties": {
+          "catalogue_freshness": { "properties": { "stale": { "const": true } } },
+          "health": { "properties": { "catalogue": { "properties": { "stale": { "const": true } } } } }
+        } }
+      ],
       "required": [
         "health",
+        "catalogue_freshness",
         "readiness",
         "openapi_paths",
         "direct_operation",
@@ -692,6 +703,18 @@
         "host_filter"
       ],
       "properties": {
+        "catalogue_freshness": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["bundle_sha256", "stale_after", "load_window_started_at", "observed_at", "stale"],
+          "properties": {
+            "bundle_sha256": { "$ref": "#/$defs/sha256" },
+            "stale_after": { "type": "string", "format": "date-time", "maxLength": 35 },
+            "load_window_started_at": { "type": "string", "format": "date-time", "maxLength": 24 },
+            "observed_at": { "type": "string", "format": "date-time", "maxLength": 24 },
+            "stale": { "type": "boolean" }
+          }
+        },
         "health": {
           "type": "object",
           "additionalProperties": false,
@@ -723,9 +746,18 @@
                 "version": { "$ref": "#/$defs/version" },
                 "content_root_sha256": { "$ref": "#/$defs/sha256" },
                 "record_count": { "type": "integer", "minimum": 1, "maximum": 100000 },
-                "stale": { "const": false },
-                "warnings": { "const": [] }
-              }
+                "stale": { "type": "boolean" },
+                "warnings": {
+                  "type": "array", "maxItems": 1,
+                  "items": {
+                    "type": "string", "maxLength": 180,
+                    "pattern": "^Catalogue freshness review expired at [0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{1,6})?Z; results are a governed snapshot, not current source authority\\.$"
+                  }
+                }
+              },
+              "if": { "properties": { "stale": { "const": true } } },
+              "then": { "properties": { "warnings": { "minItems": 1 } } },
+              "else": { "properties": { "warnings": { "const": [] } } }
             }
           }
         },

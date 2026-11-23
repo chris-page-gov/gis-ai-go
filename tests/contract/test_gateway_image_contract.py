@@ -5561,6 +5561,11 @@ class GatewayImageContractTests(unittest.TestCase):
                 "config_digest": "sha256:" + "e" * 64,
             },
         }
+        bundle_bytes = canonical_json_bytes(
+            {"staleAfter": "2026-11-20T00:00:00Z"}
+        )
+        load_window_started_at = "2026-08-21T10:01:00Z"
+        observed_at = "2026-08-21T10:01:01Z"
         acceptance = {
             "classification": "local-mechanism-rehearsal",
             "source": {
@@ -5602,15 +5607,31 @@ class GatewayImageContractTests(unittest.TestCase):
                 ],
             },
             "boundary": {
+                "catalogue_freshness": {
+                    "bundle_sha256": sha256_bytes(bundle_bytes),
+                    "stale_after": "2026-11-20T00:00:00Z",
+                    "load_window_started_at": load_window_started_at,
+                    "observed_at": observed_at,
+                    "stale": False,
+                },
                 "health": {
                     "catalogue": {
                         "revision": source["revision"],
                         "version": source["version"],
                         "content_root_sha256": "f" * 64,
                         "record_count": 36,
+                        "stale": False,
+                        "warnings": [],
                     }
                 }
             },
+            "phases": [
+                {}, {}, {},
+                {
+                    "started_at": "2026-08-21T10:00:59Z",
+                    "ended_at": "2026-08-21T10:01:02Z",
+                },
+            ],
             "claims": {
                 "public_deployment": False,
                 "production_activation": False,
@@ -5630,8 +5651,53 @@ class GatewayImageContractTests(unittest.TestCase):
                     }
                 )
             )
+            (okf / "okf-bundle.json").write_bytes(bundle_bytes)
             with mock.patch("verify_gateway_image_evidence.ROOT", root):
                 _verify_acceptance_bindings(acceptance, receipt)
+                # A real expired image bundle is accepted only when its exact
+                # warning and its startup observation agree with the deadline.
+                expired_after = "2026-08-21T10:00:00Z"
+                expired_bundle = canonical_json_bytes({"staleAfter": expired_after})
+                (okf / "okf-bundle.json").write_bytes(expired_bundle)
+                expired_start = "2026-08-21T10:01:00Z"
+                expired_observed = "2026-08-21T10:01:01Z"
+                acceptance["boundary"]["catalogue_freshness"] = {
+                    "bundle_sha256": sha256_bytes(expired_bundle),
+                    "stale_after": expired_after,
+                    "load_window_started_at": expired_start,
+                    "observed_at": expired_observed,
+                    "stale": True,
+                }
+                acceptance["boundary"]["health"]["catalogue"].update({
+                    "stale": True,
+                    "warnings": [
+                        "Catalogue freshness review expired at "
+                        f"{expired_after}; results are a governed snapshot, "
+                        "not current source authority."
+                    ],
+                })
+                acceptance["phases"][3].update({
+                    "started_at": "2026-08-21T10:00:59Z",
+                    "ended_at": "2026-08-21T10:01:02Z",
+                })
+                _verify_acceptance_bindings(acceptance, receipt)
+
+                # Restore the fresh fixture before individual mutation checks.
+                (okf / "okf-bundle.json").write_bytes(bundle_bytes)
+                acceptance["boundary"]["catalogue_freshness"] = {
+                    "bundle_sha256": sha256_bytes(bundle_bytes),
+                    "stale_after": "2026-11-20T00:00:00Z",
+                    "load_window_started_at": load_window_started_at,
+                    "observed_at": observed_at,
+                    "stale": False,
+                }
+                acceptance["boundary"]["health"]["catalogue"].update({
+                    "stale": False, "warnings": [],
+                })
+                acceptance["phases"][3].update({
+                    "started_at": "2026-08-21T10:00:59Z",
+                    "ended_at": "2026-08-21T10:01:02Z",
+                })
                 mutations = [
                     lambda value: value["source"].update({"source_date_epoch": 1}),
                     lambda value: value["image"].update(
@@ -5659,6 +5725,21 @@ class GatewayImageContractTests(unittest.TestCase):
                     ),
                     lambda value: value["boundary"]["health"]["catalogue"].update(
                         {"content_root_sha256": "9" * 64}
+                    ),
+                    lambda value: value["boundary"]["catalogue_freshness"].update(
+                        {"bundle_sha256": "9" * 64}
+                    ),
+                    lambda value: value["boundary"]["catalogue_freshness"].update(
+                        {"stale_after": "2026-12-01T00:00:00Z"}
+                    ),
+                    lambda value: value["boundary"]["health"]["catalogue"].update(
+                        {"stale": True}
+                    ),
+                    lambda value: value["boundary"]["health"]["catalogue"].update(
+                        {"warnings": ["Catalogue remains current."]}
+                    ),
+                    lambda value: value["boundary"]["catalogue_freshness"].update(
+                        {"observed_at": "2026-08-21T10:02:00Z"}
                     ),
                     lambda value: value["claims"].update(
                         {"production_activation": True}
