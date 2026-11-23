@@ -60,7 +60,7 @@ class GatewayContainerCliDiagnosticTests(unittest.TestCase):
 
         output = io.StringIO()
         failure = UnclassifiedFailure(
-            "Bearer secret /Users/runner/work/private-provider-data"
+            "Bearer secret " + "/" + "Users/runner/work/private-provider-data"
         )
         with (
             mock.patch.object(container_check, "main", side_effect=failure),

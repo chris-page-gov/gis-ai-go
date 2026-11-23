@@ -47,5 +47,8 @@ Container acceptance then failed with its traceback withheld by the privacy
 guard. The CLI now emits only closed stage and reason codes on failure, including
 the two existing health-readiness deadlines. Unknown failures receive a fixed
 unknown code; paths, exception text and environment values are never emitted.
+The parent runner forwards only one valid closed code from bounded, privacy-safe
+stderr in the failed acceptance phase. It rejects malformed or duplicate codes
+and codes appearing in stdout, and still fails the phase.
 Library exceptions and cleanup remain intact. The full acceptance gate remains
 required and failed evidence cannot be promoted.

@@ -26,6 +26,8 @@ from typing import Any, Iterable, Iterator
 from jsonschema import Draft202012Validator, FormatChecker
 
 from gateway_image import (
+    CONTAINER_ACCEPTANCE_DIAGNOSTIC_PREFIX,
+    CONTAINER_ACCEPTANCE_DIAGNOSTIC_STAGES,
     EXPECTED_ENVIRONMENT,
     EXPECTED_ENTRYPOINT,
     EXPECTED_HEALTHCHECK,
@@ -104,20 +106,6 @@ _DOCKER_LOAD_SENSITIVE = re.compile(
     r"passwords?|passwd|pwd|client[ _-]?secrets?|secrets?"
     r")"
 )
-_ACCEPTANCE_FAILURE_STAGES = frozenset(
-    {
-        "arguments",
-        "input_validation",
-        "engine_identity",
-        "oci_load",
-        "compose_render",
-        "compose_start_probe",
-        "restart_persistence",
-        "service_suspension",
-        "image_restore",
-        "receipt_finalization",
-    }
-)
 _ACCEPTANCE_FAILURE_MESSAGES = (
     (
         AssertionError, "unregistered gateway did not become healthy",
@@ -163,9 +151,9 @@ def _acceptance_failure_reason(error: Exception) -> str:
 
 
 def _acceptance_failure_line(stage: str, error: Exception) -> str:
-    safe_stage = stage if type(stage) is str and stage in _ACCEPTANCE_FAILURE_STAGES else "unknown"
+    safe_stage = stage if type(stage) is str and stage in CONTAINER_ACCEPTANCE_DIAGNOSTIC_STAGES else "unknown"
     return (
-        "gateway-container-acceptance-failure "
+        CONTAINER_ACCEPTANCE_DIAGNOSTIC_PREFIX +
         f"stage={safe_stage} reason={_acceptance_failure_reason(error)}"
     )
 COMPOSE_CONTAINER_LABELS = frozenset(

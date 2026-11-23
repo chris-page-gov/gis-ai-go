@@ -185,6 +185,17 @@ VULNERABILITY_SCAN_STAGE_EXIT_CODES = {
     "final-evidence-validation": 96,
     "vulnerability-policy": 97,
 }
+CONTAINER_ACCEPTANCE_DIAGNOSTIC_PREFIX = "gateway-container-acceptance-failure "
+CONTAINER_ACCEPTANCE_DIAGNOSTIC_STAGES = frozenset({
+    "arguments", "input_validation", "engine_identity", "oci_load",
+    "compose_render", "compose_start_probe", "restart_persistence",
+    "service_suspension", "image_restore", "receipt_finalization", "unknown",
+})
+CONTAINER_ACCEPTANCE_DIAGNOSTIC_REASONS = frozenset({
+    "gateway_health_timeout", "container_health_timeout", "assertion_failed",
+    "command_timeout", "command_failed", "system_call_failed",
+    "validation_failed", "unknown",
+})
 NODE_ADVISORY_STAGE_EXIT_CODES = {
     "node-scanner-acquisition": 98,
     "node-db-update": 99,
