@@ -1,0 +1,1 @@
+- Link OKF specification guidance to the central current and historical standards register and public bundle catalogue; keep this repository's declared version and release identity unchanged.

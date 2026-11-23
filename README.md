@@ -57,6 +57,12 @@ this is not an announcement that its prerelease is already published.
 - licence: [MIT](LICENSE), copyright © 2026 Chris Page; identified
   [third-party material](THIRD_PARTY.md) retains its own terms
 
+For current and historical OKF specifications, separately versioned profiles
+and public bundle discovery, see the [central OKF standards register](https://github.com/chris-page-gov/okf-explorer/blob/main/docs/okf-standards.md)
+and its [machine-readable register](https://raw.githubusercontent.com/chris-page-gov/okf-explorer/main/registry/okf-standards.json).
+This reference does not change this repository's declared OKF version or the
+identity of its immutable supported release.
+
 The existing `chris-page-gov/mcp-geo` repository remains read-only historical
 evidence at commit `56683b33c0cd02842b7f3ee465414c68a1f3f2a6`. Nothing is copied
 from it wholesale.

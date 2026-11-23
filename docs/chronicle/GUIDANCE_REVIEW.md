@@ -1,5 +1,13 @@
 # Guidance review and model transitions
 
+## 23 November 2026: central OKF standards references
+
+Repository guidance now points to the owner-maintained current and historical
+OKF standards register and public bundle catalogue. This makes the pinned core
+specification and separately versioned profiles easier to locate. It does not
+change this repository's implemented core or profile, its historical model
+baselines, or any release and acceptance state.
+
 ## 19 October 2026: transient OS processing and efficient query planning
 
 The owner clarified that full data acquisition is for complete temporary

@@ -80,3 +80,12 @@ the complete delivery history at every turn or compaction.
 These rules were reviewed for GPT-6 Astra on 14 September 2026; the host's model
 and reasoning settings remain user-controlled. See the guidance review for sources,
 scope and the evaluation plan.
+
+<!-- okf-standards:start -->
+## OKF standards references
+
+Use the [central OKF standards and bundle catalogue](https://github.com/chris-page-gov/okf-explorer/blob/main/docs/okf-standards.md)
+and its [machine-readable register](https://raw.githubusercontent.com/chris-page-gov/okf-explorer/main/registry/okf-standards.json)
+before changing specification links or an OKF version declaration. Resolve the
+implemented version through the shared register and preserve historical pins.
+<!-- okf-standards:end -->
