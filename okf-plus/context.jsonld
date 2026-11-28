@@ -82,6 +82,10 @@
       "@id": "okfp:update",
       "@type": "@json"
     },
+    "x-gis-ai-go-legacy-generated": {
+      "@id": "okfp:legacyGenerated",
+      "@type": "@json"
+    },
     "xsd": "http://www.w3.org/2001/XMLSchema#"
   }
 }

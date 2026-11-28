@@ -8,7 +8,7 @@
   "description": "Build, search and verify the metadata bundle offline, then plan bounded source refreshes with explicit provenance and permission preflight.",
   "tags": ["OKF", "operations", "metadata", "evaluation"],
   "status": "draft",
-  "generated": {"by": "gis-ai-go authored module documentation"},
+    "generated": {"by": "gis-ai-go authored module documentation"},
   "sources": [
     {"resource": "profile/README.md", "title": "OKF+ source and semantic profile"},
     {"resource": "../scripts/okf_plus/build.py", "title": "Offline bundle builder"},
@@ -20,7 +20,9 @@
 
 # Operate the OS and ONS OKF+ module
 
-OKF+ is a project-owned candidate extension to OKF 0.2. It describes OS, ONS,
+OKF+ source records remain an additive candidate extension to OKF 0.2. This
+repository also generates a separate Core 0.3 projection for downstream use. It
+describes OS, ONS,
 Nomis and geospatial metadata, schemas, documentation and concepts. Start with
 [index.md](index.md) for the discovery guide and common questions. The existing
 supported `okf/` publication and runtime contracts remain separate.
@@ -47,6 +49,25 @@ retained projection. A browser observation has its own provenance and cannot
 borrow an HTTP response hash. An agent's source review is not independent human
 acceptance. Captured contacts, account fields, secrets and licensed feature or
 statistical payloads are excluded from public records.
+
+## Core 0.3 projection actor migration
+
+Reader relationship citations bind their source hashes to the exact retained
+Markdown listed in the bundle's input lock. The Reader displays the separate
+Core 0.3 metadata projection and preserves each original relationship value.
+
+The Core 0.2 source records retain their original `generated.by` text. The
+offline Core 0.3 bundle and Markdown projections map the exact
+`gis-ai-go OKF+ source producer` label to
+`process:gis-ai-go-okf-plus-source-producer`, because the producer code emits
+that value. Three other authored labels do not identify a supported actor:
+vocabulary research, learning-path metadata and module documentation. The
+projection carries each complete original `generated` mapping in
+`x-gis-ai-go-legacy-generated` and omits `generated.by` for those records.
+These projections carry no inferred human actor, machine actor or verification event. Unknown
+non-conformant labels stop projection for review. The source root and historical
+Core 0.2 projections remain separate from this generated successor. The source
+importer still reproduces the historical label in the retained Markdown.
 
 ## Private OS recovery and transient processing
 

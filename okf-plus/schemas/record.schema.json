@@ -14,7 +14,6 @@
     "sourceFamily",
     "resource",
     "status",
-    "generated",
     "assertionStatus",
     "reviewStatus",
     "tags",
@@ -81,10 +80,19 @@
       ],
       "properties": {
         "by": {
-          "type": "string"
+          "type": "string",
+          "pattern": "^(?:[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+|[^/\\s:]+/[^/\\s]+)$"
         }
       },
       "additionalProperties": false
+    },
+    "x-gis-ai-go-legacy-generated": {
+      "type": "object",
+      "required": ["by"],
+      "properties": {
+        "by": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": true
     },
     "assertionStatus": {
       "enum": [

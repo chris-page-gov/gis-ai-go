@@ -6,7 +6,9 @@ import tempfile
 import unittest
 
 from scripts.okf_plus.context_projection import project as context_project, sha, canonical
-from scripts.okf_plus.explorer_projection import install, project, token_bucket
+from scripts.okf_plus.build import migrate_generated
+from scripts.okf_plus.explorer_projection import install, locked_retained_record_reader, project, token_bucket
+from scripts.okf_plus.model import digest, write_markdown
 from tests.contract.test_okf_plus_context import fixture, BASE, CAPTURED
 
 
@@ -17,6 +19,41 @@ def inputs(count=41):
 
 
 class ExplorerProjectionTests(unittest.TestCase):
+    def test_migrated_relationship_cites_the_locked_authored_record(self):
+        search, bundle = fixture(3)
+        first, second, _ = bundle['records']
+        first['skos:related'] = [{'@id': second['@id']}]
+        first['generated'] = {'by': 'gis-ai-go authored vocabulary research'}
+        authored = deepcopy(first)
+        migrate_generated(first)
+        relative = 'okf-plus/' + search['records'][0]['route']
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            file = root / relative
+            write_markdown(file, authored, search['records'][0]['text'])
+            inputs = [{'path': relative, 'sha256': sha(file.read_bytes())}]
+            lock = {'revision': bundle['revision'], 'sha256': digest(inputs), 'inputs': inputs}
+            search['inputDigest'] = bundle['inputDigest'] = lock['sha256']
+            context, _ = context_project(search, bundle, base_url=BASE, captured_at=CAPTURED)
+            read_retained = locked_retained_record_reader(root, lock, bundle)
+            outputs, _ = project(search, bundle, context, captured_at=CAPTURED, retained_record=read_retained)
+            edge = json.loads(outputs['relationships/00000.json'])[0]
+            self.assertEqual(edge['evidence'][0]['source_sha256'], sha(canonical(authored)))
+            self.assertNotEqual(edge['evidence'][0]['source_sha256'], sha(canonical(first)))
+            write_markdown(file, authored, 'Altered after sealing the source')
+            with self.assertRaisesRegex(ValueError, 'source bytes differ from the input lock'):
+                project(search, bundle, context, captured_at=CAPTURED, retained_record=read_retained)
+
+    def test_reader_uses_the_declared_bundle_core_version(self):
+        search, bundle = fixture(3)
+        bundle['okf_version'] = bundle['okfVersion'] = '0.3'
+        context, _ = context_project(search, bundle, base_url=BASE, captured_at=CAPTURED)
+        outputs, _ = project(search, bundle, context, captured_at=CAPTURED)
+        self.assertEqual(json.loads(outputs['okf-explorer.json'])['okf_version'], '0.3')
+        bundle['okfVersion'] = '0.2'
+        with self.assertRaisesRegex(ValueError, 'Core version declarations differ'):
+            project(search, bundle, context, captured_at=CAPTURED)
+
     def test_record_source_reference_locators_select_only_the_requested_record(self):
         search, bundle, context = inputs(41)
         outputs, _ = project(search, bundle, context, captured_at=CAPTURED)

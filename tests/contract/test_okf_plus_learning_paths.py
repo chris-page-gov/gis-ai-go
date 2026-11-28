@@ -14,7 +14,7 @@ from jsonschema import Draft202012Validator, ValidationError
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "scripts/okf_plus"))
 from model import read_markdown, safe_reference
-from build import validate_record
+from build import LEGACY_GENERATED_EXTENSION, migrate_generated, validate_record
 
 
 class LearningPathRecords(unittest.TestCase):
@@ -44,8 +44,11 @@ class LearningPathRecords(unittest.TestCase):
         for path, row, _ in self.paths:
             with self.subTest(path=path.name):
                 self.assertLess(path.stat().st_size, 16 * 1024)
-                self.record_validator.validate(row)
-                validate_record(row, path, {})
+                projected = migrate_generated(copy.deepcopy(row))
+                self.assertEqual(projected[LEGACY_GENERATED_EXTENSION], row['generated'])
+                self.assertNotIn('generated', projected)
+                self.record_validator.validate(projected)
+                validate_record(projected, path, {})
                 self.validator.validate(row["details"]["learningPath"])
                 self.assertFalse(row["okfp:machineImported"])
                 self.assertFalse(row["rights"]["executionAdmitted"])

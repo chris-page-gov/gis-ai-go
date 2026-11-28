@@ -1,8 +1,14 @@
 # OKF+ metadata and schema profile
 
-OKF+ is an additive, project-owned OKF 0.2 profile for OS, ONS and geospatial
-knowledge. It is a candidate extension, not a replacement standard or a claim
-that the upstream Explorer/Ask OKF service has accepted it.
+OKF+ source records remain an additive, project-owned OKF 0.2 profile for OS,
+ONS and geospatial knowledge. The generated successor targets Core 0.3. It is a
+candidate extension, not a replacement standard or a claim that the upstream
+Explorer/Ask OKF service has accepted it.
+
+The current and historical standards are indexed in the [central OKF standards
+register](https://github.com/chris-page-gov/okf-explorer/blob/main/docs/okf-standards.md)
+and its [machine-readable register](https://raw.githubusercontent.com/chris-page-gov/okf-explorer/main/registry/okf-standards.json).
+This candidate targets the [Core 0.3 specification at its approved pin](https://github.com/open-knowledge-format/open-knowledge-format/blob/527e81aff55992be21507e97004286789126f88c/SPEC.md).
 
 Records use Markdown with JSON-shaped YAML-LD front matter. JSON is a strict
 subset of YAML 1.2; the deliberately narrow parser rejects duplicate keys,

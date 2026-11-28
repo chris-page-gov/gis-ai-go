@@ -1,5 +1,22 @@
 # Current progress
 
+## OKF+ Core 0.3 projection — 28 November 2026
+
+The retained `okf-plus/` authoring root declares Core 0.2. The separate
+generated bundle, Markdown projection and Reader descriptor declare Core 0.3.
+The projection keeps the original metadata sources, identities and record
+bodies. It uses a process identifier for the generator evidenced by the
+producer code and preserves the remaining generator strings as an extension.
+
+Local checks covered all 30,876 record routes and 137 graph relationships. The
+Reader now binds graph citation hashes to the original Markdown from the input
+lock. The LIDS walkthrough passed in Chrome at desktop and phone widths, and
+the offline context engine retrieved its evidence and returned insufficient
+evidence for the live-observation question.
+
+The protected workflow builds, records and attests the exact merged revision.
+Manual Pages selection and public read-back apply to that immutable archive.
+
 ## Gateway image maintenance — 23 November 2026
 
 The image candidate now pins Node.js 24.22.3 and recognises only the exact

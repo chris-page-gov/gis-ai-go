@@ -194,11 +194,13 @@ def _evidence(row, parent, key, pointer, value, revision):
     }
 
 
-def project_relationships(rows, semantic, *, captured_at, source_revision=None):
+def project_relationships(rows, semantic, *, captured_at, source_revision=None, retained_record=None):
     """Return ``(rows, coverage)`` for explicit internal record associations.
 
     ``rows`` uses the existing complete Reader routes. ``semantic`` is the
     validated ``@id`` → complete front-matter mapping used by that Reader.
+    ``retained_record`` supplies authored front matter when a migration has
+    transformed the metadata displayed by the Reader.
     Omission groups commit every unprojected reference occurrence using a
     digest of sorted occurrence identities, with bounded examples for review.
     """
@@ -223,6 +225,7 @@ def project_relationships(rows, semantic, *, captured_at, source_revision=None):
     source_counts = Counter()
     projected_counts = Counter()
     omitted = defaultdict(list)
+    evidence_records = {}
     projected_occurrences = 0
     for identifier in sorted(routes):
         row, parent = by_id[identifier], semantic[identifier]
@@ -242,7 +245,10 @@ def project_relationships(rows, semantic, *, captured_at, source_revision=None):
                 raise ValueError('Source relationship metadata rights are required')
             identity = {'source': identifier, 'predicate': predicate, 'target': target}
             assertion_id = 'urn:gis-ai-go:relationship:sha256:' + sha(canonical(identity))
-            evidence = _evidence(row, parent, key, pointer, value, source_revision)
+            if identifier not in evidence_records:
+                evidence_records[identifier] = retained_record(row['route'], parent) if retained_record else parent
+            evidence_parent = evidence_records[identifier]
+            evidence = _evidence(row, evidence_parent, key, pointer, value, source_revision)
             projected_occurrences += 1
             projected_counts[predicate] += 1
             if assertion_id in result:
@@ -272,7 +278,7 @@ def project_relationships(rows, semantic, *, captured_at, source_revision=None):
                            'inherited_record_rights': deepcopy(parent['rights']),
                            'no_rights_expansion': True},
                 'provenance': {'source_record': identifier,
-                               'source_record_sha256': sha(canonical(parent)),
+                               'source_record_sha256': evidence['source_sha256'],
                                'source_record_hash_canonicalization': 'canonical-json-utf8',
                                'sources': deepcopy(parent.get('sources', [])),
                                **({'source_revision': source_revision} if source_revision else {})},
@@ -281,7 +287,7 @@ def project_relationships(rows, semantic, *, captured_at, source_revision=None):
     relationships = sorted(result.values(), key=lambda item: (item['source'], item['predicate'], item['target'], item['id']))
     for row in relationships:
         row['evidence'].sort(key=lambda item: (item['source_field'], item['locator']))
-    validate_relationships(relationships, routes, semantic)
+    validate_relationships(relationships, routes, evidence_records)
 
     groups = []
     for (predicate, reason), occurrences in sorted(omitted.items()):

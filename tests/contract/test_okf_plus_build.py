@@ -25,6 +25,11 @@ SPEC = importlib.util.spec_from_file_location("okf_plus_build_assurance", ROOT /
 assert SPEC and SPEC.loader
 BUILD = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(BUILD)
+PROJECTION_SPEC = importlib.util.spec_from_file_location(
+    "okf_plus_core03_markdown_projection", ROOT / "scripts/okf_plus/project_core03_markdown.py")
+assert PROJECTION_SPEC and PROJECTION_SPEC.loader
+PROJECTION = importlib.util.module_from_spec(PROJECTION_SPEC)
+PROJECTION_SPEC.loader.exec_module(PROJECTION)
 
 REVISION = "c" * 40
 SOURCE_URL = "https://example.org/synthetic-catalogue"
@@ -364,8 +369,90 @@ class OkfPlusLocatorTests(unittest.TestCase):
 
 class OkfPlusBuildTests(unittest.TestCase):
     def validate(self, root, row, path, snapshot):
+        row = BUILD.migrate_generated(copy.deepcopy(row))
         with mock.patch.object(BUILD, "ROOT", root):
             BUILD.validate_record(row, path, {"okf-plus/source/synthetic.json": snapshot})
+
+    def test_core03_generation_migration_is_attribution_preserving_and_fail_closed(self):
+        producer = {"generated": {"by": "gis-ai-go OKF+ source producer"}}
+        projected = BUILD.migrate_generated(copy.deepcopy(producer))
+        self.assertEqual(projected["generated"]["by"],
+                         "process:gis-ai-go-okf-plus-source-producer")
+        self.assertNotIn(BUILD.LEGACY_GENERATED_EXTENSION, projected)
+
+        authored = {"generated": {"by": "gis-ai-go authored vocabulary research"}}
+        projected = BUILD.migrate_generated(copy.deepcopy(authored))
+        self.assertNotIn("generated", projected)
+        self.assertEqual(projected[BUILD.LEGACY_GENERATED_EXTENSION], authored["generated"])
+        self.assertNotIn("verified", projected)
+        learning = {"generated": {"by": "gis-ai-go authored learning-path metadata"}}
+        projected = BUILD.migrate_generated(copy.deepcopy(learning))
+        self.assertEqual(projected[BUILD.LEGACY_GENERATED_EXTENSION], learning["generated"])
+        agent = {"generated": {"by": "agent:legacy-cataloguer"}}
+        self.assertTrue(BUILD.valid_actor(agent["generated"]["by"]))
+        self.assertEqual(BUILD.migrate_generated(copy.deepcopy(agent)), agent)
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            row, path, _snapshot = fixture(root)
+            row["generated"] = authored["generated"]
+            model.write_markdown(path, row, "# Authored legacy metadata")
+            output = root / "generated"
+            with mock.patch.object(BUILD, "ROOT", root):
+                BUILD.build(root, output, REVISION)
+            emitted = json.loads((output / "okf-bundle.json").read_text())["records"][0]
+            self.assertEqual(emitted[BUILD.LEGACY_GENERATED_EXTENSION], authored["generated"])
+            self.assertNotIn("generated", emitted)
+            self.assertNotIn("verified", emitted)
+            self.assertIn("gis-ai-go authored vocabulary research", path.read_text())
+
+    def test_core03_markdown_projection_preserves_body_and_all_other_fields(self):
+        row = model.record("synthetic", "synthetic-3", "Synthetic", "Synthetic only.",
+                           "https://example.org/synthetic", {"resource": SOURCE_URL})
+        row["generated"] = {"by": "gis-ai-go authored learning-path metadata"}
+        row["details"]["reviewBoundary"] = "No human review is recorded."
+        body = "\n# Authored body\n\nRetain this text exactly.  \n"
+        source = model.markdown_text(row, body)
+        source_body = source.split("\n---\n", 1)[1]
+        projected_text, projected = PROJECTION.project_record_text(source)
+        source_without_generated = {key: value for key, value in row.items() if key != "generated"}
+        projected_without_legacy = {key: value for key, value in projected.items()
+                                    if key != BUILD.LEGACY_GENERATED_EXTENSION}
+        self.assertEqual(projected_without_legacy, source_without_generated)
+        self.assertEqual(projected[BUILD.LEGACY_GENERATED_EXTENSION], row["generated"])
+        self.assertIn("No human review is recorded.", projected_text)
+        self.assertEqual(projected_text.split("\n---\n", 1)[1], source_body)
+        self.assertEqual(projected["@id"], row["@id"])
+        self.assertEqual(projected["sources"], row["sources"])
+
+        with self.assertRaisesRegex(ValueError, "Unrecognised non-conformant generated.by"):
+            BUILD.migrate_generated({"generated": {"by": "unknown legacy actor"}})
+
+    def test_core03_generated_metadata_is_optional(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            row, path, snapshot = fixture(root)
+            row.pop("generated")
+            model.write_markdown(path, row, "# Metadata without a generator assertion")
+            output = root / "generated"
+            with mock.patch.object(BUILD, "ROOT", root):
+                coverage = BUILD.build(root, output, REVISION)
+            self.assertEqual(coverage["recordCount"], 1)
+            bundle = json.loads((output / "okf-bundle.json").read_text())
+            self.assertEqual(bundle["okf_version"], "0.3")
+            self.assertEqual(bundle["okfVersion"], "0.3")
+            self.assertNotIn("generated", bundle["records"][0])
+            graph = json.loads((output / "okf-bundle.jsonld").read_text())
+            self.assertEqual(graph["okf_version"], "0.3")
+            descriptor = json.loads((output / "okf.json").read_text())
+            self.assertEqual(descriptor["okf_version"], "0.3")
+
+    def test_new_imports_use_the_canonical_process_actor(self):
+        row = model.record("synthetic", "synthetic-2", "Synthetic", "Synthetic only.",
+                           "https://example.org/synthetic", {"resource": SOURCE_URL})
+        self.assertEqual(row["generated"]["by"],
+                         "process:gis-ai-go-okf-plus-source-producer")
+        self.assertTrue(BUILD.valid_actor("agent:legacy-cataloguer"))
 
     def test_missing_required_schemas_fail_before_record_reads_or_publication(self):
         for missing in (*SCHEMA_NAMES, "all"):

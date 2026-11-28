@@ -17,19 +17,22 @@ import re
 import unicodedata
 
 try:
+    from .build import migrate_generated, source_path
     from .context_projection import _validate_pair, canonical, sha, token_bucket
-    from .model import load_json, safe_reference
+    from .model import digest, load_json, parse_markdown, safe_reference
     from .explorer_facets import FACET_DEFINITIONS, facet_values, presentation_facets
     from .explorer_relationships import project_relationships
     from .explorer_resources import project_resources
 except ImportError:
+    from build import migrate_generated, source_path
     from context_projection import _validate_pair, canonical, sha, token_bucket
-    from model import load_json, safe_reference
+    from model import digest, load_json, parse_markdown, safe_reference
     from explorer_facets import FACET_DEFINITIONS, facet_values, presentation_facets
     from explorer_relationships import project_relationships
     from explorer_resources import project_resources
 
 MARKER = 'gis-ai-go.okf-plus-explorer-projection.v1\n'
+ROOT = Path(__file__).resolve().parents[2]
 RECORD_CHUNK_SIZE = 32
 RESULT_CHUNK_SIZE = 256
 MAX_SHARD_BYTES = 4 * 1024 * 1024
@@ -376,10 +379,39 @@ def _discovery_indexes(rows, datasets, facets, record_facets, resources, publish
     return chunks, analysis_ref, facet_coverage, resource_ref
 
 
-def project(search, bundle, context, *, captured_at):
+def locked_retained_record_reader(root, lock, bundle):
+    """Bind relationship citations to the exact retained Markdown inputs."""
+    inputs = lock['inputs']
+    if (lock['revision'] != bundle['revision'] or lock['sha256'] != bundle['inputDigest']
+            or digest(inputs) != lock['sha256']):
+        raise ValueError('Retained source lock does not bind the bundle inputs')
+    checksums = {entry['path']: entry['sha256'] for entry in inputs}
+    if len(checksums) != len(inputs):
+        raise ValueError('Duplicate path in the retained source lock')
+
+    def load_record(route, projected):
+        relative = 'okf-plus/' + route
+        path = source_path(root, relative)
+        raw = path.read_bytes()
+        if checksums.get(relative) != sha(raw):
+            raise ValueError('Retained relationship source bytes differ from the input lock')
+        authored, _ = parse_markdown(raw.decode('utf-8'), relative)
+        if migrate_generated(deepcopy(authored)) != projected:
+            raise ValueError('Projected relationship metadata differs from the retained source mapping')
+        return authored
+
+    return load_record
+
+
+def project(search, bundle, context, *, captured_at, retained_record=None):
     if not re.fullmatch(r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z', captured_at):
         raise ValueError('Explicit UTC capture timestamp is required')
     datetime.fromisoformat(captured_at.replace('Z', '+00:00'))
+    current_core = bundle.get('okf_version')
+    compatibility_core = bundle.get('okfVersion')
+    if current_core is not None and compatibility_core is not None and current_core != compatibility_core:
+        raise ValueError('Bundle Core version declarations differ')
+    declared_core = current_core if current_core is not None else compatibility_core
     rows, semantic = _validate_pair(search, bundle)
     if len({row['route'] for row in rows}) != len(rows):
         raise ValueError('Every semantic record requires a unique Reader route')
@@ -388,7 +420,7 @@ def project(search, bundle, context, *, captured_at):
     record_facets = {row['id']: facet_values(semantic[row['id']]) for row in rows}
     resources, publishers, record_resources, resource_coverage = project_resources(rows, semantic)
     relationships, relationship_coverage = project_relationships(
-        rows, semantic, captured_at=captured_at, source_revision=bundle['revision'])
+        rows, semantic, captured_at=captured_at, source_revision=bundle['revision'], retained_record=retained_record)
     datasets = []
     for row in rows:
         parent = semantic[row['id']]
@@ -479,6 +511,8 @@ def project(search, bundle, context, *, captured_at):
                        'okf-explorer-presentation.v1': {'schema': 'okf-explorer-presentation.v1',
                          'status': 'stable', 'snapshot': snapshot, 'defaults': {'facet_mode': 'suggested'},
                          'facets': presentation_facets()}}}
+    if declared_core is not None:
+        descriptor['okf_version'] = declared_core
     learning = learning_presentation(rows, semantic)
     if learning:
         descriptor['learning_presentation'] = learning
@@ -524,8 +558,13 @@ def main():
             raise ValueError('Symlink context input forbidden')
         if path.is_file() and not path.name.startswith('.'):
             context[path.relative_to(root).as_posix()] = path.read_bytes()
-    outputs, report = project(load_json(args.search_index.read_text()), load_json(args.bundle.read_text()),
-                              context, captured_at=args.captured_at)
+    bundle = load_json(args.bundle.read_text())
+    retained_record = None
+    if bundle.get('okf_version', bundle.get('okfVersion')) == '0.3':
+        lock = load_json(args.bundle.with_name('source-lock.json').read_text())
+        retained_record = locked_retained_record_reader(ROOT, lock, bundle)
+    outputs, report = project(load_json(args.search_index.read_text()), bundle,
+                              context, captured_at=args.captured_at, retained_record=retained_record)
     install(outputs, args.output)
     print(json.dumps({key: report[key] for key in ('snapshot', 'readerRecords', 'learningPaths', 'maximumRecordShardBytes')}))
 

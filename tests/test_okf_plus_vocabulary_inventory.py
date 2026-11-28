@@ -5,6 +5,7 @@ from pathlib import Path
 import unittest
 
 import jsonschema
+from scripts.okf_plus.build import migrate_generated
 from scripts.okf_plus.model import read_markdown
 from scripts.okf_plus.vocabulary_inventory import record_nodes, schema_constraints, schema_roots
 
@@ -78,7 +79,8 @@ class AuthoredVocabularyTests(unittest.TestCase):
         cls.lexical = json.loads((ROOT / 'okf-plus/schemas/lexical-form.schema.json').read_text())
 
     def test_records_sources_and_qualified_forms(self):
-        record_schema = json.loads((ROOT / 'okf-plus/schemas/record.schema.json').read_text())
+        validator = jsonschema.Draft202012Validator(json.loads(
+            (ROOT / 'okf-plus/schemas/record.schema.json').read_text()))
         source_ids = {source['id'] for source in self.registry['sources']}
         term_ids, record_ids = set(), set()
         for term in self.registry['terms']:
@@ -89,7 +91,7 @@ class AuthoredVocabularyTests(unittest.TestCase):
             self.assertTrue(set(term['sourceRefs']) <= source_ids)
             row, body = read_markdown(ROOT / term['recordFile'])
             self.assertEqual(row['@id'], term['recordId'])
-            jsonschema.Draft202012Validator(record_schema).validate(row)
+            validator.validate(migrate_generated(copy.deepcopy(row)))
             for form in row.get('okfp:lexicalForm', []):
                 jsonschema.Draft202012Validator(self.lexical).validate(form)
                 self.assertIn(form['rdf:value']['@value'], body)
