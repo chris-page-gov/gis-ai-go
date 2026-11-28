@@ -47,6 +47,8 @@ def _bundle_binding(bundle: Path) -> dict:
         raise ValueError("Generated Explorer descriptor does not declare Core 0.3")
     if coverage.get("recordCount") != 30876:
         raise ValueError("Unexpected retained record denominator")
+    if lock.get("revision") != coverage.get("revision"):
+        raise ValueError("Bundle source lock and coverage revisions differ")
     if lock.get("sha256") != coverage.get("inputDigest"):
         raise ValueError("Bundle source lock and coverage digest differ")
     with (bundle / "okf-bundle.json").open("rb") as handle:
@@ -54,8 +56,6 @@ def _bundle_binding(bundle: Path) -> dict:
     for field in ("okf_version", "okfVersion"):
         if not re.search(rf'"{field}"\s*:\s*"0\.3"', prefix):
             raise ValueError(f"Generated large bundle omits {field} Core 0.3 declaration")
-    if not re.search(rf'"revision"\s*:\s*"{re.escape(coverage["revision"])}"', prefix):
-        raise ValueError("Generated bundle revision differs from coverage")
     checksums = model.load_json((bundle / "checksums.json").read_text(encoding="utf-8"))
     for name, digest in checksums.items():
         if sha((bundle / name).read_bytes()) != digest:
