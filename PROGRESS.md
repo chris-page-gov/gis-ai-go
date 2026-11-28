@@ -21,13 +21,18 @@ Core 0.3 record schema and a field/body parity check. The durable checkpoint is
 and Markdown output are under
 `/Volumes/ExtSSD-Data/codex-okf-gis-core03-20261128/`.
 
-The bundle was not rebuilt after local commit `8d3eef83…`, which fixes the
-standalone Markdown projector's revision preflight. The bundle therefore
-remains an exact output for `e435599…`; its source-lock digest does not bind the
-later helper bytes. Before a future integrated build, rerun the bundle from the
-final candidate revision. The public Core 0.2 output, CI, Pages, release and
-registration were not changed. The actual Reader/context integration and its
-browser acceptance remain separate gates.
+The Reader projection now copies the bundle's Core version into the generated
+Reader descriptor and rejects conflicting declarations. Its 10 focused tests
+pass. This remains local code; whole-corpus Reader/context execution and browser
+acceptance are outstanding.
+
+The bundle was not rebuilt after `e435599…`. Later local commits fixed the
+standalone Markdown projector's revision preflight (`8d3eef83…`) and added the
+Reader descriptor version (`0f34204d…`). The bundle and source lock therefore
+remain an exact output for `e435599…`; their input digest does not bind those
+later script bytes. Before any future integrated build, rerun the bundle from
+the final candidate revision. The public Core 0.2 output, CI, Pages, release and
+registration were not changed.
 
 ## Gateway image maintenance — 23 November 2026
 
