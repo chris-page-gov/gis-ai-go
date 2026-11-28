@@ -380,6 +380,11 @@ def project(search, bundle, context, *, captured_at):
     if not re.fullmatch(r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z', captured_at):
         raise ValueError('Explicit UTC capture timestamp is required')
     datetime.fromisoformat(captured_at.replace('Z', '+00:00'))
+    current_core = bundle.get('okf_version')
+    compatibility_core = bundle.get('okfVersion')
+    if current_core is not None and compatibility_core is not None and current_core != compatibility_core:
+        raise ValueError('Bundle Core version declarations differ')
+    declared_core = current_core if current_core is not None else compatibility_core
     rows, semantic = _validate_pair(search, bundle)
     if len({row['route'] for row in rows}) != len(rows):
         raise ValueError('Every semantic record requires a unique Reader route')
@@ -479,6 +484,8 @@ def project(search, bundle, context, *, captured_at):
                        'okf-explorer-presentation.v1': {'schema': 'okf-explorer-presentation.v1',
                          'status': 'stable', 'snapshot': snapshot, 'defaults': {'facet_mode': 'suggested'},
                          'facets': presentation_facets()}}}
+    if declared_core is not None:
+        descriptor['okf_version'] = declared_core
     learning = learning_presentation(rows, semantic)
     if learning:
         descriptor['learning_presentation'] = learning

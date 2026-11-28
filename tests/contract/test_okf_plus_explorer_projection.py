@@ -17,6 +17,16 @@ def inputs(count=41):
 
 
 class ExplorerProjectionTests(unittest.TestCase):
+    def test_reader_uses_the_declared_bundle_core_version(self):
+        search, bundle = fixture(3)
+        bundle['okf_version'] = bundle['okfVersion'] = '0.3'
+        context, _ = context_project(search, bundle, base_url=BASE, captured_at=CAPTURED)
+        outputs, _ = project(search, bundle, context, captured_at=CAPTURED)
+        self.assertEqual(json.loads(outputs['okf-explorer.json'])['okf_version'], '0.3')
+        bundle['okfVersion'] = '0.2'
+        with self.assertRaisesRegex(ValueError, 'Core version declarations differ'):
+            project(search, bundle, context, captured_at=CAPTURED)
+
     def test_record_source_reference_locators_select_only_the_requested_record(self):
         search, bundle, context = inputs(41)
         outputs, _ = project(search, bundle, context, captured_at=CAPTURED)
