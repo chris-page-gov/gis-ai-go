@@ -1,5 +1,34 @@
 # Current progress
 
+## OKF+ Core 0.3 projection candidate — 28 November 2026
+
+An isolated, local candidate starts from public producer main
+`b064a93f0675f157a93a0a8845c3c0aa8396c307`. The authored `okf-plus/` source
+root remains Core 0.2 and its record/source files are unchanged. The semantic
+contract identifies a separate Core 0.3 output. Candidate bundle commit
+`e4355997337233994219bc074ec1a30b67d4e1d2` built 30,876 records offline;
+`okf.json`, `okf-bundle.json` and its JSON-LD catalogue root declare
+`okf_version: 0.3`. The exact source-lock input digest is
+`6992b5a37a7e0e5c4e11f0c40145862836eb6d1cbe7c79e71c8b6f138c15cc46`.
+
+The separate SSD Markdown projection retains 30,876 IDs, source bindings and
+record bodies. It maps the 30,833 legacy generator labels confirmed in producer
+code to `process:gis-ai-go-okf-plus-source-producer`; it retains the other 43
+authored generator mappings verbatim as `x-gis-ai-go-legacy-generated` and does
+not infer a human or verification event. Each output record passed the local
+Core 0.3 record schema and a field/body parity check. The durable checkpoint is
+`/Users/crpage/tmp/gis-core03-candidate-20261128/checkpoint.json`; the bundle
+and Markdown output are under
+`/Volumes/ExtSSD-Data/codex-okf-gis-core03-20261128/`.
+
+The bundle was not rebuilt after local commit `8d3eef83…`, which fixes the
+standalone Markdown projector's revision preflight. The bundle therefore
+remains an exact output for `e435599…`; its source-lock digest does not bind the
+later helper bytes. Before a future integrated build, rerun the bundle from the
+final candidate revision. The public Core 0.2 output, CI, Pages, release and
+registration were not changed. The actual Reader/context integration and its
+browser acceptance remain separate gates.
+
 ## Gateway image maintenance — 23 November 2026
 
 The image candidate now pins Node.js 24.22.3 and recognises only the exact
