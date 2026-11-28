@@ -31,7 +31,9 @@ CTX={'@version':1.1,**PREFIXES,
  'title':'dcterms:title','description':'dcterms:description','type':'okfp:recordType',
  'tags':'dcat:keyword','resource':{'@id':'dcat:landingPage','@type':'@id'},
  'nativeIdentifier':'dcterms:identifier','sourceFamily':'okfp:sourceFamily',
- 'status':'okfp:lifecycleStatus','generated':{'@id':'okfp:generated','@type':'@json'},'assertionStatus':'okfp:assertionStatus',
+ 'status':'okfp:lifecycleStatus','generated':{'@id':'okfp:generated','@type':'@json'},
+ 'x-gis-ai-go-legacy-generated':{'@id':'okfp:legacyGenerated','@type':'@json'},
+ 'assertionStatus':'okfp:assertionStatus',
  'reviewStatus':'okfp:reviewStatus','okf_version':'okfp:coreVersion',
  **{k:{'@id':'okfp:'+k,'@type':'@json'} for k in JSON_KEYS}}
 
@@ -75,7 +77,7 @@ FREQUENCIES={'annual':'A','annually':'A','yearly':'A','quarterly':'Q','monthly':
 
 def record(family,native,title,description,resource,source,kind='Dataset',details=None):
     typ={'Dataset':'dcat:Dataset','Collection':'dcat:Dataset','Documentation':'dcterms:BibliographicResource','Concept':'skos:Concept','SourceFamily':'dcat:Catalog','Specification':'dcterms:Standard','DataService':'dcat:DataService'}[kind]
-    return {'@context':CONTEXT,'@id':identifier(family,native),'@type':[typ,'okfp:MetadataRecord'],'type':kind,'title':title,'description':description,'nativeIdentifier':str(native),'sourceFamily':family,'resource':resource,'status':'draft','generated':{'by':'gis-ai-go OKF+ source producer'},'okfp:machineImported':kind not in ('Concept','SourceFamily'),'assertionStatus':'normalised','reviewStatus':'not-human-reviewed','tags':[],'sources':[source],
+    return {'@context':CONTEXT,'@id':identifier(family,native),'@type':[typ,'okfp:MetadataRecord'],'type':kind,'title':title,'description':description,'nativeIdentifier':str(native),'sourceFamily':family,'resource':resource,'status':'draft','generated':{'by':'process:gis-ai-go-okf-plus-source-producer'},'okfp:machineImported':kind not in ('Concept','SourceFamily'),'assertionStatus':'normalised','reviewStatus':'not-human-reviewed','tags':[],'sources':[source],
         'prov:wasDerivedFrom':ref(resource),
         'dcterms:conformsTo':ref(PROFILE),
         'temporal':{'status':'not-evidenced' if kind in ('Dataset','Collection') else 'not-applicable','kind':'dataset-reference-period','start':None,'end':None,'sourceField':None,'note':'No supported reference-period extent in captured metadata; release and catalogue dates are separate.' if kind in ('Dataset','Collection') else 'Dataset reference-period extent is not applicable to this record type.'},

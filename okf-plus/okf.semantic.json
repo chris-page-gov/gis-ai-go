@@ -1,6 +1,7 @@
 {
   "schema": "gis-ai-go.okf-plus-semantic.v1",
   "okfVersion": "0.2",
+  "projectionCoreVersion": "0.3",
   "profile": "https://chris-page-gov.github.io/gis-ai-go/okf-plus/profile/v1",
   "profileStatus": "candidate",
   "authoredInputs": [
@@ -16,7 +17,7 @@
   ],
   "buildCommand": "python3 scripts/okf_plus/build.py",
   "importCommand": "python3 scripts/okf_plus/import_sources.py",
-  "sourceBoundary": "Capture snapshots retain factual public metadata; the explicit importer produces reviewable Markdown/YAML-LD. The offline builder consumes that Markdown. Changes to imported records must be made in the mapping or a separately authored concept, not silently overwritten by a refresh.",
+  "sourceBoundary": "Capture snapshots retain factual public metadata; the explicit importer produces reviewable Markdown/YAML-LD against Core 0.2. The offline builder emits a separate Core 0.3 projection. Changes to imported records must be made in the mapping or a separately authored concept, not silently overwritten by a refresh. Core 0.3 projection maps only the explicit automated source-producer label to process:gis-ai-go-okf-plus-source-producer. Unattributed authored generator labels are retained verbatim under x-gis-ai-go-legacy-generated and omitted from generated.by; this does not claim human review.",
   "consumerBoundary": "Additive GIS profile; canonical Bundle Wiki and installed Ask OKF conformance are not claimed.",
   "limitations": [
     "Metadata discovery does not authorise provider invocation.",

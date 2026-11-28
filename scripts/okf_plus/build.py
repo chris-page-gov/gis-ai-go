@@ -18,6 +18,41 @@ from term_discovery import build_discovery
 
 ROOT=Path(__file__).resolve().parents[2]
 MARKER='gis-ai-go-okf-plus-build.v1\n'
+CORE_VERSION='0.3'
+LEGACY_GENERATED_EXTENSION='x-gis-ai-go-legacy-generated'
+LEGACY_AUTOMATED_GENERATORS={
+    'gis-ai-go OKF+ source producer': 'process:gis-ai-go-okf-plus-source-producer',
+}
+LEGACY_UNATTRIBUTED_GENERATORS={
+    'gis-ai-go authored vocabulary research',
+    'gis-ai-go authored learning-path metadata',
+    'gis-ai-go authored module documentation',
+}
+
+def migrate_generated(row):
+    """Project known legacy generator labels into honest Core 0.3 metadata."""
+    if 'generated' not in row:
+        return row
+    generated=row['generated']
+    if not isinstance(generated,dict) or not isinstance(generated.get('by'),str):
+        raise ValueError('Invalid legacy generation metadata')
+    actor=generated['by']
+    if actor in LEGACY_AUTOMATED_GENERATORS:
+        row['generated']={**generated,'by':LEGACY_AUTOMATED_GENERATORS[actor]}
+        return row
+    if actor in LEGACY_UNATTRIBUTED_GENERATORS:
+        if LEGACY_GENERATED_EXTENSION in row:
+            raise ValueError('Legacy generation metadata extension already exists')
+        row[LEGACY_GENERATED_EXTENSION]=generated
+        del row['generated']
+        return row
+    if not valid_actor(actor):
+        raise ValueError('Unrecognised non-conformant generated.by actor')
+    return row
+
+def valid_actor(actor):
+    """Accept the Core actor scheme:id form and legacy producer/version form."""
+    return bool(re.fullmatch(r'[A-Za-z][A-Za-z0-9+.-]*:[^\s]+|[^/\s:]+/[^/\s]+',actor))
 
 def source_path(root,relative):
     path=root/relative
@@ -51,10 +86,15 @@ def schema_validator(root,name):
     return Draft202012Validator(schema)
 
 def validate_record(row,path,source_cache):
-    needed={'@context','@id','@type','type','title','description','nativeIdentifier','sourceFamily','resource','status','generated','assertionStatus','reviewStatus','tags','sources','temporal','update','rights','limitations','details'}
+    needed={'@context','@id','@type','type','title','description','nativeIdentifier','sourceFamily','resource','status','assertionStatus','reviewStatus','tags','sources','temporal','update','rights','limitations','details'}
     if not needed<=row.keys():raise ValueError(f'Missing record fields in {path}: {needed-row.keys()}')
     if row['@context']!=CONTEXT or 'okf_version' in row:raise ValueError('Unknown context or non-root core version')
-    if row['status'] not in ('draft','stable','deprecated') or not isinstance(row['generated'],dict) or not isinstance(row['generated'].get('by'),str):raise ValueError('Invalid OKF lifecycle/generation fields')
+    generated=row.get('generated')
+    if (row['status'] not in ('draft','stable','deprecated') or
+        (generated is not None and (not isinstance(generated,dict) or
+         not isinstance(generated.get('by'),str) or
+         not valid_actor(generated['by'])))):
+        raise ValueError('Invalid OKF lifecycle/generation fields')
     if not row['@id'].startswith(BASE+'id/'):raise ValueError('Record identity outside module')
     if row['assertionStatus'] not in ('official','normalised','inferred','model-derived'):raise ValueError('Unknown assertion status')
     if not row['sources']:raise ValueError('Missing provenance')
@@ -155,7 +195,7 @@ def _build_into(root,output,revision):
     lexical_check=schema_validator(root,'lexical-form.schema.json')
     for path in sorted((root/'okf-plus/records').rglob('*.md')):
         source_path(root,path.relative_to(root))
-        row,body=read_markdown(path);validate_record(row,path,source_cache)
+        row,body=read_markdown(path);row=migrate_generated(row);validate_record(row,path,source_cache)
         record_check.validate(row)
         if 'okfp:lexicalForm' in row:
             if not isinstance(row['okfp:lexicalForm'],list):
@@ -198,14 +238,14 @@ def _build_into(root,output,revision):
     write_json(output/'vocabulary-usage.json',vocabulary)
     write_json(output/'term-discovery.json',term_discovery)
     write_json(output/'context.jsonld',{'@context':CTX})
-    write_json(output/'okf-bundle.jsonld',{'@context':CTX,'@id':BASE+'bundle','@type':'dcat:Catalog','dcterms:title':'OS and ONS geospatial OKF+','@graph':records})
-    write_json(output/'okf-bundle.json',{'schema':'gis-ai-go.okf-plus-bundle.v1','okfVersion':'0.2','profile':PROFILE,'profileStatus':'candidate-pending-consumer-acceptance','revision':revision,'inputDigest':input_digest,'recordCount':len(records),'records':records})
+    write_json(output/'okf-bundle.jsonld',{'@context':CTX,'@id':BASE+'bundle','@type':'dcat:Catalog','okf_version':CORE_VERSION,'dcterms:title':'OS and ONS geospatial OKF+','@graph':records})
+    write_json(output/'okf-bundle.json',{'schema':'gis-ai-go.okf-plus-bundle.v1','okf_version':CORE_VERSION,'okfVersion':CORE_VERSION,'profile':PROFILE,'profileStatus':'candidate-pending-consumer-acceptance','revision':revision,'inputDigest':input_digest,'recordCount':len(records),'records':records})
     index={'schema':'gis-ai-go.okf-plus-search-index.v1','revision':revision,'inputDigest':input_digest,'records':search}
     index_check.validate(index)
     write_json(output/'search-index.json',index)
     write_json(output/'coverage.json',coverage)
     write_json(output/'source-lock.json',{'schema':'gis-ai-go.okf-plus-source-lock.v1','revision':revision,'inputs':inputs,'sha256':input_digest})
-    write_json(output/'okf.json',{'okf_version':'0.2','title':'OS and ONS geospatial OKF+','description':'Metadata/schema discovery with provenance, date ranges, update routes and measured gaps.','profile':PROFILE,'profile_status':'candidate','entrypoints':{'bundle':'okf-bundle.json','jsonld':'okf-bundle.jsonld','search':'search-index.json','coverage':'coverage.json','vocabularyUsage':'vocabulary-usage.json','termDiscovery':'term-discovery.json'},'limitations':['Installed Ask OKF currently allowlists DWP only; this descriptor does not register the new bundle.']})
+    write_json(output/'okf.json',{'okf_version':CORE_VERSION,'title':'OS and ONS geospatial OKF+','description':'Metadata/schema discovery with provenance, date ranges, update routes and measured gaps.','profile':PROFILE,'profile_status':'candidate','entrypoints':{'bundle':'okf-bundle.json','jsonld':'okf-bundle.jsonld','search':'search-index.json','coverage':'coverage.json','vocabularyUsage':'vocabulary-usage.json','termDiscovery':'term-discovery.json'},'limitations':['Installed Ask OKF currently allowlists DWP only; this descriptor does not register the new bundle.']})
     lines=['# OS and ONS OKF+ coverage','',f'Revision: `{revision}`. Input digest: `{input_digest}`.','',f'{len(records):,} Markdown/YAML-LD records. Global completeness is **not established**.','', '| Source family | Unit | Retained | Reported denominator | Catalogue traversal |','| --- | --- | ---: | ---: | --- |']
     for c in coverage['catalogues']:lines.append(f"| {c['family']} | {c['unit']} | {c['retrievedUnique']} | {c.get('reportedTotal','unknown')} | {'complete within stated lane' if c.get('catalogueComplete') else 'partial'} |")
     lines+=['','Actual predicate, class, object and datatype references are counted separately in `vocabulary-usage.json`. Namespace declarations and opaque JSON are excluded; unused terms stay visible. Usage is not semantic certification.']
