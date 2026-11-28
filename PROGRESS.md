@@ -1,38 +1,21 @@
 # Current progress
 
-## OKF+ Core 0.3 projection candidate — 28 November 2026
+## OKF+ Core 0.3 projection — 28 November 2026
 
-An isolated, local candidate starts from public producer main
-`b064a93f0675f157a93a0a8845c3c0aa8396c307`. The authored `okf-plus/` source
-root remains Core 0.2 and its record/source files are unchanged. The semantic
-contract identifies a separate Core 0.3 output. Candidate bundle commit
-`e4355997337233994219bc074ec1a30b67d4e1d2` built 30,876 records offline;
-`okf.json`, `okf-bundle.json` and its JSON-LD catalogue root declare
-`okf_version: 0.3`. The exact source-lock input digest is
-`6992b5a37a7e0e5c4e11f0c40145862836eb6d1cbe7c79e71c8b6f138c15cc46`.
+The retained `okf-plus/` authoring root declares Core 0.2. The separate
+generated bundle, Markdown projection and Reader descriptor declare Core 0.3.
+The projection keeps the original metadata sources, identities and record
+bodies. It uses a process identifier for the generator evidenced by the
+producer code and preserves the remaining generator strings as an extension.
 
-The separate SSD Markdown projection retains 30,876 IDs, source bindings and
-record bodies. It maps the 30,833 legacy generator labels confirmed in producer
-code to `process:gis-ai-go-okf-plus-source-producer`; it retains the other 43
-authored generator mappings verbatim as `x-gis-ai-go-legacy-generated` and does
-not infer a human or verification event. Each output record passed the local
-Core 0.3 record schema and a field/body parity check. The durable checkpoint is
-`/Users/crpage/tmp/gis-core03-candidate-20261128/checkpoint.json`; the bundle
-and Markdown output are under
-`/Volumes/ExtSSD-Data/codex-okf-gis-core03-20261128/`.
+Local checks covered all 30,876 record routes and 137 graph relationships. The
+Reader now binds graph citation hashes to the original Markdown from the input
+lock. The LIDS walkthrough passed in Chrome at desktop and phone widths, and
+the offline context engine retrieved its evidence and returned insufficient
+evidence for the live-observation question.
 
-The Reader projection now copies the bundle's Core version into the generated
-Reader descriptor and rejects conflicting declarations. Its 10 focused tests
-pass. This remains local code; whole-corpus Reader/context execution and browser
-acceptance are outstanding.
-
-The bundle was not rebuilt after `e435599…`. Later local commits fixed the
-standalone Markdown projector's revision preflight (`8d3eef83…`) and added the
-Reader descriptor version (`0f34204d…`). The bundle and source lock therefore
-remain an exact output for `e435599…`; their input digest does not bind those
-later script bytes. Before any future integrated build, rerun the bundle from
-the final candidate revision. The public Core 0.2 output, CI, Pages, release and
-registration were not changed.
+The protected workflow builds, records and attests the exact merged revision.
+Manual Pages selection and public read-back apply to that immutable archive.
 
 ## Gateway image maintenance — 23 November 2026
 
