@@ -326,6 +326,9 @@ def map_record(family,item,source):
     else:
         url=item.get('url',source['resource']);row=record(family,nid,title,description or 'Official source metadata.',url,source,details=item)
     row['update']['releaseCatalogue']=[u for u in row['update']['releaseCatalogue'] if u]
+    # Reproduce the retained Core 0.2 Markdown byte-for-byte. The separate
+    # Core 0.3 builder maps this historical label to the process actor.
+    row['generated']['by']='gis-ai-go OKF+ source producer'
     # Record body avoids raw HTML and executable links; source structure stays JSON.
     row['description']=row['description'][:3000]
     return row

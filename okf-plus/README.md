@@ -63,10 +63,11 @@ offline Core 0.3 bundle and Markdown projections map the exact
 that value. Three other authored labels do not identify a supported actor:
 vocabulary research, learning-path metadata and module documentation. The
 projection carries each complete original `generated` mapping in
-`x-gis-ai-go-legacy-generated` and omit `generated.by` for those records. They
-do not infer a human actor, machine actor or verification event. Unknown
+`x-gis-ai-go-legacy-generated` and omits `generated.by` for those records.
+These projections carry no inferred human actor, machine actor or verification event. Unknown
 non-conformant labels stop projection for review. The source root and historical
-Core 0.2 projections remain separate from this generated successor.
+Core 0.2 projections remain separate from this generated successor. The source
+importer still reproduces the historical label in the retained Markdown.
 
 ## Private OS recovery and transient processing
 
