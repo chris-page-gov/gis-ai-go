@@ -12,9 +12,14 @@ from collections import Counter
 from datetime import date, datetime
 from pathlib import Path
 from urllib.parse import urlparse
-from model import BASE, CONTEXT, CTX, PREFIXES, PROFILE, apply_temporal, canonical, digest, load_json, read_markdown, safe_reference
-from vocabulary_usage import vocabulary_usage
-from term_discovery import build_discovery
+try:
+    from .model import BASE, CONTEXT, CTX, PREFIXES, PROFILE, apply_temporal, canonical, digest, load_json, read_markdown, safe_reference
+    from .vocabulary_usage import vocabulary_usage
+    from .term_discovery import build_discovery
+except ImportError:
+    from model import BASE, CONTEXT, CTX, PREFIXES, PROFILE, apply_temporal, canonical, digest, load_json, read_markdown, safe_reference
+    from vocabulary_usage import vocabulary_usage
+    from term_discovery import build_discovery
 
 ROOT=Path(__file__).resolve().parents[2]
 MARKER='gis-ai-go-okf-plus-build.v1\n'

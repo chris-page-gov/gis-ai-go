@@ -53,8 +53,11 @@ def load_json(text):
     return json.loads(text,object_pairs_hook=duplicate_guard,parse_constant=reject)
 
 def read_markdown(path):
-    text=path.read_text(encoding='utf-8')
-    if not text.startswith('---\n'):raise ValueError('Missing front matter: '+str(path))
+    return parse_markdown(path.read_text(encoding='utf-8'), path)
+
+def parse_markdown(text, source):
+    text = text.replace('\r\n', '\n').replace('\r', '\n')
+    if not text.startswith('---\n'):raise ValueError('Missing front matter: '+str(source))
     parts=text.split('\n---\n',1)
     if len(parts)!=2:raise ValueError('Unterminated front matter')
     return load_json(parts[0][4:]),parts[1]

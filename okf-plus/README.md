@@ -52,6 +52,10 @@ statistical payloads are excluded from public records.
 
 ## Core 0.3 projection actor migration
 
+Reader relationship citations bind their source hashes to the exact retained
+Markdown listed in the bundle's input lock. The Reader displays the separate
+Core 0.3 metadata projection and preserves each original relationship value.
+
 The Core 0.2 source records retain their original `generated.by` text. The
 offline Core 0.3 bundle and Markdown projections map the exact
 `gis-ai-go OKF+ source producer` label to
